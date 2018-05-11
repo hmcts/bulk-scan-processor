@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,5 +25,6 @@ public class GetWelcomeTest {
         MvcResult response = mockMvc.perform(get("/")).andExpect(status().isOk()).andReturn();
 
         assertThat(response.getResponse().getContentAsString()).startsWith("Welcome");
+        assertThat(response.getResponse().getStatus()).isEqualTo(OK.value());
     }
 }
