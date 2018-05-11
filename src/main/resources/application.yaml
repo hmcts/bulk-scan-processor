@@ -1,0 +1,11 @@
+server:
+  port: 8581
+
+management:
+  endpoints:
+    web:
+      base-path: /
+
+spring:
+  application:
+    name: Bulk Scanning
