@@ -151,6 +151,8 @@ dependencyManagement {
 }
 
 dependencies {
+  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '4.2.0'
+
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: versions.springBoot
