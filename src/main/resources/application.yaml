@@ -13,3 +13,4 @@ spring:
 storage:
   account_name: ${STORAGE_ACCOUNT_NAME}
   key: ${STORAGE_KEY}
+  container_name: ${STORAGE_CONTAINER_NAME:incoming}
