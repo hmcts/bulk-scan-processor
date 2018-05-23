@@ -9,3 +9,7 @@ management:
 spring:
   application:
     name: Bulk Scanning
+
+storage:
+  account_name: ${STORAGE_ACCOUNT_NAME}
+  key: ${STORAGE_KEY}
