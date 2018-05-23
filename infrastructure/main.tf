@@ -46,8 +46,8 @@ resource "azurerm_storage_account" "provider" {
   account_replication_type = "LRS"
 }
 
-resource "azurerm_storage_container" "scans" {
-  name                  = "scans"
+resource "azurerm_storage_container" "incoming" {
+  name                  = "incoming"
   resource_group_name   = "${azurerm_resource_group.rg.name}"
   storage_account_name  = "${azurerm_storage_account.provider.name}"
   container_access_type = "private"
