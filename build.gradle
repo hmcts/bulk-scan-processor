@@ -180,7 +180,7 @@ dependencies {
 mainClassName = 'uk.gov.hmcts.reform.bulkscanning.Application'
 
 bootJar {
-  archiveName = 'spring-boot-template.jar'
+  archiveName = 'bulk-scanning.jar'
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
