@@ -177,7 +177,7 @@ dependencies {
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
 }
 
-mainClassName = 'uk.gov.hmcts.reform.demo.Application'
+mainClassName = 'uk.gov.hmcts.reform.bulkscanning.Application'
 
 bootJar {
   archiveName = 'spring-boot-template.jar'
