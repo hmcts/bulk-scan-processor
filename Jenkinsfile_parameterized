@@ -3,7 +3,7 @@
 
 properties([
   parameters([
-    string(name: 'PRODUCT_NAME', defaultValue: 'bulk-scanning', description: ''),
+    string(name: 'PRODUCT_NAME', defaultValue: 'rpe', description: ''),
     string(name: 'APP', defaultValue: 'bulk-scanning', description: ''),
     string(name: 'TYPE', defaultValue: 'java', description: ''),
     string(name: 'ENVIRONMENT', defaultValue: 'sandbox', description: 'Environment where code should be built and deployed'),
