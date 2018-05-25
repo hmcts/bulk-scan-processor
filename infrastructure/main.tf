@@ -20,7 +20,11 @@ module "backend" {
 
   asp_name = "bulk-scanning"
 
-  app_settings = {}
+  app_settings = {
+    STORAGE_ACCOUNT_NAME   = "${azurerm_storage_account.provider.name}"
+    STORAGE_KEY            = "${azurerm_storage_account.provider.primary_access_key}"
+    STORAGE_CONTAINER_NAME = "${azurerm_storage_container.incoming.name}"
+  }
 }
 
 module "key-vault" {
