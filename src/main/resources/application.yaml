@@ -9,3 +9,13 @@ management:
 spring:
   application:
     name: Bulk Scanning
+
+info:
+  app:
+    name: Bulk Scanning
+    description: Ingest scanned documents.
+
+storage:
+  account_name: ${STORAGE_ACCOUNT_NAME}
+  key: ${STORAGE_KEY}
+  container_name: ${STORAGE_CONTAINER_NAME:incoming}

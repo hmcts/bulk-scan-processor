@@ -151,6 +151,8 @@ dependencyManagement {
 }
 
 dependencies {
+  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '7.0.0'
+
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: versions.springBoot
@@ -171,12 +173,14 @@ dependencies {
   functionalTestCompile sourceSets.main.runtimeClasspath
 
   smokeTestCompile sourceSets.main.runtimeClasspath
+  smokeTestCompile sourceSets.test.runtimeClasspath
+  smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
 }
 
-mainClassName = 'uk.gov.hmcts.reform.demo.Application'
+mainClassName = 'uk.gov.hmcts.reform.bulkscanning.Application'
 
 bootJar {
-  archiveName = 'spring-boot-template.jar'
+  archiveName = 'bulk-scanning.jar'
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
