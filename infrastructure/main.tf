@@ -18,8 +18,6 @@ module "backend" {
   is_frontend  = false
   capacity     = "${var.capacity}"
 
-  asp_name = "bulk-scanning"
-
   app_settings = {
     STORAGE_ACCOUNT_NAME   = "${azurerm_storage_account.provider.name}"
     STORAGE_KEY            = "${azurerm_storage_account.provider.primary_access_key}"
