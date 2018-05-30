@@ -118,6 +118,9 @@ repositories {
   maven {
     url "https://repo.spring.io/libs-milestone"
   }
+    maven {
+      url 'https://dl.bintray.com/palantir/releases' // docker-compose-rule is published on bintray
+    }
 }
 
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
@@ -166,6 +169,8 @@ dependencies {
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix-dashboard', version: versions.springHystrix
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
+  testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: '0.32.0'
+
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
