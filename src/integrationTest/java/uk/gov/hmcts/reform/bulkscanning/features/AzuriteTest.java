@@ -14,15 +14,14 @@ import java.security.InvalidKeyException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SasTest {
-
-    public static final String storageConnectionString = "UseDevelopmentStorage=true";
+public class AzuriteTest {
 
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
         .file("src/integrationTest/resources/docker-compose.yml")
         .build();
-    CloudBlobContainer root;
+
+    private CloudBlobContainer root;
 
     @Before
     public void setup() throws URISyntaxException, InvalidKeyException, StorageException {
