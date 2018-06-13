@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.not;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource("classpath:application.yaml")
@@ -24,6 +25,6 @@ public class WhenApplicationDeployedTest {
             .baseUri(testUrl)
             .get("/info")
             .then()
-            .body("container_exists", equalTo(true));
+            .body("containers", not(emptyArray()));
     }
 }
