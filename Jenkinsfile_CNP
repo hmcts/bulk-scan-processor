@@ -1,0 +1,13 @@
+#!groovy
+
+@Library("Infrastructure")
+
+def type = "java"
+def product = "rpe"
+def component = "bulk-scanning"
+
+def channel = '#rpe-build-notices'
+
+withPipeline(type, product, component) {
+  enableSlackNotifications(channel)
+}
