@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanning.config;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,5 +24,10 @@ public class StorageConfiguration {
     @Bean
     public CloudStorageAccount getCloudStorageAccount(StorageCredentials storageCredentials) throws URISyntaxException {
         return new CloudStorageAccount(storageCredentials, true);
+    }
+
+    @Bean
+    public CloudBlobClient getCloudBlobClient(CloudStorageAccount account) {
+        return account.createCloudBlobClient();
     }
 }
