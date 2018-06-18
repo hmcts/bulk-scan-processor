@@ -9,5 +9,8 @@ def component = "bulk-scanning"
 def channel = '#rpe-build-notices'
 
 withPipeline(type, product, component) {
+  after('test') {
+    sh './gradlew integration'
+  }
   enableSlackNotifications(channel)
 }
