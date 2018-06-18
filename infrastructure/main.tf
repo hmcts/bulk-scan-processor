@@ -21,7 +21,6 @@ module "backend" {
   app_settings = {
     STORAGE_ACCOUNT_NAME   = "${azurerm_storage_account.provider.name}"
     STORAGE_KEY            = "${azurerm_storage_account.provider.primary_access_key}"
-    STORAGE_CONTAINER_NAME = "${azurerm_storage_container.incoming.name}"
   }
 }
 
@@ -41,16 +40,20 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "provider" {
-  name                     = "bulkscanning${var.env}"
-  resource_group_name      = "${azurerm_resource_group.rg.name}"
-  location                 = "${var.location}"
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+  name                      = "bulkscanning${var.env}"
+  resource_group_name       = "${azurerm_resource_group.rg.name}"
+  location                  = "${var.location}"
+  account_tier              = "Standard"
+  account_replication_type  = "LRS"
+  account_kind              = "BlobStorage"
+  enable_https_traffic_only = true
 }
 
-resource "azurerm_storage_container" "incoming" {
-  name                  = "incoming"
+resource "azurerm_storage_container" "sscs" {
+  name                  = "sscs"
   resource_group_name   = "${azurerm_resource_group.rg.name}"
   storage_account_name  = "${azurerm_storage_account.provider.name}"
   container_access_type = "private"
+
+  depends_on = ["azurerm_storage_account.provider"]
 }
