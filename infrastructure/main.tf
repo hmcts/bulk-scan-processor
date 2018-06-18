@@ -54,4 +54,6 @@ resource "azurerm_storage_container" "sscs" {
   resource_group_name   = "${azurerm_resource_group.rg.name}"
   storage_account_name  = "${azurerm_storage_account.provider.name}"
   container_access_type = "private"
+
+  depends_on = ["azurerm_storage_account.provider"]
 }
