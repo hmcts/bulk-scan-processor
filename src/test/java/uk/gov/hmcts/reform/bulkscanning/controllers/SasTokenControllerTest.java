@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class SasControllerTest {
+public class SasTokenControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
