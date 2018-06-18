@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanning.services;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPermissions;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
@@ -28,18 +28,18 @@ import java.util.TimeZone;
 @EnableConfigurationProperties(AccessTokenConfiguration.class)
 @Service
 public class SasTokenGeneratorService {
-    private final CloudStorageAccount cloudStorageAccount;
+    private final CloudBlobClient cloudBlobClient;
     private final StorageCredentials storageCredentials;
     private final AccessTokenConfiguration accessTokenConfiguration;
 
     private static final Logger log = LoggerFactory.getLogger(SasTokenGeneratorService.class);
 
     public SasTokenGeneratorService(
-        CloudStorageAccount cloudStorageAccount,
+        CloudBlobClient cloudBlobClient,
         StorageCredentials storageCredentials,
         AccessTokenConfiguration accessTokenConfiguration
     ) {
-        this.cloudStorageAccount = cloudStorageAccount;
+        this.cloudBlobClient = cloudBlobClient;
         this.storageCredentials = storageCredentials;
         this.accessTokenConfiguration = accessTokenConfiguration;
     }
@@ -49,8 +49,7 @@ public class SasTokenGeneratorService {
         try {
             log.info("SAS Token request received for service {} ", serviceName);
 
-            CloudBlobContainer cloudBlobContainer =
-                cloudStorageAccount.createCloudBlobClient().getContainerReference(serviceName);
+            CloudBlobContainer cloudBlobContainer = cloudBlobClient.getContainerReference(serviceName);
 
             return cloudBlobContainer.generateSharedAccessSignature(createSharedAccessPolicy(serviceName), null);
         } catch (URISyntaxException | StorageException | InvalidKeyException e) {

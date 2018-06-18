@@ -4,6 +4,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.core.PathUtility;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,41 +25,26 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @RunWith(MockitoJUnitRunner.class)
 public class SasTokenGeneratorServiceTest {
 
-    private CloudStorageAccount cloudStorageAccount;
-    private StorageCredentials storageCredentials;
     private AccessTokenConfiguration accessTokenConfiguration;
     private SasTokenGeneratorService tokenGeneratorService;
 
     @Before
     public void setUp() throws URISyntaxException {
-        storageCredentials = new StorageCredentialsAccountAndKey("testAccountName", "dGVzdGtleQ==");
+        StorageCredentials storageCredentials = new StorageCredentialsAccountAndKey("testAccountName", "dGVzdGtleQ==");
 
-        cloudStorageAccount = new CloudStorageAccount(storageCredentials, true);
+        CloudBlobClient cloudBlobClient = new CloudStorageAccount(storageCredentials, true).createCloudBlobClient();
 
-        AccessTokenConfiguration.TokenConfig tokenConfig = new AccessTokenConfiguration.TokenConfig();
-        tokenConfig.setPermissions("WRITE,LIST");
-        tokenConfig.setValidity(300);
-        tokenConfig.setServiceName("sscs");
-
-        accessTokenConfiguration = new AccessTokenConfiguration();
-        accessTokenConfiguration.setServiceConfig(singletonList(tokenConfig));
+        createAccessTokenConfig();
 
         tokenGeneratorService = new SasTokenGeneratorService(
-            cloudStorageAccount,
+            cloudBlobClient,
             storageCredentials,
             accessTokenConfiguration
         );
-
     }
 
     @Test
     public void should_generate_sas_token_when_service_configuration_is_available() throws StorageException {
-        SasTokenGeneratorService tokenGeneratorService = new SasTokenGeneratorService(
-            cloudStorageAccount,
-            storageCredentials,
-            accessTokenConfiguration
-        );
-
         String sasToken = tokenGeneratorService.generateSasToken("sscs");
 
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
@@ -76,5 +62,15 @@ public class SasTokenGeneratorServiceTest {
         assertThatThrownBy(() -> tokenGeneratorService.generateSasToken("doesnotexist"))
             .isInstanceOf(ServiceConfigNotFoundException.class)
             .hasMessage("No service configuration found for service doesnotexist");
+    }
+
+    private void createAccessTokenConfig() {
+        AccessTokenConfiguration.TokenConfig tokenConfig = new AccessTokenConfiguration.TokenConfig();
+        tokenConfig.setPermissions("WRITE,LIST");
+        tokenConfig.setValidity(300);
+        tokenConfig.setServiceName("sscs");
+
+        accessTokenConfiguration = new AccessTokenConfiguration();
+        accessTokenConfiguration.setServiceConfig(singletonList(tokenConfig));
     }
 }
