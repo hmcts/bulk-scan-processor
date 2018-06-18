@@ -45,6 +45,7 @@ resource "azurerm_storage_account" "provider" {
   location                 = "${var.location}"
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  account_kind             = "BlobStorage"
 }
 
 resource "azurerm_storage_container" "sscs" {
