@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanning.services;
 
-import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -28,18 +27,15 @@ import java.util.TimeZone;
 @Service
 public class SasTokenGeneratorService {
     private final CloudBlobClient cloudBlobClient;
-    private final StorageCredentials storageCredentials;
     private final AccessTokenConfigurationProperties accessTokenConfigurationProperties;
 
     private static final Logger log = LoggerFactory.getLogger(SasTokenGeneratorService.class);
 
     public SasTokenGeneratorService(
         CloudBlobClient cloudBlobClient,
-        StorageCredentials storageCredentials,
         AccessTokenConfigurationProperties accessTokenConfigurationProperties
     ) {
         this.cloudBlobClient = cloudBlobClient;
-        this.storageCredentials = storageCredentials;
         this.accessTokenConfigurationProperties = accessTokenConfigurationProperties;
     }
 

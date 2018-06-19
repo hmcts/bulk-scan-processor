@@ -38,7 +38,6 @@ public class SasTokenGeneratorServiceTest {
 
         tokenGeneratorService = new SasTokenGeneratorService(
             cloudBlobClient,
-            storageCredentials,
             accessTokenConfigurationProperties
         );
     }

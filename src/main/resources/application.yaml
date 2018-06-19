@@ -19,7 +19,7 @@ storage:
   account_name: ${STORAGE_ACCOUNT_NAME:bulkscanning}
   key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
 
-accessToken:
+accesstoken:
   serviceConfig:
     - serviceName: sscs
       permissions: WRITE,LIST

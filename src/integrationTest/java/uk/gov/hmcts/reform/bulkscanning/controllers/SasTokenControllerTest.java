@@ -31,7 +31,7 @@ public class SasTokenControllerTest {
 
     @Test
     public void should_return_sas_token_when_service_configuration_is_available() throws Exception {
-        String tokenResponse = this.mockMvc.perform(get("/sscs"))
+        String tokenResponse = this.mockMvc.perform(get("/sas/sscs"))
             .andDo(print())
             .andExpect(status().isOk())
             .andReturn()
@@ -51,7 +51,7 @@ public class SasTokenControllerTest {
 
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/divorce")).andReturn();
+        MvcResult result = this.mockMvc.perform(get("/sas/divorce")).andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(500);
         assertThat(result.getResolvedException().getMessage())

@@ -19,7 +19,7 @@ public class SasTokenController {
         this.tokenGeneratorService = tokenGeneratorService;
     }
 
-    @GetMapping(path = "/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/sas/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get SAS Token to access blob storage")
     @ApiResponse(code = 200, message = "Success")
     public ResponseEntity<SasTokenResponse> getSasToken(@PathVariable String serviceName) {
