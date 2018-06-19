@@ -12,17 +12,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenConfigurationProperties;
+import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenConfigurationProperties.TokenConfig;
 import uk.gov.hmcts.reform.bulkscanning.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanning.exceptions.UnableToGenerateSasTokenException;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.TimeZone;
 
 @EnableConfigurationProperties(AccessTokenConfigurationProperties.class)
@@ -45,10 +44,11 @@ public class SasTokenGeneratorService {
     }
 
     public String generateSasToken(String serviceName) {
-        //Based on the service name container reference would be returned for specific service
-        try {
-            log.info("SAS Token request received for service {} ", serviceName);
 
+        log.info("SAS Token request received for service {} ", serviceName);
+
+        try {
+            //Based on the service name container reference would be returned for specific service
             CloudBlobContainer cloudBlobContainer = cloudBlobClient.getContainerReference(serviceName);
 
             return cloudBlobContainer.generateSharedAccessSignature(createSharedAccessPolicy(serviceName), null);
@@ -58,7 +58,7 @@ public class SasTokenGeneratorService {
     }
 
     private SharedAccessBlobPolicy createSharedAccessPolicy(String serviceName) {
-        AccessTokenConfigurationProperties.TokenConfig config = getTokenConfigForService(serviceName);
+        TokenConfig config = getTokenConfigForService(serviceName);
 
         Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         cal.setTime(new Date());
@@ -71,7 +71,7 @@ public class SasTokenGeneratorService {
         return policy;
     }
 
-    private AccessTokenConfigurationProperties.TokenConfig getTokenConfigForService(String serviceName) {
+    private TokenConfig getTokenConfigForService(String serviceName) {
         return accessTokenConfigurationProperties.getServiceConfig().stream()
             .filter(tokenConfig -> tokenConfig.getServiceName().equalsIgnoreCase(serviceName))
             .findFirst()
@@ -80,16 +80,15 @@ public class SasTokenGeneratorService {
             );
     }
 
-    private EnumSet<SharedAccessBlobPermissions> getBlobPermissions(AccessTokenConfigurationProperties.TokenConfig config) {
+    private EnumSet<SharedAccessBlobPermissions> getBlobPermissions(TokenConfig config) {
         EnumSet<SharedAccessBlobPermissions> blobPermissions = EnumSet.noneOf(SharedAccessBlobPermissions.class);
 
-        List<String> configuredPermissions = Arrays.asList(config.getPermissions().split(","));
-
-        configuredPermissions.forEach(perm -> {
-            if (EnumUtils.isValidEnum(SharedAccessBlobPermissions.class, perm)) {
-                blobPermissions.add(SharedAccessBlobPermissions.valueOf(perm));
+        for (String permission : config.getPermissions().split(",")) {
+            if (EnumUtils.isValidEnum(SharedAccessBlobPermissions.class, permission)) {
+                blobPermissions.add(SharedAccessBlobPermissions.valueOf(permission));
             }
-        });
+        }
+
         return blobPermissions;
     }
 }

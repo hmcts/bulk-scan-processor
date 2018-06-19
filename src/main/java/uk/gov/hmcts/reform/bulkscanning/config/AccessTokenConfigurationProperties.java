@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
-@ConfigurationProperties("accesstoken")
+@ConfigurationProperties("accessToken")
 public class AccessTokenConfigurationProperties {
     private List<TokenConfig> serviceConfig;
 

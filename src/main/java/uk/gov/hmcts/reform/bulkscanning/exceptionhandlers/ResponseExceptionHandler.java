@@ -17,7 +17,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ResponseExceptionHandler.class);
 
     @ExceptionHandler(UnableToGenerateSasTokenException.class)
-    protected ResponseEntity<String> handleJsonProcessingException() {
+    protected ResponseEntity<String> handleUnableToGenerateSasTokenException() {
         return status(INTERNAL_SERVER_ERROR).body("Exception occurred while generating SAS Token");
     }
 
