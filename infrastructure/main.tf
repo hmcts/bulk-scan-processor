@@ -6,6 +6,8 @@ provider "vault" {
 
 locals {
   app = "bulk-scanning"
+  base_account_name = "${var.product}bulkscan${var.env}"
+  account_name = "${replace(local.base_account_name, "-", "")}"
 }
 
 module "backend" {
@@ -40,7 +42,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "provider" {
-  name                      = "bulkscanning${var.env}"
+  name                      = "${substr(local.account_name, 0, 24)}"
   resource_group_name       = "${azurerm_resource_group.rg.name}"
   location                  = "${var.location}"
   account_tier              = "Standard"
