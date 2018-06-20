@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenConfigurationProperties;
-import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenConfigurationProperties.TokenConfig;
+import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenProperties;
+import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenProperties.TokenConfig;
 import uk.gov.hmcts.reform.bulkscanning.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanning.exceptions.UnableToGenerateSasTokenException;
 
@@ -23,20 +23,20 @@ import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-@EnableConfigurationProperties(AccessTokenConfigurationProperties.class)
+@EnableConfigurationProperties(AccessTokenProperties.class)
 @Service
 public class SasTokenGeneratorService {
     private final CloudBlobClient cloudBlobClient;
-    private final AccessTokenConfigurationProperties accessTokenConfigurationProperties;
+    private final AccessTokenProperties accessTokenProperties;
 
     private static final Logger log = LoggerFactory.getLogger(SasTokenGeneratorService.class);
 
     public SasTokenGeneratorService(
         CloudBlobClient cloudBlobClient,
-        AccessTokenConfigurationProperties accessTokenConfigurationProperties
+        AccessTokenProperties accessTokenProperties
     ) {
         this.cloudBlobClient = cloudBlobClient;
-        this.accessTokenConfigurationProperties = accessTokenConfigurationProperties;
+        this.accessTokenProperties = accessTokenProperties;
     }
 
     public String generateSasToken(String serviceName) {
@@ -68,7 +68,7 @@ public class SasTokenGeneratorService {
     }
 
     private TokenConfig getTokenConfigForService(String serviceName) {
-        return accessTokenConfigurationProperties.getServiceConfig().stream()
+        return accessTokenProperties.getServiceConfig().stream()
             .filter(tokenConfig -> tokenConfig.getServiceName().equalsIgnoreCase(serviceName))
             .findFirst()
             .orElseThrow(

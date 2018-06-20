@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenConfigurationProperties;
+import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.bulkscanning.exceptions.ServiceConfigNotFoundException;
 
 import java.net.URISyntaxException;
@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @RunWith(MockitoJUnitRunner.class)
 public class SasTokenGeneratorServiceTest {
 
-    private AccessTokenConfigurationProperties accessTokenConfigurationProperties;
+    private AccessTokenProperties accessTokenProperties;
     private SasTokenGeneratorService tokenGeneratorService;
 
     @Before
@@ -38,7 +38,7 @@ public class SasTokenGeneratorServiceTest {
 
         tokenGeneratorService = new SasTokenGeneratorService(
             cloudBlobClient,
-            accessTokenConfigurationProperties
+            accessTokenProperties
         );
     }
 
@@ -64,12 +64,12 @@ public class SasTokenGeneratorServiceTest {
     }
 
     private void createAccessTokenConfig() {
-        AccessTokenConfigurationProperties.TokenConfig tokenConfig = new AccessTokenConfigurationProperties.TokenConfig();
+        AccessTokenProperties.TokenConfig tokenConfig = new AccessTokenProperties.TokenConfig();
         tokenConfig.setPermissions("WRITE,LIST");
         tokenConfig.setValidity(300);
         tokenConfig.setServiceName("sscs");
 
-        accessTokenConfigurationProperties = new AccessTokenConfigurationProperties();
-        accessTokenConfigurationProperties.setServiceConfig(singletonList(tokenConfig));
+        accessTokenProperties = new AccessTokenProperties();
+        accessTokenProperties.setServiceConfig(singletonList(tokenConfig));
     }
 }

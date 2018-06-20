@@ -6,11 +6,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanning.model.out.SasTokenResponse;
 import uk.gov.hmcts.reform.bulkscanning.services.SasTokenGeneratorService;
 
 @RestController
+@RequestMapping(path = "/token")
 public class SasTokenController {
 
     private final SasTokenGeneratorService tokenGeneratorService;
@@ -19,7 +21,7 @@ public class SasTokenController {
         this.tokenGeneratorService = tokenGeneratorService;
     }
 
-    @GetMapping(path = "/sas/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get SAS Token to access blob storage")
     @ApiResponse(code = 200, message = "Success")
     public ResponseEntity<SasTokenResponse> getSasToken(@PathVariable String serviceName) {
