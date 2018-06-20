@@ -65,7 +65,6 @@ public class SasTokenGeneratorServiceTest {
 
     private void createAccessTokenConfig() {
         AccessTokenProperties.TokenConfig tokenConfig = new AccessTokenProperties.TokenConfig();
-        tokenConfig.setPermissions("WRITE,LIST");
         tokenConfig.setValidity(300);
         tokenConfig.setServiceName("sscs");
 

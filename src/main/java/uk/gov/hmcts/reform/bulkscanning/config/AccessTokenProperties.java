@@ -18,7 +18,6 @@ public class AccessTokenProperties {
 
     public static class TokenConfig {
         private String serviceName;
-        private String permissions;
         private int validity;
 
         public String getServiceName() {
@@ -27,14 +26,6 @@ public class AccessTokenProperties {
 
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
-        }
-
-        public String getPermissions() {
-            return permissions;
-        }
-
-        public void setPermissions(String permissions) {
-            this.permissions = permissions;
         }
 
         public int getValidity() {

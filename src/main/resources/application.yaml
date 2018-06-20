@@ -22,5 +22,4 @@ storage:
 accesstoken:
   serviceConfig:
     - serviceName: sscs
-      permissions: WRITE,LIST
       validity: ${SSCS_SAS_TOKEN_VALIDITY:300} #In seconds

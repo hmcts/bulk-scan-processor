@@ -5,7 +5,6 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPermissions;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
-import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -61,7 +60,7 @@ public class SasTokenGeneratorService {
         cal.add(Calendar.SECOND, config.getValidity());
 
         SharedAccessBlobPolicy policy = new SharedAccessBlobPolicy();
-        policy.setPermissions(getBlobPermissions(config));
+        policy.setPermissions(getBlobPermissions());
         policy.setSharedAccessExpiryTime(cal.getTime());
 
         return policy;
@@ -76,15 +75,7 @@ public class SasTokenGeneratorService {
             );
     }
 
-    private EnumSet<SharedAccessBlobPermissions> getBlobPermissions(TokenConfig config) {
-        EnumSet<SharedAccessBlobPermissions> blobPermissions = EnumSet.noneOf(SharedAccessBlobPermissions.class);
-
-        for (String permission : config.getPermissions().split(",")) {
-            if (EnumUtils.isValidEnum(SharedAccessBlobPermissions.class, permission)) {
-                blobPermissions.add(SharedAccessBlobPermissions.valueOf(permission));
-            }
-        }
-
-        return blobPermissions;
+    private EnumSet<SharedAccessBlobPermissions> getBlobPermissions() {
+        return EnumSet.of(SharedAccessBlobPermissions.WRITE, SharedAccessBlobPermissions.LIST);
     }
 }
