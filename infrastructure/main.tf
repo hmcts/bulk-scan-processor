@@ -49,7 +49,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "provider" {
-  name                      = "${substr(local.account_name, 0, min(length(local.account_name), 24))}"
+  name                      = "${local.account_name}"
   resource_group_name       = "${azurerm_resource_group.rg.name}"
   location                  = "${var.location}"
   account_tier              = "Standard"
