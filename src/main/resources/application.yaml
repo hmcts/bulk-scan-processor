@@ -22,4 +22,4 @@ storage:
 accesstoken:
   serviceConfig:
     - serviceName: sscs
-      validity: ${SSCS_SAS_TOKEN_VALIDITY:300} #In seconds
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds

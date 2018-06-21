@@ -27,9 +27,9 @@ module "bulk-scan" {
   capacity     = "${var.capacity}"
 
   app_settings = {
-    STORAGE_ACCOUNT_NAME = "${azurerm_storage_account.provider.name}"
-    STORAGE_KEY          = "${azurerm_storage_account.provider.primary_access_key}"
-
+    STORAGE_ACCOUNT_NAME    = "${azurerm_storage_account.provider.name}"
+    STORAGE_KEY             = "${azurerm_storage_account.provider.primary_access_key}"
+    SAS_TOKEN_VALIDITY      = "${var.token_validity}"
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = false
     LOGBACK_REQUIRE_ERROR_CODE  = false

@@ -187,6 +187,8 @@ dependencies {
   integrationTestCompile sourceSets.test.runtimeClasspath
 
   functionalTestCompile sourceSets.main.runtimeClasspath
+  functionalTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.1.0'
+  functionalTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
 
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile sourceSets.test.runtimeClasspath
