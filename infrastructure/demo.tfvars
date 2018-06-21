@@ -1,1 +1,1 @@
-sscs_token_validity = "5184000" #60 days in seconds
+token_validity = "5184000" #60 days in seconds
