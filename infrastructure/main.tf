@@ -6,9 +6,14 @@ provider "vault" {
 
 locals {
   app = "bulk-scanning"
+  base_account_name = "${var.product}bulkscan${var.env}"
+  account_name = "${replace(local.base_account_name, "-", "")}"
+  previewVaultName       = "${var.product}-bulk-scan"
+  nonPreviewVaultName    = "${var.product}-bulk-scan-${var.env}"
+  vaultName              = "${(var.env == "preview" || var.env == "spreview") ? local.previewVaultName : local.nonPreviewVaultName}"
 }
 
-module "backend" {
+module "bulk-scan" {
   source       = "git@github.com:hmcts/moj-module-webapp?ref=master"
   product      = "${var.product}-${local.app}"
   location     = "${var.location}"
@@ -27,13 +32,14 @@ module "backend" {
   }
 }
 
-module "key-vault" {
+module "bulk-scan-key-vault" {
   source                  = "git@github.com:hmcts/moj-module-key-vault?ref=master"
+  name                    = "${local.vaultName}"
   product                 = "${var.product}"
   env                     = "${var.env}"
   tenant_id               = "${var.tenant_id}"
   object_id               = "${var.jenkins_AAD_objectId}"
-  resource_group_name     = "${module.backend.resource_group_name}"
+  resource_group_name     = "${module.bulk-scan.resource_group_name}"
   product_group_object_id = "300e771f-856c-45cc-b899-40d78281e9c1"
 }
 
@@ -43,7 +49,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "provider" {
-  name                      = "bulkscanning${var.env}"
+  name                      = "${substr(local.account_name, 0, min(length(local.account_name), 24))}"
   resource_group_name       = "${azurerm_resource_group.rg.name}"
   location                  = "${var.location}"
   account_tier              = "Standard"
