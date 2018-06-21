@@ -16,5 +16,10 @@ info:
     description: Ingest scanned documents.
 
 storage:
-  account_name: ${STORAGE_ACCOUNT_NAME}
-  key: ${STORAGE_KEY}
+  account_name: ${STORAGE_ACCOUNT_NAME:bulkscanning}
+  key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
+
+accesstoken:
+  serviceConfig:
+    - serviceName: sscs
+      validity: ${SSCS_SAS_TOKEN_VALIDITY:300} #In seconds

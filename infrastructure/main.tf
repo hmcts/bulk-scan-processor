@@ -26,6 +26,9 @@ module "bulk-scan" {
   app_settings = {
     STORAGE_ACCOUNT_NAME   = "${azurerm_storage_account.provider.name}"
     STORAGE_KEY            = "${azurerm_storage_account.provider.primary_access_key}"
+    // silence the "bad implementation" logs
+    LOGBACK_REQUIRE_ALERT_LEVEL = false
+    LOGBACK_REQUIRE_ERROR_CODE  = false
   }
 }
 
