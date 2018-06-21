@@ -1,5 +1,11 @@
 language: java
 
+addons:
+  sonarcloud:
+    organization: "hmcts"
+    token:
+      secure: "mAHDtQAXZ8MDNpBXsq/45zxkQJ4DP043uga5eLZAVbSuTgdHmiyEsNpHWbY2JEny4MeHiofJcAtpaT0SwYelZfFPrxeE97jSDb7r+KoSk/fcHCBWy1IFRLpo1IFs+I+KihQFWHUkG8elAe7S2URpTYbKQpmGazyMdXynpDoQ/kra1arPn3I9tNKzkmah1QGRa+iMYMehgNiMSyGaCjeqdw1SJnkvSi8pzKbAsBl0pDFhD7wsE7lh7w49zs5mtMAFSwkpFkQNSy3Rc9vIQLdSgM0upHYry1U4MTPTGircFJPi3Q0aG9n0AwMtUz5ZYqeWObmhJmg9aAbQajSckKG6r4LIUtOXah6wnAUMaLXblsOLkmNe6R6+keJjSsgYOXUIpTrqsK9agfai4H/ISMCd9AYwDzlXKYQW19W7EdRilVNikG+f53+G9ejoTpZbaKjIkk1m6sFcB5TgH9TR6bdcfAwJskVSfkpeLkgC0NL71GHmrm5bJ590EJoNof3/ML17K369LT7r7EF3ylcKbZz5OM9wkQmH+roOiXPxKjoIcdS9c92mVFxDqzhs5SR9y0IzWvzkzIH4Hb73QiJmI774aB1EjlX+f5iZycd3QUFTxlSqR1edpKhSPaC4ethsaAJkWqXqVlE3IBsQa4YJHscLjfovmhupVZ3MLtaIJtqvx58="
+
 branches:
   only:
     - master
@@ -22,6 +28,7 @@ before_install:
 script:
   - ./gradlew test -i
   - ./gradlew integration -i
+  - ./gradlew sonarqube -i
 
 after_success:
   - ./gradlew jacocoTestReport
