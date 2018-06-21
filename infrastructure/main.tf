@@ -6,13 +6,14 @@ provider "vault" {
 
 locals {
   app = "bulk-scanning"
+  is_preview = "${(var.env == "preview" || var.env == "spreview")}"
   preview_account_name = "${var.product}bulkscan"
   default_account_name = "${var.product}bulkscan${var.env}"
-  base_account_name = "${(var.env == "preview" || var.env == "spreview") ? local.preview_account_name : local.default_account_name}"
+  base_account_name = "${local.is_preview ? local.preview_account_name : local.default_account_name}"
   account_name = "${replace(local.base_account_name, "-", "")}"
   previewVaultName       = "${var.product}-bulk-scan"
   nonPreviewVaultName    = "${var.product}-bulk-scan-${var.env}"
-  vaultName              = "${(var.env == "preview" || var.env == "spreview") ? local.previewVaultName : local.nonPreviewVaultName}"
+  vaultName              = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 }
 
 module "bulk-scan" {
