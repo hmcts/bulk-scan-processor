@@ -6,7 +6,9 @@ provider "vault" {
 
 locals {
   app = "bulk-scanning"
-  base_account_name = "${var.product}bulkscan${var.env}"
+  preview_account_name = "${var.product}bulkscan"
+  default_account_name = "${var.product}bulkscan${var.env}"
+  base_account_name = "${(var.env == "preview" || var.env == "spreview") ? local.preview_account_name : local.default_account_name}"
   account_name = "${replace(local.base_account_name, "-", "")}"
   previewVaultName       = "${var.product}-bulk-scan"
   nonPreviewVaultName    = "${var.product}-bulk-scan-${var.env}"
