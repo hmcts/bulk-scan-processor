@@ -14,7 +14,6 @@ locals {
   previewVaultName     = "${var.product}-bulk-scan"
   nonPreviewVaultName  = "${var.product}-bulk-scan-${var.env}"
   vaultName            = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
-  tokenValidity        = "${var.token_validity}"
 }
 
 module "bulk-scan" {
@@ -30,7 +29,7 @@ module "bulk-scan" {
   app_settings = {
     STORAGE_ACCOUNT_NAME    = "${azurerm_storage_account.provider.name}"
     STORAGE_KEY             = "${azurerm_storage_account.provider.primary_access_key}"
-    SSCS_SAS_TOKEN_VALIDITY = "${local.tokenValidity}"
+    SSCS_SAS_TOKEN_VALIDITY = "${var.sscs_token_validity}"
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = false
     LOGBACK_REQUIRE_ERROR_CODE  = false

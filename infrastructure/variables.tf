@@ -41,6 +41,6 @@ variable "account_name" {
   default = ""
 }
 
-variable "token_validity" {
+variable "sscs_token_validity" {
   default = "86400" #1 day in seconds
 }
