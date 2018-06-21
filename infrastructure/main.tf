@@ -5,12 +5,15 @@ provider "vault" {
 }
 
 locals {
-  app = "bulk-scanning"
-  base_account_name = "${var.product}bulkscan${var.env}"
-  account_name = "${replace(local.base_account_name, "-", "")}"
-  previewVaultName       = "${var.product}-bulk-scan"
-  nonPreviewVaultName    = "${var.product}-bulk-scan-${var.env}"
-  vaultName              = "${(var.env == "preview" || var.env == "spreview") ? local.previewVaultName : local.nonPreviewVaultName}"
+  app                  = "bulk-scanning"
+  is_preview           = "${(var.env == "preview" || var.env == "spreview")}"
+  preview_account_name = "${var.product}bulkscan"
+  default_account_name = "${var.product}bulkscan${var.env}"
+  base_account_name    = "${local.is_preview ? local.preview_account_name : local.default_account_name}"
+  account_name         = "${replace(local.base_account_name, "-", "")}"
+  previewVaultName     = "${var.product}-bulk-scan"
+  nonPreviewVaultName  = "${var.product}-bulk-scan-${var.env}"
+  vaultName            = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 }
 
 module "bulk-scan" {
@@ -24,8 +27,9 @@ module "bulk-scan" {
   capacity     = "${var.capacity}"
 
   app_settings = {
-    STORAGE_ACCOUNT_NAME   = "${azurerm_storage_account.provider.name}"
-    STORAGE_KEY            = "${azurerm_storage_account.provider.primary_access_key}"
+    STORAGE_ACCOUNT_NAME = "${azurerm_storage_account.provider.name}"
+    STORAGE_KEY          = "${azurerm_storage_account.provider.primary_access_key}"
+
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = false
     LOGBACK_REQUIRE_ERROR_CODE  = false
@@ -49,7 +53,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "provider" {
-  name                      = "${substr(local.account_name, 0, min(length(local.account_name), 24))}"
+  name                      = "${local.account_name}"
   resource_group_name       = "${azurerm_resource_group.rg.name}"
   location                  = "${var.location}"
   account_tier              = "Standard"
