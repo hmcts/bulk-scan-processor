@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.controllers;
+package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

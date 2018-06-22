@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenProperties;
-import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenProperties.TokenConfig;
-import uk.gov.hmcts.reform.bulkscanning.exceptions.ServiceConfigNotFoundException;
-import uk.gov.hmcts.reform.bulkscanning.exceptions.UnableToGenerateSasTokenException;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties.TokenConfig;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToGenerateSasTokenException;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.info;
+package uk.gov.hmcts.reform.bulkscanprocessor.info;
 
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;

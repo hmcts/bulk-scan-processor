@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.model.out;
+package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;

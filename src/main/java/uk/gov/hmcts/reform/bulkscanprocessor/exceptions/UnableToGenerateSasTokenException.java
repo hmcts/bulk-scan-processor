@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.exceptions;
+package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 public class UnableToGenerateSasTokenException extends RuntimeException {
 

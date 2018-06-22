@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.controllers;
+package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.bulkscanning.model.out.SasTokenResponse;
-import uk.gov.hmcts.reform.bulkscanning.services.SasTokenGeneratorService;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.SasTokenResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.SasTokenGeneratorService;
 
 @RestController
 @RequestMapping(path = "/token")

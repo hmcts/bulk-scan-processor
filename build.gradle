@@ -195,7 +195,7 @@ dependencies {
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
 }
 
-mainClassName = 'uk.gov.hmcts.reform.bulkscanning.Application'
+mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
 
 bootJar {
   archiveName = 'bulk-scanning.jar'

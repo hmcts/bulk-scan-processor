@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.controllers;
+package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

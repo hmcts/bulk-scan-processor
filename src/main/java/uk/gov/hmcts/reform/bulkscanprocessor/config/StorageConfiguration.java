@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.config;
+package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentials;

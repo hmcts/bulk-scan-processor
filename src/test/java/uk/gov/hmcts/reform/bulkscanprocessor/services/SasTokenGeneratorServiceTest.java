@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentials;
@@ -10,8 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanning.config.AccessTokenProperties;
-import uk.gov.hmcts.reform.bulkscanning.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;

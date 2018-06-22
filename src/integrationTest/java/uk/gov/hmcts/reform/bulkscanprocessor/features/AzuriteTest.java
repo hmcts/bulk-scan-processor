@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning.features;
+package uk.gov.hmcts.reform.bulkscanprocessor.features;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;

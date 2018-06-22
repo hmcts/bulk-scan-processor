@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning;
+package uk.gov.hmcts.reform.bulkscanprocessor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanning;
+package uk.gov.hmcts.reform.bulkscanprocessor;
 
 import io.restassured.RestAssured;
 import org.junit.Test;
