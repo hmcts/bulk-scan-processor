@@ -198,7 +198,7 @@ dependencies {
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
 
 bootJar {
-  archiveName = 'bulk-scanning.jar'
+  archiveName = 'bulk-scan-processor.jar'
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
