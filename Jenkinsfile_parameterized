@@ -6,12 +6,12 @@ def channel = '#rpe-build-notices'
 properties([
   parameters([
     string(name: 'PRODUCT_NAME', defaultValue: 'rpe', description: ''),
-    string(name: 'APP', defaultValue: 'bulk-scanning', description: ''),
+    string(name: 'APP', defaultValue: 'bulk-scan-processor', description: ''),
     string(name: 'TYPE', defaultValue: 'java', description: ''),
     string(name: 'ENVIRONMENT', defaultValue: 'sandbox', description: 'Environment where code should be built and deployed'),
     choice(name: 'SUBSCRIPTION', choices: 'sandbox\nnonprod\nprod', description: 'Azure subscriptions available to build in')
   ]),
-  [$class: 'GithubProjectProperty', projectUrlStr: 'github.com/hmcts/bulk-scanning'],
+  [$class: 'GithubProjectProperty', projectUrlStr: 'github.com/hmcts/bulk-scan-processor'],
   pipelineTriggers([[$class: 'GitHubPushTrigger']])
 ])
 

@@ -96,7 +96,7 @@ project.tasks['sonarqube'].dependsOn test, integration
 
 sonarqube {
   properties {
-    property "sonar.projectName", "Reform :: Bulk Scanning"
+    property "sonar.projectName", "Reform :: Bulk Scan Processor"
     property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
     property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/integration.exec"
   }
@@ -195,10 +195,10 @@ dependencies {
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
 }
 
-mainClassName = 'uk.gov.hmcts.reform.bulkscanning.Application'
+mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
 
 bootJar {
-  archiveName = 'bulk-scanning.jar'
+  archiveName = 'bulk-scan-processor.jar'
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
