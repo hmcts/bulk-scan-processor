@@ -5,7 +5,7 @@ provider "vault" {
 }
 
 locals {
-  app                  = "bulk-scanning"
+  app                  = "bulk-scan-processor"
   is_preview           = "${(var.env == "preview" || var.env == "spreview")}"
   preview_account_name = "${var.product}bulkscan"
   default_account_name = "${var.product}bulkscan${var.env}"

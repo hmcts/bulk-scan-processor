@@ -4,7 +4,7 @@
 
 def type = "java"
 def product = "rpe"
-def component = "bulk-scanning"
+def component = "bulk-scan-processor"
 
 def channel = '#rpe-build-notices'
 
