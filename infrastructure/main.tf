@@ -8,7 +8,7 @@ locals {
   app                  = "bulk-scan-processor"
   is_preview           = "${(var.env == "preview" || var.env == "spreview")}"
   preview_account_name = "${var.product}bsp"
-  default_account_name = "${var.product}bsp{var.env}"
+  default_account_name = "${var.product}bsp${var.env}"
   base_account_name    = "${local.is_preview ? local.preview_account_name : local.default_account_name}"
   account_name         = "${replace(local.base_account_name, "-", "")}"
   previewVaultName     = "${var.product}-bulk-scan"
