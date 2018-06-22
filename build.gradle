@@ -96,7 +96,7 @@ project.tasks['sonarqube'].dependsOn test, integration
 
 sonarqube {
   properties {
-    property "sonar.projectName", "Reform :: Bulk Scanning"
+    property "sonar.projectName", "Reform :: Bulk Scan Processor"
     property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
     property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/integration.exec"
   }
