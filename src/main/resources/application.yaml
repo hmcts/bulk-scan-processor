@@ -9,6 +9,27 @@ management:
 spring:
   application:
     name: Bulk Scanning
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5432}/${BULK_SCANNING_DB_NAME:bulk_scan}${BULK_SCANNING_DB_CONN_OPTIONS:}
+    username: ${BULK_SCANNING_DB_USER_NAME:bulkscanner}
+    password: ${BULK_SCANNING_DB_PASSWORD:}
+    properties:
+      charSet: UTF-8
+    hikari:
+      minimumIdle: 2
+      maximumPoolSize: 10
+      idleTimeout: 10000
+      poolName: BulkScanHikariCP
+      maxLifetime: 7200000
+      connectionTimeout: 30000
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            # silence the 'wall-of-text' - unnecessary exception throw about blob types
+            non_contextual_creation: true
 
 info:
   app:
