@@ -137,7 +137,7 @@ def versions = [
   reformLogging: '3.0.1',
   springBoot: springBoot.class.package.implementationVersion,
   springHystrix: '2.0.0.RELEASE',
-  springfoxSwagger: '2.9.0'
+  springfoxSwagger: '2.9.2'
 ]
 
 dependencyManagement {
@@ -172,7 +172,7 @@ dependencies {
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix-dashboard', version: versions.springHystrix
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
-  testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: '0.32.0'
+  testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: '0.33.0'
 
 
   integrationTestCompile sourceSets.main.runtimeClasspath
@@ -184,7 +184,7 @@ dependencies {
 
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile sourceSets.test.runtimeClasspath
-  smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
+  smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.1.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
