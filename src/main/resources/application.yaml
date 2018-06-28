@@ -11,7 +11,7 @@ spring:
     name: Bulk Scanning
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5432}/${BULK_SCANNING_DB_NAME:bulk_scan}${BULK_SCANNING_DB_CONN_OPTIONS:}
+    url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5432}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
     username: ${BULK_SCANNING_DB_USER_NAME:bulkscanner}
     password: ${BULK_SCANNING_DB_PASSWORD:}
     properties:

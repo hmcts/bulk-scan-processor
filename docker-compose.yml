@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  bulk-scan-service:
+    extends:
+      file: docker-compose-core.yml
+      service: service
+    depends_on:
+      bulk-scan-database:
+        condition: service_healthy
+  bulk-scan-database:
+    extends:
+      file: docker-compose-core.yml
+      service: database
+    volumes:
+      - bulk-scan-database-data:/var/lib/postgresql/data
+
+volumes:
+  bulk-scan-database-data:
