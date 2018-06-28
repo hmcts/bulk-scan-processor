@@ -7,6 +7,14 @@
     <cve>CVE-2018-1115</cve>
   </suppress>
 
+  <!-- not used by server -->
+
+  <suppress>
+    <notes><![CDATA[Used only for testing not used in prod]]></notes>
+    <gav regex="true">^org\.testcontainers:postgresql:.*$</gav>
+    <cpe>cpe:/a:postgresql:postgresql</cpe>
+  </suppress>
+
   <suppress>
     <notes><![CDATA[
     This suppresses false positives on Groovy 2.4.x.
