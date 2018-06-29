@@ -19,7 +19,7 @@ locals {
 }
 
 module "bulk-scan-db" {
-  source              = "git@github.com:hmcts/moj-module-postgres?ref=cnp-449-tactical"
+  source              = "git@github.com:hmcts/moj-module-postgres?ref=master"
   product             = "${var.product}-${var.component}-db"
   location            = "${var.location_db}"
   env                 = "${var.env}"
