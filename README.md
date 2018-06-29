@@ -1,6 +1,6 @@
 # Bulk scan processor
 
-[![Build Status](https://travis-ci.org/hmcts/bulk-scanning.svg?branch=master)](https://travis-ci.org/hmcts/bulk-scanning)
+[![Build Status](https://travis-ci.org/hmcts/bulk-scan-processor.svg?branch=master)](https://travis-ci.org/hmcts/bulk-scan-processor)
 
 ## Purpose
 
