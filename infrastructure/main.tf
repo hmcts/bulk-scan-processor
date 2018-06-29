@@ -14,6 +14,19 @@ locals {
   previewVaultName     = "${var.product}-bsp"
   nonPreviewVaultName  = "${var.product}-bsp-${var.env}"
   vaultName            = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
+
+  db_connection_options  = "?ssl=true"
+}
+
+module "bulk-scan-db" {
+  source              = "git@github.com:hmcts/moj-module-postgres?ref=cnp-449-tactical"
+  product             = "${var.product}-${var.component}-db"
+  location            = "${var.location_db}"
+  env                 = "${var.env}"
+  database_name       = "feature_toggle"
+  postgresql_user     = "feature_toggler"
+  sku_name            = "GP_Gen5_2"
+  sku_tier            = "GeneralPurpose"
 }
 
 module "bulk-scan" {
@@ -27,12 +40,23 @@ module "bulk-scan" {
   capacity     = "${var.capacity}"
 
   app_settings = {
-    STORAGE_ACCOUNT_NAME    = "${azurerm_storage_account.provider.name}"
-    STORAGE_KEY             = "${azurerm_storage_account.provider.primary_access_key}"
-    SAS_TOKEN_VALIDITY      = "${var.token_validity}"
+    // db
+    BULK_SCANNING_DB_HOST         = "${module.bulk-scan-db.host_name}"
+    BULK_SCANNING_DB_PORT         = "${module.bulk-scan-db.postgresql_listen_port}"
+    BULK_SCANNING_DB_USER_NAME    = "${module.bulk-scan-db.user_name}"
+    BULK_SCANNING_DB_PASSWORD     = "${module.bulk-scan-db.postgresql_password}"
+    BULK_SCANNING_DB_NAME         = "${module.bulk-scan-db.postgresql_database}"
+    BULK_SCANNING_DB_CONN_OPTIONS = "${local.db_connection_options}"
+    FLYWAY_URL                    = "jdbc:postgresql://${module.bulk-scan-db.host_name}:${module.bulk-scan-db.postgresql_listen_port}/${module.bulk-scan-db.postgresql_database}${local.db_connection_options}"
+    FLYWAY_USER                   = "${module.bulk-scan-db.user_name}"
+    FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
+    //
+    STORAGE_ACCOUNT_NAME          = "${azurerm_storage_account.provider.name}"
+    STORAGE_KEY                   = "${azurerm_storage_account.provider.primary_access_key}"
+    SAS_TOKEN_VALIDITY            = "${var.token_validity}"
     // silence the "bad implementation" logs
-    LOGBACK_REQUIRE_ALERT_LEVEL = false
-    LOGBACK_REQUIRE_ERROR_CODE  = false
+    LOGBACK_REQUIRE_ALERT_LEVEL   = false
+    LOGBACK_REQUIRE_ERROR_CODE    = false
   }
 }
 
@@ -69,4 +93,34 @@ resource "azurerm_storage_container" "sscs" {
   container_access_type = "private"
 
   depends_on = ["azurerm_storage_account.provider"]
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-USER" {
+  name      = "${var.component}-POSTGRES-USER"
+  value     = "${module.bulk-scan-db.user_name}"
+  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
+  name      = "${var.component}-POSTGRES-PASS"
+  value     = "${module.bulk-scan-db.postgresql_password}"
+  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
+  name      = "${var.component}-POSTGRES-HOST"
+  value     = "${module.bulk-scan-db.host_name}"
+  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
+  name      = "${var.component}-POSTGRES-PORT"
+  value     = "${module.bulk-scan-db.postgresql_listen_port}"
+  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
+  name      = "${var.component}-POSTGRES-DATABASE"
+  value     = "${module.bulk-scan-db.postgresql_database}"
+  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
 }
