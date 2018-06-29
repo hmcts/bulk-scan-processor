@@ -19,7 +19,7 @@ public class Payment {
     @JsonProperty("method")
     private String method;
     @JsonProperty("amount_in_pence")
-    private int amount;
+    private int amountInPence;
     @JsonProperty("currency")
     private String currency;
 
@@ -37,12 +37,12 @@ public class Payment {
 
         this.documentControlNumber = documentControlNumber;
         this.method = method;
-        this.amount = amountInPence.intValue();
+        this.amountInPence = amountInPence.intValue();
         this.currency = currency;
     }
 
     @JsonProperty("amount")
     public double getAmount() {
-        return ((double) amount) / 100;
+        return ((double) amountInPence) / 100;
     }
 }
