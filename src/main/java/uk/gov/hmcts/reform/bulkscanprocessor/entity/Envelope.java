@@ -6,8 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import static java.util.Collections.emptyList;
@@ -31,10 +34,16 @@ public class Envelope {
     private Timestamp zipFileCreatedDate;
     @JsonProperty("zip_file_name")
     private String zipFileName;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "envelope")
     @JsonProperty("scannable_items")
     private List<ScannableItem> scannableItems;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "envelope")
     @JsonProperty("payments")
     private List<Payment> payments;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "envelope")
     @JsonProperty("non_scannable_items")
     private List<NonScannableItem> nonScannableItems;
 
