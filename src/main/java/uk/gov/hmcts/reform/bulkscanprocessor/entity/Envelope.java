@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import static java.util.Collections.emptyList;
+
 @Entity
 @Table(name = "envelopes")
 public class Envelope {
@@ -60,9 +62,9 @@ public class Envelope {
         this.openingDate = openingDate;
         this.zipFileCreatedDate = zipFileCreatedDate;
         this.zipFileName = zipFileName;
-        this.scannableItems = scannableItems;
-        this.payments = payments;
-        this.nonScannableItems = nonScannableItems;
+        this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
+        this.payments = payments == null ? emptyList() : payments;
+        this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
     }
 
     public List<ScannableItem> getScannableItems() {
