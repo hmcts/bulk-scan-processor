@@ -51,7 +51,7 @@ public class DocumentProcessor {
                 CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
                 readBlobsFromContainer(container);
             } catch (URISyntaxException e) {
-                LOGGER.warn("Invalid URL", e);
+                LOGGER.error("Invalid URL", e);
                 // TODO: track exception in AppInsights Telemetry
             } catch (StorageException e) {
                 LOGGER.error("Could not obtain container reference", e);
@@ -76,7 +76,7 @@ public class DocumentProcessor {
                     LOGGER.error("Could not download data", e);
                     // TODO: track exception in AppInsights Telemetry
                 } catch (URISyntaxException e) {
-                    LOGGER.warn("Invalid URL", e);
+                    LOGGER.error("Invalid URL", e);
                     // TODO: track exception in AppInsights Telemetry
                 }
                 return null;
@@ -95,7 +95,7 @@ public class DocumentProcessor {
                 pdfs.add(pdf);
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not open zip file", e);
+            LOGGER.error("Could not open zip file", e);
             // TODO: track exception in AppInsights Telemetry
         }
         return pdfs;
