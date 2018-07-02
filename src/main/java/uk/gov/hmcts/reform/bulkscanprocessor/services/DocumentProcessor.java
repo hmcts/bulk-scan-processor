@@ -24,15 +24,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @Component
-public class BlobStorageRead {
+public class DocumentProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlobStorageRead.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentProcessor.class);
 
     private final CloudBlobClient cloudBlobClient;
     private final Consumer<List<PDF>> pdfsConsumer;
 
     @Autowired
-    public BlobStorageRead(CloudBlobClient cloudBlobClient, Consumer<List<PDF>> pdfsConsumer) {
+    public DocumentProcessor(CloudBlobClient cloudBlobClient, Consumer<List<PDF>> pdfsConsumer) {
         this.cloudBlobClient = cloudBlobClient;
         this.pdfsConsumer = pdfsConsumer;
     }

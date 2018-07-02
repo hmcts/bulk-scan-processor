@@ -14,7 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.BlobStorageRead;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.PDF;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BlobStorageReadTest {
+public class DocumentProcessorTest {
 
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
@@ -57,8 +57,8 @@ public class BlobStorageReadTest {
         abc.createIfNotExists();
 
         Throwable throwable = catchThrowable(() -> {
-            BlobStorageRead blobStorageRead = new BlobStorageRead(cloudBlobClient, pdfsConsumer);
-            blobStorageRead.readBlobs();
+            DocumentProcessor documentProcessor = new DocumentProcessor(cloudBlobClient, pdfsConsumer);
+            documentProcessor.readBlobs();
         });
 
         assertThat(throwable).doesNotThrowAnyException();
@@ -74,8 +74,8 @@ public class BlobStorageReadTest {
         CloudBlockBlob blockBlobReference = abc.getBlockBlobReference(testZip);
         blockBlobReference.uploadFromFile(new File("src/integrationTest/resources/" + testZip).getAbsolutePath());
 
-        BlobStorageRead blobStorageRead = new BlobStorageRead(cloudBlobClient, pdfsConsumer);
-        blobStorageRead.readBlobs();
+        DocumentProcessor documentProcessor = new DocumentProcessor(cloudBlobClient, pdfsConsumer);
+        documentProcessor.readBlobs();
 
         verify(pdfsConsumer, times(1)).accept(pdfListCaptor.capture());
 
