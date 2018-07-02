@@ -46,4 +46,4 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 scan:
-  interval: ${SCAN_INTERVAL:30000}
+  interval: ${SCAN_INTERVAL:30000} # In milliseconds
