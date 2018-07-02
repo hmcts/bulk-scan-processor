@@ -42,6 +42,7 @@ public class BlobStorageRead {
         cloudBlobClient.listContainers().forEach(cloudBlobContainer -> {
             try {
                 String containerName = cloudBlobContainer.getName();
+                LOGGER.info("Processing {} container", containerName);
                 CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
                 readBlobsFromContainer(container);
             } catch (URISyntaxException e) {
