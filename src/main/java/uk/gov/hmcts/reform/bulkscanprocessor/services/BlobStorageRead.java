@@ -33,7 +33,7 @@ public class BlobStorageRead {
         this.cloudBlobClient = cloudBlobClient;
     }
 
-    public void readBlobs() throws Exception {
+    public void readBlobs() {
         cloudBlobClient.listContainers().forEach(cloudBlobContainer -> {
             try {
                 CloudBlobContainer container = cloudBlobClient.getContainerReference(cloudBlobContainer.getName());
