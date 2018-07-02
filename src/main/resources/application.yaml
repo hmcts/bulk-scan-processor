@@ -47,8 +47,8 @@ accesstoken:
 
 idam:
   s2s-auth:
-    url: ${S2S_URL}
-    secret: ${S2S_SECRET}
+    url: ${S2S_URL:http://localhost:8081}
+    secret: ${S2S_SECRET:secret}
     name: ${S2S_NAME:bulk_scan_processor}
 
 dm:
