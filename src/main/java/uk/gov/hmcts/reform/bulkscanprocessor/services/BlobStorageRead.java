@@ -47,8 +47,10 @@ public class BlobStorageRead {
                 readBlobsFromContainer(container);
             } catch (URISyntaxException e) {
                 LOGGER.warn("Invalid URL", e);
+                // TODO: track exception in AppInsights Telemetry
             } catch (StorageException e) {
                 LOGGER.warn("Could not obtain container reference", e);
+                // TODO: track exception in AppInsights Telemetry
             }
         });
     }
@@ -67,8 +69,10 @@ public class BlobStorageRead {
                     return processZipFile(blobInputStream);
                 } catch (StorageException e) {
                     LOGGER.warn("Could not download data", e);
+                    // TODO: track exception in AppInsights Telemetry
                 } catch (URISyntaxException e) {
                     LOGGER.warn("Invalid URL", e);
+                    // TODO: track exception in AppInsights Telemetry
                 }
                 return null;
             })
@@ -87,6 +91,7 @@ public class BlobStorageRead {
             }
         } catch (IOException e) {
             LOGGER.warn("Could not open zip file", e);
+            // TODO: track exception in AppInsights Telemetry
         }
         return pdfs;
     }
