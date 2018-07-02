@@ -4,16 +4,22 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.palantir.docker.compose.DockerComposeRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.BlobStorageRead;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.PDF;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.List;
@@ -21,6 +27,10 @@ import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BlobStorageReadTest {
@@ -32,6 +42,9 @@ public class BlobStorageReadTest {
 
     @Mock
     private Consumer<List<PDF>> pdfsConsumer;
+
+    @Captor
+    private ArgumentCaptor<List<PDF>> pdfListCaptor;
 
     private CloudBlobClient cloudBlobClient;
 
@@ -52,5 +65,29 @@ public class BlobStorageReadTest {
         });
 
         assertThat(throwable).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void consumer_is_called_for_all_pdf_files() throws URISyntaxException, StorageException, IOException {
+        CloudBlobContainer abc = cloudBlobClient.getContainerReference("abc");
+        abc.createIfNotExists();
+
+        // this zip has 3 pdfs: abc.zip, def.zip ghi.zip
+        String testZip = "read-pdf-files.zip";
+        CloudBlockBlob blockBlobReference = abc.getBlockBlobReference(testZip);
+        blockBlobReference.uploadFromFile(new File("src/integrationTest/resources/" + testZip).getAbsolutePath());
+
+        BlobStorageRead blobStorageRead = new BlobStorageRead(cloudBlobClient, pdfsConsumer);
+        blobStorageRead.readBlobs();
+
+        verify(pdfsConsumer, times(1)).accept(pdfListCaptor.capture());
+
+        assertThat(pdfListCaptor.getAllValues()).hasSize(1);
+
+        assertThat(pdfListCaptor.getValue())
+            .hasSize(3)
+            .anyMatch(pdf -> "abc.pdf".equals(pdf.getFilename()))
+            .anyMatch(pdf -> "def.pdf".equals(pdf.getFilename()))
+            .anyMatch(pdf -> "ghi.pdf".equals(pdf.getFilename()));
     }
 }

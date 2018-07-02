@@ -1,22 +1,17 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.springframework.http.MediaType;
-
 public class PDF {
 
-    public static final String CONTENT_TYPE = MediaType.APPLICATION_PDF_VALUE;
-    public static final String EXTENSION = ".pdf";
-
-    private final String fileBaseName;
+    private final String filename;
     private final byte[] bytes;
 
-    public PDF(String fileBaseName, byte[] bytes) {
-        this.fileBaseName = fileBaseName;
+    public PDF(String filename, byte[] bytes) {
+        this.filename = filename;
         this.bytes = bytes;
     }
 
     public String getFilename() {
-        return fileBaseName + EXTENSION;
+        return filename;
     }
 
     public byte[] getBytes() {
