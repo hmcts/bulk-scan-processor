@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -28,17 +29,20 @@ public class BlobStorageRead {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlobStorageRead.class);
 
     private final CloudBlobClient cloudBlobClient;
+    private final Consumer<List<PDF>> pdfsConsumer;
 
     @Autowired
-    public BlobStorageRead(CloudBlobClient cloudBlobClient) {
+    public BlobStorageRead(CloudBlobClient cloudBlobClient, Consumer<List<PDF>> pdfsConsumer) {
         this.cloudBlobClient = cloudBlobClient;
+        this.pdfsConsumer = pdfsConsumer;
     }
 
     @Scheduled(fixedDelayString = "${scan.interval}")
     public void readBlobs() {
         cloudBlobClient.listContainers().forEach(cloudBlobContainer -> {
             try {
-                CloudBlobContainer container = cloudBlobClient.getContainerReference(cloudBlobContainer.getName());
+                String containerName = cloudBlobContainer.getName();
+                CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
                 readBlobsFromContainer(container);
             } catch (URISyntaxException e) {
                 LOGGER.warn("Invalid URL", e);
@@ -68,9 +72,7 @@ public class BlobStorageRead {
                 return null;
             })
             .filter(Objects::nonNull)
-            .forEach((List<PDF> pdfs) -> {
-                // TODO: do something with the PDFs
-            });
+            .forEach(pdfsConsumer);
     }
 
     private List<PDF> processZipFile(BlobInputStream blobInputStream) {
