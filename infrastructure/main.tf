@@ -57,6 +57,7 @@ module "bulk-scan" {
     FLYWAY_USER                   = "${module.bulk-scan-db.user_name}"
     FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
 
+    SCAN_INTERVAL                 = "30000"
     STORAGE_ACCOUNT_NAME          = "${azurerm_storage_account.provider.name}"
     STORAGE_KEY                   = "${azurerm_storage_account.provider.primary_access_key}"
     SAS_TOKEN_VALIDITY            = "${var.token_validity}"
