@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -57,12 +57,10 @@ public class DocumentProcessorTest {
         CloudBlobContainer abc = cloudBlobClient.getContainerReference("abc");
         abc.createIfNotExists();
 
-        Throwable throwable = catchThrowable(() -> {
+        assertThatCode(() -> {
             DocumentProcessor documentProcessor = new DocumentProcessor(cloudBlobClient, pdfsConsumer);
             documentProcessor.readBlobs();
-        });
-
-        assertThat(throwable).doesNotThrowAnyException();
+        }).doesNotThrowAnyException();
     }
 
     @Test
