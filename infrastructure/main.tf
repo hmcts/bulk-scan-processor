@@ -27,6 +27,7 @@ module "bulk-scan-db" {
   postgresql_user     = "feature_toggler"
   sku_name            = "GP_Gen5_2"
   sku_tier            = "GeneralPurpose"
+  common_tags         = "${var.common_tags}"
 }
 
 module "bulk-scan" {
@@ -38,6 +39,7 @@ module "bulk-scan" {
   subscription = "${var.subscription}"
   is_frontend  = false
   capacity     = "${var.capacity}"
+  common_tags  = "${var.common_tags}"
 
   app_settings = {
     // db

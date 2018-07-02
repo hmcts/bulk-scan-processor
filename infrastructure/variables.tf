@@ -49,3 +49,7 @@ variable "account_name" {
 variable "token_validity" {
   default = "86400" #1 day in seconds
 }
+
+variable "common_tags" {
+  type = "map"
+}
