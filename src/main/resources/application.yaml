@@ -44,3 +44,13 @@ accesstoken:
   serviceConfig:
     - serviceName: sscs
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+
+idam:
+  s2s-auth:
+    url: ${S2S_URL}
+    secret: ${S2S_SECRET}
+    name: ${S2S_NAME:bulk_scan_processor}
+
+dm:
+  api_gateway:
+    url: ${DOCUMENT_MANAGEMENT_URL}
