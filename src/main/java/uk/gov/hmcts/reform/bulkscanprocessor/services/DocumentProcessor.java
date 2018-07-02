@@ -23,6 +23,11 @@ import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * Main component that is run in intervals.
+ *
+ * Looks up all available containers for zip files and extracts pdf files from them.
+ */
 @Component
 public class DocumentProcessor {
 
