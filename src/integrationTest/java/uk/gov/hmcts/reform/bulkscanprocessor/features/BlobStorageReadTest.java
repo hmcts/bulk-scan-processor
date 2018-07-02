@@ -19,6 +19,9 @@ import java.security.InvalidKeyException;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
 @RunWith(MockitoJUnitRunner.class)
 public class BlobStorageReadTest {
 
@@ -43,7 +46,11 @@ public class BlobStorageReadTest {
         CloudBlobContainer abc = cloudBlobClient.getContainerReference("abc");
         abc.createIfNotExists();
 
-        BlobStorageRead blobStorageRead = new BlobStorageRead(cloudBlobClient, pdfsConsumer);
-        blobStorageRead.readBlobs();
+        Throwable throwable = catchThrowable(() -> {
+            BlobStorageRead blobStorageRead = new BlobStorageRead(cloudBlobClient, pdfsConsumer);
+            blobStorageRead.readBlobs();
+        });
+
+        assertThat(throwable).doesNotThrowAnyException();
     }
 }
