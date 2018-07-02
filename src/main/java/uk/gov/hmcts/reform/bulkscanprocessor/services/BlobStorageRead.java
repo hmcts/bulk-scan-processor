@@ -49,7 +49,7 @@ public class BlobStorageRead {
                 LOGGER.warn("Invalid URL", e);
                 // TODO: track exception in AppInsights Telemetry
             } catch (StorageException e) {
-                LOGGER.warn("Could not obtain container reference", e);
+                LOGGER.error("Could not obtain container reference", e);
                 // TODO: track exception in AppInsights Telemetry
             }
         });
@@ -68,7 +68,7 @@ public class BlobStorageRead {
 
                     return processZipFile(blobInputStream);
                 } catch (StorageException e) {
-                    LOGGER.warn("Could not download data", e);
+                    LOGGER.error("Could not download data", e);
                     // TODO: track exception in AppInsights Telemetry
                 } catch (URISyntaxException e) {
                     LOGGER.warn("Invalid URL", e);
