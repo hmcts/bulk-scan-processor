@@ -53,4 +53,4 @@ idam:
 
 dm:
   api_gateway:
-    url: ${DOCUMENT_MANAGEMENT_URL}
+    url: ${DOCUMENT_MANAGEMENT_URL:http://localhost:8082}
