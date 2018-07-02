@@ -34,12 +34,12 @@ public class DocumentProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentProcessor.class);
 
     private final CloudBlobClient cloudBlobClient;
-    private final Consumer<List<PDF>> pdfsConsumer;
+    private final Consumer<List<PDF>> handlePdfs;
 
     @Autowired
-    public DocumentProcessor(CloudBlobClient cloudBlobClient, Consumer<List<PDF>> pdfsConsumer) {
+    public DocumentProcessor(CloudBlobClient cloudBlobClient, Consumer<List<PDF>> handlePdfs) {
         this.cloudBlobClient = cloudBlobClient;
-        this.pdfsConsumer = pdfsConsumer;
+        this.handlePdfs = handlePdfs;
     }
 
     @Scheduled(fixedDelayString = "${scan.interval}")
@@ -82,7 +82,7 @@ public class DocumentProcessor {
                 return null;
             })
             .filter(Objects::nonNull)
-            .forEach(pdfsConsumer);
+            .forEach(handlePdfs);
     }
 
     private List<PDF> processZipFile(BlobInputStream blobInputStream) {
