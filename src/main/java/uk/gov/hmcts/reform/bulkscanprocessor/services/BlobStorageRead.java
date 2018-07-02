@@ -2,9 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.google.common.io.ByteStreams;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentials;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlob;
@@ -37,9 +34,16 @@ public class BlobStorageRead {
     }
 
     public void readBlobs() throws Exception {
-        CloudBlobContainer container = cloudBlobClient.getContainerReference("sscs");
-
-        readBlobsFromContainer(container);
+        cloudBlobClient.listContainers().forEach(cloudBlobContainer -> {
+            try {
+                CloudBlobContainer container = cloudBlobClient.getContainerReference(cloudBlobContainer.getName());
+                readBlobsFromContainer(container);
+            } catch (URISyntaxException e) {
+                LOGGER.warn("Invalid URL", e);
+            } catch (StorageException e) {
+                LOGGER.warn("Could not obtain container reference", e);
+            }
+        });
     }
 
     private void readBlobsFromContainer(CloudBlobContainer container) {
