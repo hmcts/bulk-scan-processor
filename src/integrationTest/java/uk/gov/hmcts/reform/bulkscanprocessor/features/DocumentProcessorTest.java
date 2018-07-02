@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -81,10 +82,8 @@ public class DocumentProcessorTest {
 
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
 
-        assertThat(pdfListCaptor.getValue())
-            .hasSize(3)
-            .anyMatch(pdf -> "abc.pdf".equals(pdf.getFilename()))
-            .anyMatch(pdf -> "def.pdf".equals(pdf.getFilename()))
-            .anyMatch(pdf -> "ghi.pdf".equals(pdf.getFilename()));
+        List<String> pdfNames = pdfListCaptor.getValue().stream().map(PDF::getFilename).collect(Collectors.toList());
+
+        assertThat(pdfNames).containsExactlyInAnyOrder("abc.pdf", "def.pdf", "ghi.pdf");
     }
 }
