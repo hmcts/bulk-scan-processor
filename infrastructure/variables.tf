@@ -49,3 +49,11 @@ variable "account_name" {
 variable "token_validity" {
   default = "86400" #1 day in seconds
 }
+
+variable "vault_section" {
+  default = "test"
+}
+
+variable "s2s_name" {
+  default = "bulk_scan_processor"
+}
