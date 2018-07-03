@@ -35,9 +35,7 @@ public class DocumentManagementService {
 
     private static final String MULTIPART_FORM_PARAM = "files";
     private static final String CONTENT_TYPE = "Content-Type";
-    private static final String CLASSIFICATION = "classification";
     private static final String DOCUMENTS_PATH = "/documents";
-    private static final String RESTRICTED = "RESTRICTED";
     private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
 
     private final String dmUri;
@@ -99,7 +97,7 @@ public class DocumentManagementService {
             .map(DocumentManagementService::createMultipartRequestBody)
             .forEach(file -> parameters.add(MULTIPART_FORM_PARAM, file));
 
-        parameters.add(CLASSIFICATION, RESTRICTED);
+        parameters.add("classification", "RESTRICTED");
         return parameters;
     }
 
