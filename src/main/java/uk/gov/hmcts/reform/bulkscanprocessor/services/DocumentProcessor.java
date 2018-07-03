@@ -42,7 +42,7 @@ public class DocumentProcessor {
         this.handlePdfs = handlePdfs;
     }
 
-    @Scheduled(fixedDelayString = "${scan.interval}")
+    @Scheduled(fixedDelayString = "${scan.delay}")
     public void readBlobs() {
         cloudBlobClient.listContainers().forEach(cloudBlobContainer -> {
             try {
