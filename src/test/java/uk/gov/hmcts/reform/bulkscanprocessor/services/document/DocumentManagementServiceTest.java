@@ -74,8 +74,9 @@ public class DocumentManagementServiceTest {
 
         when(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
-            httpEntityReqEntity.capture(), any())
-        ).thenReturn(getResponse());
+            httpEntityReqEntity.capture(),
+            any()
+        )).thenReturn(getResponse());
 
         //when
         List<FileUploadResponse> actualUploadResponse = documentManagementService.uploadDocuments(asList(pdf1, pdf2));
@@ -103,7 +104,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_401_unauthorized_exception_when_service_auth_throws_exception() throws Exception {
+    public void should_throw_client_exception_when_service_auth_throws_unauthorized_exception() throws Exception {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
@@ -124,7 +125,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_forbidden_exception_when_bulk_scanning_service_is_not_whitelisted_in_doc_storage()
+    public void should_throw_unable_to_upload_document_exception_when_bulk_scanning_service_is_not_whitelisted_in_doc_storage()
         throws Exception {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
@@ -150,7 +151,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_server_exception_when_document_storage_is_down() throws Exception {
+    public void should_throw_nable_to_upload_document_exception_when_document_storage_is_down() throws Exception {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
@@ -160,7 +161,8 @@ public class DocumentManagementServiceTest {
 
         when(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
-            httpEntityReqEntity.capture(), any())
+            httpEntityReqEntity.capture(),
+            any())
         ).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         //when

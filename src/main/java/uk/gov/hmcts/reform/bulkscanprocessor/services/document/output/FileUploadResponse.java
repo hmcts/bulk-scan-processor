@@ -13,4 +13,12 @@ public class FileUploadResponse {
         this.fileUrl = fileUrl;
         this.fileName = fileName;
     }
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
 }

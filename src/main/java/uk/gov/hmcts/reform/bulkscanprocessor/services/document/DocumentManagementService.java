@@ -23,21 +23,19 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUpload
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @Service
 public class DocumentManagementService {
 
-    private static final String FILES_NAME = "files";
+    private static final String MULTIPART_FORM_PARAM = "files";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CLASSIFICATION = "classification";
-    private static final String FILES = "files";
     private static final String DOCUMENTS_PATH = "/documents";
     private static final String RESTRICTED = "RESTRICTED";
     private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
@@ -60,18 +58,14 @@ public class DocumentManagementService {
     }
 
     public List<FileUploadResponse> uploadDocuments(List<Pdf> pdfs) {
-        List<MultipartFile> multipartFiles = new ArrayList<>();
-
-        pdfs.forEach(pdf -> {
-            MultipartFile file = new InMemoryMultipartFile(
-                FILES_NAME,
+        List<MultipartFile> multipartFiles = pdfs.stream()
+            .map(pdf -> new InMemoryMultipartFile(
+                MULTIPART_FORM_PARAM,
                 pdf.getFilename(),
                 Pdf.CONTENT_TYPE,
                 pdf.getBytes()
-            );
-
-            multipartFiles.add(file);
-        });
+            ))
+            .collect(toList());
 
         HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(
             prepareRequest(multipartFiles),
@@ -102,14 +96,14 @@ public class DocumentManagementService {
     private static MultiValueMap<String, Object> prepareRequest(List<MultipartFile> files) {
         MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
         files.stream()
-            .map(DocumentManagementService::buildPartFromFile)
-            .forEach(file -> parameters.add(FILES, file));
+            .map(DocumentManagementService::createMultipartRequestBody)
+            .forEach(file -> parameters.add(MULTIPART_FORM_PARAM, file));
 
         parameters.add(CLASSIFICATION, RESTRICTED);
         return parameters;
     }
 
-    private static HttpEntity<Resource> buildPartFromFile(MultipartFile file) {
+    private static HttpEntity<Resource> createMultipartRequestBody(MultipartFile file) {
         return new HttpEntity<>(buildByteArrayResource(file), buildPartHeaders(file));
     }
 
@@ -143,6 +137,6 @@ public class DocumentManagementService {
         Stream<JsonNode> filesStream = stream(documents.spliterator(), false);
         return filesStream
             .map(this::createResponse)
-            .collect(Collectors.toList());
+            .collect(toList());
     }
 }
