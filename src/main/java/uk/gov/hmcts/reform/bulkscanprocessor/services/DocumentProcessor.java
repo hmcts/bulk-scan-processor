@@ -67,16 +67,17 @@ public class DocumentProcessor {
             .filter(cloudBlob -> cloudBlob.getName().toLowerCase().endsWith(".zip"))
             // TODO: notify supplier about non-zip files
             .map(cloudBlob -> {
-                try {
-                    BlobInputStream blobInputStream = container.getBlockBlobReference(cloudBlob.getName())
-                        .openInputStream();
-
+                try (BlobInputStream blobInputStream = container.getBlockBlobReference(cloudBlob.getName())
+                    .openInputStream()) {
                     return processZipFile(blobInputStream);
                 } catch (StorageException e) {
                     LOGGER.error("Could not download data", e);
                     // TODO: track exception in AppInsights Telemetry
                 } catch (URISyntaxException e) {
                     LOGGER.error("Invalid URL", e);
+                    // TODO: track exception in AppInsights Telemetry
+                } catch (IOException e) {
+                    LOGGER.error("Could not close data stream", e);
                     // TODO: track exception in AppInsights Telemetry
                 }
                 return null;
