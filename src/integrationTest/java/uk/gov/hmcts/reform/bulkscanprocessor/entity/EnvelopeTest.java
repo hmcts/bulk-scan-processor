@@ -26,13 +26,17 @@ public class EnvelopeTest {
     private EnvelopeRepository repository;
 
     @Test
-    public void asd() throws IOException {
+    public void should_insert_into_db_and_validate_data_correctness_when_retrieved() throws IOException {
+        // given
         Envelope envelope = EntityParser.parseEnvelopeMetadata(getMetaFile());
 
+        // and
         UUID envelopeId = repository.save(envelope).getId();
 
+        // when
         Envelope dbEnvelope = repository.getOne(envelopeId);
 
+        // then
         try (InputStream stream = getMetaFile()) {
             String originalMetaFile = IOUtils.toString(stream);
             String actualEnvelope = new ObjectMapper().writeValueAsString(dbEnvelope);
