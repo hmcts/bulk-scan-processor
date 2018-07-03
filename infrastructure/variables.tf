@@ -57,3 +57,7 @@ variable "vault_section" {
 variable "s2s_name" {
   default = "bulk_scan_processor"
 }
+
+variable "scan_delay" {
+  default = "30000" # in milliseconds
+}
