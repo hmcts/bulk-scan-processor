@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -20,6 +21,7 @@ import static java.util.Collections.emptyList;
 public class Envelope {
 
     @Id
+    @GeneratedValue
     private UUID id;
 
     @JsonProperty("po_box")
@@ -86,5 +88,9 @@ public class Envelope {
 
     public List<Payment> getPayments() {
         return payments;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }
