@@ -125,7 +125,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_unable_to_upload_document_exception_when_bulk_scanning_service_is_not_whitelisted_in_doc_storage()
+    public void should_throw_unable_to_upload_doc_exception_when_bulk_scan_service_is_not_whitelisted_in_doc_storage()
         throws Exception {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
