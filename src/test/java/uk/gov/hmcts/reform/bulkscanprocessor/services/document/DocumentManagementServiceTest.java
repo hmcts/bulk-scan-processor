@@ -29,6 +29,7 @@ import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -72,11 +73,11 @@ public class DocumentManagementServiceTest {
         Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
         Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
 
-        when(restTemplate.postForObject(
+        given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
             httpEntityReqEntity.capture(),
-            any()
-        )).thenReturn(getResponse());
+            any())
+        ).willReturn(getResponse());
 
         //when
         List<FileUploadResponse> actualUploadResponse = documentManagementService.uploadDocuments(asList(pdf1, pdf2));
@@ -112,7 +113,7 @@ public class DocumentManagementServiceTest {
         Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
         Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
 
-        when(authTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
+        given(authTokenGenerator.generate()).willThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
         //when
         Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
@@ -134,10 +135,11 @@ public class DocumentManagementServiceTest {
         Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
         Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
 
-        when(restTemplate.postForObject(
+        given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
-            httpEntityReqEntity.capture(), any())
-        ).thenThrow(new HttpClientErrorException(HttpStatus.FORBIDDEN));
+            httpEntityReqEntity.capture(),
+            any())
+        ).willThrow(new HttpClientErrorException(HttpStatus.FORBIDDEN));
 
         //when
         Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
@@ -159,11 +161,11 @@ public class DocumentManagementServiceTest {
         Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
         Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
 
-        when(restTemplate.postForObject(
+        given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
             httpEntityReqEntity.capture(),
             any())
-        ).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+        ).willThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         //when
         Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
