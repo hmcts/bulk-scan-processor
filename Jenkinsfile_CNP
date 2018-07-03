@@ -12,5 +12,6 @@ withPipeline(type, product, component) {
   after('test') {
     sh './gradlew integration'
   }
+  enableDbMigration()
   enableSlackNotifications(channel)
 }
