@@ -42,6 +42,8 @@ import java.text.ParseException;
  */
 public class CustomTimestampDeserialiser extends StdDeserializer<Timestamp> {
 
+    public static final StdDeserializer<Timestamp> INSTANCE = new CustomTimestampDeserialiser();
+
     private CustomTimestampDeserialiser() {
         super(Timestamp.class);
     }
