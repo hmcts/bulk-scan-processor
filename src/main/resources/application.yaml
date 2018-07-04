@@ -44,3 +44,6 @@ accesstoken:
   serviceConfig:
     - serviceName: sscs
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+
+scan:
+  delay: ${SCAN_DELAY:30000} # In milliseconds
