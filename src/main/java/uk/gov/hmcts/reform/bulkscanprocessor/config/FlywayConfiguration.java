@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -14,8 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.FlywayNoOpStrategy;
 
-import javax.sql.DataSource;
-
 @AutoConfigureAfter({
     DataSourceAutoConfiguration.class,
     HibernateJpaAutoConfiguration.class
@@ -24,7 +21,6 @@ import javax.sql.DataSource;
     FlywayAutoConfiguration.class
 })
 @Configuration
-@ConditionalOnBean(DataSource.class)
 @ConditionalOnClass(Flyway.class)
 @ConditionalOnProperty(prefix = "spring.flyway", name = "enabled", matchIfMissing = true)
 public class FlywayConfiguration {
