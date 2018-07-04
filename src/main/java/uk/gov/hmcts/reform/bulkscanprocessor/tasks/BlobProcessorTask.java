@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ public class BlobProcessorTask {
         this.envelopeProcessor = envelopeProcessor;
     }
 
+    @SchedulerLock(name = "blobProcessor")
     @Scheduled(fixedDelayString = "${scan.delay}")
     public void processBlobs() {
         cloudBlobClient.listContainers()
