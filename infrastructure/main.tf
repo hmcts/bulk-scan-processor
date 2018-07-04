@@ -15,6 +15,12 @@ locals {
   nonPreviewVaultName  = "${var.product}-bsp-${var.env}"
   vaultName            = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 
+  aseName        = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
+  local_env      = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
+
+  s2s_url        = "http://rpe-service-auth-provider-${local.local_env}.service.core-compute-${local.local_env}.internal"
+  dm_store_url   = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
+
   db_connection_options  = "?ssl=true"
 }
 
@@ -52,10 +58,16 @@ module "bulk-scan" {
     FLYWAY_URL                    = "jdbc:postgresql://${module.bulk-scan-db.host_name}:${module.bulk-scan-db.postgresql_listen_port}/${module.bulk-scan-db.postgresql_database}${local.db_connection_options}"
     FLYWAY_USER                   = "${module.bulk-scan-db.user_name}"
     FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
-    //
+
     STORAGE_ACCOUNT_NAME          = "${azurerm_storage_account.provider.name}"
     STORAGE_KEY                   = "${azurerm_storage_account.provider.primary_access_key}"
     SAS_TOKEN_VALIDITY            = "${var.token_validity}"
+
+    DOCUMENT_MANAGEMENT_URL       = "${local.dm_store_url}"
+
+    S2S_URL                       = "${local.s2s_url}"
+    S2S_NAME                      = "${var.s2s_name}"
+    S2S_SECRET                    = "${data.vault_generic_secret.s2s_secret.data["value"]}"
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL   = false
     LOGBACK_REQUIRE_ERROR_CODE    = false
@@ -125,4 +137,8 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name      = "${var.component}-POSTGRES-DATABASE"
   value     = "${module.bulk-scan-db.postgresql_database}"
   vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+}
+
+data "vault_generic_secret" "s2s_secret" {
+  path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/bulk-scan-processor"
 }
