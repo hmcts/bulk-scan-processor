@@ -25,7 +25,7 @@ To build the project execute the following command:
 Create the image of the application by executing the following command:
 
 ```bash
-  ./gradlew installDist
+  ./gradlew assemble
 ```
 
 Application listens on port `8581` which can be overridden by setting `SERVER_PORT` environment variable or from [.env](/.env) file.
