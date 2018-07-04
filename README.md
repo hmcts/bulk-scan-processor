@@ -63,6 +63,7 @@ Smoke tests expect an address of deployed application to be passed in `TEST_URL`
   TEST_URL=http://localhost:8561 ./gradlew smoke
 ```
 
+By default, it will use `http://localhost:8581` which is defined in [src/smokeTest/resources/application.yaml](/src/smokeTest/resources/application.yaml).
 ### Running integration tests
 
 ```bash
