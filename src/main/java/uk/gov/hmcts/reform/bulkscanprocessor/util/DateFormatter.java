@@ -16,6 +16,10 @@ final class DateFormatter {
         return format.format(timestamp);
     }
 
+    static String getPattern() {
+        return format.toPattern();
+    }
+
     private DateFormatter() {
         // utility class constructor
     }

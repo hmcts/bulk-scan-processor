@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidTimestampFormatException;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -43,8 +42,6 @@ import java.text.ParseException;
  */
 public class CustomTimestampDeserialiser extends StdDeserializer<Timestamp> {
 
-    private static final Logger log = LoggerFactory.getLogger(CustomTimestampDeserialiser.class);
-
     private CustomTimestampDeserialiser() {
         super(Timestamp.class);
     }
@@ -62,10 +59,10 @@ public class CustomTimestampDeserialiser extends StdDeserializer<Timestamp> {
 
                 return timestamp;
             } catch (ParseException exception) {
-                log.error(exception.getMessage(), exception);
+                throw new InvalidTimestampFormatException(DateFormatter.getPattern(), exception);
             }
         }
 
-        return null;
+        throw new InvalidTimestampFormatException(DateFormatter.getPattern());
     }
 }
