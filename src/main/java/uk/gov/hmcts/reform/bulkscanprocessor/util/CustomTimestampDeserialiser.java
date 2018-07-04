@@ -11,6 +11,36 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 
+/**
+ * Custom deserialiser for Timestamp class.
+ * Jackson library incorrectly deserialises string with microseconds (example suffix format: HH:mm:ss.SSSSSS).
+ * Microseconds are part of the agreed date format provided in json metafile.
+ * Jackson deserialiser takes milliseconds as seconds and breaks the correct representation.
+ * Examples:
+ *
+ * <table>
+ *     <tr>
+ *         <th>String</th>
+ *         <th>Timestamp</th>
+ *     </tr>
+ *     <tr>
+ *         <td>12:00:00.100000</td>
+ *         <td>12:01:40.000000</td>
+ *     </tr>
+ *     <tr>
+ *         <td>12:00:00.010000</td>
+ *         <td>12:00:10.000000</td>
+ *     </tr>
+ *     <tr>
+ *         <td>12:00:00.001000</td>
+ *         <td>12:00:01.000000</td>
+ *     </tr>
+ *     <tr>
+ *         <td>12:00:00.000100</td>
+ *         <td>12:00:00.000100</td>
+ *     </tr>
+ * </table>
+ */
 public class CustomTimestampDeserialiser extends StdDeserializer<Timestamp> {
 
     private static final Logger log = LoggerFactory.getLogger(CustomTimestampDeserialiser.class);
