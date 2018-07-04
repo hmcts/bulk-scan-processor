@@ -150,6 +150,8 @@ def versions = [
 ]
 
 dependencies {
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '1.0.0'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '1.0.0'
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '7.0.0'
 
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
