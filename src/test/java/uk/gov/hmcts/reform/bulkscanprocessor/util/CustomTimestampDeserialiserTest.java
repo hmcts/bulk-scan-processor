@@ -22,7 +22,8 @@ public class CustomTimestampDeserialiserTest {
     private static final StdDeserializer<Timestamp> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
 
     private final int micros;
-    private static final JsonParser parser = mock(JsonParser.class);
+    private static final JsonParser PARSER = mock(JsonParser.class);
+    private static final DeserializationContext CONTEXT = mock(DeserializationContext.class);
 
     @Parameterized.Parameters(name = "Check deserialisation with {0} microseconds")
     public static Iterable<Object[]> data() {
@@ -56,8 +57,8 @@ public class CustomTimestampDeserialiserTest {
             micros
         );
 
-        when(parser.getText()).thenReturn(date);
+        when(PARSER.getText()).thenReturn(date);
 
-        assertThat(DESERIALIZER.deserialize(parser, mock(DeserializationContext.class))).hasSameTimeAs(expected);
+        assertThat(DESERIALIZER.deserialize(PARSER, CONTEXT)).hasSameTimeAs(expected);
     }
 }

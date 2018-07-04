@@ -18,15 +18,15 @@ public class FailingTimestampDeserialiserTest {
 
     private static final StdDeserializer<Timestamp> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
 
-    private static final JsonParser parser = mock(JsonParser.class);
+    private static final JsonParser PARSER = mock(JsonParser.class);
 
-    private static final DeserializationContext context = mock(DeserializationContext.class);
+    private static final DeserializationContext CONTEXT = mock(DeserializationContext.class);
 
     @Test
     public void should_fail_to_parse_when_there_is_no_dot_for_fraction() throws IOException {
-        when(parser.getText()).thenReturn("23-12-2019 03:04:05");
+        when(PARSER.getText()).thenReturn("23-12-2019 03:04:05");
 
-        Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(parser, context));
+        Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(PARSER, CONTEXT));
 
         assertThat(exception).isInstanceOf(InvalidTimestampFormatException.class);
     }
