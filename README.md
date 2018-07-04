@@ -28,7 +28,7 @@ Create the image of the application by executing the following command:
   ./gradlew installDist
 ```
 
-Application listens on port `8581` which can be overridden by setting `SERVER_PORT` environment variable.
+Application listens on port `8581` which can be overridden by setting `SERVER_PORT` environment variable or from [.env](/.env) file.
 
 The application depends upon certain components that are already up and running.
 Configuration details for each component can be changed by passing values in environment variables:
