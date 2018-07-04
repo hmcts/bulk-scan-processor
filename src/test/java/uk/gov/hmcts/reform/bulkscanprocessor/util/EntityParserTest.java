@@ -40,4 +40,14 @@ public class EntityParserTest {
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getPayments()).hasSize(1);
     }
+
+    @Test
+    public void should_parse_envelop_data_with_no_scannable_items_in() throws IOException {
+        InputStream inputStream = getClass().getResourceAsStream("/metafile-no-scannables.json");
+        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+
+        assertThat(envelope.getNonScannableItems()).hasSize(1);
+        assertThat(envelope.getScannableItems()).hasSize(0);
+        assertThat(envelope.getPayments()).hasSize(1);
+    }
 }
