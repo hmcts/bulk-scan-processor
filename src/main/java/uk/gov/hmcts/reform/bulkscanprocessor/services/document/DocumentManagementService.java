@@ -17,6 +17,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.IncompleteResponseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUploadResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -69,13 +70,17 @@ public class DocumentManagementService {
         );
 
         try {
-            JsonNode documents = restTemplate.postForObject(dmUri + DOCUMENTS_PATH, httpEntity, ObjectNode.class)
-                .path("_embedded").path("documents");
+            ObjectNode objectNode = restTemplate.postForObject(dmUri + DOCUMENTS_PATH, httpEntity, ObjectNode.class);
 
-            log.info("File upload response from Document Storage service is {}", documents);
+            if (objectNode != null) {
+                JsonNode documents = objectNode.path("_embedded").path("documents");
 
-            return createFileUploadResponse(documents);
+                log.info("File upload response from Document Storage service is {}", documents);
 
+                return createFileUploadResponse(documents);
+            } else {
+                throw new IncompleteResponseException("Did not receive correct ObjectNode response");
+            }
         } catch (Exception exception) {
             log.error("Exception occurred while uploading documents ", exception);
             throw new UnableToUploadDocumentException(exception);
@@ -100,12 +105,15 @@ public class DocumentManagementService {
     }
 
     private static HttpEntity<Resource> createMultipartRequestBody(MultipartFile file) {
-        return new HttpEntity<>(buildByteArrayResource(file), buildPartHeaders(file));
+        String contentType = file.getContentType();
+
+        return new HttpEntity<>(buildByteArrayResource(file), buildPartHeaders(contentType));
     }
 
-    private static HttpHeaders buildPartHeaders(MultipartFile file) {
+    private static HttpHeaders buildPartHeaders(String contentType) {
         final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(file.getContentType()));
+        headers.setContentType(MediaType.valueOf(contentType));
+
         return headers;
     }
 
