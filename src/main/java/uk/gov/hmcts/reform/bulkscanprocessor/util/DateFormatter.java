@@ -26,4 +26,8 @@ final class DateFormatter {
     static String getPattern() {
         return format.toPattern();
     }
+
+    private DateFormatter() {
+        // utility class constructor
+    }
 }
