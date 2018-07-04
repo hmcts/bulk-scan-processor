@@ -30,4 +30,13 @@ public class FailingTimestampDeserialiserTest {
 
         assertThat(exception).isInstanceOf(InvalidTimestampFormatException.class);
     }
+
+    @Test
+    public void should_fail_to_parse_when_having_incorrect_format() throws IOException {
+        when(PARSER.getText()).thenReturn("2019-12-23 03:04:05.098765");
+
+        Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(PARSER, CONTEXT));
+
+        assertThat(exception).isInstanceOf(InvalidTimestampFormatException.class);
+    }
 }

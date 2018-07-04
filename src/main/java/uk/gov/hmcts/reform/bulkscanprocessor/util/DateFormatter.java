@@ -6,7 +6,14 @@ import java.text.SimpleDateFormat;
 
 final class DateFormatter {
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    private static final SimpleDateFormat format;
+
+    static {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        simpleDateFormat.setLenient(false);
+
+        format = simpleDateFormat;
+    }
 
     static Timestamp getTimestamp(final String timestamp) throws ParseException {
         return new Timestamp(format.parse(timestamp).getTime());
