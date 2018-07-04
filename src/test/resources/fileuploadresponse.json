@@ -1,0 +1,101 @@
+{
+  "_embedded" : {
+    "documents" : [
+      {
+      "size" : 30871,
+      "mimeType" : "application/pdf",
+      "originalDocumentName" : "test1.pdf",
+      "createdBy" : "91490",
+      "lastModifiedBy" : "91490",
+      "modifiedOn" : "2018-07-02T09:59:03+0000",
+      "createdOn" : "2018-07-02T09:59:03+0000",
+      "classification" : "RESTRICTED",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d"
+        },
+        "binary" : {
+          "href" : "http://dm-store-aat.service.core-compute-aat.internal/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d/binary"
+        },
+        "thumbnail" : {
+          "href" : "http://dm-store-aat.service.core-compute-aat.internal/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d/thumbnail"
+        }
+      },
+      "_embedded" : {
+        "allDocumentVersions" : {
+          "_embedded" : {
+            "documentVersions" : [ {
+              "size" : 30871,
+              "mimeType" : "application/pdf",
+              "originalDocumentName" : "test1.pdf",
+              "createdBy" : "91490",
+              "createdOn" : "2018-07-02T09:59:03+0000",
+              "_links" : {
+                "document" : {
+                  "href" : "http://dm-store-aat.service.core-compute-aat.internal/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d"
+                },
+                "self" : {
+                  "href" : "http://dm-store-aat.service.core-compute-aat.internal/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d/versions/f78edec4-3eda-4488-ad9d-49a82bcbc61a"
+                },
+                "binary" : {
+                  "href" : "http://dm-store-aat.service.core-compute-aat.internal/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d/versions/f78edec4-3eda-4488-ad9d-49a82bcbc61a/binary"
+                },
+                "thumbnail" : {
+                  "href" : "http://dm-store-aat.service.core-compute-aat.internal/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d/versions/f78edec4-3eda-4488-ad9d-49a82bcbc61a/thumbnail"
+                }
+              }
+            } ]
+          }
+        }
+      }
+    }, {
+      "size" : 30871,
+      "mimeType" : "application/pdf",
+      "originalDocumentName" : "test2.pdf",
+      "createdBy" : "91490",
+      "lastModifiedBy" : "91490",
+      "modifiedOn" : "2018-07-02T09:59:03+0000",
+      "createdOn" : "2018-07-02T09:59:03+0000",
+      "classification" : "RESTRICTED",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
+        },
+        "binary" : {
+          "href" : "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe/binary"
+        },
+        "thumbnail" : {
+          "href" : "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe/thumbnail"
+        }
+      },
+      "_embedded" : {
+        "allDocumentVersions" : {
+          "_embedded" : {
+            "documentVersions" : [ {
+              "size" : 30871,
+              "mimeType" : "application/pdf",
+              "originalDocumentName" : "test2.pdf",
+              "createdBy" : "91490",
+              "createdOn" : "2018-07-02T09:59:03+0000",
+              "_links" : {
+                "document" : {
+                  "href" : "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
+                },
+                "self" : {
+                  "href" : "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe/versions/603dc38d-9ba0-4fe8-ac36-f31525a92355"
+                },
+                "binary" : {
+                  "href" : "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe/versions/603dc38d-9ba0-4fe8-ac36-f31525a92355/binary"
+                },
+                "thumbnail" : {
+                  "href" : "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe/versions/603dc38d-9ba0-4fe8-ac36-f31525a92355/thumbnail"
+                }
+              }
+            } ]
+          }
+        }
+      }
+    } ]
+  }
+}
+}
