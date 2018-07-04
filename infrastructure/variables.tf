@@ -57,3 +57,7 @@ variable "vault_section" {
 variable "s2s_name" {
   default = "bulk_scan_processor"
 }
+
+variable "common_tags" {
+  type = "map"
+}
