@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -44,7 +43,6 @@ public class DocumentManagementService {
 
     private static final Logger log = LoggerFactory.getLogger(DocumentManagementService.class);
 
-    @Autowired
     public DocumentManagementService(
         AuthTokenGenerator authTokenGenerator,
         RestTemplate restTemplate,
