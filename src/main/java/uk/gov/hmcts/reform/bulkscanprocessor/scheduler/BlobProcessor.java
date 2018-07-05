@@ -63,23 +63,12 @@ public class BlobProcessor {
     @Scheduled(fixedDelayString = "${scan.delay}")
     public void processBlobs() {
         cloudBlobClient.listContainers()
-            .forEach(this::processBlobsPerContainer);
-    }
-
-    private void processBlobsPerContainer(CloudBlobContainer cloudBlobContainer) {
-        String containerName = cloudBlobContainer.getName();
-
-        log.info("Processing blobs for container {} ", containerName);
-
-        try {
-            processZipFiles(cloudBlobClient.getContainerReference(containerName));
-        } catch (URISyntaxException | StorageException e) {
-            log.error("Exception occurred while retrieving container reference for " + containerName, e);
-            // TODO Raise an event in DB or track in appinsights if this happens.
-        }
+            .forEach(this::processZipFiles);
     }
 
     private void processZipFiles(CloudBlobContainer container) {
+        log.info("Processing blobs for container {} ", container.getName());
+
         for (ListBlobItem blobItem : container.listBlobs()) {
             String zipFilename = FilenameUtils.getName(blobItem.getUri().toString());
 
@@ -125,7 +114,7 @@ public class BlobProcessor {
             processPdfFiles(pdfFiles);
         }
     }
-   
+
     private void processPdfFiles(List<Pdf> pdfs) {
         //TODO Save in document storage and update DB with urls
         documentManagementService.uploadDocuments(pdfs);
