@@ -54,3 +54,9 @@ idam:
 dm:
   api_gateway:
     url: ${DOCUMENT_MANAGEMENT_URL:http://localhost:8082}
+
+scheduling:
+  enabled: ${SCHEDULING_ENABLED:false}
+
+scan:
+  delay: ${SCAN_DELAY:30000} # In milliseconds

@@ -99,4 +99,12 @@ public class Envelope {
     public UUID getId() {
         return id;
     }
+
+    public String getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public String getZipFileName() {
+        return zipFileName;
+    }
 }
