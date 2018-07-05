@@ -9,6 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -41,6 +42,7 @@ import static com.google.common.io.ByteStreams.toByteArray;
  * 5. Update status and doc urls in DB.
  */
 @Component
+@ConditionalOnProperty(value = "scheduling.enabled", matchIfMissing = true)
 public class BlobProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessor.class);
