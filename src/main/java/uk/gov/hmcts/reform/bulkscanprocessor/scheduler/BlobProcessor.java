@@ -81,36 +81,10 @@ public class BlobProcessor {
 
     private void processZipFiles(CloudBlobContainer container) {
         for (ListBlobItem blobItem : container.listBlobs()) {
-            List<Pdf> pdfFiles = new ArrayList<>();
             String zipFilename = FilenameUtils.getName(blobItem.getUri().toString());
-            byte[] metadataStream = null;
 
             try {
-                BlobInputStream blobInputStream =
-                    container.getBlockBlobReference(zipFilename).openInputStream();
-
-                //Zip file will include metadata.json and collection of pdf documents
-                try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-                    ZipEntry zipEntry;
-                    while ((zipEntry = zis.getNextEntry()) != null) {
-                        switch (FilenameUtils.getExtension(zipEntry.getName())) {
-                            case "json":
-                                metadataStream = toByteArray(zis);
-                                break;
-                            case "pdf":
-                                Pdf pdf = new Pdf(zipEntry.getName(), toByteArray(zis));
-                                pdfFiles.add(pdf);
-                                break;
-                            default:
-                                //Contract breakage
-                                throw new NoPdfFileFoundException("Zip file contains non pdf documents for file " + zipFilename);
-                        }
-                    }
-
-                    processMetaFile(metadataStream);
-
-                    processPdfFiles(pdfFiles);
-                }
+                processZipFile(container, zipFilename);
             } catch (Exception e) {
                 //If any error occurs processing one record remaining records should be continued processing
                 log.error("Exception occurred while processing zip file " + zipFilename, e);
@@ -119,6 +93,39 @@ public class BlobProcessor {
         }
     }
 
+    private void processZipFile(CloudBlobContainer container, String zipFilename)
+        throws StorageException, URISyntaxException, IOException {
+
+        List<Pdf> pdfFiles = new ArrayList<>();
+        BlobInputStream blobInputStream = container.getBlockBlobReference(zipFilename).openInputStream();
+
+        //Zip file will include metadata.json and collection of pdf documents
+        try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+            byte[] metadataStream = null;
+            ZipEntry zipEntry;
+            while ((zipEntry = zis.getNextEntry()) != null) {
+                switch (FilenameUtils.getExtension(zipEntry.getName())) {
+                    case "json":
+                        metadataStream = toByteArray(zis);
+                        break;
+                    case "pdf":
+                        Pdf pdf = new Pdf(zipEntry.getName(), toByteArray(zis));
+                        pdfFiles.add(pdf);
+                        break;
+                    default:
+                        //Contract breakage
+                        throw new NoPdfFileFoundException(
+                            "Zip file contains non pdf documents for file " + zipFilename
+                        );
+                }
+            }
+
+            processMetaFile(metadataStream);
+
+            processPdfFiles(pdfFiles);
+        }
+    }
+   
     private void processPdfFiles(List<Pdf> pdfs) {
         //TODO Save in document storage and update DB with urls
         documentManagementService.uploadDocuments(pdfs);
