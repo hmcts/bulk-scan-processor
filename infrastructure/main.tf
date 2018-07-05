@@ -68,6 +68,9 @@ module "bulk-scan" {
     S2S_URL                       = "${local.s2s_url}"
     S2S_NAME                      = "${var.s2s_name}"
     S2S_SECRET                    = "${data.vault_generic_secret.s2s_secret.data["value"]}"
+
+    SCHEDULING_ENABLED            = "${var.scheduling_enabled}"
+    SCAN_DELAY                    = "${var.scan_delay}"
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL   = false
     LOGBACK_REQUIRE_ERROR_CODE    = false

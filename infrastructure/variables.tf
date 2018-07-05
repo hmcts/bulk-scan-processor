@@ -61,3 +61,11 @@ variable "s2s_name" {
 variable "common_tags" {
   type = "map"
 }
+
+variable "scheduling_enabled" {
+  default = "false"
+}
+
+variable "scan_delay" {
+  default = "30000"  # In milliseconds
+}
