@@ -175,6 +175,8 @@ dependencies {
 
   compile group: 'org.springframework.hateoas', name: 'spring-hateoas', version: versions.springHateoas
 
+  compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: '0.33.0'
 
