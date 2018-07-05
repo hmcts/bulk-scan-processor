@@ -8,14 +8,13 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
@@ -33,7 +32,7 @@ import java.util.zip.ZipInputStream;
 import static com.google.common.io.ByteStreams.toByteArray;
 
 /**
- * This class is a scheduler which runs as per configured interval.
+ * This class is a task executed by Scheduler as per configured interval.
  * It will read all the blobs from Azure Blob storage and will do below things
  * 1. Reads Blob from container.
  * 2. Extract Zip file(Blob)
@@ -51,7 +50,6 @@ public class BlobProcessor {
     private final EnvelopeRepository envelopeRepository;
     private final DocumentManagementService documentManagementService;
 
-    @Autowired
     public BlobProcessor(
         CloudBlobClient cloudBlobClient,
         EnvelopeRepository envelopeRepository,
@@ -65,12 +63,12 @@ public class BlobProcessor {
     @Scheduled(fixedDelayString = "${scan.delay}")
     public void processBlobs() {
         cloudBlobClient.listContainers()
-            .forEach(cloudBlobContainer ->
-                processBlobsPerContainer(cloudBlobContainer.getName())
-            );
+            .forEach(this::processBlobsPerContainer);
     }
 
-    private void processBlobsPerContainer(String containerName) {
+    private void processBlobsPerContainer(CloudBlobContainer cloudBlobContainer) {
+        String containerName = cloudBlobContainer.getName();
+
         log.info("Processing blobs for container {} ", containerName);
 
         try {
@@ -104,7 +102,8 @@ public class BlobProcessor {
                                 pdfFiles.add(pdf);
                                 break;
                             default:
-                                throw new NonPdfFileFoundException("Zip file contains non pdf documents");
+                                //Contract breakage
+                                throw new NoPdfFileFoundException("Zip file contains non pdf documents for file " + zipFilename);
                         }
                     }
 

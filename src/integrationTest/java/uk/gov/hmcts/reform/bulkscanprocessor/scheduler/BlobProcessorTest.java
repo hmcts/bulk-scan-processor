@@ -166,6 +166,20 @@ public class BlobProcessorTest {
 
     @Test
     public void should_not_save_metadata_information_in_db_when_metadata_parsing_fails() throws Exception {
+        //Given
+        //Invalid deliverydate and openingdate
+        uploadZipToBlobStore("6_24-06-2018-00-00-00.zip"); //Zip file with pdf and invalid metadata
+
+        //when
+        blobProcessor.processBlobs();
+
+        //then
+        List<Envelope> envelopesInDb = envelopeRepository.findAll();
+
+        assertThat(envelopesInDb).isEmpty();
+
+        verifyZeroInteractions(documentManagementService);
+
     }
 
     @Test
