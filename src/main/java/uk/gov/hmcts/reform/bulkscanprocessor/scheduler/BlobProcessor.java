@@ -116,11 +116,8 @@ public class BlobProcessor {
 
             List<ScannableItem> scannedItems = processMetaFile(metadataStream);
 
-            if (scannedItems.size() == pdfFiles.size()) {
-                processPdfFiles(pdfFiles, scannedItems);
-            } else {
-                // todo mark not success? roll back?
-            }
+            // TODO check scannedItems.size == pdfFiles.size
+            processPdfFiles(pdfFiles, scannedItems);
         }
     }
 
