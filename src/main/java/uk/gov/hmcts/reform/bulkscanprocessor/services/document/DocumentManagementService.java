@@ -24,6 +24,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -52,6 +54,11 @@ public class DocumentManagementService {
         this.authTokenGenerator = authTokenGenerator;
         this.restTemplate = restTemplate;
         this.dmUri = dmUri;
+    }
+
+    public static Map<String, String> convertResponseToMap(List<FileUploadResponse> responses) {
+        return responses.stream()
+            .collect(Collectors.toMap(FileUploadResponse::getFileName, FileUploadResponse::getFileUrl));
     }
 
     public List<FileUploadResponse> uploadDocuments(List<Pdf> pdfs) {

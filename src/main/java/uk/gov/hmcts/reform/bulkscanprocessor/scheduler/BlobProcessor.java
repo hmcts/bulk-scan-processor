@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUploadResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
@@ -27,6 +28,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -123,16 +125,13 @@ public class BlobProcessor {
 
     private void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
         List<ScannableItem> uploadedItems = new ArrayList<>();
+        List<FileUploadResponse> responses = documentManagementService.uploadDocuments(pdfs);
+        Map<String, String> response = DocumentManagementService.convertResponseToMap(responses);
 
-        documentManagementService.uploadDocuments(pdfs).forEach(response -> {
-            for (ScannableItem scannedItem : scannedItems) {
-                if (scannedItem.getFileName().equals(response.getFileName())) {
-                    scannedItem.setDocumentUrl(response.getFileUrl());
-
-                    uploadedItems.add(scannedItem);
-
-                    break;
-                }
+        scannedItems.forEach(item -> {
+            if (response.containsKey(item.getFileName())) {
+                item.setDocumentUrl(response.get(item.getFileName()));
+                uploadedItems.add(item);
             }
         });
 
