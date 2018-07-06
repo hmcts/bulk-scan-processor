@@ -38,6 +38,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @SpringBootTest
 public class BlobProcessorTest {
 
+    private static final String DOCUMENT_URL1 = "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
+    private static final String DOCUMENT_URL2 = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
+
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
         .file("src/integrationTest/resources/docker-compose.yml")
@@ -78,11 +81,11 @@ public class BlobProcessorTest {
         //Given
         uploadZipToBlobStore("1_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdfs
 
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
+        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
+        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
 
-        Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
+        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
+        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
 
         given(documentManagementService.uploadDocuments(asList(pdf1, pdf2)))
             .willReturn(getFileUploadResponse());
@@ -130,9 +133,9 @@ public class BlobProcessorTest {
         uploadZipToBlobStore("3_24-06-2018-00-00-00.zip"); //Zip with only pdf without metadata
         uploadZipToBlobStore("4_24-06-2018-00-00-00.zip"); //Zip with pdf and metadata
 
-        byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
+        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
 
-        Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
+        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
 
         given(documentManagementService.uploadDocuments(asList(pdf2)))
             .willReturn(getFileUploadResponse());
@@ -158,10 +161,10 @@ public class BlobProcessorTest {
         verify(documentManagementService).uploadDocuments(asList(pdf2));
 
         //Verify first pdf file was never processed
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
+        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
 
         verify(documentManagementService, times(0))
-            .uploadDocuments(asList(new Pdf("test1.pdf", test1PdfBytes)));
+            .uploadDocuments(asList(new Pdf("1111001.pdf", test1PdfBytes)));
     }
 
     @Test
@@ -207,16 +210,9 @@ public class BlobProcessorTest {
     }
 
     private List<FileUploadResponse> getFileUploadResponse() {
-        FileUploadResponse fileUploadResponse1 = new FileUploadResponse(
-            "test1.pdf",
-            "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d"
+        return asList(
+            new FileUploadResponse(DOCUMENT_URL1, "1111001.pdf"),
+            new FileUploadResponse(DOCUMENT_URL2, "1111002.pdf")
         );
-
-        FileUploadResponse fileUploadResponse2 = new FileUploadResponse(
-            "test2.pdf",
-            "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
-        );
-
-        return asList(fileUploadResponse1, fileUploadResponse2);
     }
 }
