@@ -62,6 +62,7 @@ dm:
 scheduling:
   enabled: ${SCHEDULING_ENABLED:false}
   pool: 10
+  lockAtMostFor: PT10M # 10 minutes
 
 scan:
   delay: ${SCAN_DELAY:30000} # In milliseconds

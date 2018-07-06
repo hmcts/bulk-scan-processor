@@ -21,6 +21,9 @@ public class ShedLockConfiguration {
     @Value("${scheduling.pool}")
     private int poolSize;
 
+    @Value("${scheduling.lockAtMostFor}")
+    private String lockAtMostFor;
+
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
         return new JdbcLockProvider(dataSource);
@@ -31,7 +34,7 @@ public class ShedLockConfiguration {
         return ScheduledLockConfigurationBuilder
             .withLockProvider(lockProvider)
             .withPoolSize(poolSize)
-            .withDefaultLockAtMostFor(Duration.ofMinutes(10))
+            .withDefaultLockAtMostFor(Duration.parse(lockAtMostFor))
             .build();
     }
 }
