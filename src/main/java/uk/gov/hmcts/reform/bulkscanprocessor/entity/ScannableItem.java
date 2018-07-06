@@ -44,6 +44,8 @@ public class ScannableItem {
     private String fileName;
     @JsonProperty("notes")
     private String notes;
+    @JsonProperty("document_url")
+    private String documentUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
@@ -75,5 +77,21 @@ public class ScannableItem {
         this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getDocumentUrl() {
+        return documentUrl;
+    }
+
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
     }
 }
