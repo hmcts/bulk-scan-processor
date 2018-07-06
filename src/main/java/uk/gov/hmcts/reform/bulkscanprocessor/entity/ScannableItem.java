@@ -83,6 +83,10 @@ public class ScannableItem {
         return id;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
     public String getDocumentUrl() {
         return documentUrl;
     }

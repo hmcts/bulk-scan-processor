@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUploadResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -53,6 +54,9 @@ public class BlobProcessorTest {
     @Autowired
     private EnvelopeRepository envelopeRepository;
 
+    @Autowired
+    private ScannableItemRepository scannableItemRepository;
+
     @Mock
     private DocumentManagementService documentManagementService;
 
@@ -63,7 +67,12 @@ public class BlobProcessorTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         cloudBlobClient = account.createCloudBlobClient();
 
-        blobProcessor = new BlobProcessor(cloudBlobClient, envelopeRepository, documentManagementService);
+        blobProcessor = new BlobProcessor(
+            cloudBlobClient,
+            envelopeRepository,
+            scannableItemRepository,
+            documentManagementService
+        );
 
         testContainer = cloudBlobClient.getContainerReference("test");
         testContainer.createIfNotExists();
@@ -106,6 +115,9 @@ public class BlobProcessorTest {
             parse(originalMetaFile),
             "id", "zip_file_created_date", "amount", "amount_in_pence", "configuration", "json"
         );
+        assertThat(actualEnvelope.getScannableItems())
+            .extracting("documentUrl")
+            .hasSameElementsAs(asList(DOCUMENT_URL1, DOCUMENT_URL2));
 
         //This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(asList(pdf1, pdf2));
