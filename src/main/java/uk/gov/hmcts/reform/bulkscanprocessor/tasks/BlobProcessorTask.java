@@ -109,6 +109,8 @@ public class BlobProcessorTask {
             List<ScannableItem> scannedItems = envelopeProcessor.processEnvelope(metadataStream);
 
             documentProcessor.processPdfFiles(pdfFiles, scannedItems);
+
+            cloudBlockBlob.delete();
         }
     }
 }
