@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.ByteArrayInputStream;
@@ -43,15 +44,15 @@ import static com.google.common.io.ByteStreams.toByteArray;
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.enabled", matchIfMissing = true)
-public class BlobProcessor {
+public class BlobProcessorTask {
 
-    private static final Logger log = LoggerFactory.getLogger(BlobProcessor.class);
+    private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
 
     private final CloudBlobClient cloudBlobClient;
     private final EnvelopeRepository envelopeRepository;
     private final DocumentProcessor documentProcessor;
 
-    public BlobProcessor(
+    public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         EnvelopeRepository envelopeRepository,
         DocumentProcessor documentProcessor
