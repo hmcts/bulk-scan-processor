@@ -61,6 +61,8 @@ public class BlobProcessorTest {
     @Mock
     private DocumentManagementService documentManagementService;
 
+    private DocumentProcessor documentProcessor;
+
     private CloudBlobContainer testContainer;
 
     @Before
@@ -68,11 +70,15 @@ public class BlobProcessorTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         cloudBlobClient = account.createCloudBlobClient();
 
+        documentProcessor = new DocumentProcessor(
+            documentManagementService,
+            scannableItemRepository
+        );
+
         blobProcessor = new BlobProcessor(
             cloudBlobClient,
             envelopeRepository,
-            scannableItemRepository,
-            documentManagementService
+            documentProcessor
         );
 
         testContainer = cloudBlobClient.getContainerReference("test");

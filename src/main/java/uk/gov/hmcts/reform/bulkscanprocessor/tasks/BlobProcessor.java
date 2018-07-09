@@ -15,10 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
@@ -28,7 +26,6 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -52,19 +49,16 @@ public class BlobProcessor {
 
     private final CloudBlobClient cloudBlobClient;
     private final EnvelopeRepository envelopeRepository;
-    private final ScannableItemRepository scannableItemRepository;
-    private final DocumentManagementService documentManagementService;
+    private final DocumentProcessor documentProcessor;
 
     public BlobProcessor(
         CloudBlobClient cloudBlobClient,
         EnvelopeRepository envelopeRepository,
-        ScannableItemRepository scannableItemRepository,
-        DocumentManagementService documentManagementService
+        DocumentProcessor documentProcessor
     ) {
         this.cloudBlobClient = cloudBlobClient;
         this.envelopeRepository = envelopeRepository;
-        this.scannableItemRepository = scannableItemRepository;
-        this.documentManagementService = documentManagementService;
+        this.documentProcessor = documentProcessor;
     }
 
     @Scheduled(fixedDelayString = "${scan.delay}")
@@ -118,27 +112,10 @@ public class BlobProcessor {
 
             List<ScannableItem> scannedItems = processMetaFile(metadataStream);
 
-            // TODO check scannedItems.size == pdfFiles.size
-            processPdfFiles(pdfFiles, scannedItems);
+            documentProcessor.processPdfFiles(pdfFiles, scannedItems);
         }
     }
 
-    @Transactional
-    private void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
-        List<ScannableItem> uploadedItems = new ArrayList<>();
-        Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
-
-        scannedItems.forEach(item -> {
-            if (response.containsKey(item.getFileName())) {
-                item.setDocumentUrl(response.get(item.getFileName()));
-                uploadedItems.add(item);
-            }
-        });
-
-        scannableItemRepository.saveAll(uploadedItems);
-    }
-
-    @Transactional
     private List<ScannableItem> processMetaFile(byte[] metadataStream) throws IOException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
