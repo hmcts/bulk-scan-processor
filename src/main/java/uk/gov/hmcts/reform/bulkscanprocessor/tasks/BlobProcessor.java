@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.scheduler;
+package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
