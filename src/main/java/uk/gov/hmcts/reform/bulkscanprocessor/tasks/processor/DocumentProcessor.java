@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class DocumentProcessor {
     private final DocumentManagementService documentManagementService;
     private final ScannableItemRepository scannableItemRepository;
 
-    private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
+    private static final Logger log = LoggerFactory.getLogger(DocumentProcessor.class);
 
     public DocumentProcessor(
         DocumentManagementService documentManagementService,

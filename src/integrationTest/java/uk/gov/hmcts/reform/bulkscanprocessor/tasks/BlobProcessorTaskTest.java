@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -64,6 +65,8 @@ public class BlobProcessorTaskTest {
 
     private DocumentProcessor documentProcessor;
 
+    private EnvelopeProcessor envelopeProcessor;
+
     private CloudBlobContainer testContainer;
 
     @Before
@@ -76,10 +79,14 @@ public class BlobProcessorTaskTest {
             scannableItemRepository
         );
 
+        envelopeProcessor = new EnvelopeProcessor(
+            envelopeRepository
+        );
+
         blobProcessorTask = new BlobProcessorTask(
             cloudBlobClient,
-            envelopeRepository,
-            documentProcessor
+            documentProcessor,
+            envelopeProcessor
         );
 
         testContainer = cloudBlobClient.getContainerReference("test");
