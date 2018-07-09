@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "payments")
-public class Payment {
+public class Payment implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
@@ -53,5 +53,10 @@ public class Payment {
     @JsonProperty("amount")
     public double getAmount() {
         return ((double) amountInPence) / 100;
+    }
+
+    @Override
+    public void setEnvelope(Envelope envelope) {
+        this.envelope = envelope;
     }
 }

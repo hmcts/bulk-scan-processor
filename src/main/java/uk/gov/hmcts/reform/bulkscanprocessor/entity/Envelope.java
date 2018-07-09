@@ -55,7 +55,8 @@ public class Envelope {
     @JsonProperty("non_scannable_items")
     private List<NonScannableItem> nonScannableItems;
 
-    private Envelope() {
+    // elevating to public access as javassist needs instantiation available when `this` proxy is passed to children
+    public Envelope() {
         // For use by hibernate.
     }
 
@@ -82,6 +83,10 @@ public class Envelope {
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
+
+        assignSelfToChildren(this.scannableItems);
+        assignSelfToChildren(this.payments);
+        assignSelfToChildren(this.nonScannableItems);
     }
 
     public List<ScannableItem> getScannableItems() {
@@ -106,5 +111,9 @@ public class Envelope {
 
     public String getZipFileName() {
         return zipFileName;
+    }
+
+    private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
+        assignables.forEach(assignable -> assignable.setEnvelope(this));
     }
 }
