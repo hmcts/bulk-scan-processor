@@ -18,12 +18,11 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.IncompleteResponseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUploadResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -81,21 +80,15 @@ public class DocumentManagementServiceTest {
         ).willReturn(getResponse());
 
         //when
-        List<FileUploadResponse> actualUploadResponse = documentManagementService.uploadDocuments(asList(pdf1, pdf2));
+        Map<String, String> actualUploadResponse = documentManagementService.uploadDocuments(asList(pdf1, pdf2));
 
         //then
-        assertThat(actualUploadResponse)
-            .extracting("fileUrl")
-            .containsExactly(
-                "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d",
-                "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
-            );
+        assertThat(actualUploadResponse).containsValues(
+            "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d",
+            "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
+        );
 
-        assertThat(actualUploadResponse)
-            .extracting("fileName")
-            .containsExactly(
-                "test1.pdf", "test2.pdf"
-            );
+        assertThat(actualUploadResponse).containsKeys("test1.pdf", "test2.pdf");
 
         verify(authTokenGenerator).generate();
         verify(restTemplate).postForObject(
