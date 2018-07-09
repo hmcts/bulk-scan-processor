@@ -18,7 +18,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "scannable_items")
-public class ScannableItem {
+public class ScannableItem implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
@@ -93,5 +93,10 @@ public class ScannableItem {
 
     public void setDocumentUrl(String documentUrl) {
         this.documentUrl = documentUrl;
+    }
+
+    @Override
+    public void setEnvelope(Envelope envelope) {
+        this.envelope = envelope;
     }
 }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
@@ -122,6 +123,7 @@ public class BlobProcessor {
         }
     }
 
+    @Transactional
     private void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
         List<ScannableItem> uploadedItems = new ArrayList<>();
         Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
@@ -136,6 +138,7 @@ public class BlobProcessor {
         scannableItemRepository.saveAll(uploadedItems);
     }
 
+    @Transactional
     private List<ScannableItem> processMetaFile(byte[] metadataStream) throws IOException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
