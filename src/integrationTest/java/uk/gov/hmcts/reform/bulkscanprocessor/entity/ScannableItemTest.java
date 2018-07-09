@@ -37,7 +37,7 @@ public class ScannableItemTest {
 
         // when
         scannableItemRepository.saveAll(items.stream()
-            .peek(item -> item.setDocumentUrl("localhost/document/" + item.hashCode()))
+            .peek(item -> item.setDocumentUrl("localhost/document/" + item.getId()))
             .collect(Collectors.toList())
         );
 
@@ -50,7 +50,7 @@ public class ScannableItemTest {
 
         // and
         dbItems.forEach(item ->
-            assertThat(item.getDocumentUrl()).isEqualTo("localhost/document/" + item.hashCode())
+            assertThat(item.getDocumentUrl()).isEqualTo("localhost/document/" + item.getId())
         );
     }
 }
