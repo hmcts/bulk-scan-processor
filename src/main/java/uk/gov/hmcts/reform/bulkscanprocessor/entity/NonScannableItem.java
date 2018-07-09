@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "non_scannable_items")
-public class NonScannableItem {
+public class NonScannableItem implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
@@ -38,5 +38,10 @@ public class NonScannableItem {
     ) {
         this.itemType = itemType;
         this.notes = notes;
+    }
+
+    @Override
+    public void setEnvelope(Envelope envelope) {
+        this.envelope = envelope;
     }
 }
