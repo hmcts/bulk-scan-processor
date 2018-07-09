@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUploadResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
@@ -125,8 +124,7 @@ public class BlobProcessor {
 
     private void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
         List<ScannableItem> uploadedItems = new ArrayList<>();
-        List<FileUploadResponse> responses = documentManagementService.uploadDocuments(pdfs);
-        Map<String, String> response = DocumentManagementService.convertResponseToMap(responses);
+        Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
 
         scannedItems.forEach(item -> {
             if (response.containsKey(item.getFileName())) {

@@ -19,16 +19,16 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.IncompleteResponseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUploadResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -56,12 +56,7 @@ public class DocumentManagementService {
         this.dmUri = dmUri;
     }
 
-    public static Map<String, String> convertResponseToMap(List<FileUploadResponse> responses) {
-        return responses.stream()
-            .collect(Collectors.toMap(FileUploadResponse::getFileName, FileUploadResponse::getFileUrl));
-    }
-
-    public List<FileUploadResponse> uploadDocuments(List<Pdf> pdfs) {
+    public Map<String, String> uploadDocuments(List<Pdf> pdfs) {
         List<MultipartFile> multipartFiles = pdfs.stream()
             .map(pdf -> new InMemoryMultipartFile(
                 MULTIPART_FORM_PARAM,
@@ -137,17 +132,17 @@ public class DocumentManagementService {
         }
     }
 
-    private FileUploadResponse createResponse(JsonNode document) {
-        return new FileUploadResponse(
-            new HalLinkDiscoverer().findLinkWithRel("self", document.toString()).getHref(),
-            document.get("originalDocumentName").asText()
+    private Map.Entry<String, String> createResponse(JsonNode document) {
+        return new AbstractMap.SimpleEntry<>(
+            document.get("originalDocumentName").asText(),
+            new HalLinkDiscoverer().findLinkWithRel("self", document.toString()).getHref()
         );
     }
 
-    private List<FileUploadResponse> createFileUploadResponse(JsonNode documents) {
+    private Map<String, String> createFileUploadResponse(JsonNode documents) {
         Stream<JsonNode> filesStream = stream(documents.spliterator(), false);
         return filesStream
             .map(this::createResponse)
-            .collect(toList());
+            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
