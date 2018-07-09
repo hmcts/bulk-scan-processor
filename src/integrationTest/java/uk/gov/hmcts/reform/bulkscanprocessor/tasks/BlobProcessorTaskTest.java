@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -25,14 +26,19 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.jsonpath.JsonPath.parse;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -227,6 +233,32 @@ public class BlobProcessorTaskTest {
         assertThat(envelopesInDb).isEmpty();
 
         verifyZeroInteractions(documentManagementService);
+    }
+
+    @Test
+    public void should_delete_zip_file_after_successful_upload() throws Exception {
+        // Zip with pdf and metadata
+        String zipFile = "4_24-06-2018-00-00-00.zip";
+        uploadZipToBlobStore(zipFile);
+        given(documentManagementService.uploadDocuments(any())).willReturn(getFileUploadResponse());
+
+        blobProcessorTask.processBlobs();
+
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
+        await().atMost(2, SECONDS).until(blob::exists, is(false));
+    }
+
+    @Test
+    public void should_keep_zip_file_after_unsuccessful_upload() throws Exception {
+        // Zip with pdf and metadata
+        String zipFile = "4_24-06-2018-00-00-00.zip";
+        uploadZipToBlobStore(zipFile);
+        given(documentManagementService.uploadDocuments(any())).willReturn(Collections.emptyMap());
+
+        blobProcessorTask.processBlobs();
+
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
+        await().timeout(2, SECONDS).until(blob::exists, is(true));
     }
 
     private void uploadZipToBlobStore(String fileName) throws Exception {
