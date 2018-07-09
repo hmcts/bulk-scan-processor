@@ -4,6 +4,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -81,7 +82,8 @@ public class BlobProcessorTask {
         throws StorageException, URISyntaxException, IOException {
 
         List<Pdf> pdfFiles = new ArrayList<>();
-        BlobInputStream blobInputStream = container.getBlockBlobReference(zipFilename).openInputStream();
+        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
+        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
         //Zip file will include metadata.json and collection of pdf documents
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
