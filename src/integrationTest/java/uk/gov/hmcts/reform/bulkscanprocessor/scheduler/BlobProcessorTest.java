@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.scheduler;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
@@ -20,11 +21,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.FileUploadResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -223,10 +224,10 @@ public class BlobProcessorTest {
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
-    private List<FileUploadResponse> getFileUploadResponse() {
-        return asList(
-            new FileUploadResponse(DOCUMENT_URL1, "1111001.pdf"),
-            new FileUploadResponse(DOCUMENT_URL2, "1111002.pdf")
+    private Map<String, String> getFileUploadResponse() {
+        return ImmutableMap.of(
+            "1111001.pdf", DOCUMENT_URL1,
+            "1111002.pdf", DOCUMENT_URL2
         );
     }
 }
