@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.scheduler;
+package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
@@ -21,6 +21,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -38,7 +40,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BlobProcessorTest {
+public class BlobProcessorTaskTest {
 
     private static final String DOCUMENT_URL1 = "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
     private static final String DOCUMENT_URL2 = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
@@ -50,7 +52,7 @@ public class BlobProcessorTest {
 
     private CloudBlobClient cloudBlobClient;
 
-    private BlobProcessor blobProcessor;
+    private BlobProcessorTask blobProcessorTask;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -61,6 +63,10 @@ public class BlobProcessorTest {
     @Mock
     private DocumentManagementService documentManagementService;
 
+    private DocumentProcessor documentProcessor;
+
+    private EnvelopeProcessor envelopeProcessor;
+
     private CloudBlobContainer testContainer;
 
     @Before
@@ -68,11 +74,19 @@ public class BlobProcessorTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         cloudBlobClient = account.createCloudBlobClient();
 
-        blobProcessor = new BlobProcessor(
+        documentProcessor = new DocumentProcessor(
+            documentManagementService,
+            scannableItemRepository
+        );
+
+        envelopeProcessor = new EnvelopeProcessor(
+            envelopeRepository
+        );
+
+        blobProcessorTask = new BlobProcessorTask(
             cloudBlobClient,
-            envelopeRepository,
-            scannableItemRepository,
-            documentManagementService
+            documentProcessor,
+            envelopeProcessor
         );
 
         testContainer = cloudBlobClient.getContainerReference("test");
@@ -101,7 +115,7 @@ public class BlobProcessorTest {
             .willReturn(getFileUploadResponse());
 
         //when
-        blobProcessor.processBlobs();
+        blobProcessorTask.processBlobs();
 
         //then
         //We expect only one envelope which was uploaded
@@ -130,7 +144,7 @@ public class BlobProcessorTest {
         uploadZipToBlobStore("2_24-06-2018-00-00-00.zip"); //Zip file with only pdfs and no metadata
 
         //when
-        blobProcessor.processBlobs();
+        blobProcessorTask.processBlobs();
 
         //then
         List<Envelope> envelopesInDb = envelopeRepository.findAll();
@@ -154,7 +168,7 @@ public class BlobProcessorTest {
             .willReturn(getFileUploadResponse());
 
         //when
-        blobProcessor.processBlobs();
+        blobProcessorTask.processBlobs();
 
         //then
         //We expect only one envelope 4_24-06-2018-00-00-00.zip which was uploaded
@@ -187,7 +201,7 @@ public class BlobProcessorTest {
         uploadZipToBlobStore("6_24-06-2018-00-00-00.zip"); //Zip file with pdf and invalid metadata
 
         //when
-        blobProcessor.processBlobs();
+        blobProcessorTask.processBlobs();
 
         //then
         List<Envelope> envelopesInDb = envelopeRepository.findAll();
@@ -205,7 +219,7 @@ public class BlobProcessorTest {
         uploadZipToBlobStore("5_24-06-2018-00-00-00.zip"); // Zip file with cheque gif and metadata
 
         //when
-        blobProcessor.processBlobs();
+        blobProcessorTask.processBlobs();
 
         //then
         List<Envelope> envelopesInDb = envelopeRepository.findAll();
