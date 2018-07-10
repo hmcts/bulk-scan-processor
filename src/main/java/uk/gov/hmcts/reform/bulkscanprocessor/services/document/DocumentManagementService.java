@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.hateoas.hal.HalLinkDiscoverer;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -135,7 +134,7 @@ public class DocumentManagementService {
     private Map.Entry<String, String> createResponse(JsonNode document) {
         return new AbstractMap.SimpleEntry<>(
             document.get("originalDocumentName").asText(),
-            new HalLinkDiscoverer().findLinkWithRel("self", document.toString()).getHref()
+            document.get("_links").get("self").get("href").asText()
         );
     }
 
