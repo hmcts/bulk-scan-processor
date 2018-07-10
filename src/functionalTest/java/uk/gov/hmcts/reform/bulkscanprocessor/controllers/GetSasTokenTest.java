@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.util.Date;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class GetSasTokenTest {
             .relaxedHTTPSValidation()
             .baseUri(this.testUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
             .when().get("/token/sscs")
             .andReturn();
 
@@ -54,6 +56,7 @@ public class GetSasTokenTest {
             .relaxedHTTPSValidation()
             .baseUri(this.testUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
             .when().get("/token/doesnotexist")
             .andReturn();
 
