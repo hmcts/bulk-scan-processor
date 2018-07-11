@@ -35,13 +35,14 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlobProcessorTaskTestForFailedStatus {
 
-    private static final String ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
+    private static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
 
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
@@ -87,8 +88,6 @@ public class BlobProcessorTaskTestForFailedStatus {
 
         testContainer = cloudBlobClient.getContainerReference("test");
         testContainer.createIfNotExists();
-
-        uploadZipToBlobStore();
     }
 
     @After
@@ -99,8 +98,11 @@ public class BlobProcessorTaskTestForFailedStatus {
     }
 
     @Test
-    public void should_record_failure_of_upload_when_document_management_returns_empty_response() throws IOException {
+    public void should_record_failure_of_upload_when_document_management_returns_empty_response() throws Exception {
         // given
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+
+        // and
         given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
 
         // when
@@ -118,15 +120,18 @@ public class BlobProcessorTaskTestForFailedStatus {
         EnvelopeState envelopeState = envelopeStates.get(0);
         assertThat(envelopeState)
             .extracting("container", "zipFileName", "status")
-            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME, DOC_UPLOAD_FAILURE));
+            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE));
         assertThat(envelopeState.getId()).isNotNull();
         assertThat(envelopeState.getReason()).isNotBlank();
         assertThat(envelopeState.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
     }
 
     @Test
-    public void should_record_failure_of_upload_when_document_management_throws_exception() throws IOException {
+    public void should_record_failure_of_upload_when_document_management_throws_exception() throws Exception {
         // given
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+
+        // and
         Throwable throwable = new UnableToUploadDocumentException("oh no", null);
         given(documentManagementService.uploadDocuments(getUploadResources())).willThrow(throwable);
 
@@ -145,16 +150,94 @@ public class BlobProcessorTaskTestForFailedStatus {
         EnvelopeState envelopeState = envelopeStates.get(0);
         assertThat(envelopeState)
             .extracting("container", "zipFileName", "status")
-            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME, DOC_UPLOAD_FAILURE));
+            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE));
         assertThat(envelopeState.getId()).isNotNull();
         assertThat(envelopeState.getReason()).isEqualTo(throwable.getMessage());
         assertThat(envelopeState.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
     }
 
-    private void uploadZipToBlobStore() throws Exception {
-        byte[] zipFile = toByteArray(getResource(ZIP_FILE_NAME));
+    @Test
+    public void should_record_generic_failure_when_zip_does_not_contain_metadata_json() throws Exception {
+        // given
+        String noMetafileZip = "2_24-06-2018-00-00-00.zip";
+        uploadZipToBlobStore(noMetafileZip); //Zip file with only pdfs and no metadata
 
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(ZIP_FILE_NAME);
+        // when
+        blobProcessorTask.processBlobs();
+
+        // then
+        List<Envelope> envelopesInDb = envelopeRepository.findAll();
+        assertThat(envelopesInDb).isEmpty();
+
+        // and
+        List<EnvelopeState> envelopeStates = envelopeStateRepository.findAll();
+        assertThat(envelopeStates).hasSize(1);
+
+        EnvelopeState envelopeState = envelopeStates.get(0);
+        assertThat(envelopeState)
+            .extracting("container", "zipFileName", "status")
+            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), noMetafileZip, DOC_FAILURE));
+        assertThat(envelopeState.getId()).isNotNull();
+        assertThat(envelopeState.getReason()).isNotBlank();
+        assertThat(envelopeState.getEnvelope()).isNull();
+    }
+
+    @Test
+    public void should_record_generic_failure_when_metadata_parsing_fails() throws Exception {
+        // given
+        String invalidMetafileZip = "6_24-06-2018-00-00-00.zip";
+        uploadZipToBlobStore(invalidMetafileZip); //Zip file with pdf and invalid metadata
+
+        // when
+        blobProcessorTask.processBlobs();
+
+        // then
+        List<Envelope> envelopesInDb = envelopeRepository.findAll();
+        assertThat(envelopesInDb).isEmpty();
+
+        // and
+        List<EnvelopeState> envelopeStates = envelopeStateRepository.findAll();
+        assertThat(envelopeStates).hasSize(1);
+
+        EnvelopeState envelopeState = envelopeStates.get(0);
+        assertThat(envelopeState)
+            .extracting("container", "zipFileName", "status")
+            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), invalidMetafileZip, DOC_FAILURE));
+        assertThat(envelopeState.getId()).isNotNull();
+        assertThat(envelopeState.getReason()).isNotBlank();
+        assertThat(envelopeState.getEnvelope()).isNull();
+    }
+
+    @Test
+    public void should_record_generic_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
+        // given
+        String noPdfZip = "5_24-06-2018-00-00-00.zip";
+        uploadZipToBlobStore(noPdfZip); // Zip file with cheque gif and metadata
+
+        // when
+        blobProcessorTask.processBlobs();
+
+        // then
+        List<Envelope> envelopesInDb = envelopeRepository.findAll();
+        assertThat(envelopesInDb).isEmpty();
+
+        // and
+        List<EnvelopeState> envelopeStates = envelopeStateRepository.findAll();
+        assertThat(envelopeStates).hasSize(1);
+
+        EnvelopeState envelopeState = envelopeStates.get(0);
+        assertThat(envelopeState)
+            .extracting("container", "zipFileName", "status")
+            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), noPdfZip, DOC_FAILURE));
+        assertThat(envelopeState.getId()).isNotNull();
+        assertThat(envelopeState.getReason()).isNotBlank();
+        assertThat(envelopeState.getEnvelope()).isNull();
+    }
+
+    private void uploadZipToBlobStore(String zipFileName) throws Exception {
+        byte[] zipFile = toByteArray(getResource(zipFileName));
+
+        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipFileName);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
