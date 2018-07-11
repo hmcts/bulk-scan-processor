@@ -6,14 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -27,7 +25,7 @@ public class EnvelopeProcessor {
     }
 
     @Transactional
-    public List<ScannableItem> processEnvelope(byte[] metadataStream) throws IOException {
+    public Envelope processEnvelope(byte[] metadataStream) throws IOException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
@@ -42,6 +40,11 @@ public class EnvelopeProcessor {
             envelope.getZipFileName()
         );
 
-        return dbEnvelope.getScannableItems();
+        return dbEnvelope;
+    }
+
+    @Transactional
+    public void markAsUploaded(Envelope envelope, String container, String zipFileName) {
+        //
     }
 }

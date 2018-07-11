@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -106,9 +106,10 @@ public class BlobProcessorTask {
                 }
             }
 
-            List<ScannableItem> scannedItems = envelopeProcessor.processEnvelope(metadataStream);
+            Envelope envelope = envelopeProcessor.processEnvelope(metadataStream);
 
-            documentProcessor.processPdfFiles(pdfFiles, scannedItems);
+            documentProcessor.processPdfFiles(pdfFiles, envelope.getScannableItems());
+            envelopeProcessor.markAsUploaded(envelope, container.getName(), zipFilename);
 
             cloudBlockBlob.delete();
         }
