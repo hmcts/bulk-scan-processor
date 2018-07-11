@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_UPLOAD_FAILURE;
 
@@ -24,6 +25,11 @@ public class EnvelopeProcessor {
 
     private final EnvelopeRepository envelopeRepository;
     private final EnvelopeStateRepository envelopeStateRepository;
+
+    @FunctionalInterface
+    public interface FailureMarker {
+        void markAsFailure(String reason, Envelope envelope, String container, String zipFileName);
+    }
 
     public EnvelopeProcessor(
         EnvelopeRepository envelopeRepository,
@@ -67,6 +73,17 @@ public class EnvelopeProcessor {
                 .newEnvelopeStatus(container, zipFileName)
                 .withEnvelope(envelope)
                 .withStatus(DOC_UPLOAD_FAILURE)
+                .withReason(reason)
+                .build()
+        );
+    }
+
+    public void markAsGenericFailure(String reason, Envelope envelope, String container, String zipFileName) {
+        envelopeStateRepository.save(
+            EnvelopeStatusBuilder
+                .newEnvelopeStatus(container, zipFileName)
+                .withEnvelope(envelope)
+                .withStatus(DOC_FAILURE)
                 .withReason(reason)
                 .build()
         );
