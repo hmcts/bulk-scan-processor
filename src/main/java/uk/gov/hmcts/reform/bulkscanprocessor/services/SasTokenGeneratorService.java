@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.SharedAccessBlobPermissions;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,19 +14,22 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToGenerateSasToken
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.Calendar;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+
+import static com.microsoft.azure.storage.blob.SharedAccessBlobPermissions.LIST;
+import static com.microsoft.azure.storage.blob.SharedAccessBlobPermissions.WRITE;
+import static java.time.LocalDateTime.now;
 
 @EnableConfigurationProperties(AccessTokenProperties.class)
 @Service
 public class SasTokenGeneratorService {
-    private final CloudBlobClient cloudBlobClient;
-    private final AccessTokenProperties accessTokenProperties;
 
     private static final Logger log = LoggerFactory.getLogger(SasTokenGeneratorService.class);
+
+    private final CloudBlobClient cloudBlobClient;
+    private final AccessTokenProperties accessTokenProperties;
 
     public SasTokenGeneratorService(
         CloudBlobClient cloudBlobClient,
@@ -43,10 +44,10 @@ public class SasTokenGeneratorService {
         log.info("SAS Token request received for service {} ", serviceName);
 
         try {
-            //Based on the service name container reference would be returned for specific service
-            CloudBlobContainer cloudBlobContainer = cloudBlobClient.getContainerReference(serviceName);
+            return cloudBlobClient
+                .getContainerReference(serviceName)
+                .generateSharedAccessSignature(createSharedAccessPolicy(serviceName), null);
 
-            return cloudBlobContainer.generateSharedAccessSignature(createSharedAccessPolicy(serviceName), null);
         } catch (URISyntaxException | StorageException | InvalidKeyException e) {
             throw new UnableToGenerateSasTokenException(e);
         }
@@ -55,13 +56,9 @@ public class SasTokenGeneratorService {
     private SharedAccessBlobPolicy createSharedAccessPolicy(String serviceName) {
         TokenConfig config = getTokenConfigForService(serviceName);
 
-        Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        cal.setTime(new Date());
-        cal.add(Calendar.SECOND, config.getValidity());
-
         SharedAccessBlobPolicy policy = new SharedAccessBlobPolicy();
-        policy.setPermissions(getBlobPermissions());
-        policy.setSharedAccessExpiryTime(cal.getTime());
+        policy.setPermissions(EnumSet.of(WRITE, LIST));
+        policy.setSharedAccessExpiryTime(Date.from(now().plusSeconds(config.getValidity()).toInstant(ZoneOffset.UTC)));
 
         return policy;
     }
@@ -75,7 +72,4 @@ public class SasTokenGeneratorService {
             );
     }
 
-    private EnumSet<SharedAccessBlobPermissions> getBlobPermissions() {
-        return EnumSet.of(SharedAccessBlobPermissions.WRITE, SharedAccessBlobPermissions.LIST);
-    }
 }
