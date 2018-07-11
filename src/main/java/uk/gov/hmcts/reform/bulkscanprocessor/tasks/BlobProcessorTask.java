@@ -86,6 +86,8 @@ public class BlobProcessorTask {
         List<Pdf> pdfFiles = new ArrayList<>();
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
+        boolean isUploadFailure = false;
+        Envelope envelope = null;
 
         //Zip file will include metadata.json and collection of pdf documents
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
@@ -108,20 +110,29 @@ public class BlobProcessorTask {
                 }
             }
 
-            Envelope envelope = envelopeProcessor.processEnvelope(metadataStream);
+            envelope = envelopeProcessor.processEnvelope(metadataStream);
+            isUploadFailure = true;
 
-            try {
-                documentProcessor.processPdfFiles(pdfFiles, envelope.getScannableItems());
-                envelopeProcessor.markAsUploaded(envelope, container.getName(), zipFilename);
+            documentProcessor.processPdfFiles(pdfFiles, envelope.getScannableItems());
+            envelopeProcessor.markAsUploaded(envelope, container.getName(), zipFilename);
 
-                cloudBlockBlob.delete();
-            } catch (Exception exception) {
-                // catching any exception originated from document processor
-                envelopeProcessor
-                    .markAsUploadFailed(exception.getMessage(), envelope, container.getName(), zipFilename);
-                // rethrowing
-                throw exception;
-            }
+            cloudBlockBlob.delete();
+        } catch (Exception exception) {
+            markAsFailed(isUploadFailure, container.getName(), zipFilename, exception.getMessage(), envelope);
+
+            throw exception;
+        }
+    }
+
+    private void markAsFailed(
+        boolean isUploadFailure,
+        String container,
+        String zipFileName,
+        String message,
+        Envelope envelope
+    ) {
+        if (isUploadFailure) {
+            envelopeProcessor.markAsUploadFailed(message, envelope, container, zipFileName);
         }
     }
 }
