@@ -21,7 +21,7 @@ public class ShedLockConfiguration {
     @Value("${scheduling.pool}")
     private int poolSize;
 
-    @Value("${scheduling.lockAtMostFor}")
+    @Value("${scheduling.lock_at_most_for}")
     private String lockAtMostFor;
 
     @Bean
