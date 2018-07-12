@@ -20,8 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatusRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeState;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStateRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -46,7 +46,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatusEnum.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_UPLOADED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -68,7 +68,7 @@ public class BlobProcessorTaskTest {
     private EnvelopeRepository envelopeRepository;
 
     @Autowired
-    private EnvelopeStatusRepository envelopeStatusRepository;
+    private EnvelopeStateRepository envelopeStateRepository;
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
@@ -94,7 +94,7 @@ public class BlobProcessorTaskTest {
 
         envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
-            envelopeStatusRepository
+            envelopeStateRepository
         );
 
         blobProcessorTask = new BlobProcessorTask(
@@ -152,16 +152,16 @@ public class BlobProcessorTaskTest {
         verify(documentManagementService).uploadDocuments(asList(pdf1, pdf2));
 
         // and
-        List<EnvelopeStatus> envelopeStatuses = envelopeStatusRepository.findAll();
-        assertThat(envelopeStatuses).hasSize(1);
+        List<EnvelopeState> envelopeStates = envelopeStateRepository.findAll();
+        assertThat(envelopeStates).hasSize(1);
 
-        EnvelopeStatus envelopeStatus = envelopeStatuses.get(0);
-        assertThat(envelopeStatus)
+        EnvelopeState envelopeState = envelopeStates.get(0);
+        assertThat(envelopeState)
             .extracting("container", "zipFileName", "status")
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_UPLOADED));
-        assertThat(envelopeStatus.getId()).isNotNull();
-        assertThat(envelopeStatus.getReason()).isNull();
-        assertThat(envelopeStatus.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
+        assertThat(envelopeState.getId()).isNotNull();
+        assertThat(envelopeState.getReason()).isNull();
+        assertThat(envelopeState.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
     }
 
     @Test
