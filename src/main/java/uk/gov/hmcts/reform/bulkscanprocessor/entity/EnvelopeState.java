@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,6 +26,8 @@ public class EnvelopeState implements EnvelopeAssignable {
     private String container;
     @JsonProperty("zip_file_name")
     private String zipFileName;
+    @JsonProperty("created_at")
+    private Timestamp createdAt = Timestamp.from(Instant.now());
     @Enumerated(EnumType.STRING)
     private EnvelopeStatus status;
     private String reason;
@@ -47,6 +51,10 @@ public class EnvelopeState implements EnvelopeAssignable {
 
     public String getZipFileName() {
         return zipFileName;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
     public UUID getId() {

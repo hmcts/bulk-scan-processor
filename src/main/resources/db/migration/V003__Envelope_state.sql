@@ -2,6 +2,7 @@ CREATE TABLE envelope_state (
   id UUID PRIMARY KEY,
   container VARCHAR(50) NOT NULL,
   zipFileName VARCHAR(255) NOT NULL,
+  createdAt TIMESTAMP NOT NULL,
   envelope_id VARCHAR(50) NULL,
   status VARCHAR(100) NOT NULL,
   reason TEXT NULL

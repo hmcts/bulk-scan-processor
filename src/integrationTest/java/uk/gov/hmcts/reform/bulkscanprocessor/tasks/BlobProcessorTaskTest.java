@@ -160,6 +160,7 @@ public class BlobProcessorTaskTest {
             .extracting("container", "zipFileName", "status")
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_UPLOADED));
         assertThat(envelopeState.getId()).isNotNull();
+        assertThat(envelopeState.getCreatedAt()).isNotNull();
         assertThat(envelopeState.getReason()).isNull();
         assertThat(envelopeState.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
     }
