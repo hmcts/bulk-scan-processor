@@ -14,8 +14,8 @@ public final class EnvelopeStatusBuilder {
         // utility class constructor
     }
 
-    public static EnvelopeStatusBuilder newEnvelopeStatus(String container, String zipFileName) {
-        envelopeStatus = new EnvelopeStatus(container, zipFileName);
+    public static EnvelopeStatusBuilder newEnvelopeStatus(String containerName, String zipFileName) {
+        envelopeStatus = new EnvelopeStatus(containerName, zipFileName);
 
         return INSTANCE;
     }

@@ -36,8 +36,8 @@ public class EnvelopeStatus implements EnvelopeAssignable {
         // For use by hibernate.
     }
 
-    public EnvelopeStatus(String container, String zipFileName) {
-        this.container = container;
+    public EnvelopeStatus(String containerName, String zipFileName) {
+        this.container = containerName;
         this.zipFileName = zipFileName;
     }
 

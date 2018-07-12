@@ -50,10 +50,10 @@ public class EnvelopeProcessor {
         return dbEnvelope;
     }
 
-    public void markAsUploaded(Envelope envelope, String container, String zipFileName) {
+    public void markAsUploaded(Envelope envelope, String containerName, String zipFileName) {
         envelopeStatusRepository.save(
             EnvelopeStatusBuilder
-                .newEnvelopeStatus(container, zipFileName)
+                .newEnvelopeStatus(containerName, zipFileName)
                 .withEnvelope(envelope)
                 .withStatus(DOC_UPLOADED)
                 .build()
