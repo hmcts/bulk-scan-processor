@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatusRepository;
@@ -33,7 +32,6 @@ public class EnvelopeProcessor {
         this.envelopeStatusRepository = envelopeStatusRepository;
     }
 
-    @Transactional
     public Envelope processEnvelope(byte[] metadataStream) throws IOException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
@@ -52,7 +50,6 @@ public class EnvelopeProcessor {
         return dbEnvelope;
     }
 
-    @Transactional
     public void markAsUploaded(Envelope envelope, String container, String zipFileName) {
         envelopeStatusRepository.save(
             EnvelopeStatusBuilder
