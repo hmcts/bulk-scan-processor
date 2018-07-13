@@ -111,6 +111,7 @@ public class BlobProcessorTaskTest {
     public void cleanUp() throws Exception {
         testContainer.deleteIfExists();
         envelopeRepository.deleteAll();
+        envelopeStateRepository.deleteAll();
     }
 
     @Test
