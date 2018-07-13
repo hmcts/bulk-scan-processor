@@ -43,15 +43,18 @@ public class Envelope {
     @JsonProperty("zip_file_name")
     private String zipFileName;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "envelope")
+    //We will need to all scannable item entities of Envelope every time hence fetch type is Eager
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @JsonProperty("scannable_items")
     private List<ScannableItem> scannableItems;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "envelope")
+    //We will need to all payments entities of Envelope every time hence fetch type is Eager
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @JsonProperty("payments")
     private List<Payment> payments;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "envelope")
+    //We will need to all non scannable item entities of Envelope every time hence fetch type is Eager
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @JsonProperty("non_scannable_items")
     private List<NonScannableItem> nonScannableItems;
 
