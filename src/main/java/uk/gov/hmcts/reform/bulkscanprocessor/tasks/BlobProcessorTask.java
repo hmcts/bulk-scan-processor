@@ -110,10 +110,18 @@ public class BlobProcessorTask {
 
             Envelope envelope = envelopeProcessor.processEnvelope(metadataStream);
 
-            documentProcessor.processPdfFiles(pdfFiles, envelope.getScannableItems());
-            envelopeProcessor.markAsUploaded(envelope, container.getName(), zipFilename);
+            try {
+                documentProcessor.processPdfFiles(pdfFiles, envelope.getScannableItems());
+                envelopeProcessor.markAsUploaded(envelope, container.getName(), zipFilename);
 
-            cloudBlockBlob.delete();
+                cloudBlockBlob.delete();
+            } catch (Exception exception) {
+                // catching any exception originated from document processor
+                envelopeProcessor
+                    .markAsUploadFailed(exception.getMessage(), envelope, container.getName(), zipFilename);
+                // rethrowing
+                throw exception;
+            }
         }
     }
 }

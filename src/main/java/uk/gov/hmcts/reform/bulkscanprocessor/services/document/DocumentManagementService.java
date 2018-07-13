@@ -84,7 +84,7 @@ public class DocumentManagementService {
             }
         } catch (Exception exception) {
             log.error("Exception occurred while uploading documents ", exception);
-            throw new UnableToUploadDocumentException(exception);
+            throw new UnableToUploadDocumentException(exception.getMessage(), exception);
         }
     }
 
