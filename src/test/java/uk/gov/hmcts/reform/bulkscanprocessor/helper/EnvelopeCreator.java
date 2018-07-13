@@ -7,24 +7,27 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
 import java.sql.Timestamp;
-import java.util.Collections;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public final class EnvelopeCreator {
-    private static final Timestamp CURRENT_TIMESTAMP = new Timestamp(System.currentTimeMillis());
 
     private EnvelopeCreator() {
     }
 
-    public static List<Envelope> envelopes() {
+    public static List<Envelope> envelopes() throws Exception {
+        Timestamp timestamp = getTimestamp();
+
         return ImmutableList.of(
             new Envelope(
-                "sscpo",
-                "sscs",
-                CURRENT_TIMESTAMP,
-                CURRENT_TIMESTAMP,
-                CURRENT_TIMESTAMP,
-                "test.zip",
+                "SSCSPO",
+                "SSCS",
+                timestamp,
+                timestamp,
+                timestamp,
+                "7_24-06-2018-00-00-00.zip",
                 scannableItems(),
                 payments(),
                 nonScannableItems()
@@ -32,31 +35,42 @@ public final class EnvelopeCreator {
         );
     }
 
-    private static List<ScannableItem> scannableItems() {
-        return ImmutableList.of(
-            new ScannableItem(
-                "11110",
-                CURRENT_TIMESTAMP,
-                "test",
-                "test",
-                "test",
-                CURRENT_TIMESTAMP,
-                "dGVzdA==", //Base 64 value=test
-                "11110.pdf",
-                "test"
-            )
+    private static List<ScannableItem> scannableItems() throws Exception {
+        Timestamp timestamp = getTimestamp();
+
+
+        ScannableItem scannableItem = new ScannableItem(
+            "1111002",
+            timestamp,
+            "test",
+            "test",
+            "return",
+            timestamp,
+            "dGVzdA==", //Base 64 value=test
+            "1111002.pdf",
+            "test"
         );
+        scannableItem.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
+
+        return ImmutableList.of(scannableItem);
     }
 
     private static List<NonScannableItem> nonScannableItems() {
         return ImmutableList.of(
-            new NonScannableItem("CD", "test")
+            new NonScannableItem("CD", "4GB USB memory stick")
         );
     }
 
     private static List<Payment> payments() {
         return ImmutableList.of(
-            new Payment("11110", "Cheque", "100", "GBP")
+            new Payment("1111002", "Cheque", "100.00", "GBP")
         );
+    }
+
+    private static Timestamp getTimestamp() throws Exception {
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = dateFormat.parse("23-06-2018");
+        long time = date.getTime();
+        return new Timestamp(time);
     }
 }

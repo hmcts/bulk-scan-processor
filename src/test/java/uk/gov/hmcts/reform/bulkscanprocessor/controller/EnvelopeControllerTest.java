@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Resources;
+import org.apache.commons.io.Charsets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +14,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
 
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.util.List;
 
+import static com.google.common.io.Resources.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -46,12 +49,11 @@ public class EnvelopeControllerTest {
 
         when(envelopeRetrieverService.getAllEnvelopes()).thenReturn(envelopes);
 
-        EnvelopeMetadataResponse expectedEnvelopeResponse = new EnvelopeMetadataResponse(envelopes);
 
         mockMvc.perform(get("/envelopes"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(content().json(new ObjectMapper().writeValueAsString(expectedEnvelopeResponse)));
+            .andExpect(content().json(expectedEnvelopes()));
 
         verify(envelopeRetrieverService).getAllEnvelopes();
     }
@@ -67,4 +69,10 @@ public class EnvelopeControllerTest {
 
         assertThat(result.getResolvedException().getMessage()).isEqualTo("Cannot retrieve data");
     }
+
+    private String expectedEnvelopes() throws IOException {
+        URL url = getResource("envelope.json");
+        return Resources.toString(url, Charsets.toCharset("UTF-8"));
+    }
+
 }

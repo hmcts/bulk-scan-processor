@@ -30,7 +30,7 @@ public class EnvelopeRetrieverServiceTest {
     }
 
     @Test
-    public void should_return_all_envelopes_successfully() {
+    public void should_return_all_envelopes_successfully() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
 
         when(envelopeRepository.findAll()).thenReturn(envelopes);

@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
@@ -25,6 +28,7 @@ public class Envelope {
 
     @Id
     @GeneratedValue
+    @JsonIgnore
     private UUID id;
 
     @JsonProperty("po_box")
@@ -46,15 +50,18 @@ public class Envelope {
     //We will need to all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @JsonProperty("scannable_items")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ScannableItem> scannableItems;
 
     //We will need to all payments entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
+    @Fetch(value = FetchMode.SUBSELECT)
     @JsonProperty("payments")
     private List<Payment> payments;
 
     //We will need to all non scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
+    @Fetch(value = FetchMode.SUBSELECT)
     @JsonProperty("non_scannable_items")
     private List<NonScannableItem> nonScannableItems;
 
