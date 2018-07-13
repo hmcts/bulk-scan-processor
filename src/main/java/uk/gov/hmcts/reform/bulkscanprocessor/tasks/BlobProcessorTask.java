@@ -126,15 +126,15 @@ public class BlobProcessorTask {
 
     private void markAsFailed(
         boolean isUploadFailure,
-        String container,
+        String containerName,
         String zipFileName,
         String message,
         Envelope envelope
     ) {
-        EnvelopeProcessor.FailureMarker marker = isUploadFailure
-            ? envelopeProcessor::markAsUploadFailed
-            : envelopeProcessor::markAsGenericFailure;
-
-        marker.markAsFailure(message, envelope, container, zipFileName);
+        if (isUploadFailure) {
+            envelopeProcessor.markAsUploadFailed(message, envelope, containerName, zipFileName);
+        } else {
+            envelopeProcessor.markAsGenericFailure(message, envelope, containerName, zipFileName);
+        }
     }
 }

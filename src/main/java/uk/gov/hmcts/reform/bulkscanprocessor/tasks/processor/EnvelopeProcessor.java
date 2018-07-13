@@ -26,11 +26,6 @@ public class EnvelopeProcessor {
     private final EnvelopeRepository envelopeRepository;
     private final EnvelopeStateRepository envelopeStateRepository;
 
-    @FunctionalInterface
-    public interface FailureMarker {
-        void markAsFailure(String reason, Envelope envelope, String container, String zipFileName);
-    }
-
     public EnvelopeProcessor(
         EnvelopeRepository envelopeRepository,
         EnvelopeStateRepository envelopeStateRepository
