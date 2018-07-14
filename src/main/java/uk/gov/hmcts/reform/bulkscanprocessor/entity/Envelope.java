@@ -125,6 +125,10 @@ public class Envelope {
         return zipFileName;
     }
 
+    public Event getLastEvent() {
+        return lastEvent;
+    }
+
     public void setLastEvent(Event lastEvent) {
         this.lastEvent = lastEvent;
     }

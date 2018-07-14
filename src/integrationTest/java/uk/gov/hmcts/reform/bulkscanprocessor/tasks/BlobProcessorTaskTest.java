@@ -145,6 +145,7 @@ public class BlobProcessorTaskTest {
             parse(originalMetaFile),
             "id", "zip_file_created_date", "amount", "amount_in_pence", "configuration", "json"
         );
+        assertThat(actualEnvelope.getLastEvent()).isEqualTo(DOC_UPLOADED);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(asList(DOCUMENT_URL1, DOCUMENT_URL2));

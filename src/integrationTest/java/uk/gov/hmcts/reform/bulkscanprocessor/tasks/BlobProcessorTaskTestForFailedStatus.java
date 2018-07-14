@@ -111,6 +111,7 @@ public class BlobProcessorTaskTestForFailedStatus {
         // then
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
+        assertThat(actualEnvelope.getLastEvent()).isEqualTo(DOC_UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
@@ -141,6 +142,7 @@ public class BlobProcessorTaskTestForFailedStatus {
         // then
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
+        assertThat(actualEnvelope.getLastEvent()).isEqualTo(DOC_UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
