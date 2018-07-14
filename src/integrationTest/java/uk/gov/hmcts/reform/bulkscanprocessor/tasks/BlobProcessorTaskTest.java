@@ -20,8 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeState;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStateRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -46,7 +46,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -68,7 +68,7 @@ public class BlobProcessorTaskTest {
     private EnvelopeRepository envelopeRepository;
 
     @Autowired
-    private EnvelopeStateRepository envelopeStateRepository;
+    private ProcessEventRepository processEventRepository;
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
@@ -94,7 +94,7 @@ public class BlobProcessorTaskTest {
 
         envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
-            envelopeStateRepository
+            processEventRepository
         );
 
         blobProcessorTask = new BlobProcessorTask(
@@ -111,7 +111,7 @@ public class BlobProcessorTaskTest {
     public void cleanUp() throws Exception {
         testContainer.deleteIfExists();
         envelopeRepository.deleteAll();
-        envelopeStateRepository.deleteAll();
+        processEventRepository.deleteAll();
     }
 
     @Test
@@ -153,17 +153,17 @@ public class BlobProcessorTaskTest {
         verify(documentManagementService).uploadDocuments(asList(pdf1, pdf2));
 
         // and
-        List<EnvelopeState> envelopeStates = envelopeStateRepository.findAll();
-        assertThat(envelopeStates).hasSize(1);
+        List<ProcessEvent> processEvents = processEventRepository.findAll();
+        assertThat(processEvents).hasSize(1);
 
-        EnvelopeState envelopeState = envelopeStates.get(0);
-        assertThat(envelopeState)
-            .extracting("container", "zipFileName", "status")
+        ProcessEvent processEvent = processEvents.get(0);
+        assertThat(processEvent)
+            .extracting("container", "zipFileName", "event")
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_UPLOADED));
-        assertThat(envelopeState.getId()).isNotNull();
-        assertThat(envelopeState.getCreatedAt()).isNotNull();
-        assertThat(envelopeState.getReason()).isNull();
-        assertThat(envelopeState.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
+        assertThat(processEvent.getId()).isNotNull();
+        assertThat(processEvent.getCreatedAt()).isNotNull();
+        assertThat(processEvent.getReason()).isNull();
+        assertThat(processEvent.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
     }
 
     @Test

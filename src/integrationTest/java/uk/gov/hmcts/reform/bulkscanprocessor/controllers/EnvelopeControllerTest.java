@@ -21,7 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStateRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -63,7 +63,7 @@ public class EnvelopeControllerTest {
     private EnvelopeRepository envelopeRepository;
 
     @Autowired
-    private EnvelopeStateRepository envelopeStateRepository;
+    private ProcessEventRepository processEventRepository;
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
@@ -89,7 +89,7 @@ public class EnvelopeControllerTest {
 
         envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
-            envelopeStateRepository
+            processEventRepository
         );
 
         blobProcessorTask = new BlobProcessorTask(
@@ -106,6 +106,7 @@ public class EnvelopeControllerTest {
     public void cleanUp() throws Exception {
         testContainer.deleteIfExists();
         envelopeRepository.deleteAll();
+        processEventRepository.deleteAll();
     }
 
     @Test

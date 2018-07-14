@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeState;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStateRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
@@ -15,23 +15,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_UPLOADED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStatus.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
 @Component
 public class EnvelopeProcessor {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeProcessor.class);
 
     private final EnvelopeRepository envelopeRepository;
-    private final EnvelopeStateRepository envelopeStateRepository;
+    private final ProcessEventRepository processEventRepository;
 
     public EnvelopeProcessor(
         EnvelopeRepository envelopeRepository,
-        EnvelopeStateRepository envelopeStateRepository
+        ProcessEventRepository processEventRepository
     ) {
         this.envelopeRepository = envelopeRepository;
-        this.envelopeStateRepository = envelopeStateRepository;
+        this.processEventRepository = processEventRepository;
     }
 
     public Envelope processEnvelope(byte[] metadataStream) throws IOException {
@@ -53,28 +53,37 @@ public class EnvelopeProcessor {
     }
 
     public void markAsUploaded(Envelope envelope, String containerName, String zipFileName) {
-        EnvelopeState state = new EnvelopeState(containerName, zipFileName, DOC_UPLOADED);
+        ProcessEvent event = new ProcessEvent(containerName, zipFileName, DOC_UPLOADED);
 
-        state.setEnvelope(envelope);
+        event.setEnvelope(envelope);
 
-        envelopeStateRepository.save(state);
+        processEventRepository.save(event);
+
+        envelope.setLastEvent(DOC_UPLOADED);
+        envelopeRepository.save(envelope);
     }
 
     public void markAsUploadFailed(String reason, Envelope envelope, String container, String zipFileName) {
-        EnvelopeState state = new EnvelopeState(container, zipFileName, DOC_UPLOAD_FAILURE);
+        ProcessEvent event = new ProcessEvent(container, zipFileName, DOC_UPLOAD_FAILURE);
 
-        state.setEnvelope(envelope);
-        state.setReason(reason);
+        event.setEnvelope(envelope);
+        event.setReason(reason);
 
-        envelopeStateRepository.save(state);
+        processEventRepository.save(event);
+
+        envelope.setLastEvent(DOC_UPLOAD_FAILURE);
+        envelopeRepository.save(envelope);
     }
 
     public void markAsGenericFailure(String reason, Envelope envelope, String container, String zipFileName) {
-        EnvelopeState state = new EnvelopeState(container, zipFileName, DOC_FAILURE);
+        ProcessEvent event = new ProcessEvent(container, zipFileName, DOC_FAILURE);
 
-        state.setEnvelope(envelope);
-        state.setReason(reason);
+        event.setEnvelope(envelope);
+        event.setReason(reason);
 
-        envelopeStateRepository.save(state);
+        processEventRepository.save(event);
+
+        envelope.setLastEvent(DOC_FAILURE);
+        envelopeRepository.save(envelope);
     }
 }
