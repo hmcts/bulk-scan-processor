@@ -130,6 +130,15 @@ public class EnvelopeControllerTest {
 
     }
 
+    @Test
+    public void should_return_empty_list_when_envelopes_are_available() throws Exception {
+        mockMvc.perform(get("/envelopes"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().string("{\"envelopes\":[]}"));
+
+    }
+
     private String expectedEnvelopes() throws IOException {
         URL url = getResource("envelope.json");
         return Resources.toString(url, Charsets.toCharset("UTF-8"));
