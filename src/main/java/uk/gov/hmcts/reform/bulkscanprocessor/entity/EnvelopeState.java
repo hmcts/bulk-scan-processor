@@ -40,9 +40,10 @@ public class EnvelopeState implements EnvelopeAssignable {
         // For use by hibernate.
     }
 
-    public EnvelopeState(String containerName, String zipFileName) {
+    public EnvelopeState(String containerName, String zipFileName, EnvelopeStatus status) {
         this.container = containerName;
         this.zipFileName = zipFileName;
+        this.status = status;
     }
 
     public String getContainer() {
@@ -63,10 +64,6 @@ public class EnvelopeState implements EnvelopeAssignable {
 
     public EnvelopeStatus getStatus() {
         return status;
-    }
-
-    public void setStatus(EnvelopeStatus status) {
-        this.status = status;
     }
 
     public String getReason() {

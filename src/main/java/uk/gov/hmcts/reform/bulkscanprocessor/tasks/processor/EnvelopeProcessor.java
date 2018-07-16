@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeState;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeStateRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.EnvelopeStatusBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -53,34 +53,28 @@ public class EnvelopeProcessor {
     }
 
     public void markAsUploaded(Envelope envelope, String containerName, String zipFileName) {
-        envelopeStateRepository.save(
-            EnvelopeStatusBuilder
-                .newEnvelopeStatus(containerName, zipFileName)
-                .withEnvelope(envelope)
-                .withStatus(DOC_UPLOADED)
-                .build()
-        );
+        EnvelopeState state = new EnvelopeState(containerName, zipFileName, DOC_UPLOADED);
+
+        state.setEnvelope(envelope);
+
+        envelopeStateRepository.save(state);
     }
 
     public void markAsUploadFailed(String reason, Envelope envelope, String container, String zipFileName) {
-        envelopeStateRepository.save(
-            EnvelopeStatusBuilder
-                .newEnvelopeStatus(container, zipFileName)
-                .withEnvelope(envelope)
-                .withStatus(DOC_UPLOAD_FAILURE)
-                .withReason(reason)
-                .build()
-        );
+        EnvelopeState state = new EnvelopeState(container, zipFileName, DOC_UPLOAD_FAILURE);
+
+        state.setEnvelope(envelope);
+        state.setReason(reason);
+
+        envelopeStateRepository.save(state);
     }
 
     public void markAsGenericFailure(String reason, Envelope envelope, String container, String zipFileName) {
-        envelopeStateRepository.save(
-            EnvelopeStatusBuilder
-                .newEnvelopeStatus(container, zipFileName)
-                .withEnvelope(envelope)
-                .withStatus(DOC_FAILURE)
-                .withReason(reason)
-                .build()
-        );
+        EnvelopeState state = new EnvelopeState(container, zipFileName, DOC_FAILURE);
+
+        state.setEnvelope(envelope);
+        state.setReason(reason);
+
+        envelopeStateRepository.save(state);
     }
 }
