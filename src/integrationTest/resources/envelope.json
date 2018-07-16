@@ -1,0 +1,41 @@
+{
+  "envelopes": [
+    {
+      "po_box": "SSCSPO",
+      "jurisdiction": "SSCS",
+      "delivery_date": "23-06-2018 00:00:00.000000",
+      "opening_date": "23-06-2018 00:00:00.000000",
+      "zip_file_name": "7_24-06-2018-00-00-00.zip",
+      "scannable_items": [
+        {
+          "document_control_number": "1111002",
+          "scanning_date": "23-06-2018 00:00:00.000000",
+          "ocr_accuracy": "test",
+          "manual_intervention": "test",
+          "next_action": "return",
+          "next_action_date": "23-06-2018 00:00:00.000000",
+          "ocr_data": "dGVzdA==",
+          "file_name": "1111002.pdf",
+          "notes": "test",
+          "document_url": "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
+        }
+      ],
+      "payments": [
+        {
+          "document_control_number": "1111002",
+          "method": "Cheque",
+          "amount": 100.0,
+          "currency": "GBP",
+          "amount_in_pence": 10000
+        }
+      ],
+      "non_scannable_items": [
+        {
+          "item_type": "CD",
+          "notes": "4GB USB memory stick"
+        }
+      ],
+      "zip_file_created_date": "23-06-2018 00:00:00.000000"
+    }
+  ]
+}
