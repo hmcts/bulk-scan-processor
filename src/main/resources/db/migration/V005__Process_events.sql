@@ -12,6 +12,11 @@ CREATE INDEX process_events_container_zip_idx ON process_events (container, zipF
 CREATE INDEX process_events_container_event_idx ON process_events (container, event);
 CREATE INDEX process_events_zip_idx ON process_events (zipFileName);
 
+INSERT INTO process_events (container, zipFileName, createdAt, envelope_id, event, reason) (
+  SELECT container, zipFileName, createdAt, envelope_id, status, reason
+  FROM envelope_state
+);
+
 ALTER TABLE envelopes
   ADD COLUMN lastEvent VARCHAR(100) NOT NULL DEFAULT 'ENVELOPE_CREATED';
 
