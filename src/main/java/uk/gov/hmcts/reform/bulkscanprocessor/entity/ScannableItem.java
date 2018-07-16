@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -22,6 +23,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
+    @JsonIgnore
     private UUID id;
 
     @JsonProperty("document_control_number")

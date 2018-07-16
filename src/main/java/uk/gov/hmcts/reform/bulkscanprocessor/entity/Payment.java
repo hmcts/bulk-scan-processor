@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;
@@ -17,6 +18,7 @@ public class Payment implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
+    @JsonIgnore
     private UUID id;
 
     @JsonProperty("document_control_number")
