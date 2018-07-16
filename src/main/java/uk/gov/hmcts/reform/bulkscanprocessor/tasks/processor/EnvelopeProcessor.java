@@ -53,29 +53,26 @@ public class EnvelopeProcessor {
     }
 
     public void markAsUploaded(Envelope envelope, String containerName, String zipFileName) {
-        EnvelopeState state = new EnvelopeState(containerName, zipFileName);
+        EnvelopeState state = new EnvelopeState(containerName, zipFileName, DOC_UPLOADED);
 
         state.setEnvelope(envelope);
-        state.setStatus(DOC_UPLOADED);
 
         envelopeStateRepository.save(state);
     }
 
     public void markAsUploadFailed(String reason, Envelope envelope, String container, String zipFileName) {
-        EnvelopeState state = new EnvelopeState(container, zipFileName);
+        EnvelopeState state = new EnvelopeState(container, zipFileName, DOC_UPLOAD_FAILURE);
 
         state.setEnvelope(envelope);
-        state.setStatus(DOC_UPLOAD_FAILURE);
         state.setReason(reason);
 
         envelopeStateRepository.save(state);
     }
 
     public void markAsGenericFailure(String reason, Envelope envelope, String container, String zipFileName) {
-        EnvelopeState state = new EnvelopeState(container, zipFileName);
+        EnvelopeState state = new EnvelopeState(container, zipFileName, DOC_FAILURE);
 
         state.setEnvelope(envelope);
-        state.setStatus(DOC_FAILURE);
         state.setReason(reason);
 
         envelopeStateRepository.save(state);
