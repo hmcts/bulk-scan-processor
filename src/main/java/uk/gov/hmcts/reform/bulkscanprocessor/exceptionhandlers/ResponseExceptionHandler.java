@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToGenerateSasTokenException;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -28,6 +29,11 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
         return status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
+    @ExceptionHandler(UnAuthenticatedException.class)
+    protected ResponseEntity<String> handleUnAuthenticatedException(UnAuthenticatedException exc) {
+        log.error(exc.getMessage(), exc);
+        return status(HttpStatus.UNAUTHORIZED).build();
+    }
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Void> handleInternalException(Exception exception) {
