@@ -3,7 +3,7 @@ CREATE TABLE process_events (
   container VARCHAR(50) NOT NULL,
   zipFileName VARCHAR(255) NOT NULL,
   createdAt TIMESTAMP NOT NULL,
-  envelope_id VARCHAR(50) NULL,
+  envelope_id UUID NULL,
   event VARCHAR(100) NOT NULL,
   reason TEXT NULL
 );
@@ -13,7 +13,7 @@ CREATE INDEX process_events_container_event_idx ON process_events (container, ev
 CREATE INDEX process_events_zip_idx ON process_events (zipFileName);
 
 INSERT INTO process_events (container, zipFileName, createdAt, envelope_id, event, reason) (
-  SELECT container, zipFileName, createdAt, envelope_id, status, reason
+  SELECT container, zipFileName, createdAt, envelope_id::uuid, status, reason
   FROM envelope_state
 );
 
