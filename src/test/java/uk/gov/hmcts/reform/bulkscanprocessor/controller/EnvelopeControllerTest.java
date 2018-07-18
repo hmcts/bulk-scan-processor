@@ -93,10 +93,12 @@ public class EnvelopeControllerTest {
     }
 
     @Test
-    public void should_throw_bad_request_when_service_jurisdiction_mapping_is_not_found_for_a_given_service() throws Exception {
+    public void should_throw_service_jurisdiction_config_not_found_exc_when_service_jurisdiction_mapping_is_not_found()
+        throws Exception {
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("test");
 
-        when(envelopeRetrieverService.getAllEnvelopesForJurisdiction("test")).thenThrow(ServiceJuridictionConfigNotFoundException.class);
+        when(envelopeRetrieverService.getAllEnvelopesForJurisdiction("test"))
+            .thenThrow(ServiceJuridictionConfigNotFoundException.class);
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
             .header("ServiceAuthorization", "testServiceAuthHeader")).andReturn();

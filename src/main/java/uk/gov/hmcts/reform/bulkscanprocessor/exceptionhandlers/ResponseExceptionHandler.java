@@ -38,7 +38,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ServiceJuridictionConfigNotFoundException.class)
-    protected ResponseEntity<String> handleServiceJuridictionConfigNotFoundExceptionn(ServiceJuridictionConfigNotFoundException exc) {
+    protected ResponseEntity<String> handleServiceJuridictionConfigNotFoundException(
+        ServiceJuridictionConfigNotFoundException exc
+    ) {
         log.error(exc.getMessage(), exc);
         return status(BAD_REQUEST).build();
     }
