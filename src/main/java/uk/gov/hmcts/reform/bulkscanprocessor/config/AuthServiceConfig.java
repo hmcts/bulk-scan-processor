@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.authorisation.ServiceAuthorisationApi;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGeneratorFactory;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.authorisation.validators.ServiceAuthTokenValidator;
 
 import java.util.List;
 
@@ -26,6 +27,12 @@ public class AuthServiceConfig {
         ServiceAuthorisationApi serviceAuthorisationApi
     ) {
         return AuthTokenGeneratorFactory.createDefaultGenerator(secret, name, serviceAuthorisationApi);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "idam.s2s-auth.url")
+    public AuthTokenValidator tokenValidator(ServiceAuthorisationApi s2sApi) {
+        return new ServiceAuthTokenValidator(s2sApi);
     }
 
     @Bean
