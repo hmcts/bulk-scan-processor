@@ -18,11 +18,16 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
@@ -34,7 +39,9 @@ import java.net.URL;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -70,6 +77,9 @@ public class EnvelopeControllerTest {
 
     @Mock
     private DocumentManagementService documentManagementService;
+
+    @MockBean
+    private AuthTokenValidator tokenValidator;
 
     private DocumentProcessor documentProcessor;
 
@@ -110,7 +120,7 @@ public class EnvelopeControllerTest {
     }
 
     @Test
-    public void should_successfully_return_all_envelopes() throws Exception {
+    public void should_successfully_return_all_envelopes_for_a_given_jurisdiction() throws Exception {
         uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdf
 
         byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
@@ -124,20 +134,55 @@ public class EnvelopeControllerTest {
 
         blobProcessorTask.processBlobs();
 
-        mockMvc.perform(get("/envelopes"))
+        given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
+
+        mockMvc.perform(get("/envelopes")
+            .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().json(expectedEnvelopes()));
 
+        verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
     @Test
     public void should_return_empty_list_when_envelopes_are_available() throws Exception {
-        mockMvc.perform(get("/envelopes"))
+        given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
+
+        mockMvc.perform(get("/envelopes")
+            .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().string("{\"envelopes\":[]}"));
 
+        verify(tokenValidator).getServiceName("testServiceAuthHeader");
+    }
+
+    @Test
+    public void should_throw_service_jurisdiction_config_not_found_exc_when_service_jurisdiction_mapping_is_not_found()
+        throws Exception {
+        given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test");
+
+        MvcResult result = this.mockMvc.perform(get("/envelopes")
+            .header("ServiceAuthorization", "testServiceAuthHeader"))
+            .andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(400);
+
+        assertThat(result.getResolvedException()).isInstanceOf(ServiceJuridictionConfigNotFoundException.class);
+
+        verify(tokenValidator).getServiceName("testServiceAuthHeader");
+    }
+
+    @Test
+    public void should_throw_unauthenticated_exception_when_service_auth_header_is_missing() throws Exception {
+        given(tokenValidator.getServiceName("testServiceAuthHeader")).willThrow(UnAuthenticatedException.class);
+
+        MvcResult result = this.mockMvc.perform(get("/envelopes")).andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(401);
+
+        assertThat(result.getResolvedException()).isInstanceOf(UnAuthenticatedException.class);
     }
 
     private String expectedEnvelopes() throws IOException {
