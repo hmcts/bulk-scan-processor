@@ -4,24 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "envelope_state")
-public class EnvelopeState implements EnvelopeAssignable {
+@Table(name = "process_events")
+public class ProcessEvent implements EnvelopeAssignable {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     private String container;
     @JsonProperty("zip_file_name")
@@ -29,21 +29,21 @@ public class EnvelopeState implements EnvelopeAssignable {
     @JsonProperty("created_at")
     private Timestamp createdAt = Timestamp.from(Instant.now());
     @Enumerated(EnumType.STRING)
-    private EnvelopeStatus status;
+    private Event event;
     private String reason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id")
     private Envelope envelope;
 
-    private EnvelopeState() {
+    private ProcessEvent() {
         // For use by hibernate.
     }
 
-    public EnvelopeState(String containerName, String zipFileName, EnvelopeStatus status) {
+    public ProcessEvent(String containerName, String zipFileName, Event event) {
         this.container = containerName;
         this.zipFileName = zipFileName;
-        this.status = status;
+        this.event = event;
     }
 
     public String getContainer() {
@@ -58,12 +58,12 @@ public class EnvelopeState implements EnvelopeAssignable {
         return createdAt;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
-    public EnvelopeStatus getStatus() {
-        return status;
+    public Event getEvent() {
+        return event;
     }
 
     public String getReason() {
