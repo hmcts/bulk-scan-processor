@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
@@ -89,6 +90,22 @@ public class EnvelopeControllerTest {
         assertThat(result.getResponse().getStatus()).isEqualTo(401);
 
         assertThat(result.getResolvedException()).isInstanceOf(UnAuthenticatedException.class);
+    }
+
+    @Test
+    public void should_throw_bad_request_when_service_jurisdiction_mapping_is_not_found_for_a_given_service() throws Exception {
+        when(authService.authenticate("testServiceAuthHeader")).thenReturn("test");
+
+        when(envelopeRetrieverService.getAllEnvelopesForJurisdiction("test")).thenThrow(ServiceJuridictionConfigNotFoundException.class);
+
+        MvcResult result = this.mockMvc.perform(get("/envelopes")
+            .header("ServiceAuthorization", "testServiceAuthHeader")).andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(400);
+
+        assertThat(result.getResolvedException()).isInstanceOf(ServiceJuridictionConfigNotFoundException.class);
+
+        verify(authService).authenticate("testServiceAuthHeader");
     }
 
     private String expectedEnvelopes() throws IOException {

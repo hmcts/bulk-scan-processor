@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToGenerateSasTokenException;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.ResponseEntity.status;
 
@@ -26,13 +28,19 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ServiceConfigNotFoundException.class)
     protected ResponseEntity<String> handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
-        return status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        return status(BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(UnAuthenticatedException.class)
     protected ResponseEntity<String> handleUnAuthenticatedException(UnAuthenticatedException exc) {
         log.error(exc.getMessage(), exc);
         return status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @ExceptionHandler(ServiceJuridictionConfigNotFoundException.class)
+    protected ResponseEntity<String> handleServiceJuridictionConfigNotFoundExceptionn(ServiceJuridictionConfigNotFoundException exc) {
+        log.error(exc.getMessage(), exc);
+        return status(BAD_REQUEST).build();
     }
 
     @ExceptionHandler(Exception.class)
