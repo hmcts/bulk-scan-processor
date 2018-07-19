@@ -79,7 +79,9 @@ public class InMemoryMultipartFile implements MultipartFile {
 
     @Override
     public void transferTo(File dest) throws IOException, IllegalStateException {
-        new FileOutputStream(dest).write(payload);
+        try (FileOutputStream stream = new FileOutputStream(dest)) {
+            stream.write(payload);
+        }
     }
 
     @Override
