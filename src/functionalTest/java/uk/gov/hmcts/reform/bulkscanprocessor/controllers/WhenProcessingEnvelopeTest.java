@@ -13,8 +13,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.jayway.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource("classpath:application.properties")
@@ -49,9 +51,10 @@ public class WhenProcessingEnvelopeTest {
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipName);
         blockBlobReference.uploadFromFile(zipPath);
 
-        waitForBlobProcess();
-
-        assertThat(blockBlobReference.exists()).isFalse();
+        await()
+            .atMost(scanDelay + 1000, TimeUnit.MILLISECONDS)
+            .pollDelay(5, TimeUnit.SECONDS)
+            .until(blockBlobReference::exists, is(false));
     }
 
     private String obtainSASToken() {
@@ -63,13 +66,5 @@ public class WhenProcessingEnvelopeTest {
             .thenReturn()
             .jsonPath()
             .getString("sas_token");
-    }
-
-    private void waitForBlobProcess() {
-        try {
-            Thread.sleep(scanDelay + 1000); // extra second for a good measure...
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
