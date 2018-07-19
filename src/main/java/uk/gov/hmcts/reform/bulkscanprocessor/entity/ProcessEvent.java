@@ -7,17 +7,14 @@ import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "process_events")
-public class ProcessEvent implements EnvelopeAssignable {
+public class ProcessEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +28,6 @@ public class ProcessEvent implements EnvelopeAssignable {
     @Enumerated(EnumType.STRING)
     private Event event;
     private String reason;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "envelope_id")
-    private Envelope envelope;
 
     private ProcessEvent() {
         // For use by hibernate.
@@ -72,14 +65,5 @@ public class ProcessEvent implements EnvelopeAssignable {
 
     public void setReason(String reason) {
         this.reason = reason;
-    }
-
-    public Envelope getEnvelope() {
-        return envelope;
-    }
-
-    @Override
-    public void setEnvelope(Envelope envelope) {
-        this.envelope = envelope;
     }
 }

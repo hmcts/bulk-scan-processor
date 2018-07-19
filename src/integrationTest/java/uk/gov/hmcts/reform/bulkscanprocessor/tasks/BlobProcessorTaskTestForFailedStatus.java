@@ -124,7 +124,6 @@ public class BlobProcessorTaskTestForFailedStatus {
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE));
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
-        assertThat(processEvent.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
     }
 
     @Test
@@ -155,7 +154,6 @@ public class BlobProcessorTaskTestForFailedStatus {
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE));
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isEqualTo(throwable.getMessage());
-        assertThat(processEvent.getEnvelope().getId()).isEqualTo(actualEnvelope.getId());
     }
 
     @Test
@@ -181,7 +179,6 @@ public class BlobProcessorTaskTestForFailedStatus {
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), noMetafileZip, DOC_FAILURE));
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
-        assertThat(processEvent.getEnvelope()).isNull();
     }
 
     @Test
@@ -207,7 +204,6 @@ public class BlobProcessorTaskTestForFailedStatus {
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), invalidMetafileZip, DOC_FAILURE));
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
-        assertThat(processEvent.getEnvelope()).isNull();
     }
 
     @Test
@@ -233,7 +229,6 @@ public class BlobProcessorTaskTestForFailedStatus {
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), noPdfZip, DOC_FAILURE));
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
-        assertThat(processEvent.getEnvelope()).isNull();
     }
 
     private void uploadZipToBlobStore(String zipFileName) throws Exception {

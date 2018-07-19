@@ -79,7 +79,6 @@ public class EnvelopeProcessor {
     ) {
         ProcessEvent processEvent = new ProcessEvent(containerName, zipFileName, event);
 
-        processEvent.setEnvelope(envelope);
         processEvent.setReason(reason);
         processEventRepository.save(processEvent);
 

@@ -177,9 +177,11 @@ public class BlobProcessorTaskTest {
 
 
         assertThat(processEvents)
-            .extracting("container", "zipFileName", "event", "envelope.id")
-            .contains(tuple(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_UPLOADED, actualEnvelope.getId()),
-                tuple(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_PROCESSED, actualEnvelope.getId()));
+            .extracting("container", "zipFileName", "event")
+            .contains(
+                tuple(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_UPLOADED),
+                tuple(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_PROCESSED)
+            );
 
         assertThat(processEvents).extracting("id").hasSize(2);
         assertThat(processEvents).extracting("reason").containsOnlyNulls();
