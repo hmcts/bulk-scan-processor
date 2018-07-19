@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
@@ -18,9 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.StorageConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,16 +39,14 @@ public class WhenProcessingEnvelopeTest {
     private CloudBlobContainer testContainer;
 
     @Before
-    public void setUp() throws URISyntaxException, StorageException {
+    public void setUp() throws Exception {
         String sasToken = obtainSASToken();
         URI containerUri = cloudBlobClient.getContainerReference(serviceName).getUri();
         testContainer = new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
     @Test
-    public void should_delete_zip_file_after_successful_ingestion()
-        throws URISyntaxException, StorageException, IOException {
-
+    public void should_delete_zip_file_after_successful_ingestion() throws Exception {
         // upload the file
         String zipName = "4_24-06-2018-00-00-00.zip";
         String zipPath = new File("src/integrationTest/resources/" + zipName).getAbsolutePath();
