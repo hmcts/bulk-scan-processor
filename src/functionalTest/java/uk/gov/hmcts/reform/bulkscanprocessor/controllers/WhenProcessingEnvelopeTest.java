@@ -52,6 +52,15 @@ public class WhenProcessingEnvelopeTest {
             .until(blockBlobReference::exists, is(false));
     }
 
+    @Test
+    public void should_keep_zip_file_after_failed_processing() throws Exception {
+        CloudBlockBlob blockBlobReference = uploadZipFile("2_24-06-2018-00-00-00.zip");
+
+        await()
+            .timeout(scanDelay + 1000, TimeUnit.MILLISECONDS)
+            .until(blockBlobReference::exists, is(true));
+    }
+
     private CloudBlockBlob uploadZipFile(String zipName) throws Exception {
         String zipPath = new File("src/integrationTest/resources/" + zipName).getAbsolutePath();
 
