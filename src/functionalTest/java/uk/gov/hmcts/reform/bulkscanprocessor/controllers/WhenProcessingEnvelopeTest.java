@@ -31,6 +31,9 @@ public class WhenProcessingEnvelopeTest {
     @Value("${scan.delay}")
     private int scanDelay;
 
+    @Value("${storage.account_name")
+    private String accountName;
+
     private String serviceName = "test";
 
     @Autowired
