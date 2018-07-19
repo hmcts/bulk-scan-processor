@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
@@ -16,6 +17,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
@@ -53,37 +55,35 @@ public class EnvelopeProcessor {
     }
 
     public void markAsUploaded(Envelope envelope, String containerName, String zipFileName) {
-        ProcessEvent event = new ProcessEvent(containerName, zipFileName, DOC_UPLOADED);
-
-        event.setEnvelope(envelope);
-
-        processEventRepository.save(event);
-
-        envelope.setLastEvent(DOC_UPLOADED);
-        envelopeRepository.save(envelope);
+        persistEvent(null, envelope, containerName, zipFileName, DOC_UPLOADED);
     }
 
-    public void markAsUploadFailed(String reason, Envelope envelope, String container, String zipFileName) {
-        ProcessEvent event = new ProcessEvent(container, zipFileName, DOC_UPLOAD_FAILURE);
-
-        event.setEnvelope(envelope);
-        event.setReason(reason);
-
-        processEventRepository.save(event);
-
-        envelope.setLastEvent(DOC_UPLOAD_FAILURE);
-        envelopeRepository.save(envelope);
+    public void markAsUploadFailed(String reason, Envelope envelope, String containerName, String zipFileName) {
+        persistEvent(reason, envelope, containerName, zipFileName, DOC_UPLOAD_FAILURE);
     }
 
-    public void markAsGenericFailure(String reason, Envelope envelope, String container, String zipFileName) {
-        ProcessEvent event = new ProcessEvent(container, zipFileName, DOC_FAILURE);
+    public void markAsGenericFailure(String reason, Envelope envelope, String containerName, String zipFileName) {
+        persistEvent(reason, envelope, containerName, zipFileName, DOC_FAILURE);
+    }
 
-        event.setEnvelope(envelope);
-        event.setReason(reason);
+    public void markAsProcessed(Envelope envelope, String containerName, String zipFileName) {
+        persistEvent(null, envelope, containerName, zipFileName, DOC_PROCESSED);
+    }
 
-        processEventRepository.save(event);
+    private void persistEvent(
+        String reason,
+        Envelope envelope,
+        String containerName,
+        String zipFileName,
+        Event event
+    ) {
+        ProcessEvent processEvent = new ProcessEvent(containerName, zipFileName, event);
 
-        envelope.setLastEvent(DOC_FAILURE);
+        processEvent.setEnvelope(envelope);
+        processEvent.setReason(reason);
+        processEventRepository.save(processEvent);
+
+        envelope.setLastEvent(event);
         envelopeRepository.save(envelope);
     }
 }

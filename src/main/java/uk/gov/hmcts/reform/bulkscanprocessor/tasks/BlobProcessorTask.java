@@ -117,6 +117,8 @@ public class BlobProcessorTask {
             envelopeProcessor.markAsUploaded(envelope, container.getName(), zipFilename);
 
             cloudBlockBlob.delete();
+
+            envelopeProcessor.markAsProcessed(envelope, container.getName(), zipFilename);
         } catch (Exception exception) {
             markAsFailed(isUploadFailure, container.getName(), zipFilename, exception.getMessage(), envelope);
 
