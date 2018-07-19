@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -46,8 +48,9 @@ public class Envelope {
     private Timestamp zipFileCreatedDate;
     @JsonProperty("zip_file_name")
     private String zipFileName;
-    @JsonProperty("last_event")
-    private Event lastEvent = Event.ENVELOPE_CREATED;
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    private Event status = Event.ENVELOPE_CREATED;
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
@@ -125,12 +128,12 @@ public class Envelope {
         return zipFileName;
     }
 
-    public Event getLastEvent() {
-        return lastEvent;
+    public Event getStatus() {
+        return status;
     }
 
-    public void setLastEvent(Event lastEvent) {
-        this.lastEvent = lastEvent;
+    public void setStatus(Event lastEvent) {
+        this.status = lastEvent;
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {

@@ -82,7 +82,7 @@ public class EnvelopeProcessor {
         processEvent.setReason(reason);
         processEventRepository.save(processEvent);
 
-        envelope.setLastEvent(event);
+        envelope.setStatus(event);
         envelopeRepository.save(envelope);
     }
 }

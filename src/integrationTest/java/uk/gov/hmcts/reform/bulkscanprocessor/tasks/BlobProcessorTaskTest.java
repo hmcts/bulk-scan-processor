@@ -15,12 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
@@ -51,17 +47,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
 public class BlobProcessorTaskTest {
 
     private static final String DOCUMENT_URL1 = "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
@@ -87,12 +78,6 @@ public class BlobProcessorTaskTest {
 
     @Mock
     private DocumentManagementService documentManagementService;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private AuthTokenValidator tokenValidator;
 
     private DocumentProcessor documentProcessor;
 
@@ -163,7 +148,7 @@ public class BlobProcessorTaskTest {
             parse(originalMetaFile),
             "id", "zip_file_created_date", "amount", "amount_in_pence", "configuration", "json"
         );
-        assertThat(actualEnvelope.getLastEvent()).isEqualTo(DOC_PROCESSED);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(DOC_PROCESSED);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(asList(DOCUMENT_URL1, DOCUMENT_URL2));
@@ -292,20 +277,17 @@ public class BlobProcessorTaskTest {
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(getFileUploadResponse());
 
-        given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
-
         blobProcessorTask.processBlobs();
 
         //Check blob is deleted
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await().atMost(2, SECONDS).until(blob::exists, is(false));
 
-        //Verify envelope status is updated to DOC_PROCESSED
-        mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.envelopes[0].last_event", is("DOC_PROCESSED")));
+        // Verify envelope status is updated to DOC_PROCESSED
+        assertThat(envelopeRepository.findAll())
+            .hasSize(1)
+            .extracting("status")
+            .containsOnly(DOC_PROCESSED);
 
         //Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -313,8 +295,6 @@ public class BlobProcessorTaskTest {
             .collect(Collectors.toList());
 
         assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED);
-
-        verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
     @Test
@@ -330,19 +310,16 @@ public class BlobProcessorTaskTest {
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willThrow(DocumentNotFoundException.class);
 
-        given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
-
         blobProcessorTask.processBlobs();
 
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await().timeout(2, SECONDS).until(blob::exists, is(true));
 
-        //Verify envelope status is updated to DOC_UPLOAD_FAILED
-        mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.envelopes[0].last_event", is(DOC_UPLOAD_FAILURE.toString())));
+        // Verify envelope status is updated to DOC_UPLOAD_FAILED
+        assertThat(envelopeRepository.findAll())
+            .hasSize(1)
+            .extracting("status")
+            .containsOnly(DOC_UPLOAD_FAILURE);
 
         //Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -350,8 +327,6 @@ public class BlobProcessorTaskTest {
             .collect(Collectors.toList());
 
         assertThat(actualEvents).containsOnly(DOC_UPLOAD_FAILURE);
-
-        verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
     private void uploadZipToBlobStore(String fileName) throws Exception {
