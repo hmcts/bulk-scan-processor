@@ -44,17 +44,20 @@ public class WhenProcessingEnvelopeTest {
 
     @Test
     public void should_delete_zip_file_after_successful_ingestion() throws Exception {
-        // upload the file
-        String zipName = "4_24-06-2018-00-00-00.zip";
-        String zipPath = new File("src/integrationTest/resources/" + zipName).getAbsolutePath();
-
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipName);
-        blockBlobReference.uploadFromFile(zipPath);
+        CloudBlockBlob blockBlobReference = uploadZipFile("4_24-06-2018-00-00-00.zip");
 
         await()
             .atMost(scanDelay + 1000, TimeUnit.MILLISECONDS)
             .pollDelay(5, TimeUnit.SECONDS)
             .until(blockBlobReference::exists, is(false));
+    }
+
+    private CloudBlockBlob uploadZipFile(String zipName) throws Exception {
+        String zipPath = new File("src/integrationTest/resources/" + zipName).getAbsolutePath();
+
+        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipName);
+        blockBlobReference.uploadFromFile(zipPath);
+        return blockBlobReference;
     }
 
     private String obtainSASToken() {
