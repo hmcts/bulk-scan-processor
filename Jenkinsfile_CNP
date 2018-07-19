@@ -10,7 +10,7 @@ def channel = '#rpe-build-notices'
 
 List<LinkedHashMap<String, Object>> secrets = [
   secret('test-scan-delay', 'TEST_SCAN_DELAY'),
-  secret('test-storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
+  secret('test-storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME')
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
