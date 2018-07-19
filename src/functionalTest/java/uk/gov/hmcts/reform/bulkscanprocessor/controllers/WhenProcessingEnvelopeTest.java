@@ -37,7 +37,15 @@ public class WhenProcessingEnvelopeTest {
 
     @Before
     public void setUp() throws Exception {
-        String sasToken = obtainSASToken();
+        String sasToken = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .when()
+            .get(testUrl + "/token/" + serviceName)
+            .thenReturn()
+            .jsonPath()
+            .getString("sas_token");
+
         URI containerUri = new URI("https://" + accountName + ".blob.core.windows.net/" + serviceName);
         testContainer = new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
@@ -67,16 +75,5 @@ public class WhenProcessingEnvelopeTest {
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipName);
         blockBlobReference.uploadFromFile(zipPath);
         return blockBlobReference;
-    }
-
-    private String obtainSASToken() {
-        return RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .when()
-            .get(testUrl + "/token/" + serviceName)
-            .thenReturn()
-            .jsonPath()
-            .getString("sas_token");
     }
 }
