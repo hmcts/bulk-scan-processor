@@ -36,13 +36,14 @@ public class EnvelopeProcessor {
         this.processEventRepository = processEventRepository;
     }
 
-    public Envelope processEnvelope(byte[] metadataStream) throws IOException {
+    public Envelope processEnvelope(byte[] metadataStream, String containerName) throws IOException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
         //TODO Perform json schema validation for the metadata file
         InputStream inputStream = new ByteArrayInputStream(metadataStream);
         Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+        envelope.setContainer(containerName);
 
         Envelope dbEnvelope = envelopeRepository.save(envelope);
 
