@@ -1,17 +1,15 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
+import io.restassured.RestAssured;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.net.URI;
@@ -57,13 +55,14 @@ public class WhenProcessingEnvelopeTest {
     }
 
     private String obtainSASToken() {
-        RestTemplate restTemplate = new RestTemplate();
-        ObjectNode objectNode = restTemplate.getForObject(testUrl + "/token/" + serviceName, ObjectNode.class);
-        JsonNode sasToken = objectNode.get("sas_token");
-        if (sasToken != null) {
-            return sasToken.asText();
-        }
-        throw new RuntimeException("Empty SAS token");
+        return RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .when()
+            .get(testUrl + "/token/" + serviceName)
+            .thenReturn()
+            .jsonPath()
+            .getString("sas_token");
     }
 
     private void waitForBlobProcess() {
