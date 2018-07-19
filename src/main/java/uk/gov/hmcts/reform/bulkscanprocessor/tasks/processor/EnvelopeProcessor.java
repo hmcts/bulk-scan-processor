@@ -75,16 +75,15 @@ public class EnvelopeProcessor {
         Envelope envelope,
         String containerName,
         String zipFileName,
-        Event docProcessed
+        Event event
     ) {
-        ProcessEvent event = new ProcessEvent(containerName, zipFileName, docProcessed);
+        ProcessEvent processEvent = new ProcessEvent(containerName, zipFileName, event);
 
-        event.setEnvelope(envelope);
-        event.setReason(reason);
+        processEvent.setEnvelope(envelope);
+        processEvent.setReason(reason);
+        processEventRepository.save(processEvent);
 
-        processEventRepository.save(event);
-
-        envelope.setLastEvent(docProcessed);
+        envelope.setLastEvent(event);
         envelopeRepository.save(envelope);
     }
 }

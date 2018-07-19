@@ -340,7 +340,7 @@ public class BlobProcessorTaskTest {
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.envelopes[0].last_event", is("DOC_UPLOAD_FAILURE")));
+            .andExpect(jsonPath("$.envelopes[0].last_event", is(DOC_UPLOAD_FAILURE.toString())));
 
         //Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
