@@ -2,19 +2,16 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.StorageConfiguration;
 
 import java.io.File;
 import java.net.URI;
@@ -22,7 +19,7 @@ import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {StorageConfiguration.class})
+@TestPropertySource("classpath:application.properties")
 public class WhenProcessingEnvelopeTest {
 
     @Value("${test-url}")
@@ -36,15 +33,12 @@ public class WhenProcessingEnvelopeTest {
 
     private String serviceName = "test";
 
-    @Autowired
-    private CloudBlobClient cloudBlobClient;
-
     private CloudBlobContainer testContainer;
 
     @Before
     public void setUp() throws Exception {
         String sasToken = obtainSASToken();
-        URI containerUri = cloudBlobClient.getContainerReference(serviceName).getUri();
+        URI containerUri = new URI("https://" + accountName + ".blob.core.windows.net/" + serviceName);
         testContainer = new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
