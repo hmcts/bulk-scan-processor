@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-  id 'org.flywaydb.flyway' version '5.1.3'
+  id 'org.flywaydb.flyway' version '5.1.4'
   id 'org.springframework.boot' version '2.0.3.RELEASE'
   id 'org.owasp.dependencycheck' version '3.2.1'
   id 'com.github.ben-manes.versions' version '0.20.0'
@@ -160,8 +160,8 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
 
-  compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.3'
-  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
+  compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
+  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.4'
   // review following dependency after integrating db structure
   compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.2.2'
 
@@ -183,7 +183,7 @@ dependencies {
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
-  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.8.0'
+  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.8.1'
   integrationTestCompile group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestCompile sourceSets.main.runtimeClasspath
