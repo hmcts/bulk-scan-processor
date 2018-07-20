@@ -25,10 +25,10 @@ public class WhenProcessingEnvelopeTest {
     @Value("${test-url}")
     private String testUrl;
 
-    @Value("${scan.delay}")
+    @Value("${scan-delay}")
     private int scanDelay;
 
-    @Value("${storage.account_name")
+    @Value("${storage-account-name")
     private String accountName;
 
     private String serviceName = "test";
