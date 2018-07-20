@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource("classpath:application.properties")
-public class WhenProcessingEnvelopeTest {
+public class EnvelopeDeletionTest {
 
     @Value("${test-url}")
     private transient String testUrl;
