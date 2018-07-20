@@ -8,10 +8,28 @@ def component = "bulk-scan-processor"
 
 def channel = '#rpe-build-notices'
 
+List<LinkedHashMap<String, Object>> apiTestSecrets = [
+  secret('test-client-subscription-key', 'TEST_CLIENT_SUBSCRIPTION_KEY')
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+  [ $class: 'AzureKeyVaultSecret',
+    secretType: 'Secret',
+    name: secretName,
+    version: '',
+    envVariable: envVar
+  ]
+}
+
 withPipeline(type, product, component) {
   after('test') {
     sh './gradlew integration'
   }
   enableDbMigration()
   enableSlackNotifications(channel)
+  enableApiGatewayTest()
+
+  onNonPR() {
+    loadVaultSecrets(apiTestSecrets)
+  }
 }

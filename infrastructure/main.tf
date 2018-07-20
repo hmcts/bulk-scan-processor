@@ -22,6 +22,9 @@ locals {
   dm_store_url   = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
 
   db_connection_options  = "?ssl=true"
+
+  create_api    = "${var.env != "preview" && var.env != "spreview"}"
+  api_base_path = "bulk-scan"
 }
 
 module "bulk-scan-db" {
@@ -141,3 +144,27 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 data "vault_generic_secret" "s2s_secret" {
   path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/bulk-scan-processor"
 }
+
+# region API (gateway)
+
+data "template_file" "api_template" {
+  template = "${file("${path.module}/template/api.json")}"
+}
+
+resource "azurerm_template_deployment" "api" {
+  template_body       = "${data.template_file.api_template.rendered}"
+  name                = "${var.product}-api-${var.env}"
+  deployment_mode     = "Incremental"
+  resource_group_name = "core-infra-${var.env}"
+  count               = "${local.create_api ? 1 : 0}"
+
+  parameters = {
+    apiManagementServiceName  = "core-api-mgmt-${var.env}"
+    apiName                   = "bulk-scan-api"
+    apiProductName            = "bulk-scan"
+    serviceUrl                = "http://${var.product}-${local.app}-${var.env}.service.core-compute-${var.env}.internal"
+    apiBasePath               = "${local.api_base_path}"
+  }
+}
+
+# endregion
