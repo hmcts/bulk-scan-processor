@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/hmcts/bulk-scan-processor.svg?branch=master)](https://travis-ci.org/hmcts/bulk-scan-processor)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/958fd3d74a194a0f8b9529cbc012293e)](https://www.codacy.com/app/HMCTS/bulk-scan-processor)
 [![codecov](https://codecov.io/gh/hmcts/bulk-scan-processor/branch/master/graph/badge.svg)](https://codecov.io/gh/hmcts/bulk-scan-processor)
+[![Known Vulnerabilities](https://snyk.io/test/github/hmcts/bulk-scan-processor/badge.svg)](https://snyk.io/test/github/hmcts/bulk-scan-processor)
 
 ## Purpose
 
