@@ -63,8 +63,6 @@ public class BlobProcessorTaskTest {
         .file("src/integrationTest/resources/docker-compose.yml")
         .build();
 
-    private CloudBlobClient cloudBlobClient;
-
     private BlobProcessorTask blobProcessorTask;
 
     @Autowired
@@ -79,23 +77,20 @@ public class BlobProcessorTaskTest {
     @Mock
     private DocumentManagementService documentManagementService;
 
-    private DocumentProcessor documentProcessor;
-
-    private EnvelopeProcessor envelopeProcessor;
-
     private CloudBlobContainer testContainer;
 
     @Before
     public void setup() throws Exception {
-        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
-        cloudBlobClient = account.createCloudBlobClient();
+        CloudBlobClient cloudBlobClient = CloudStorageAccount
+            .parse("UseDevelopmentStorage=true")
+            .createCloudBlobClient();
 
-        documentProcessor = new DocumentProcessor(
+        DocumentProcessor documentProcessor = new DocumentProcessor(
             documentManagementService,
             scannableItemRepository
         );
 
-        envelopeProcessor = new EnvelopeProcessor(
+        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
             processEventRepository
         );
