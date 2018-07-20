@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +51,7 @@ public class EnvelopeTest {
 
         // then
         try (InputStream stream = getMetaFile()) {
-            String originalMetaFile = IOUtils.toString(stream);
+            String originalMetaFile = IOUtils.toString(stream, Charset.defaultCharset());
             String actualEnvelope = new ObjectMapper().writeValueAsString(dbEnvelope);
 
             /*
