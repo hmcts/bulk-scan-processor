@@ -124,6 +124,12 @@ dependencyCheck {
   suppressionFile = 'config/owasp/suppressions.xml'
 }
 
+dependencyManagement {
+  dependencies {
+    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.60'
+  }
+}
+
 repositories {
   jcenter()
 
@@ -133,10 +139,6 @@ repositories {
 
   maven {
     url "https://dl.bintray.com/hmcts/hmcts-maven"
-  }
-
-  maven {
-    url 'https://repo.spring.io/libs-milestone'
   }
 }
 
@@ -173,7 +175,7 @@ dependencies {
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix-dashboard', version: versions.springHystrix
 
-  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '1.0.0'
+  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '1.0.1'
 
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
