@@ -9,3 +9,11 @@ output "vaultName" {
 output "microserviceName" {
   value = "${var.component}"
 }
+
+output "TEST_SCAN_DELAY" {
+  value = "${var.scan_delay}"
+}
+
+output "TEST_STORAGE_ACCOUNT_NAME" {
+  value = "${azurerm_storage_account.provider.name}"
+}
