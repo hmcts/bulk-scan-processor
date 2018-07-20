@@ -67,6 +67,70 @@ Smoke tests expect an address of deployed application to be passed in `TEST_URL`
 ```
 
 By default, it will use `http://localhost:8581` which is defined in [src/smokeTest/resources/application.yaml](/src/smokeTest/resources/application.yaml).
+
+### Setting up API (gateway) tests
+
+Bulk Scan Processor uses an (Azure API Management) API to protect its SAS token dispensing endpoint.
+The API allows only HTTPS requests with approved client certificates.
+
+Jenkins (pipeline) runs the API gateway tests by executing `apiGateway` gradle task. This only happens if
+there's a call to `enableApiGatewayTest()` in your Jenkinsfile_CNP/Jenkinsfile_parameterized.
+
+Your API tests rely on the following environment variables:
+- `TEST_CLIENT_KEY_STORE` - Base64-encoded PKCS12 key store containing private key and certificate.
+This piece of information needs to be manually set as a secret in Azure Key Vault.
+- `TEST_CLIENT_KEY_STORE_PASSWORD` - Password the key store is protected with.
+Like key store, this needs to be set as a secret in Azure Key Vault.
+- `API_GATEWAY_URL` - The URL of the API (gateway) that is the target of tests.
+This is provided by Jenkins based on the `api_gateway_url` output variable, defined in Terraform code.
+
+Here's how to set secrets for tests in a given environment:
+
+First, generate client private key, a certificate for that key and import both into a key store:
+
+```
+# generate private key
+openssl genrsa 2048 > private.pem
+
+# generate certificate
+openssl req -x509 -new -key private.pem -out cert.pem
+
+# create the key store
+# when asked for password, provide one
+openssl pkcs12 -export -in cert.pem -inkey private.pem -out cert.pfx -noiter -nomaciter
+```
+
+Now, store the content of the key store as a Base64-encoded secret in Azure Key Vault:
+
+```
+base64 cert.pfx | perl -pe 'chomp if eof' | xargs az keyvault secret set --vault-name rpe-bsp-{environment} --name test-client-key-store --value $1
+```
+
+... along with the password for that key store:
+
+```
+az keyvault secret set --vault-name rpe-bsp-{environment} --name test-client-key-store-password --value {the password you've set}
+```
+
+For the test certificate to be recognised by the API, set `api_gateway_test_certificate_thumbprint` input variable
+with the thumbprint of the certificate for the right environment (in {environment}.tfvars file). In order
+to calculate the thumbprint, run the following command:
+
+```
+openssl x509 -noout -fingerprint -inform pem -in cert.pem | sed -e s/://g
+```
+
+Your {environment}.tfvars file should look similar to this:
+
+```
+...
+api_gateway_test_certificate_thumbprint = "8D81D05C0154423AE548D709CDDF9549E826C036"
+...
+```
+
+Having pushed those changes, redeploy the service.
+
+
 ### Running integration tests
 
 ```bash
