@@ -51,7 +51,7 @@ public class EnvelopeDeletionTest {
 
     @Test
     public void should_delete_zip_file_after_successful_ingestion() throws Exception {
-        CloudBlockBlob zipFile = uploadZipFile("4_24-06-2018-00-00-00.zip");
+        CloudBlockBlob zipFile = uploadZipFile("4_24-06-2018-00-00-00.zip"); // valid zip file
 
         await()
             .atMost(scanDelay + 1000, TimeUnit.MILLISECONDS)
@@ -61,7 +61,7 @@ public class EnvelopeDeletionTest {
 
     @Test
     public void should_keep_zip_file_after_failed_processing() throws Exception {
-        CloudBlockBlob zipFile = uploadZipFile("2_24-06-2018-00-00-00.zip");
+        CloudBlockBlob zipFile = uploadZipFile("2_24-06-2018-00-00-00.zip"); // invalid due to missing json file
 
         await()
             .timeout(scanDelay + 1000, TimeUnit.MILLISECONDS)
