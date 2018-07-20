@@ -23,15 +23,15 @@ import static org.hamcrest.Matchers.is;
 public class WhenProcessingEnvelopeTest {
 
     @Value("${test-url}")
-    private String testUrl;
+    private transient String testUrl;
 
     @Value("${scan-delay}")
-    private int scanDelay;
+    private transient int scanDelay;
 
     @Value("${storage-account-name")
-    private String accountName;
+    private transient String accountName;
 
-    private CloudBlobContainer testContainer;
+    private transient CloudBlobContainer testContainer;
 
     @Before
     public void setUp() throws Exception {
