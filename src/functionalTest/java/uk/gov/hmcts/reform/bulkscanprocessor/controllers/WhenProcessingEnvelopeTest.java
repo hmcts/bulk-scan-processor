@@ -68,7 +68,7 @@ public class WhenProcessingEnvelopeTest {
             .until(zipFile::exists, is(true));
     }
 
-    private CloudBlockBlob uploadZipFile(String zipName) throws Exception {
+    private CloudBlockBlob uploadZipFile(final String zipName) throws Exception {
         String zipPath = new File("src/integrationTest/resources/" + zipName).getAbsolutePath();
 
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipName);
