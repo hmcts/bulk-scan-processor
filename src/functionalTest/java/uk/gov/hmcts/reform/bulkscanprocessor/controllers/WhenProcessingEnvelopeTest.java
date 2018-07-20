@@ -35,17 +35,17 @@ public class WhenProcessingEnvelopeTest {
 
     @Before
     public void setUp() throws Exception {
-        String serviceName = "test";
+        String containerName = "test";
         String sasToken = RestAssured
             .given()
             .relaxedHTTPSValidation()
             .when()
-            .get(testUrl + "/token/" + serviceName)
+            .get(testUrl + "/token/" + containerName)
             .thenReturn()
             .jsonPath()
             .getString("sas_token");
 
-        URI containerUri = new URI("https://" + accountName + ".blob.core.windows.net/" + serviceName);
+        URI containerUri = new URI("https://" + accountName + ".blob.core.windows.net/" + containerName);
         testContainer = new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
