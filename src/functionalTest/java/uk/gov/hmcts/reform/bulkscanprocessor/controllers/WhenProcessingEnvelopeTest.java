@@ -31,12 +31,11 @@ public class WhenProcessingEnvelopeTest {
     @Value("${storage-account-name")
     private String accountName;
 
-    private String serviceName = "test";
-
     private CloudBlobContainer testContainer;
 
     @Before
     public void setUp() throws Exception {
+        String serviceName = "test";
         String sasToken = RestAssured
             .given()
             .relaxedHTTPSValidation()
