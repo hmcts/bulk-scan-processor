@@ -51,28 +51,28 @@ public class WhenProcessingEnvelopeTest {
 
     @Test
     public void should_delete_zip_file_after_successful_ingestion() throws Exception {
-        CloudBlockBlob blockBlobReference = uploadZipFile("4_24-06-2018-00-00-00.zip");
+        CloudBlockBlob zipFile = uploadZipFile("4_24-06-2018-00-00-00.zip");
 
         await()
             .atMost(scanDelay + 1000, TimeUnit.MILLISECONDS)
             .pollDelay(5, TimeUnit.SECONDS)
-            .until(blockBlobReference::exists, is(false));
+            .until(zipFile::exists, is(false));
     }
 
     @Test
     public void should_keep_zip_file_after_failed_processing() throws Exception {
-        CloudBlockBlob blockBlobReference = uploadZipFile("2_24-06-2018-00-00-00.zip");
+        CloudBlockBlob zipFile = uploadZipFile("2_24-06-2018-00-00-00.zip");
 
         await()
             .timeout(scanDelay + 1000, TimeUnit.MILLISECONDS)
-            .until(blockBlobReference::exists, is(true));
+            .until(zipFile::exists, is(true));
     }
 
     private CloudBlockBlob uploadZipFile(String zipName) throws Exception {
         String zipPath = new File("src/integrationTest/resources/" + zipName).getAbsolutePath();
 
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipName);
-        blockBlobReference.uploadFromFile(zipPath);
-        return blockBlobReference;
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipName);
+        blob.uploadFromFile(zipPath);
+        return blob;
     }
 }
