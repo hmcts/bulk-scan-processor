@@ -127,7 +127,7 @@ public class EnvelopeControllerTest {
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
         throws Exception {
         uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdf
-        uploadZipToBlobStore("8_24-06-2018-00-00-00.zip"); // Zip file with metadata gif and pdf
+        uploadZipToBlobStore("8_24-06-2018-00-00-00.zip"); // Zip file with metadata and pdf
 
         byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
@@ -154,6 +154,8 @@ public class EnvelopeControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().json(expectedEnvelopes()));
 
+        // This is to assert that db contains both processed
+        // and failed doc but only returns processed records when requested.
         assertThat(envelopeRepository.findAll())
             .extracting("zipFileName", "status")
             .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_CONSUMED),

@@ -317,6 +317,8 @@ public class BlobProcessorTaskTest {
             .collect(Collectors.toList());
 
         assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED, DOC_CONSUMED);
+
+        verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
     @Test
