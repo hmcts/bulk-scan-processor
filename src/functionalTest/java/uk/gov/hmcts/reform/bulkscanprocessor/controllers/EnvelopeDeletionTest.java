@@ -57,7 +57,7 @@ public class EnvelopeDeletionTest {
         await()
             .atMost(scanDelay + 1000, TimeUnit.MILLISECONDS)
             .pollDelay(5, TimeUnit.SECONDS)
-            .until(zipFile::exists, is(false));
+            .until(() -> storageHasFile(zipFile.getName()), is(false));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class EnvelopeDeletionTest {
 
         await()
             .timeout(scanDelay + 1000, TimeUnit.MILLISECONDS)
-            .until(zipFile::exists, is(true));
+            .until(() -> storageHasFile(zipFile.getName()), is(true));
     }
 
     private CloudBlockBlob uploadZipFile(final String zipName) throws Exception {
