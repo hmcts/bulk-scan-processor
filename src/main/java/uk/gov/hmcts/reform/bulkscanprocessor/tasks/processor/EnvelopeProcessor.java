@@ -83,7 +83,9 @@ public class EnvelopeProcessor {
         processEvent.setReason(reason);
         processEventRepository.save(processEvent);
 
-        envelope.setStatus(event);
-        envelopeRepository.save(envelope);
+        if (envelope != null) {
+            envelope.setStatus(event);
+            envelopeRepository.save(envelope);
+        }
     }
 }
