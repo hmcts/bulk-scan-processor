@@ -67,6 +67,42 @@ Smoke tests expect an address of deployed application to be passed in `TEST_URL`
 ```
 
 By default, it will use `http://localhost:8581` which is defined in [src/smokeTest/resources/application.yaml](/src/smokeTest/resources/application.yaml).
+
+### Setting up API (gateway) tests
+
+Bulk Scan Processor uses an (Azure API Management) API to protect its SAS token dispensing endpoint.
+The API allows only HTTPS requests with a valid subscription key.
+
+Jenkins (pipeline) runs the API gateway tests by executing `apiGateway` gradle task. This only happens if
+there's a call to `enableApiGatewayTest()` in your Jenkinsfile_CNP/Jenkinsfile_parameterized.
+
+Your API tests rely on the following environment variables:
+- `TEST_CLIENT_SUBSCRIPTION_KEY` - subscription key that allows access to the API. Must be set manually in Azure Key Vault.
+- `API_GATEWAY_URL` - The URL of the API (gateway) that is the target of tests.
+This is provided by Jenkins based on the `api_gateway_url` output variable, defined in Terraform code.
+
+Here's how to set the subscription key in Azure Key Vault:
+
+**Get subscription key**
+
+You can get your subscription key using Azure Portal. In order to do this, perform the following steps:
+- Search for the right API Management Service instance (`core-api-mgmt-{environment}`) and navigate to its page
+- From the API Management service page, navigate to Developer portal (`Developer portal` link at the top bar)
+- In developer portal navigate to `Products` tab and click on `bulk-scan`
+- Click on one of the subscriptions from the list (at least `bulk-scan (default)` should be present).
+- Click on the `Show` link next to the Primary Key of one of the bulk-scan subscriptions. This will
+reveal the key.
+
+
+**Store subscription key in Azure Key Vault so that API tests can use it**
+
+```
+az keyvault secret set --vault-name rpe-bsp-{environment} --name test-client-subscription-key --value {the subscription key}
+```
+
+When running the pipeline, Jenkins will read this secret and convert it to `TEST_CLIENT_SUBSCRIPTION_KEY`
+environment variable, available to tests.
+
 ### Running integration tests
 
 ```bash

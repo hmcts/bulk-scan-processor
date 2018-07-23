@@ -3,6 +3,19 @@
 
 def channel = '#rpe-build-notices'
 
+List<LinkedHashMap<String, Object>> apiTestSecrets = [
+  secret('test-client-subscription-key', 'TEST_CLIENT_SUBSCRIPTION_KEY')
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+  [ $class: 'AzureKeyVaultSecret',
+    secretType: 'Secret',
+    name: secretName,
+    version: '',
+    envVariable: envVar
+  ]
+}
+
 properties([
   parameters([
     string(name: 'PRODUCT_NAME', defaultValue: 'rpe', description: ''),
@@ -18,4 +31,9 @@ properties([
 withParameterizedPipeline(params.TYPE, params.PRODUCT_NAME, params.APP, params.ENVIRONMENT, params.SUBSCRIPTION) {
   enableDbMigration()
   enableSlackNotifications(channel)
+  enableApiGatewayTest()
+
+  onNonPR() {
+    loadVaultSecrets(apiTestSecrets)
+  }
 }
