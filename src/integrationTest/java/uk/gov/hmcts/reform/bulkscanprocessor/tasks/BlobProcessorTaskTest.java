@@ -52,10 +52,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
-<<<<<<<HEAD
-    =======
-    >>>>>>>Updated functionality to filter by envelope status
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlobProcessorTaskTest {
