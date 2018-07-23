@@ -9,7 +9,7 @@
     the pg_catalog.pg_logfile_rotate() function doesn't follow the same ACLs than pg_rorate_logfile.
     If the adminpack is added to a database,
     an attacker able to connect to it could exploit this to force log rotation]]></notes>
-    <gav regex="true">^org\.postgresql:postgresql:42\.2\.2$</gav>
+    <gav regex="true">^org\.postgresql:postgresql:42\.2\.4$</gav>
     <cve>CVE-2018-1115</cve>
   </suppress>
 
