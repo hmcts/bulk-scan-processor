@@ -3,8 +3,8 @@ plugins {
   id 'checkstyle'
   id 'pmd'
   id 'jacoco'
-  id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-  id 'org.flywaydb.flyway' version '5.1.3'
+  id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+  id 'org.flywaydb.flyway' version '5.1.4'
   id 'org.springframework.boot' version '2.0.3.RELEASE'
   id 'org.owasp.dependencycheck' version '3.2.1'
   id 'com.github.ben-manes.versions' version '0.20.0'
@@ -124,6 +124,12 @@ dependencyCheck {
   suppressionFile = 'config/owasp/suppressions.xml'
 }
 
+dependencyManagement {
+  dependencies {
+    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.60'
+  }
+}
+
 repositories {
   jcenter()
 
@@ -133,10 +139,6 @@ repositories {
 
   maven {
     url "https://dl.bintray.com/hmcts/hmcts-maven"
-  }
-
-  maven {
-    url 'https://repo.spring.io/libs-milestone'
   }
 }
 
@@ -160,8 +162,8 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
 
-  compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.3'
-  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
+  compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
+  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.4'
   // review following dependency after integrating db structure
   compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.2.2'
 
@@ -173,17 +175,17 @@ dependencies {
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix-dashboard', version: versions.springHystrix
 
-  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '1.0.0'
+  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '1.0.1'
 
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
-  testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: '0.33.0'
+  testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: '0.34.0'
 
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
-  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.8.0'
+  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.8.1'
   integrationTestCompile group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestCompile sourceSets.main.runtimeClasspath
