@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
@@ -45,6 +46,8 @@ public class EnvelopeDeletionTest {
             .thenReturn()
             .jsonPath()
             .getString("sas_token");
+
+        assertThat(sasToken).isNotNull();
 
         URI containerUri = new URI("https://" + accountName + ".blob.core.windows.net/" + containerName);
         testContainer = new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
