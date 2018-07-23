@@ -26,8 +26,8 @@ before_install:
 #  - curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
 
 script:
-  - ./gradlew test -i
-  - ./gradlew integration -i
+  - ./gradlew test
+  - ./gradlew integration
   - ./gradlew sonarqube -i
 
 after_success:
