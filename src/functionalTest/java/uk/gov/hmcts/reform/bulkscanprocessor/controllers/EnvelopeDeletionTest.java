@@ -67,9 +67,10 @@ public class EnvelopeDeletionTest {
     public void should_keep_zip_file_after_failed_processing() throws Exception {
         CloudBlockBlob zipFile = uploadZipFile("2_24-06-2018-00-00-00.zip"); // invalid due to missing json file
 
-        await()
-            .timeout(scanDelay + 1000, TimeUnit.MILLISECONDS)
-            .until(() -> storageHasFile(zipFile.getName()), is(true));
+        // ensure that processing has happened
+        Thread.sleep(scanDelay + 1000);
+
+        assertThat(storageHasFile(zipFile.getName())).isTrue();
     }
 
     private CloudBlockBlob uploadZipFile(final String zipName) throws Exception {
