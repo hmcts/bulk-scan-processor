@@ -30,7 +30,7 @@ public class EnvelopeDeletionTest {
     @Value("${test-scan-delay}")
     private transient int scanDelay;
 
-    @Value("${storage-account-name}")
+    @Value("${test-storage-account-name}")
     private transient String accountName;
 
     private transient CloudBlobContainer testContainer;
