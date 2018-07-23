@@ -27,7 +27,7 @@ public class EnvelopeDeletionTest {
     @Value("${test-url}")
     private transient String testUrl;
 
-    @Value("${scan-delay}")
+    @Value("${test-scan-delay}")
     private transient int scanDelay;
 
     @Value("${storage-account-name}")
