@@ -49,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_CONSUMED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
@@ -155,10 +154,8 @@ public class EnvelopeControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().json(expectedEnvelopes()));
 
-        System.out.println(envelopeRepository.findAll().size());
-
         assertThat(envelopeRepository.findAll())
-            .extracting("zipFileName", "lastEvent")
+            .extracting("zipFileName", "status")
             .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_CONSUMED),
                 tuple("8_24-06-2018-00-00-00.zip", DOC_UPLOAD_FAILURE));
 

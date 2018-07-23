@@ -50,21 +50,21 @@ public class EnvelopeRetrieverServiceTest {
 
         doNothing().when(envelopeProcessor).markAsConsumed(any());
 
-        when(envelopeRepository.findByJurisdictionAndLastEvent("testJurisdiction", DOC_PROCESSED))
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED))
             .thenReturn(envelopes);
 
         assertThat(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"))
             .containsOnly(envelopes.get(0));
 
         verify(mappingConfig).getServicesJurisdiction();
-        verify(envelopeRepository).findByJurisdictionAndLastEvent("testJurisdiction", DOC_PROCESSED);
+        verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED);
         verify(envelopeProcessor).markAsConsumed(any());
     }
 
     @Test
     public void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
         when(mappingConfig.getServicesJurisdiction()).thenReturn(ImmutableMap.of("testService", "testJurisdiction"));
-        when(envelopeRepository.findByJurisdictionAndLastEvent("testJurisdiction", DOC_PROCESSED))
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED))
             .thenThrow(DataRetrievalFailureException.class);
 
         Throwable throwable = catchThrowable(() ->

@@ -41,7 +41,7 @@ public class EnvelopeRetrieverService {
         log.info("Fetching all processed envelopes for service {} and jurisdiction {}", serviceName, jurisdiction);
 
         List<Envelope> processedEnvelopes =
-            envelopeRepository.findByJurisdictionAndLastEvent(
+            envelopeRepository.findByJurisdictionAndStatus(
                 jurisdiction,
                 Event.DOC_PROCESSED
             );
