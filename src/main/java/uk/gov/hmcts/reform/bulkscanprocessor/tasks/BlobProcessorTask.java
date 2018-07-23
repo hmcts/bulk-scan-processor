@@ -110,7 +110,7 @@ public class BlobProcessorTask {
                 }
             }
 
-            envelope = envelopeProcessor.processEnvelope(metadataStream);
+            envelope = envelopeProcessor.processEnvelope(metadataStream, container.getName());
             isUploadFailure = true;
 
             documentProcessor.processPdfFiles(pdfFiles, envelope.getScannableItems());

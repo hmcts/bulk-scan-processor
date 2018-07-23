@@ -31,6 +31,7 @@ public class ScannableItemTest {
         // given
         InputStream metafile = getClass().getResourceAsStream("/metafile.json");
         Envelope envelope = EntityParser.parseEnvelopeMetadata(metafile);
+        envelope.setContainer("container");
 
         // and
         List<ScannableItem> items = envelopeRepository.save(envelope).getScannableItems();

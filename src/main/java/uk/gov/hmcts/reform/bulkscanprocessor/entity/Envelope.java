@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
@@ -14,10 +16,13 @@ import java.util.List;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import static java.util.Collections.emptyList;
@@ -26,11 +31,15 @@ import static java.util.Collections.emptyList;
 @Table(name = "envelopes")
 public class Envelope {
 
+    private static final Logger log = LoggerFactory.getLogger(Envelope.class);
+
     @Id
     @GeneratedValue
     @JsonIgnore
     private UUID id;
 
+    @JsonIgnore
+    private String container;
     @JsonProperty("po_box")
     private String poBox;
     @JsonProperty("jurisdiction")
@@ -46,8 +55,9 @@ public class Envelope {
     private Timestamp zipFileCreatedDate;
     @JsonProperty("zip_file_name")
     private String zipFileName;
-    @JsonProperty("last_event")
-    private Event lastEvent = Event.ENVELOPE_CREATED;
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    private Event status = Event.ENVELOPE_CREATED;
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
@@ -117,6 +127,10 @@ public class Envelope {
         return id;
     }
 
+    public void setContainer(String container) {
+        this.container = container;
+    }
+
     public String getJurisdiction() {
         return jurisdiction;
     }
@@ -125,15 +139,22 @@ public class Envelope {
         return zipFileName;
     }
 
-    public Event getLastEvent() {
-        return lastEvent;
+    public Event getStatus() {
+        return status;
     }
 
-    public void setLastEvent(Event lastEvent) {
-        this.lastEvent = lastEvent;
+    public void setStatus(Event lastEvent) {
+        this.status = lastEvent;
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
         assignables.forEach(assignable -> assignable.setEnvelope(this));
+    }
+
+    @PrePersist
+    public void containerMustBePresent() {
+        if (container == null) {
+            log.warn("Missing required container for {}", zipFileName);
+        }
     }
 }
