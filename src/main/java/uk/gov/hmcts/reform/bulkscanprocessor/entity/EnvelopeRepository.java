@@ -8,10 +8,10 @@ import java.util.UUID;
 public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
-     * Finds envelopes for a given jurisdiction.
+     * Finds envelopes with  for a given jurisdiction.
      *
      * @param jurisdiction jurisdiction for which envelopes needs to be retrieved
      * @return A list of envelopes which belongs to the given jurisdiction.
      */
-    List<Envelope> findByJurisdiction(String jurisdiction);
+    List<Envelope> findByJurisdictionAndLastEvent(String jurisdiction, Event event);
 }

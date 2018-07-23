@@ -47,9 +47,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
+
+<<<<<<<HEAD
+    =======
+    >>>>>>>Updated functionality to filter by envelope status
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -259,7 +264,7 @@ public class BlobProcessorTaskTest {
     }
 
     @Test
-    public void should_delete_blob_after_doc_upload_and_mark_envelope_status_as_processed_and_create_new_event()
+    public void should_delete_blob_after_doc_upload_and_mark_envelope_status_as_consumed_and_create_new_event()
         throws Exception {
         // Zip with pdf and metadata
         String zipFile = "4_24-06-2018-00-00-00.zip";
@@ -289,7 +294,8 @@ public class BlobProcessorTaskTest {
             .map(ProcessEvent::getEvent)
             .collect(Collectors.toList());
 
-        assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED);
+        assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED, DOC_CONSUMED);
+
     }
 
     @Test

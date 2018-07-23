@@ -42,19 +42,25 @@ public class Envelope {
     private String container;
     @JsonProperty("po_box")
     private String poBox;
+
     @JsonProperty("jurisdiction")
     private String jurisdiction;
+
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("delivery_date")
     private Timestamp deliveryDate;
+
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("opening_date")
     private Timestamp openingDate;
+
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("zip_file_created_date")
     private Timestamp zipFileCreatedDate;
+
     @JsonProperty("zip_file_name")
     private String zipFileName;
+
     @JsonIgnore
     @Enumerated(EnumType.STRING)
     private Event status = Event.ENVELOPE_CREATED;

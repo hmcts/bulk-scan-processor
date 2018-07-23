@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -40,12 +41,16 @@ import java.net.URL;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -120,17 +125,25 @@ public class EnvelopeControllerTest {
     }
 
     @Test
-    public void should_successfully_return_all_envelopes_for_a_given_jurisdiction() throws Exception {
+    public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
+        throws Exception {
         uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdf
+        uploadZipToBlobStore("8_24-06-2018-00-00-00.zip"); // Zip file with metadata gif and pdf
 
         byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
-
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
+
+        byte[] testPdfBytes1 = toByteArray(getResource("1111005.pdf"));
+        Pdf pdf1 = new Pdf("1111005.pdf", testPdfBytes1);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(ImmutableMap.of(
                 "1111002.pdf", DOCUMENT_URL)
             );
+
+        // Make the document upload fail to test failure record is created
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1)))
+            .willThrow(DocumentNotFoundException.class);
 
         blobProcessorTask.processBlobs();
 
@@ -142,11 +155,18 @@ public class EnvelopeControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().json(expectedEnvelopes()));
 
+        System.out.println(envelopeRepository.findAll().size());
+
+        assertThat(envelopeRepository.findAll())
+            .extracting("zipFileName", "lastEvent")
+            .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_CONSUMED),
+                tuple("8_24-06-2018-00-00-00.zip", DOC_UPLOAD_FAILURE));
+
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
     @Test
-    public void should_return_empty_list_when_envelopes_are_available() throws Exception {
+    public void should_return_empty_list_when_no_envelopes_are_available() throws Exception {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes")

@@ -28,24 +28,33 @@ public class ScannableItem implements EnvelopeAssignable {
 
     @JsonProperty("document_control_number")
     private String documentControlNumber;
+
     @JsonProperty("scanning_date")
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     private Timestamp scanningDate;
+
     @JsonProperty("ocr_accuracy")
     private String ocrAccuracy;
+
     @JsonProperty("manual_intervention")
     private String manualIntervention;
+
     @JsonProperty("next_action")
     private String nextAction;
+
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("next_action_date")
     private Timestamp nextActionDate;
+
     @JsonProperty("ocr_data")
     private String ocrData;
+
     @JsonProperty("file_name")
     private String fileName;
+
     @JsonProperty("notes")
     private String notes;
+
     @JsonProperty("document_url")
     private String documentUrl;
 

@@ -11,13 +11,17 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceJurisdictionMappingCo
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeRetrieverServiceTest {
@@ -28,11 +32,14 @@ public class EnvelopeRetrieverServiceTest {
     private EnvelopeRetrieverService envelopeRetrieverService;
 
     @Mock
+    private EnvelopeProcessor envelopeProcessor;
+
+    @Mock
     private ServiceJurisdictionMappingConfig mappingConfig;
 
     @Before
     public void setUp() {
-        envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, mappingConfig);
+        envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, mappingConfig, envelopeProcessor);
     }
 
     @Test
@@ -41,22 +48,27 @@ public class EnvelopeRetrieverServiceTest {
 
         when(mappingConfig.getServicesJurisdiction()).thenReturn(ImmutableMap.of("testService", "testJurisdiction"));
 
-        when(envelopeRepository.findByJurisdiction("testJurisdiction")).thenReturn(envelopes);
+        doNothing().when(envelopeProcessor).markAsConsumed(any());
 
-        assertThat(envelopeRetrieverService.getAllEnvelopesForJurisdiction("testService"))
+        when(envelopeRepository.findByJurisdictionAndLastEvent("testJurisdiction", DOC_PROCESSED))
+            .thenReturn(envelopes);
+
+        assertThat(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"))
             .containsOnly(envelopes.get(0));
 
         verify(mappingConfig).getServicesJurisdiction();
-        verify(envelopeRepository).findByJurisdiction("testJurisdiction");
+        verify(envelopeRepository).findByJurisdictionAndLastEvent("testJurisdiction", DOC_PROCESSED);
+        verify(envelopeProcessor).markAsConsumed(any());
     }
 
     @Test
     public void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
         when(mappingConfig.getServicesJurisdiction()).thenReturn(ImmutableMap.of("testService", "testJurisdiction"));
-        when(envelopeRepository.findByJurisdiction("testJurisdiction")).thenThrow(DataRetrievalFailureException.class);
+        when(envelopeRepository.findByJurisdictionAndLastEvent("testJurisdiction", DOC_PROCESSED))
+            .thenThrow(DataRetrievalFailureException.class);
 
         Throwable throwable = catchThrowable(() ->
-            envelopeRetrieverService.getAllEnvelopesForJurisdiction("testService"));
+            envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"));
 
         assertThat(throwable).isInstanceOf(DataRetrievalFailureException.class);
 

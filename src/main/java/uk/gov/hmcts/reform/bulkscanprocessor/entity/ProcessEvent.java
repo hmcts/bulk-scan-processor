@@ -21,10 +21,13 @@ public class ProcessEvent {
     private long id;
 
     private String container;
+
     @JsonProperty("zip_file_name")
     private String zipFileName;
+
     @JsonProperty("created_at")
     private Timestamp createdAt = Timestamp.from(Instant.now());
+
     @Enumerated(EnumType.STRING)
     private Event event;
     private String reason;
