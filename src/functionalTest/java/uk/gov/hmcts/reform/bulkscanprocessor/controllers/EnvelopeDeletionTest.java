@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.File;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
@@ -74,5 +75,10 @@ public class EnvelopeDeletionTest {
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipName);
         blob.uploadFromFile(zipPath);
         return blob;
+    }
+
+    private boolean storageHasFile(String fileName) {
+        return StreamSupport.stream(testContainer.listBlobs().spliterator(), false)
+            .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
     }
 }
