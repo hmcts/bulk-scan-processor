@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -119,6 +120,15 @@ public class BlobProcessorTask {
             cloudBlockBlob.delete();
 
             envelopeProcessor.markAsProcessed(envelope, container.getName(), zipFilename);
+        } catch (DuplicateEnvelopeException exception) {
+            envelopeProcessor.markAsDuplicate(
+                exception.getMessage(),
+                exception.getEnvelope(),
+                container.getName(),
+                zipFilename
+            );
+
+            throw exception;
         } catch (Exception exception) {
             markAsFailed(isUploadFailure, container.getName(), zipFilename, exception.getMessage(), envelope);
 
