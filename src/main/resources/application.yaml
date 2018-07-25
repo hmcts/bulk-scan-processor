@@ -70,7 +70,7 @@ scan:
   delay: ${SCAN_DELAY:30000} # In milliseconds
 
 envelope-access:
-  mapping:
+  mappings:
      - jurisdiction: SSCS
        readService: sscs
        updateService: TBD

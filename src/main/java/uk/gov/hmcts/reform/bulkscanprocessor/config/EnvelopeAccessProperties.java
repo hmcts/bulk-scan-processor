@@ -6,8 +6,10 @@ import java.util.List;
 
 @ConfigurationProperties(prefix = "envelope-access")
 public class EnvelopeAccessProperties {
+
     private List<Mapping> mappings;
 
+    // region getters and setters
     public List<Mapping> getMappings() {
         return mappings;
     }
@@ -15,17 +17,23 @@ public class EnvelopeAccessProperties {
     public void setMappings(List<Mapping> mappings) {
         this.mappings = mappings;
     }
+    // endregion
 
     public static class Mapping {
 
         private String jurisdiction;
         private String readService;
-        private String writeService;
+        private String updateService;
 
-        public Mapping(String jurisdiction, String readService, String writeService) {
+        // region constructor, getters and setters
+        public Mapping(String jurisdiction, String readService, String updateService) {
             this.jurisdiction = jurisdiction;
             this.readService = readService;
-            this.writeService = writeService;
+            this.updateService = updateService;
+        }
+
+        public Mapping() {
+            // Spring needs it.
         }
 
         public String getJurisdiction() {
@@ -44,12 +52,13 @@ public class EnvelopeAccessProperties {
             this.readService = readService;
         }
 
-        public String getWriteService() {
-            return writeService;
+        public String getUpdateService() {
+            return updateService;
         }
 
-        public void setWriteService(String writeService) {
-            this.writeService = writeService;
+        public void setUpdateService(String updateService) {
+            this.updateService = updateService;
         }
+        // endregion
     }
 }
