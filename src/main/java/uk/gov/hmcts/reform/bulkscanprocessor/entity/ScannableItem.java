@@ -94,6 +94,10 @@ public class ScannableItem implements EnvelopeAssignable {
         return id;
     }
 
+    public String getIdAsString() {
+        return id == null ? null : id.toString();
+    }
+
     public String getFileName() {
         return fileName;
     }
