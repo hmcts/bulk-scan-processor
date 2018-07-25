@@ -17,3 +17,7 @@ output "TEST_SCAN_DELAY" {
 output "TEST_STORAGE_ACCOUNT_NAME" {
   value = "${azurerm_storage_account.provider.name}"
 }
+
+output "TEST_STORAGE_ACCOUNT_KEY" {
+  value = "${azurerm_storage_account.provider.primary_access_key}"
+}
