@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeRetrieverServiceTest {
@@ -41,22 +42,24 @@ public class EnvelopeRetrieverServiceTest {
 
         when(mappingConfig.getServicesJurisdiction()).thenReturn(ImmutableMap.of("testService", "testJurisdiction"));
 
-        when(envelopeRepository.findByJurisdiction("testJurisdiction")).thenReturn(envelopes);
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED))
+            .thenReturn(envelopes);
 
-        assertThat(envelopeRetrieverService.getAllEnvelopesForJurisdiction("testService"))
+        assertThat(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"))
             .containsOnly(envelopes.get(0));
 
         verify(mappingConfig).getServicesJurisdiction();
-        verify(envelopeRepository).findByJurisdiction("testJurisdiction");
+        verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED);
     }
 
     @Test
     public void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
         when(mappingConfig.getServicesJurisdiction()).thenReturn(ImmutableMap.of("testService", "testJurisdiction"));
-        when(envelopeRepository.findByJurisdiction("testJurisdiction")).thenThrow(DataRetrievalFailureException.class);
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED))
+            .thenThrow(DataRetrievalFailureException.class);
 
         Throwable throwable = catchThrowable(() ->
-            envelopeRetrieverService.getAllEnvelopesForJurisdiction("testService"));
+            envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"));
 
         assertThat(throwable).isInstanceOf(DataRetrievalFailureException.class);
 

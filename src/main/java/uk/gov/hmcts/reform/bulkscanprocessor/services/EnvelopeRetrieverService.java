@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceJurisdictionMappingConfig;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 
 import java.util.List;
@@ -29,12 +30,15 @@ public class EnvelopeRetrieverService {
         this.serviceJurisdictionMappingConfig = serviceJurisdictionMappingConfig;
     }
 
-    public List<Envelope> getAllEnvelopesForJurisdiction(String serviceName) {
+    public List<Envelope> getProcessedEnvelopesByJurisdiction(final String serviceName) {
         String jurisdiction = getJurisdictionByServiceName(serviceName);
 
-        log.info("Fetching all envelopes for service {} and jurisdiction {}", serviceName, jurisdiction);
+        log.info("Fetching all processed envelopes for service {} and jurisdiction {}", serviceName, jurisdiction);
 
-        return envelopeRepository.findByJurisdiction(jurisdiction);
+        return envelopeRepository.findByJurisdictionAndStatus(
+            jurisdiction,
+            Event.DOC_PROCESSED
+        );
     }
 
     private String getJurisdictionByServiceName(String serviceName) {

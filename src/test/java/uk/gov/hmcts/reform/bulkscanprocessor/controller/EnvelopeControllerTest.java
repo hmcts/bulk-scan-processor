@@ -47,19 +47,20 @@ public class EnvelopeControllerTest {
     private AuthService authService;
 
     @Test
-    public void should_successfully_return_all_envelopes_for_a_given_jurisdiction() throws Exception {
+    public void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
 
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("testServiceName");
-        when(envelopeRetrieverService.getAllEnvelopesForJurisdiction("testServiceName")).thenReturn(envelopes);
+        when(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testServiceName")).thenReturn(envelopes);
 
         mockMvc.perform(get("/envelopes")
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
             .andExpect(content().json(expectedEnvelopes()));
 
-        verify(envelopeRetrieverService).getAllEnvelopesForJurisdiction("testServiceName");
+        verify(envelopeRetrieverService).getProcessedEnvelopesByJurisdiction("testServiceName");
         verify(authService).authenticate("testServiceAuthHeader");
     }
 
@@ -68,7 +69,7 @@ public class EnvelopeControllerTest {
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("testServiceName");
 
         doThrow(new DataRetrievalFailureException("Cannot retrieve data"))
-            .when(envelopeRetrieverService).getAllEnvelopesForJurisdiction("testServiceName");
+            .when(envelopeRetrieverService).getProcessedEnvelopesByJurisdiction("testServiceName");
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
             .header("ServiceAuthorization", "testServiceAuthHeader"))
@@ -97,7 +98,7 @@ public class EnvelopeControllerTest {
         throws Exception {
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("test");
 
-        when(envelopeRetrieverService.getAllEnvelopesForJurisdiction("test"))
+        when(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("test"))
             .thenThrow(ServiceJuridictionConfigNotFoundException.class);
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")

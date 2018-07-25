@@ -22,10 +22,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -36,16 +39,20 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -120,17 +127,25 @@ public class EnvelopeControllerTest {
     }
 
     @Test
-    public void should_successfully_return_all_envelopes_for_a_given_jurisdiction() throws Exception {
+    public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
+        throws Exception {
         uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdf
+        uploadZipToBlobStore("8_24-06-2018-00-00-00.zip"); // Zip file with metadata and pdf
 
         byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
-
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
+
+        byte[] testPdfBytes1 = toByteArray(getResource("1111005.pdf"));
+        Pdf pdf1 = new Pdf("1111005.pdf", testPdfBytes1);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(ImmutableMap.of(
                 "1111002.pdf", DOCUMENT_URL)
             );
+
+        // Make the document upload fail to test failure record is created
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1)))
+            .willThrow(DocumentNotFoundException.class);
 
         blobProcessorTask.processBlobs();
 
@@ -140,13 +155,25 @@ public class EnvelopeControllerTest {
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(content().json(expectedEnvelopes()));
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(content().json(expectedEnvelopes()))
+            // Envelope id is checked explicitly as it is dynamically generated.
+            .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
+
+        List<Envelope> envelopesFromDb = envelopeRepository.findAll();
+
+        assertThat(envelopesFromDb.size()).isEqualTo(2);
+
+        assertThat(envelopesFromDb)
+            .extracting("zipFileName", "status")
+            .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_PROCESSED),
+                tuple("8_24-06-2018-00-00-00.zip", DOC_UPLOAD_FAILURE));
 
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
     @Test
-    public void should_return_empty_list_when_envelopes_are_available() throws Exception {
+    public void should_return_empty_list_when_no_envelopes_are_available() throws Exception {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes")
