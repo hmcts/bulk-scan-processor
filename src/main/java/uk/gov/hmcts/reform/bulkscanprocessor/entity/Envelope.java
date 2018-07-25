@@ -35,7 +35,6 @@ public class Envelope {
 
     @Id
     @GeneratedValue
-    @JsonIgnore
     private UUID id;
 
     @JsonIgnore
@@ -61,7 +60,6 @@ public class Envelope {
     @JsonProperty("zip_file_name")
     private String zipFileName;
 
-    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private Event status = Event.ENVELOPE_CREATED;
 

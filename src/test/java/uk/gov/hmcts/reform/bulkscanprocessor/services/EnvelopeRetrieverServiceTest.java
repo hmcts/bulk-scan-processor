@@ -11,14 +11,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceJurisdictionMappingCo
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
@@ -32,14 +29,11 @@ public class EnvelopeRetrieverServiceTest {
     private EnvelopeRetrieverService envelopeRetrieverService;
 
     @Mock
-    private EnvelopeProcessor envelopeProcessor;
-
-    @Mock
     private ServiceJurisdictionMappingConfig mappingConfig;
 
     @Before
     public void setUp() {
-        envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, mappingConfig, envelopeProcessor);
+        envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, mappingConfig);
     }
 
     @Test
@@ -47,8 +41,6 @@ public class EnvelopeRetrieverServiceTest {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
 
         when(mappingConfig.getServicesJurisdiction()).thenReturn(ImmutableMap.of("testService", "testJurisdiction"));
-
-        doNothing().when(envelopeProcessor).markAsConsumed(any());
 
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED))
             .thenReturn(envelopes);
@@ -58,7 +50,6 @@ public class EnvelopeRetrieverServiceTest {
 
         verify(mappingConfig).getServicesJurisdiction();
         verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED);
-        verify(envelopeProcessor).markAsConsumed(any());
     }
 
     @Test

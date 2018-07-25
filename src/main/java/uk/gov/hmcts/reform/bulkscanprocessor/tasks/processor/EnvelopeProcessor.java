@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
@@ -70,11 +69,6 @@ public class EnvelopeProcessor {
 
     public void markAsProcessed(Envelope envelope, String containerName, String zipFileName) {
         persistEvent(null, envelope, containerName, zipFileName, DOC_PROCESSED);
-    }
-
-    public void markAsConsumed(Envelope envelope) {
-        // TODO Need to pass container name once it is available in Envelope
-        persistEvent(null, envelope, envelope.getJurisdiction(), envelope.getZipFileName(), DOC_CONSUMED);
     }
 
     private void persistEvent(

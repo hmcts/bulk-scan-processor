@@ -22,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -48,7 +49,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
@@ -152,13 +153,16 @@ public class EnvelopeControllerTest {
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(content().json(expectedEnvelopes()));
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(content().json(expectedEnvelopes()))
+            // Envelope id is checked explicitly as it is dynamically generated.
+            .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 
         // This is to assert that db contains both processed
         // and failed doc but only returns processed records when requested.
         assertThat(envelopeRepository.findAll())
             .extracting("zipFileName", "status")
-            .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_CONSUMED),
+            .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_PROCESSED),
                 tuple("8_24-06-2018-00-00-00.zip", DOC_UPLOAD_FAILURE));
 
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
