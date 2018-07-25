@@ -30,7 +30,7 @@ public class EnvelopeRetrieverService {
         this.serviceJurisdictionMappingConfig = serviceJurisdictionMappingConfig;
     }
 
-    public List<Envelope> getProcessedEnvelopesByJurisdiction(String serviceName) {
+    public List<Envelope> getProcessedEnvelopesByJurisdiction(final String serviceName) {
         String jurisdiction = getJurisdictionByServiceName(serviceName);
 
         log.info("Fetching all processed envelopes for service {} and jurisdiction {}", serviceName, jurisdiction);

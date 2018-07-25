@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
@@ -38,6 +39,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -158,9 +160,11 @@ public class EnvelopeControllerTest {
             // Envelope id is checked explicitly as it is dynamically generated.
             .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 
-        // This is to assert that db contains both processed
-        // and failed doc but only returns processed records when requested.
-        assertThat(envelopeRepository.findAll())
+        List<Envelope> envelopesFromDb = envelopeRepository.findAll();
+
+        assertThat(envelopesFromDb.size()).isEqualTo(2);
+
+        assertThat(envelopesFromDb)
             .extracting("zipFileName", "status")
             .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_PROCESSED),
                 tuple("8_24-06-2018-00-00-00.zip", DOC_UPLOAD_FAILURE));

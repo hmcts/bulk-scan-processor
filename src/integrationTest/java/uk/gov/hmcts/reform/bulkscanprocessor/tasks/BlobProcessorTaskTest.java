@@ -16,9 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
@@ -81,9 +79,6 @@ public class BlobProcessorTaskTest {
     private DocumentManagementService documentManagementService;
 
     private CloudBlobContainer testContainer;
-
-    @MockBean
-    private AuthTokenValidator tokenValidator;
 
     @Before
     public void setup() throws Exception {
