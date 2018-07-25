@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers.TaskErrorHandler;
 
 import java.time.Duration;
 import javax.sql.DataSource;
@@ -26,11 +29,23 @@ public class ShedLockConfiguration {
     }
 
     @Bean
-    public TaskScheduler customTaskScheduler(@Value("${scheduling.pool}") int poolSize) {
+    public TaskErrorHandler errorHandler(
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository processEventRepository
+    ) {
+        return new TaskErrorHandler(envelopeRepository, processEventRepository);
+    }
+
+    @Bean
+    public TaskScheduler customTaskScheduler(
+        TaskErrorHandler errorHandler,
+        @Value("${scheduling.pool}") int poolSize
+    ) {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 
         scheduler.setPoolSize(poolSize);
         scheduler.setThreadNamePrefix("BSP-");
+        scheduler.setErrorHandler(errorHandler);
         scheduler.initialize();
 
         return scheduler;
