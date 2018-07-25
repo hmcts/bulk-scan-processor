@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.google.common.collect.ImmutableList;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
@@ -20,19 +21,20 @@ public final class EnvelopeCreator {
     public static List<Envelope> envelopes() throws Exception {
         Timestamp timestamp = getTimestamp();
 
-        return ImmutableList.of(
-            new Envelope(
-                "SSCSPO",
-                "SSCS",
-                timestamp,
-                timestamp,
-                timestamp,
-                "7_24-06-2018-00-00-00.zip",
-                scannableItems(),
-                payments(),
-                nonScannableItems()
-            )
+        Envelope envelope = new Envelope(
+            "SSCSPO",
+            "SSCS",
+            timestamp,
+            timestamp,
+            timestamp,
+            "7_24-06-2018-00-00-00.zip",
+            scannableItems(),
+            payments(),
+            nonScannableItems()
         );
+
+        envelope.setStatus(Event.DOC_PROCESSED);
+        return ImmutableList.of(envelope);
     }
 
     private static List<ScannableItem> scannableItems() throws Exception {

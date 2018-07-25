@@ -28,17 +28,17 @@ public class EnvelopeController {
 
     @GetMapping
     @ApiOperation(
-        value = "Retrieves all envelopes for a given jurisdiction",
+        value = "Retrieves all envelopes with processed status for a given jurisdiction",
         notes = "Returns an empty list when no envelopes were found"
     )
     @ApiResponse(code = 200, message = "Success", response = EnvelopeMetadataResponse.class)
-    public EnvelopeMetadataResponse getEnvelopesByJurisdiction(
+    public EnvelopeMetadataResponse getProcessedEnvelopesByJurisdiction(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader
     ) {
         String serviceName = authService.authenticate(serviceAuthHeader);
 
         return new EnvelopeMetadataResponse(
-            envelopeRetrieverService.getAllEnvelopesForJurisdiction(serviceName)
+            envelopeRetrieverService.getProcessedEnvelopesByJurisdiction(serviceName)
         );
     }
 }

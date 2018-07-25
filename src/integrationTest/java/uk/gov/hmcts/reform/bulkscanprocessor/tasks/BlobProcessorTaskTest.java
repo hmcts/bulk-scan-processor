@@ -51,6 +51,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlobProcessorTaskTest {
@@ -155,7 +156,6 @@ public class BlobProcessorTaskTest {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(2);
 
-
         assertThat(processEvents)
             .extracting("container", "zipFileName", "event")
             .contains(
@@ -238,7 +238,6 @@ public class BlobProcessorTaskTest {
         assertThat(envelopesInDb).isEmpty();
 
         verifyZeroInteractions(documentManagementService);
-
     }
 
     @Test

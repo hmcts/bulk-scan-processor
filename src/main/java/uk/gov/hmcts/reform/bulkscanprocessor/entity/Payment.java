@@ -23,10 +23,13 @@ public class Payment implements EnvelopeAssignable {
 
     @JsonProperty("document_control_number")
     private String documentControlNumber;
+
     @JsonProperty("method")
     private String method;
+
     @JsonProperty("amount_in_pence")
     private int amountInPence;
+
     @JsonProperty("currency")
     private String currency;
 
