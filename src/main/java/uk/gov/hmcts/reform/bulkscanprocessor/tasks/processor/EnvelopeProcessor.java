@@ -47,12 +47,21 @@ public class EnvelopeProcessor {
         Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
         envelope.setContainer(containerName);
 
-        envelopeRepository
+        return envelopeRepository
             .findByContainerAndZipFileName(containerName, envelope.getZipFileName())
-            .ifPresent(dbEnvelope -> {
-                throw new DuplicateEnvelopeException(dbEnvelope);
-            });
+            .map(this::checkDuplicationRule)
+            .orElseGet(() -> saveEnvelope(envelope));
+    }
 
+    private Envelope checkDuplicationRule(Envelope dbEnvelope) {
+        if (dbEnvelope.getStatus().equals(DOC_UPLOAD_FAILURE)) {
+            return dbEnvelope;
+        } else {
+            throw new DuplicateEnvelopeException(dbEnvelope);
+        }
+    }
+
+    private Envelope saveEnvelope(Envelope envelope) {
         Envelope dbEnvelope = envelopeRepository.save(envelope);
 
         log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
