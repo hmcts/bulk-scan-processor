@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.features;
 
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import org.junit.Test;
@@ -12,6 +14,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +53,13 @@ public class WhenRunningTheApplicationTest {
 
     @TestConfiguration
     public static class MockConfig {
+
+        @Bean
+        public CloudBlobClient getCloudBlobClient() throws InvalidKeyException, URISyntaxException {
+            return CloudStorageAccount
+                .parse("UseDevelopmentStorage=true")
+                .createCloudBlobClient();
+        }
 
         @Bean
         public LockProvider lockProvider() {
