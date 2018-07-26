@@ -6,7 +6,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class EnvelopeAccessService {
@@ -19,22 +18,22 @@ public class EnvelopeAccessService {
 
     /**
      * Checks whether envelope from given jurisdiction can be update by given service.
-     * Throws an exception if service is not allowed to make and update or configuration for the jurisdiction is not found.
+     * Throws an exception if service is not allowed to make and update
+     * or configuration for the jurisdiction is not found.
      */
     public void assertCanUpdate(String envelopeJurisdiction, String serviceName) {
-        Optional<String> serviceThanCanUpdateEnvelope =
+        String serviceThanCanUpdateEnvelope =
             access
                 .getMappings()
                 .stream()
                 .filter(m -> Objects.equals(m.getJurisdiction(), envelopeJurisdiction))
                 .findFirst()
-                .map(m -> m.getUpdateService());
+                .map(m -> m.getUpdateService())
+                .orElseThrow(() -> new ServiceConfigNotFoundException(
+                    "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
+                ));
 
-        if (!serviceThanCanUpdateEnvelope.isPresent()) {
-            throw new ServiceConfigNotFoundException(
-                "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
-            );
-        } else if (!serviceThanCanUpdateEnvelope.get().equals(serviceName)) {
+        if (!serviceThanCanUpdateEnvelope.equals(serviceName)) {
             throw new ForbiddenException(
                 "Service " + serviceName + " cannot update envelopes in jurisdiction " + envelopeJurisdiction
             );
