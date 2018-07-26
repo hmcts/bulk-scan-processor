@@ -108,6 +108,15 @@ resource "azurerm_storage_container" "sscs" {
   depends_on = ["azurerm_storage_account.provider"]
 }
 
+resource "azurerm_storage_container" "test" {
+  name                  = "test"
+  resource_group_name   = "${module.bulk-scan.resource_group_name}"
+  storage_account_name  = "${azurerm_storage_account.provider.name}"
+  container_access_type = "private"
+
+  depends_on = ["azurerm_storage_account.provider"]
+}
+
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name      = "${var.component}-POSTGRES-USER"
   value     = "${module.bulk-scan-db.user_name}"
