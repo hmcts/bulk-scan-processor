@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.google.common.base.Strings;
+import com.google.common.io.Resources;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -12,9 +13,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -49,10 +57,11 @@ public class EnvelopeDeletionTest {
 
     @Test
     public void should_delete_zip_file_after_successful_ingestion() throws Exception {
-        String srcZipFilename = "8_24-06-2018-00-00-00.zip";
-        String destZipFilename = getRandomFilename(null, srcZipFilename);
+        List<String> files = Arrays.asList("1111006.pdf");
+        String metadataFile = "1111006.metadata.json";
+        String destZipFilename = getRandomFilename(null, "8_24-06-2018-00-00-00.zip");
 
-        uploadZipFile(srcZipFilename, destZipFilename); // valid zip file
+        uploadZipFile(files, metadataFile, destZipFilename); // valid zip file
 
         await()
             .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
@@ -80,6 +89,12 @@ public class EnvelopeDeletionTest {
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
+    private void uploadZipFile(List<String> files, String metadataFile, final String destZipFilename) throws Exception {
+        byte[] zipFile = createZipArchiveWithRandomName(files, metadataFile, destZipFilename);
+        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(destZipFilename);
+        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+    }
+
     private boolean storageHasFile(String fileName) {
         return StreamSupport.stream(testContainer.listBlobs().spliterator(), false)
             .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
@@ -92,5 +107,34 @@ public class EnvelopeDeletionTest {
             .append(Strings.isNullOrEmpty(suffix) ? "" : suffix);
         return sb.toString();
     }
+
+    private byte[] createZipArchiveWithRandomName(
+        List<String> files, String metadataFile, String zipFilename
+    ) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(outputStream);
+        try {
+            for (String filename : files) {
+                zos.putNextEntry(new ZipEntry(filename));
+                zos.write(toByteArray(getResource(filename)));
+                zos.closeEntry();
+            }
+            String metadataStr = Resources.toString(getResource(metadataFile), StandardCharsets.UTF_8);
+            metadataStr = metadataStr.replace("$$zip_file_name$$", zipFilename);
+            zos.putNextEntry(new ZipEntry("metadata.json"));
+            zos.write(metadataStr.getBytes());
+            zos.closeEntry();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                zos.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return outputStream.toByteArray();
+    }
+
 
 }
