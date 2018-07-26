@@ -1,44 +1,26 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.palantir.docker.compose.DockerComposeRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.jsonpath.JsonPath.parse;
-import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -54,70 +36,13 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAIL
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BlobProcessorTaskTest {
-
-    private static final String DOCUMENT_URL1 = "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
-    private static final String DOCUMENT_URL2 = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
-
-    @ClassRule
-    public static DockerComposeRule docker = DockerComposeRule.builder()
-        .file("src/integrationTest/resources/docker-compose.yml")
-        .build();
-
-    private BlobProcessorTask blobProcessorTask;
-
-    @Autowired
-    private EnvelopeRepository envelopeRepository;
-
-    @Autowired
-    private ProcessEventRepository processEventRepository;
-
-    @Autowired
-    private ScannableItemRepository scannableItemRepository;
-
-    @Mock
-    private DocumentManagementService documentManagementService;
-
-    private CloudBlobContainer testContainer;
-
-    @Before
-    public void setup() throws Exception {
-        CloudBlobClient cloudBlobClient = CloudStorageAccount
-            .parse("UseDevelopmentStorage=true")
-            .createCloudBlobClient();
-
-        DocumentProcessor documentProcessor = new DocumentProcessor(
-            documentManagementService,
-            scannableItemRepository
-        );
-
-        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
-            envelopeRepository,
-            processEventRepository
-        );
-
-        blobProcessorTask = new BlobProcessorTask(
-            cloudBlobClient,
-            documentProcessor,
-            envelopeProcessor
-        );
-
-        testContainer = cloudBlobClient.getContainerReference("test");
-        testContainer.createIfNotExists();
-    }
-
-    @After
-    public void cleanUp() throws Exception {
-        testContainer.deleteIfExists();
-        envelopeRepository.deleteAll();
-        processEventRepository.deleteAll();
-    }
+public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
 
     @Test
     public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
-        uploadZipToBlobStore("1_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdfs
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
 
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
@@ -125,7 +50,7 @@ public class BlobProcessorTaskTest {
         Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
         Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
 
-        given(documentManagementService.uploadDocuments(asList(pdf1, pdf2)))
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
             .willReturn(getFileUploadResponse());
 
         //when
@@ -147,10 +72,10 @@ public class BlobProcessorTaskTest {
         assertThat(actualEnvelope.getStatus()).isEqualTo(DOC_PROCESSED);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
-            .hasSameElementsAs(asList(DOCUMENT_URL1, DOCUMENT_URL2));
+            .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
 
         //This verifies pdf file objects were created from the zip file
-        verify(documentManagementService).uploadDocuments(asList(pdf1, pdf2));
+        verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf1, pdf2));
 
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
@@ -159,8 +84,8 @@ public class BlobProcessorTaskTest {
         assertThat(processEvents)
             .extracting("container", "zipFileName", "event")
             .contains(
-                tuple(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_UPLOADED),
-                tuple(testContainer.getName(), "1_24-06-2018-00-00-00.zip", DOC_PROCESSED)
+                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOADED),
+                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_PROCESSED)
             );
 
         assertThat(processEvents).extracting("id").hasSize(2);
@@ -193,7 +118,7 @@ public class BlobProcessorTaskTest {
 
         Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
 
-        given(documentManagementService.uploadDocuments(asList(pdf2)))
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
             .willReturn(getFileUploadResponse());
 
         //when
@@ -214,13 +139,13 @@ public class BlobProcessorTaskTest {
         );
 
         //This verifies only pdf included in the zip with metadata was processed
-        verify(documentManagementService).uploadDocuments(asList(pdf2));
+        verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf2));
 
         //Verify first pdf file was never processed
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
 
         verify(documentManagementService, times(0))
-            .uploadDocuments(asList(new Pdf("1111001.pdf", test1PdfBytes)));
+            .uploadDocuments(ImmutableList.of(new Pdf("1111001.pdf", test1PdfBytes)));
     }
 
     @Test
@@ -321,19 +246,5 @@ public class BlobProcessorTaskTest {
             .collect(Collectors.toList());
 
         assertThat(actualEvents).containsOnly(DOC_UPLOAD_FAILURE);
-    }
-
-    private void uploadZipToBlobStore(String fileName) throws Exception {
-        byte[] zipFile = toByteArray(getResource(fileName));
-
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-    }
-
-    private Map<String, String> getFileUploadResponse() {
-        return ImmutableMap.of(
-            "1111001.pdf", DOCUMENT_URL1,
-            "1111002.pdf", DOCUMENT_URL2
-        );
     }
 }

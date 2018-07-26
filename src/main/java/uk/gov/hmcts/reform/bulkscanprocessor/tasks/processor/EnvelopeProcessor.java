@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_DUPLICATE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
@@ -45,6 +47,21 @@ public class EnvelopeProcessor {
         Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
         envelope.setContainer(containerName);
 
+        return envelopeRepository
+            .findByContainerAndZipFileName(containerName, envelope.getZipFileName())
+            .map(this::checkDuplicationRule)
+            .orElseGet(() -> saveEnvelope(envelope));
+    }
+
+    private Envelope checkDuplicationRule(Envelope dbEnvelope) {
+        if (dbEnvelope.getStatus().equals(DOC_UPLOAD_FAILURE)) {
+            return dbEnvelope;
+        } else {
+            throw new DuplicateEnvelopeException(dbEnvelope);
+        }
+    }
+
+    private Envelope saveEnvelope(Envelope envelope) {
         Envelope dbEnvelope = envelopeRepository.save(envelope);
 
         log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
@@ -71,6 +88,10 @@ public class EnvelopeProcessor {
         persistEvent(null, envelope, containerName, zipFileName, DOC_PROCESSED);
     }
 
+    public void markAsDuplicate(String reason, Envelope envelope, String containerName, String zipFileName) {
+        persistEvent(reason, envelope, containerName, zipFileName, DOC_DUPLICATE);
+    }
+
     private void persistEvent(
         String reason,
         Envelope envelope,
@@ -83,7 +104,9 @@ public class EnvelopeProcessor {
         processEvent.setReason(reason);
         processEventRepository.save(processEvent);
 
-        envelope.setStatus(event);
-        envelopeRepository.save(envelope);
+        if (envelope != null) {
+            envelope.setStatus(event);
+            envelopeRepository.save(envelope);
+        }
     }
 }

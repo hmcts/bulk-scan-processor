@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
@@ -14,4 +15,13 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
      * @return A list of envelopes which belongs to the given jurisdiction.
      */
     List<Envelope> findByJurisdictionAndStatus(String jurisdiction, Event event);
+
+    /**
+     * Find envelope for given container and zip file name.
+     *
+     * @param containerName for which envelope originates
+     * @param zipFileName envelope origin
+     * @return Optional value of envelope
+     */
+    Optional<Envelope> findByContainerAndZipFileName(String containerName, String zipFileName);
 }
