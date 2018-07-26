@@ -48,8 +48,6 @@ accesstoken:
   serviceConfig:
     - serviceName: sscs
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
-    - serviceName: test
-      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 idam:
   s2s-auth:
