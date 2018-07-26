@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
@@ -28,13 +29,14 @@ public class EnvelopeUpdateService {
      * @param serviceName Name of the service that requests to mark the envelope as consumed
      */
     public void markAsConsumed(UUID envelopeId, String serviceName) {
+        Envelope envelope =
+            repo
+                .findById(envelopeId)
+                .orElseThrow(() -> new EnvelopeNotFoundException());
 
-        repo.findById(envelopeId)
-            .map(envelope -> {
-                accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
-                envelope.setStatus(Event.DOC_CONSUMED);
-                return repo.saveAndFlush(envelope);
-            })
-            .orElseThrow(() -> new EnvelopeNotFoundException());
+        accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
+
+        envelope.setStatus(Event.DOC_CONSUMED);
+        repo.saveAndFlush(envelope);
     }
 }
