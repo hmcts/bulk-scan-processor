@@ -36,6 +36,9 @@ public class EnvelopeDeletionTest {
 
     @Before
     public void setUp() throws Exception {
+        // Note: this test uses Azure blob store credentials instead of a Sas token
+        // as it needs to delete files in its unhappy path. Sas token have only create
+        // permissions.
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
 
