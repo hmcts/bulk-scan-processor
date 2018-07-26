@@ -10,6 +10,7 @@
   <rule ref="category/java/codestyle.xml">
     <exclude name="AtLeastOneConstructor"/>
     <exclude name="LocalVariableCouldBeFinal"/>
+    <exclude name="MethodArgumentCouldBeFinal" />
   </rule>
   <rule ref="category/java/codestyle.xml/MethodNamingConventions">
     <properties>
@@ -26,6 +27,7 @@
     <exclude name="UseUtilityClass"/>
     <exclude name="LawOfDemeter"/><!-- does not apply to hmcts code style -->
     <exclude name="LoosePackageCoupling"/>
+    <exclude name="DataClass" />
   </rule>
   <rule ref="category/java/design.xml/SignatureDeclareThrowsException">
     <properties>
