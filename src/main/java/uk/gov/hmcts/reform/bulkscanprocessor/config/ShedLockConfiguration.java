@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.time.Duration;
 import javax.sql.DataSource;
@@ -30,10 +32,24 @@ public class ShedLockConfiguration {
     }
 
     @Bean
-    public ScheduledLockConfiguration taskScheduler(LockProvider lockProvider) {
+    public TaskScheduler customTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+
+        scheduler.setPoolSize(poolSize);
+        scheduler.setThreadNamePrefix("BSP-");
+        scheduler.initialize();
+
+        return scheduler;
+    }
+
+    @Bean
+    public ScheduledLockConfiguration taskScheduler(
+        LockProvider lockProvider,
+        TaskScheduler taskScheduler
+    ) {
         return ScheduledLockConfigurationBuilder
             .withLockProvider(lockProvider)
-            .withPoolSize(poolSize)
+            .withTaskScheduler(taskScheduler)
             .withDefaultLockAtMostFor(Duration.parse(lockAtMostFor))
             .build();
     }
