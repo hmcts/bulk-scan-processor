@@ -17,8 +17,8 @@ public class EnvelopeAccessService {
     }
 
     /**
-     * Checks whether envelope from given jurisdiction can be update by given service.
-     * Throws an exception if service is not allowed to make and update
+     * Checks whether envelope from given jurisdiction can be updated by given service.
+     * Throws an exception if service is not allowed to make an update
      * or configuration for the jurisdiction is not found.
      */
     public void assertCanUpdate(String envelopeJurisdiction, String serviceName) {
