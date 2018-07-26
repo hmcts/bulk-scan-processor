@@ -67,6 +67,8 @@ scheduling:
 scan:
   delay: ${SCAN_DELAY:30000} # In milliseconds
 
-mapping:
-  servicesJurisdiction:
-     sscs: SSCS
+envelope-access:
+  mappings:
+     - jurisdiction: SSCS
+       readService: sscs
+       updateService: TBD
