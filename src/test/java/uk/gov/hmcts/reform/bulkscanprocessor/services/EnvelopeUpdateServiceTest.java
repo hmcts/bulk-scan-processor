@@ -3,10 +3,12 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
@@ -18,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeUpdateServiceTest {
@@ -47,7 +50,7 @@ public class EnvelopeUpdateServiceTest {
     }
 
     @Test
-    public void markAsConsumed_should_not_throw_an_exception_if_envelope_with_given_id_does_exist() throws Exception {
+    public void markAsConsumed_should_set_appropriate_status_on_envelope_if_it_exists() throws Exception {
         //given
         Envelope envelopeInDb = EnvelopeCreator.envelope();
 
@@ -55,9 +58,11 @@ public class EnvelopeUpdateServiceTest {
         given(repo.saveAndFlush(any(Envelope.class))).willReturn(envelopeInDb);
 
         // when
-        Throwable exc = catchThrowable(() -> service.markAsConsumed(randomUUID(), "some_service"));
+        service.markAsConsumed(randomUUID(), "some_service");
 
         // then
-        assertThat(exc).isNull();
+        ArgumentCaptor<Envelope> argumentCaptor = ArgumentCaptor.forClass(Envelope.class);
+        verify(repo).saveAndFlush(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getStatus()).isEqualTo(Event.DOC_CONSUMED);
     }
 }
