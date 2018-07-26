@@ -7,22 +7,18 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest(
     properties = {
@@ -32,7 +28,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 public class WhenRunningTheApplicationTest {
 
-    @Autowired
+    @SpyBean
     private LockProvider lockProvider;
 
     @Test
@@ -59,13 +55,6 @@ public class WhenRunningTheApplicationTest {
             return CloudStorageAccount
                 .parse("UseDevelopmentStorage=true")
                 .createCloudBlobClient();
-        }
-
-        @Bean
-        public LockProvider lockProvider() {
-            LockProvider mock = Mockito.mock(LockProvider.class);
-            when(mock.lock(any())).thenReturn(Optional.empty());
-            return mock;
         }
     }
 }
