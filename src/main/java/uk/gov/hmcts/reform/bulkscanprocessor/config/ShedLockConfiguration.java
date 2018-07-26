@@ -20,19 +20,13 @@ import javax.sql.DataSource;
 @DependsOn({"flyway", "flywayInitializer"})
 public class ShedLockConfiguration {
 
-    @Value("${scheduling.pool}")
-    private int poolSize;
-
-    @Value("${scheduling.lock_at_most_for}")
-    private String lockAtMostFor;
-
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
         return new JdbcLockProvider(dataSource);
     }
 
     @Bean
-    public TaskScheduler customTaskScheduler() {
+    public TaskScheduler customTaskScheduler(@Value("${scheduling.pool}") int poolSize) {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 
         scheduler.setPoolSize(poolSize);
@@ -45,7 +39,8 @@ public class ShedLockConfiguration {
     @Bean
     public ScheduledLockConfiguration taskScheduler(
         LockProvider lockProvider,
-        TaskScheduler taskScheduler
+        TaskScheduler taskScheduler,
+        @Value("${scheduling.lock_at_most_for}") String lockAtMostFor
     ) {
         return ScheduledLockConfigurationBuilder
             .withLockProvider(lockProvider)
