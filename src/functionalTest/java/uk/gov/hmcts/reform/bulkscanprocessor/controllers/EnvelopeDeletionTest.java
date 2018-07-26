@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.google.common.base.Strings;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
@@ -47,32 +49,34 @@ public class EnvelopeDeletionTest {
 
     @Test
     public void should_delete_zip_file_after_successful_ingestion() throws Exception {
-        String zipFilename = "8_24-06-2018-00-00-00.zip";
+        String srcZipFilename = "8_24-06-2018-00-00-00.zip";
+        String destZipFilename = getRandomFilename(null, srcZipFilename);
 
-        uploadZipFile(zipFilename); // valid zip file
+        uploadZipFile(srcZipFilename, destZipFilename); // valid zip file
 
         await()
             .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
-            .until(() -> storageHasFile(zipFilename), is(false));
+            .until(() -> storageHasFile(destZipFilename), is(false));
     }
 
     @Test
     public void should_keep_zip_file_after_failed_processing() throws Exception {
-        String zipFilename = "2_24-06-2018-00-00-00.zip";
+        String srcZipFilename = "2_24-06-2018-00-00-00.zip";
+        String destZipFilename = getRandomFilename(null, srcZipFilename);
 
-        uploadZipFile(zipFilename); // invalid due to missing json file
+        uploadZipFile(srcZipFilename, destZipFilename); // invalid due to missing json file
 
         // ensure that processing has happened
         await()
             .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
-            .until(() -> storageHasFile(zipFilename), is(true));
+            .until(() -> storageHasFile(destZipFilename), is(true));
 
-        testContainer.getBlockBlobReference(zipFilename).delete();
+        testContainer.getBlockBlobReference(destZipFilename).delete();
     }
 
-    private void uploadZipFile(final String zipName) throws Exception {
-        byte[] zipFile = toByteArray(getResource(zipName));
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipName);
+    private void uploadZipFile(final String srcZipFilename, final String destZipFilename) throws Exception {
+        byte[] zipFile = toByteArray(getResource(srcZipFilename));
+        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
@@ -80,4 +84,13 @@ public class EnvelopeDeletionTest {
         return StreamSupport.stream(testContainer.listBlobs().spliterator(), false)
             .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
     }
+
+    private String getRandomFilename(String prefix, String suffix) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Strings.isNullOrEmpty(prefix) ? "" : prefix)
+            .append(UUID.randomUUID().toString())
+            .append(Strings.isNullOrEmpty(suffix) ? "" : suffix);
+        return sb.toString();
+    }
+
 }
