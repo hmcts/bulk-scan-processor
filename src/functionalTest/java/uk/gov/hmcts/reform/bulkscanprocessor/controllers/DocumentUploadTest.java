@@ -86,6 +86,12 @@ public class DocumentUploadTest {
             .collect(Collectors.toList());
 
         assertThat(docs.size()).isEqualTo(2);
+        assertThat(docs)
+            .extracting("fileBaseName", "bytes")
+            .containsExactlyInAnyOrder(
+                tuple("1111001.pdf", toByteArray(getResource("1111001.pdf"))),
+                tuple("1111002.pdf", toByteArray(getResource("1111002.pdf")))
+            );
     }
 
 
