@@ -6,10 +6,11 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.TestPropertySource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,32 +23,30 @@ import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-@TestPropertySource("classpath:application.properties")
 public class EnvelopeDeletionTest {
 
-    @Value("${test-scan-delay}")
     private transient long scanDelay;
 
-    @Value("${test-storage-account-name}")
     private transient String accountName;
 
-    @Value("${test-storage-account-key}")
-    private transient String testStorageAccountKey;
+    private transient String testStorageKey;
 
     private transient CloudBlobContainer testContainer;
 
     @Before
     public void setUp() throws Exception {
-        StorageCredentialsAccountAndKey storageCredentials =
-            new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
+        Config conf = ConfigFactory.load();
+        this.scanDelay = conf.getLong("test-scan-delay");
+        this.accountName = conf.getString("test-storage-account-name");
+        this.testStorageKey = conf.getString("test-storage-account-key");
 
-        testContainer = new CloudStorageAccount(storageCredentials, true)
+        StorageCredentialsAccountAndKey credentials =
+            new StorageCredentialsAccountAndKey(accountName, testStorageKey);
+
+        testContainer = new CloudStorageAccount(credentials, true)
             .createCloudBlobClient()
             .getContainerReference("test");
     }
@@ -64,7 +63,8 @@ public class EnvelopeDeletionTest {
         await()
             .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
             .until(() -> storageHasFile(destZipFilename), is(false));
-        assertThat(storageHasFile(destZipFilename), is(false));
+        Assert.assertThat("File has not been deleted.",
+            storageHasFile(destZipFilename), is(false));
     }
 
     @Test
@@ -80,11 +80,12 @@ public class EnvelopeDeletionTest {
             .until(() -> storageHasFile(destZipFilename), is(true));
 
         testContainer.getBlockBlobReference(destZipFilename).delete();
-        assertThat(storageHasFile(destZipFilename), is(false));
+        Assert.assertThat("File not found.",
+            storageHasFile(destZipFilename), is(false));
     }
 
     private void uploadZipFile(final String srcZipFilename, final String destZipFilename) throws Exception {
-        byte[] zipFile = toByteArray(getResource(srcZipFilename));
+        byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
@@ -116,16 +117,15 @@ public class EnvelopeDeletionTest {
         try {
             for (String file : files) {
                 zos.putNextEntry(new ZipEntry(file));
-                zos.write(toByteArray(getResource(file)));
+                zos.write(Resources.toByteArray(Resources.getResource(file)));
                 zos.closeEntry();
             }
-            String metadataStr = Resources.toString(getResource(metadataFile), StandardCharsets.UTF_8);
-            metadataStr = metadataStr.replace("$$zip_file_name$$", zipFilename);
+            String metadataTemplate =
+                Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
+            String metadata = metadataTemplate.replace("$$zip_file_name$$", zipFilename);
             zos.putNextEntry(new ZipEntry("metadata.json"));
-            zos.write(metadataStr.getBytes());
+            zos.write(metadata.getBytes());
             zos.closeEntry();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         } finally {
             zos.close();
         }
