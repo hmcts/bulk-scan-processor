@@ -8,7 +8,6 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,6 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class EnvelopeDeletionTest {
@@ -63,8 +63,7 @@ public class EnvelopeDeletionTest {
         await()
             .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
             .until(() -> storageHasFile(destZipFilename), is(false));
-        Assert.assertThat("File has not been deleted.",
-            storageHasFile(destZipFilename), is(false));
+        assertThat(storageHasFile(destZipFilename)).isFalse();
     }
 
     @Test
@@ -80,8 +79,7 @@ public class EnvelopeDeletionTest {
             .until(() -> storageHasFile(destZipFilename), is(true));
 
         testContainer.getBlockBlobReference(destZipFilename).delete();
-        Assert.assertThat("File not found.",
-            storageHasFile(destZipFilename), is(false));
+        assertThat(storageHasFile(destZipFilename)).isFalse();
     }
 
     private void uploadZipFile(final String srcZipFilename, final String destZipFilename) throws Exception {
