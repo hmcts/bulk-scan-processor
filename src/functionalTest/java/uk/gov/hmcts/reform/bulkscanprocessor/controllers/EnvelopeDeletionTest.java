@@ -8,10 +8,8 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,21 +26,21 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-@RunWith(SpringRunner.class)
 @TestPropertySource("classpath:application.properties")
 public class EnvelopeDeletionTest {
 
     @Value("${test-scan-delay}")
-    private long scanDelay;
+    private transient long scanDelay;
 
     @Value("${test-storage-account-name}")
-    private String accountName;
+    private transient String accountName;
 
     @Value("${test-storage-account-key}")
-    private String testStorageAccountKey;
+    private transient String testStorageAccountKey;
 
-    private CloudBlobContainer testContainer;
+    private transient CloudBlobContainer testContainer;
 
     @Before
     public void setUp() throws Exception {
@@ -66,6 +64,7 @@ public class EnvelopeDeletionTest {
         await()
             .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
             .until(() -> storageHasFile(destZipFilename), is(false));
+        assertThat(storageHasFile(destZipFilename), is(false));
     }
 
     @Test
@@ -81,6 +80,7 @@ public class EnvelopeDeletionTest {
             .until(() -> storageHasFile(destZipFilename), is(true));
 
         testContainer.getBlockBlobReference(destZipFilename).delete();
+        assertThat(storageHasFile(destZipFilename), is(false));
     }
 
     private void uploadZipFile(final String srcZipFilename, final String destZipFilename) throws Exception {
@@ -101,22 +101,22 @@ public class EnvelopeDeletionTest {
     }
 
     private String getRandomFilename(String prefix, String suffix) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(Strings.isNullOrEmpty(prefix) ? "" : prefix)
+        StringBuilder strBuffer = new StringBuilder();
+        strBuffer.append(Strings.isNullOrEmpty(prefix) ? "" : prefix)
             .append(UUID.randomUUID().toString())
             .append(Strings.isNullOrEmpty(suffix) ? "" : suffix);
-        return sb.toString();
+        return strBuffer.toString();
     }
 
     private byte[] createZipArchiveWithRandomName(
         List<String> files, String metadataFile, String zipFilename
-    ) {
+    ) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(outputStream);
         try {
-            for (String filename : files) {
-                zos.putNextEntry(new ZipEntry(filename));
-                zos.write(toByteArray(getResource(filename)));
+            for (String file : files) {
+                zos.putNextEntry(new ZipEntry(file));
+                zos.write(toByteArray(getResource(file)));
                 zos.closeEntry();
             }
             String metadataStr = Resources.toString(getResource(metadataFile), StandardCharsets.UTF_8);
@@ -127,11 +127,7 @@ public class EnvelopeDeletionTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                zos.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            zos.close();
         }
         return outputStream.toByteArray();
     }
