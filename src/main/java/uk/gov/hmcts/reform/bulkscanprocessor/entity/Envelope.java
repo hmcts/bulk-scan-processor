@@ -39,6 +39,7 @@ public class Envelope {
 
     @JsonIgnore
     private String container;
+
     @JsonProperty("po_box")
     private String poBox;
 
@@ -129,6 +130,10 @@ public class Envelope {
 
     public UUID getId() {
         return id;
+    }
+
+    public String getContainer() {
+        return container;
     }
 
     public void setContainer(String container) {

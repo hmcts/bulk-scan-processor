@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 
 import java.util.UUID;
@@ -11,14 +13,17 @@ import java.util.UUID;
 @Service
 public class EnvelopeUpdateService {
 
-    private final EnvelopeRepository repo;
+    private final EnvelopeRepository envelopeRepo;
+    private final ProcessEventRepository eventRepo;
     private final EnvelopeAccessService accessService;
 
     public EnvelopeUpdateService(
-        EnvelopeRepository repo,
+        EnvelopeRepository envelopeRepo,
+        ProcessEventRepository eventRepo,
         EnvelopeAccessService accessService
     ) {
-        this.repo = repo;
+        this.envelopeRepo = envelopeRepo;
+        this.eventRepo = eventRepo;
         this.accessService = accessService;
     }
 
@@ -30,13 +35,15 @@ public class EnvelopeUpdateService {
      */
     public void markAsConsumed(UUID envelopeId, String serviceName) {
         Envelope envelope =
-            repo
+            envelopeRepo
                 .findById(envelopeId)
                 .orElseThrow(() -> new EnvelopeNotFoundException());
 
         accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
 
         envelope.setStatus(Event.DOC_CONSUMED);
-        repo.saveAndFlush(envelope);
+        envelopeRepo.save(envelope);
+
+        eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));
     }
 }

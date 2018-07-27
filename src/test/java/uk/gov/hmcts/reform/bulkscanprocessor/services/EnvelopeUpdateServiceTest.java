@@ -9,6 +9,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
@@ -26,20 +28,21 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeUpdateServiceTest {
 
-    @Mock private EnvelopeRepository repo;
+    @Mock private EnvelopeRepository envelopeRepo;
+    @Mock private ProcessEventRepository eventRepo;
     @Mock private EnvelopeAccessService accessService;
 
     private EnvelopeUpdateService service;
 
     @Before
     public void setUp() throws Exception {
-        service = new EnvelopeUpdateService(repo, accessService);
+        service = new EnvelopeUpdateService(envelopeRepo, eventRepo, accessService);
     }
 
     @Test
     public void markAsConsumed_should_throw_an_exception_if_envelope_with_given_id_does_not_exist() throws Exception {
         //given
-        given(repo.findById(any())).willReturn(Optional.empty());
+        given(envelopeRepo.findById(any())).willReturn(Optional.empty());
 
         // when
         Throwable exc = catchThrowable(() -> service.markAsConsumed(randomUUID(), "some_service"));
@@ -55,15 +58,19 @@ public class EnvelopeUpdateServiceTest {
         //given
         Envelope envelopeInDb = EnvelopeCreator.envelope();
 
-        given(repo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
-        given(repo.saveAndFlush(any(Envelope.class))).willReturn(envelopeInDb);
+        given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
 
         // when
         service.markAsConsumed(randomUUID(), "some_service");
 
-        // then
-        ArgumentCaptor<Envelope> argumentCaptor = ArgumentCaptor.forClass(Envelope.class);
-        verify(repo).saveAndFlush(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getStatus()).isEqualTo(Event.DOC_CONSUMED);
+        // then status should be updated
+        ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
+        verify(envelopeRepo).save(envelopeParam.capture());
+        assertThat(envelopeParam.getValue().getStatus()).isEqualTo(Event.DOC_CONSUMED);
+
+        // and event should be created
+        ArgumentCaptor<ProcessEvent> eventParam = ArgumentCaptor.forClass(ProcessEvent.class);
+        verify(eventRepo).save(eventParam.capture());
+        assertThat(eventParam.getValue().getEvent()).isEqualTo(Event.DOC_CONSUMED);
     }
 }
