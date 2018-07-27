@@ -38,7 +38,7 @@ public class EnvelopeDeletionTest {
 
     @Before
     public void setUp() throws Exception {
-        Config conf = ConfigFactory.load("application.properties");
+        Config conf = ConfigFactory.load();
         this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
         this.accountName = conf.getString("test-storage-account-name");
         this.testStorageKey = conf.getString("test-storage-account-key");
