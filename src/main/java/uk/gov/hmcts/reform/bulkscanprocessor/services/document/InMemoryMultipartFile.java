@@ -19,7 +19,7 @@ public class InMemoryMultipartFile implements MultipartFile {
     private final String contentType;
     private final byte[] payload;
 
-    public InMemoryMultipartFile(String name, String originalFileName, String contentType, byte[] payload) {
+    InMemoryMultipartFile(String name, String originalFileName, String contentType, byte[] payload) {
         if (payload == null) {
             throw new IllegalArgumentException("Payload cannot be null.");
         }
