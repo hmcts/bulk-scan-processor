@@ -111,7 +111,7 @@ public class EnvelopeDeletionTest {
         List<String> files, String metadataFile, String zipFilename
     ) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(outputStream)){
+        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
             for (String file : files) {
                 zos.putNextEntry(new ZipEntry(file));
                 zos.write(Resources.toByteArray(Resources.getResource(file)));
