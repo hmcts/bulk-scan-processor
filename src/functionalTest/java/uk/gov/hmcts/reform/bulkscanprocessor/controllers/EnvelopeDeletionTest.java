@@ -61,7 +61,7 @@ public class EnvelopeDeletionTest {
         uploadZipFile(files, metadataFile, destZipFilename); // valid zip file
 
         await()
-            .atMost(scanDelay * 2, TimeUnit.MILLISECONDS)
+            .atMost(scanDelay + 12_000, TimeUnit.MILLISECONDS)
             .until(() -> storageHasFile(destZipFilename), is(false));
         assertThat(storageHasFile(destZipFilename)).isFalse();
     }
