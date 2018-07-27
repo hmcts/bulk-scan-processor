@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
@@ -20,14 +22,19 @@ import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentProcessorTest {
+
+    @Captor
+    private ArgumentCaptor<List<Pdf>> pdfCaptor;
 
     @Mock
     private ScannableItemRepository scannableItemRepository;
@@ -51,16 +58,15 @@ public class DocumentProcessorTest {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
 
-        Pdf pdf = new Pdf("test1.pdf", test1PdfBytes);
-        List<Pdf> pdfs = ImmutableList.of(pdf);
+        Map<String, byte[]> pdf = ImmutableMap.of("test1.pdf", test1PdfBytes);
 
         Map<String, String> response = ImmutableMap.of("test1.pdf", "http://localhost/documents/5fef5f98-e875-4084-b115-47188bc9066b");
 
-        when(documentManagementService.uploadDocuments(pdfs)).thenReturn(response);
+        when(documentManagementService.uploadDocuments(anyList())).thenReturn(response);
 
         //when
         ScannableItem scannableItem = scannableItem();
-        documentProcessor.processPdfFiles(pdfs, ImmutableList.of(scannableItem));
+        documentProcessor.processPdfFiles(pdf, ImmutableList.of(scannableItem));
 
         //then
 
@@ -70,7 +76,12 @@ public class DocumentProcessorTest {
         //Verify scanned item was saved with doc url updated
         verify(scannableItemRepository).saveAll(ImmutableList.of(scannableItem));
 
-        verify(documentManagementService).uploadDocuments(pdfs);
+        verify(documentManagementService).uploadDocuments(pdfCaptor.capture());
+
+        assertThat(pdfCaptor.getValue())
+            .hasSize(1)
+            .flatExtracting(captured -> ImmutableList.of(captured.getFilename(), captured.getBytes()))
+            .containsOnly("test1.pdf", test1PdfBytes);
     }
 
     @Test
@@ -79,22 +90,20 @@ public class DocumentProcessorTest {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
 
-        Pdf pdf = new Pdf("test1.pdf", test1PdfBytes);
-        List<Pdf> pdfs = ImmutableList.of(pdf);
+        Map<String, byte[]> pdf = ImmutableMap.of("test1.pdf", test1PdfBytes);
 
         Map<String, String> response = ImmutableMap.of("test2.pdf", "http://localhost/documents/5fef5f98-e875-4084-b115-47188bc9066b");
 
-        when(documentManagementService.uploadDocuments(pdfs)).thenReturn(response);
+        when(documentManagementService.uploadDocuments(anyList())).thenReturn(response);
 
         //when
         ScannableItem scannableItem = scannableItem();
 
         //then
-        assertThatThrownBy(() -> documentProcessor.processPdfFiles(pdfs, ImmutableList.of(scannableItem)))
+        assertThatThrownBy(() -> documentProcessor.processPdfFiles(pdf, ImmutableList.of(scannableItem)))
             .isInstanceOf(DocumentNotFoundException.class)
             .hasMessage("Document metadata not found for file test1.pdf");
 
-        verify(documentManagementService).uploadDocuments(pdfs);
         verify(scannableItemRepository, times(0)).saveAll(anyCollection());
     }
 

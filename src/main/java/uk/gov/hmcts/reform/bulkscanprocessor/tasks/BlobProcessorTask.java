@@ -15,14 +15,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -83,7 +82,7 @@ public class BlobProcessorTask {
     private void processZipFile(CloudBlobContainer container, String zipFilename)
         throws StorageException, URISyntaxException, IOException {
 
-        List<Pdf> pdfFiles = new ArrayList<>();
+        Map<String, byte[]> pdfFiles = new HashMap<>();
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
         boolean isUploadFailure = false;
@@ -99,8 +98,7 @@ public class BlobProcessorTask {
                         metadataStream = toByteArray(zis);
                         break;
                     case "pdf":
-                        Pdf pdf = new Pdf(zipEntry.getName(), toByteArray(zis));
-                        pdfFiles.add(pdf);
+                        pdfFiles.put(zipEntry.getName(), toByteArray(zis));
                         break;
                     default:
                         //Contract breakage
