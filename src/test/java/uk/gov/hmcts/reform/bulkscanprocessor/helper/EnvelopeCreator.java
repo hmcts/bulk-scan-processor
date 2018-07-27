@@ -19,6 +19,10 @@ public final class EnvelopeCreator {
     }
 
     public static List<Envelope> envelopes() throws Exception {
+        return ImmutableList.of(envelope());
+    }
+
+    public static Envelope envelope() throws Exception {
         Timestamp timestamp = getTimestamp();
 
         Envelope envelope = new Envelope(
@@ -34,7 +38,8 @@ public final class EnvelopeCreator {
         );
 
         envelope.setStatus(Event.DOC_PROCESSED);
-        return ImmutableList.of(envelope);
+
+        return envelope;
     }
 
     private static List<ScannableItem> scannableItems() throws Exception {
