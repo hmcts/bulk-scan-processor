@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -17,20 +16,6 @@ public class InMemoryMultipartFile implements MultipartFile {
     private final String originalFileName;
     private final String contentType;
     private final byte[] payload;
-
-    public InMemoryMultipartFile(File file) throws IOException {
-        this.originalFileName = file.getName();
-        this.payload = FileCopyUtils.copyToByteArray(file);
-        this.name = "file";
-        this.contentType = "application/octet-stream";
-    }
-
-    public InMemoryMultipartFile(String originalFileName, byte[] payload) {
-        this.originalFileName = originalFileName;
-        this.payload = payload;
-        this.name = "file";
-        this.contentType = "application/octet-stream";
-    }
 
     public InMemoryMultipartFile(String name, String originalFileName, String contentType, byte[] payload) {
         if (payload == null) {
