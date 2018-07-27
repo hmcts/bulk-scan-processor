@@ -75,9 +75,9 @@ public class EnvelopeDeletionTest {
 
         // ensure that processing has happened
         await()
+            .atMost(scanDelay * 2, TimeUnit.MILLISECONDS)
             .timeout(scanDelay * 3, TimeUnit.MILLISECONDS)
             .pollDelay(scanDelay * 2, TimeUnit.MILLISECONDS)
-            .atMost(scanDelay * 2, TimeUnit.MILLISECONDS)
             .until(() -> storageHasFile(destZipFilename), is(true));
 
         testContainer.getBlockBlobReference(destZipFilename).delete();
