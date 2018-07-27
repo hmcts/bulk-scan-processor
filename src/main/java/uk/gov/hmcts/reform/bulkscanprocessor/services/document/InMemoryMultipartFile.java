@@ -4,9 +4,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -64,7 +66,7 @@ public class InMemoryMultipartFile implements MultipartFile {
 
     @Override
     public void transferTo(File dest) throws IOException, IllegalStateException {
-        try (FileOutputStream stream = new FileOutputStream(dest)) {
+        try (OutputStream stream = Files.newOutputStream(Paths.get(dest.toURI()))) {
             stream.write(payload);
         }
     }
