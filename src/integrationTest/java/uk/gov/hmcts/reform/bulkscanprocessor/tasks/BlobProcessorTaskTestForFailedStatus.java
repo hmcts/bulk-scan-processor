@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -111,7 +112,7 @@ public class BlobProcessorTaskTestForFailedStatus {
         // then
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
-        assertThat(actualEnvelope.getStatus()).isEqualTo(DOC_UPLOAD_FAILURE);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
@@ -141,7 +142,7 @@ public class BlobProcessorTaskTestForFailedStatus {
         // then
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
-        assertThat(actualEnvelope.getStatus()).isEqualTo(DOC_UPLOAD_FAILURE);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and

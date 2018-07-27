@@ -50,6 +50,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 
 @RunWith(SpringRunner.class)
@@ -144,7 +146,7 @@ public class BlobProcessorTaskTest {
             parse(originalMetaFile),
             "id", "zip_file_created_date", "amount", "amount_in_pence", "configuration", "json"
         );
-        assertThat(actualEnvelope.getStatus()).isEqualTo(DOC_PROCESSED);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(asList(DOCUMENT_URL1, DOCUMENT_URL2));
@@ -281,7 +283,7 @@ public class BlobProcessorTaskTest {
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status")
-            .containsOnly(DOC_PROCESSED);
+            .containsOnly(PROCESSED);
 
         //Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -313,7 +315,7 @@ public class BlobProcessorTaskTest {
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status")
-            .containsOnly(DOC_UPLOAD_FAILURE);
+            .containsOnly(UPLOAD_FAILURE);
 
         //Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
