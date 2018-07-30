@@ -3,9 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
@@ -22,7 +20,6 @@ import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.net.URI;
-import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.Map;
 import java.util.stream.StreamSupport;
@@ -39,6 +36,8 @@ public class GetSasTokenTest {
 
     private String testStorageAccountKey;
 
+    private String blobContainerUrl;
+
     private static final String zipFilename = "2_24-06-2018-00-00-00.zip";
 
     @Before
@@ -47,6 +46,7 @@ public class GetSasTokenTest {
         this.testUrl = conf.getString("test-url");
         this.accountName = conf.getString("test-storage-account-name");
         this.testStorageAccountKey = conf.getString("test-storage-account-key");
+        this.blobContainerUrl = "https://" + this.accountName + ".blob.core.windows.net/";
 
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
@@ -113,7 +113,7 @@ public class GetSasTokenTest {
         assertThat(storageHasFile(zipFilename, testSasContainer)).isTrue();
     }
 
-    @Test(expected = InvalidKeyException.class)
+    @Test(expected = StorageException.class)
     public void sas_token_should_not_have_read_and_write_capabilities_for_other_service() throws Exception {
         String sasToken = getSasToken("sscs");
         CloudBlobContainer testSasContainer = getCloudContainer(sasToken, "test");
@@ -139,9 +139,7 @@ public class GetSasTokenTest {
     }
 
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
-        final StorageCredentials creds =
-            new StorageCredentialsSharedAccessSignature(sasToken);
-        URI containerUri = new URI("https://" + this.accountName + ".blob.core.windows.net/" + containerName);
+        URI containerUri = new URI(this.blobContainerUrl + containerName);
         return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 

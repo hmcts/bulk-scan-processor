@@ -53,6 +53,7 @@ public class DocumentUploadTest {
 
     private CloudBlobContainer testSasContainer;
 
+    private String blobContainerUrl;
 
     @Before
     public void setUp() throws Exception {
@@ -64,6 +65,7 @@ public class DocumentUploadTest {
         this.s2sUrl = conf.getString("test-s2s-url");
         this.s2sName = conf.getString("test-s2s-name");
         this.s2sSecret = conf.getString("test-s2s-secret");
+        this.blobContainerUrl = "https://" + this.accountName + ".blob.core.windows.net/";
 
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
@@ -115,7 +117,7 @@ public class DocumentUploadTest {
     protected String signIn() {
         Map<String, Object> params = ImmutableMap.of(
             "microservice", this.s2sName,
-            "oneTimePassword", new GoogleAuthenticator().getTotpPassword(this.s2sSecret)
+            "one_time_password", new GoogleAuthenticator().getTotpPassword(this.s2sSecret)
         );
 
         Response response = RestAssured
@@ -166,7 +168,7 @@ public class DocumentUploadTest {
     }
 
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
-        URI containerUri = new URI("https://" + this.accountName + ".blob.core.windows.net/" + containerName);
+        URI containerUri = new URI(this.blobContainerUrl + containerName);
         return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
