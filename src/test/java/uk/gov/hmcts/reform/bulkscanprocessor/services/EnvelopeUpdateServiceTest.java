@@ -32,12 +32,13 @@ public class EnvelopeUpdateServiceTest {
     @Mock private EnvelopeRepository envelopeRepo;
     @Mock private ProcessEventRepository eventRepo;
     @Mock private EnvelopeAccessService accessService;
+    @Mock private EnvelopeStatusChangeValidator statusChangeValidator;
 
     private EnvelopeUpdateService service;
 
     @Before
     public void setUp() throws Exception {
-        service = new EnvelopeUpdateService(envelopeRepo, eventRepo, accessService);
+        service = new EnvelopeUpdateService(envelopeRepo, eventRepo, accessService, statusChangeValidator);
     }
 
     @Test
