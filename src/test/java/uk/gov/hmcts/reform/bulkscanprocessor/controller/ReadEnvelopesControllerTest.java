@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(EnvelopeController.class)
-public class EnvelopeControllerTest {
+public class ReadEnvelopesControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
