@@ -17,15 +17,18 @@ public class EnvelopeUpdateService {
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository eventRepo;
     private final EnvelopeAccessService accessService;
+    private final EnvelopeStatusChangeValidator statusChangeValidator;
 
     public EnvelopeUpdateService(
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository eventRepo,
-        EnvelopeAccessService accessService
+        EnvelopeAccessService accessService,
+        EnvelopeStatusChangeValidator statusChangeValidator
     ) {
         this.envelopeRepo = envelopeRepo;
         this.eventRepo = eventRepo;
         this.accessService = accessService;
+        this.statusChangeValidator = statusChangeValidator;
     }
 
     /**
@@ -41,6 +44,7 @@ public class EnvelopeUpdateService {
                 .orElseThrow(() -> new EnvelopeNotFoundException());
 
         accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
+        statusChangeValidator.assertCanUpdate(envelope.getStatus(), Status.CONSUMED);
 
         envelope.setStatus(Status.CONSUMED);
         envelopeRepo.save(envelope);
