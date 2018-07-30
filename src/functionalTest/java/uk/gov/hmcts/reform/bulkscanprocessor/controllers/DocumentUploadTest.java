@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
@@ -168,7 +169,14 @@ public class DocumentUploadTest {
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
         final StorageCredentials creds =
             new StorageCredentialsSharedAccessSignature(sasToken);
-        return new CloudStorageAccount(creds, true)
+//        return new CloudStorageAccount(creds, true)
+//            .createCloudBlobClient()
+//            .getContainerReference(containerName);
+        return new CloudStorageAccount(
+            creds,
+            URI.create("https://bulkscanningpreview.blob.core.windows.net/test"),
+            URI.create("https://bulkscanningpreview.queue.core.windows.net/test"),
+            URI.create("https://bulkscanningpreview.table.core.windows.net/test"))
             .createCloudBlobClient()
             .getContainerReference(containerName);
     }

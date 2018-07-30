@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
+import java.net.URI;
 import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.Map;
@@ -140,7 +141,14 @@ public class GetSasTokenTest {
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
         final StorageCredentials creds =
             new StorageCredentialsSharedAccessSignature(sasToken);
-        return new CloudStorageAccount(creds, true)
+//        return new CloudStorageAccount(creds, true)
+//            .createCloudBlobClient()
+//            .getContainerReference(containerName);
+        return new CloudStorageAccount(
+            creds,
+            URI.create("https://bulkscanningpreview.blob.core.windows.net/test"),
+            URI.create("https://bulkscanningpreview.queue.core.windows.net/test"),
+            URI.create("https://bulkscanningpreview.table.core.windows.net/test"))
             .createCloudBlobClient()
             .getContainerReference(containerName);
     }
