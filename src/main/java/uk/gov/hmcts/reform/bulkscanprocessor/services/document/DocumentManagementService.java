@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,10 +9,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -21,13 +17,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.IncompleteResponseException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -149,25 +143,6 @@ public class DocumentManagementService {
         return filesStream
             .map(this::createResponse)
             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-
-    public Pdf getDocument(String id, String fileName) {
-        if (Strings.isNullOrEmpty(id)) {
-            throw new NoPdfFileFoundException("Invalid id [" + id + "]");
-        }
-
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(SERVICE_AUTHORIZATION, authTokenGenerator.generate());
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<byte[]> response =
-            restTemplate.exchange(dmUri, HttpMethod.GET, entity, byte[].class, id);
-
-        return new Pdf(fileName, response.getBody());
     }
 
 }

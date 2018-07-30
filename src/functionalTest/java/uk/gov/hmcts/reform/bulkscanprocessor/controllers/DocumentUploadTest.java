@@ -1,25 +1,30 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
+import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
+import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.google.common.io.Resources.getResource;
@@ -31,15 +36,11 @@ import static org.hamcrest.Matchers.is;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
 @TestPropertySource("classpath:application.properties")
 public class DocumentUploadTest {
 
-    @Autowired
-    private EnvelopeRepository envelopeRepository;
-
-    @Autowired
-    private DocumentManagementService documentManagementService;
+    @Value("${test-url}")
+    private String testUrl;
 
     @Value("${test-scan-delay}")
     private long scanDelay;
@@ -50,7 +51,18 @@ public class DocumentUploadTest {
     @Value("${test-storage-account-key}")
     private String testStorageAccountKey;
 
+    @Value("${test-s2s-url}")
+    private String s2sUrl;
+
+    @Value("${test-s2s-name}")
+    private String s2sName;
+
+    @Value("${test-s2s-secret}")
+    private String s2sSecret;
+
     private CloudBlobContainer testContainer;
+
+    private CloudBlobContainer testSasContainer;
 
 
     @Before
@@ -61,6 +73,9 @@ public class DocumentUploadTest {
         testContainer = new CloudStorageAccount(storageCredentials, true)
             .createCloudBlobClient()
             .getContainerReference("test");
+
+        String sasToken = getSasToken("test");
+        testSasContainer = getCloudContainer(sasToken, "test");
     }
 
     @Test
@@ -68,58 +83,96 @@ public class DocumentUploadTest {
         String zipFilename = "1_24-06-2018-00-00-00.zip";
         uploadZipToBlobStore(zipFilename);
 
-        // document is removed from storage after processing
         await()
             .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
             .until(() -> storageHasFile(zipFilename), is(false));
 
-        List<Envelope> envelopesFromDb = envelopeRepository.findAll();
+        String s2sToken = signIn();
 
-        assertThat(envelopesFromDb.size()).isEqualTo(1);
-        assertThat(envelopesFromDb)
+        Response response = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(this.testUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header("ServiceAuthorization", s2sToken)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+            .when().get("/envelopes")
+            .andReturn();
+
+        EnvelopeMetadataResponse envelopeMetadataResponse = response.getBody().as(EnvelopeMetadataResponse.class);
+
+        assertThat(envelopeMetadataResponse.envelopes.size()).isEqualTo(1);
+
+        assertThat(envelopeMetadataResponse.envelopes)
             .extracting("zipFileName", "status")
             .containsExactlyInAnyOrder(tuple("1_24-06-2018-00-00-00.zip", DOC_UPLOADED));
 
-        List<Pdf> docs = envelopesFromDb.stream()
-            .flatMap(e -> e.getScannableItems().stream())
-            .map(si -> documentManagementService.getDocument(si.getIdAsString(), si.getFileName()))
-            .collect(Collectors.toList());
-
-        assertThat(docs.size()).isEqualTo(2);
-        assertThat(docs)
-            .extracting("fileBaseName", "bytes")
-            .containsExactlyInAnyOrder(
-                tuple("1111001.pdf", toByteArray(getResource("1111001.pdf"))),
-                tuple("1111002.pdf", toByteArray(getResource("1111002.pdf")))
-            );
+        assertThat(envelopeMetadataResponse.envelopes)
+            .extracting("document_url")
+            .hasSize(2)
+            .doesNotContainNull();
     }
 
 
-    @Test
-    public void should_process_document_after_upload_and_fail_on_missing_envelope() throws Exception {
-        String zipFilename = "2_24-06-2018-00-00-00.zip";
-        uploadZipToBlobStore(zipFilename);
+    protected String signIn() {
+        Map<String, Object> params = ImmutableMap.of(
+            "microservice", this.s2sName,
+            "oneTimePassword", new GoogleAuthenticator().getTotpPassword(this.s2sSecret)
+        );
 
-        // document is removed from storage after processing
-        await()
-            .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
-            .until(() -> storageHasFile(zipFilename), is(false));
+        Response response = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(this.s2sUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .body(params)
+            .when()
+            .post("/lease")
+            .andReturn();
 
-        List<Envelope> envelopesFromDb = envelopeRepository.findAll();
+        assertThat(response.getStatusCode()).isEqualTo(200);
 
-        assertThat(envelopesFromDb.size()).isEqualTo(0);
+        return response
+            .getBody()
+            .print();
     }
 
     // TODO next 2 methods duplicated, refactor to test utilities
     private void uploadZipToBlobStore(String fileName) throws Exception {
         byte[] zipFile = toByteArray(getResource(fileName));
 
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
+        CloudBlockBlob blockBlobReference = testSasContainer.getBlockBlobReference(fileName);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
     private boolean storageHasFile(String fileName) {
-        return StreamSupport.stream(testContainer.listBlobs().spliterator(), false)
+        return StreamSupport.stream(testSasContainer.listBlobs().spliterator(), false)
             .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
     }
+
+    private String getSasToken(String containerName) throws Exception {
+        Response tokenResponse = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(this.testUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor functional test")
+            .when().get("/token/" + containerName)
+            .andReturn();
+
+        assertThat(tokenResponse.getStatusCode()).isEqualTo(200);
+
+        final ObjectNode node =
+            new ObjectMapper().readValue(tokenResponse.getBody().asString(), ObjectNode.class);
+        return node.get("sas_token").asText();
+    }
+
+    private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
+        final StorageCredentials creds =
+            new StorageCredentialsSharedAccessSignature(sasToken);
+        return new CloudStorageAccount(creds, true)
+            .createCloudBlobClient()
+            .getContainerReference(containerName);
+    }
+
 }
