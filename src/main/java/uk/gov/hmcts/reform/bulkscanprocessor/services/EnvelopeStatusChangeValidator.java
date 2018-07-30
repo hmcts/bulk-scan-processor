@@ -28,8 +28,7 @@ public class EnvelopeStatusChangeValidator {
         boolean ok =
             allowedTransitions
                 .getOrDefault(from, emptyList())
-                .stream()
-                .anyMatch(s -> s == to);
+                .contains(to);
 
         if (!ok) {
             throw new InvalidStatusChangeException("Cannot change from status " + from + " to status " + to);
