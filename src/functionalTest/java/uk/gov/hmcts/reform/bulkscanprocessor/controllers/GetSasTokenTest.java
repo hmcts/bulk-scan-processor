@@ -37,7 +37,7 @@ public class GetSasTokenTest {
 
     private String testStorageAccountKey;
 
-    private static final String zipFilename = "8_24-06-2018-00-00-00.zip";
+    private static final String zipFilename = "2_24-06-2018-00-00-00.zip";
 
     @Before
     public void setUp() throws Exception {
