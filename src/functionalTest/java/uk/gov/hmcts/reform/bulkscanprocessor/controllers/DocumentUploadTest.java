@@ -169,9 +169,6 @@ public class DocumentUploadTest {
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
         final StorageCredentials creds =
             new StorageCredentialsSharedAccessSignature(sasToken);
-//        return new CloudStorageAccount(creds, true)
-//            .createCloudBlobClient()
-//            .getContainerReference(containerName);
         return new CloudStorageAccount(
             creds,
             URI.create("https://bulkscanningpreview.blob.core.windows.net/test"),
