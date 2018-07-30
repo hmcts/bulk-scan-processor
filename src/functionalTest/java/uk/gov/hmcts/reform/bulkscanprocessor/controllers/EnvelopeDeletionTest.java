@@ -75,10 +75,10 @@ public class EnvelopeDeletionTest {
         uploadZipFile(srcZipFilename, destZipFilename); // invalid due to missing json file
 
         // ensure that processing has happened
-        await()
-            .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
-            .pollDelay(scanDelay * 2, TimeUnit.MILLISECONDS)
-            .until(() -> storageHasFile(destZipFilename), is(true));
+        // TODO: replace with a polling-based solution
+        Thread.sleep(scanDelay + 15_000);
+
+        assertThat(storageHasFile(destZipFilename)).isTrue();
 
         testContainer.getBlockBlobReference(destZipFilename).delete();
         assertThat(storageHasFile(destZipFilename)).isFalse();
