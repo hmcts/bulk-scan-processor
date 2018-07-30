@@ -122,7 +122,7 @@ public class DocumentUploadTest {
     protected String signIn() {
         Map<String, Object> params = ImmutableMap.of(
             "microservice", this.s2sName,
-            "one_time_password", new GoogleAuthenticator().getTotpPassword(this.s2sSecret)
+            "oneTimePassword", new GoogleAuthenticator().getTotpPassword(this.s2sSecret)
         );
 
         Response response = RestAssured

@@ -59,7 +59,7 @@ variable "s2s_name" {
 }
 
 variable "test_s2s_name" {
-  default = "bulk_scan_processor_tests"
+  default = "bulk_scan_processor_test"
 }
 
 variable "common_tags" {
