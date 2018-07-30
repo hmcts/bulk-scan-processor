@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
@@ -53,7 +54,9 @@ public class GetSasTokenTest {
             .createCloudBlobClient()
             .getContainerReference("test");
 
-        testContainer.getBlockBlobReference(zipFilename).delete();
+        try {
+            testContainer.getBlockBlobReference(zipFilename).delete();
+        } catch (StorageException e) {} // Do nothing -> no files left by previous runs
     }
 
 
