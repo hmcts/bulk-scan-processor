@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.azure.storage.core.PathUtility;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
@@ -167,15 +166,8 @@ public class DocumentUploadTest {
     }
 
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
-        final StorageCredentials creds =
-            new StorageCredentialsSharedAccessSignature(sasToken);
-        return new CloudStorageAccount(
-            creds,
-            URI.create("https://bulkscanningpreview.blob.core.windows.net/test"),
-            URI.create("https://bulkscanningpreview.queue.core.windows.net/test"),
-            URI.create("https://bulkscanningpreview.table.core.windows.net/test"))
-            .createCloudBlobClient()
-            .getContainerReference(containerName);
+        URI containerUri = new URI("https://" + this.accountName + ".blob.core.windows.net/" + containerName);
+        return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
 }
