@@ -11,6 +11,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,7 +105,8 @@ public class DocumentUploadTest {
             .when().get("/envelopes")
             .andReturn();
 
-        EnvelopeMetadataResponse envelopeMetadataResponse = response.getBody().as(EnvelopeMetadataResponse.class);
+        EnvelopeMetadataResponse envelopeMetadataResponse =
+            response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
 
         assertThat(envelopeMetadataResponse.envelopes.size()).isEqualTo(1);
 
