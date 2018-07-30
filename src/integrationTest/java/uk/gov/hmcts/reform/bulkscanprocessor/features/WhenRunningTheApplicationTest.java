@@ -6,6 +6,7 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -13,7 +14,13 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
@@ -38,8 +45,11 @@ public class WhenRunningTheApplicationTest {
     @SpyBean
     private LockProvider lockProvider;
 
+    @Autowired
+    private DataSource dataSource;
+
     @Test
-    public void should_integrate_with_shedlock() {
+    public void should_integrate_with_shedlock() throws SQLException {
         // given
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
 
@@ -49,6 +59,21 @@ public class WhenRunningTheApplicationTest {
         // then
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
         assertThat(configCaptor.getValue().getName()).isEqualTo("blobProcessor");
+
+        // and
+        List<String> locks = new ArrayList<>();
+        Connection connection = dataSource.getConnection();
+        ResultSet resultSet = connection.prepareStatement("SELECT * FROM shedlock").executeQuery();
+
+        while (resultSet.next()) {
+            locks.add(resultSet.getString("name"));
+        }
+
+        connection.close();
+
+        assertThat(locks)
+            .hasSize(1)
+            .contains("blobProcessor");
     }
 
     private void waitForBlobProcessor() {
