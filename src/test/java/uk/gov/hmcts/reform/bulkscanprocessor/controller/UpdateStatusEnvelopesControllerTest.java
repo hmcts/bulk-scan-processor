@@ -37,7 +37,7 @@ public class UpdateStatusEnvelopesControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private final static String VALID_STATUS_UPDATE_REQ_BODY = "{\"status\": \"CONSUMED\"}";
+    private static final String VALID_STATUS_UPDATE_REQ_BODY = "{\"status\": \"CONSUMED\"}";
 
     @Test
     public void should_return_400_if_new_status_is_invalid() throws Exception {
