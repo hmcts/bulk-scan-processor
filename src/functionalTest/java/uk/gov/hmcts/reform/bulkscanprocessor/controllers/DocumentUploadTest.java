@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -21,12 +20,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.StreamSupport;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -55,6 +53,8 @@ public class DocumentUploadTest {
 
     private String blobContainerUrl;
 
+    private TestHelper testHelper;
+
     @Before
     public void setUp() throws Exception {
         Config conf = ConfigFactory.load();
@@ -66,6 +66,8 @@ public class DocumentUploadTest {
         this.s2sName = conf.getString("test-s2s-name");
         this.s2sSecret = conf.getString("test-s2s-secret");
         this.blobContainerUrl = "https://" + this.accountName + ".blob.core.windows.net/";
+
+        this.testHelper = new TestHelper();
 
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
@@ -80,12 +82,15 @@ public class DocumentUploadTest {
 
     @Test
     public void should_process_document_after_upload_and_set_status_uploaded() throws Exception {
-        String zipFilename = "1_24-06-2018-00-00-00.zip";
-        uploadZipToBlobStore(zipFilename);
+        List<String> files = Arrays.asList("1111006.pdf");
+        String metadataFile = "1111006.metadata.json";
+        String destZipFilename = testHelper.getRandomFilename(null, "8_24-06-2018-00-00-00.zip");
+
+        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
 
         await()
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
-            .until(() -> storageHasFile(zipFilename), is(false));
+            .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
 
         String s2sToken = signIn();
 
@@ -135,19 +140,6 @@ public class DocumentUploadTest {
         return response
             .getBody()
             .print();
-    }
-
-    // TODO next 2 methods duplicated, refactor to test utilities
-    private void uploadZipToBlobStore(String fileName) throws Exception {
-        byte[] zipFile = toByteArray(getResource(fileName));
-
-        CloudBlockBlob blockBlobReference = testSasContainer.getBlockBlobReference(fileName);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-    }
-
-    private boolean storageHasFile(String fileName) {
-        return StreamSupport.stream(testSasContainer.listBlobs().spliterator(), false)
-            .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
     }
 
     private String getSasToken(String containerName) throws Exception {
