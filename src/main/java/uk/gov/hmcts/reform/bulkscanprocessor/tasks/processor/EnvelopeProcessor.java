@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
@@ -84,8 +85,10 @@ public class EnvelopeProcessor {
         processEventRepository.save(processEvent);
 
         if (envelope != null) {
-            envelope.setStatus(event);
-            envelopeRepository.save(envelope);
+            Status.fromEvent(event).ifPresent(status -> {
+                envelope.setStatus(status);
+                envelopeRepository.save(envelope);
+            });
         }
     }
 }

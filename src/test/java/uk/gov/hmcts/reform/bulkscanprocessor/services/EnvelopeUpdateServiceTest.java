@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
@@ -66,7 +67,7 @@ public class EnvelopeUpdateServiceTest {
         // then status should be updated
         ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
         verify(envelopeRepo).save(envelopeParam.capture());
-        assertThat(envelopeParam.getValue().getStatus()).isEqualTo(Event.DOC_CONSUMED);
+        assertThat(envelopeParam.getValue().getStatus()).isEqualTo(Status.CONSUMED);
 
         // and event should be created
         ArgumentCaptor<ProcessEvent> eventParam = ArgumentCaptor.forClass(ProcessEvent.class);

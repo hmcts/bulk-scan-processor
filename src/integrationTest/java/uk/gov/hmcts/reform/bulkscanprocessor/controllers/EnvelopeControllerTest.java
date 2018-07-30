@@ -51,8 +51,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -166,8 +166,8 @@ public class EnvelopeControllerTest {
 
         assertThat(envelopesFromDb)
             .extracting("zipFileName", "status")
-            .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", DOC_PROCESSED),
-                tuple("8_24-06-2018-00-00-00.zip", DOC_UPLOAD_FAILURE));
+            .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", PROCESSED),
+                tuple("8_24-06-2018-00-00-00.zip", UPLOAD_FAILURE));
 
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }

@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class EnvelopeUpdateService {
 
         accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
 
-        envelope.setStatus(Event.DOC_CONSUMED);
+        envelope.setStatus(Status.CONSUMED);
         envelopeRepo.save(envelope);
 
         eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));

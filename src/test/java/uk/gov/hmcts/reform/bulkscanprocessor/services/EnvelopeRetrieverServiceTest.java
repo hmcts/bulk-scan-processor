@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeRetrieverServiceTest {
@@ -44,13 +44,13 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeAccess.getMappings())
             .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
 
-        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED))
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenReturn(envelopes);
 
         assertThat(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"))
             .containsOnly(envelopes.get(0));
 
-        verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED);
+        verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", PROCESSED);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeAccess.getMappings())
             .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
 
-        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", DOC_PROCESSED))
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenThrow(DataRetrievalFailureException.class);
 
         Throwable throwable = catchThrowable(() ->

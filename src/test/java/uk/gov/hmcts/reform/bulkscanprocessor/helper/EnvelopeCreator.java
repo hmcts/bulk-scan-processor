@@ -2,10 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.google.common.collect.ImmutableList;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -37,7 +37,7 @@ public final class EnvelopeCreator {
             nonScannableItems()
         );
 
-        envelope.setStatus(Event.DOC_PROCESSED);
+        envelope.setStatus(Status.PROCESSED);
 
         return envelope;
     }

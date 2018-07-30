@@ -62,7 +62,7 @@ public class Envelope {
     private String zipFileName;
 
     @Enumerated(EnumType.STRING)
-    private Event status = Event.ENVELOPE_CREATED;
+    private Status status = Status.CREATED;
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
@@ -148,12 +148,12 @@ public class Envelope {
         return zipFileName;
     }
 
-    public Event getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(Event lastEvent) {
-        this.status = lastEvent;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
