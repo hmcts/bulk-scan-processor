@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeUpdateService;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,6 +43,9 @@ public class ReadEnvelopesControllerTest {
 
     @MockBean
     private EnvelopeRetrieverService envelopeRetrieverService;
+
+    @MockBean
+    private EnvelopeUpdateService envelopeUpdateService; //NOPMD
 
     @MockBean
     private AuthService authService;
