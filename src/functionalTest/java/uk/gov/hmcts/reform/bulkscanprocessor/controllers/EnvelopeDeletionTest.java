@@ -8,12 +8,14 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +38,8 @@ public class EnvelopeDeletionTest {
 
     private transient CloudBlobContainer testContainer;
 
+    private List<String> filesToDeleteAfterTest = new ArrayList<>();
+
     @Before
     public void setUp() throws Exception {
         Config conf = ConfigFactory.load();
@@ -49,6 +53,13 @@ public class EnvelopeDeletionTest {
         testContainer = new CloudStorageAccount(credentials, true)
             .createCloudBlobClient()
             .getContainerReference("test");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        for (String filename: filesToDeleteAfterTest) {
+            testContainer.getBlockBlobReference(filename).deleteIfExists();
+        }
     }
 
 
@@ -79,21 +90,20 @@ public class EnvelopeDeletionTest {
         Thread.sleep(scanDelay + 15_000);
 
         assertThat(storageHasFile(destZipFilename)).isTrue();
-
-        testContainer.getBlockBlobReference(destZipFilename).delete();
-        assertThat(storageHasFile(destZipFilename)).isFalse();
     }
 
     private void uploadZipFile(final String srcZipFilename, final String destZipFilename) throws Exception {
         byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+        filesToDeleteAfterTest.add(destZipFilename);
     }
 
     private void uploadZipFile(List<String> files, String metadataFile, final String destZipFilename) throws Exception {
         byte[] zipFile = createZipArchiveWithRandomName(files, metadataFile, destZipFilename);
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+        filesToDeleteAfterTest.add(destZipFilename);
     }
 
     private boolean storageHasFile(String fileName) {
