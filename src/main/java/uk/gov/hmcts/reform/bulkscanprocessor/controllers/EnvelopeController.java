@@ -65,10 +65,13 @@ public class EnvelopeController {
     ) {
         String serviceName = authService.authenticate(serviceAuthHeader);
 
+        // TODO: move to service
         switch (statusUpdate.status) {
             case CONSUMED:
                 envelopeUpdateService.markAsConsumed(id, serviceName);
                 break;
+            default:
+                throw new IllegalStateException("No code for handling status: " + statusUpdate.status);
         }
 
         return noContent().build();
