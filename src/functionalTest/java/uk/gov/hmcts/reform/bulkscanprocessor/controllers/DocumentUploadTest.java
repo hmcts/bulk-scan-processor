@@ -84,7 +84,7 @@ public class DocumentUploadTest {
         uploadZipToBlobStore(zipFilename);
 
         await()
-            .atMost(scanDelay + 10000, TimeUnit.MILLISECONDS)
+            .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
             .until(() -> storageHasFile(zipFilename), is(false));
 
         String s2sToken = signIn();

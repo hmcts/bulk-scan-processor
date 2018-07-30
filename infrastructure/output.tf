@@ -33,7 +33,7 @@ output "TEST_S2S_URL" {
 }
 
 output "TEST_S2S_NAME" {
-  value = "${var.s2s_name}"
+  value = "${var.test_s2s_name}"
 }
 
 output "TEST_S2S_SECRET" {
