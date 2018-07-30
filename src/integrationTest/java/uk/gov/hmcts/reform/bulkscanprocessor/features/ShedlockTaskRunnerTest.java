@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
     }
 )
 @RunWith(SpringRunner.class)
-public class WhenRunningTheApplicationTest {
+public class ShedlockTaskRunnerTest {
 
     private static final int SCHEDULE_MULTIPLIER = 4;
 
