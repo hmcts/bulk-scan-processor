@@ -9,17 +9,15 @@ import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.assertj.core.util.DateUtil;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.security.InvalidKeyException;
@@ -31,23 +29,23 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@TestPropertySource("classpath:application.properties")
 public class GetSasTokenTest {
 
-    @Value("${test-url}")
     private String testUrl;
 
-    @Value("${test-storage-account-name}")
     private String accountName;
 
-    @Value("${test-storage-account-key}")
     private String testStorageAccountKey;
 
     private static final String zipFilename = "8_24-06-2018-00-00-00.zip";
 
     @Before
     public void setUp() throws Exception {
+        Config conf = ConfigFactory.load();
+        this.testUrl = conf.getString("test-url");
+        this.accountName = conf.getString("test-storage-account-name");
+        this.testStorageAccountKey = conf.getString("test-storage-account-key");
+
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
 

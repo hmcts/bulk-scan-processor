@@ -9,17 +9,15 @@ import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
@@ -35,29 +33,20 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
-@RunWith(SpringRunner.class)
-@TestPropertySource("classpath:application.properties")
 public class DocumentUploadTest {
 
-    @Value("${test-url}")
     private String testUrl;
 
-    @Value("${test-scan-delay}")
     private long scanDelay;
 
-    @Value("${test-storage-account-name}")
     private String accountName;
 
-    @Value("${test-storage-account-key}")
     private String testStorageAccountKey;
 
-    @Value("${test-s2s-url}")
     private String s2sUrl;
 
-    @Value("${test-s2s-name}")
     private String s2sName;
 
-    @Value("${test-s2s-secret}")
     private String s2sSecret;
 
     private CloudBlobContainer testContainer;
@@ -67,6 +56,15 @@ public class DocumentUploadTest {
 
     @Before
     public void setUp() throws Exception {
+        Config conf = ConfigFactory.load();
+        this.testUrl = conf.getString("test-url");
+        this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
+        this.accountName = conf.getString("test-storage-account-name");
+        this.testStorageAccountKey = conf.getString("test-storage-account-key");
+        this.s2sUrl = conf.getString("test-s2s-url");
+        this.s2sName = conf.getString("test-s2s-name");
+        this.s2sSecret = conf.getString("test-s2s-secret");
+
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
 
