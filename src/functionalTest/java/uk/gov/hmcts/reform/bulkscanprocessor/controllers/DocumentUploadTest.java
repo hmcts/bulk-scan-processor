@@ -92,6 +92,8 @@ public class DocumentUploadTest {
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
+        log.warn("s2s token: [{}]", s2sToken);
+
         Response response = RestAssured
             .given()
             .relaxedHTTPSValidation()
