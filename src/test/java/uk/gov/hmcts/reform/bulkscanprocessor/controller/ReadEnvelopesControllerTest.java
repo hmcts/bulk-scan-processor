@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeUpdateService;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,13 +36,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(EnvelopeController.class)
-public class EnvelopeControllerTest {
+public class ReadEnvelopesControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private EnvelopeRetrieverService envelopeRetrieverService;
+
+    @MockBean
+    private EnvelopeUpdateService envelopeUpdateService; //NOPMD
 
     @MockBean
     private AuthService authService;
