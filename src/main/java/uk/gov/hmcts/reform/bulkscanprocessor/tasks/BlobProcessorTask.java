@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -14,15 +13,20 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocFailureGenericException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -59,84 +63,90 @@ public class BlobProcessorTask {
 
     @SchedulerLock(name = "blobProcessor")
     @Scheduled(fixedDelayString = "${scan.delay}")
-    public void processBlobs() {
-        cloudBlobClient.listContainers()
-            .forEach(this::processZipFiles);
+    public void processBlobs() throws Exception {
+        for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
+            processZipFiles(container);
+        }
     }
 
-    private void processZipFiles(CloudBlobContainer container) {
-        log.info("Processing blobs for container {} ", container.getName());
+    private void processZipFiles(CloudBlobContainer container) throws Exception {
+        log.info("Processing blobs for container {}", container.getName());
 
         for (ListBlobItem blobItem : container.listBlobs()) {
             String zipFilename = FilenameUtils.getName(blobItem.getUri().toString());
 
-            try {
-                processZipFile(container, zipFilename);
-            } catch (Exception e) {
-                //If any error occurs processing one record remaining records should be continued processing
-                log.error("Exception occurred while processing zip file " + zipFilename, e);
-                // TODO A record in Database needs to created with appropriate status.
+            processZipFile(container, zipFilename);
+        }
+    }
+
+    private void processZipFile(CloudBlobContainer container, String zipFilename) throws Exception {
+        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
+        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
+
+        //Zip file will include metadata.json and collection of pdf documents
+        try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+            Map<Envelope, List<Pdf>> envelopeMap = processZipFileEntry(zis, zipFilename, container.getName());
+
+            for (Map.Entry<Envelope, List<Pdf>> entry : envelopeMap.entrySet()) {
+                processParsedEnvelopeDocuments(entry.getKey(), entry.getValue(), cloudBlockBlob);
             }
         }
     }
 
-    private void processZipFile(CloudBlobContainer container, String zipFilename)
-        throws StorageException, URISyntaxException, IOException {
-
-        List<Pdf> pdfFiles = new ArrayList<>();
-        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
-        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
-        boolean isUploadFailure = false;
-        Envelope envelope = null;
-
-        //Zip file will include metadata.json and collection of pdf documents
-        try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+    private Map<Envelope, List<Pdf>> processZipFileEntry(
+        ZipInputStream zis,
+        String zipFilename,
+        String containerName
+    ) throws Exception {
+        try {
+            List<Pdf> pdfFiles = new ArrayList<>();
             byte[] metadataStream = null;
             ZipEntry zipEntry;
+
             while ((zipEntry = zis.getNextEntry()) != null) {
                 switch (FilenameUtils.getExtension(zipEntry.getName())) {
                     case "json":
                         metadataStream = toByteArray(zis);
+
                         break;
                     case "pdf":
-                        Pdf pdf = new Pdf(zipEntry.getName(), toByteArray(zis));
-                        pdfFiles.add(pdf);
+                        pdfFiles.add(new Pdf(zipEntry.getName(), toByteArray(zis)));
+
                         break;
                     default:
-                        //Contract breakage
-                        throw new NoPdfFileFoundException(
-                            "Zip file contains non pdf documents for file " + zipFilename
-                        );
+                        // contract breakage
+                        throw new NoPdfFileFoundException(containerName, zipFilename);
                 }
             }
 
-            envelope = envelopeProcessor.processEnvelope(metadataStream, container.getName());
-            isUploadFailure = true;
+            log.info("PDFs found in {}: {}", zipFilename, pdfFiles.size());
 
-            documentProcessor.processPdfFiles(pdfFiles, envelope.getScannableItems());
-            envelopeProcessor.markAsUploaded(envelope, container.getName(), zipFilename);
+            Envelope envelope = envelopeProcessor.processEnvelope(metadataStream, containerName);
 
-            cloudBlockBlob.delete();
-
-            envelopeProcessor.markAsProcessed(envelope, container.getName(), zipFilename);
+            return Collections.singletonMap(envelope, pdfFiles);
         } catch (Exception exception) {
-            markAsFailed(isUploadFailure, container.getName(), zipFilename, exception.getMessage(), envelope);
-
-            throw exception;
+            throw Optional.of(exception)
+                .filter(EventRelatedThrowable.class::isInstance)
+                .orElse(new DocFailureGenericException(containerName, zipFilename, exception));
         }
     }
 
-    private void markAsFailed(
-        boolean isUploadFailure,
-        String containerName,
-        String zipFileName,
-        String message,
-        Envelope envelope
-    ) {
-        if (isUploadFailure) {
-            envelopeProcessor.markAsUploadFailed(message, envelope, containerName, zipFileName);
-        } else {
-            envelopeProcessor.markAsGenericFailure(message, envelope, containerName, zipFileName);
+    private void processParsedEnvelopeDocuments(
+        Envelope envelope,
+        List<Pdf> pdfs,
+        CloudBlockBlob cloudBlockBlob
+    ) throws Exception {
+        try {
+            documentProcessor.processPdfFiles(pdfs, envelope.getScannableItems());
+            envelopeProcessor.markAsUploaded(envelope);
+
+            cloudBlockBlob.delete();
+
+            envelopeProcessor.markAsProcessed(envelope);
+        } catch (Exception exception) {
+            throw Optional.of(exception)
+                .filter(EnvelopeAwareThrowable.class::isInstance)
+                .orElse(new DocUploadFailureGenericException(envelope, exception));
         }
     }
 }

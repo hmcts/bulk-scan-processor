@@ -2,9 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public class NoPdfFileFoundException extends RuntimeException implements EventRelatedThrowable {
-
-    private static final long serialVersionUID = 9143161748679833084L;
+public class DocFailureGenericException extends RuntimeException implements EventRelatedThrowable {
 
     private static final Event EVENT = Event.DOC_FAILURE;
 
@@ -12,8 +10,8 @@ public class NoPdfFileFoundException extends RuntimeException implements EventRe
 
     private final String zipFileName;
 
-    public NoPdfFileFoundException(String container, String zipFileName) {
-        super("Zip file '" + zipFileName + "' does not contain pdf files");
+    public DocFailureGenericException(String container, String zipFileName, Throwable cause) {
+        super(cause.getMessage(), cause);
 
         this.container = container;
         this.zipFileName = zipFileName;

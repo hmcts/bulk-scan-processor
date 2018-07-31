@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
@@ -44,6 +45,7 @@ import java.util.List;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -51,8 +53,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -147,7 +149,10 @@ public class EnvelopeControllerTest {
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1)))
             .willThrow(DocumentNotFoundException.class);
 
-        blobProcessorTask.processBlobs();
+        Throwable throwable = catchThrowable(() -> blobProcessorTask.processBlobs());
+        assertThat(throwable)
+            .isInstanceOf(DocUploadFailureGenericException.class)
+            .hasCauseInstanceOf(DocumentNotFoundException.class);
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
@@ -167,7 +172,7 @@ public class EnvelopeControllerTest {
         assertThat(envelopesFromDb)
             .extracting("zipFileName", "status")
             .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", PROCESSED),
-                tuple("8_24-06-2018-00-00-00.zip", UPLOAD_FAILURE));
+                tuple("8_24-06-2018-00-00-00.zip", CREATED));
 
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
