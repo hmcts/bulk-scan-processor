@@ -67,7 +67,6 @@ public class ScannableItem implements EnvelopeAssignable {
         // For use by hibernate.
     }
 
-    @JsonCreator
     public ScannableItem(
         @JsonProperty("document_control_number") String documentControlNumber,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
@@ -94,10 +93,6 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public UUID getId() {
         return id;
-    }
-
-    public String getIdAsString() {
-        return id == null ? null : id.toString();
     }
 
     public String getFileName() {

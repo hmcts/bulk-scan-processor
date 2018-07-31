@@ -14,12 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -111,16 +114,22 @@ public class DocumentUploadTest {
         EnvelopeMetadataResponse envelopeMetadataResponse =
             response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
 
-        assertThat(envelopeMetadataResponse.envelopes.size()).isEqualTo(1);
+        // some test DBs are not cleaned so there will probably be more than 1
+        assertThat(envelopeMetadataResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
 
         assertThat(envelopeMetadataResponse.envelopes)
             .extracting("zipFileName", "status")
-            .containsExactlyInAnyOrder(tuple(destZipFilename, DOC_UPLOADED));
+            .containsOnlyOnce(tuple(destZipFilename, DOC_UPLOADED));
 
-        assertThat(envelopeMetadataResponse.envelopes)
-            .extracting("document_url")
-            .hasSize(1)
-            .doesNotContainNull();
+        List<Envelope> envelopes = envelopeMetadataResponse.envelopes
+            .stream()
+            .filter(e -> destZipFilename.equals(e.getZipFileName()))
+            .collect(Collectors.toList());
+        assertThat(envelopes.size()).isEqualTo(1);
+        assertThat(envelopes.get(0).getScannableItems().size()).isEqualTo(1);
+        ScannableItem si = envelopes.get(0).getScannableItems().get(0);
+        assertThat(si.getDocumentUrl()).isNotBlank();
+        assertThat(si.getFileName()).isEqualToIgnoringCase("1111006.pdf");
     }
 
 }
