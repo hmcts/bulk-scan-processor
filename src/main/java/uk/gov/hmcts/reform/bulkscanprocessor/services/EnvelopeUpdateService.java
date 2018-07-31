@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -15,6 +17,8 @@ import java.util.UUID;
 
 @Service
 public class EnvelopeUpdateService {
+
+    private static final Logger log = LoggerFactory.getLogger(EnvelopeUpdateService.class);
 
     public static final Map<Status, Event> eventForStatusChange =
         ImmutableMap.of(
@@ -50,6 +54,7 @@ public class EnvelopeUpdateService {
 
         envelope.setStatus(newStatus);
         envelopeRepo.save(envelope);
+        log.info("Updated envelope {} status from {} to {}.", envelope.getId(), envelope.getStatus(), newStatus);
 
         Event event = eventForStatusChange.get(newStatus);
         if (event != null) {
