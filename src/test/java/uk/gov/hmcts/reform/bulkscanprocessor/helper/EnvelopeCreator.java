@@ -38,6 +38,7 @@ public final class EnvelopeCreator {
         );
 
         envelope.setStatus(Status.PROCESSED);
+        envelope.setContainer("SSCS");
 
         return envelope;
     }
