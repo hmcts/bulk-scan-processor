@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
@@ -28,7 +29,6 @@ import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 public class DocumentUploadTest {
 
@@ -119,7 +119,8 @@ public class DocumentUploadTest {
 
         assertThat(envelopeMetadataResponse.envelopes)
             .extracting("zipFileName", "status")
-            .containsOnlyOnce(tuple(destZipFilename, DOC_UPLOADED));
+            .containsOnlyOnce(tuple(destZipFilename, Status.PROCESSED));
+
 
         List<Envelope> envelopes = envelopeMetadataResponse.envelopes
             .stream()
