@@ -44,6 +44,15 @@ sourceSets {
     }
     resources.srcDir file('src/smokeTest/resources')
   }
+
+  apiGatewayTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/apiGatewayTest/java')
+    }
+    resources.srcDir file('src/apiGatewayTest/resources')
+  }
 }
 
 tasks.withType(JavaCompile) {
@@ -67,6 +76,12 @@ task smoke(type: Test) {
   description = "Runs Smoke Tests"
   testClassesDirs = sourceSets.smokeTest.output.classesDirs
   classpath = sourceSets.smokeTest.runtimeClasspath
+}
+
+task apiGateway(type: Test) {
+  description = "Runs API Gateway Tests"
+  testClassesDirs = sourceSets.apiGatewayTest.output.classesDirs
+  classpath = sourceSets.apiGatewayTest.runtimeClasspath
 }
 
 checkstyle {
@@ -197,6 +212,12 @@ dependencies {
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile sourceSets.test.runtimeClasspath
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.1.0'
+
+  apiGatewayTestCompile sourceSets.main.runtimeClasspath
+  apiGatewayTestCompile sourceSets.test.runtimeClasspath
+
+  apiGatewayTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.1.0'
+  apiGatewayTestCompile group: 'com.typesafe', name: 'config', version: '1.3.2'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'

@@ -26,8 +26,18 @@ locals {
   #region API gateway
   create_api = "${var.env != "preview" && var.env != "spreview"}"
 
+  # certificate thumbprints used by API tests
+  allowed_test_certificate_thumbprints = [
+    "${var.api_gateway_test_valid_certificate_thumbprint}",
+    "${var.api_gateway_test_expired_certificate_thumbprint}",
+    "${var.api_gateway_test_not_yet_valid_certificate_thumbprint}"
+  ]
+
   # list of the thumbprints of the SSL certificates that should be accepted by the API (gateway)
-  allowed_certificate_thumbprints = []
+  allowed_certificate_thumbprints = "${concat(
+                                         local.allowed_test_certificate_thumbprints,
+                                         var.allowed_client_certificate_thumbprints
+                                       )}"
 
   thumbprints_in_quotes = "${formatlist("&quot;%s&quot;", local.allowed_certificate_thumbprints)}"
   thumbprints_in_quotes_str = "${join(",", local.thumbprints_in_quotes)}"
@@ -120,6 +130,7 @@ resource "azurerm_storage_container" "sscs" {
   depends_on = ["azurerm_storage_account.provider"]
 }
 
+# container used by end-to-end tests
 resource "azurerm_storage_container" "test" {
   name                  = "test"
   resource_group_name   = "${module.bulk-scan.resource_group_name}"
