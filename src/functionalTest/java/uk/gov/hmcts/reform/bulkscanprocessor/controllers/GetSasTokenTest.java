@@ -38,6 +38,8 @@ public class GetSasTokenTest {
 
     private String blobContainerUrl;
 
+    private TestHelper testHelper;
+
     private static final String zipFilename = "2_24-06-2018-00-00-00.zip";
 
     @Before
@@ -54,6 +56,8 @@ public class GetSasTokenTest {
         CloudBlobContainer testContainer = new CloudStorageAccount(storageCredentials, true)
             .createCloudBlobClient()
             .getContainerReference("test");
+
+        this.testHelper = new TestHelper();
 
         try {
             testContainer.getBlockBlobReference(zipFilename).delete();
@@ -106,7 +110,7 @@ public class GetSasTokenTest {
 
     @Test
     public void sas_token_should_have_read_and_write_capabilities_for_service() throws Exception {
-        String sasToken = getSasToken("test");
+        String sasToken = testHelper.getSasToken("test", this.testUrl);
         CloudBlobContainer testSasContainer = getCloudContainer(sasToken, "test");
 
         uploadZipFile(zipFilename, testSasContainer);
@@ -115,29 +119,12 @@ public class GetSasTokenTest {
 
     @Test(expected = StorageException.class)
     public void sas_token_should_not_have_read_and_write_capabilities_for_other_service() throws Exception {
-        String sasToken = getSasToken("sscs");
+        String sasToken = testHelper.getSasToken("sscs", this.testUrl);
         CloudBlobContainer testSasContainer = getCloudContainer(sasToken, "test");
 
         uploadZipFile(zipFilename, testSasContainer);
     }
-
-    private String getSasToken(String containerName) throws Exception {
-        Response tokenResponse = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor functional test")
-            .when().get("/token/" + containerName)
-            .andReturn();
-
-        assertThat(tokenResponse.getStatusCode()).isEqualTo(200);
-
-        final ObjectNode node =
-            new ObjectMapper().readValue(tokenResponse.getBody().asString(), ObjectNode.class);
-        return node.get("sas_token").asText();
-    }
-
+    
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
         URI containerUri = new URI(this.blobContainerUrl + containerName);
         return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));

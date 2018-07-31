@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
@@ -81,7 +79,7 @@ public class DocumentUploadTest {
             .createCloudBlobClient()
             .getContainerReference("test");
 
-        String sasToken = getSasToken("test");
+        String sasToken = testHelper.getSasToken("test", this.testUrl);
         testSasContainer = getCloudContainer(sasToken, "test");
     }
 
@@ -151,24 +149,7 @@ public class DocumentUploadTest {
             .getBody()
             .print();
     }
-
-    private String getSasToken(String containerName) throws Exception {
-        Response tokenResponse = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor functional test")
-            .when().get("/token/" + containerName)
-            .andReturn();
-
-        assertThat(tokenResponse.getStatusCode()).isEqualTo(200);
-
-        final ObjectNode node =
-            new ObjectMapper().readValue(tokenResponse.getBody().asString(), ObjectNode.class);
-        return node.get("sas_token").asText();
-    }
-
+    
     private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
         URI containerUri = new URI(this.blobContainerUrl + containerName);
         return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
