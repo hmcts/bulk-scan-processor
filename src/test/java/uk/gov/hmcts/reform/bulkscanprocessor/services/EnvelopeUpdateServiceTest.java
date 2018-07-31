@@ -11,22 +11,19 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.in.NewStatus;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
 
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 @RunWith(MockitoJUnitRunner.class)
@@ -50,7 +47,7 @@ public class EnvelopeUpdateServiceTest {
         given(envelopeRepo.findById(any())).willReturn(Optional.empty());
 
         // when
-        Throwable exc = catchThrowable(() -> service.updateStatus(randomUUID(), NewStatus.CONSUMED, "some_service"));
+        Throwable exc = catchThrowable(() -> service.updateStatus(randomUUID(), CONSUMED, "some_service"));
 
         // then
         assertThat(exc)
@@ -66,29 +63,16 @@ public class EnvelopeUpdateServiceTest {
         given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
 
         // when
-        service.updateStatus(randomUUID(), NewStatus.CONSUMED, "some_service");
+        service.updateStatus(randomUUID(), CONSUMED, "some_service");
 
         // then status should be updated
         ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
         verify(envelopeRepo).save(envelopeParam.capture());
-        assertThat(envelopeParam.getValue().getStatus()).isEqualTo(Status.CONSUMED);
+        assertThat(envelopeParam.getValue().getStatus()).isEqualTo(CONSUMED);
 
         // and event should be created
         ArgumentCaptor<ProcessEvent> eventParam = ArgumentCaptor.forClass(ProcessEvent.class);
         verify(eventRepo).save(eventParam.capture());
         assertThat(eventParam.getValue().getEvent()).isEqualTo(Event.DOC_CONSUMED);
-    }
-
-    @Test
-    public void updateStatus_should_handle_all_new_statuses_explicitly() throws Exception {
-        given(envelopeRepo.findById(any(UUID.class)))
-            .willReturn(Optional.of(EnvelopeCreator.envelope()));
-
-        stream(NewStatus.values())
-            .forEach(status -> {
-                assertThatCode(() -> service.updateStatus(UUID.randomUUID(), status, "foo"))
-                    .as("Should handle new status: " + status)
-                    .doesNotThrowAnyException();
-            });
     }
 }

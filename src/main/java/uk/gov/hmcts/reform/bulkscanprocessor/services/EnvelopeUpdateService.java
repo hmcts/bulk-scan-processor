@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.in.NewStatus;
 
 import java.util.UUID;
 
@@ -32,7 +31,7 @@ public class EnvelopeUpdateService {
         this.statusChangeValidator = statusChangeValidator;
     }
 
-    public void updateStatus(UUID envelopeId, NewStatus newStatus, String serviceName) {
+    public void updateStatus(UUID envelopeId, Status newStatus, String serviceName) {
 
         Envelope envelope =
             envelopeRepo
@@ -40,17 +39,12 @@ public class EnvelopeUpdateService {
                 .orElseThrow(() -> new EnvelopeNotFoundException());
 
         accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
+        statusChangeValidator.assertCanUpdate(envelope.getStatus(), newStatus);
 
-        if (newStatus == NewStatus.CONSUMED) {
-            statusChangeValidator.assertCanUpdate(envelope.getStatus(), Status.CONSUMED);
+        envelope.setStatus(newStatus);
+        envelopeRepo.save(envelope);
 
-            envelope.setStatus(Status.CONSUMED);
-            envelopeRepo.save(envelope);
+        eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));
 
-            eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));
-        } else {
-            // This should be never reached. See related unit test.
-            throw new IllegalStateException("No code for handling status: " + newStatus);
-        }
     }
 }
