@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -109,7 +109,7 @@ public class TaskErrorHandlerTest {
         }
     }
 
-    private static class EventException extends RuntimeException implements EventRelatedException {
+    private static class EventException extends RuntimeException implements EventRelatedThrowable {
 
         private final Event event;
 

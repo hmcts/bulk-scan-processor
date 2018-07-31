@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 
 public class TaskErrorHandler implements ErrorHandler {
 
@@ -30,8 +30,8 @@ public class TaskErrorHandler implements ErrorHandler {
             updateEnvelopeLastStatus((EnvelopeAwareThrowable) t);
         }
 
-        if (t instanceof EventRelatedException) {
-            registerEvent((EventRelatedException) t, t.getMessage());
+        if (t instanceof EventRelatedThrowable) {
+            registerEvent((EventRelatedThrowable) t, t.getMessage());
         }
 
         log.error(t.getMessage(), t);
@@ -46,7 +46,7 @@ public class TaskErrorHandler implements ErrorHandler {
         });
     }
 
-    private void registerEvent(EventRelatedException exception, String reason) {
+    private void registerEvent(EventRelatedThrowable exception, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
             exception.getContainer(),
             exception.getZipFileName(),
