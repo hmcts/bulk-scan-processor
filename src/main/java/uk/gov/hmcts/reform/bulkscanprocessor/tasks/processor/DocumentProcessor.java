@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class DocumentProcessor {
@@ -31,12 +30,8 @@ public class DocumentProcessor {
     }
 
     @Transactional
-    public void processPdfFiles(Map<String, byte[]> pdfFiles, List<ScannableItem> scannedItems) {
+    public void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
         // TODO check scannedItems.size == pdfFiles.size
-        List<Pdf> pdfs = pdfFiles.entrySet()
-            .stream()
-            .map(entry -> new Pdf(entry.getKey(), entry.getValue()))
-            .collect(Collectors.toList());
 
         Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
 
