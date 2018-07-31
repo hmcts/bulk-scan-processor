@@ -6,7 +6,6 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -19,13 +18,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.Map;
-import java.util.stream.StreamSupport;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetSasTokenTest {
@@ -65,7 +60,6 @@ public class GetSasTokenTest {
             // Do nothing -> no files left by previous runs
         }
     }
-
 
 
     @Test
@@ -111,34 +105,20 @@ public class GetSasTokenTest {
     @Test
     public void sas_token_should_have_read_and_write_capabilities_for_service() throws Exception {
         String sasToken = testHelper.getSasToken("test", this.testUrl);
-        CloudBlobContainer testSasContainer = getCloudContainer(sasToken, "test");
+        CloudBlobContainer testSasContainer =
+            testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
-        uploadZipFile(zipFilename, testSasContainer);
-        assertThat(storageHasFile(zipFilename, testSasContainer)).isTrue();
+        testHelper.uploadZipFile(testSasContainer, zipFilename, zipFilename);
+        assertThat(testHelper.storageHasFile(testSasContainer, zipFilename)).isTrue();
     }
 
     @Test(expected = StorageException.class)
     public void sas_token_should_not_have_read_and_write_capabilities_for_other_service() throws Exception {
         String sasToken = testHelper.getSasToken("sscs", this.testUrl);
-        CloudBlobContainer testSasContainer = getCloudContainer(sasToken, "test");
+        CloudBlobContainer testSasContainer =
+            testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
-        uploadZipFile(zipFilename, testSasContainer);
+        testHelper.uploadZipFile(testSasContainer, zipFilename, zipFilename);
     }
     
-    private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
-        URI containerUri = new URI(this.blobContainerUrl + containerName);
-        return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
-    }
-
-    private void uploadZipFile(final String zipName, final CloudBlobContainer container) throws Exception {
-        byte[] zipFile = toByteArray(getResource(zipName));
-        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(zipName);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-    }
-
-    private boolean storageHasFile(String fileName, final CloudBlobContainer container) {
-        return StreamSupport.stream(container.listBlobs().spliterator(), false)
-            .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
-    }
-
 }

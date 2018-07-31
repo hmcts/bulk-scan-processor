@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentials;
-import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.azure.storage.core.PathUtility;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -19,6 +17,7 @@ import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ public class TestHelper {
             .getBody()
             .print();
     }
-
+    
     public void uploadZipFile(
         CloudBlobContainer container, String srcZipFilename, String destZipFilename
     ) throws Exception {
@@ -92,12 +91,11 @@ public class TestHelper {
         return node.get("sas_token").asText();
     }
 
-    public CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
-        final StorageCredentials creds =
-            new StorageCredentialsSharedAccessSignature(sasToken);
-        return new CloudStorageAccount(creds, true)
-            .createCloudBlobClient()
-            .getContainerReference(containerName);
+    public CloudBlobContainer getCloudContainer(
+        String sasToken, String containerName, String containerUrl
+    ) throws Exception {
+        URI containerUri = new URI(containerUrl + containerName);
+        return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
     public String getRandomFilename(String prefix, String suffix) {

@@ -1,13 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.core.PathUtility;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
@@ -20,10 +17,8 @@ import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -80,7 +75,7 @@ public class DocumentUploadTest {
             .getContainerReference("test");
 
         String sasToken = testHelper.getSasToken("test", this.testUrl);
-        testSasContainer = getCloudContainer(sasToken, "test");
+        testSasContainer = testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
     }
 
     @Test
@@ -95,7 +90,7 @@ public class DocumentUploadTest {
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
 
-        String s2sToken = signIn();
+        String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
         Response response = RestAssured
             .given()
@@ -124,35 +119,6 @@ public class DocumentUploadTest {
             .extracting("document_url")
             .hasSize(1)
             .doesNotContainNull();
-    }
-
-
-    protected String signIn() {
-        Map<String, Object> params = ImmutableMap.of(
-            "microservice", this.s2sName,
-            "oneTimePassword", new GoogleAuthenticator().getTotpPassword(this.s2sSecret)
-        );
-
-        Response response = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.s2sUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .body(params)
-            .when()
-            .post("/lease")
-            .andReturn();
-
-        assertThat(response.getStatusCode()).isEqualTo(200);
-
-        return response
-            .getBody()
-            .print();
-    }
-    
-    private CloudBlobContainer getCloudContainer(String sasToken, String containerName) throws Exception {
-        URI containerUri = new URI(this.blobContainerUrl + containerName);
-        return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
 }
