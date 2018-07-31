@@ -112,11 +112,11 @@ public class DocumentUploadTest {
 
         assertThat(envelopeMetadataResponse.envelopes)
             .extracting("zipFileName", "status")
-            .containsExactlyInAnyOrder(tuple("1_24-06-2018-00-00-00.zip", DOC_UPLOADED));
+            .containsExactlyInAnyOrder(tuple(destZipFilename, DOC_UPLOADED));
 
         assertThat(envelopeMetadataResponse.envelopes)
             .extracting("document_url")
-            .hasSize(2)
+            .hasSize(1)
             .doesNotContainNull();
     }
 
