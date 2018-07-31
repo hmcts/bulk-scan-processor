@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -9,10 +10,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class EnvelopeUpdateService {
+
+    public static final Map<Status, Event> eventForStatusChange =
+        ImmutableMap.of(
+            Status.CONSUMED, Event.DOC_CONSUMED
+        );
 
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository eventRepo;
@@ -44,7 +51,13 @@ public class EnvelopeUpdateService {
         envelope.setStatus(newStatus);
         envelopeRepo.save(envelope);
 
-        eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));
-
+        Event event = eventForStatusChange.get(newStatus);
+        if (event != null) {
+            eventRepo.save(new ProcessEvent(
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                event
+            ));
+        }
     }
 }
