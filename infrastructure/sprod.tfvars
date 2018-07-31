@@ -1,0 +1,1 @@
+api_gateway_test_valid_certificate_thumbprint = "85E17BB457185BECFA484AB3496AEB919FC30B36"

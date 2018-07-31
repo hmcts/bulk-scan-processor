@@ -69,3 +69,10 @@ variable "scheduling_enabled" {
 variable "scan_delay" {
   default = "30000"  # In milliseconds
 }
+
+# list of SSL client certificate thumbprints that are accepted by the API (gateway)
+# (excludes certificates used by API tests)
+variable "allowed_client_certificate_thumbprints" {
+  type = "list"
+  default = []
+}

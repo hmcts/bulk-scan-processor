@@ -3,6 +3,31 @@
 
 def channel = '#rpe-build-notices'
 
+List<LinkedHashMap<String, Object>> apiTestSecrets = [
+  // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
+  secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
+  secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
+
+  // Base64-encoded PKCS 12 key store containing private key and certificate known to the API, but expired
+  secret('test-expired-key-store', 'TEST_EXPIRED_KEY_STORE'),
+  secret('test-expired-key-store-password', 'TEST_EXPIRED_KEY_STORE_PASSWORD'),
+
+  // Base64-encoded PKCS12 key store containing private key and certificate known to the API, but not yet valid
+  secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
+  secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
+
+  secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY')
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+  [ $class: 'AzureKeyVaultSecret',
+    secretType: 'Secret',
+    name: secretName,
+    version: '',
+    envVariable: envVar
+  ]
+}
+
 properties([
   parameters([
     string(name: 'PRODUCT_NAME', defaultValue: 'rpe', description: ''),
@@ -18,4 +43,9 @@ properties([
 withParameterizedPipeline(params.TYPE, params.PRODUCT_NAME, params.APP, params.ENVIRONMENT, params.SUBSCRIPTION) {
   enableDbMigration()
   enableSlackNotifications(channel)
+  enableApiGatewayTest()
+
+  onNonPR() {
+    loadVaultSecrets(apiTestSecrets)
+  }
 }
