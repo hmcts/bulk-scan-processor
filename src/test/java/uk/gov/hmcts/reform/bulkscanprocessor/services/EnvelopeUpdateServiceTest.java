@@ -76,9 +76,7 @@ public class EnvelopeUpdateServiceTest {
     @Test
     public void updateStatus_should_create_an_event_if_there_is_one_configured_for_the_new_status() throws Exception {
         //given
-        Envelope envelopeInDb = EnvelopeCreator.envelope();
-
-        given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
+        given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(EnvelopeCreator.envelope()));
 
         // when
         service.updateStatus(randomUUID(), CONSUMED, "some_service");
@@ -92,9 +90,7 @@ public class EnvelopeUpdateServiceTest {
     @Test
     public void updateStatus_should_not_create_an_event_if_there_is_none_configured_for_the_new_status() throws Exception {
         //given
-        Envelope envelopeInDb = EnvelopeCreator.envelope();
-
-        given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
+        given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(EnvelopeCreator.envelope()));
 
         // when
         service.updateStatus(randomUUID(), UPLOAD_FAILURE, "some_service");
