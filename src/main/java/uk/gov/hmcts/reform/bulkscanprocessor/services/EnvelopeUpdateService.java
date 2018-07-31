@@ -31,24 +31,20 @@ public class EnvelopeUpdateService {
         this.statusChangeValidator = statusChangeValidator;
     }
 
-    /**
-     * Changes the status of envelope to DOC_CONSUMED.
-     *
-     * @param envelopeId  ID of the envelope to update
-     * @param serviceName Name of the service that requests to mark the envelope as consumed
-     */
-    public void markAsConsumed(UUID envelopeId, String serviceName) {
+    public void updateStatus(UUID envelopeId, Status newStatus, String serviceName) {
+
         Envelope envelope =
             envelopeRepo
                 .findById(envelopeId)
                 .orElseThrow(() -> new EnvelopeNotFoundException());
 
         accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
-        statusChangeValidator.assertCanUpdate(envelope.getStatus(), Status.CONSUMED);
+        statusChangeValidator.assertCanUpdate(envelope.getStatus(), newStatus);
 
-        envelope.setStatus(Status.CONSUMED);
+        envelope.setStatus(newStatus);
         envelopeRepo.save(envelope);
 
         eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));
+
     }
 }

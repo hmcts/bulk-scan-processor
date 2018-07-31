@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
@@ -24,6 +23,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
 
 @SuppressWarnings("PMD.BeanMembersShouldSerialize")
 @RunWith(MockitoJUnitRunner.class)
@@ -42,12 +42,12 @@ public class EnvelopeUpdateServiceTest {
     }
 
     @Test
-    public void markAsConsumed_should_throw_an_exception_if_envelope_with_given_id_does_not_exist() throws Exception {
+    public void updateStatus_should_throw_an_exception_if_envelope_with_given_id_does_not_exist() throws Exception {
         //given
         given(envelopeRepo.findById(any())).willReturn(Optional.empty());
 
         // when
-        Throwable exc = catchThrowable(() -> service.markAsConsumed(randomUUID(), "some_service"));
+        Throwable exc = catchThrowable(() -> service.updateStatus(randomUUID(), CONSUMED, "some_service"));
 
         // then
         assertThat(exc)
@@ -56,19 +56,19 @@ public class EnvelopeUpdateServiceTest {
     }
 
     @Test
-    public void markAsConsumed_should_set_appropriate_status_on_envelope_if_it_exists() throws Exception {
+    public void updateStatus_should_set_appropriate_status_on_envelope_if_it_exists() throws Exception {
         //given
         Envelope envelopeInDb = EnvelopeCreator.envelope();
 
         given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
 
         // when
-        service.markAsConsumed(randomUUID(), "some_service");
+        service.updateStatus(randomUUID(), CONSUMED, "some_service");
 
         // then status should be updated
         ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
         verify(envelopeRepo).save(envelopeParam.capture());
-        assertThat(envelopeParam.getValue().getStatus()).isEqualTo(Status.CONSUMED);
+        assertThat(envelopeParam.getValue().getStatus()).isEqualTo(CONSUMED);
 
         // and event should be created
         ArgumentCaptor<ProcessEvent> eventParam = ArgumentCaptor.forClass(ProcessEvent.class);
