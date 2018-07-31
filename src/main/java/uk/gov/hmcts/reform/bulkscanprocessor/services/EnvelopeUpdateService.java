@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.in.NewStatus;
 
 import java.util.UUID;
 
@@ -31,24 +32,25 @@ public class EnvelopeUpdateService {
         this.statusChangeValidator = statusChangeValidator;
     }
 
-    /**
-     * Changes the status of envelope to DOC_CONSUMED.
-     *
-     * @param envelopeId  ID of the envelope to update
-     * @param serviceName Name of the service that requests to mark the envelope as consumed
-     */
-    public void markAsConsumed(UUID envelopeId, String serviceName) {
+    public void updateStatus(UUID envelopeId, NewStatus newStatus, String serviceName) {
+
         Envelope envelope =
             envelopeRepo
                 .findById(envelopeId)
                 .orElseThrow(() -> new EnvelopeNotFoundException());
 
         accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
-        statusChangeValidator.assertCanUpdate(envelope.getStatus(), Status.CONSUMED);
 
-        envelope.setStatus(Status.CONSUMED);
-        envelopeRepo.save(envelope);
+        if (newStatus == NewStatus.CONSUMED) {
+            statusChangeValidator.assertCanUpdate(envelope.getStatus(), Status.CONSUMED);
 
-        eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));
+            envelope.setStatus(Status.CONSUMED);
+            envelopeRepo.save(envelope);
+
+            eventRepo.save(new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.DOC_CONSUMED));
+        } else {
+            // This should be never reached. See related unit test.
+            throw new IllegalStateException("No code for handling status: " + newStatus);
+        }
     }
 }

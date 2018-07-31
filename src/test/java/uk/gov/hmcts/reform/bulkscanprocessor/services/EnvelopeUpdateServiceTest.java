@@ -14,12 +14,15 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.in.NewStatus;
 
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -42,12 +45,12 @@ public class EnvelopeUpdateServiceTest {
     }
 
     @Test
-    public void markAsConsumed_should_throw_an_exception_if_envelope_with_given_id_does_not_exist() throws Exception {
+    public void updateStatus_should_throw_an_exception_if_envelope_with_given_id_does_not_exist() throws Exception {
         //given
         given(envelopeRepo.findById(any())).willReturn(Optional.empty());
 
         // when
-        Throwable exc = catchThrowable(() -> service.markAsConsumed(randomUUID(), "some_service"));
+        Throwable exc = catchThrowable(() -> service.updateStatus(randomUUID(), NewStatus.CONSUMED, "some_service"));
 
         // then
         assertThat(exc)
@@ -56,14 +59,14 @@ public class EnvelopeUpdateServiceTest {
     }
 
     @Test
-    public void markAsConsumed_should_set_appropriate_status_on_envelope_if_it_exists() throws Exception {
+    public void updateStatus_should_set_appropriate_status_on_envelope_if_it_exists() throws Exception {
         //given
         Envelope envelopeInDb = EnvelopeCreator.envelope();
 
         given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
 
         // when
-        service.markAsConsumed(randomUUID(), "some_service");
+        service.updateStatus(randomUUID(), NewStatus.CONSUMED, "some_service");
 
         // then status should be updated
         ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
@@ -74,5 +77,18 @@ public class EnvelopeUpdateServiceTest {
         ArgumentCaptor<ProcessEvent> eventParam = ArgumentCaptor.forClass(ProcessEvent.class);
         verify(eventRepo).save(eventParam.capture());
         assertThat(eventParam.getValue().getEvent()).isEqualTo(Event.DOC_CONSUMED);
+    }
+
+    @Test
+    public void updateStatus_should_handle_all_new_statuses_explicitly() throws Exception {
+        given(envelopeRepo.findById(any(UUID.class)))
+            .willReturn(Optional.of(EnvelopeCreator.envelope()));
+
+        stream(NewStatus.values())
+            .forEach(status -> {
+                assertThatCode(() -> service.updateStatus(UUID.randomUUID(), status, "foo"))
+                    .as("Should handle new status: " + status)
+                    .doesNotThrowAnyException();
+            });
     }
 }

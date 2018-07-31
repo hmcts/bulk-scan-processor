@@ -55,7 +55,7 @@ public class UpdateStatusEnvelopesControllerTest {
 
         doThrow(EnvelopeNotFoundException.class)
             .when(updateService)
-            .markAsConsumed(eq(id), any());
+            .updateStatus(eq(id), any(), any());
 
         // when
         MockHttpServletResponse res = sendUpdate(id, VALID_STATUS_UPDATE_REQ_BODY);
@@ -95,7 +95,7 @@ public class UpdateStatusEnvelopesControllerTest {
         // given
         doThrow(InvalidStatusChangeException.class)
             .when(updateService)
-            .markAsConsumed(any(), any());
+            .updateStatus(any(), any(), any());
 
         // when
         MockHttpServletResponse res = sendUpdate(VALID_STATUS_UPDATE_REQ_BODY);
