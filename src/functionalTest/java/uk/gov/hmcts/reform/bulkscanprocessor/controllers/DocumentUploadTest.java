@@ -15,6 +15,8 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
@@ -55,6 +57,8 @@ public class DocumentUploadTest {
     private String blobContainerUrl;
 
     private TestHelper testHelper;
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentUploadTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -104,6 +108,10 @@ public class DocumentUploadTest {
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
             .when().get("/envelopes")
             .andReturn();
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        log.warn("Envelopes response body: [{}]", response.getBody().print());
 
         EnvelopeMetadataResponse envelopeMetadataResponse =
             response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
