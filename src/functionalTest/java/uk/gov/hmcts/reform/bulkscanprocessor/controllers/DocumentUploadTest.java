@@ -10,8 +10,6 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -54,8 +52,6 @@ public class DocumentUploadTest {
 
     private TestHelper testHelper;
 
-    private static final Logger log = LoggerFactory.getLogger(DocumentUploadTest.class);
-
     @Before
     public void setUp() throws Exception {
         Config conf = ConfigFactory.load();
@@ -85,7 +81,7 @@ public class DocumentUploadTest {
     public void should_process_document_after_upload_and_set_status_uploaded() throws Exception {
         List<String> files = Arrays.asList("1111006.pdf");
         String metadataFile = "1111006.metadata.json";
-        String destZipFilename = testHelper.getRandomFilename(null, "8_24-06-2018-00-00-00.zip");
+        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.zip");
 
         testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
 
@@ -94,8 +90,6 @@ public class DocumentUploadTest {
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
-
-        log.warn("s2s token: [{}]", s2sToken);
 
         Response response = RestAssured
             .given()
@@ -108,8 +102,6 @@ public class DocumentUploadTest {
             .andReturn();
 
         assertThat(response.getStatusCode()).isEqualTo(200);
-
-        log.warn("Envelopes response body: [{}]", response.getBody().print());
 
         EnvelopeMetadataResponse envelopeMetadataResponse =
             response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);

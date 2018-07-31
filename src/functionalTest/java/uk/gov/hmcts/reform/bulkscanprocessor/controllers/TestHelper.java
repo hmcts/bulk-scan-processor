@@ -21,7 +21,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -98,10 +98,11 @@ public class TestHelper {
         return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
-    public String getRandomFilename(String prefix, String suffix) {
+    public String getRandomFilename(String suffix) {
         StringBuilder strBuffer = new StringBuilder();
-        strBuffer.append(Strings.isNullOrEmpty(prefix) ? "" : prefix)
-            .append(UUID.randomUUID().toString())
+        strBuffer
+            .append(ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE))
+            .append(Strings.isNullOrEmpty(suffix) ? "" : "_")
             .append(Strings.isNullOrEmpty(suffix) ? "" : suffix);
         return strBuffer.toString();
     }

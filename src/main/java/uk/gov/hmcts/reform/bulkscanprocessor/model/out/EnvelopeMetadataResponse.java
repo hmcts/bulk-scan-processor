@@ -12,7 +12,7 @@ public class EnvelopeMetadataResponse {
     public final List<Envelope> envelopes;
 
     @JsonCreator
-    public EnvelopeMetadataResponse(List<Envelope> envelopes) {
+    public EnvelopeMetadataResponse(@JsonProperty("envelopes") List<Envelope> envelopes) {
         this.envelopes = envelopes;
     }
 }
