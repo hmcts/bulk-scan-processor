@@ -99,7 +99,7 @@ public class DocumentUploadTest {
             .relaxedHTTPSValidation()
             .baseUri(this.testUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header("ServiceAuthorization", s2sToken)
+            .header("ServiceAuthorization", "Bearer " + s2sToken)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
             .when().get("/envelopes")
             .andReturn();
