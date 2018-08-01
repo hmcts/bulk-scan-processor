@@ -7,8 +7,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.util.ObjectUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 
@@ -73,8 +73,8 @@ public class DocumentUploadTest {
 
     @Test
     public void should_process_document_after_upload_and_set_status_uploaded() throws Exception {
-        List<String> files = Arrays.asList("1111006.pdf");
-        String metadataFile = "1111006.metadata.json";
+        List<String> files = Arrays.asList("1111006.pdf", "1111002.pdf");
+        String metadataFile = "1111006_2.metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.zip");
 
         testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
@@ -100,10 +100,12 @@ public class DocumentUploadTest {
             .filter(e -> destZipFilename.equals(e.getZipFileName()))
             .collect(Collectors.toList());
         assertThat(envelopes.size()).isEqualTo(1);
-        assertThat(envelopes.get(0).getScannableItems().size()).isEqualTo(1);
-        ScannableItem si = envelopes.get(0).getScannableItems().get(0);
-        assertThat(si.getDocumentUrl()).isNotBlank();
-        assertThat(si.getFileName()).isEqualToIgnoringCase("1111006.pdf");
+        assertThat(envelopes.get(0).getScannableItems().size()).isEqualTo(2);
+
+        assertThat(envelopes.get(0).getScannableItems())
+            .extracting("documentUrl").noneMatch(ObjectUtils::isEmpty);
+        assertThat(envelopes.get(0).getScannableItems())
+            .extracting("fileName").containsExactlyInAnyOrder("1111006.pdf", "1111002.pdf");
     }
 
 }
