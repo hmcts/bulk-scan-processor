@@ -55,8 +55,8 @@ public class Envelope {
     private Timestamp openingDate;
 
     @JsonSerialize(using = CustomTimestampSerialiser.class)
-    @JsonProperty("zip_file_created_date")
-    private Timestamp zipFileCreatedDate;
+    @JsonProperty("zip_file_createddate")
+    private Timestamp zipFileCreateddate;
 
     @JsonProperty("zip_file_name")
     private String zipFileName;
@@ -95,7 +95,7 @@ public class Envelope {
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("opening_date") Timestamp openingDate,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
-        @JsonProperty("zip_file_createddate") Timestamp zipFileCreatedDate,
+        @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
         @JsonProperty("payments") List<Payment> payments,
@@ -105,7 +105,7 @@ public class Envelope {
         this.jurisdiction = jurisdiction;
         this.deliveryDate = deliveryDate;
         this.openingDate = openingDate;
-        this.zipFileCreatedDate = zipFileCreatedDate;
+        this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
@@ -166,4 +166,5 @@ public class Envelope {
             log.warn("Missing required container for {}", zipFileName);
         }
     }
+    
 }
