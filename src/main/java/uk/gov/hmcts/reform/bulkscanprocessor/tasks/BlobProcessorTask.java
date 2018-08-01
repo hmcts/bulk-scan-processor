@@ -17,20 +17,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocFailureGenericExcepti
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipEntryProcessor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import static com.google.common.io.ByteStreams.toByteArray;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -99,31 +95,12 @@ public class BlobProcessorTask {
         String containerName
     ) throws Exception {
         try {
-            List<Pdf> pdfFiles = new ArrayList<>();
-            byte[] metadataStream = null;
-            ZipEntry zipEntry;
+            ZipEntryProcessor zipEntryProcessor = new ZipEntryProcessor(containerName, zipFilename);
+            zipEntryProcessor.process(zis);
 
-            while ((zipEntry = zis.getNextEntry()) != null) {
-                switch (FilenameUtils.getExtension(zipEntry.getName())) {
-                    case "json":
-                        metadataStream = toByteArray(zis);
+            Envelope envelope = envelopeProcessor.processEnvelope(zipEntryProcessor.getMetadata(), containerName);
 
-                        break;
-                    case "pdf":
-                        pdfFiles.add(new Pdf(zipEntry.getName(), toByteArray(zis)));
-
-                        break;
-                    default:
-                        // contract breakage
-                        throw new NoPdfFileFoundException(containerName, zipFilename);
-                }
-            }
-
-            log.info("PDFs found in {}: {}", zipFilename, pdfFiles.size());
-
-            Envelope envelope = envelopeProcessor.processEnvelope(metadataStream, containerName);
-
-            return Collections.singletonMap(envelope, pdfFiles);
+            return Collections.singletonMap(envelope, zipEntryProcessor.getPdfs());
         } catch (Exception exception) {
             throw Optional.of(exception)
                 .filter(EventRelatedThrowable.class::isInstance)
