@@ -10,8 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -64,6 +64,7 @@ public class EnvelopeDeletionTest {
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.zip");
 
         testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
+        filesToDeleteAfterTest.add(destZipFilename);
 
         await()
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
@@ -78,6 +79,7 @@ public class EnvelopeDeletionTest {
         String destZipFilename = testHelper.getRandomFilename(srcZipFilename.substring(2));
 
         testHelper.uploadZipFile(testContainer, srcZipFilename, destZipFilename); // invalid due to missing json file
+        filesToDeleteAfterTest.add(destZipFilename);
 
         await()
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
