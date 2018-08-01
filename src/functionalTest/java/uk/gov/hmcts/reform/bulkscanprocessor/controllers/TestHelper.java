@@ -10,9 +10,11 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayOutputStream;
@@ -125,6 +127,22 @@ public class TestHelper {
             zos.closeEntry();
         }
         return outputStream.toByteArray();
+    }
+
+    public EnvelopeMetadataResponse getAllProcessedEnvelopes(String baseUrl, String s2sToken) {
+        Response response = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(baseUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header("ServiceAuthorization", "Bearer " + s2sToken)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+            .when().get("/envelopes")
+            .andReturn();
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        return response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
     }
 
 }

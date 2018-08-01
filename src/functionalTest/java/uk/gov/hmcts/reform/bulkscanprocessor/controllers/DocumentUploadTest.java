@@ -5,18 +5,12 @@ import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import io.restassured.RestAssured;
-import io.restassured.mapper.ObjectMapperType;
-import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
-import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -91,20 +85,7 @@ public class DocumentUploadTest {
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
-        Response response = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header("ServiceAuthorization", "Bearer " + s2sToken)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/envelopes")
-            .andReturn();
-
-        assertThat(response.getStatusCode()).isEqualTo(200);
-
-        EnvelopeMetadataResponse envelopeMetadataResponse =
-            response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
+        EnvelopeMetadataResponse envelopeMetadataResponse = testHelper.getAllProcessedEnvelopes(this.testUrl, s2sToken);
 
         // some test DBs are not cleaned so there will probably be more than 1
         assertThat(envelopeMetadataResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
