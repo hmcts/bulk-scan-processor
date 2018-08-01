@@ -69,7 +69,7 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
 
         assertThat(parse(actualEnvelope)).isEqualToIgnoringGivenFields(
             parse(originalMetaFile),
-            "id", "zip_file_created_date", "amount", "amount_in_pence", "configuration", "json"
+            "id", "amount", "amount_in_pence", "configuration", "json"
         );
         assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
         assertThat(actualEnvelope.getScannableItems())
@@ -137,7 +137,7 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
 
         assertThat(parse(actualEnvelope)).isEqualToIgnoringGivenFields(
             parse(originalMetaFile),
-            "id", "zip_file_created_date", "amount", "amount_in_pence", "configuration", "json"
+            "id", "amount", "amount_in_pence", "configuration", "json"
         );
 
         //This verifies only pdf included in the zip with metadata was processed
