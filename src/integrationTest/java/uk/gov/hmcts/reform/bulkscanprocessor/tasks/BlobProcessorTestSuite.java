@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -48,6 +49,9 @@ public abstract class BlobProcessorTestSuite {
     ProcessEventRepository processEventRepository;
 
     @Autowired
+    private ErrorHandlingWrapper errorWrapper;
+
+    @Autowired
     private ScannableItemRepository scannableItemRepository;
 
     @Mock
@@ -73,7 +77,8 @@ public abstract class BlobProcessorTestSuite {
         blobProcessorTask = new BlobProcessorTask(
             cloudBlobClient,
             documentProcessor,
-            envelopeProcessor
+            envelopeProcessor,
+            errorWrapper
         );
 
         testContainer = cloudBlobClient.getContainerReference("test");

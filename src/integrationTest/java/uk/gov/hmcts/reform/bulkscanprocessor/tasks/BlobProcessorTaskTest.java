@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,10 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocFailureGenericException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
@@ -27,7 +23,6 @@ import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.jsonpath.JsonPath.parse;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
@@ -35,8 +30,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -96,7 +92,6 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
         assertThat(processEvents).extracting("reason").containsOnlyNulls();
     }
 
-    @Ignore
     @Test
     public void should_process_other_zip_files_if_previous_zip_fails_to_process() throws Exception {
         // given
@@ -111,9 +106,7 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
             .willReturn(getFileUploadResponse());
 
         // when
-        assertThatCode(() -> blobProcessorTask.processBlobs())
-            .isInstanceOf(DocFailureGenericException.class)
-            .hasCauseExactlyInstanceOf(MetadataNotFoundException.class);
+        blobProcessorTask.processBlobs();
 
         // then
         // We expect only one envelope 4_24-06-2018-00-00-00.zip which was uploaded
@@ -159,11 +152,13 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await().atMost(2, SECONDS).until(blob::exists, is(false));
 
+        // Verify envelope status is updated to PROCESSED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status")
             .containsOnly(PROCESSED);
 
+        // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
             .collect(Collectors.toList());
@@ -184,16 +179,22 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willThrow(DocumentNotFoundException.class);
 
-        assertThatCode(() -> blobProcessorTask.processBlobs())
-            .isInstanceOf(DocUploadFailureGenericException.class)
-            .hasCauseExactlyInstanceOf(DocumentNotFoundException.class);
+        blobProcessorTask.processBlobs();
 
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await().timeout(2, SECONDS).until(blob::exists, is(true));
 
+        // Verify envelope status is updated to UPLOAD_FAILED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status")
-            .containsOnly(CREATED);
+            .containsOnly(UPLOAD_FAILURE);
+
+        // Check events created
+        List<Event> actualEvents = processEventRepository.findAll().stream()
+            .map(ProcessEvent::getEvent)
+            .collect(Collectors.toList());
+
+        assertThat(actualEvents).containsOnly(DOC_UPLOAD_FAILURE);
     }
 }

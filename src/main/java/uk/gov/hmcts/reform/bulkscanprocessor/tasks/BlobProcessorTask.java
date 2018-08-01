@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -13,19 +14,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocFailureGenericException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipEntryProcessor;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -46,26 +45,30 @@ public class BlobProcessorTask {
     private final CloudBlobClient cloudBlobClient;
     private final DocumentProcessor documentProcessor;
     private final EnvelopeProcessor envelopeProcessor;
+    private final ErrorHandlingWrapper errorWrapper;
 
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
-        EnvelopeProcessor envelopeProcessor
+        EnvelopeProcessor envelopeProcessor,
+        ErrorHandlingWrapper errorWrapper
     ) {
         this.cloudBlobClient = cloudBlobClient;
         this.documentProcessor = documentProcessor;
         this.envelopeProcessor = envelopeProcessor;
+        this.errorWrapper = errorWrapper;
     }
 
     @SchedulerLock(name = "blobProcessor")
     @Scheduled(fixedDelayString = "${scan.delay}")
-    public void processBlobs() throws Exception {
+    public void processBlobs() throws IOException, StorageException, URISyntaxException {
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
             processZipFiles(container);
         }
     }
 
-    private void processZipFiles(CloudBlobContainer container) throws Exception {
+    private void processZipFiles(CloudBlobContainer container)
+        throws IOException, StorageException, URISyntaxException {
         log.info("Processing blobs for container {}", container.getName());
 
         for (ListBlobItem blobItem : container.listBlobs()) {
@@ -75,7 +78,9 @@ public class BlobProcessorTask {
         }
     }
 
-    private void processZipFile(CloudBlobContainer container, String zipFilename) throws Exception {
+    private void processZipFile(CloudBlobContainer container, String zipFilename)
+        throws IOException, StorageException, URISyntaxException {
+
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
@@ -93,37 +98,31 @@ public class BlobProcessorTask {
         ZipInputStream zis,
         String zipFilename,
         String containerName
-    ) throws Exception {
-        try {
+    ) {
+        return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
             ZipEntryProcessor zipEntryProcessor = new ZipEntryProcessor(containerName, zipFilename);
             zipEntryProcessor.process(zis);
 
             Envelope envelope = envelopeProcessor.processEnvelope(zipEntryProcessor.getMetadata(), containerName);
 
             return Collections.singletonMap(envelope, zipEntryProcessor.getPdfs());
-        } catch (Exception exception) {
-            throw Optional.of(exception)
-                .filter(EventRelatedThrowable.class::isInstance)
-                .orElse(new DocFailureGenericException(containerName, zipFilename, exception));
-        }
+        });
     }
 
     private void processParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
-    ) throws Exception {
-        try {
+    ) {
+        errorWrapper.wrapDocUploadFailure(envelope, () -> {
             documentProcessor.processPdfFiles(pdfs, envelope.getScannableItems());
             envelopeProcessor.markAsUploaded(envelope);
 
             cloudBlockBlob.delete();
 
             envelopeProcessor.markAsProcessed(envelope);
-        } catch (Exception exception) {
-            throw Optional.of(exception)
-                .filter(EnvelopeAwareThrowable.class::isInstance)
-                .orElse(new DocUploadFailureGenericException(envelope, exception));
-        }
+
+            return null;
+        });
     }
 }
