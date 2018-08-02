@@ -24,15 +24,15 @@ public class EnvelopeAccessServiceTest {
     private EnvelopeAccessService service;
 
     @Before
-    public void setUp() throws Exception {
-        this.service = new EnvelopeAccessService(accessProps);
-
+    public void setUp() {
         BDDMockito
             .given(accessProps.getMappings())
             .willReturn(asList(
                 new Mapping("jur_A", "read_A", "update_A"),
                 new Mapping("jur_B", "read_B", "update_B")
             ));
+
+        this.service = new EnvelopeAccessService(accessProps);
     }
 
     @Test
