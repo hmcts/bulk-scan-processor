@@ -2,10 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
@@ -15,22 +11,17 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(MockitoJUnitRunner.class)
 public class EnvelopeAccessServiceTest {
-
-    @Mock
-    private EnvelopeAccessProperties accessProps;
 
     private EnvelopeAccessService service;
 
     @Before
     public void setUp() {
-        BDDMockito
-            .given(accessProps.getMappings())
-            .willReturn(asList(
-                new Mapping("jur_A", "read_A", "update_A"),
-                new Mapping("jur_B", "read_B", "update_B")
-            ));
+        EnvelopeAccessProperties accessProps = new EnvelopeAccessProperties();
+        accessProps.setMappings(asList(
+            new Mapping("jur_A", "read_A", "update_A"),
+            new Mapping("jur_B", "read_B", "update_B")
+        ));
 
         this.service = new EnvelopeAccessService(accessProps);
     }

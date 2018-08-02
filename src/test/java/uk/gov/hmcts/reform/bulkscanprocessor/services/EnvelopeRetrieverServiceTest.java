@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,20 +27,24 @@ public class EnvelopeRetrieverServiceTest {
     @Mock
     private EnvelopeRepository envelopeRepository;
 
-    @Mock
-    private EnvelopeAccessProperties envelopeAccess;
+    private EnvelopeRetrieverService envelopeRetrieverService;
+
+    @Before
+    public void setUp() {
+        EnvelopeAccessProperties accessProps = new EnvelopeAccessProperties();
+        accessProps.setMappings(
+            singletonList(new Mapping("testJurisdiction", "testService", "testService"))
+        );
+        EnvelopeAccessService envelopeAccess = new EnvelopeAccessService(accessProps);
+        envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, envelopeAccess);
+    }
 
     @Test
     public void should_return_all_envelopes_successfully_for_a_given_jurisdiction() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
 
-        when(envelopeAccess.getMappings())
-            .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
-
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenReturn(envelopes);
-
-        EnvelopeRetrieverService envelopeRetrieverService = getRetrieverService();
 
         assertThat(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"))
             .containsOnly(envelopes.get(0));
@@ -49,21 +54,12 @@ public class EnvelopeRetrieverServiceTest {
 
     @Test
     public void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
-        when(envelopeAccess.getMappings())
-            .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
-
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenThrow(DataRetrievalFailureException.class);
-
-        EnvelopeRetrieverService envelopeRetrieverService = getRetrieverService();
 
         Throwable throwable = catchThrowable(() ->
             envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"));
 
         assertThat(throwable).isInstanceOf(DataRetrievalFailureException.class);
-    }
-
-    private EnvelopeRetrieverService getRetrieverService() {
-        return new EnvelopeRetrieverService(envelopeRepository, new EnvelopeAccessService(envelopeAccess));
     }
 }
