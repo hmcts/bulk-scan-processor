@@ -18,7 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipEntryProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -100,12 +100,12 @@ public class BlobProcessorTask {
         String containerName
     ) {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
-            ZipEntryProcessor zipEntryProcessor = new ZipEntryProcessor(containerName, zipFilename);
-            zipEntryProcessor.process(zis);
+            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
+            zipFileProcessor.process(zis);
 
-            Envelope envelope = envelopeProcessor.processEnvelope(zipEntryProcessor.getMetadata(), containerName);
+            Envelope envelope = envelopeProcessor.processEnvelope(zipFileProcessor.getMetadata(), containerName);
 
-            return Collections.singletonMap(envelope, zipEntryProcessor.getPdfs());
+            return Collections.singletonMap(envelope, zipFileProcessor.getPdfs());
         });
     }
 

@@ -14,9 +14,9 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 
-public class ZipEntryProcessor {
+public class ZipFileProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(ZipEntryProcessor.class);
+    private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
 
     private final String containerName;
 
@@ -26,7 +26,7 @@ public class ZipEntryProcessor {
 
     private byte[] metadata;
 
-    public ZipEntryProcessor(String containerName, String zipFileName) {
+    public ZipFileProcessor(String containerName, String zipFileName) {
         this.containerName = containerName;
         this.zipFileName = zipFileName;
     }
