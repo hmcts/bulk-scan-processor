@@ -4,7 +4,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
 public class DocFailureGenericException extends RuntimeException implements EventRelatedThrowable {
 
-    private static final Event EVENT = Event.DOC_FAILURE;
+    private static final Event DOC_FAILURE_EVENT = Event.DOC_FAILURE;
 
     private final String container;
 
@@ -19,7 +19,7 @@ public class DocFailureGenericException extends RuntimeException implements Even
 
     @Override
     public Event getEvent() {
-        return EVENT;
+        return DOC_FAILURE_EVENT;
     }
 
     @Override

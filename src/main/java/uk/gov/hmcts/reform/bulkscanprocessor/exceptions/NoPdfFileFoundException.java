@@ -6,7 +6,7 @@ public class NoPdfFileFoundException extends RuntimeException implements EventRe
 
     private static final long serialVersionUID = 9143161748679833084L;
 
-    private static final Event EVENT = Event.DOC_FAILURE;
+    private static final Event DOC_FAILURE_EVENT = Event.DOC_FAILURE;
 
     private final String container;
 
@@ -21,7 +21,7 @@ public class NoPdfFileFoundException extends RuntimeException implements EventRe
 
     @Override
     public Event getEvent() {
-        return EVENT;
+        return DOC_FAILURE_EVENT;
     }
 
     @Override

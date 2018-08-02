@@ -5,7 +5,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
 public class DocUploadFailureGenericException extends RuntimeException implements EnvelopeAwareThrowable {
 
-    private static final Event EVENT = Event.DOC_UPLOAD_FAILURE;
+    private static final Event DOC_UPLOAD_FAILURE_EVENT = Event.DOC_UPLOAD_FAILURE;
 
     private final Envelope envelope;
 
@@ -17,7 +17,7 @@ public class DocUploadFailureGenericException extends RuntimeException implement
 
     @Override
     public Event getEvent() {
-        return EVENT;
+        return DOC_UPLOAD_FAILURE_EVENT;
     }
 
     @Override
