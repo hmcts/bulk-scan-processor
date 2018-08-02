@@ -246,3 +246,10 @@ task migratePostgresDatabase(type: FlywayMigrateTask) {
     url = "jdbc:postgresql://${dburl}"
   }
 }
+
+test {
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
