@@ -131,8 +131,15 @@ public class TestHelper {
         return outputStream.toByteArray();
     }
 
-    public EnvelopeMetadataResponse getAllProcessedEnvelopes(String baseUrl, String s2sToken) {
-        Response response = RestAssured
+    public EnvelopeMetadataResponse getAllProcessedEnvelopesMetadata(String baseUrl, String s2sToken) {
+        Response response = getAllProcessedEnvelopesResponse(baseUrl, s2sToken);
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        return response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
+    }
+
+    public Response getAllProcessedEnvelopesResponse(String baseUrl, String s2sToken) {
+        return RestAssured
             .given()
             .relaxedHTTPSValidation()
             .baseUri(baseUrl)
@@ -141,10 +148,6 @@ public class TestHelper {
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
             .when().get("/envelopes")
             .andReturn();
-
-        assertThat(response.getStatusCode()).isEqualTo(200);
-
-        return response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
     }
 
     public void updateEnvelopeStatus(
