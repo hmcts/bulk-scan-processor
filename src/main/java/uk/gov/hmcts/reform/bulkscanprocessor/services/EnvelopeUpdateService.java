@@ -47,7 +47,7 @@ public class EnvelopeUpdateService {
         Envelope envelope =
             envelopeRepo
                 .findById(envelopeId)
-                .orElseThrow(() -> new EnvelopeNotFoundException());
+                .orElseThrow(EnvelopeNotFoundException::new);
 
         accessService.assertCanUpdate(envelope.getJurisdiction(), serviceName);
         statusChangeValidator.assertCanUpdate(envelope.getStatus(), newStatus);
