@@ -43,6 +43,14 @@ public class TaskErrorHandler implements ErrorHandler {
             envelope.setStatus(status);
 
             envelopeRepository.save(envelope);
+
+            log.info(
+                "Change envelope {} from {} and {} status to {}",
+                envelope.getId(),
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                status
+            );
         });
     }
 
@@ -55,5 +63,12 @@ public class TaskErrorHandler implements ErrorHandler {
 
         processEvent.setReason(reason);
         eventRepository.save(processEvent);
+
+        log.info(
+            "Zip {} from {} marked as {}",
+            processEvent.getZipFileName(),
+            processEvent.getContainer(),
+            processEvent.getEvent()
+        );
     }
 }
