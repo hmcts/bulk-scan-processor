@@ -2,18 +2,20 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
 public class EnvelopeAccessService {
 
-    private final EnvelopeAccessProperties access;
+    private final List<Mapping> mappings;
 
     public EnvelopeAccessService(EnvelopeAccessProperties accessProps) {
-        this.access = accessProps;
+        this.mappings = accessProps.getMappings();
     }
 
     /**
@@ -23,12 +25,11 @@ public class EnvelopeAccessService {
      */
     public void assertCanUpdate(String envelopeJurisdiction, String serviceName) {
         String serviceThanCanUpdateEnvelope =
-            access
-                .getMappings()
+            mappings
                 .stream()
                 .filter(m -> Objects.equals(m.getJurisdiction(), envelopeJurisdiction))
                 .findFirst()
-                .map(m -> m.getUpdateService())
+                .map(Mapping::getUpdateService)
                 .orElseThrow(() -> new ServiceConfigNotFoundException(
                     "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
                 ));
