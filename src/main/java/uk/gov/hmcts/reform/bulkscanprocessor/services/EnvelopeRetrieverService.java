@@ -32,6 +32,8 @@ public class EnvelopeRetrieverService {
     }
 
     public List<Envelope> getProcessedEnvelopesByJurisdiction(final String serviceName) {
+        log.info("Fetch requested for envelopes for service {}", serviceName);
+
         String jurisdiction = getJurisdictionByServiceName(serviceName);
 
         log.info("Fetching all processed envelopes for service {} and jurisdiction {}", serviceName, jurisdiction);

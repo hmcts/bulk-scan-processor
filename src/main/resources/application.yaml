@@ -74,3 +74,6 @@ envelope-access:
      - jurisdiction: SSCS
        readService: sscs
        updateService: TBD
+     - jurisdiction: TEST
+       readService: bulk_scan_processor_tests
+       updateService: TBD
