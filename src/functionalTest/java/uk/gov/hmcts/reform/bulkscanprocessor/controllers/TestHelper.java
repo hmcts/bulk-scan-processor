@@ -14,6 +14,7 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
@@ -23,6 +24,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
@@ -54,7 +56,7 @@ public class TestHelper {
             .getBody()
             .print();
     }
-    
+
     public void uploadZipFile(
         CloudBlobContainer container, String srcZipFilename, String destZipFilename
     ) throws Exception {
@@ -145,4 +147,26 @@ public class TestHelper {
         return response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
     }
 
+    public void updateEnvelopeStatus(
+        String baseUrl,
+        String s2sToken,
+        UUID envelopeId,
+        Status status
+    ) {
+        Response resp =
+            RestAssured
+                .given()
+                .relaxedHTTPSValidation()
+                .baseUri(baseUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("ServiceAuthorization", "Bearer " + s2sToken)
+                .body("{\"status\": \"" + status + "\"}")
+                .when()
+                .put("/envelopes/" + envelopeId + "/status")
+                .andReturn();
+
+        assertThat(resp.statusCode())
+            .as("Should get success response on update")
+            .isEqualTo(204);
+    }
 }

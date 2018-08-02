@@ -76,4 +76,4 @@ envelope-access:
        updateService: TBD
      - jurisdiction: TEST
        readService: bulk_scan_processor_tests
-       updateService: TBD
+       updateService: bulk_scan_processor_tests
