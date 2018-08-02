@@ -58,6 +58,10 @@ variable "s2s_name" {
   default = "bulk_scan_processor"
 }
 
+variable "test_s2s_name" {
+  default = "bulk_scan_processor_tests"
+}
+
 variable "common_tags" {
   type = "map"
 }
