@@ -15,10 +15,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @Component
 public class EnvelopeProcessor {
@@ -43,6 +46,14 @@ public class EnvelopeProcessor {
         InputStream inputStream = new ByteArrayInputStream(metadataStream);
 
         return EntityParser.parseEnvelopeMetadata(inputStream);
+    }
+
+    public Optional<Envelope> hasEnvelopeFailedToUploadBefore(Envelope envelope) {
+        return envelopeRepository
+            .findByContainerAndZipFileName(envelope.getContainer(), envelope.getZipFileName())
+            .stream()
+            .max(Comparator.comparing(Envelope::getCreatedAt))
+            .filter(e -> e.getStatus().equals(UPLOAD_FAILURE));
     }
 
     public Envelope saveEnvelope(Envelope envelope) {
