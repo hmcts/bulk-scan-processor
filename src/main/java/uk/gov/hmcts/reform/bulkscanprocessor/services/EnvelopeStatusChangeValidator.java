@@ -25,10 +25,9 @@ public class EnvelopeStatusChangeValidator {
      * Checks whether it's legal to transition from given status to another.
      */
     public void assertCanUpdate(Status from, Status to) {
-        boolean ok =
-            allowedTransitions
-                .getOrDefault(from, emptyList())
-                .contains(to);
+        boolean ok = allowedTransitions
+            .getOrDefault(from, emptyList())
+            .contains(to);
 
         if (!ok) {
             throw new InvalidStatusChangeException("Cannot change from status " + from + " to status " + to);

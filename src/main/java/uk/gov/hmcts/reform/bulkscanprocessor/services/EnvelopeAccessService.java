@@ -40,15 +40,14 @@ public class EnvelopeAccessService {
      * or configuration for the jurisdiction is not found.
      */
     public void assertCanUpdate(String envelopeJurisdiction, String serviceName) {
-        String serviceThanCanUpdateEnvelope =
-            mappings
-                .stream()
-                .filter(m -> Objects.equals(m.getJurisdiction(), envelopeJurisdiction))
-                .findFirst()
-                .map(Mapping::getUpdateService)
-                .orElseThrow(() -> new ServiceConfigNotFoundException(
-                    "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
-                ));
+        String serviceThanCanUpdateEnvelope = mappings
+            .stream()
+            .filter(m -> Objects.equals(m.getJurisdiction(), envelopeJurisdiction))
+            .findFirst()
+            .map(Mapping::getUpdateService)
+            .orElseThrow(() -> new ServiceConfigNotFoundException(
+                "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
+            ));
 
         if (!serviceThanCanUpdateEnvelope.equals(serviceName)) {
             throw new ForbiddenException(
