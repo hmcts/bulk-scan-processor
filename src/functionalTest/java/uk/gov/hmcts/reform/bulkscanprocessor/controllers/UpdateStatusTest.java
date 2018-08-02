@@ -73,7 +73,7 @@ public class UpdateStatusTest {
         // find our envelope
         UUID envelopeId =
             testHelper
-                .getAllProcessedEnvelopes(this.testUrl, s2sToken)
+                .getAllProcessedEnvelopesMetadata(this.testUrl, s2sToken)
                 .envelopes
                 .stream()
                 .filter(e -> Objects.equals(e.getZipFileName(), destZipFilename))
@@ -91,7 +91,7 @@ public class UpdateStatusTest {
 
         List<Envelope> envelopesAfterUpdate =
             testHelper
-                .getAllProcessedEnvelopes(this.testUrl, s2sToken)
+                .getAllProcessedEnvelopesMetadata(this.testUrl, s2sToken)
                 .envelopes;
 
         // currently read endpoint returns only envelopes in status 'PROCESSED'
