@@ -54,11 +54,8 @@ public class GetSasTokenTest {
 
         this.testHelper = new TestHelper();
 
-        try {
-            testContainer.getBlockBlobReference(zipFilename).delete();
-        } catch (StorageException e) {
-            // Do nothing -> no files left by previous runs
-        }
+        // cleanup previous runs
+        testContainer.getBlockBlobReference(zipFilename).deleteIfExists();
     }
 
 
