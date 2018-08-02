@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidStatusChangeException;
@@ -79,7 +80,7 @@ public class UpdateStatusEnvelopesControllerTest {
     @Test
     public void should_return_401_if_service_is_not_authenticated() throws Exception {
         // given
-        doThrow(EnvelopeNotFoundException.class)
+        doThrow(InvalidTokenException.class)
             .when(authService)
             .authenticate(any());
 
@@ -87,7 +88,7 @@ public class UpdateStatusEnvelopesControllerTest {
         MockHttpServletResponse res = sendUpdate(VALID_STATUS_UPDATE_REQ_BODY);
 
         // then
-        assertThat(res.getStatus()).isEqualTo(404);
+        assertThat(res.getStatus()).isEqualTo(401);
     }
 
     @Test
