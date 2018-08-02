@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -87,17 +88,20 @@ public class UpdateStatusTest {
             Status.CONSUMED
         );
 
-        Envelope envelopeAfterUpdate =
+
+        List<Envelope> envelopesAfterUpdate =
             testHelper
                 .getAllProcessedEnvelopes(this.testUrl, s2sToken)
-                .envelopes
-                .stream()
-                .filter(e -> Objects.equals(e.getId(), envelopeId))
-                .findFirst()
-                .get();
+                .envelopes;
 
-        assertThat(envelopeAfterUpdate.getStatus())
-            .as("Envelope status should be updated")
-            .isEqualTo(Status.CONSUMED);
+        // currently read endpoint returns only envelopes in status 'PROCESSED'
+        // change this once we can read all envelopes (or single envelope by ID)
+        assertThat(
+            envelopesAfterUpdate.stream()
+                .filter(e -> e.getId() == envelopeId)
+                .findFirst()
+        )
+            .as("Envelope should no longer be on a list of PROCESSED envelopes")
+            .isEmpty();
     }
 }
