@@ -107,8 +107,9 @@ public class BlobProcessorTask {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             zipFileProcessor.process(zis);
 
-            Envelope envelope = envelopeProcessor.processEnvelope(zipFileProcessor.getMetadata(), containerName);
-            zipFileProcessor.setEnvelope(envelope);
+            Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata());
+            envelope.setContainer(containerName);
+            zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
             return zipFileProcessor;
         });
