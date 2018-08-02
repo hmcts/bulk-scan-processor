@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 
-public class DocumentUploadTest {
+public class BlobProcessorTest {
 
     private String testUrl;
 
@@ -72,7 +72,7 @@ public class DocumentUploadTest {
     }
 
     @Test
-    public void should_process_document_after_upload_and_set_status_uploaded() throws Exception {
+    public void should_process_zipfile_after_upload_and_set_status() throws Exception {
         List<String> files = Arrays.asList("1111006.pdf", "1111002.pdf");
         String metadataFile = "1111006_2.metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.zip");

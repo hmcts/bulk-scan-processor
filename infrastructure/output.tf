@@ -33,10 +33,12 @@ output "TEST_S2S_URL" {
 }
 
 output "TEST_S2S_NAME" {
+  sensitive = true
   value = "${var.test_s2s_name}"
 }
 
 output "TEST_S2S_SECRET" {
+  sensitive = true
   value = "${data.vault_generic_secret.s2s_secret_test.data["value"]}"
 }
 
