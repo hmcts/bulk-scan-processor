@@ -211,6 +211,7 @@ dependencies {
 
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile sourceSets.test.runtimeClasspath
+  smokeTestCompile sourceSets.functionalTest.runtimeClasspath
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.1.0'
 
   apiGatewayTestCompile sourceSets.main.runtimeClasspath
