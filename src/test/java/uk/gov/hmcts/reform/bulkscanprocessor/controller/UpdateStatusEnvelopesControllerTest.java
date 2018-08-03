@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidStatusChangeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
@@ -95,6 +96,20 @@ public class UpdateStatusEnvelopesControllerTest {
     public void should_return_403_if_given_status_transition_is_not_allowed() throws Exception {
         // given
         doThrow(InvalidStatusChangeException.class)
+            .when(updateService)
+            .updateStatus(any(), any(), any());
+
+        // when
+        MockHttpServletResponse res = sendUpdate(VALID_STATUS_UPDATE_REQ_BODY);
+
+        // then
+        assertThat(res.getStatus()).isEqualTo(403);
+    }
+
+    @Test
+    public void should_return_403_if_service_tries_to_update_an_envelope_from_other_service() throws Exception {
+        // given
+        doThrow(ForbiddenException.class)
             .when(updateService)
             .updateStatus(any(), any(), any());
 
