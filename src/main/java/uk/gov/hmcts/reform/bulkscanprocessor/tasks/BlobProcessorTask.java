@@ -79,6 +79,8 @@ public class BlobProcessorTask {
     private void processZipFile(CloudBlobContainer container, String zipFilename)
         throws IOException, StorageException, URISyntaxException {
 
+        log.info("Processing zip file {}", zipFilename);
+
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
