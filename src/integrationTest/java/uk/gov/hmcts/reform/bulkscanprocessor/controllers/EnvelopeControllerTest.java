@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfig
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -82,6 +83,9 @@ public class EnvelopeControllerTest {
     @Autowired
     private ScannableItemRepository scannableItemRepository;
 
+    @Autowired
+    private ErrorHandlingWrapper errorWrapper;
+
     @Mock
     private DocumentManagementService documentManagementService;
 
@@ -112,7 +116,8 @@ public class EnvelopeControllerTest {
         blobProcessorTask = new BlobProcessorTask(
             cloudBlobClient,
             documentProcessor,
-            envelopeProcessor
+            envelopeProcessor,
+            errorWrapper
         );
 
         testContainer = cloudBlobClient.getContainerReference("test");

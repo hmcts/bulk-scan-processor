@@ -28,13 +28,11 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -95,24 +93,8 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
     }
 
     @Test
-    public void should_not_store_documents_in_doc_store_when_zip_does_not_contain_metadata_json() throws Exception {
-        //Given
-        uploadZipToBlobStore("2_24-06-2018-00-00-00.zip"); //Zip file with only pdfs and no metadata
-
-        //when
-        blobProcessorTask.processBlobs();
-
-        //then
-        List<Envelope> envelopesInDb = envelopeRepository.findAll();
-
-        assertThat(envelopesInDb).isEmpty();
-
-        verifyZeroInteractions(documentManagementService);
-    }
-
-    @Test
     public void should_process_other_zip_files_if_previous_zip_fails_to_process() throws Exception {
-        //Given
+        // given
         uploadZipToBlobStore("3_24-06-2018-00-00-00.zip"); //Zip with only pdf without metadata
         uploadZipToBlobStore("4_24-06-2018-00-00-00.zip"); //Zip with pdf and metadata
 
@@ -123,11 +105,11 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
             .willReturn(getFileUploadResponse());
 
-        //when
+        // when
         blobProcessorTask.processBlobs();
 
-        //then
-        //We expect only one envelope 4_24-06-2018-00-00-00.zip which was uploaded
+        // then
+        // We expect only one envelope 4_24-06-2018-00-00-00.zip which was uploaded
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
         String originalMetaFile = Resources.toString(
@@ -151,40 +133,6 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
     }
 
     @Test
-    public void should_not_save_metadata_information_in_db_when_metadata_parsing_fails() throws Exception {
-        //Given
-        //Invalid deliverydate and openingdate
-        uploadZipToBlobStore("6_24-06-2018-00-00-00.zip"); //Zip file with pdf and invalid metadata
-
-        //when
-        blobProcessorTask.processBlobs();
-
-        //then
-        List<Envelope> envelopesInDb = envelopeRepository.findAll();
-
-        assertThat(envelopesInDb).isEmpty();
-
-        verifyZeroInteractions(documentManagementService);
-    }
-
-    @Test
-    public void should_not_save_metadata_information_in_db_when_zip_contains_documents_not_in_pdf_format()
-        throws Exception {
-        //Given
-        uploadZipToBlobStore("5_24-06-2018-00-00-00.zip"); // Zip file with cheque gif and metadata
-
-        //when
-        blobProcessorTask.processBlobs();
-
-        //then
-        List<Envelope> envelopesInDb = envelopeRepository.findAll();
-
-        assertThat(envelopesInDb).isEmpty();
-
-        verifyZeroInteractions(documentManagementService);
-    }
-
-    @Test
     public void should_delete_blob_after_doc_upload_and_mark_envelope_status_as_processed_and_create_new_event()
         throws Exception {
         // Zip with pdf and metadata
@@ -204,13 +152,13 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await().atMost(2, SECONDS).until(blob::exists, is(false));
 
-        // Verify envelope status is updated to DOC_PROCESSED
+        // Verify envelope status is updated to PROCESSED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status")
             .containsOnly(PROCESSED);
 
-        //Check events created
+        // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
             .collect(Collectors.toList());
@@ -236,13 +184,13 @@ public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await().timeout(2, SECONDS).until(blob::exists, is(true));
 
-        // Verify envelope status is updated to DOC_UPLOAD_FAILED
+        // Verify envelope status is updated to UPLOAD_FAILED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status")
             .containsOnly(UPLOAD_FAILURE);
 
-        //Check events created
+        // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
             .collect(Collectors.toList());
