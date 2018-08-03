@@ -17,10 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
 @Component
 public class EnvelopeProcessor {
@@ -56,33 +54,21 @@ public class EnvelopeProcessor {
         return dbEnvelope;
     }
 
-    public void markAsUploaded(Envelope envelope, String containerName, String zipFileName) {
-        persistEvent(null, envelope, containerName, zipFileName, DOC_UPLOADED);
+    public void markAsUploaded(Envelope envelope) {
+        persistEvent(envelope, envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED);
     }
 
-    public void markAsUploadFailed(String reason, Envelope envelope, String containerName, String zipFileName) {
-        persistEvent(reason, envelope, containerName, zipFileName, DOC_UPLOAD_FAILURE);
-    }
-
-    public void markAsGenericFailure(String reason, Envelope envelope, String containerName, String zipFileName) {
-        persistEvent(reason, envelope, containerName, zipFileName, DOC_FAILURE);
-    }
-
-    public void markAsProcessed(Envelope envelope, String containerName, String zipFileName) {
-        persistEvent(null, envelope, containerName, zipFileName, DOC_PROCESSED);
+    public void markAsProcessed(Envelope envelope) {
+        persistEvent(envelope, envelope.getContainer(), envelope.getZipFileName(), DOC_PROCESSED);
     }
 
     private void persistEvent(
-        String reason,
         Envelope envelope,
         String containerName,
         String zipFileName,
         Event event
     ) {
-        ProcessEvent processEvent = new ProcessEvent(containerName, zipFileName, event);
-
-        processEvent.setReason(reason);
-        processEventRepository.save(processEvent);
+        processEventRepository.save(new ProcessEvent(containerName, zipFileName, event));
 
         if (envelope != null) {
             Status.fromEvent(event).ifPresent(status -> {
