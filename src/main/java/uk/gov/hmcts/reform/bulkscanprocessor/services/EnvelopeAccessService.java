@@ -32,7 +32,7 @@ public class EnvelopeAccessService {
             .stream()
             .filter(m -> Objects.equals(m.getReadService(), serviceName))
             .findFirst()
-            .map(Mapping::getJurisdiction)
+            .map(m -> m.getJurisdiction())
             .orElseThrow(() ->
                 new ServiceJuridictionConfigNotFoundException(
                     "No configuration mapping found for service " + serviceName
@@ -50,7 +50,7 @@ public class EnvelopeAccessService {
             .stream()
             .filter(m -> Objects.equals(m.getJurisdiction(), envelopeJurisdiction))
             .findFirst()
-            .map(Mapping::getUpdateService)
+            .map(m -> m.getUpdateService())
             .orElseThrow(() -> new ServiceConfigNotFoundException(
                 "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
             ));
