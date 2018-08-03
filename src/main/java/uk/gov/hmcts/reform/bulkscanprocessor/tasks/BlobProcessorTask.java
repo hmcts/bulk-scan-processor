@@ -22,9 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -86,15 +84,19 @@ public class BlobProcessorTask {
 
         //Zip file will include metadata.json and collection of pdf documents
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            Map<Envelope, List<Pdf>> envelopeMap = processZipFileEntry(zis, zipFilename, container.getName());
+            ZipFileProcessor zipFileProcessor = processZipFileEntry(zis, zipFilename, container.getName());
 
-            for (Map.Entry<Envelope, List<Pdf>> entry : envelopeMap.entrySet()) {
-                processParsedEnvelopeDocuments(entry.getKey(), entry.getValue(), cloudBlockBlob);
+            if (zipFileProcessor != null) {
+                processParsedEnvelopeDocuments(
+                    zipFileProcessor.getEnvelope(),
+                    zipFileProcessor.getPdfs(),
+                    cloudBlockBlob
+                );
             }
         }
     }
 
-    private Map<Envelope, List<Pdf>> processZipFileEntry(
+    private ZipFileProcessor processZipFileEntry(
         ZipInputStream zis,
         String zipFilename,
         String containerName
@@ -104,8 +106,9 @@ public class BlobProcessorTask {
             zipFileProcessor.process(zis);
 
             Envelope envelope = envelopeProcessor.processEnvelope(zipFileProcessor.getMetadata(), containerName);
+            zipFileProcessor.setEnvelope(envelope);
 
-            return Collections.singletonMap(envelope, zipFileProcessor.getPdfs());
+            return zipFileProcessor;
         });
     }
 

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
@@ -21,6 +22,8 @@ public class ZipFileProcessor {
     private final String containerName;
 
     private final String zipFileName;
+
+    private Envelope envelope;
 
     private List<Pdf> pdfs = new ArrayList<>();
 
@@ -59,5 +62,13 @@ public class ZipFileProcessor {
 
     public List<Pdf> getPdfs() {
         return pdfs;
+    }
+
+    public Envelope getEnvelope() {
+        return envelope;
+    }
+
+    public void setEnvelope(Envelope envelope) {
+        this.envelope = envelope;
     }
 }

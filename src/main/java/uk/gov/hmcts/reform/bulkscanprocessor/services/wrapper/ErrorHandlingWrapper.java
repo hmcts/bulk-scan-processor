@@ -8,8 +8,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericE
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -27,7 +25,7 @@ public class ErrorHandlingWrapper {
         this.errorHandler = errorHandler;
     }
 
-    public <K, V> Map<K, V> wrapDocFailure(String containerName, String zipFileName, Supplier<Map<K, V>> supplier) {
+    public <T> T wrapDocFailure(String containerName, String zipFileName, Supplier<T> supplier) {
         try {
             return supplier.get();
         } catch (Exception exception) {
@@ -37,7 +35,7 @@ public class ErrorHandlingWrapper {
 
             errorHandler.handleError(exc);
 
-            return Collections.emptyMap();
+            return null;
         }
     }
 
