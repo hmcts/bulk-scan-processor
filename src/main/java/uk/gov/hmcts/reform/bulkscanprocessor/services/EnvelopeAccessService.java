@@ -21,6 +21,12 @@ public class EnvelopeAccessService {
         this.mappings = accessProps.getMappings();
     }
 
+    /**
+     * Giving the service name check which jurisdiction it is allowed to access and return it.
+     *
+     * @param serviceName accessing the API
+     * @return configured jurisdiction
+     */
     public String getJurisdictionByServiceName(String serviceName) {
         return mappings
             .stream()
