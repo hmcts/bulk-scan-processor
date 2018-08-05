@@ -38,8 +38,6 @@ public class EnvelopeResponse {
     @JsonProperty("zip_file_name")
     private String zipFileName;
 
-    private Status status = Status.CREATED;
-
     @JsonProperty("scannable_items")
     private List<ScannableItemResponse> scannableItems;
 
@@ -75,4 +73,8 @@ public class EnvelopeResponse {
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
     }
 
+    public void setContainer(String container) {
+        this.container = container;
+    }
+    
 }

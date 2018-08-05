@@ -64,4 +64,21 @@ public class Payment implements EnvelopeAssignable {
     public void setEnvelope(Envelope envelope) {
         this.envelope = envelope;
     }
+
+    public String getDocumentControlNumber() {
+        return documentControlNumber;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public int getAmountInPence() {
+        return amountInPence;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
 }

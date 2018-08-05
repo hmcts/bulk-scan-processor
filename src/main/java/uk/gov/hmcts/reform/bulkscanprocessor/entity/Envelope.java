@@ -169,6 +169,22 @@ public class Envelope {
         return createdAt;
     }
 
+    public String getPoBox() {
+        return poBox;
+    }
+
+    public Timestamp getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public Timestamp getOpeningDate() {
+        return openingDate;
+    }
+
+    public Timestamp getZipFileCreateddate() {
+        return zipFileCreateddate;
+    }
+
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
         assignables.forEach(assignable -> assignable.setEnvelope(this));
     }

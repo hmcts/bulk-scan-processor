@@ -68,4 +68,8 @@ public class ScannableItemResponse {
         this.notes = notes;
     }
 
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
+    }
+
 }

@@ -42,6 +42,14 @@ public class NonScannableItem implements EnvelopeAssignable {
         this.notes = notes;
     }
 
+    public String getItemType() {
+        return itemType;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
     @Override
     public void setEnvelope(Envelope envelope) {
         this.envelope = envelope;
