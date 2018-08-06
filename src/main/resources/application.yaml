@@ -68,6 +68,9 @@ scheduling:
   task:
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
+    reupload:
+      delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
+      batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all
 
 envelope-access:
   mappings:

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -30,13 +31,16 @@ public class EnvelopeProcessor {
 
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
+    private final int reUploadBatchSize;
 
     public EnvelopeProcessor(
         EnvelopeRepository envelopeRepository,
-        ProcessEventRepository processEventRepository
+        ProcessEventRepository processEventRepository,
+        @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize
     ) {
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
+        this.reUploadBatchSize = reUploadBatchSize;
     }
 
     public Envelope parseEnvelope(byte[] metadataStream) throws IOException {
@@ -86,6 +90,14 @@ public class EnvelopeProcessor {
         );
 
         return dbEnvelope;
+    }
+
+    public List<Envelope> getFailedToUploadEnvelopes(String jurisdiction) {
+        return envelopeRepository.findByJurisdictionAndStatusOrderByCreatedAtAsc(
+            jurisdiction,
+            UPLOAD_FAILURE,
+            reUploadBatchSize > 0 ? PageRequest.of(0, reUploadBatchSize) : null
+        );
     }
 
     public void markAsUploaded(Envelope envelope) {

@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
@@ -54,6 +55,9 @@ public abstract class BlobProcessorTestSuite {
     @Autowired
     private ScannableItemRepository scannableItemRepository;
 
+    @Value("${scheduling.task.reupload.batch}")
+    private int reUploadBatchSize;
+
     @Mock
     DocumentManagementService documentManagementService;
 
@@ -71,7 +75,8 @@ public abstract class BlobProcessorTestSuite {
 
         EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
-            processEventRepository
+            processEventRepository,
+            reUploadBatchSize
         );
 
         blobProcessorTask = new BlobProcessorTask(

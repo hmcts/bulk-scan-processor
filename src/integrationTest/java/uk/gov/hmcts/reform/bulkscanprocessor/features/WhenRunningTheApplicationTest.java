@@ -36,7 +36,10 @@ public class WhenRunningTheApplicationTest {
         waitForBlobProcessor();
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
-        assertThat(configCaptor.getValue().getName()).isEqualTo("blobProcessor");
+        assertThat(configCaptor.getAllValues()).extracting("name").containsOnly(
+            "blobProcessor",
+            "re-upload-failures"
+        );
     }
 
     private void waitForBlobProcessor() {
