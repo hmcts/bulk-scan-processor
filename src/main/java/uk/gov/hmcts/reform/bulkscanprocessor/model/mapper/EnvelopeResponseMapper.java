@@ -4,15 +4,26 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.ScannableItemResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.StatusResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class EnvelopeResponseMapper {
+
+    public List<EnvelopeResponse> toEnvelopeResponses(List<Envelope> envelopes) {
+        if (envelopes == null) {
+            return null;
+        }
+        return envelopes.stream()
+            .map(this::toEnvelopeResponse)
+            .collect(Collectors.toList());
+    }
 
     public EnvelopeResponse toEnvelopeResponse(Envelope envelope) {
         if (envelope == null) {
@@ -30,7 +41,26 @@ public class EnvelopeResponseMapper {
             toNonScannableItemsResponse(envelope.getNonScannableItems())
         );
         response.setContainer(envelope.getContainer());
+        response.setId(envelope.getId());
+        response.setStatus(envelope.getStatus());
         return response;
+    }
+
+    private StatusResponse toStatusResponse(Status status) {
+        switch (status) {
+            case CONSUMED:
+                return StatusResponse.CONSUMED;
+            case CREATED:
+                return StatusResponse.CREATED;
+            case PROCESSED:
+                return StatusResponse.PROCESSED;
+            case UPLOAD_FAILURE:
+                return StatusResponse.UPLOAD_FAILURE;
+            case UPLOADED:
+                return StatusResponse.UPLOADED;
+            default:
+                return null;
+        }
     }
 
     private List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {

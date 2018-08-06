@@ -1,18 +1,24 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 
 public class EnvelopeResponse {
+
+    @JsonIgnore
+    private UUID id;
 
     @JsonProperty("container")
     private String container;
@@ -37,6 +43,9 @@ public class EnvelopeResponse {
 
     @JsonProperty("zip_file_name")
     private String zipFileName;
+
+    @JsonProperty("status")
+    private Status status = Status.CREATED;
 
     @JsonProperty("scannable_items")
     private List<ScannableItemResponse> scannableItems;
@@ -73,8 +82,58 @@ public class EnvelopeResponse {
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     public void setContainer(String container) {
         this.container = container;
     }
-    
+
+    public String getZipFileName() {
+        return zipFileName;
+    }
+
+    public List<ScannableItemResponse> getScannableItems() {
+        return scannableItems;
+    }
+
+    public List<PaymentResponse> getPayments() {
+        return payments;
+    }
+
+    public List<NonScannableItemResponse> getNonScannableItems() {
+        return nonScannableItems;
+    }
+
+    @Override
+    public String toString() {
+        return "EnvelopeResponse{"
+            + "id=" + id
+            + ", container='" + container + '\''
+            + ", poBox='" + poBox + '\''
+            + ", jurisdiction='" + jurisdiction + '\''
+            + ", deliveryDate=" + deliveryDate
+            + ", openingDate=" + openingDate
+            + ", zipFileCreateddate=" + zipFileCreateddate
+            + ", zipFileName='" + zipFileName + '\''
+            + ", status=" + status
+            + ", scannableItems=" + scannableItems
+            + ", payments=" + payments
+            + ", nonScannableItems=" + nonScannableItems
+            + '}';
+    }
+
 }

@@ -35,4 +35,14 @@ public class PaymentResponse {
         return ((double) amountInPence) / 100;
     }
 
+    @Override
+    public String toString() {
+        return "PaymentResponse{"
+            + "documentControlNumber='" + documentControlNumber + '\''
+            + ", method='" + method + '\''
+            + ", amountInPence=" + amountInPence
+            + ", currency='" + currency + '\''
+            + '}';
+    }
+    
 }

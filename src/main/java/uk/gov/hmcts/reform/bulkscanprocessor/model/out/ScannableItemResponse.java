@@ -68,8 +68,32 @@ public class ScannableItemResponse {
         this.notes = notes;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getDocumentUrl() {
+        return documentUrl;
+    }
+
     public void setDocumentUrl(String documentUrl) {
         this.documentUrl = documentUrl;
     }
 
+    @Override
+    public String toString() {
+        return "ScannableItemResponse{"
+            + "documentControlNumber='" + documentControlNumber + '\''
+            + ", scanningDate=" + scanningDate
+            + ", ocrAccuracy='" + ocrAccuracy + '\''
+            + ", manualIntervention='" + manualIntervention + '\''
+            + ", nextAction='" + nextAction + '\''
+            + ", nextActionDate=" + nextActionDate
+            + ", ocrData='" + ocrData + '\''
+            + ", fileName='" + fileName + '\''
+            + ", notes='" + notes + '\''
+            + ", documentUrl='" + documentUrl + '\''
+            + '}';
+    }
+    
 }

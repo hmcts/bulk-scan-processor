@@ -17,4 +17,12 @@ public class NonScannableItemResponse {
         this.notes = notes;
     }
 
+    @Override
+    public String toString() {
+        return "NonScannableItemResponse{"
+            + "itemType='" + itemType + '\''
+            + ", notes='" + notes + '\''
+            + '}';
+    }
+    
 }
