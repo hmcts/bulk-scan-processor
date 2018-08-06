@@ -50,12 +50,12 @@ public class EnvelopeProcessor {
     }
 
     /**
-     * Check whether previously attempted envelopes failed.
-     * Only checking last one as it should block any other processing due to exception throw.
+     * Assert envelope did not fail to be uploaded in the past.
+     * Throws exception otherwise.
      *
      * @param envelope details to check against.
      */
-    public void checkEnvelopeFailedToUploadBefore(Envelope envelope) {
+    public void assertDidNotFailToUploadBefore(Envelope envelope) {
         List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
             envelope.getContainer(),
             envelope.getZipFileName(),

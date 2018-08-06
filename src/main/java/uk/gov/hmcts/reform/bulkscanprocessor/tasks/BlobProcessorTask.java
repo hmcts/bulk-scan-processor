@@ -110,7 +110,7 @@ public class BlobProcessorTask {
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata());
             envelope.setContainer(containerName);
 
-            envelopeProcessor.checkEnvelopeFailedToUploadBefore(envelope);
+            envelopeProcessor.assertDidNotFailToUploadBefore(envelope);
 
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
