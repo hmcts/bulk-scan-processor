@@ -56,7 +56,7 @@ public class EnvelopeProcessor {
      * @param envelope details to check against.
      */
     public void checkEnvelopeFailedToUploadBefore(Envelope envelope) {
-        List<Envelope> envelopes = envelopeRepository.checkLastEnvelopeByStatus(
+        List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
             envelope.getContainer(),
             envelope.getZipFileName(),
             UPLOAD_FAILURE,

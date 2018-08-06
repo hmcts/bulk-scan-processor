@@ -20,8 +20,6 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
      * Finds envelope for a given container, zip file name and status.
-     * Providing {@code PageRequest.of(0, 1)} should allow to return {@code Optional<Envelope>}
-     * but that is not the case even after following this notion in documentation.
      *
      * @param container from where container originated.
      * @param zipFileName of envelope.
@@ -34,7 +32,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         + "   and e.status = :status"
         + " order by e.createdAt desc"
     )
-    List<Envelope> checkLastEnvelopeByStatus(
+    List<Envelope> findRecentEnvelopes(
         @Param("container") String container,
         @Param("zip") String zipFileName,
         @Param("status") Status status,
