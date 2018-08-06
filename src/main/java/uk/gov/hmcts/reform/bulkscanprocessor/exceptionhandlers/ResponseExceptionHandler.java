@@ -26,23 +26,23 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ResponseExceptionHandler.class);
 
     @ExceptionHandler(UnableToGenerateSasTokenException.class)
-    protected ResponseEntity<String> handleUnableToGenerateSasTokenException() {
-        return status(INTERNAL_SERVER_ERROR).body("Exception occurred while generating SAS Token");
+    protected ResponseEntity<Error> handleUnableToGenerateSasTokenException() {
+        return status(INTERNAL_SERVER_ERROR).body(new Error("Exception occurred while generating SAS Token"));
     }
 
     @ExceptionHandler(ServiceConfigNotFoundException.class)
-    protected ResponseEntity<String> handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
-        return status(BAD_REQUEST).body(e.getMessage());
+    protected ResponseEntity<Error> handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
+        return status(BAD_REQUEST).body(new Error(e.getMessage()));
     }
 
     @ExceptionHandler(UnAuthenticatedException.class)
-    protected ResponseEntity<String> handleUnAuthenticatedException(UnAuthenticatedException exc) {
+    protected ResponseEntity<Void> handleUnAuthenticatedException(UnAuthenticatedException exc) {
         log.error(exc.getMessage(), exc);
         return status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ExceptionHandler(ServiceJuridictionConfigNotFoundException.class)
-    protected ResponseEntity<String> handleServiceJuridictionConfigNotFoundException(
+    protected ResponseEntity<Void> handleServiceJuridictionConfigNotFoundException(
         ServiceJuridictionConfigNotFoundException exc
     ) {
         log.error(exc.getMessage(), exc);
@@ -50,27 +50,27 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(EnvelopeNotFoundException.class)
-    protected ResponseEntity<String> handleEnvelopeNotFound(EnvelopeNotFoundException exc) {
+    protected ResponseEntity<Void> handleEnvelopeNotFound(EnvelopeNotFoundException exc) {
         log.error(exc.getMessage(), exc);
         return status(HttpStatus.NOT_FOUND).build();
     }
 
     @ExceptionHandler(InvalidStatusChangeException.class)
-    protected ResponseEntity<String> handleInvalidStatusChange(InvalidStatusChangeException exc) {
+    protected ResponseEntity<Error> handleInvalidStatusChange(InvalidStatusChangeException exc) {
         log.error(exc.getMessage(), exc);
-        return status(HttpStatus.FORBIDDEN).body(exc.getMessage());
+        return status(HttpStatus.FORBIDDEN).body(new Error(exc.getMessage()));
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    protected ResponseEntity<String> handleInvalidToken(InvalidTokenException exc) {
+    protected ResponseEntity<Error> handleInvalidToken(InvalidTokenException exc) {
         log.error(exc.getMessage(), exc);
-        return status(HttpStatus.UNAUTHORIZED).body(exc.getMessage());
+        return status(HttpStatus.UNAUTHORIZED).body(new Error(exc.getMessage()));
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    protected ResponseEntity<String> handleForbidden(ForbiddenException exc) {
+    protected ResponseEntity<Error> handleForbidden(ForbiddenException exc) {
         log.error(exc.getMessage(), exc);
-        return status(HttpStatus.FORBIDDEN).body(exc.getMessage());
+        return status(HttpStatus.FORBIDDEN).body(new Error(exc.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
