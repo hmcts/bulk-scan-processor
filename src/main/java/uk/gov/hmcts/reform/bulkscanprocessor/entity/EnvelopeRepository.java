@@ -37,4 +37,12 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("zip") String zipFileName,
         @Param("status") Status status
     );
+
+    /**
+     * Finds first 20 envelopes for a given status.
+     *
+     * @param status to filter upon
+     * @return A list of envelopes
+     */
+    List<Envelope> findFirst20ByStatus(Status status);
 }

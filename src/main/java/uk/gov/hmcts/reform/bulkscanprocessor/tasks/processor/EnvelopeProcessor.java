@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -64,6 +65,10 @@ public class EnvelopeProcessor {
         );
 
         return dbEnvelope;
+    }
+
+    public List<Envelope> getFailedToUploadEnvelopes() {
+        return envelopeRepository.findFirst20ByStatus(UPLOAD_FAILURE);
     }
 
     public void markAsUploaded(Envelope envelope) {

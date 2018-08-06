@@ -68,6 +68,8 @@ scheduling:
   task:
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
+    reupload:
+      delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
 
 envelope-access:
   mappings:
