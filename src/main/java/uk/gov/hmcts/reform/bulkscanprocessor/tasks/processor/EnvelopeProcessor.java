@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,11 +48,11 @@ public class EnvelopeProcessor {
     }
 
     public Optional<Envelope> hasEnvelopeFailedToUploadBefore(Envelope envelope) {
-        return envelopeRepository
-            .findByContainerAndZipFileName(envelope.getContainer(), envelope.getZipFileName())
-            .stream()
-            .max(Comparator.comparing(Envelope::getCreatedAt))
-            .filter(e -> e.getStatus().equals(UPLOAD_FAILURE));
+        return envelopeRepository.checkLastEnvelopeStatus(
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            UPLOAD_FAILURE
+        );
     }
 
     public Envelope saveEnvelope(Envelope envelope) {

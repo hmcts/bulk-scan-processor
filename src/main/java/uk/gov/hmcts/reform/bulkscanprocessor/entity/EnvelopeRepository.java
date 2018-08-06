@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
@@ -16,11 +19,22 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> findByJurisdictionAndStatus(String jurisdiction, Status status);
 
     /**
-     * Finds envelopes for a given container and zip file name.
+     * Finds envelope for a given container, zip file name and status.
      *
      * @param container from where container originated
      * @param zipFileName of envelope
-     * @return A list of envelopes
+     * @param status of envelope
+     * @return Optional envelope
      */
-    List<Envelope> findByContainerAndZipFileName(String container, String zipFileName);
+    @Query("select e from Envelope e"
+        + " where e.container = :container"
+        + "   and e.zipFileName = :zip"
+        + "   and e.status = :status"
+        + " order by e.createdAt desc"
+    )
+    Optional<Envelope> checkLastEnvelopeStatus(
+        @Param("container") String container,
+        @Param("zip") String zipFileName,
+        @Param("status") Status status
+    );
 }
