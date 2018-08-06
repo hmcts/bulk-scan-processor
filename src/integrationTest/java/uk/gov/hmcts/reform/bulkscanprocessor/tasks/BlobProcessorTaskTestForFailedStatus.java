@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
@@ -50,6 +51,37 @@ public class BlobProcessorTaskTestForFailedStatus extends BlobProcessorTestSuite
             .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE));
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
+    }
+
+    @Test
+    public void should_record_failure_of_upload_when_same_zip_file_is_attempted_to_be_processed() throws Exception {
+        // given
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+
+        // and
+        given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
+
+        // when
+        blobProcessorTask.processBlobs();
+
+        // and
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+        blobProcessorTask.processBlobs();
+
+        // then
+        Envelope actualEnvelope = envelopeRepository.findAll().get(0);
+
+        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
+        assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
+
+        // and
+        List<ProcessEvent> processEvents = processEventRepository.findAll();
+        assertThat(processEvents)
+            .hasSize(2)
+            .extracting("container", "zipFileName", "event")
+            .allMatch(t -> t.equals(
+                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE)
+            ));
     }
 
     @Test

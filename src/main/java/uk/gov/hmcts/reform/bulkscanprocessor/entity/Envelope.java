@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import javax.persistence.CascadeType;
@@ -64,6 +65,8 @@ public class Envelope {
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.CREATED;
+
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
@@ -156,6 +159,10 @@ public class Envelope {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
