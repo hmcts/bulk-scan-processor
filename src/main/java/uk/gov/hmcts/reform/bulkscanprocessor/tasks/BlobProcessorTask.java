@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -23,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -86,7 +88,7 @@ public class BlobProcessorTask {
 
         //Zip file will include metadata.json and collection of pdf documents
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            ZipFileProcessor zipFileProcessor = processZipFileEntry(zis, zipFilename, container.getName());
+            ZipFileProcessor zipFileProcessor = processZipInputStream(zis, zipFilename, container.getName());
 
             if (zipFileProcessor != null) {
                 processParsedEnvelopeDocuments(
@@ -98,7 +100,7 @@ public class BlobProcessorTask {
         }
     }
 
-    private ZipFileProcessor processZipFileEntry(
+    private ZipFileProcessor processZipInputStream(
         ZipInputStream zis,
         String zipFilename,
         String containerName
@@ -107,10 +109,25 @@ public class BlobProcessorTask {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             zipFileProcessor.process(zis);
 
-            Envelope envelope = envelopeProcessor.processEnvelope(zipFileProcessor.getMetadata(), containerName);
-            zipFileProcessor.setEnvelope(envelope);
+            Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata());
+            envelope.setContainer(containerName);
 
-            return zipFileProcessor;
+            Optional<Envelope> optionalEnvelope = envelopeProcessor.hasEnvelopeFailedToUploadBefore(envelope);
+
+            if (optionalEnvelope.isPresent()) {
+                throw new PreviouslyFailedToUploadException(
+                    containerName,
+                    zipFilename,
+                    String.format(
+                        "Envelope %s created at %s is already marked as failed to upload. Skipping",
+                        optionalEnvelope.get().getId(),
+                        optionalEnvelope.get().getCreatedAt()
+                    )
+                );
+            } else {
+                zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
+                return zipFileProcessor;
+            }
         });
     }
 

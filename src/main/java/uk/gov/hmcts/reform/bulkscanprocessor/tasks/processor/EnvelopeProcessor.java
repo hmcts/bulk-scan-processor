@@ -16,9 +16,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Optional;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @Component
 public class EnvelopeProcessor {
@@ -35,15 +37,25 @@ public class EnvelopeProcessor {
         this.processEventRepository = processEventRepository;
     }
 
-    public Envelope processEnvelope(byte[] metadataStream, String containerName) throws IOException {
+    public Envelope parseEnvelope(byte[] metadataStream) throws IOException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
         //TODO Perform json schema validation for the metadata file
         InputStream inputStream = new ByteArrayInputStream(metadataStream);
-        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
-        envelope.setContainer(containerName);
 
+        return EntityParser.parseEnvelopeMetadata(inputStream);
+    }
+
+    public Optional<Envelope> hasEnvelopeFailedToUploadBefore(Envelope envelope) {
+        return envelopeRepository.checkLastEnvelopeStatus(
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            UPLOAD_FAILURE
+        );
+    }
+
+    public Envelope saveEnvelope(Envelope envelope) {
         Envelope dbEnvelope = envelopeRepository.save(envelope);
 
         log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
