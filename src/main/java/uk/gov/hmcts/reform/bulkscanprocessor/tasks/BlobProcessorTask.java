@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -24,7 +23,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -112,22 +110,11 @@ public class BlobProcessorTask {
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata());
             envelope.setContainer(containerName);
 
-            Optional<Envelope> optionalEnvelope = envelopeProcessor.hasEnvelopeFailedToUploadBefore(envelope);
+            envelopeProcessor.checkEnvelopeFailedToUploadBefore(envelope);
 
-            if (optionalEnvelope.isPresent()) {
-                throw new PreviouslyFailedToUploadException(
-                    containerName,
-                    zipFilename,
-                    String.format(
-                        "Envelope %s created at %s is already marked as failed to upload. Skipping",
-                        optionalEnvelope.get().getId(),
-                        optionalEnvelope.get().getCreatedAt()
-                    )
-                );
-            } else {
-                zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
-                return zipFileProcessor;
-            }
+            zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
+
+            return zipFileProcessor;
         });
     }
 
