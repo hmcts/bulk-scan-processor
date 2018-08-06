@@ -65,9 +65,11 @@ scheduling:
   enabled: ${SCHEDULING_ENABLED:false}
   pool: ${SCHEDULING_POOL:10}
   lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
-
-scan:
-  delay: ${SCAN_DELAY:30000} # In milliseconds
+  task:
+    scan:
+      delay: ${SCAN_DELAY:30000} # In milliseconds
+    reupload:
+      delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
 
 envelope-access:
   mappings:
