@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -10,13 +11,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
@@ -47,12 +49,33 @@ public class EnvelopeProcessor {
         return EntityParser.parseEnvelopeMetadata(inputStream);
     }
 
-    public Optional<Envelope> hasEnvelopeFailedToUploadBefore(Envelope envelope) {
-        return envelopeRepository.checkLastEnvelopeStatus(
+    /**
+     * Check whether previously attempted envelopes failed.
+     * Only checking last one as it should block any other processing due to exception throw.
+     *
+     * @param envelope details to check against.
+     */
+    public void checkEnvelopeFailedToUploadBefore(Envelope envelope) {
+        List<Envelope> envelopes = envelopeRepository.checkLastEnvelopeByStatus(
             envelope.getContainer(),
             envelope.getZipFileName(),
-            UPLOAD_FAILURE
+            UPLOAD_FAILURE,
+            PageRequest.of(0, 1)
         );
+
+        if (envelopes.size() == 1) {
+            Envelope failedEnvelope = envelopes.get(0);
+
+            throw new PreviouslyFailedToUploadException(
+                failedEnvelope.getContainer(),
+                failedEnvelope.getZipFileName(),
+                String.format(
+                    "Envelope %s created at %s is already marked as failed to upload. Skipping",
+                    failedEnvelope.getId(),
+                    failedEnvelope.getCreatedAt()
+                )
+            );
+        }
     }
 
     public Envelope saveEnvelope(Envelope envelope) {
