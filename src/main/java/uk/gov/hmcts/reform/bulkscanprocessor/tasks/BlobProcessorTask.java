@@ -60,7 +60,7 @@ public class BlobProcessorTask {
     }
 
     @SchedulerLock(name = "blobProcessor")
-    @Scheduled(fixedDelayString = "${scan.delay}")
+    @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
             processZipFiles(container);
