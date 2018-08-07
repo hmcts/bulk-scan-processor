@@ -72,6 +72,8 @@ public class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
+    
+
     private ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
         if (scannableItem == null) {
             return null;
@@ -128,6 +130,103 @@ public class EnvelopeResponseMapper {
             payment.getMethod(),
             Double.toString(payment.getAmount()),
             payment.getCurrency()
+        );
+    }
+
+
+
+    public List<Envelope> toEnvelopes(List<EnvelopeResponse> envelopesResponse) {
+        if (envelopesResponse == null) {
+            return null;
+        }
+        return envelopesResponse.stream()
+            .map(this::toEnvelope)
+            .collect(Collectors.toList());
+    }
+
+    public Envelope toEnvelope(EnvelopeResponse envelopeResponse) {
+        if (envelopeResponse == null) {
+            return null;
+        }
+        Envelope envelope = new Envelope(
+            envelopeResponse.getPoBox(),
+            envelopeResponse.getJurisdiction(),
+            envelopeResponse.getDeliveryDate(),
+            envelopeResponse.getOpeningDate(),
+            envelopeResponse.getZipFileCreateddate(),
+            envelopeResponse.getZipFileName(),
+            toScannableItems(envelopeResponse.getScannableItems()),
+            toPayments(envelopeResponse.getPayments()),
+            toNonScannableItems(envelopeResponse.getNonScannableItems())
+        );
+        return envelope;
+    }
+
+    private List<ScannableItem> toScannableItems(List<ScannableItemResponse> scannableItemsResponse) {
+        if (scannableItemsResponse == null) {
+            return null;
+        }
+        return scannableItemsResponse.stream()
+            .map(this::toScannableItem)
+            .collect(Collectors.toList());
+    }
+
+    private ScannableItem toScannableItem(ScannableItemResponse scannableItemResponse) {
+        if (scannableItemResponse == null) {
+            return null;
+        }
+        ScannableItem scannableItem = new ScannableItem(
+            scannableItemResponse.getDocumentControlNumber(),
+            scannableItemResponse.getScanningDate(),
+            scannableItemResponse.getOcrAccuracy(),
+            scannableItemResponse.getManualIntervention(),
+            scannableItemResponse.getNextAction(),
+            scannableItemResponse.getNextActionDate(),
+            scannableItemResponse.getOcrData(),
+            scannableItemResponse.getFileName(),
+            scannableItemResponse.getNotes()
+        );
+        scannableItem.setDocumentUrl(scannableItemResponse.getDocumentUrl());
+        return scannableItem;
+    }
+
+    private List<NonScannableItem> toNonScannableItems(List<NonScannableItemResponse> nonScannableItemsResponse) {
+        if (nonScannableItemsResponse == null) {
+            return null;
+        }
+        return nonScannableItemsResponse.stream()
+            .map(this::toNonScannableItem)
+            .collect(Collectors.toList());
+    }
+
+    private NonScannableItem toNonScannableItem(NonScannableItemResponse nonScannableItemResponse) {
+        if (nonScannableItemResponse == null) {
+            return null;
+        }
+        return new NonScannableItem(
+            nonScannableItemResponse.getItemType(),
+            nonScannableItemResponse.getNotes()
+        );
+    }
+
+    private List<Payment> toPayments(List<PaymentResponse> paymentsResponse) {
+        if (paymentsResponse == null) {
+            return null;
+        }
+        return paymentsResponse.stream()
+            .map(this::toPayment)
+            .collect(Collectors.toList());
+    }
+
+    private Payment toPayment(PaymentResponse paymentResponse) {
+        if (paymentResponse == null) {
+            return null;
+        }
+        return new Payment(
+            paymentResponse.getDocumentControlNumber(),
+            paymentResponse.getMethod(),
+            Double.toString(paymentResponse.getAmount()),
+            paymentResponse.getCurrency()
         );
     }
 

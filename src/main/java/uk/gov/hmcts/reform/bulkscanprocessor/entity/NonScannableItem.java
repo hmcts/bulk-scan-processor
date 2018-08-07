@@ -1,8 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,12 +15,10 @@ public class NonScannableItem implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
-    @JsonIgnore
     private UUID id;
 
-    @JsonProperty("item_type")
     private String itemType;
-    @JsonProperty("notes")
+
     private String notes;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,8 +30,8 @@ public class NonScannableItem implements EnvelopeAssignable {
     }
 
     public NonScannableItem(
-        @JsonProperty("item_type") String itemType,
-        @JsonProperty("notes") String notes
+        String itemType,
+        String notes
     ) {
         this.itemType = itemType;
         this.notes = notes;

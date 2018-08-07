@@ -35,6 +35,22 @@ public class PaymentResponse {
         return ((double) amountInPence) / 100;
     }
 
+    public String getDocumentControlNumber() {
+        return documentControlNumber;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public int getAmountInPence() {
+        return amountInPence;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
     @Override
     public String toString() {
         return "PaymentResponse{"

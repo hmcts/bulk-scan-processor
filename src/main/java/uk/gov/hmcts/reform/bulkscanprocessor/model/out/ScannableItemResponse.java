@@ -80,6 +80,38 @@ public class ScannableItemResponse {
         this.documentUrl = documentUrl;
     }
 
+    public String getDocumentControlNumber() {
+        return documentControlNumber;
+    }
+
+    public Timestamp getScanningDate() {
+        return scanningDate;
+    }
+
+    public String getOcrAccuracy() {
+        return ocrAccuracy;
+    }
+
+    public String getManualIntervention() {
+        return manualIntervention;
+    }
+
+    public String getNextAction() {
+        return nextAction;
+    }
+
+    public Timestamp getNextActionDate() {
+        return nextActionDate;
+    }
+
+    public String getOcrData() {
+        return ocrData;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
     @Override
     public String toString() {
         return "ScannableItemResponse{"

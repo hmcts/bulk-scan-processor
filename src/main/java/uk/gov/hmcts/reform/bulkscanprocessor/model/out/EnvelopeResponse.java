@@ -106,6 +106,30 @@ public class EnvelopeResponse {
         return zipFileName;
     }
 
+    public String getContainer() {
+        return container;
+    }
+
+    public String getPoBox() {
+        return poBox;
+    }
+
+    public String getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public Timestamp getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public Timestamp getOpeningDate() {
+        return openingDate;
+    }
+
+    public Timestamp getZipFileCreateddate() {
+        return zipFileCreateddate;
+    }
+
     public List<ScannableItemResponse> getScannableItems() {
         return scannableItems;
     }
