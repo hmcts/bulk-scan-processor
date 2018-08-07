@@ -36,7 +36,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BlobProcessorTaskTest extends BlobProcessorTestSuite {
+public class BlobProcessorTaskTest extends ProcessorTestSuite {
 
     @Test
     public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()

@@ -30,7 +30,7 @@ import java.util.Map;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 
-public abstract class BlobProcessorTestSuite {
+public abstract class ProcessorTestSuite {
 
     static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
 

@@ -22,7 +22,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BlobProcessorTaskTestForFailedStatus extends BlobProcessorTestSuite {
+public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
 
     @Test
     public void should_record_failure_of_upload_when_document_management_returns_empty_response() throws Exception {
