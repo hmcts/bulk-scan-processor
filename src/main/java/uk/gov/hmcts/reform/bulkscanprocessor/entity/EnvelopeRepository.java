@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
@@ -21,10 +21,10 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     /**
      * Finds envelope for a given container, zip file name and status.
      *
-     * @param container from where container originated
-     * @param zipFileName of envelope
-     * @param status of envelope
-     * @return Optional envelope
+     * @param container from where container originated.
+     * @param zipFileName of envelope.
+     * @param status of envelope.
+     * @return A list of envelopes.
      */
     @Query("select e from Envelope e"
         + " where e.container = :container"
@@ -32,9 +32,10 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         + "   and e.status = :status"
         + " order by e.createdAt desc"
     )
-    Optional<Envelope> checkLastEnvelopeStatus(
+    List<Envelope> findRecentEnvelopes(
         @Param("container") String container,
         @Param("zip") String zipFileName,
-        @Param("status") Status status
+        @Param("status") Status status,
+        Pageable pageable
     );
 }
