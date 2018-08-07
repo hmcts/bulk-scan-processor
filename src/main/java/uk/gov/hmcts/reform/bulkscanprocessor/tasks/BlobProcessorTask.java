@@ -27,12 +27,14 @@ import java.util.zip.ZipInputStream;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
- * It will read all the blobs from Azure Blob storage and will do below things
- * 1. Reads Blob from container.
- * 2. Extract Zip file(Blob)
- * 3. Transform metadata json to DB entities.
- * 4. Save PDF files in document storage.
- * 5. Update status and doc urls in DB.
+ * It will read all the blobs from Azure Blob storage and will do below things:
+ * <ol>
+ *     <li>Read Blob from container</li>
+ *     <li>Extract Zip file (blob)</li>
+ *     <li>Transform metadata json to DB entities</li>
+ *     <li>Save PDF files in document storage</li>
+ *     <li>Update status and doc urls in DB</li>
+ * </ol>
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.enabled", matchIfMissing = true)
