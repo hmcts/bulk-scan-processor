@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -12,6 +15,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
@@ -36,7 +41,9 @@ public class FailedDocUploadProcessor extends Processor {
         this.errorWrapper = errorWrapper;
     }
 
-    public void processJurisdiction(String jurisdiction) {
+    public void processJurisdiction(String jurisdiction)
+        throws IOException, StorageException, URISyntaxException {
+
         List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
         if (envelopes.size() > 0) {
@@ -46,14 +53,45 @@ public class FailedDocUploadProcessor extends Processor {
         }
     }
 
-    private void processEnvelopes(String containerName, List<Envelope> envelopes) {
+    private void processEnvelopes(String containerName, List<Envelope> envelopes)
+        throws IOException, StorageException, URISyntaxException {
+
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
+
+        CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
+
+        for (Envelope envelope : envelopes) {
+            processEnvelope(container, envelope);
+        }
     }
 
-    private void processZipFile(CloudBlobContainer container, Envelope envelope) {
+    private void processEnvelope(CloudBlobContainer container, Envelope envelope)
+        throws IOException, StorageException, URISyntaxException {
+
+        log.info("Processing zip file {}", envelope.getZipFileName());
+
+        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
+        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
+
+        try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+            ZipFileProcessor zipFileProcessor = processZipInputStream(zis, envelope);
+
+            if (zipFileProcessor != null) {
+                processParsedEnvelopeDocuments(
+                    envelope,
+                    zipFileProcessor.getPdfs(),
+                    cloudBlockBlob
+                );
+            }
+        }
     }
 
     private ZipFileProcessor processZipInputStream(ZipInputStream zis, Envelope envelope) {
-        return null;
+        return errorWrapper.wrapDocFailure(envelope.getContainer(), envelope.getZipFileName(), () -> {
+            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
+            zipFileProcessor.process(zis);
+
+            return zipFileProcessor;
+        });
     }
 }
