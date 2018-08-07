@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundExc
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToGenerateSasTokenException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors.ErrorResponse;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -26,13 +27,13 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ResponseExceptionHandler.class);
 
     @ExceptionHandler(UnableToGenerateSasTokenException.class)
-    protected ResponseEntity<Error> handleUnableToGenerateSasTokenException() {
-        return status(INTERNAL_SERVER_ERROR).body(new Error("Exception occurred while generating SAS Token"));
+    protected ResponseEntity<ErrorResponse> handleUnableToGenerateSasTokenException() {
+        return status(INTERNAL_SERVER_ERROR).body(new ErrorResponse("Exception occurred while generating SAS Token"));
     }
 
     @ExceptionHandler(ServiceConfigNotFoundException.class)
-    protected ResponseEntity<Error> handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
-        return status(BAD_REQUEST).body(new Error(e.getMessage()));
+    protected ResponseEntity<ErrorResponse> handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
+        return status(BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
     }
 
     @ExceptionHandler(UnAuthenticatedException.class)
@@ -56,21 +57,21 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(InvalidStatusChangeException.class)
-    protected ResponseEntity<Error> handleInvalidStatusChange(InvalidStatusChangeException exc) {
+    protected ResponseEntity<ErrorResponse> handleInvalidStatusChange(InvalidStatusChangeException exc) {
         log.error(exc.getMessage(), exc);
-        return status(HttpStatus.FORBIDDEN).body(new Error(exc.getMessage()));
+        return status(HttpStatus.FORBIDDEN).body(new ErrorResponse(exc.getMessage()));
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    protected ResponseEntity<Error> handleInvalidToken(InvalidTokenException exc) {
+    protected ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException exc) {
         log.error(exc.getMessage(), exc);
-        return status(HttpStatus.UNAUTHORIZED).body(new Error(exc.getMessage()));
+        return status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(exc.getMessage()));
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    protected ResponseEntity<Error> handleForbidden(ForbiddenException exc) {
+    protected ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException exc) {
         log.error(exc.getMessage(), exc);
-        return status(HttpStatus.FORBIDDEN).body(new Error(exc.getMessage()));
+        return status(HttpStatus.FORBIDDEN).body(new ErrorResponse(exc.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
