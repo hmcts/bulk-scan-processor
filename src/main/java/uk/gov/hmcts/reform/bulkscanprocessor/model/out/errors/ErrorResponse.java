@@ -2,12 +2,12 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Error {
+public class ErrorResponse {
 
     @JsonProperty("message")
     public final String message;
 
-    public Error(String message) {
+    public ErrorResponse(String message) {
         this.message = message;
     }
 }
