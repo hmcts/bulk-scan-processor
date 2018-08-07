@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -22,7 +21,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -38,14 +36,9 @@ import java.util.zip.ZipInputStream;
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-public class BlobProcessorTask {
+public class BlobProcessorTask extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
-
-    private final CloudBlobClient cloudBlobClient;
-    private final DocumentProcessor documentProcessor;
-    private final EnvelopeProcessor envelopeProcessor;
-    private final ErrorHandlingWrapper errorWrapper;
 
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
@@ -117,23 +110,6 @@ public class BlobProcessorTask {
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
             return zipFileProcessor;
-        });
-    }
-
-    private void processParsedEnvelopeDocuments(
-        Envelope envelope,
-        List<Pdf> pdfs,
-        CloudBlockBlob cloudBlockBlob
-    ) {
-        errorWrapper.wrapDocUploadFailure(envelope, () -> {
-            documentProcessor.processPdfFiles(pdfs, envelope.getScannableItems());
-            envelopeProcessor.markAsUploaded(envelope);
-
-            cloudBlockBlob.delete();
-
-            envelopeProcessor.markAsProcessed(envelope);
-
-            return null;
         });
     }
 }
