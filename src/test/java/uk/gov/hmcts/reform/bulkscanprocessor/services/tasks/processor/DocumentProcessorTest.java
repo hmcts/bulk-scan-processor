@@ -38,7 +38,7 @@ public class DocumentProcessorTest {
     private DocumentProcessor documentProcessor;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         documentProcessor = new DocumentProcessor(
             documentManagementService,
             scannableItemRepository

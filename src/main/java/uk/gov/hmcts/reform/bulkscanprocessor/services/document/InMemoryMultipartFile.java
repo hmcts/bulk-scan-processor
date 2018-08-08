@@ -1,13 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -18,21 +19,7 @@ public class InMemoryMultipartFile implements MultipartFile {
     private final String contentType;
     private final byte[] payload;
 
-    public InMemoryMultipartFile(File file) throws IOException {
-        this.originalFileName = file.getName();
-        this.payload = FileCopyUtils.copyToByteArray(file);
-        this.name = "file";
-        this.contentType = "application/octet-stream";
-    }
-
-    public InMemoryMultipartFile(String originalFileName, byte[] payload) {
-        this.originalFileName = originalFileName;
-        this.payload = payload;
-        this.name = "file";
-        this.contentType = "application/octet-stream";
-    }
-
-    public InMemoryMultipartFile(String name, String originalFileName, String contentType, byte[] payload) {
+    InMemoryMultipartFile(String name, String originalFileName, String contentType, byte[] payload) {
         if (payload == null) {
             throw new IllegalArgumentException("Payload cannot be null.");
         }
@@ -68,18 +55,18 @@ public class InMemoryMultipartFile implements MultipartFile {
     }
 
     @Override
-    public byte[] getBytes() throws IOException {
+    public byte[] getBytes() {
         return payload;
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
+    public InputStream getInputStream() {
         return new ByteArrayInputStream(payload);
     }
 
     @Override
     public void transferTo(File dest) throws IOException, IllegalStateException {
-        try (FileOutputStream stream = new FileOutputStream(dest)) {
+        try (OutputStream stream = Files.newOutputStream(Paths.get(dest.toURI()))) {
             stream.write(payload);
         }
     }
