@@ -31,7 +31,7 @@ public class EnvelopeRetrieverService {
     }
 
     public List<Envelope> findByServiceAndStatus(String serviceName, Status status) {
-        log.info("Fetch requested for envelopes for service {}", serviceName);
+        log.info("Fetch requested for envelopes for service {} and status {}", serviceName, status);
 
         String jurisdiction = getJurisdictionByServiceName(serviceName);
 
