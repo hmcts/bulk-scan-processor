@@ -23,9 +23,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeUpdateService;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -35,6 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(EnvelopeController.class)
@@ -54,7 +57,7 @@ public class ReadEnvelopesControllerTest {
 
     @Test
     public void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
-        List<Envelope> envelopes = EnvelopeCreator.envelopes();
+        List<Envelope> envelopes = envelopesInDb();
 
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
@@ -117,6 +120,13 @@ public class ReadEnvelopesControllerTest {
         assertThat(result.getResolvedException()).isInstanceOf(ServiceJuridictionConfigNotFoundException.class);
 
         verify(authService).authenticate("testServiceAuthHeader");
+    }
+
+    private List<Envelope> envelopesInDb() throws Exception {
+        Envelope envelope = EnvelopeCreator.envelope();
+        envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
+
+        return singletonList(envelope);
     }
 
     private String expectedEnvelopes() throws IOException {
