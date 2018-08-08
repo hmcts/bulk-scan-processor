@@ -1,9 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -71,16 +75,20 @@ public class Envelope {
         // For use by hibernate.
     }
 
+    @JsonCreator
     public Envelope(
-        String poBox,
-        String jurisdiction,
-        Timestamp deliveryDate,
-        Timestamp openingDate,
-        Timestamp zipFileCreateddate,
-        String zipFileName,
-        List<ScannableItem> scannableItems,
-        List<Payment> payments,
-        List<NonScannableItem> nonScannableItems
+        @JsonProperty("po_box") String poBox,
+        @JsonProperty("jurisdiction") String jurisdiction,
+        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonProperty("delivery_date") Timestamp deliveryDate,
+        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonProperty("opening_date") Timestamp openingDate,
+        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
+        @JsonProperty("zip_file_name") String zipFileName,
+        @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
+        @JsonProperty("payments") List<Payment> payments,
+        @JsonProperty("non_scannable_items") List<NonScannableItem> nonScannableItems
     ) {
         this.poBox = poBox;
         this.jurisdiction = jurisdiction;

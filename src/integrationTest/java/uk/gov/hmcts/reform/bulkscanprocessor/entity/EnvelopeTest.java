@@ -12,8 +12,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.IOException;
@@ -34,8 +32,6 @@ public class EnvelopeTest {
     @Autowired
     private EnvelopeRepository repository;
 
-    private EnvelopeResponseMapper envelopeResponseMapper = new EnvelopeResponseMapper();
-
     @After
     public void cleanUp() {
         repository.deleteAll();
@@ -44,8 +40,7 @@ public class EnvelopeTest {
     @Test
     public void should_insert_into_db_and_validate_data_correctness_when_retrieved() throws IOException {
         // given
-        EnvelopeResponse envelopeResponse = EntityParser.parseEnvelopeMetadata(getMetaFile());
-        Envelope envelope = envelopeResponseMapper.toEnvelope(envelopeResponse);
+        Envelope envelope = EntityParser.parseEnvelopeMetadata(getMetaFile());
         envelope.setContainer("container");
 
         // and
@@ -75,8 +70,7 @@ public class EnvelopeTest {
     @Test
     public void should_log_a_warning_when_container_is_not_set() throws IOException {
         // given
-        EnvelopeResponse envelopeResponse = EntityParser.parseEnvelopeMetadata(getMetaFile());
-        Envelope envelope = envelopeResponseMapper.toEnvelope(envelopeResponse);
+        Envelope envelope = EntityParser.parseEnvelopeMetadata(getMetaFile());
 
         // when
         Envelope dbEnvelope = repository.save(envelope);

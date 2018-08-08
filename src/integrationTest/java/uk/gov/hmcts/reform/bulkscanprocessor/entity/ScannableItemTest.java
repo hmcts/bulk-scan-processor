@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.IOException;
@@ -28,14 +26,11 @@ public class ScannableItemTest {
     @Autowired
     private ScannableItemRepository scannableItemRepository;
 
-    private EnvelopeResponseMapper envelopeResponseMapper = new EnvelopeResponseMapper();
-
     @Test
     public void should_update_document_url_of_scannable_item() throws IOException {
         // given
         InputStream metafile = getClass().getResourceAsStream("/metafile.json");
-        EnvelopeResponse envelopeResponse = EntityParser.parseEnvelopeMetadata(metafile);
-        Envelope envelope = envelopeResponseMapper.toEnvelope(envelopeResponse);
+        Envelope envelope = EntityParser.parseEnvelopeMetadata(metafile);
         envelope.setContainer("container");
 
         // and

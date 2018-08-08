@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,9 +10,9 @@ public final class EntityParser {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static EnvelopeResponse parseEnvelopeMetadata(InputStream metadataStream) throws IOException {
+    public static Envelope parseEnvelopeMetadata(InputStream metadataStream) throws IOException {
         try {
-            return mapper.readValue(metadataStream, EnvelopeResponse.class);
+            return mapper.readValue(metadataStream, Envelope.class);
         } finally {
             metadataStream.close();
         }

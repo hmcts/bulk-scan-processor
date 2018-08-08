@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -34,10 +36,10 @@ public class Payment implements EnvelopeAssignable {
     }
 
     public Payment(
-        String documentControlNumber,
-        String method,
-        String amount,
-        String currency
+        @JsonProperty("document_control_number") String documentControlNumber,
+        @JsonProperty("method") String method,
+        @JsonProperty("amount") String amount,
+        @JsonProperty("currency") String currency
     ) {
         Double amountInPence = Double.valueOf(amount) * 100;
 

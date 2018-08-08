@@ -12,8 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.ByteArrayInputStream;
@@ -32,7 +30,6 @@ public class EnvelopeProcessor {
 
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
-    private final EnvelopeResponseMapper envelopeResponseMapper;
 
     public EnvelopeProcessor(
         EnvelopeRepository envelopeRepository,
@@ -40,7 +37,6 @@ public class EnvelopeProcessor {
     ) {
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
-        this.envelopeResponseMapper = new EnvelopeResponseMapper();
     }
 
     public Envelope parseEnvelope(byte[] metadataStream) throws IOException {
@@ -49,9 +45,7 @@ public class EnvelopeProcessor {
         }
         //TODO Perform json schema validation for the metadata file
         InputStream inputStream = new ByteArrayInputStream(metadataStream);
-        EnvelopeResponse envelopeResponse = EntityParser.parseEnvelopeMetadata(inputStream);
-        Envelope envelope = envelopeResponseMapper.toEnvelope(envelopeResponse);
-        return envelope;
+        return EntityParser.parseEnvelopeMetadata(inputStream);
     }
 
     /**
