@@ -5,12 +5,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.ScannableItemResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.StatusResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +28,7 @@ public class EnvelopeResponseMapper {
         if (envelope == null) {
             return null;
         }
-        EnvelopeResponse response = new EnvelopeResponse(
+        return new EnvelopeResponse(
             envelope.getId(),
             envelope.getContainer(),
             envelope.getPoBox(),
@@ -44,24 +42,6 @@ public class EnvelopeResponseMapper {
             toPaymentsResponse(envelope.getPayments()),
             toNonScannableItemsResponse(envelope.getNonScannableItems())
         );
-        return response;
-    }
-
-    private StatusResponse toStatusResponse(Status status) {
-        switch (status) {
-            case CONSUMED:
-                return StatusResponse.CONSUMED;
-            case CREATED:
-                return StatusResponse.CREATED;
-            case PROCESSED:
-                return StatusResponse.PROCESSED;
-            case UPLOAD_FAILURE:
-                return StatusResponse.UPLOAD_FAILURE;
-            case UPLOADED:
-                return StatusResponse.UPLOADED;
-            default:
-                return null;
-        }
     }
 
     private List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
@@ -149,7 +129,7 @@ public class EnvelopeResponseMapper {
         if (envelopeResponse == null) {
             return null;
         }
-        Envelope envelope = new Envelope(
+        return new Envelope(
             envelopeResponse.getPoBox(),
             envelopeResponse.getJurisdiction(),
             envelopeResponse.getDeliveryDate(),
@@ -160,7 +140,6 @@ public class EnvelopeResponseMapper {
             toPayments(envelopeResponse.getPayments()),
             toNonScannableItems(envelopeResponse.getNonScannableItems())
         );
-        return envelope;
     }
 
     private List<ScannableItem> toScannableItems(List<ScannableItemResponse> scannableItemsResponse) {

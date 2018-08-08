@@ -22,11 +22,11 @@ public class PaymentResponse {
         @JsonProperty("amount") String amount,
         @JsonProperty("currency") String currency
     ) {
-        Double amountInPence = Double.valueOf(amount) * 100;
+        Double pence = Double.valueOf(amount) * 100;
 
         this.documentControlNumber = documentControlNumber;
         this.method = method;
-        this.amountInPence = amountInPence.intValue();
+        this.amountInPence = pence.intValue();
         this.currency = currency;
     }
 
