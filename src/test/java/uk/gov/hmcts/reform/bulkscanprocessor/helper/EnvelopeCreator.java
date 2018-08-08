@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public final class EnvelopeCreator {
 
@@ -23,21 +24,25 @@ public final class EnvelopeCreator {
     }
 
     public static Envelope envelope() throws Exception {
+        return envelope("SSCS", Status.PROCESSED);
+    }
+
+    public static Envelope envelope(String jurisdiction, Status status) throws Exception {
         Timestamp timestamp = getTimestamp();
 
         Envelope envelope = new Envelope(
             "SSCSPO",
-            "SSCS",
+            jurisdiction,
             timestamp,
             timestamp,
             timestamp,
-            "7_24-06-2018-00-00-00.zip",
+            UUID.randomUUID() + ".zip",
             scannableItems(),
             payments(),
             nonScannableItems()
         );
 
-        envelope.setStatus(Status.PROCESSED);
+        envelope.setStatus(status);
         envelope.setContainer("SSCS");
 
         return envelope;

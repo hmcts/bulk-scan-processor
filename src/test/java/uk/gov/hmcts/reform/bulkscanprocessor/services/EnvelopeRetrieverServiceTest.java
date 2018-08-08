@@ -14,12 +14,15 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeRetrieverServiceTest {
@@ -38,7 +41,7 @@ public class EnvelopeRetrieverServiceTest {
     }
 
     @Test
-    public void should_return_all_envelopes_successfully_for_a_given_jurisdiction() throws Exception {
+    public void should_return_all_envelopes_successfully_for_a_given_jurisdiction_and_status() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
 
         when(envelopeAccess.getMappings())
@@ -47,10 +50,33 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenReturn(envelopes);
 
-        assertThat(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"))
+        assertThat(envelopeRetrieverService.findByServiceAndStatus("testService", PROCESSED))
             .containsOnly(envelopes.get(0));
 
         verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", PROCESSED);
+    }
+
+    @Test
+    public void should_return_all_envelopes_if_status_is_null() throws Exception {
+        // given
+        List<Envelope> envelopes =
+            asList(
+                envelope(),
+                envelope(),
+                envelope()
+            );
+
+        given(envelopeAccess.getMappings())
+            .willReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
+
+        given(envelopeRepository.findByJurisdiction("testJurisdiction"))
+            .willReturn(envelopes);
+
+        // when
+        List<Envelope> foundEnvelopes = envelopeRetrieverService.findByServiceAndStatus("testService", null);
+
+        // then
+        assertThat(foundEnvelopes).containsExactlyInAnyOrderElementsOf(envelopes);
     }
 
     @Test
@@ -62,7 +88,7 @@ public class EnvelopeRetrieverServiceTest {
             .thenThrow(DataRetrievalFailureException.class);
 
         Throwable throwable = catchThrowable(() ->
-            envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testService"));
+            envelopeRetrieverService.findByServiceAndStatus("testService", PROCESSED));
 
         assertThat(throwable).isInstanceOf(DataRetrievalFailureException.class);
     }

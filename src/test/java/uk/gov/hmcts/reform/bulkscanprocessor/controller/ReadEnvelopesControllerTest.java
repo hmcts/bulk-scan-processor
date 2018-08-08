@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,17 +56,19 @@ public class ReadEnvelopesControllerTest {
     public void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
 
-        when(authService.authenticate("testServiceAuthHeader")).thenReturn("testServiceName");
-        when(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("testServiceName")).thenReturn(envelopes);
+        when(authService.authenticate("testServiceAuthHeader"))
+            .thenReturn("testServiceName");
+        when(envelopeRetrieverService.findByServiceAndStatus("testServiceName", Status.PROCESSED))
+            .thenReturn(envelopes);
 
-        mockMvc.perform(get("/envelopes")
+        mockMvc.perform(get("/envelopes?status=PROCESSED")
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json;charset=UTF-8"))
             .andExpect(content().json(expectedEnvelopes()));
 
-        verify(envelopeRetrieverService).getProcessedEnvelopesByJurisdiction("testServiceName");
+        verify(envelopeRetrieverService).findByServiceAndStatus("testServiceName", Status.PROCESSED);
         verify(authService).authenticate("testServiceAuthHeader");
     }
 
@@ -73,7 +77,7 @@ public class ReadEnvelopesControllerTest {
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("testServiceName");
 
         doThrow(new DataRetrievalFailureException("Cannot retrieve data"))
-            .when(envelopeRetrieverService).getProcessedEnvelopesByJurisdiction("testServiceName");
+            .when(envelopeRetrieverService).findByServiceAndStatus(any(), any());
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
             .header("ServiceAuthorization", "testServiceAuthHeader"))
@@ -102,7 +106,7 @@ public class ReadEnvelopesControllerTest {
         throws Exception {
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("test");
 
-        when(envelopeRetrieverService.getProcessedEnvelopesByJurisdiction("test"))
+        when(envelopeRetrieverService.findByServiceAndStatus(any(), any()))
             .thenThrow(ServiceJuridictionConfigNotFoundException.class);
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
