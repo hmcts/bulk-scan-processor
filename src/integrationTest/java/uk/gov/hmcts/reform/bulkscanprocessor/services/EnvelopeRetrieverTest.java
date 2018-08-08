@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Map
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class EnvelopeRetrieverTest {
         serviceCanReadFromJurisdiction("service_A", "A");
 
         // when
-        List<Envelope> envs = service.findByServiceAndStatus("service_A", Status.PROCESSED);
+        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_A", Status.PROCESSED);
 
         // then
         assertThat(envs).hasSize(2);
@@ -74,7 +75,7 @@ public class EnvelopeRetrieverTest {
         serviceCanReadFromJurisdiction("service_B", "B");
 
         // when
-        List<Envelope> envs = service.findByServiceAndStatus("service_B", Status.CONSUMED);
+        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_B", Status.CONSUMED);
 
         // then
         assertThat(envs).hasSize(0);
@@ -95,7 +96,7 @@ public class EnvelopeRetrieverTest {
         serviceCanReadFromJurisdiction("service_X", "X");
 
         // when
-        List<Envelope> envs = service.findByServiceAndStatus("service_X", null);
+        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_X", null);
 
         // then
         assertThat(envs).hasSize(4);
