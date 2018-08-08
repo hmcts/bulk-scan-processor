@@ -153,6 +153,10 @@ public class Envelope {
         return zipFileName;
     }
 
+    public void setZipFileName(String zipFileName) {
+        this.zipFileName = zipFileName;
+    }
+
     public Status getStatus() {
         return status;
     }

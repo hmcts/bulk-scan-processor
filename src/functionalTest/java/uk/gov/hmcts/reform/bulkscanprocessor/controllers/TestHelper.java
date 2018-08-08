@@ -146,7 +146,7 @@ public class TestHelper {
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .header("ServiceAuthorization", "Bearer " + s2sToken)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/envelopes")
+            .when().get("/envelopes?status=" + Status.PROCESSED)
             .andReturn();
     }
 
