@@ -23,7 +23,7 @@ public final class EnvelopeCreator {
 
     public static List<EnvelopeResponse> envelopeResponses() throws Exception {
         EnvelopeResponseMapper mapper = new EnvelopeResponseMapper();
-        return mapper.toEnvelopeResponses(envelopes());
+        return mapper.toEnvelopesResponse(envelopes());
     }
 
     public static EnvelopeResponse envelopeResponse() throws Exception {

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
+import com.google.common.collect.ImmutableList;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -16,9 +17,9 @@ import java.util.stream.Collectors;
 
 public class EnvelopeResponseMapper {
 
-    public List<EnvelopeResponse> toEnvelopeResponses(List<Envelope> envelopes) {
+    public List<EnvelopeResponse> toEnvelopesResponse(List<Envelope> envelopes) {
         if (envelopes == null) {
-            return null;
+            return ImmutableList.of();
         }
         return envelopes.stream()
             .map(this::toEnvelopeResponse)
@@ -65,7 +66,7 @@ public class EnvelopeResponseMapper {
 
     private List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
         if (scannableItems == null) {
-            return null;
+            return ImmutableList.of();
         }
         return scannableItems.stream()
             .map(this::toScannableItemResponse)
@@ -95,7 +96,7 @@ public class EnvelopeResponseMapper {
 
     private List<NonScannableItemResponse> toNonScannableItemsResponse(List<NonScannableItem> nonScannableItems) {
         if (nonScannableItems == null) {
-            return null;
+            return ImmutableList.of();
         }
         return nonScannableItems.stream()
             .map(this::toNonScannableItemResponse)
@@ -114,7 +115,7 @@ public class EnvelopeResponseMapper {
 
     private List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
         if (payments == null) {
-            return null;
+            return ImmutableList.of();
         }
         return payments.stream()
             .map(this::toPaymentResponse)
@@ -137,7 +138,7 @@ public class EnvelopeResponseMapper {
 
     public List<Envelope> toEnvelopes(List<EnvelopeResponse> envelopesResponse) {
         if (envelopesResponse == null) {
-            return null;
+            return ImmutableList.of();
         }
         return envelopesResponse.stream()
             .map(this::toEnvelope)
@@ -164,7 +165,7 @@ public class EnvelopeResponseMapper {
 
     private List<ScannableItem> toScannableItems(List<ScannableItemResponse> scannableItemsResponse) {
         if (scannableItemsResponse == null) {
-            return null;
+            return ImmutableList.of();
         }
         return scannableItemsResponse.stream()
             .map(this::toScannableItem)
@@ -192,7 +193,7 @@ public class EnvelopeResponseMapper {
 
     private List<NonScannableItem> toNonScannableItems(List<NonScannableItemResponse> nonScannableItemsResponse) {
         if (nonScannableItemsResponse == null) {
-            return null;
+            return ImmutableList.of();
         }
         return nonScannableItemsResponse.stream()
             .map(this::toNonScannableItem)
@@ -211,7 +212,7 @@ public class EnvelopeResponseMapper {
 
     private List<Payment> toPayments(List<PaymentResponse> paymentsResponse) {
         if (paymentsResponse == null) {
-            return null;
+            return ImmutableList.of();
         }
         return paymentsResponse.stream()
             .map(this::toPayment)

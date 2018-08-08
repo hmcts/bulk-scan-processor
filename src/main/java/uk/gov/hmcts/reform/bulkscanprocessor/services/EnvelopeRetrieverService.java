@@ -38,7 +38,7 @@ public class EnvelopeRetrieverService {
 
         String jurisdiction = getJurisdictionByServiceName(serviceName);
 
-        return envelopeResponseMapper.toEnvelopeResponses(
+        return envelopeResponseMapper.toEnvelopesResponse(
             status == null
             ? envelopeRepository.findByJurisdiction(jurisdiction)
             : envelopeRepository.findByJurisdictionAndStatus(jurisdiction, status)
