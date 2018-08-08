@@ -174,6 +174,10 @@ data "vault_generic_secret" "s2s_secret" {
   path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/bulk-scan-processor"
 }
 
+data "vault_generic_secret" "s2s_secret_test" {
+  path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/bulk-scan-processor-tests"
+}
+
 # region API (gateway)
 
 data "template_file" "api_template" {

@@ -9,6 +9,11 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers.TaskErrorHandler;
 
 import java.time.Duration;
 import javax.sql.DataSource;
@@ -18,22 +23,43 @@ import javax.sql.DataSource;
 @DependsOn({"flyway", "flywayInitializer"})
 public class ShedLockConfiguration {
 
-    @Value("${scheduling.pool}")
-    private int poolSize;
-
-    @Value("${scheduling.lock_at_most_for}")
-    private String lockAtMostFor;
-
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
         return new JdbcLockProvider(dataSource);
     }
 
     @Bean
-    public ScheduledLockConfiguration taskScheduler(LockProvider lockProvider) {
+    public TaskErrorHandler errorHandler(
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository processEventRepository
+    ) {
+        return new TaskErrorHandler(envelopeRepository, processEventRepository);
+    }
+
+    @Bean
+    public TaskScheduler customTaskScheduler(
+        TaskErrorHandler errorHandler,
+        @Value("${scheduling.pool}") int poolSize
+    ) {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+
+        scheduler.setPoolSize(poolSize);
+        scheduler.setThreadNamePrefix("BSP-");
+        scheduler.setErrorHandler(errorHandler);
+        scheduler.initialize();
+
+        return scheduler;
+    }
+
+    @Bean
+    public ScheduledLockConfiguration taskScheduler(
+        LockProvider lockProvider,
+        TaskScheduler taskScheduler,
+        @Value("${scheduling.lock_at_most_for}") String lockAtMostFor
+    ) {
         return ScheduledLockConfigurationBuilder
             .withLockProvider(lockProvider)
-            .withPoolSize(poolSize)
+            .withTaskScheduler(taskScheduler)
             .withDefaultLockAtMostFor(Duration.parse(lockAtMostFor))
             .build();
     }

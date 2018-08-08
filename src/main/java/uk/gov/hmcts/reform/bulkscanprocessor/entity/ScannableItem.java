@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -66,6 +67,7 @@ public class ScannableItem implements EnvelopeAssignable {
         // For use by hibernate.
     }
 
+    @JsonCreator
     public ScannableItem(
         @JsonProperty("document_control_number") String documentControlNumber,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)

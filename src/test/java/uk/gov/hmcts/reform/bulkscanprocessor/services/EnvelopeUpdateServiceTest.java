@@ -22,10 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
-@SuppressWarnings("PMD.BeanMembersShouldSerialize")
+@SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:linelength"})
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeUpdateServiceTest {
 
@@ -69,10 +71,31 @@ public class EnvelopeUpdateServiceTest {
         ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
         verify(envelopeRepo).save(envelopeParam.capture());
         assertThat(envelopeParam.getValue().getStatus()).isEqualTo(CONSUMED);
+    }
 
-        // and event should be created
+    @Test
+    public void updateStatus_should_create_an_event_if_there_is_one_configured_for_the_new_status() throws Exception {
+        //given
+        given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(EnvelopeCreator.envelope()));
+
+        // when
+        service.updateStatus(randomUUID(), CONSUMED, "some_service");
+
+        // then
         ArgumentCaptor<ProcessEvent> eventParam = ArgumentCaptor.forClass(ProcessEvent.class);
         verify(eventRepo).save(eventParam.capture());
         assertThat(eventParam.getValue().getEvent()).isEqualTo(Event.DOC_CONSUMED);
+    }
+
+    @Test
+    public void updateStatus_should_not_create_an_event_if_there_is_none_configured_for_the_new_status() throws Exception {
+        //given
+        given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(EnvelopeCreator.envelope()));
+
+        // when
+        service.updateStatus(randomUUID(), UPLOAD_FAILURE, "some_service");
+
+        // then
+        verify(eventRepo, never()).save(any());
     }
 }

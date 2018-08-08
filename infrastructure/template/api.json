@@ -38,7 +38,8 @@
   },
   "variables": {
     "fullApiProductName": "[concat('Microsoft.ApiManagement/service/', parameters('apiManagementServiceName'), '/products/', parameters('apiProductName'))]",
-    "fullApiName": "[concat('Microsoft.ApiManagement/service/', parameters('apiManagementServiceName'), '/apis/', parameters('apiName'))]"
+    "fullApiName": "[concat('Microsoft.ApiManagement/service/', parameters('apiManagementServiceName'), '/apis/', parameters('apiName'))]",
+    "developersGroupName": "Developers"
   },
   "resources": [
     {
@@ -54,6 +55,20 @@
         "subscriptionsLimit": 20,
         "state": "published"
       }
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/products/groups",
+      "name": "[concat(parameters('apiManagementServiceName') ,'/', parameters('apiProductName'), '/', variables('developersGroupName'))]",
+      "apiVersion": "2017-03-01",
+      "properties": {
+        "displayName": "Developers",
+        "description": "Developers group",
+        "builtIn": true,
+        "type": "system"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/products', parameters('apiManagementServiceName'), parameters('apiProductName'))]"
+      ]
     },
     {
       "apiVersion": "2017-03-01",

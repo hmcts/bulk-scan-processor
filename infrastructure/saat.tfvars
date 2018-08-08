@@ -1,1 +1,1 @@
-api_gateway_test_valid_certificate_thumbprint = "52F1C311CB4F7370CFF1CF1534AF35A939B8FEE9"
+api_gateway_test_valid_certificate_thumbprint = "32C192787AE52184F6B2A0BB29440BAAE6C4BC7E"

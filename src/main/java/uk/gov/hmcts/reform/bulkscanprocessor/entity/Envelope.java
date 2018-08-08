@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -12,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import javax.persistence.CascadeType;
@@ -55,14 +57,16 @@ public class Envelope {
     private Timestamp openingDate;
 
     @JsonSerialize(using = CustomTimestampSerialiser.class)
-    @JsonProperty("zip_file_created_date")
-    private Timestamp zipFileCreatedDate;
+    @JsonProperty("zip_file_createddate")
+    private Timestamp zipFileCreateddate;
 
     @JsonProperty("zip_file_name")
     private String zipFileName;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.CREATED;
+
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
@@ -87,6 +91,7 @@ public class Envelope {
         // For use by hibernate.
     }
 
+    @JsonCreator
     public Envelope(
         @JsonProperty("po_box") String poBox,
         @JsonProperty("jurisdiction") String jurisdiction,
@@ -95,7 +100,7 @@ public class Envelope {
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("opening_date") Timestamp openingDate,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
-        @JsonProperty("zip_file_createddate") Timestamp zipFileCreatedDate,
+        @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
         @JsonProperty("payments") List<Payment> payments,
@@ -105,7 +110,7 @@ public class Envelope {
         this.jurisdiction = jurisdiction;
         this.deliveryDate = deliveryDate;
         this.openingDate = openingDate;
-        this.zipFileCreatedDate = zipFileCreatedDate;
+        this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
@@ -156,6 +161,10 @@ public class Envelope {
         this.status = status;
     }
 
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
         assignables.forEach(assignable -> assignable.setEnvelope(this));
     }
@@ -166,4 +175,5 @@ public class Envelope {
             log.warn("Missing required container for {}", zipFileName);
         }
     }
+    
 }
