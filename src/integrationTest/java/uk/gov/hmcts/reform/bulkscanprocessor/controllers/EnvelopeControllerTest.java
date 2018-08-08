@@ -157,7 +157,7 @@ public class EnvelopeControllerTest {
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
-        mockMvc.perform(get("/envelopes?status=" + Status.PROCESSED)
+        mockMvc.perform(get("/envelopes?status=" + PROCESSED)
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
