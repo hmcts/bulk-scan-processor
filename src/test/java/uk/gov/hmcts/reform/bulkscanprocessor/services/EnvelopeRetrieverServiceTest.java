@@ -29,20 +29,19 @@ public class EnvelopeRetrieverServiceTest {
 
     private EnvelopeRetrieverService envelopeRetrieverService;
 
-    @Mock
-    private EnvelopeAccessProperties envelopeAccess;
-
     @Before
     public void setUp() {
+        EnvelopeAccessProperties accessProps = new EnvelopeAccessProperties();
+        accessProps.setMappings(
+            singletonList(new Mapping("testJurisdiction", "testService", "testService"))
+        );
+        EnvelopeAccessService envelopeAccess = new EnvelopeAccessService(accessProps);
         envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, envelopeAccess);
     }
 
     @Test
     public void should_return_all_envelopes_successfully_for_a_given_jurisdiction() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
-
-        when(envelopeAccess.getMappings())
-            .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
 
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenReturn(envelopes);
@@ -55,9 +54,6 @@ public class EnvelopeRetrieverServiceTest {
 
     @Test
     public void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
-        when(envelopeAccess.getMappings())
-            .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
-
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenThrow(DataRetrievalFailureException.class);
 

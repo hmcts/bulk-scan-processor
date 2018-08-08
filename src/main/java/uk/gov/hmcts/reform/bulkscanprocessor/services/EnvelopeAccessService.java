@@ -1,19 +1,43 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
+@EnableConfigurationProperties(EnvelopeAccessProperties.class)
 public class EnvelopeAccessService {
 
-    private final EnvelopeAccessProperties access;
+    private final List<Mapping> mappings;
 
     public EnvelopeAccessService(EnvelopeAccessProperties accessProps) {
-        this.access = accessProps;
+        this.mappings = accessProps.getMappings();
+    }
+
+    /**
+     * Giving the service name check which jurisdiction it is allowed to access and return it.
+     *
+     * @param serviceName accessing the API
+     * @return configured jurisdiction
+     */
+    public String getJurisdictionByServiceName(String serviceName) {
+        return mappings
+            .stream()
+            .filter(m -> Objects.equals(m.getReadService(), serviceName))
+            .findFirst()
+            .map(m -> m.getJurisdiction())
+            .orElseThrow(() ->
+                new ServiceJuridictionConfigNotFoundException(
+                    "No configuration mapping found for service " + serviceName
+                )
+            );
     }
 
     /**
@@ -22,16 +46,14 @@ public class EnvelopeAccessService {
      * or configuration for the jurisdiction is not found.
      */
     public void assertCanUpdate(String envelopeJurisdiction, String serviceName) {
-        String serviceThanCanUpdateEnvelope =
-            access
-                .getMappings()
-                .stream()
-                .filter(m -> Objects.equals(m.getJurisdiction(), envelopeJurisdiction))
-                .findFirst()
-                .map(m -> m.getUpdateService())
-                .orElseThrow(() -> new ServiceConfigNotFoundException(
-                    "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
-                ));
+        String serviceThanCanUpdateEnvelope = mappings
+            .stream()
+            .filter(m -> Objects.equals(m.getJurisdiction(), envelopeJurisdiction))
+            .findFirst()
+            .map(m -> m.getUpdateService())
+            .orElseThrow(() -> new ServiceConfigNotFoundException(
+                "No service configuration found to update envelopes in jurisdiction: " + envelopeJurisdiction
+            ));
 
         if (!serviceThanCanUpdateEnvelope.equals(serviceName)) {
             throw new ForbiddenException(
