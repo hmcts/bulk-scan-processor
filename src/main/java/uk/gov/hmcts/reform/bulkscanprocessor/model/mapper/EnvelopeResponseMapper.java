@@ -30,19 +30,19 @@ public class EnvelopeResponseMapper {
             return null;
         }
         EnvelopeResponse response = new EnvelopeResponse(
+            envelope.getId(),
+            envelope.getContainer(),
             envelope.getPoBox(),
             envelope.getJurisdiction(),
             envelope.getDeliveryDate(),
             envelope.getOpeningDate(),
             envelope.getZipFileCreateddate(),
             envelope.getZipFileName(),
+            envelope.getStatus(),
             toScannableItemsResponse(envelope.getScannableItems()),
             toPaymentsResponse(envelope.getPayments()),
             toNonScannableItemsResponse(envelope.getNonScannableItems())
         );
-        response.setContainer(envelope.getContainer());
-        response.setId(envelope.getId());
-        response.setStatus(envelope.getStatus());
         return response;
     }
 

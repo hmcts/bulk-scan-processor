@@ -6,6 +6,7 @@ public class NonScannableItemResponse {
 
     @JsonProperty("item_type")
     private String itemType;
+    
     @JsonProperty("notes")
     private String notes;
 

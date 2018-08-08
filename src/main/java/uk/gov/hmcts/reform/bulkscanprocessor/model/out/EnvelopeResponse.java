@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -17,7 +16,7 @@ import static java.util.Collections.emptyList;
 
 public class EnvelopeResponse {
 
-    @JsonIgnore
+    @JsonProperty("id")
     private UUID id;
 
     @JsonProperty("container")
@@ -58,6 +57,8 @@ public class EnvelopeResponse {
 
     @JsonCreator
     public EnvelopeResponse(
+        @JsonProperty("id") UUID id,
+        @JsonProperty("container") String container,
         @JsonProperty("po_box") String poBox,
         @JsonProperty("jurisdiction") String jurisdiction,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
@@ -67,16 +68,20 @@ public class EnvelopeResponse {
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
+        @JsonProperty("status") Status status,
         @JsonProperty("scannable_items") List<ScannableItemResponse> scannableItems,
         @JsonProperty("payments") List<PaymentResponse> payments,
         @JsonProperty("non_scannable_items") List<NonScannableItemResponse> nonScannableItems
     ) {
+        this.id = id;
+        this.container = container;
         this.poBox = poBox;
         this.jurisdiction = jurisdiction;
         this.deliveryDate = deliveryDate;
         this.openingDate = openingDate;
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
+        this.status = status;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
@@ -86,20 +91,8 @@ public class EnvelopeResponse {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public Status getStatus() {
         return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public void setContainer(String container) {
-        this.container = container;
     }
 
     public String getZipFileName() {
