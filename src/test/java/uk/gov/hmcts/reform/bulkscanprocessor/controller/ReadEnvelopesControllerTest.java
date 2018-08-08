@@ -120,6 +120,13 @@ public class ReadEnvelopesControllerTest {
         verify(authService).authenticate("testServiceAuthHeader");
     }
 
+    @Test
+    public void should_not_accept_invalid_statuses_when_reading_envelopes_by_status() throws Exception {
+        mockMvc
+            .perform(get("/envelopes?status=INVALID_STATUS"))
+            .andExpect(status().is(400));
+    }
+
     private List<Envelope> envelopesInDb() throws Exception {
         Envelope envelope = EnvelopeCreator.envelope();
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file

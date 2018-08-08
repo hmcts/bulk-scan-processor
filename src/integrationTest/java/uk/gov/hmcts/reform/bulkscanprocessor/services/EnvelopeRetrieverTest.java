@@ -59,6 +59,28 @@ public class EnvelopeRetrieverTest {
     }
 
     @Test
+    public void should_return_empty_list_if_no_envelopes_for_given_jurisdiction_and_status_are_found()
+        throws Exception {
+
+        // given
+        dbContains(
+            envelope("A", Status.PROCESSED),
+            envelope("A", Status.CONSUMED),
+            envelope("B", Status.PROCESSED),
+            envelope("B", Status.PROCESSED)
+        );
+
+        // and
+        serviceCanReadFromJurisdiction("service_B", "B");
+
+        // when
+        List<Envelope> envs = service.findByServiceAndStatus("service_B", Status.CONSUMED);
+
+        // then
+        assertThat(envs).hasSize(0);
+    }
+
+    @Test
     public void should_retrieve_all_envelopes_for_given_jurisdiction_if_passed_status_is_null() throws Exception {
         // given
         dbContains(
