@@ -121,7 +121,6 @@ public class ScannableItemResponse {
             + ", manualIntervention='" + manualIntervention + '\''
             + ", nextAction='" + nextAction + '\''
             + ", nextActionDate=" + nextActionDate
-            + ", ocrData='" + ocrData + '\''
             + ", fileName='" + fileName + '\''
             + ", notes='" + notes + '\''
             + ", documentUrl='" + documentUrl + '\''
