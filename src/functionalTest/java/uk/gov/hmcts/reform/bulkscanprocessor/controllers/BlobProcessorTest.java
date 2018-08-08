@@ -86,7 +86,7 @@ public class BlobProcessorTest {
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
         EnvelopeMetadataResponse envelopeMetadataResponse =
-            testHelper.getAllProcessedEnvelopesMetadata(this.testUrl, s2sToken);
+            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED);
 
         // some test DBs are not cleaned so there will probably be more than 1
         assertThat(envelopeMetadataResponse.envelopes.size()).isGreaterThanOrEqualTo(1);

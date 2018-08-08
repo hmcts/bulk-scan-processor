@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +72,7 @@ public class UpdateStatusTest {
         // find our envelope
         UUID envelopeId =
             testHelper
-                .getAllProcessedEnvelopesMetadata(this.testUrl, s2sToken)
+                .getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED)
                 .envelopes
                 .stream()
                 .filter(e -> Objects.equals(e.getZipFileName(), destZipFilename))
@@ -88,20 +87,19 @@ public class UpdateStatusTest {
             Status.CONSUMED
         );
 
-
-        List<Envelope> envelopesAfterUpdate =
+        // TODO: update when an endpoint for reading single envelope by ID is available.
+        Envelope envelopeAfterUpdate =
             testHelper
-                .getAllProcessedEnvelopesMetadata(this.testUrl, s2sToken)
-                .envelopes;
-
-        // currently read endpoint returns only envelopes in status 'PROCESSED'
-        // change this once we can read all envelopes (or single envelope by ID)
-        assertThat(
-            envelopesAfterUpdate.stream()
+                .getEnvelopes(this.testUrl, s2sToken, Status.CONSUMED)
+                .envelopes
+                .stream()
                 .filter(e -> e.getId() == envelopeId)
                 .findFirst()
-        )
-            .as("Envelope should no longer be on a list of PROCESSED envelopes")
-            .isEmpty();
+                .get();
+
+        assertThat(envelopeAfterUpdate.getStatus())
+            .as("Envelope should have status " + Status.CONSUMED)
+            .isEqualTo(Status.CONSUMED);
+
     }
 }
