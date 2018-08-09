@@ -1,16 +1,16 @@
 package uk.gov.hmcts.reform.bulkscanprocessor;
 
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.TestHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.not;
 
@@ -47,8 +47,9 @@ public class WhenApplicationDeployedTest {
         TestHelper testHelper = new TestHelper();
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
-        Response response = testHelper.getAllProcessedEnvelopesResponse(this.testUrl, s2sToken);
-        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThatCode(() ->
+            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED)
+        ).doesNotThrowAnyException();
     }
 
 }

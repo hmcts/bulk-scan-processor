@@ -15,7 +15,7 @@ import io.restassured.response.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayOutputStream;
@@ -131,23 +131,24 @@ public class TestHelper {
         return outputStream.toByteArray();
     }
 
-    public EnvelopeMetadataResponse getAllProcessedEnvelopesMetadata(String baseUrl, String s2sToken) {
-        Response response = getAllProcessedEnvelopesResponse(baseUrl, s2sToken);
+    public EnvelopeListResponse getEnvelopes(String baseUrl, String s2sToken, Status status) {
+        String url = status == null ? "/envelopes" : "/envelopes?status=" + status;
+
+        Response response =
+            RestAssured
+                .given()
+                .relaxedHTTPSValidation()
+                .baseUri(baseUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("ServiceAuthorization", "Bearer " + s2sToken)
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+                .when()
+                .get(url)
+                .andReturn();
+
         assertThat(response.getStatusCode()).isEqualTo(200);
 
-        return response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
-    }
-
-    public Response getAllProcessedEnvelopesResponse(String baseUrl, String s2sToken) {
-        return RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(baseUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header("ServiceAuthorization", "Bearer " + s2sToken)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/envelopes?status=" + Status.PROCESSED)
-            .andReturn();
+        return response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
     }
 
     public void updateEnvelopeStatus(

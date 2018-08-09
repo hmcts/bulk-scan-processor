@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.StatusUpdate;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
@@ -45,11 +45,11 @@ public class EnvelopeController {
 
     @GetMapping
     @ApiOperation(
-        value = "Retrieves all envelopes with processed status for a given jurisdiction",
+        value = "Retrieves all envelopes",
         notes = "Returns an empty list when no envelopes were found"
     )
-    @ApiResponse(code = 200, message = "Success", response = EnvelopeMetadataResponse.class)
-    public EnvelopeMetadataResponse getProcessedEnvelopesByJurisdiction(
+    @ApiResponse(code = 200, message = "Success", response = EnvelopeListResponse.class)
+    public EnvelopeListResponse getAll(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,
         @RequestParam(name = "status", required = false) Status status
     ) {
@@ -57,7 +57,7 @@ public class EnvelopeController {
 
         List<EnvelopeResponse> envelopes = envelopeRetrieverService.findByServiceAndStatus(serviceName, status);
 
-        return new EnvelopeMetadataResponse(envelopes);
+        return new EnvelopeListResponse(envelopes);
     }
 
     @PutMapping(path = "/{id}/status")
