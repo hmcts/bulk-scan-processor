@@ -90,7 +90,9 @@ public class ReuploadFailedEnvelopeTask {
 
                 future.cancel(true);
 
-                Thread.currentThread().interrupt();
+                if (exception instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
             } finally {
                 completed++;
             }
