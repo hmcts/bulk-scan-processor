@@ -66,12 +66,12 @@ variable "common_tags" {
   type = "map"
 }
 
-variable "scheduling_enabled" {
-  default = "false"
-}
-
 variable "scan_delay" {
   default = "30000"  # In milliseconds
+}
+
+variable "scan_enabled" {
+  default = "false"
 }
 
 # list of SSL client certificate thumbprints that are accepted by the API (gateway)

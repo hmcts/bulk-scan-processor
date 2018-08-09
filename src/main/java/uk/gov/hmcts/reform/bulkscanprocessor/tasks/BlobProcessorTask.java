@@ -37,7 +37,7 @@ import java.util.zip.ZipInputStream;
  * </ol>
  */
 @Component
-@ConditionalOnProperty(value = "scheduling.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class BlobProcessorTask {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);

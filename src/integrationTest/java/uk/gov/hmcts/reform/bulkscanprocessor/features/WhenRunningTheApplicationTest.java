@@ -22,7 +22,8 @@ import static org.mockito.Mockito.verify;
 
 @SpringBootTest(
     properties = {
-        "scheduling.enabled=true"
+        "scheduling.task.scan.enabled=true",
+        "scheduling.task.reupload.enabled=true"
     }
 )
 @RunWith(SpringRunner.class)

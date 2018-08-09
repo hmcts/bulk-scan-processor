@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
  * </ol>
  */
 @Component
-@ConditionalOnProperty(value = "scheduling.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = "scheduling.task.reupload.enabled", matchIfMissing = true)
 @EnableConfigurationProperties(EnvelopeAccessProperties.class)
 public class ReuploadFailedEnvelopeTask {
 

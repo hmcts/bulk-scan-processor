@@ -62,15 +62,16 @@ dm:
     url: ${DOCUMENT_MANAGEMENT_URL:http://localhost:8082}
 
 scheduling:
-  enabled: ${SCHEDULING_ENABLED:false}
   pool: ${SCHEDULING_POOL:10}
   lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
   task:
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
+      enabled: ${SCAN_ENABLED:false}
     reupload:
-      delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
       batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all
+      delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
+      enabled: ${REUPLOAD_ENABLED:false}
 
 envelope-access:
   mappings:
