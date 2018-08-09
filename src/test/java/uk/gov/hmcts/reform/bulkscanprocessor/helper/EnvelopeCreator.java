@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.google.common.collect.ImmutableList;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -50,7 +51,7 @@ public final class EnvelopeCreator {
             timestamp,
             timestamp,
             UUID.randomUUID() + ".zip",
-            null,
+            Classification.EXCEPTION,
             null,
             scannableItems(),
             payments(),

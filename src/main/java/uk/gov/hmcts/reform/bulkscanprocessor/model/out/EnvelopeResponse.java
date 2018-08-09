@@ -46,6 +46,12 @@ public class EnvelopeResponse {
     @JsonProperty("status")
     private Status status = Status.CREATED;
 
+    @JsonProperty("classification")
+    private String classification;
+
+    @JsonProperty("urgent")
+    private Boolean urgent;
+
     @JsonProperty("scannable_items")
     private List<ScannableItemResponse> scannableItems;
 
@@ -69,6 +75,8 @@ public class EnvelopeResponse {
         @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("status") Status status,
+        @JsonProperty("classification") String classification,
+        @JsonProperty("urgent") Boolean urgent,
         @JsonProperty("scannable_items") List<ScannableItemResponse> scannableItems,
         @JsonProperty("payments") List<PaymentResponse> payments,
         @JsonProperty("non_scannable_items") List<NonScannableItemResponse> nonScannableItems
@@ -82,6 +90,8 @@ public class EnvelopeResponse {
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
         this.status = status;
+        this.classification = classification;
+        this.urgent = urgent;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
@@ -123,6 +133,14 @@ public class EnvelopeResponse {
         return zipFileCreateddate;
     }
 
+    public String getClassification() {
+        return classification;
+    }
+
+    public Boolean getUrgent() {
+        return urgent;
+    }
+
     public List<ScannableItemResponse> getScannableItems() {
         return scannableItems;
     }
@@ -147,6 +165,8 @@ public class EnvelopeResponse {
             + ", zipFileCreateddate=" + zipFileCreateddate
             + ", zipFileName='" + zipFileName + '\''
             + ", status=" + status
+            + ", classification=" + classification
+            + ", urgent=" + urgent
             + ", scannableItems=" + scannableItems
             + ", payments=" + payments
             + ", nonScannableItems=" + nonScannableItems
