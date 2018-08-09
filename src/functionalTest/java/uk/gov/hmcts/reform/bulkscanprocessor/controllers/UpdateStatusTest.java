@@ -93,7 +93,7 @@ public class UpdateStatusTest {
                 .getEnvelopes(this.testUrl, s2sToken, Status.CONSUMED)
                 .envelopes
                 .stream()
-                .filter(e -> e.getId() == envelopeId)
+                .filter(e -> e.getId().equals(envelopeId))
                 .findFirst()
                 .get();
 
