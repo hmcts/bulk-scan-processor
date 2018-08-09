@@ -52,7 +52,34 @@ public final class EnvelopeCreator {
             timestamp,
             UUID.randomUUID() + ".zip",
             Classification.EXCEPTION,
-            null,
+            false,
+            scannableItems(),
+            payments(),
+            nonScannableItems()
+        );
+
+        envelope.setStatus(status);
+        envelope.setContainer("SSCS");
+
+        return envelope;
+    }
+
+    public static Envelope envelopeUrgent() throws Exception {
+        return envelope("SSCS", Status.CREATED);
+    }
+
+    public static Envelope envelopeUrgent(String jurisdiction, Status status) throws Exception {
+        Timestamp timestamp = getTimestamp();
+
+        Envelope envelope = new Envelope(
+            "SSCSPO",
+            jurisdiction,
+            timestamp,
+            timestamp,
+            timestamp,
+            UUID.randomUUID() + ".zip",
+            Classification.NEW_APPLICATION,
+            true,
             scannableItems(),
             payments(),
             nonScannableItems()
@@ -78,7 +105,7 @@ public final class EnvelopeCreator {
             "dGVzdA==", //Base 64 value=test
             "1111002.pdf",
             "test",
-            null
+            "Other"
         );
         scannableItem.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 

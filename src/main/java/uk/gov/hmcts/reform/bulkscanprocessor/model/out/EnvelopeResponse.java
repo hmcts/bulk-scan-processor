@@ -44,13 +44,13 @@ public class EnvelopeResponse {
     private String zipFileName;
 
     @JsonProperty("status")
-    private Status status = Status.CREATED;
+    private Status status;
 
     @JsonProperty("classification")
     private String classification;
 
     @JsonProperty("urgent")
-    private Boolean urgent;
+    private boolean urgent;
 
     @JsonProperty("scannable_items")
     private List<ScannableItemResponse> scannableItems;
@@ -76,7 +76,7 @@ public class EnvelopeResponse {
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("status") Status status,
         @JsonProperty("classification") String classification,
-        @JsonProperty("urgent") Boolean urgent,
+        @JsonProperty("urgent") boolean urgent,
         @JsonProperty("scannable_items") List<ScannableItemResponse> scannableItems,
         @JsonProperty("payments") List<PaymentResponse> payments,
         @JsonProperty("non_scannable_items") List<NonScannableItemResponse> nonScannableItems

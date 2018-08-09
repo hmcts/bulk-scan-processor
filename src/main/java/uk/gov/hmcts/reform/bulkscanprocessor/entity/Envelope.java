@@ -56,9 +56,9 @@ public class Envelope {
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
     @Enumerated(EnumType.STRING)
-    private Classification classification;
+    private Classification classification = Classification.EXCEPTION;
 
-    private Boolean urgent;
+    private boolean urgent = false;
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
@@ -103,8 +103,8 @@ public class Envelope {
         this.openingDate = openingDate;
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
-        this.classification = classification;
-        this.urgent = urgent;
+        this.classification = (classification == null ? Classification.EXCEPTION : classification);
+        this.urgent = (urgent == null ? false : urgent);
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
@@ -182,7 +182,7 @@ public class Envelope {
         return classification;
     }
 
-    public Boolean getUrgent() {
+    public boolean getUrgent() {
         return urgent;
     }
 

@@ -43,7 +43,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
-    private String documentType;
+    private String documentType = "Other";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
@@ -77,7 +77,7 @@ public class ScannableItem implements EnvelopeAssignable {
         this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
-        this.documentType = documentType;
+        this.documentType = (documentType == null ? "Other" : documentType);
     }
 
     public UUID getId() {

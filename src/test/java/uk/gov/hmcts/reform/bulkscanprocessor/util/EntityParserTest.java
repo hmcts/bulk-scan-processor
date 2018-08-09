@@ -20,6 +20,11 @@ public class EntityParserTest {
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getPayments()).hasSize(1);
         assertThat(envelope.getPayments().get(0).getAmount()).isEqualTo(100.0);
+        assertThat(envelope.getUrgent()).isFalse();
+        assertThat(envelope.getClassification()).isEqualTo(Classification.EXCEPTION);
+        assertThat(envelope.getScannableItems())
+            .extracting("documentType")
+            .containsExactly("Other", "Other");
     }
 
     @Test
@@ -63,7 +68,7 @@ public class EntityParserTest {
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getScannableItems())
             .extracting("documentType")
-            .containsExactlyInAnyOrder("Passport", null);
+            .containsExactlyInAnyOrder("Passport", "Other");
         assertThat(envelope.getPayments()).hasSize(1);
     }
 
