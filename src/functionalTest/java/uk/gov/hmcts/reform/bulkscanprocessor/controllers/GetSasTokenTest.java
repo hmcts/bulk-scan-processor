@@ -26,13 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GetSasTokenTest {
 
     private String testUrl;
-
-    private String accountName;
-
-    private String testStorageAccountKey;
-
     private String blobContainerUrl;
-
     private TestHelper testHelper;
 
     private static final String zipFilename = "2_24-06-2018-00-00-00.zip";
@@ -40,13 +34,15 @@ public class GetSasTokenTest {
     @Before
     public void setUp() throws Exception {
         Config conf = ConfigFactory.load();
+
         this.testUrl = conf.getString("test-url");
-        this.accountName = conf.getString("test-storage-account-name");
-        this.testStorageAccountKey = conf.getString("test-storage-account-key");
-        this.blobContainerUrl = "https://" + this.accountName + ".blob.core.windows.net/";
+        this.blobContainerUrl = "https://" + conf.getString("test-storage-account-name") + ".blob.core.windows.net/";
 
         StorageCredentialsAccountAndKey storageCredentials =
-            new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
+            new StorageCredentialsAccountAndKey(
+                conf.getString("test-storage-account-name"),
+                conf.getString("test-storage-account-key")
+            );
 
         CloudBlobContainer testContainer = new CloudStorageAccount(storageCredentials, true)
             .createCloudBlobClient()
@@ -57,7 +53,6 @@ public class GetSasTokenTest {
         // cleanup previous runs
         testContainer.getBlockBlobReference(zipFilename).deleteIfExists();
     }
-
 
     @Test
     public void should_return_sas_token_when_service_configuration_is_available() throws Exception {
@@ -80,7 +75,6 @@ public class GetSasTokenTest {
         assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
         assertThat(queryParams.get("sv")).contains("2017-07-29"); //azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl"); //access permissions(write-w,list-l)
-
     }
 
     @Test
@@ -117,5 +111,5 @@ public class GetSasTokenTest {
 
         testHelper.uploadZipFile(testSasContainer, zipFilename, zipFilename);
     }
-    
+
 }
