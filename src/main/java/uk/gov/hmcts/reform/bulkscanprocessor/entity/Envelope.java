@@ -1,16 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -39,28 +36,18 @@ public class Envelope {
     @GeneratedValue
     private UUID id;
 
-    @JsonIgnore
     private String container;
 
-    @JsonProperty("po_box")
     private String poBox;
 
-    @JsonProperty("jurisdiction")
     private String jurisdiction;
 
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
-    @JsonProperty("delivery_date")
     private Timestamp deliveryDate;
 
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
-    @JsonProperty("opening_date")
     private Timestamp openingDate;
 
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
-    @JsonProperty("zip_file_createddate")
     private Timestamp zipFileCreateddate;
 
-    @JsonProperty("zip_file_name")
     private String zipFileName;
 
     @Enumerated(EnumType.STRING)
@@ -70,20 +57,17 @@ public class Envelope {
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
-    @JsonProperty("scannable_items")
     @Fetch(value = FetchMode.SUBSELECT)
     private List<ScannableItem> scannableItems;
 
     //We will need to retrieve all payments entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
-    @JsonProperty("payments")
     private List<Payment> payments;
 
     //We will need to retrieve all non scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
-    @JsonProperty("non_scannable_items")
     private List<NonScannableItem> nonScannableItems;
 
     // elevating to public access as javassist needs instantiation available when `this` proxy is passed to children
@@ -167,6 +151,22 @@ public class Envelope {
 
     public Timestamp getCreatedAt() {
         return createdAt;
+    }
+
+    public String getPoBox() {
+        return poBox;
+    }
+
+    public Timestamp getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public Timestamp getOpeningDate() {
+        return openingDate;
+    }
+
+    public Timestamp getZipFileCreateddate() {
+        return zipFileCreateddate;
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {

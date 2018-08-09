@@ -11,6 +11,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Map
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.List;
 
@@ -35,6 +37,8 @@ public class EnvelopeRetrieverServiceTest {
     @Mock
     private EnvelopeAccessProperties envelopeAccess;
 
+    private EnvelopeResponseMapper envelopeResponseMapper = new EnvelopeResponseMapper();
+
     @Before
     public void setUp() {
         envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, envelopeAccess);
@@ -43,6 +47,7 @@ public class EnvelopeRetrieverServiceTest {
     @Test
     public void should_return_all_envelopes_successfully_for_a_given_jurisdiction_and_status() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
+        List<EnvelopeResponse> envelopesResponse = envelopeResponseMapper.toEnvelopesResponse(envelopes);
 
         when(envelopeAccess.getMappings())
             .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
@@ -50,8 +55,12 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenReturn(envelopes);
 
-        assertThat(envelopeRetrieverService.findByServiceAndStatus("testService", PROCESSED))
-            .containsOnly(envelopes.get(0));
+        List<EnvelopeResponse> retrievedResponses =
+            envelopeRetrieverService.findByServiceAndStatus("testService", PROCESSED);
+        // then
+        assertThat(retrievedResponses)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsExactlyInAnyOrderElementsOf(envelopesResponse);
 
         verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", PROCESSED);
     }
@@ -66,6 +75,8 @@ public class EnvelopeRetrieverServiceTest {
                 envelope()
             );
 
+        List<EnvelopeResponse> envelopesResponse = envelopeResponseMapper.toEnvelopesResponse(envelopes);
+
         given(envelopeAccess.getMappings())
             .willReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
 
@@ -73,10 +84,12 @@ public class EnvelopeRetrieverServiceTest {
             .willReturn(envelopes);
 
         // when
-        List<Envelope> foundEnvelopes = envelopeRetrieverService.findByServiceAndStatus("testService", null);
+        List<EnvelopeResponse> foundEnvelopes = envelopeRetrieverService.findByServiceAndStatus("testService", null);
 
         // then
-        assertThat(foundEnvelopes).containsExactlyInAnyOrderElementsOf(envelopes);
+        assertThat(foundEnvelopes)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsExactlyInAnyOrderElementsOf(envelopesResponse);
     }
 
     @Test

@@ -17,6 +17,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeUpdateService;
@@ -53,9 +55,11 @@ public class ReadEnvelopesControllerTest {
     @MockBean
     private AuthService authService;
 
+    EnvelopeResponseMapper mapper = new EnvelopeResponseMapper();
+
     @Test
     public void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
-        List<Envelope> envelopes = envelopesInDb();
+        List<EnvelopeResponse> envelopes = envelopesInDb();
 
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
@@ -127,11 +131,10 @@ public class ReadEnvelopesControllerTest {
             .andExpect(status().is(400));
     }
 
-    private List<Envelope> envelopesInDb() throws Exception {
+    private List<EnvelopeResponse> envelopesInDb() throws Exception {
         Envelope envelope = EnvelopeCreator.envelope();
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
-
-        return singletonList(envelope);
+        return singletonList(mapper.toEnvelopeResponse(envelope));
     }
 
     private String expectedEnvelopes() throws IOException {

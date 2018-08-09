@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.StatusUpdate;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeUpdateService;
@@ -55,7 +55,7 @@ public class EnvelopeController {
     ) {
         String serviceName = authService.authenticate(serviceAuthHeader);
 
-        List<Envelope> envelopes = envelopeRetrieverService.findByServiceAndStatus(serviceName, status);
+        List<EnvelopeResponse> envelopes = envelopeRetrieverService.findByServiceAndStatus(serviceName, status);
 
         return new EnvelopeMetadataResponse(envelopes);
     }
