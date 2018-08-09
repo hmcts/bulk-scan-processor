@@ -44,7 +44,7 @@ public class ReuploadFailedEnvelopeTask {
     }
 
     /**
-     * Spring overrides the {@code @Lookup} method and returns new instance of returned object.
+     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
      *
      * @return Instance of {@code FailedDocUploadProcessor}
      */

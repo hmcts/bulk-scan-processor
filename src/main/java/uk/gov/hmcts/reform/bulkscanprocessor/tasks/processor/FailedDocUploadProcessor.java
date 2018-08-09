@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
@@ -10,6 +13,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import java.util.List;
 
 @Component
+@Scope(
+    value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, // every other call to return bean will create new instance
+    proxyMode = ScopedProxyMode.TARGET_CLASS // allows prototyping
+)
 public class FailedDocUploadProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
