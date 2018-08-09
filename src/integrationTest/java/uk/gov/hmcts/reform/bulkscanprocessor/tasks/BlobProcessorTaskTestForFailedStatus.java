@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +23,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
+public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<BlobProcessorTask> {
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp(BlobProcessorTask::new);
+    }
 
     @Test
     public void should_record_failure_of_upload_when_document_management_returns_empty_response() throws Exception {
@@ -33,7 +39,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
 
         // when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // then
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
@@ -62,11 +68,11 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
 
         // when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // and
         uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // then
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
@@ -94,7 +100,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         given(documentManagementService.uploadDocuments(getUploadResources())).willThrow(throwable);
 
         // when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // then
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
@@ -121,7 +127,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         uploadZipToBlobStore(noMetafileZip); //Zip file with only pdfs and no metadata
 
         // when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // then
         List<Envelope> envelopesInDb = envelopeRepository.findAll();
@@ -146,7 +152,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         uploadZipToBlobStore(invalidMetafileZip); //Zip file with pdf and invalid metadata
 
         // when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // then
         List<Envelope> envelopesInDb = envelopeRepository.findAll();
@@ -171,7 +177,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         uploadZipToBlobStore(noPdfZip); // Zip file with cheque gif and metadata
 
         // when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // then
         List<Envelope> envelopesInDb = envelopeRepository.findAll();

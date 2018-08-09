@@ -9,7 +9,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +29,22 @@ import java.util.Map;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 
-public abstract class ProcessorTestSuite {
+public abstract class ProcessorTestSuite<T extends Processor> {
 
     static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
 
     static final String DOCUMENT_URL1 = "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
     static final String DOCUMENT_URL2 = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
+
+    @FunctionalInterface
+    interface Construct<T extends Processor> {
+        T apply(
+            CloudBlobClient cloudBlobClient,
+            DocumentProcessor documentProcessor,
+            EnvelopeProcessor envelopeProcessor,
+            ErrorHandlingWrapper errorWrapper
+        );
+    }
 
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
@@ -44,7 +53,7 @@ public abstract class ProcessorTestSuite {
         .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
         .build();
 
-    BlobProcessorTask blobProcessorTask;
+    T processor;
 
     @Autowired
     EnvelopeRepository envelopeRepository;
@@ -66,8 +75,8 @@ public abstract class ProcessorTestSuite {
 
     CloudBlobContainer testContainer;
 
-    @Before
-    public void setup() throws Exception {
+    public void setUp(Construct<T> processorConstruct) throws Exception {
+
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
@@ -82,7 +91,7 @@ public abstract class ProcessorTestSuite {
             reUploadBatchSize
         );
 
-        blobProcessorTask = new BlobProcessorTask(
+        processor = processorConstruct.apply(
             cloudBlobClient,
             documentProcessor,
             envelopeProcessor,

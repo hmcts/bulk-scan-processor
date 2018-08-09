@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +37,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BlobProcessorTaskTest extends ProcessorTestSuite {
+public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask> {
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp(BlobProcessorTask::new);
+    }
 
     @Test
     public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
@@ -54,7 +60,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
             .willReturn(getFileUploadResponse());
 
         //when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         //then
         //We expect only one envelope which was uploaded
@@ -106,7 +112,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
             .willReturn(getFileUploadResponse());
 
         // when
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         // then
         // We expect only one envelope 4_24-06-2018-00-00-00.zip which was uploaded
@@ -146,7 +152,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(getFileUploadResponse());
 
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         //Check blob is deleted
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
@@ -179,7 +185,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willThrow(DocumentNotFoundException.class);
 
-        blobProcessorTask.processBlobs();
+        processor.processBlobs();
 
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await().timeout(2, SECONDS).until(blob::exists, is(true));
