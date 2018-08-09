@@ -15,7 +15,7 @@ import io.restassured.response.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayOutputStream;
@@ -131,11 +131,11 @@ public class TestHelper {
         return outputStream.toByteArray();
     }
 
-    public EnvelopeMetadataResponse getAllProcessedEnvelopesMetadata(String baseUrl, String s2sToken) {
+    public EnvelopeListResponse getAllProcessedEnvelopesMetadata(String baseUrl, String s2sToken) {
         Response response = getAllProcessedEnvelopesResponse(baseUrl, s2sToken);
         assertThat(response.getStatusCode()).isEqualTo(200);
 
-        return response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
+        return response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
     }
 
     public Response getAllProcessedEnvelopesResponse(String baseUrl, String s2sToken) {

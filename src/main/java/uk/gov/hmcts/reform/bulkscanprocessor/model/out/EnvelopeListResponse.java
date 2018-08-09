@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class EnvelopeMetadataResponse {
+public class EnvelopeListResponse {
 
     @JsonProperty("envelopes")
     public final List<EnvelopeResponse> envelopes;
 
     @JsonCreator
-    public EnvelopeMetadataResponse(@JsonProperty("envelopes") List<EnvelopeResponse> envelopes) {
+    public EnvelopeListResponse(@JsonProperty("envelopes") List<EnvelopeResponse> envelopes) {
         this.envelopes = envelopes;
     }
 }
