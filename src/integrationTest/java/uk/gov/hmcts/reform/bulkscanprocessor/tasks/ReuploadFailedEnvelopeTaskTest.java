@@ -23,7 +23,7 @@ import java.security.InvalidKeyException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest(properties = {
     "scheduling.task.reupload.enabled=true"
@@ -59,9 +59,8 @@ public class ReuploadFailedEnvelopeTaskTest {
     @Test
     public void should_await_for_all_futures_even_if_their_code_throw_exception() throws Exception {
         // given
-        willThrow(JpaObjectRetrievalFailureException.class)
-            .given(envelopeProcessor)
-            .getFailedToUploadEnvelopes(anyString());
+        given(envelopeProcessor.getFailedToUploadEnvelopes(anyString()))
+            .willThrow(JpaObjectRetrievalFailureException.class);
 
         // when
         task.processUploadFailures();
