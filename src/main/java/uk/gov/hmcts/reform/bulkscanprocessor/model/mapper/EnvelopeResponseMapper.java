@@ -53,7 +53,7 @@ public class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
-    
+
 
     private ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
         if (scannableItem == null) {
@@ -113,101 +113,4 @@ public class EnvelopeResponseMapper {
             payment.getCurrency()
         );
     }
-
-
-
-    public List<Envelope> toEnvelopes(List<EnvelopeResponse> envelopesResponse) {
-        if (envelopesResponse == null) {
-            return ImmutableList.of();
-        }
-        return envelopesResponse.stream()
-            .map(this::toEnvelope)
-            .collect(Collectors.toList());
-    }
-
-    public Envelope toEnvelope(EnvelopeResponse envelopeResponse) {
-        if (envelopeResponse == null) {
-            return null;
-        }
-        return new Envelope(
-            envelopeResponse.getPoBox(),
-            envelopeResponse.getJurisdiction(),
-            envelopeResponse.getDeliveryDate(),
-            envelopeResponse.getOpeningDate(),
-            envelopeResponse.getZipFileCreateddate(),
-            envelopeResponse.getZipFileName(),
-            toScannableItems(envelopeResponse.getScannableItems()),
-            toPayments(envelopeResponse.getPayments()),
-            toNonScannableItems(envelopeResponse.getNonScannableItems())
-        );
-    }
-
-    private List<ScannableItem> toScannableItems(List<ScannableItemResponse> scannableItemsResponse) {
-        if (scannableItemsResponse == null) {
-            return ImmutableList.of();
-        }
-        return scannableItemsResponse.stream()
-            .map(this::toScannableItem)
-            .collect(Collectors.toList());
-    }
-
-    private ScannableItem toScannableItem(ScannableItemResponse scannableItemResponse) {
-        if (scannableItemResponse == null) {
-            return null;
-        }
-        ScannableItem scannableItem = new ScannableItem(
-            scannableItemResponse.getDocumentControlNumber(),
-            scannableItemResponse.getScanningDate(),
-            scannableItemResponse.getOcrAccuracy(),
-            scannableItemResponse.getManualIntervention(),
-            scannableItemResponse.getNextAction(),
-            scannableItemResponse.getNextActionDate(),
-            scannableItemResponse.getOcrData(),
-            scannableItemResponse.getFileName(),
-            scannableItemResponse.getNotes()
-        );
-        scannableItem.setDocumentUrl(scannableItemResponse.getDocumentUrl());
-        return scannableItem;
-    }
-
-    private List<NonScannableItem> toNonScannableItems(List<NonScannableItemResponse> nonScannableItemsResponse) {
-        if (nonScannableItemsResponse == null) {
-            return ImmutableList.of();
-        }
-        return nonScannableItemsResponse.stream()
-            .map(this::toNonScannableItem)
-            .collect(Collectors.toList());
-    }
-
-    private NonScannableItem toNonScannableItem(NonScannableItemResponse nonScannableItemResponse) {
-        if (nonScannableItemResponse == null) {
-            return null;
-        }
-        return new NonScannableItem(
-            nonScannableItemResponse.getItemType(),
-            nonScannableItemResponse.getNotes()
-        );
-    }
-
-    private List<Payment> toPayments(List<PaymentResponse> paymentsResponse) {
-        if (paymentsResponse == null) {
-            return ImmutableList.of();
-        }
-        return paymentsResponse.stream()
-            .map(this::toPayment)
-            .collect(Collectors.toList());
-    }
-
-    private Payment toPayment(PaymentResponse paymentResponse) {
-        if (paymentResponse == null) {
-            return null;
-        }
-        return new Payment(
-            paymentResponse.getDocumentControlNumber(),
-            paymentResponse.getMethod(),
-            Double.toString(paymentResponse.getAmount()),
-            paymentResponse.getCurrency()
-        );
-    }
-
 }
