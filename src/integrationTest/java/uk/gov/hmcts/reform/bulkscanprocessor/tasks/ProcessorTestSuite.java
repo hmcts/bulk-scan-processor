@@ -31,13 +31,15 @@ import static com.google.common.io.Resources.toByteArray;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
 
-    static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
+    protected static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
 
-    static final String DOCUMENT_URL1 = "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
-    static final String DOCUMENT_URL2 = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
+    protected static final String DOCUMENT_URL1 =
+        "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
+    protected static final String DOCUMENT_URL2 =
+        "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
     @FunctionalInterface
-    interface Construct<T extends Processor> {
+    public interface Construct<T extends Processor> {
         T apply(
             CloudBlobClient cloudBlobClient,
             DocumentProcessor documentProcessor,
@@ -53,16 +55,20 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
         .build();
 
-    T processor;
+    protected T processor;
 
     @Autowired
-    EnvelopeRepository envelopeRepository;
+    protected EnvelopeRepository envelopeRepository;
 
     @Autowired
-    ProcessEventRepository processEventRepository;
+    protected ProcessEventRepository processEventRepository;
+
+    protected DocumentProcessor documentProcessor;
+
+    protected EnvelopeProcessor envelopeProcessor;
 
     @Autowired
-    private ErrorHandlingWrapper errorWrapper;
+    protected ErrorHandlingWrapper errorWrapper;
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
@@ -71,21 +77,21 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     private int reUploadBatchSize;
 
     @Mock
-    DocumentManagementService documentManagementService;
+    protected DocumentManagementService documentManagementService;
 
-    CloudBlobContainer testContainer;
+    protected CloudBlobContainer testContainer;
 
     public void setUp(Construct<T> processorConstruct) throws Exception {
 
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        DocumentProcessor documentProcessor = new DocumentProcessor(
+        documentProcessor = new DocumentProcessor(
             documentManagementService,
             scannableItemRepository
         );
 
-        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
+        envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
             processEventRepository,
             reUploadBatchSize
@@ -109,7 +115,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         processEventRepository.deleteAll();
     }
 
-    void uploadZipToBlobStore(String zipFileName) throws Exception {
+    protected void uploadZipToBlobStore(String zipFileName) throws Exception {
         byte[] zipFile = toByteArray(getResource(zipFileName));
 
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipFileName);
@@ -126,7 +132,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         return ImmutableList.of(pdf1, pdf2);
     }
 
-    Map<String, String> getFileUploadResponse() {
+    protected Map<String, String> getFileUploadResponse() {
         return ImmutableMap.of(
             "1111001.pdf", DOCUMENT_URL1,
             "1111002.pdf", DOCUMENT_URL2
