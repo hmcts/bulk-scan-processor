@@ -2,7 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.palantir.docker.compose.DockerComposeRule;
 import org.junit.After;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +30,11 @@ import static org.mockito.BDDMockito.willThrow;
 })
 @RunWith(SpringRunner.class)
 public class ReuploadFailedEnvelopeTaskTest {
+
+    @ClassRule
+    public static DockerComposeRule docker = DockerComposeRule.builder()
+        .file("src/integrationTest/resources/docker-compose.yml")
+        .build();
 
     @Rule
     public OutputCapture outputCapture = new OutputCapture();
