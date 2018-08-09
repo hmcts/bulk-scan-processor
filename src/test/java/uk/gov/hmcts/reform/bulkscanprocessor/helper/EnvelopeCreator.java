@@ -65,7 +65,7 @@ public final class EnvelopeCreator {
     }
 
     public static Envelope envelopeUrgent() throws Exception {
-        return envelope("SSCS", Status.CREATED);
+        return envelopeUrgent("SSCS", Status.CREATED);
     }
 
     public static Envelope envelopeUrgent(String jurisdiction, Status status) throws Exception {
