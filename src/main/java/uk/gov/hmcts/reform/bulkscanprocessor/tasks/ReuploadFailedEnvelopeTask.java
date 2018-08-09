@@ -43,6 +43,11 @@ public class ReuploadFailedEnvelopeTask {
         this.accessMapping = accessProperties.getMappings();
     }
 
+    /**
+     * Spring overrides the {@code @Lookup} method and returns new instance of returned object.
+     *
+     * @return Instance of {@code FailedDocUploadProcessor}
+     */
     @Lookup
     public FailedDocUploadProcessor getProcessor() {
         return null;
