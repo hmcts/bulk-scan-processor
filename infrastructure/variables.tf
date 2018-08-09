@@ -66,6 +66,18 @@ variable "common_tags" {
   type = "map"
 }
 
+variable "reupload_batch" {
+  default = "20"
+}
+
+variable "reupload_delay" {
+  default = "1800000"  # In milliseconds
+}
+
+variable "reupload_enabled" {
+  default = "false"
+}
+
 variable "scan_delay" {
   default = "30000"  # In milliseconds
 }
