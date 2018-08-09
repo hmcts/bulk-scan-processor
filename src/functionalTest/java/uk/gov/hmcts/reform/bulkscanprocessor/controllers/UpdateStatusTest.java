@@ -7,8 +7,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -89,7 +89,7 @@ public class UpdateStatusTest {
         );
 
 
-        List<Envelope> envelopesAfterUpdate =
+        List<EnvelopeResponse> envelopesAfterUpdate =
             testHelper
                 .getAllProcessedEnvelopesMetadata(this.testUrl, s2sToken)
                 .envelopes;

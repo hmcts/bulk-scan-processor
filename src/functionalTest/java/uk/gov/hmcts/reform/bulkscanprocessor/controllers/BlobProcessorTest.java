@@ -8,9 +8,9 @@ import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.ObjectUtils;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -96,7 +96,7 @@ public class BlobProcessorTest {
             .containsOnlyOnce(tuple(destZipFilename, Status.PROCESSED));
 
 
-        List<Envelope> envelopes = envelopeMetadataResponse.envelopes
+        List<EnvelopeResponse> envelopes = envelopeMetadataResponse.envelopes
             .stream()
             .filter(e -> destZipFilename.equals(e.getZipFileName()))
             .collect(Collectors.toList());
