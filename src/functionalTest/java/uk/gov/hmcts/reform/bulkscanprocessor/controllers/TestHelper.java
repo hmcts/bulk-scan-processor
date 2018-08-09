@@ -131,23 +131,24 @@ public class TestHelper {
         return outputStream.toByteArray();
     }
 
-    public EnvelopeMetadataResponse getAllProcessedEnvelopesMetadata(String baseUrl, String s2sToken) {
-        Response response = getAllProcessedEnvelopesResponse(baseUrl, s2sToken);
+    public EnvelopeMetadataResponse getEnvelopes(String baseUrl, String s2sToken, Status status) {
+        String url = status == null ? "/envelopes" : "/envelopes?status=" + status;
+
+        Response response =
+            RestAssured
+                .given()
+                .relaxedHTTPSValidation()
+                .baseUri(baseUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("ServiceAuthorization", "Bearer " + s2sToken)
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+                .when()
+                .get(url)
+                .andReturn();
+
         assertThat(response.getStatusCode()).isEqualTo(200);
 
         return response.getBody().as(EnvelopeMetadataResponse.class, ObjectMapperType.JACKSON_2);
-    }
-
-    public Response getAllProcessedEnvelopesResponse(String baseUrl, String s2sToken) {
-        return RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(baseUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header("ServiceAuthorization", "Bearer " + s2sToken)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/envelopes?status=" + Status.PROCESSED)
-            .andReturn();
     }
 
     public void updateEnvelopeStatus(
