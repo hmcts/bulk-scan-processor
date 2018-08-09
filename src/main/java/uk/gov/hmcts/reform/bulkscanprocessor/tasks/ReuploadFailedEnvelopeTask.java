@@ -92,6 +92,8 @@ public class ReuploadFailedEnvelopeTask {
                 log.error(exception.getMessage(), exception);
 
                 future.cancel(true);
+
+                Thread.currentThread().interrupt();
             } finally {
                 completed++;
             }
