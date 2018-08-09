@@ -55,6 +55,7 @@ public class Envelope {
 
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
+    @Enumerated(EnumType.STRING)
     private Classification classification;
 
     private Boolean urgent;
