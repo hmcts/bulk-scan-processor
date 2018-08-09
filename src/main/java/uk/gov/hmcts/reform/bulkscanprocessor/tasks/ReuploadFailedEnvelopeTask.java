@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
@@ -41,14 +39,8 @@ public class ReuploadFailedEnvelopeTask {
 
     private final List<Mapping> accessMapping;
 
-    private final int poolSize;
-
-    public ReuploadFailedEnvelopeTask(
-        EnvelopeAccessProperties accessProperties,
-        TaskScheduler taskScheduler
-    ) {
+    public ReuploadFailedEnvelopeTask(EnvelopeAccessProperties accessProperties) {
         this.accessMapping = accessProperties.getMappings();
-        poolSize = Math.max(((ThreadPoolTaskScheduler) taskScheduler).getPoolSize(), accessMapping.size());
     }
 
     @Lookup
@@ -60,7 +52,7 @@ public class ReuploadFailedEnvelopeTask {
     @Scheduled(fixedDelayString = "${scheduling.task.reupload.delay}")
     public void processUploadFailures() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(
-            poolSize,
+            accessMapping.size(),
             ThreadFactories.withName("BSP-REUPLOAD-%d")
         );
         CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
