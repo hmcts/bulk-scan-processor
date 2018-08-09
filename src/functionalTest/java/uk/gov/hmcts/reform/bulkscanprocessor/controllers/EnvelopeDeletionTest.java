@@ -21,26 +21,20 @@ import static org.hamcrest.Matchers.is;
 public class EnvelopeDeletionTest {
 
     private transient long scanDelay;
-
-    private transient String accountName;
-
-    private transient String testStorageKey;
-
     private transient CloudBlobContainer testContainer;
-
     private List<String> filesToDeleteAfterTest = new ArrayList<>();
-
     private transient TestHelper testHelper;
 
     @Before
     public void setUp() throws Exception {
         Config conf = ConfigFactory.load();
         this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
-        this.accountName = conf.getString("test-storage-account-name");
-        this.testStorageKey = conf.getString("test-storage-account-key");
 
         StorageCredentialsAccountAndKey credentials =
-            new StorageCredentialsAccountAndKey(accountName, testStorageKey);
+            new StorageCredentialsAccountAndKey(
+                conf.getString("test-storage-account-name"),
+                conf.getString("test-storage-account-key")
+            );
 
         testContainer = new CloudStorageAccount(credentials, true)
             .createCloudBlobClient()
@@ -55,7 +49,6 @@ public class EnvelopeDeletionTest {
             testContainer.getBlockBlobReference(filename).deleteIfExists();
         }
     }
-
 
     @Test
     public void should_delete_zip_file_after_successful_ingestion() throws Exception {

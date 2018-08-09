@@ -25,50 +25,34 @@ import static org.hamcrest.Matchers.is;
 public class BlobProcessorTest {
 
     private String testUrl;
-
     private long scanDelay;
-
-    private String accountName;
-
-    private String testStorageAccountKey;
-
     private String s2sUrl;
-
     private String s2sName;
-
     private String s2sSecret;
-
     private CloudBlobContainer testContainer;
-
-    private CloudBlobContainer testSasContainer;
-
-    private String blobContainerUrl;
-
     private TestHelper testHelper;
 
     @Before
     public void setUp() throws Exception {
         Config conf = ConfigFactory.load();
+
         this.testUrl = conf.getString("test-url");
         this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
-        this.accountName = conf.getString("test-storage-account-name");
-        this.testStorageAccountKey = conf.getString("test-storage-account-key");
         this.s2sUrl = conf.getString("test-s2s-url");
         this.s2sName = conf.getString("test-s2s-name");
         this.s2sSecret = conf.getString("test-s2s-secret");
-        this.blobContainerUrl = "https://" + this.accountName + ".blob.core.windows.net/";
 
         this.testHelper = new TestHelper();
 
         StorageCredentialsAccountAndKey storageCredentials =
-            new StorageCredentialsAccountAndKey(accountName, testStorageAccountKey);
+            new StorageCredentialsAccountAndKey(
+                conf.getString("test-storage-account-name"),
+                conf.getString("test-storage-account-key")
+            );
 
         testContainer = new CloudStorageAccount(storageCredentials, true)
             .createCloudBlobClient()
             .getContainerReference("test");
-
-        String sasToken = testHelper.getSasToken("test", this.testUrl);
-        testSasContainer = testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
     }
 
     @Test
