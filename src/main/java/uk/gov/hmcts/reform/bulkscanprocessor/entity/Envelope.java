@@ -55,6 +55,10 @@ public class Envelope {
 
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
+    private Classification classification;
+
+    private Boolean urgent;
+
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
@@ -86,6 +90,8 @@ public class Envelope {
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
+        @JsonProperty("classification") Classification classification,
+        @JsonProperty("urgent") Boolean urgent,
         @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
         @JsonProperty("payments") List<Payment> payments,
         @JsonProperty("non_scannable_items") List<NonScannableItem> nonScannableItems
@@ -96,6 +102,8 @@ public class Envelope {
         this.openingDate = openingDate;
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
+        this.classification = classification;
+        this.urgent = urgent;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
@@ -167,6 +175,14 @@ public class Envelope {
 
     public Timestamp getZipFileCreateddate() {
         return zipFileCreateddate;
+    }
+
+    public Classification getClassification() {
+        return classification;
+    }
+
+    public Boolean getUrgent() {
+        return urgent;
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {

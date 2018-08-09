@@ -54,7 +54,6 @@ public class EnvelopeResponseMapper {
     }
 
 
-
     private ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
         if (scannableItem == null) {
             return null;
@@ -113,4 +112,5 @@ public class EnvelopeResponseMapper {
             payment.getCurrency()
         );
     }
+
 }

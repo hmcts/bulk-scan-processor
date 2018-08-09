@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 
@@ -11,6 +12,7 @@ public final class EntityParser {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public static Envelope parseEnvelopeMetadata(InputStream metadataStream) throws IOException {
+        mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         try {
             return mapper.readValue(metadataStream, Envelope.class);
         } finally {

@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
 import org.junit.Test;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 
 import java.io.IOException;
@@ -50,4 +51,20 @@ public class EntityParserTest {
         assertThat(envelope.getScannableItems()).hasSize(0);
         assertThat(envelope.getPayments()).hasSize(1);
     }
+
+    @Test
+    public void should_parse_envelop_data_with_updated_spec_fields() throws IOException {
+        InputStream inputStream = getClass().getResourceAsStream("/metafile-model-update-rpe610.json");
+        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+
+        assertThat(envelope.getUrgent()).isTrue();
+        assertThat(envelope.getClassification()).isEqualTo(Classification.NEW_APPLICATION);
+        assertThat(envelope.getNonScannableItems()).hasSize(1);
+        assertThat(envelope.getScannableItems()).hasSize(2);
+        assertThat(envelope.getScannableItems())
+            .extracting("documentType")
+            .containsExactlyInAnyOrder("Passport", null);
+        assertThat(envelope.getPayments()).hasSize(1);
+    }
+
 }

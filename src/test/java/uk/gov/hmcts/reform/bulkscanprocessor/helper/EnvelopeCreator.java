@@ -50,6 +50,8 @@ public final class EnvelopeCreator {
             timestamp,
             timestamp,
             UUID.randomUUID() + ".zip",
+            null,
+            null,
             scannableItems(),
             payments(),
             nonScannableItems()
@@ -74,7 +76,8 @@ public final class EnvelopeCreator {
             timestamp,
             "dGVzdA==", //Base 64 value=test
             "1111002.pdf",
-            "test"
+            "test",
+            null
         );
         scannableItem.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 

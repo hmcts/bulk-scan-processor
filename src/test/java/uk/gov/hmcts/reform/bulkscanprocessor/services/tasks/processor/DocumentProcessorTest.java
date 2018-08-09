@@ -108,6 +108,7 @@ public class DocumentProcessorTest {
             new Timestamp(System.currentTimeMillis()),
             null,
             "test1.pdf",
+            null,
             null
         );
     }
