@@ -1,1 +1,2 @@
 api_gateway_test_valid_certificate_thumbprint = "91CB9878CD88A6B442E19C12A557B0E79D054E65"
+scheduling_enabled = true
