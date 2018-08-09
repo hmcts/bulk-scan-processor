@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.ObjectUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeMetadataResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
@@ -85,18 +85,18 @@ public class BlobProcessorTest {
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
-        EnvelopeMetadataResponse envelopeMetadataResponse =
+        EnvelopeListResponse envelopeListResponse =
             testHelper.getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED);
 
         // some test DBs are not cleaned so there will probably be more than 1
-        assertThat(envelopeMetadataResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
+        assertThat(envelopeListResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
 
-        assertThat(envelopeMetadataResponse.envelopes)
+        assertThat(envelopeListResponse.envelopes)
             .extracting("zipFileName", "status")
             .containsOnlyOnce(tuple(destZipFilename, Status.PROCESSED));
 
 
-        List<EnvelopeResponse> envelopes = envelopeMetadataResponse.envelopes
+        List<EnvelopeResponse> envelopes = envelopeListResponse.envelopes
             .stream()
             .filter(e -> destZipFilename.equals(e.getZipFileName()))
             .collect(Collectors.toList());
