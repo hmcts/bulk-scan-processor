@@ -6,6 +6,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -16,7 +18,18 @@ import java.util.UUID;
 
 public final class EnvelopeCreator {
 
+    private static final EnvelopeResponseMapper mapper = new EnvelopeResponseMapper();
+
+
     private EnvelopeCreator() {
+    }
+
+    public static List<EnvelopeResponse> envelopeResponses() throws Exception {
+        return mapper.toEnvelopesResponse(envelopes());
+    }
+
+    public static EnvelopeResponse envelopeResponse() throws Exception {
+        return mapper.toEnvelopeResponse(envelope());
     }
 
     public static List<Envelope> envelopes() throws Exception {

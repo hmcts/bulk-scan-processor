@@ -45,7 +45,6 @@ public class EnvelopeProcessor {
         }
         //TODO Perform json schema validation for the metadata file
         InputStream inputStream = new ByteArrayInputStream(metadataStream);
-
         return EntityParser.parseEnvelopeMetadata(inputStream);
     }
 

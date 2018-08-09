@@ -7,8 +7,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -88,7 +88,7 @@ public class UpdateStatusTest {
         );
 
         // TODO: update when an endpoint for reading single envelope by ID is available.
-        Envelope envelopeAfterUpdate =
+        EnvelopeResponse envelopeAfterUpdate =
             testHelper
                 .getEnvelopes(this.testUrl, s2sToken, Status.CONSUMED)
                 .envelopes

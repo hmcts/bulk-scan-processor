@@ -1,61 +1,38 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.entity;
+package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.UUID;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+public class PaymentResponse {
 
-@Entity
-@Table(name = "payments")
-public class Payment implements EnvelopeAssignable {
-
-    @Id
-    @GeneratedValue
-    private UUID id;
-
+    @JsonProperty("document_control_number")
     private String documentControlNumber;
 
+    @JsonProperty("method")
     private String method;
 
+    @JsonProperty("amount_in_pence")
     private int amountInPence;
 
+    @JsonProperty("currency")
     private String currency;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "envelope_id", nullable = false)
-    private Envelope envelope;
-
-    private Payment() {
-        // For use by hibernate.
-    }
-
-    public Payment(
+    public PaymentResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
         @JsonProperty("method") String method,
         @JsonProperty("amount") String amount,
         @JsonProperty("currency") String currency
     ) {
-        Double amountInPence = Double.valueOf(amount) * 100;
+        Double pence = Double.valueOf(amount) * 100;
 
         this.documentControlNumber = documentControlNumber;
         this.method = method;
-        this.amountInPence = amountInPence.intValue();
+        this.amountInPence = pence.intValue();
         this.currency = currency;
     }
 
+    @JsonProperty("amount")
     public double getAmount() {
         return ((double) amountInPence) / 100;
-    }
-
-    @Override
-    public void setEnvelope(Envelope envelope) {
-        this.envelope = envelope;
     }
 
     public String getDocumentControlNumber() {
@@ -74,4 +51,14 @@ public class Payment implements EnvelopeAssignable {
         return currency;
     }
 
+    @Override
+    public String toString() {
+        return "PaymentResponse{"
+            + "documentControlNumber='" + documentControlNumber + '\''
+            + ", method='" + method + '\''
+            + ", amountInPence=" + amountInPence
+            + ", currency='" + currency + '\''
+            + '}';
+    }
+    
 }
