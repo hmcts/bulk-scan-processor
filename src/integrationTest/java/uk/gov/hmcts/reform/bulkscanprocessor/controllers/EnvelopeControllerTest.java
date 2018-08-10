@@ -8,6 +8,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.palantir.docker.compose.DockerComposeRule;
+import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.commons.io.Charsets;
 import org.junit.After;
 import org.junit.Before;
@@ -69,6 +70,7 @@ public class EnvelopeControllerTest {
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
         .file("src/integrationTest/resources/docker-compose.yml")
+        .waitingForService("azure-storage", HealthChecks.toHaveAllPortsOpen())
         .build();
 
     private CloudBlobClient cloudBlobClient;
