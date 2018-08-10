@@ -38,7 +38,7 @@ public class EnvelopeResponseMapper {
             envelope.getZipFileCreateddate(),
             envelope.getZipFileName(),
             envelope.getStatus(),
-            (envelope.getClassification() == null ? null : envelope.getClassification().toString()),
+            envelope.getClassification().toString(),
             envelope.getUrgent(),
             toScannableItemsResponse(envelope.getScannableItems()),
             toPaymentsResponse(envelope.getPayments()),
