@@ -14,7 +14,7 @@ output "microserviceName" {
   value = "${var.component}"
 }
 
-outpu "TEST_REUPLOAD_DELAY" {
+output "TEST_REUPLOAD_DELAY" {
   value = "${var.reupload_delay}"
 }
 
