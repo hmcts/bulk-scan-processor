@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -88,6 +89,9 @@ public class EnvelopeControllerTest {
     @Autowired
     private ErrorHandlingWrapper errorWrapper;
 
+    @Value("${scheduling.task.reupload.batch}")
+    private int reUploadBatchSize;
+
     @Mock
     private DocumentManagementService documentManagementService;
 
@@ -112,7 +116,8 @@ public class EnvelopeControllerTest {
 
         envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
-            processEventRepository
+            processEventRepository,
+            reUploadBatchSize
         );
 
         blobProcessorTask = new BlobProcessorTask(

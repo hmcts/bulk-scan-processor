@@ -14,6 +14,10 @@ output "microserviceName" {
   value = "${var.component}"
 }
 
+outpu "TEST_REUPLOAD_DELAY" {
+  value = "${var.reupload_delay}"
+}
+
 output "TEST_SCAN_DELAY" {
   value = "${var.scan_delay}"
 }

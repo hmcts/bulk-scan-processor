@@ -22,7 +22,8 @@ import static org.mockito.Mockito.verify;
 
 @SpringBootTest(
     properties = {
-        "scheduling.enabled=true"
+        "scheduling.task.scan.enabled=true",
+        "scheduling.task.reupload.enabled=true"
     }
 )
 @RunWith(SpringRunner.class)
@@ -36,7 +37,10 @@ public class WhenRunningTheApplicationTest {
         waitForBlobProcessor();
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
-        assertThat(configCaptor.getValue().getName()).isEqualTo("blobProcessor");
+        assertThat(configCaptor.getAllValues()).extracting("name").containsOnly(
+            "blobProcessor",
+            "re-upload-failures"
+        );
     }
 
     private void waitForBlobProcessor() {

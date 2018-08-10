@@ -43,4 +43,18 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("status") Status status,
         Pageable pageable
     );
+
+    /**
+     * Finds first N envelopes for a given status as per defined page request.
+     *
+     * @param jurisdiction to filter upon
+     * @param status to filter upon
+     * @param pageable limit of data to be processed by consumer
+     * @return A list of envelopes
+     */
+    List<Envelope> findByJurisdictionAndStatusOrderByCreatedAtAsc(
+        String jurisdiction,
+        Status status,
+        Pageable pageable
+    );
 }
