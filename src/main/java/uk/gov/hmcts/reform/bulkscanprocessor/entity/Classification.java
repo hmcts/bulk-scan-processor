@@ -11,15 +11,15 @@ public enum Classification {
     private final String value;
 
     /**
-     * We accept mixed cases here as that does not change the value semantically
-     * and this allows us to be permissive in what we accept.
+     * <p>We accept mixed cases here as that does not change the value semantically
+     * and this allows us to be permissive in what we accept.</p>
      *
-     * When a classification value is instead serialized to Json only lowercase
+     * <p>When a classification value is instead serialized to Json only lowercase
      * is used as the corresponding field in the external model is a String which
      * is populated using the toString() method in this class (see EnvelopeResponse).
-     * This means that we are strict with what we send.
+     * This means that we are strict with what we send.</p>
      *
-     * @param value
+     * @param value the classification type
      */
     Classification(final String value) {
         this.value = (Strings.isNullOrEmpty(value) ? null : value.toLowerCase());
