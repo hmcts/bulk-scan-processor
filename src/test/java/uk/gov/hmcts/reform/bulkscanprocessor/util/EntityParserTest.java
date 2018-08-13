@@ -21,10 +21,10 @@ public class EntityParserTest {
         assertThat(envelope.getPayments()).hasSize(1);
         assertThat(envelope.getPayments().get(0).getAmount()).isEqualTo(100.0);
         assertThat(envelope.getUrgent()).isFalse();
-        assertThat(envelope.getClassification()).isEqualTo(Classification.EXCEPTION);
+        assertThat(envelope.getClassification()).isEqualTo(Classification.NEW_APPLICATION);
         assertThat(envelope.getScannableItems())
             .extracting("documentType")
-            .containsExactly("Other", "Other");
+            .containsExactly("Other", "SSC1");
     }
 
     @Test
