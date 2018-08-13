@@ -35,10 +35,7 @@ public class FailedDocUploadProcessor extends Processor {
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper
     ) {
-        this.cloudBlobClient = cloudBlobClient;
-        this.documentProcessor = documentProcessor;
-        this.envelopeProcessor = envelopeProcessor;
-        this.errorWrapper = errorWrapper;
+        super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
     }
 
     public void processJurisdiction(String jurisdiction)

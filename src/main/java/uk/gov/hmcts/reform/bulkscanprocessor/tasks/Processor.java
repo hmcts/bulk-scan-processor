@@ -12,10 +12,22 @@ import java.util.List;
 
 public abstract class Processor {
 
-    protected CloudBlobClient cloudBlobClient;
-    protected DocumentProcessor documentProcessor;
-    protected EnvelopeProcessor envelopeProcessor;
-    protected ErrorHandlingWrapper errorWrapper;
+    protected final CloudBlobClient cloudBlobClient;
+    private final DocumentProcessor documentProcessor;
+    protected final EnvelopeProcessor envelopeProcessor;
+    protected final ErrorHandlingWrapper errorWrapper;
+
+    protected Processor(
+        CloudBlobClient cloudBlobClient,
+        DocumentProcessor documentProcessor,
+        EnvelopeProcessor envelopeProcessor,
+        ErrorHandlingWrapper errorWrapper
+    ) {
+        this.cloudBlobClient = cloudBlobClient;
+        this.documentProcessor = documentProcessor;
+        this.envelopeProcessor = envelopeProcessor;
+        this.errorWrapper = errorWrapper;
+    }
 
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,

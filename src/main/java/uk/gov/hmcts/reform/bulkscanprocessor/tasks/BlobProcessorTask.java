@@ -46,10 +46,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper
     ) {
-        this.cloudBlobClient = cloudBlobClient;
-        this.documentProcessor = documentProcessor;
-        this.envelopeProcessor = envelopeProcessor;
-        this.errorWrapper = errorWrapper;
+        super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
     }
 
     @SchedulerLock(name = "blobProcessor")
