@@ -71,7 +71,7 @@ public class EnvelopeRetrieverServiceTest {
         List<Envelope> envelopes =
             asList(
                 envelope(),
-                envelope(),
+                EnvelopeCreator.envelopeUrgent(),
                 envelope()
             );
 

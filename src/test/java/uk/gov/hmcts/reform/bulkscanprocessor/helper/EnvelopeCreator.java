@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.google.common.collect.ImmutableList;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -50,6 +51,35 @@ public final class EnvelopeCreator {
             timestamp,
             timestamp,
             UUID.randomUUID() + ".zip",
+            Classification.EXCEPTION,
+            false,
+            scannableItems(),
+            payments(),
+            nonScannableItems()
+        );
+
+        envelope.setStatus(status);
+        envelope.setContainer("SSCS");
+
+        return envelope;
+    }
+
+    public static Envelope envelopeUrgent() throws Exception {
+        return envelopeUrgent("SSCS", Status.CREATED);
+    }
+
+    public static Envelope envelopeUrgent(String jurisdiction, Status status) throws Exception {
+        Timestamp timestamp = getTimestamp();
+
+        Envelope envelope = new Envelope(
+            "SSCSPO",
+            jurisdiction,
+            timestamp,
+            timestamp,
+            timestamp,
+            UUID.randomUUID() + ".zip",
+            Classification.NEW_APPLICATION,
+            true,
             scannableItems(),
             payments(),
             nonScannableItems()
@@ -74,7 +104,8 @@ public final class EnvelopeCreator {
             timestamp,
             "dGVzdA==", //Base 64 value=test
             "1111002.pdf",
-            "test"
+            "test",
+            "Other"
         );
         scannableItem.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 

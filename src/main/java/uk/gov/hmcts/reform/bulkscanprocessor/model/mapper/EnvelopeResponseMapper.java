@@ -38,6 +38,8 @@ public class EnvelopeResponseMapper {
             envelope.getZipFileCreateddate(),
             envelope.getZipFileName(),
             envelope.getStatus(),
+            envelope.getClassification().toString(),
+            envelope.getUrgent(),
             toScannableItemsResponse(envelope.getScannableItems()),
             toPaymentsResponse(envelope.getPayments()),
             toNonScannableItemsResponse(envelope.getNonScannableItems())
@@ -54,7 +56,6 @@ public class EnvelopeResponseMapper {
     }
 
 
-
     private ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
         if (scannableItem == null) {
             return null;
@@ -68,7 +69,8 @@ public class EnvelopeResponseMapper {
             scannableItem.getNextActionDate(),
             scannableItem.getOcrData(),
             scannableItem.getFileName(),
-            scannableItem.getNotes()
+            scannableItem.getNotes(),
+            scannableItem.getDocumentType()
         );
         response.setDocumentUrl(scannableItem.getDocumentUrl());
         return response;
@@ -113,4 +115,5 @@ public class EnvelopeResponseMapper {
             payment.getCurrency()
         );
     }
+
 }
