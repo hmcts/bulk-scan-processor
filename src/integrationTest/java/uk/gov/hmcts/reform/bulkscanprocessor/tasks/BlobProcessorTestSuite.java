@@ -41,6 +41,7 @@ public abstract class BlobProcessorTestSuite {
     public static DockerComposeRule docker = DockerComposeRule.builder()
         .file("src/integrationTest/resources/docker-compose.yml")
         .waitingForService("azure-storage", HealthChecks.toHaveAllPortsOpen())
+        .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
         .build();
 
     BlobProcessorTask blobProcessorTask;
@@ -122,4 +123,5 @@ public abstract class BlobProcessorTestSuite {
             "1111002.pdf", DOCUMENT_URL2
         );
     }
+
 }
