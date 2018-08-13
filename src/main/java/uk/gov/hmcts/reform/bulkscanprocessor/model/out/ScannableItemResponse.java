@@ -43,6 +43,9 @@ public class ScannableItemResponse {
     @JsonProperty("document_url")
     private String documentUrl;
 
+    @JsonProperty("document_type")
+    private String documentType;
+
     @JsonCreator
     public ScannableItemResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
@@ -55,7 +58,8 @@ public class ScannableItemResponse {
         @JsonProperty("next_action_date") Timestamp nextActionDate,
         @JsonProperty("ocr_data") String ocrData,
         @JsonProperty("file_name") String fileName,
-        @JsonProperty("notes") String notes
+        @JsonProperty("notes") String notes,
+        @JsonProperty("document_type") String documentType
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -66,6 +70,7 @@ public class ScannableItemResponse {
         this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
+        this.documentType = documentType;
     }
 
     public String getFileName() {
@@ -112,6 +117,10 @@ public class ScannableItemResponse {
         return notes;
     }
 
+    public String getDocumentType() {
+        return documentType;
+    }
+
     @Override
     public String toString() {
         return "ScannableItemResponse{"
@@ -124,6 +133,7 @@ public class ScannableItemResponse {
             + ", fileName='" + fileName + '\''
             + ", notes='" + notes + '\''
             + ", documentUrl='" + documentUrl + '\''
+            + ", documentType='" + documentType + '\''
             + '}';
     }
     

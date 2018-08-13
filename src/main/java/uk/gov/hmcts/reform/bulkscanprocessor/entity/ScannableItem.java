@@ -43,6 +43,8 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
+    private String documentType = "Other";
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
     private Envelope envelope;
@@ -63,7 +65,8 @@ public class ScannableItem implements EnvelopeAssignable {
         @JsonProperty("next_action_date") Timestamp nextActionDate,
         @JsonProperty("ocr_data") String ocrData,
         @JsonProperty("file_name") String fileName,
-        @JsonProperty("notes") String notes
+        @JsonProperty("notes") String notes,
+        @JsonProperty("document_type") String documentType
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -74,6 +77,7 @@ public class ScannableItem implements EnvelopeAssignable {
         this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
+        this.documentType = (documentType == null ? "Other" : documentType);
     }
 
     public UUID getId() {
@@ -122,6 +126,10 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public String getNotes() {
         return notes;
+    }
+
+    public String getDocumentType() {
+        return documentType;
     }
 
     @Override
