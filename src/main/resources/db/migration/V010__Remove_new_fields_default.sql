@@ -1,0 +1,4 @@
+ALTER TABLE envelopes ALTER COLUMN classification DROP DEFAULT;
+ALTER TABLE envelopes ALTER COLUMN urgent DROP DEFAULT;
+
+ALTER TABLE scannable_items ALTER COLUMN documentType DROP DEFAULT;
