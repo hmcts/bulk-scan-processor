@@ -6,8 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.DataRetrievalFailureException;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
@@ -17,7 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.BDDMockito.given;
@@ -35,7 +32,7 @@ public class EnvelopeRetrieverServiceTest {
     private EnvelopeRetrieverService envelopeRetrieverService;
 
     @Mock
-    private EnvelopeAccessProperties envelopeAccess;
+    private EnvelopeAccessService envelopeAccess;
 
     private EnvelopeResponseMapper envelopeResponseMapper = new EnvelopeResponseMapper();
 
@@ -49,8 +46,8 @@ public class EnvelopeRetrieverServiceTest {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
         List<EnvelopeResponse> envelopesResponse = envelopeResponseMapper.toEnvelopesResponse(envelopes);
 
-        when(envelopeAccess.getMappings())
-            .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
+        when(envelopeAccess.getReadJurisdictionForService("testService"))
+            .thenReturn("testJurisdiction");
 
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenReturn(envelopes);
@@ -77,8 +74,8 @@ public class EnvelopeRetrieverServiceTest {
 
         List<EnvelopeResponse> envelopesResponse = envelopeResponseMapper.toEnvelopesResponse(envelopes);
 
-        given(envelopeAccess.getMappings())
-            .willReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
+        given(envelopeAccess.getReadJurisdictionForService("testService"))
+            .willReturn("testJurisdiction");
 
         given(envelopeRepository.findByJurisdiction("testJurisdiction"))
             .willReturn(envelopes);
@@ -94,8 +91,8 @@ public class EnvelopeRetrieverServiceTest {
 
     @Test
     public void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
-        when(envelopeAccess.getMappings())
-            .thenReturn(singletonList(new Mapping("testJurisdiction", "testService", "testService")));
+        when(envelopeAccess.getReadJurisdictionForService("testService"))
+            .thenReturn("testJurisdiction");
 
         when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
             .thenThrow(DataRetrievalFailureException.class);

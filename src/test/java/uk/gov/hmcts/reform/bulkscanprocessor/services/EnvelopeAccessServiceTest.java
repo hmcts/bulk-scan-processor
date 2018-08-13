@@ -10,11 +10,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@SuppressWarnings("checkstyle:LineLength")
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeAccessServiceTest {
 
@@ -58,5 +61,19 @@ public class EnvelopeAccessServiceTest {
     public void assertCanUpdate_should_not_throw_an_exception_if_service_can_update_envelopes_in_given_jurisdiction() {
         assertThatCode(() -> service.assertCanUpdate("jur_A", "update_A"))
             .doesNotThrowAnyException();
+    }
+
+    @Test
+    public void getReadJurisdictionForService_should_return_name_of_then_jurisdiction_from_which_service_can_read() {
+        String jurisdiction = service.getReadJurisdictionForService("read_A");
+
+        assertThat(jurisdiction).isEqualTo("jur_A");
+    }
+
+    @Test
+    public void getReadJurisdictionForService_should_throw_an_exception_if_there_is_no_jurisdiction_that_the_service_can_read_from() {
+        assertThatThrownBy(() -> service.getReadJurisdictionForService("update_A"))
+            .isInstanceOf(ServiceJuridictionConfigNotFoundException.class)
+            .hasMessageContaining("update_A");
     }
 }
