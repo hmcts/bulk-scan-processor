@@ -6,6 +6,8 @@
       "delivery_date": "23-06-2018 00:00:00.000000",
       "opening_date": "23-06-2018 00:00:00.000000",
       "zip_file_name": "7_24-06-2018-00-00-00.zip",
+      "urgent": false,
+      "classification": "exception",
       "scannable_items": [
         {
           "document_control_number": "1111002",
@@ -17,7 +19,8 @@
           "ocr_data": "dGVzdA==",
           "file_name": "1111002.pdf",
           "notes": "test",
-          "document_url": "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
+          "document_url": "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe",
+          "document_type": "other"
         }
       ],
       "payments": [
