@@ -71,7 +71,7 @@ public class EnvelopeControllerTest {
     public static DockerComposeRule docker = DockerComposeRule.builder()
         .file("src/integrationTest/resources/docker-compose.yml")
         .waitingForService("azure-storage", HealthChecks.toHaveAllPortsOpen())
-        .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/?comp=list")))
+        .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
         .build();
 
     private CloudBlobClient cloudBlobClient;
