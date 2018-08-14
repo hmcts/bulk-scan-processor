@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
-import com.google.common.collect.ImmutableList;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -13,11 +12,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.ScannableItemResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
+
 public class EnvelopeResponseMapper {
 
     public List<EnvelopeResponse> toEnvelopesResponse(List<Envelope> envelopes) {
         if (envelopes == null) {
-            return ImmutableList.of();
+            return emptyList();
         }
         return envelopes.stream()
             .map(this::toEnvelopeResponse)
@@ -48,7 +49,7 @@ public class EnvelopeResponseMapper {
 
     private List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
         if (scannableItems == null) {
-            return ImmutableList.of();
+            return emptyList();
         }
         return scannableItems.stream()
             .map(this::toScannableItemResponse)
@@ -78,7 +79,7 @@ public class EnvelopeResponseMapper {
 
     private List<NonScannableItemResponse> toNonScannableItemsResponse(List<NonScannableItem> nonScannableItems) {
         if (nonScannableItems == null) {
-            return ImmutableList.of();
+            return emptyList();
         }
         return nonScannableItems.stream()
             .map(this::toNonScannableItemResponse)
@@ -97,7 +98,7 @@ public class EnvelopeResponseMapper {
 
     private List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
         if (payments == null) {
-            return ImmutableList.of();
+            return emptyList();
         }
         return payments.stream()
             .map(this::toPaymentResponse)
