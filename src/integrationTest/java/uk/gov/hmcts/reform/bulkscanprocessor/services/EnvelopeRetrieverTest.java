@@ -8,8 +8,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -17,7 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
@@ -27,13 +24,13 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 public class EnvelopeRetrieverTest {
 
     @Autowired private EnvelopeRepository envelopeRepo;
-    @Mock EnvelopeAccessProperties accessProperties;
+    @Mock EnvelopeAccessService accessService;
 
     private EnvelopeRetrieverService service;
 
     @Before
     public void setUp() throws Exception {
-        this.service = new EnvelopeRetrieverService(envelopeRepo, accessProperties);
+        this.service = new EnvelopeRetrieverService(envelopeRepo, accessService);
     }
 
     @Test
@@ -115,7 +112,7 @@ public class EnvelopeRetrieverTest {
     }
 
     private void serviceCanReadFromJurisdiction(String serviceName, String jurisdiction) {
-        given(this.accessProperties.getMappings())
-            .willReturn(singletonList(new Mapping(jurisdiction, serviceName, serviceName)));
+        given(this.accessService.getReadJurisdictionForService(serviceName))
+            .willReturn(jurisdiction);
     }
 }
