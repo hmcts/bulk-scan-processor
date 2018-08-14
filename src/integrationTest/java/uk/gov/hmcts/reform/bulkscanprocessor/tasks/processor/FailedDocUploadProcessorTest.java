@@ -80,7 +80,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
         assertThat(processEvents)
             .extracting("container", "zipFileName", "event", "reason")
-            .contains(
+            .containsOnly(
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOADED, null),
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_PROCESSED, null)
