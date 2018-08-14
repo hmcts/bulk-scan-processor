@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 
 import java.util.Objects;
 
@@ -38,5 +39,22 @@ public class EnvelopeAccessService {
                 "Service " + serviceName + " cannot update envelopes in jurisdiction " + envelopeJurisdiction
             );
         }
+    }
+
+    /**
+     * Returns the name of jurisdiction from which given service can read envelopes.
+     */
+    public String getReadJurisdictionForService(String serviceName) {
+        return access
+            .getMappings()
+            .stream()
+            .filter(m -> Objects.equals(m.getReadService(), serviceName))
+            .findFirst()
+            .map(m -> m.getJurisdiction())
+            .orElseThrow(() ->
+                new ServiceJuridictionConfigNotFoundException(
+                    "No configuration mapping found for service " + serviceName
+                )
+            );
     }
 }
