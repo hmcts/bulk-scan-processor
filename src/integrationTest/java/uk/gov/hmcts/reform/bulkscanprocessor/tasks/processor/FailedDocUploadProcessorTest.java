@@ -61,9 +61,6 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
         blobProcessorTask.processBlobs();
 
-        // and
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
-
         // when
         processor.processJurisdiction("SSCS");
 
