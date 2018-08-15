@@ -51,7 +51,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
     }
 
     @Test
-    public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
+    public void should_successfully_reupload_documents_when_initial_blob_processor_was_unable_to_do_so()
         throws Exception {
         // given
         uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
