@@ -7,10 +7,14 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @EnableConfigurationProperties(EnvelopeAccessProperties.class)
@@ -43,4 +47,16 @@ public class EnvelopeRetrieverService {
         );
     }
 
+    public Optional<EnvelopeResponse> findById(String serviceName, UUID id) {
+        return envelopeRepository
+            .findById(id)
+            .map(envelope -> {
+                String jurisdiction = envelopeAccessService.getReadJurisdictionForService(serviceName);
+                if (Objects.equals(envelope.getJurisdiction(), jurisdiction)) {
+                    return envelopeResponseMapper.toEnvelopeResponse(envelope);
+                } else {
+                    throw new ForbiddenException("Service " + serviceName + " cannot read envelope " + id);
+                }
+            });
+    }
 }
