@@ -62,17 +62,20 @@ public class ReuploadFailedEnvelopeTask {
         );
         CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
-        for (Mapping mapping : accessMapping) {
-            FailedDocUploadProcessor processor = getProcessor();
+        accessMapping
+            .parallelStream()
+            .map(Mapping::getJurisdiction)
+            .forEach(jurisdiction -> {
+                FailedDocUploadProcessor processor = getProcessor();
 
-            completionService.submit(() -> {
-                log.info("Processing failed documents for jurisdiction {}", mapping.getJurisdiction());
+                completionService.submit(() -> {
+                    log.info("Processing failed documents for jurisdiction {}", jurisdiction);
 
-                processor.processJurisdiction(mapping.getJurisdiction());
+                    processor.processJurisdiction(jurisdiction);
 
-                return null;
+                    return null;
+                });
             });
-        }
 
         awaitCompletion(completionService);
     }

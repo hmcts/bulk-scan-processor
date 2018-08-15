@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,10 +59,11 @@ public class FailedDocUploadProcessorTest {
         List<Envelope> envelopes = Collections.nCopies(3, testEnvelope);
 
         // and
-        given(envelopeProcessor.getFailedToUploadEnvelopes("test")).willReturn(envelopes);
+        given(envelopeProcessor.getFailedToUploadEnvelopes("SSCS")).willReturn(envelopes);
 
+        // we only test the output pattern. client is null
         // when
-        processor.processJurisdiction("test");
+        catchThrowableOfType(() -> processor.processJurisdiction("SSCS"), NullPointerException.class);
 
         // then
         assertThat(outputCapture.toString()).containsPattern("Processing 3 failed documents for container test");
