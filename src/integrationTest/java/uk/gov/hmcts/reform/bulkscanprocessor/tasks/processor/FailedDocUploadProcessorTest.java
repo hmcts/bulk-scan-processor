@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessorTestSuite;
@@ -107,7 +108,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
-            .willReturn(Collections.emptyMap());
+            .willReturn(Collections.emptyMap()) // blob processor had empty response
+            .willThrow(new UnableToUploadDocumentException("oh no", null)); // reupload task - failure
 
         blobProcessorTask.processBlobs();
 
@@ -127,7 +129,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .hasSize(2)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason)
+                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, "oh no")
             );
     }
 }
