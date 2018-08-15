@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessorTestSuite;
@@ -73,20 +72,21 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         processor.processJurisdiction("SSCS");
 
         // then
-        Envelope dbEnvelope = envelopeRepository.findAll().get(0);
+        List<Envelope> dbEnvelopes = envelopeRepository.findAll();
 
-        assertThat(dbEnvelope.getStatus()).isEqualTo(PROCESSED);
-        assertThat(dbEnvelope.getScannableItems())
+        assertThat(dbEnvelopes)
+            .hasSize(1)
+            .extracting("status")
+            .containsOnlyOnce(PROCESSED);
+        assertThat(dbEnvelopes.get(0).getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
 
         // and
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(3);
-
         String failureReason = "Document metadata not found for file " + pdf1.getFilename();
 
-        assertThat(processEvents)
+        assertThat(processEventRepository.findAll())
+            .hasSize(3)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason),
@@ -115,17 +115,16 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         processor.processJurisdiction("SSCS");
 
         // then
-        Envelope dbEnvelope = envelopeRepository.findAll().get(0);
-
-        assertThat(dbEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
+        assertThat(envelopeRepository.findAll())
+            .hasSize(1)
+            .extracting("status")
+            .containsOnlyOnce(UPLOAD_FAILURE);
 
         // and
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(2);
-
         String failureReason = "Document metadata not found for file " + pdf1.getFilename();
 
-        assertThat(processEvents)
+        assertThat(processEventRepository.findAll())
+            .hasSize(2)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason)
