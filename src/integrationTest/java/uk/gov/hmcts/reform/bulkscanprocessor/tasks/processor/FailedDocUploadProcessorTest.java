@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -41,6 +43,12 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             envelopeProcessor,
             errorWrapper
         );
+    }
+
+    @After
+    public void tearDown() {
+        envelopeRepository.deleteAll();
+        processEventRepository.deleteAll();
     }
 
     @Test
@@ -84,6 +92,43 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOADED, null),
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_PROCESSED, null)
+            );
+    }
+
+    @Test
+    public void should_fail_to_upload_pdfs_when_retrying_with_reupload_task() throws Exception {
+        // given
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+
+        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
+        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
+
+        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
+        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
+
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
+            .willReturn(Collections.emptyMap());
+
+        blobProcessorTask.processBlobs();
+
+        // when
+        processor.processJurisdiction("SSCS");
+
+        // then
+        Envelope dbEnvelope = envelopeRepository.findAll().get(0);
+
+        assertThat(dbEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
+
+        // and
+        List<ProcessEvent> processEvents = processEventRepository.findAll();
+        assertThat(processEvents).hasSize(2);
+
+        String failureReason = "Document metadata not found for file " + pdf1.getFilename();
+
+        assertThat(processEvents)
+            .extracting("container", "zipFileName", "event", "reason")
+            .containsOnly(
+                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason)
             );
     }
 }
