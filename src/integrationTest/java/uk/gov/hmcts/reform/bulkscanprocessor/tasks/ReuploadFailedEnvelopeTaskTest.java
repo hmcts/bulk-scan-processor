@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.palantir.docker.compose.DockerComposeRule;
+import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -34,6 +35,8 @@ public class ReuploadFailedEnvelopeTaskTest {
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
         .file("src/integrationTest/resources/docker-compose.yml")
+        .waitingForService("azure-storage", HealthChecks.toHaveAllPortsOpen())
+        .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
         .build();
 
     @Rule

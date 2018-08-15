@@ -9,7 +9,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.palantir.docker.compose.DockerComposeRule;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +29,24 @@ import java.util.Map;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 
-public abstract class BlobProcessorTestSuite {
+public abstract class ProcessorTestSuite<T extends Processor> {
 
-    static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
+    protected static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
 
-    static final String DOCUMENT_URL1 = "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
-    static final String DOCUMENT_URL2 = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
+    protected static final String DOCUMENT_URL1 =
+        "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
+    protected static final String DOCUMENT_URL2 =
+        "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
+
+    @FunctionalInterface
+    public interface Construct<T extends Processor> {
+        T apply(
+            CloudBlobClient cloudBlobClient,
+            DocumentProcessor documentProcessor,
+            EnvelopeProcessor envelopeProcessor,
+            ErrorHandlingWrapper errorWrapper
+        );
+    }
 
     @ClassRule
     public static DockerComposeRule docker = DockerComposeRule.builder()
@@ -44,16 +55,20 @@ public abstract class BlobProcessorTestSuite {
         .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
         .build();
 
-    BlobProcessorTask blobProcessorTask;
+    protected T processor;
 
     @Autowired
-    EnvelopeRepository envelopeRepository;
+    protected EnvelopeRepository envelopeRepository;
 
     @Autowired
-    ProcessEventRepository processEventRepository;
+    protected ProcessEventRepository processEventRepository;
+
+    protected DocumentProcessor documentProcessor;
+
+    protected EnvelopeProcessor envelopeProcessor;
 
     @Autowired
-    private ErrorHandlingWrapper errorWrapper;
+    protected ErrorHandlingWrapper errorWrapper;
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
@@ -62,27 +77,27 @@ public abstract class BlobProcessorTestSuite {
     private int reUploadBatchSize;
 
     @Mock
-    DocumentManagementService documentManagementService;
+    protected DocumentManagementService documentManagementService;
 
-    CloudBlobContainer testContainer;
+    protected CloudBlobContainer testContainer;
 
-    @Before
-    public void setup() throws Exception {
+    public void setUp(Construct<T> processorConstruct) throws Exception {
+
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        DocumentProcessor documentProcessor = new DocumentProcessor(
+        documentProcessor = new DocumentProcessor(
             documentManagementService,
             scannableItemRepository
         );
 
-        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
+        envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
             processEventRepository,
             reUploadBatchSize
         );
 
-        blobProcessorTask = new BlobProcessorTask(
+        processor = processorConstruct.apply(
             cloudBlobClient,
             documentProcessor,
             envelopeProcessor,
@@ -100,7 +115,7 @@ public abstract class BlobProcessorTestSuite {
         processEventRepository.deleteAll();
     }
 
-    void uploadZipToBlobStore(String zipFileName) throws Exception {
+    protected void uploadZipToBlobStore(String zipFileName) throws Exception {
         byte[] zipFile = toByteArray(getResource(zipFileName));
 
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipFileName);
@@ -117,7 +132,7 @@ public abstract class BlobProcessorTestSuite {
         return ImmutableList.of(pdf1, pdf2);
     }
 
-    Map<String, String> getFileUploadResponse() {
+    protected Map<String, String> getFileUploadResponse() {
         return ImmutableMap.of(
             "1111001.pdf", DOCUMENT_URL1,
             "1111002.pdf", DOCUMENT_URL2

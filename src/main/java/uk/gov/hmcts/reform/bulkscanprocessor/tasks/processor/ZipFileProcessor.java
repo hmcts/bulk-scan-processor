@@ -34,6 +34,11 @@ public class ZipFileProcessor {
         this.zipFileName = zipFileName;
     }
 
+    public ZipFileProcessor(Envelope envelope) {
+        this(envelope.getContainer(), envelope.getZipFileName());
+        this.envelope = envelope;
+    }
+
     public void process(ZipInputStream zis) throws IOException {
         ZipEntry zipEntry;
 
