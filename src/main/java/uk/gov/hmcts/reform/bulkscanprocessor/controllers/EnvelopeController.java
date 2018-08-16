@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.StatusUpdate;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
@@ -58,6 +59,18 @@ public class EnvelopeController {
         List<EnvelopeResponse> envelopes = envelopeRetrieverService.findByServiceAndStatus(serviceName, status);
 
         return new EnvelopeListResponse(envelopes);
+    }
+
+    @GetMapping(path = "/{id}")
+    @ApiOperation("Read single envelope by ID")
+    public EnvelopeResponse getById(
+        @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,
+        @PathVariable UUID id
+    ) {
+        String serviceName = authService.authenticate(serviceAuthHeader);
+        return envelopeRetrieverService
+            .findById(serviceName, id)
+            .orElseThrow(EnvelopeNotFoundException::new);
     }
 
     @PutMapping(path = "/{id}/status")
