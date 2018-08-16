@@ -43,7 +43,7 @@ public class ReadSingleEnvelopeControllerTest {
         // given
         UUID envelopeId = randomUUID();
         given(readService.findById(any(), eq(envelopeId)))
-            .willReturn(Optional.of(new EnvelopeResponseMapper().toEnvelopeResponse(envelope())));
+            .willReturn(Optional.of(EnvelopeResponseMapper.toEnvelopeResponse(envelope())));
 
         // when
         MockHttpServletResponse res = sendGet(envelopeId);
