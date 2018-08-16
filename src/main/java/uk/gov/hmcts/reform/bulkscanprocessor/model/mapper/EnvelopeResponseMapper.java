@@ -80,7 +80,9 @@ public final class EnvelopeResponseMapper {
         return response;
     }
 
-    private static List<NonScannableItemResponse> toNonScannableItemsResponse(List<NonScannableItem> nonScannableItems) {
+    private static List<NonScannableItemResponse> toNonScannableItemsResponse(
+        List<NonScannableItem> nonScannableItems
+    ) {
         if (nonScannableItems == null) {
             return emptyList();
         }
