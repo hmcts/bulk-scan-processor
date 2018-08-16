@@ -34,8 +34,6 @@ public class EnvelopeRetrieverServiceTest {
     @Mock
     private EnvelopeAccessService envelopeAccess;
 
-    private EnvelopeResponseMapper envelopeResponseMapper = new EnvelopeResponseMapper();
-
     @Before
     public void setUp() {
         envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, envelopeAccess);
@@ -44,7 +42,7 @@ public class EnvelopeRetrieverServiceTest {
     @Test
     public void should_return_all_envelopes_successfully_for_a_given_jurisdiction_and_status() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
-        List<EnvelopeResponse> envelopesResponse = envelopeResponseMapper.toEnvelopesResponse(envelopes);
+        List<EnvelopeResponse> envelopesResponse = EnvelopeResponseMapper.toEnvelopesResponse(envelopes);
 
         when(envelopeAccess.getReadJurisdictionForService("testService"))
             .thenReturn("testJurisdiction");
@@ -72,7 +70,7 @@ public class EnvelopeRetrieverServiceTest {
                 envelope()
             );
 
-        List<EnvelopeResponse> envelopesResponse = envelopeResponseMapper.toEnvelopesResponse(envelopes);
+        List<EnvelopeResponse> envelopesResponse = EnvelopeResponseMapper.toEnvelopesResponse(envelopes);
 
         given(envelopeAccess.getReadJurisdictionForService("testService"))
             .willReturn("testJurisdiction");

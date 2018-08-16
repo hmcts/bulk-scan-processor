@@ -55,8 +55,6 @@ public class ReadEnvelopesControllerTest {
     @MockBean
     private AuthService authService;
 
-    EnvelopeResponseMapper mapper = new EnvelopeResponseMapper();
-
     @Test
     public void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
         List<EnvelopeResponse> envelopes = envelopesInDb();
@@ -134,7 +132,7 @@ public class ReadEnvelopesControllerTest {
     private List<EnvelopeResponse> envelopesInDb() throws Exception {
         Envelope envelope = EnvelopeCreator.envelope();
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
-        return singletonList(mapper.toEnvelopeResponse(envelope));
+        return singletonList(EnvelopeResponseMapper.toEnvelopeResponse(envelope));
     }
 
     private String expectedEnvelopes() throws IOException {

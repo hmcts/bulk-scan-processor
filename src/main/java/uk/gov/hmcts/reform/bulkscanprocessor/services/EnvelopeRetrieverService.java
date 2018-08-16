@@ -25,7 +25,6 @@ public class EnvelopeRetrieverService {
 
     private final EnvelopeRepository envelopeRepository;
     private final EnvelopeAccessService envelopeAccessService;
-    private final EnvelopeResponseMapper envelopeResponseMapper;
 
     public EnvelopeRetrieverService(
         EnvelopeRepository envelopeRepository,
@@ -33,7 +32,6 @@ public class EnvelopeRetrieverService {
     ) {
         this.envelopeRepository = envelopeRepository;
         this.envelopeAccessService = envelopeAccessService;
-        this.envelopeResponseMapper = new EnvelopeResponseMapper();
     }
 
     public List<EnvelopeResponse> findByServiceAndStatus(String serviceName, Status status) {
@@ -41,10 +39,10 @@ public class EnvelopeRetrieverService {
 
         String jurisdiction = envelopeAccessService.getReadJurisdictionForService(serviceName);
 
-        return envelopeResponseMapper.toEnvelopesResponse(
+        return EnvelopeResponseMapper.toEnvelopesResponse(
             status == null
-            ? envelopeRepository.findByJurisdiction(jurisdiction)
-            : envelopeRepository.findByJurisdictionAndStatus(jurisdiction, status)
+                ? envelopeRepository.findByJurisdiction(jurisdiction)
+                : envelopeRepository.findByJurisdictionAndStatus(jurisdiction, status)
         );
     }
 
@@ -55,7 +53,7 @@ public class EnvelopeRetrieverService {
         if (envelope.isPresent() && !Objects.equals(envelope.get().getJurisdiction(), validJurisdiction)) {
             throw new ForbiddenException("Service " + serviceName + " cannot read envelope " + id);
         } else {
-            return envelope.map(envelopeResponseMapper::toEnvelopeResponse);
+            return envelope.map(EnvelopeResponseMapper::toEnvelopeResponse);
         }
     }
 }

@@ -14,18 +14,21 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
-public class EnvelopeResponseMapper {
+public final class EnvelopeResponseMapper {
 
-    public List<EnvelopeResponse> toEnvelopesResponse(List<Envelope> envelopes) {
+    private EnvelopeResponseMapper() {
+    }
+
+    public static List<EnvelopeResponse> toEnvelopesResponse(List<Envelope> envelopes) {
         if (envelopes == null) {
             return emptyList();
         }
         return envelopes.stream()
-            .map(this::toEnvelopeResponse)
+            .map(EnvelopeResponseMapper::toEnvelopeResponse)
             .collect(Collectors.toList());
     }
 
-    public EnvelopeResponse toEnvelopeResponse(Envelope envelope) {
+    public static EnvelopeResponse toEnvelopeResponse(Envelope envelope) {
         if (envelope == null) {
             return null;
         }
@@ -47,17 +50,17 @@ public class EnvelopeResponseMapper {
         );
     }
 
-    private List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
+    private static List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
         if (scannableItems == null) {
             return emptyList();
         }
         return scannableItems.stream()
-            .map(this::toScannableItemResponse)
+            .map(EnvelopeResponseMapper::toScannableItemResponse)
             .collect(Collectors.toList());
     }
 
 
-    private ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
+    private static ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
         if (scannableItem == null) {
             return null;
         }
@@ -77,16 +80,16 @@ public class EnvelopeResponseMapper {
         return response;
     }
 
-    private List<NonScannableItemResponse> toNonScannableItemsResponse(List<NonScannableItem> nonScannableItems) {
+    private static List<NonScannableItemResponse> toNonScannableItemsResponse(List<NonScannableItem> nonScannableItems) {
         if (nonScannableItems == null) {
             return emptyList();
         }
         return nonScannableItems.stream()
-            .map(this::toNonScannableItemResponse)
+            .map(EnvelopeResponseMapper::toNonScannableItemResponse)
             .collect(Collectors.toList());
     }
 
-    private NonScannableItemResponse toNonScannableItemResponse(NonScannableItem nonScannableItem) {
+    private static NonScannableItemResponse toNonScannableItemResponse(NonScannableItem nonScannableItem) {
         if (nonScannableItem == null) {
             return null;
         }
@@ -96,16 +99,16 @@ public class EnvelopeResponseMapper {
         );
     }
 
-    private List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
+    private static List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
         if (payments == null) {
             return emptyList();
         }
         return payments.stream()
-            .map(this::toPaymentResponse)
+            .map(EnvelopeResponseMapper::toPaymentResponse)
             .collect(Collectors.toList());
     }
 
-    private PaymentResponse toPaymentResponse(Payment payment) {
+    private static PaymentResponse toPaymentResponse(Payment payment) {
         if (payment == null) {
             return null;
         }

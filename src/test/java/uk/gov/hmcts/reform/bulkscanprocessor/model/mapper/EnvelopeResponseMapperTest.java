@@ -21,8 +21,7 @@ public class EnvelopeResponseMapperTest {
 
     @Test
     public void should_map_envelope_to_envelope_response() throws Exception {
-        EnvelopeResponseMapper mapper = new EnvelopeResponseMapper();
-        EnvelopeResponse response = mapper.toEnvelopeResponse(envelope);
+        EnvelopeResponse response = EnvelopeResponseMapper.toEnvelopeResponse(envelope);
 
         assertThat(response)
             .usingComparatorForFields(
