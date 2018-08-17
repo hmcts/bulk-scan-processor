@@ -92,7 +92,7 @@ public class Envelope {
         @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("classification") Classification classification,
-        @JsonProperty("urgent") Boolean urgent,
+        @JsonProperty("urgent") boolean urgent,
         @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
         @JsonProperty("payments") List<Payment> payments,
         @JsonProperty("non_scannable_items") List<NonScannableItem> nonScannableItems
@@ -103,8 +103,8 @@ public class Envelope {
         this.openingDate = openingDate;
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
-        this.classification = (classification == null ? Classification.EXCEPTION : classification);
-        this.urgent = (urgent == null ? false : urgent);
+        this.classification = classification;
+        this.urgent = urgent;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;

@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import com.google.common.base.Strings;
-
 public enum Classification {
 
     EXCEPTION("exception"),
@@ -22,7 +20,7 @@ public enum Classification {
      * @param value the classification type
      */
     Classification(final String value) {
-        this.value = (Strings.isNullOrEmpty(value) ? null : value.toLowerCase());
+        this.value = value.toLowerCase();
     }
 
     @Override

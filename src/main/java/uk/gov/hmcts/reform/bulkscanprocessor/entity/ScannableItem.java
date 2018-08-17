@@ -77,7 +77,7 @@ public class ScannableItem implements EnvelopeAssignable {
         this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
-        this.documentType = (documentType == null ? "Other" : documentType);
+        this.documentType = documentType;
     }
 
     public UUID getId() {
