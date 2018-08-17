@@ -6,13 +6,13 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.palantir.docker.compose.DockerComposeRule;
-import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.junit.After;
-import org.junit.ClassRule;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -48,13 +49,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
     }
 
-    @ClassRule
-    public static DockerComposeRule docker = DockerComposeRule.builder()
-        .file("src/integrationTest/resources/docker-compose.yml")
-        .waitingForService("azure-storage", HealthChecks.toHaveAllPortsOpen())
-        .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
-        .build();
-
     protected T processor;
 
     @Autowired
@@ -80,6 +74,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected DocumentManagementService documentManagementService;
 
     protected CloudBlobContainer testContainer;
+
+    private static DockerComposeContainer dockerComposeContainer;
 
     public void setUp(Construct<T> processorConstruct) throws Exception {
 
@@ -113,6 +109,21 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         testContainer.deleteIfExists();
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
+    }
+
+    @BeforeClass
+    public static void initialize() {
+        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
+
+        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
+            .withExposedService("azure-storage", 10000);
+
+        dockerComposeContainer.start();
+    }
+
+    @AfterClass
+    public static void tearDownContainer() {
+        dockerComposeContainer.stop();
     }
 
     protected void uploadZipToBlobStore(String zipFileName) throws Exception {
