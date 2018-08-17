@@ -9,7 +9,7 @@ public class FileNameIrregularitiesException extends RuntimeException implements
 
     private static final Event FAILURE_EVENT = Event.DOC_FAILURE;
 
-    private final Envelope envelope;
+    private final transient Envelope envelope;
 
     public FileNameIrregularitiesException(Envelope envelope, Collection<String> fileNames) {
         super("Missing PDFs: " + String.join(", ", fileNames));

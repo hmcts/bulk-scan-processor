@@ -7,7 +7,7 @@ public class DocUploadFailureGenericException extends RuntimeException implement
 
     private static final Event DOC_UPLOAD_FAILURE_EVENT = Event.DOC_UPLOAD_FAILURE;
 
-    private final Envelope envelope;
+    private final transient Envelope envelope;
 
     public DocUploadFailureGenericException(Envelope envelope, Throwable cause) {
         super(cause.getMessage(), cause);
