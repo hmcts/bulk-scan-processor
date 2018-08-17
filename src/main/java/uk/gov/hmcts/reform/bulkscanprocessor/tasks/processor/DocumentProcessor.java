@@ -31,8 +31,6 @@ public class DocumentProcessor {
 
     @Transactional
     public void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
-        // TODO check scannedItems.size == pdfFiles.size
-
         Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
 
         log.info("Document service response with file name and doc url {}", response);

@@ -6,6 +6,7 @@ public enum Status {
 
     CONSUMED, // client service handled the documents
     CREATED,
+    FAILURE, // when we are aware of envelope, but there are inconsistency among files and metadata info
     PROCESSED, // when blob is successfully deleted after storing all docs in DM
     UPLOADED,
     UPLOAD_FAILURE;
@@ -14,6 +15,10 @@ public enum Status {
         Status status = null;
 
         switch (event) {
+            case DOC_FAILURE:
+                status = FAILURE;
+
+                break;
             case DOC_UPLOADED:
                 status = UPLOADED;
 

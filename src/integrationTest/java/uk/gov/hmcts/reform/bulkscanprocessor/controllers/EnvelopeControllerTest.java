@@ -26,11 +26,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -43,20 +41,20 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -160,17 +158,8 @@ public class EnvelopeControllerTest {
         byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
 
-        byte[] testPdfBytes1 = toByteArray(getResource("1111005.pdf"));
-        Pdf pdf1 = new Pdf("1111005.pdf", testPdfBytes1);
-
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
-            .willReturn(ImmutableMap.of(
-                "1111002.pdf", DOCUMENT_URL)
-            );
-
-        // Make the document upload fail to test failure record is created
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1)))
-            .willThrow(DocumentNotFoundException.class);
+            .willReturn(ImmutableMap.of("1111002.pdf", DOCUMENT_URL));
 
         blobProcessorTask.processBlobs();
 
@@ -185,15 +174,18 @@ public class EnvelopeControllerTest {
             // Envelope id is checked explicitly as it is dynamically generated.
             .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 
-        List<Envelope> envelopesFromDb = envelopeRepository.findAll();
-
-        assertThat(envelopesFromDb.size()).isEqualTo(2);
-
-        assertThat(envelopesFromDb)
+        assertThat(envelopeRepository.findAll())
+            .hasSize(2)
             .extracting("zipFileName", "status")
-            .containsExactlyInAnyOrder(tuple("7_24-06-2018-00-00-00.zip", PROCESSED),
-                tuple("8_24-06-2018-00-00-00.zip", UPLOAD_FAILURE));
+            .containsExactlyInAnyOrder(
+                tuple("7_24-06-2018-00-00-00.zip", PROCESSED),
+                tuple("8_24-06-2018-00-00-00.zip", FAILURE)
+            );
 
+        byte[] testPdfBytes1 = toByteArray(getResource("1111005.pdf"));
+        Pdf pdf1 = new Pdf("1111005.pdf", testPdfBytes1);
+
+        verify(documentManagementService, never()).uploadDocuments(ImmutableList.of(pdf1));
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
