@@ -157,10 +157,6 @@ repositories {
   jcenter()
 
   maven {
-    url 'https://dl.bintray.com/palantir/releases' // docker-compose-rule is published on bintray
-  }
-
-  maven {
     url "https://dl.bintray.com/hmcts/hmcts-maven"
   }
 }
@@ -203,8 +199,7 @@ dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
-  testCompile group: 'com.palantir.docker.compose', name: 'docker-compose-rule-junit4', version: '0.34.0'
-
+  testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath

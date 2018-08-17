@@ -4,12 +4,13 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.palantir.docker.compose.DockerComposeRule;
-import com.palantir.docker.compose.connection.waiting.HealthChecks;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.testcontainers.containers.DockerComposeContainer;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
@@ -17,14 +18,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AzuriteTest {
 
-    @ClassRule
-    public static DockerComposeRule docker = DockerComposeRule.builder()
-        .file("src/integrationTest/resources/docker-compose.yml")
-        .waitingForService("azure-storage", HealthChecks.toHaveAllPortsOpen())
-        .waitingForService("azure-storage", HealthChecks.toRespondOverHttp(10000, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/devstoreaccount1?comp=list")))
-        .build();
-
     private CloudBlobContainer root;
+
+    private static DockerComposeContainer dockerComposeContainer;
+
+    @BeforeClass
+    public static void initialize() {
+        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
+
+        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
+            .withExposedService("azure-storage", 10000);
+
+        dockerComposeContainer.start();
+    }
+
+    @AfterClass
+    public static void tearDownContainer() {
+        dockerComposeContainer.stop();
+    }
 
     @Before
     public void setup() throws URISyntaxException, InvalidKeyException, StorageException {
@@ -36,7 +47,7 @@ public class AzuriteTest {
     }
 
     @Test
-    public void testAzuriteIntegration() throws URISyntaxException, InvalidKeyException, StorageException {
+    public void testAzuriteIntegration() throws StorageException {
         assertThat(root.exists()).isTrue();
     }
 }
