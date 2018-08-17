@@ -85,7 +85,7 @@ public class ZipFileProcessor {
 
         missingScannedFiles.addAll(missingPdfFiles);
 
-        if (missingScannedFiles.size() > 0) {
+        if (!missingScannedFiles.isEmpty()) {
             throw new FileNameIrregularitiesException(envelope, missingScannedFiles);
         }
     }
