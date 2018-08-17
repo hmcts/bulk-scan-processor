@@ -67,7 +67,10 @@ public class TestHelper {
     }
 
     public void uploadZipFile(
-        CloudBlobContainer container, List<String> files, String metadataFile, final String destZipFilename
+        CloudBlobContainer container,
+        List<String> files,
+        String metadataFile,
+        final String destZipFilename
     ) throws Exception {
         byte[] zipFile = createZipArchiveWithRandomName(files, metadataFile, destZipFilename);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
