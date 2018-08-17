@@ -87,15 +87,7 @@ public class UpdateStatusTest {
             Status.CONSUMED
         );
 
-        // TODO: update when an endpoint for reading single envelope by ID is available.
-        EnvelopeResponse envelopeAfterUpdate =
-            testHelper
-                .getEnvelopes(this.testUrl, s2sToken, Status.CONSUMED)
-                .envelopes
-                .stream()
-                .filter(e -> e.getId().equals(envelopeId))
-                .findFirst()
-                .get();
+        EnvelopeResponse envelopeAfterUpdate = testHelper.getEnvelope(this.testUrl, s2sToken, envelopeId);
 
         assertThat(envelopeAfterUpdate.getStatus())
             .as("Envelope should have status " + Status.CONSUMED)

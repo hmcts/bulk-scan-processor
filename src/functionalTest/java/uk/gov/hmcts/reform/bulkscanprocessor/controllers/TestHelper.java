@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayOutputStream;
@@ -66,7 +67,10 @@ public class TestHelper {
     }
 
     public void uploadZipFile(
-        CloudBlobContainer container, List<String> files, String metadataFile, final String destZipFilename
+        CloudBlobContainer container,
+        List<String> files,
+        String metadataFile,
+        final String destZipFilename
     ) throws Exception {
         byte[] zipFile = createZipArchiveWithRandomName(files, metadataFile, destZipFilename);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
@@ -149,6 +153,24 @@ public class TestHelper {
         assertThat(response.getStatusCode()).isEqualTo(200);
 
         return response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+    }
+
+    public EnvelopeResponse getEnvelope(String baseUrl, String s2sToken, UUID id) {
+        Response response =
+            RestAssured
+                .given()
+                .relaxedHTTPSValidation()
+                .baseUri(baseUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("ServiceAuthorization", "Bearer " + s2sToken)
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+                .when()
+                .get("/envelopes/" + id)
+                .andReturn();
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        return response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
     }
 
     public void updateEnvelopeStatus(
