@@ -19,18 +19,16 @@ import java.util.UUID;
 
 public final class EnvelopeCreator {
 
-    private static final EnvelopeResponseMapper mapper = new EnvelopeResponseMapper();
-
 
     private EnvelopeCreator() {
     }
 
     public static List<EnvelopeResponse> envelopeResponses() throws Exception {
-        return mapper.toEnvelopesResponse(envelopes());
+        return EnvelopeResponseMapper.toEnvelopesResponse(envelopes());
     }
 
     public static EnvelopeResponse envelopeResponse() throws Exception {
-        return mapper.toEnvelopeResponse(envelope());
+        return EnvelopeResponseMapper.toEnvelopeResponse(envelope());
     }
 
     public static List<Envelope> envelopes() throws Exception {

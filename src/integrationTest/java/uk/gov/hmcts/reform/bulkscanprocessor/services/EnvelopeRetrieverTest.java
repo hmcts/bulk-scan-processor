@@ -11,11 +11,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
@@ -98,6 +102,48 @@ public class EnvelopeRetrieverTest {
         // then
         assertThat(envs).hasSize(4);
         assertThat(envs).allMatch(e -> e.getJurisdiction().equals("X"));
+    }
+
+    @Test
+    public void should_retrieve_single_envelope_by_id() throws Exception {
+        // given
+        Envelope envelopeIdDb = envelopeRepo.save(envelope("X", Status.PROCESSED));
+        serviceCanReadFromJurisdiction("service_X", "X");
+
+        // when
+        Optional<EnvelopeResponse> foundEnvelope = service.findById("service_X", envelopeIdDb.getId());
+
+        // then
+        assertThat(foundEnvelope).map(EnvelopeResponse::getId).get().isEqualTo(envelopeIdDb.getId());
+    }
+
+    @Test
+    public void should_return_empty_optional_if_envelope_is_not_found() throws Exception {
+        // given
+        envelopeRepo.save(envelope("X", Status.PROCESSED));
+        serviceCanReadFromJurisdiction("service_X", "X");
+
+        // when
+        Optional<EnvelopeResponse> foundEnvelope = service.findById("service_X", UUID.randomUUID());
+
+        // then
+        assertThat(foundEnvelope).isEmpty();
+    }
+
+    @Test
+    public void should_throw_an_exception_if_service_cannot_read_existing_envelope() throws Exception {
+        // given
+        Envelope envelopeForServiceB = envelopeRepo.save(envelope("B", Status.PROCESSED));
+        serviceCanReadFromJurisdiction("service_A", "A");
+
+        // when
+        Throwable err = catchThrowable(() -> service.findById("service_A", envelopeForServiceB.getId()));
+
+        // then
+        assertThat(err)
+            .isInstanceOf(ForbiddenException.class)
+            .hasMessageContaining("service_A")
+            .hasMessageContaining(envelopeForServiceB.getId().toString());
     }
 
     @After
