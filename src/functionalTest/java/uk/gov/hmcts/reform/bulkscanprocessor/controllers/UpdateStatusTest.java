@@ -63,7 +63,7 @@ public class UpdateStatusTest {
             destZipFilename
         );
 
-        await()
+        await("file should be deleted")
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
 

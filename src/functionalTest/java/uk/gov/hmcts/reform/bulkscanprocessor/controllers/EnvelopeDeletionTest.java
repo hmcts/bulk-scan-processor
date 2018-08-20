@@ -59,10 +59,11 @@ public class EnvelopeDeletionTest {
         testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
         filesToDeleteAfterTest.add(destZipFilename);
 
-        await()
+        await("file should be deleted")
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
             .pollInterval(1, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
+
         assertThat(testHelper.storageHasFile(testContainer, destZipFilename)).isFalse();
     }
 
@@ -74,13 +75,13 @@ public class EnvelopeDeletionTest {
         testHelper.uploadZipFile(testContainer, srcZipFilename, destZipFilename); // invalid due to missing json file
         filesToDeleteAfterTest.add(destZipFilename);
 
-        await()
+        await("file should not be deleted")
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
             .pollDelay(scanDelay * 2, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(true));
 
         testContainer.getBlockBlobReference(destZipFilename).delete();
+
         assertThat(testHelper.storageHasFile(testContainer, destZipFilename)).isFalse();
     }
-
 }
