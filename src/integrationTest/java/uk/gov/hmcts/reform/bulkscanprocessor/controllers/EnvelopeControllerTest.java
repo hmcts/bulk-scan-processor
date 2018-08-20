@@ -153,7 +153,7 @@ public class EnvelopeControllerTest {
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
         throws Exception {
         uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdf
-        uploadZipToBlobStore("8_24-06-2018-00-00-00.zip"); // Zip file with metadata and pdf
+        uploadZipToBlobStore("8_24-06-2018-00-00-00.zip"); // Zip file with metadata and mismatching pdf
 
         byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
@@ -182,10 +182,10 @@ public class EnvelopeControllerTest {
                 tuple("8_24-06-2018-00-00-00.zip", METADATA_FAILURE)
             );
 
-        byte[] testPdfBytes1 = toByteArray(getResource("1111005.pdf"));
-        Pdf pdf1 = new Pdf("1111005.pdf", testPdfBytes1);
+        byte[] mismatchingPdfBytes = toByteArray(getResource("1111005.pdf"));
+        Pdf mismatchingPdf = new Pdf("1111005.pdf", mismatchingPdfBytes);
 
-        verify(documentManagementService, never()).uploadDocuments(ImmutableList.of(pdf1));
+        verify(documentManagementService, never()).uploadDocuments(ImmutableList.of(mismatchingPdf));
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
