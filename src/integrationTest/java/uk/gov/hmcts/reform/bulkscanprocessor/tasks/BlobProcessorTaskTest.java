@@ -156,7 +156,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         //Check blob is deleted
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
-        await().atMost(2, SECONDS).until(blob::exists, is(false));
+        await("file should be deleted")
+            .atMost(2, SECONDS)
+            .until(blob::exists, is(false));
 
         // Verify envelope status is updated to PROCESSED
         assertThat(envelopeRepository.findAll())
@@ -188,7 +190,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
-        await().timeout(2, SECONDS).until(blob::exists, is(true));
+        await("file should not be deleted")
+            .timeout(2, SECONDS)
+            .until(blob::exists, is(true));
 
         // Verify envelope status is updated to UPLOAD_FAILED
         assertThat(envelopeRepository.findAll())

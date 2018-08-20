@@ -63,7 +63,8 @@ public class BlobProcessorTest {
 
         testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
 
-        await()
+        await("file should be deleted")
+            .with()
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
 
