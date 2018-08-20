@@ -3,16 +3,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-import java.util.Collection;
-
 public class FileNameIrregularitiesException extends RuntimeException implements EnvelopeAwareThrowable {
 
     private static final Event FAILURE_EVENT = Event.DOC_FAILURE;
 
     private final transient Envelope envelope;
 
-    public FileNameIrregularitiesException(Envelope envelope, Collection<String> fileNames) {
-        super("Missing PDFs: " + String.join(", ", fileNames));
+    public FileNameIrregularitiesException(Envelope envelope, String message) {
+        super(message);
 
         this.envelope = envelope;
     }
