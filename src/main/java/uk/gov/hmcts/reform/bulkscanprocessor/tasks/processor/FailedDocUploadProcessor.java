@@ -74,7 +74,11 @@ public class FailedDocUploadProcessor extends Processor {
             ZipFileProcessor zipFileProcessor = processZipInputStream(zis, envelope);
 
             if (zipFileProcessor != null) {
-                processParsedEnvelopeDocuments(zipFileProcessor, cloudBlockBlob);
+                processParsedEnvelopeDocuments(
+                    envelope,
+                    zipFileProcessor.getPdfs(),
+                    cloudBlockBlob
+                );
             }
         }
     }

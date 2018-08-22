@@ -81,7 +81,11 @@ public class BlobProcessorTask extends Processor {
             ZipFileProcessor zipFileProcessor = processZipInputStream(zis, zipFilename, container.getName());
 
             if (zipFileProcessor != null) {
-                processParsedEnvelopeDocuments(zipFileProcessor, cloudBlockBlob);
+                processParsedEnvelopeDocuments(
+                    zipFileProcessor.getEnvelope(),
+                    zipFileProcessor.getPdfs(),
+                    cloudBlockBlob
+                );
             }
         }
     }

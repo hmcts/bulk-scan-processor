@@ -4,18 +4,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -65,29 +59,6 @@ public class ZipFileProcessor {
         }
 
         log.info("PDFs found in {}: {}", zipFileName, pdfs.size());
-    }
-
-    public void assertEnvelopeHasPdfs() {
-        Set<String> scannedFileNames = envelope
-            .getScannableItems()
-            .stream()
-            .map(ScannableItem::getFileName)
-            .collect(Collectors.toSet());
-        Set<String> pdfFileNames = pdfs
-            .stream()
-            .map(Pdf::getFilename)
-            .collect(Collectors.toSet());
-
-        Collection<String> missingScannedFiles = new HashSet<>(scannedFileNames);
-        missingScannedFiles.removeAll(pdfFileNames);
-        Collection<String> missingPdfFiles = new HashSet<>(pdfFileNames);
-        missingPdfFiles.removeAll(scannedFileNames);
-
-        missingScannedFiles.addAll(missingPdfFiles);
-
-        if (!missingScannedFiles.isEmpty()) {
-            throw new FileNameIrregularitiesException(envelope, missingScannedFiles);
-        }
     }
 
     public byte[] getMetadata() {

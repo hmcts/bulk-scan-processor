@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.zip.ZipInputStream;
-import javax.validation.ValidationException;
 
 import static com.google.common.io.Resources.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,11 +49,11 @@ public class ZipFileProcessorValidationTest {
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
             { "1_24-06-2018-00-00-00.zip", 2, false, NullPointerException.class },// valid, can't call dm
-            { "2_24-06-2018-00-00-00.zip", 2, false, ValidationException.class },// invalid, incomplete zip
-            { "3_24-06-2018-00-00-00.zip", 1, false, ValidationException.class },// invalid, incomplete zip
+            { "2_24-06-2018-00-00-00.zip", 2, false, null },// invalid, zip has folder, no metadata file
+            { "3_24-06-2018-00-00-00.zip", 1, false, null },// invalid, no metadata file
             { "4_24-06-2018-00-00-00.zip", 1, true, FileNameIrregularitiesException.class },// incorrect # files
-            { "5_24-06-2018-00-00-00.zip", 2, false, null },// no metadata - instant fail
-            { "6_24-06-2018-00-00-00.zip", 1, false, ValidationException.class },// no pdfs
+            { "5_24-06-2018-00-00-00.zip", 2, false, null },// contains image
+            { "6_24-06-2018-00-00-00.zip", 1, false, null },// invalid metadata file - missing deliverydate
             { "7_24-06-2018-00-00-00.zip", 1, false, NullPointerException.class },// valid, can't call dm
             { "8_24-06-2018-00-00-00.zip", 1, true, FileNameIrregularitiesException.class }// incorrect # files
         });
@@ -96,7 +95,11 @@ public class ZipFileProcessorValidationTest {
             );
 
             Throwable throwable = catchThrowable(() ->
-                processor.processParsedEnvelopeDocuments(zipFileProcessor, null)
+                processor.processParsedEnvelopeDocuments(
+                    zipFileProcessor.getEnvelope(),
+                    zipFileProcessor.getPdfs(),
+                    null
+                )
             ).getCause();
 
             if (whenExpectingMissingPdfs) {
