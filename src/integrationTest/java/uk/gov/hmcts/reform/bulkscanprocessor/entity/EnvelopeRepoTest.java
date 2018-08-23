@@ -33,7 +33,7 @@ public class EnvelopeRepoTest {
             envelopeWithFailureCount(maxFailCount - 2, jurisdiction),
             envelopeWithFailureCount(maxFailCount - 1, jurisdiction),
             envelopeWithFailureCount(maxFailCount, jurisdiction),
-            envelopeWithFailureCount(maxFailCount +1, jurisdiction),
+            envelopeWithFailureCount(maxFailCount + 1, jurisdiction),
             envelopeWithFailureCount(maxFailCount + 2, jurisdiction)
         );
 
