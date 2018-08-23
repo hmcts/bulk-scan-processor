@@ -8,9 +8,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
@@ -72,6 +72,6 @@ public class EnvelopeRepoTest {
     }
 
     private void dbHas(Envelope... envelopes) {
-        Arrays.asList(envelopes).forEach(env -> repo.save(env));
+        repo.saveAll(asList(envelopes));
     }
 }
