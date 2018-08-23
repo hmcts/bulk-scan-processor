@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
@@ -25,6 +26,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.jsonpath.JsonPath.parse;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
@@ -207,5 +209,28 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .collect(Collectors.toList());
 
         assertThat(actualEvents).containsOnly(DOC_UPLOAD_FAILURE);
+    }
+
+    @Test
+    public void should_increment_failure_count_when_unable_to_upload_file() throws Exception {
+        // given
+        String zipFile = "7_24-06-2018-00-00-00.zip";
+
+        uploadZipToBlobStore(zipFile);
+
+        Pdf pdfInZipFile = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
+
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdfInZipFile)))
+            .willThrow(UnableToUploadDocumentException.class);
+
+        // when
+        processor.processBlobs();
+
+        // then
+        // TODO: add repo method to read single envelope by zip file name and jurisdiction.
+        List<Envelope> envelopes = envelopeRepository.findAll();
+        assertThat(envelopes).hasSize(1);
+        Envelope envelope = envelopes.get(0);
+        assertThat(envelope.getUploadFailureCount()).isEqualTo(1);
     }
 }
