@@ -93,6 +93,7 @@ module "bulk-scan" {
 
     REUPLOAD_BATCH                = "${var.reupload_batch}"
     REUPLOAD_DELAY                = "${var.reupload_delay}"
+    REUPLOAD_MAX_TRIES            = "${var.reupload_max_tries}"
     REUPLOAD_ENABLED              = "${var.reupload_enabled}"
     SCAN_DELAY                    = "${var.scan_delay}"
     SCAN_ENABLED                  = "${var.scan_enabled}"

@@ -32,15 +32,18 @@ public class EnvelopeProcessor {
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final int reUploadBatchSize;
+    private final int maxReuploadTriesCount;
 
     public EnvelopeProcessor(
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
-        @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize
+        @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize,
+        @Value("${scheduling.task.reupload.max_tries}") int maxReuploadTriesCount
     ) {
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
         this.reUploadBatchSize = reUploadBatchSize;
+        this.maxReuploadTriesCount = maxReuploadTriesCount;
     }
 
     public Envelope parseEnvelope(byte[] metadataStream) throws IOException {
@@ -95,7 +98,7 @@ public class EnvelopeProcessor {
     public List<Envelope> getFailedToUploadEnvelopes(String jurisdiction) {
         return envelopeRepository.findEnvelopesToResend(
             jurisdiction,
-            10, // TODO: make configurable
+            maxReuploadTriesCount,
             reUploadBatchSize > 0 ? PageRequest.of(0, reUploadBatchSize) : null
         );
     }
