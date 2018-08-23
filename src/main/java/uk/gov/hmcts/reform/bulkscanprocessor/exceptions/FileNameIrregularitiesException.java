@@ -3,21 +3,28 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public class DocUploadFailureGenericException extends RuntimeException implements EnvelopeAwareThrowable {
+import java.util.Collection;
 
-    private static final Event DOC_UPLOAD_FAILURE_EVENT = Event.DOC_UPLOAD_FAILURE;
+public class FileNameIrregularitiesException extends RuntimeException implements EnvelopeAwareThrowable {
+
+    private static final Event FAILURE_EVENT = Event.DOC_FAILURE;
 
     private final transient Envelope envelope;
 
-    public DocUploadFailureGenericException(Envelope envelope, Throwable cause) {
-        super(cause.getMessage(), cause);
+    public FileNameIrregularitiesException(Envelope envelope, Collection<String> fileNames) {
+        super("Missing PDFs: " + String.join(", ", fileNames));
 
         this.envelope = envelope;
     }
 
     @Override
+    public Envelope getEnvelope() {
+        return envelope;
+    }
+
+    @Override
     public Event getEvent() {
-        return DOC_UPLOAD_FAILURE_EVENT;
+        return FAILURE_EVENT;
     }
 
     @Override
@@ -28,10 +35,5 @@ public class DocUploadFailureGenericException extends RuntimeException implement
     @Override
     public String getZipFileName() {
         return envelope.getZipFileName();
-    }
-
-    @Override
-    public Envelope getEnvelope() {
-        return envelope;
     }
 }

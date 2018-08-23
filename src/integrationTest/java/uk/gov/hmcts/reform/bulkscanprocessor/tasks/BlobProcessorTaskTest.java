@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
@@ -102,7 +103,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     public void should_process_other_zip_files_if_previous_zip_fails_to_process() throws Exception {
         // given
         uploadZipToBlobStore("3_24-06-2018-00-00-00.zip"); //Zip with only pdf without metadata
-        uploadZipToBlobStore("4_24-06-2018-00-00-00.zip"); //Zip with pdf and metadata
+        uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip with pdf and metadata
 
         byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
 
@@ -134,7 +135,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         //Verify first pdf file was never processed
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
 
-        verify(documentManagementService, times(0))
+        verify(documentManagementService, never())
             .uploadDocuments(ImmutableList.of(new Pdf("1111001.pdf", test1PdfBytes)));
     }
 
@@ -142,7 +143,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     public void should_delete_blob_after_doc_upload_and_mark_envelope_status_as_processed_and_create_new_event()
         throws Exception {
         // Zip with pdf and metadata
-        String zipFile = "4_24-06-2018-00-00-00.zip";
+        String zipFile = "7_24-06-2018-00-00-00.zip";
 
         uploadZipToBlobStore(zipFile);
 
@@ -150,7 +151,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
-            .willReturn(getFileUploadResponse());
+            .willReturn(ImmutableMap.of("1111002.pdf", DOCUMENT_URL2));
 
         processor.processBlobs();
 
@@ -177,7 +178,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_keep_zip_file_after_unsuccessful_upload_and_not_create_doc_processed_event() throws Exception {
         // Zip with pdf and metadata
-        String zipFile = "4_24-06-2018-00-00-00.zip";
+        String zipFile = "7_24-06-2018-00-00-00.zip";
 
         uploadZipToBlobStore(zipFile);
 
