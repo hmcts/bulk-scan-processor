@@ -93,9 +93,9 @@ public class EnvelopeProcessor {
     }
 
     public List<Envelope> getFailedToUploadEnvelopes(String jurisdiction) {
-        return envelopeRepository.findByJurisdictionAndStatusOrderByCreatedAtAsc(
+        return envelopeRepository.findEnvelopesToResend(
             jurisdiction,
-            UPLOAD_FAILURE,
+            10, // TODO: make configurable
             reUploadBatchSize > 0 ? PageRequest.of(0, reUploadBatchSize) : null
         );
     }
