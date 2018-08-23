@@ -70,6 +70,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Value("${scheduling.task.reupload.batch}")
     private int reUploadBatchSize;
 
+    @Value("${scheduling.task.reupload.max_tries}")
+    private int reuploadMaxTries;
+
     @Mock
     protected DocumentManagementService documentManagementService;
 
@@ -90,7 +93,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
             processEventRepository,
-            reUploadBatchSize
+            reUploadBatchSize,
+            reuploadMaxTries
         );
 
         processor = processorConstruct.apply(

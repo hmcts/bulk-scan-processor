@@ -86,6 +86,9 @@ public class EnvelopeControllerTest {
     @Value("${scheduling.task.reupload.batch}")
     private int reUploadBatchSize;
 
+    @Value("${scheduling.task.reupload.max_tries}")
+    private int reuploadMaxTries;
+
     @Mock
     private DocumentManagementService documentManagementService;
 
@@ -128,7 +131,8 @@ public class EnvelopeControllerTest {
         envelopeProcessor = new EnvelopeProcessor(
             envelopeRepository,
             processEventRepository,
-            reUploadBatchSize
+            reUploadBatchSize,
+            reuploadMaxTries
         );
 
         blobProcessorTask = new BlobProcessorTask(
