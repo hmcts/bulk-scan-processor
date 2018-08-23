@@ -74,6 +74,10 @@ variable "reupload_delay" {
   default = "1800000"  # In milliseconds
 }
 
+variable "reupload_max_tries" {
+  default = "5"
+}
+
 variable "reupload_enabled" {
   default = "false"
 }
