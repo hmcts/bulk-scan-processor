@@ -45,16 +45,21 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     );
 
     /**
-     * Finds first N envelopes for a given status as per defined page request.
+     * Finds first N envelopes for a given jurisdiction that should be resent.
      *
      * @param jurisdiction to filter upon
-     * @param status to filter upon
      * @param pageable limit of data to be processed by consumer
      * @return A list of envelopes
      */
-    List<Envelope> findByJurisdictionAndStatusOrderByCreatedAtAsc(
-        String jurisdiction,
-        Status status,
+    @Query("select e from Envelope e"
+        + " where e.jurisdiction = :jurisdiction"
+        + "   and e.status = 'UPLOAD_FAILURE'" // todo: use a constant
+        + "   and e.uploadFailureCount < :maxFailureCount"
+        + " order by e.createdAt asc"
+    )
+    List<Envelope> findEnvelopesToResend(
+        @Param("jurisdiction") String jurisdiction,
+        @Param("maxFailureCount") int maxFailureCount,
         Pageable pageable
     );
 }

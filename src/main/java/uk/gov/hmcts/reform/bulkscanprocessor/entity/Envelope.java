@@ -60,6 +60,8 @@ public class Envelope {
 
     private boolean urgent = false;
 
+    private int uploadFailureCount = 0;
+
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
@@ -186,6 +188,14 @@ public class Envelope {
         return urgent;
     }
 
+    public int getUploadFailureCount() {
+        return uploadFailureCount;
+    }
+
+    public void setUploadFailureCount(int uploadFailureCount) {
+        this.uploadFailureCount = uploadFailureCount;
+    }
+
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
         assignables.forEach(assignable -> assignable.setEnvelope(this));
     }
@@ -196,5 +206,4 @@ public class Envelope {
             log.warn("Missing required container for {}", zipFileName);
         }
     }
-    
 }

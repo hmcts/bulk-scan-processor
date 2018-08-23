@@ -1,0 +1,2 @@
+ALTER TABLE envelopes
+ADD COLUMN uploadFailureCount SMALLINT NOT NULL DEFAULT 0;
