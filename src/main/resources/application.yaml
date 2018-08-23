@@ -72,6 +72,7 @@ scheduling:
       batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all
       delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
       enabled: ${REUPLOAD_ENABLED:false}
+      max_tries: ${REUPLOAD_MAX_TRIES:5}
 
 envelope-access:
   mappings:
