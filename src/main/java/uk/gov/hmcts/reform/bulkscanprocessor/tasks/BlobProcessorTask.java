@@ -6,7 +6,6 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
-import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,17 +20,18 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
  * It will read all the blobs from Azure Blob storage and will do below things:
  * <ol>
- *     <li>Read Blob from container</li>
- *     <li>Extract Zip file (blob)</li>
- *     <li>Transform metadata json to DB entities</li>
- *     <li>Save PDF files in document storage</li>
- *     <li>Update status and doc urls in DB</li>
+ * <li>Read Blob from container</li>
+ * <li>Extract Zip file (blob)</li>
+ * <li>Transform metadata json to DB entities</li>
+ * <li>Save PDF files in document storage</li>
+ * <li>Update status and doc urls in DB</li>
  * </ol>
  */
 @Component
@@ -49,7 +49,6 @@ public class BlobProcessorTask extends Processor {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
     }
 
-    @SchedulerLock(name = "blobProcessor")
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
@@ -74,20 +73,34 @@ public class BlobProcessorTask extends Processor {
         log.info("Processing zip file {}", zipFilename);
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
-        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
-        //Zip file will include metadata.json and collection of pdf documents
-        try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            ZipFileProcessor zipFileProcessor = processZipInputStream(zis, zipFilename, container.getName());
+        CloudBlockBlob blobWithLeaseAcquired = acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
-            if (zipFileProcessor != null) {
-                processParsedEnvelopeDocuments(
-                    zipFileProcessor.getEnvelope(),
-                    zipFileProcessor.getPdfs(),
-                    cloudBlockBlob
-                );
+        if (Objects.nonNull(blobWithLeaseAcquired)) {
+            BlobInputStream blobInputStream = blobWithLeaseAcquired.openInputStream();
+
+            //Zip file will include metadata.json and collection of pdf documents
+            try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+                ZipFileProcessor zipFileProcessor = processZipInputStream(zis, zipFilename, container.getName());
+
+                if (zipFileProcessor != null) {
+                    processParsedEnvelopeDocuments(
+                        zipFileProcessor.getEnvelope(),
+                        zipFileProcessor.getPdfs(),
+                        blobWithLeaseAcquired
+                    );
+                }
             }
         }
+    }
+
+    private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
+        // TODO - Lease time  needs to be made configurable
+        return errorWrapper.wrapAcquireLeaseFailure(containerName, zipFilename, () -> {
+            //The value of the parameter 'leaseTimeInSeconds' should be between 15 and 60 seconds.
+            cloudBlockBlob.acquireLease(15, null);
+            return cloudBlockBlob;
+        });
     }
 
     private ZipFileProcessor processZipInputStream(
