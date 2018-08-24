@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 
@@ -32,6 +33,10 @@ public class TaskErrorHandler implements ErrorHandler {
 
         if (t instanceof EventRelatedThrowable) {
             registerEvent((EventRelatedThrowable) t, t.getMessage());
+        }
+
+        if (t instanceof DocUploadFailureGenericException) {
+            incrementUploadFailureCount((DocUploadFailureGenericException) t);
         }
 
         log.error(t.getMessage(), t);
@@ -70,5 +75,11 @@ public class TaskErrorHandler implements ErrorHandler {
             processEvent.getContainer(),
             processEvent.getEvent()
         );
+    }
+
+    private void incrementUploadFailureCount(DocUploadFailureGenericException exc) {
+        Envelope envelope = exc.getEnvelope();
+        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
+        envelopeRepository.save(envelope);
     }
 }

@@ -20,6 +20,7 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
@@ -132,5 +133,28 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, "oh no")
             );
+    }
+
+    @Test
+    public void should_increment_upload_failure_count_if_unable_to_upload_files() throws Exception {
+        // given
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+
+        given(documentManagementService.uploadDocuments(any()))
+            .willThrow(UnableToUploadDocumentException.class);
+
+        blobProcessorTask.processBlobs(); // original run
+
+        // when
+        processor.processJurisdiction("SSCS"); // retry run
+        processor.processJurisdiction("SSCS"); // another retry run
+
+        // then
+        List<Envelope> envelopes = envelopeRepository.findAll();
+        assertThat(envelopes).hasSize(1);
+
+        Envelope envelope = envelopes.get(0);
+
+        assertThat(envelope.getUploadFailureCount()).isEqualTo(3); // one original failure + 2 retry runs
     }
 }
