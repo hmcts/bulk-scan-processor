@@ -69,11 +69,10 @@ public class ErrorHandlingWrapper {
                 .filter(se -> se.getHttpStatusCode() == HttpStatus.CONFLICT.value())
                 .isPresent();
 
-            Exception exc = isLeaseAlreadyAcquired ?
-                new LeaseAlreadyPresentException(
-                    "Lease already acquired for container " + containerName + " and zip file " + zipFileName
-                ) :
-                exception;
+            Exception exc = isLeaseAlreadyAcquired
+                ? new LeaseAlreadyPresentException(
+                "Lease already acquired for container " + containerName + " and zip file " + zipFileName)
+                : exception;
 
             errorHandler.handleError(exc);
 
