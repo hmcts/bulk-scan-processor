@@ -97,7 +97,7 @@ public class BlobProcessorTask extends Processor {
     private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
         // TODO - Lease time  needs to be made configurable
         return errorWrapper.wrapAcquireLeaseFailure(containerName, zipFilename, () -> {
-            //The value of the parameter 'leaseTimeInSeconds' should be between 15 and 60 seconds.
+            // The value of the parameter 'leaseTimeInSeconds' should be between 15 and 60 seconds.
             cloudBlockBlob.acquireLease(15, null);
             return cloudBlockBlob;
         });
