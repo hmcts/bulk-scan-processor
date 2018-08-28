@@ -1,0 +1,291 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://hmcts.github.io/bulk-scan-processor",
+  "type": "object",
+  "title": "Envelope schema",
+  "required": [
+    "po_box",
+    "jurisdiction",
+    "delivery_date",
+    "opening_date",
+    "zip_file_createddate",
+    "zip_file_name",
+    "urgent",
+    "classification",
+    "scannable_items"
+  ],
+  "properties": {
+    "po_box": {
+      "$id": "#/properties/po_box",
+      "type": "string",
+      "title": "P.O. Box number on which the envelope was received",
+      "examples": [
+        "SSCSPO"
+      ]
+    },
+    "jurisdiction": {
+      "$id": "#/properties/jurisdiction",
+      "type": "string",
+      "title": "Name of the jurisdiction",
+      "examples": [
+        "SSCS"
+      ]
+    },
+    "delivery_date": {
+      "$id": "#/properties/delivery_date",
+      "type": "string",
+      "title": "Date time in UTC for when the package was delivered at the bulk scanning supplier",
+      "examples": [
+        "23-06-2018 00:00:00.000000"
+      ],
+      "pattern": "^[012][0-9]-[012][0-9]-[2][0][0-9][0-9] [012][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{6}$"
+    },
+    "opening_date": {
+      "$id": "#/properties/opening_date",
+      "type": "string",
+      "title": "Date time in UTC for when the package was opened by someone at the bulk scanning supplier premises",
+      "examples": [
+        "24-06-2018 00:00:00.000000"
+      ],
+      "pattern": "^[012][0-9]-[012][0-9]-[2][0][0-9][0-9] [012][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{6}$"
+    },
+    "zip_file_createddate": {
+      "$id": "#/properties/zip_file_createddate",
+      "type": "string",
+      "title": "Date time in UTC for when the zip file  was created at the bulk scanning supplier premises",
+      "examples": [
+        "24-02-2018 00:00:00.000000"
+      ],
+      "pattern": "^[012][0-9]-[012][0-9]-[2][0][0-9][0-9] [012][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{6}$"
+    },
+    "zip_file_name": {
+      "$id": "#/properties/zip_file_name",
+      "type": "string",
+      "title": "The name of the zip file",
+      "examples": [
+        "1_24-06-2018-00-00-00.zip"
+      ],
+      "pattern": "^\\d+_[012][0-9]-[012][0-9]-[2][0][0-9][0-9]-[012][0-9]-[0-5][0-9]-[0-5][0-9]\\.zip$"
+    },
+    "urgent": {
+      "$id": "#/properties/urgent",
+      "type": "string",
+      "title": "Determines if the envelope in the post is to be processed urgently. Services to provide what is classed as urgent.",
+      "enum": [
+        "false",
+        "true"
+      ],
+      "default": "false",
+      "examples": [
+        "false"
+      ]
+    },
+    "classification": {
+      "$id": "#/properties/classification",
+      "type": "string",
+      "enum": [
+        "exception",
+        "new_application",
+        "supplementary_evidence"
+      ],
+      "default": "exception",
+      "examples": [
+        "new_application"
+      ]
+    },
+    "scannable_items": {
+      "$id": "#/properties/scannable_items",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "title": "Array representing items in the even lope that can be scanned for",
+      "items": {
+        "$id": "#/properties/scannable_items/items",
+        "type": "object",
+        "required": [
+          "document_control_number",
+          "scanning_date",
+          "manual_intervention",
+          "next_action",
+          "next_action_date",
+          "file_name",
+          "notes",
+          "document_type"
+        ],
+        "properties": {
+          "document_control_number": {
+            "$id": "#/properties/scannable_items/items/properties/document_control_number",
+            "type": "string",
+            "title": "The unique identifier for the scanned document",
+            "examples": [
+              "1111001"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "scanning_date": {
+            "$id": "#/properties/scannable_items/items/properties/scanning_date",
+            "type": "string",
+            "title": "Date time in UTC for when the package was scanned by someone at the bulk scanning supplier premises",
+            "examples": [
+              "24-02-2017 00:00:00.000000"
+            ],
+            "pattern": "^[012][0-9]-[012][0-9]-[2][0][0-9][0-9] [012][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{6}$"
+          },
+          "ocr_accuracy": {
+            "$id": "#/properties/scannable_items/items/properties/ocr_accuracy",
+            "type": "string",
+            "title": "To be decided, if it is possible to define something that defines the level of ocr accuracy.",
+            "examples": [
+              "string"
+            ]
+          },
+          "manual_intervention": {
+            "$id": "#/properties/scannable_items/items/properties/manual_intervention",
+            "type": "string",
+            "title": "Description of any manual intervention that had to be done during / before the scanning.",
+            "examples": [
+              "string"
+            ]
+          },
+          "next_action": {
+            "$id": "#/properties/scannable_items/items/properties/next_action",
+            "type": "string",
+            "title": "Next action that the scanning supplier will be taking on the document for",
+            "examples": [
+              "return"
+            ]
+          },
+          "next_action_date": {
+            "$id": "#/properties/scannable_items/items/properties/next_action_date",
+            "type": "string",
+            "title": "Date time in UTC for when the next action will occur.",
+            "examples": [
+              "24-06-2018 00:00:00.000000"
+            ],
+            "pattern": "^[012][0-9]-[012][0-9]-[2][0][0-9][0-9] [012][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{6}$"
+          },
+          "ocr_data": {
+            "$id": "#/properties/scannable_items/items/properties/ocr_data",
+            "type": "string",
+            "examples": [
+              "eyJrZXkiOiJ2YWx1ZSIsImxpc3QiOlt7Im9mIjoib2JqZWN0cyJ9XX0="
+            ],
+            "pattern": "^[0-9a-zA-Z=]*$"
+          },
+          "file_name": {
+            "$id": "#/properties/scannable_items/items/properties/file_name",
+            "type": "string",
+            "examples": [
+              "1111001.pdf"
+            ],
+            "pattern": "^.+\\.pdf$"
+          },
+          "notes": {
+            "$id": "#/properties/scannable_items/items/properties/notes",
+            "type": "string",
+            "title": "contextual information describing the scanned file.",
+            "examples": [
+              ""
+            ]
+          },
+          "document_type": {
+            "$id": "#/properties/scannable_items/items/properties/document_type",
+            "type": "string",
+            "default": "Other",
+            "examples": [
+              "Cheque"
+            ]
+          }
+        }
+      }
+    },
+    "payments": {
+      "$id": "#/properties/payments",
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "title": "Array representing payments in the envelope",
+      "items": {
+        "$id": "#/properties/payments/items",
+        "type": "object",
+        "required": [
+          "document_control_number",
+          "method",
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "document_control_number": {
+            "$id": "#/properties/payments/items/properties/document_control_number",
+            "type": "string",
+            "title": "The unique identifier for the scanned document forThe uni",
+            "examples": [
+              "1111002"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "method": {
+            "$id": "#/properties/payments/items/properties/method",
+            "type": "string",
+            "title": "The payment method",
+            "examples": [
+              "Cheque"
+            ]
+          },
+          "amount": {
+            "$id": "#/properties/payments/items/properties/amount",
+            "type": "string",
+            "title": "The payment amount",
+            "examples": [
+              "100.00"
+            ],
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "currency": {
+            "$id": "#/properties/payments/items/properties/currency",
+            "type": "string",
+            "title": "ISO 4217 Currency CodeISO 42",
+            "examples": [
+              "GBP"
+            ],
+            "pattern": "^[A-Z]{3}$"
+          }
+        }
+      }
+    },
+    "non_scannable_items": {
+      "$id": "#/properties/non_scannable_items",
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "title": "Array representing items in the envelope that cannot be scanned",
+      "items": {
+        "$id": "#/properties/non_scannable_items/items",
+        "type": "object",
+        "required": [
+          "item_type",
+          "notes"
+        ],
+        "properties": {
+          "item_type": {
+            "$id": "#/properties/non_scannable_items/items/properties/item_type",
+            "type": "string",
+            "title": "CD, DVD, USB memory stick",
+            "examples": [
+              "CD"
+            ]
+          },
+          "notes": {
+            "$id": "#/properties/non_scannable_items/items/properties/notes",
+            "type": "string",
+            "title": "contextual information describing this item",
+            "examples": [
+              "4GB USB memory stick"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

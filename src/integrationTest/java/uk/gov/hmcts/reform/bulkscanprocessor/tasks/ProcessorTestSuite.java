@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -50,6 +52,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     }
 
     protected T processor;
+
+    @Autowired
+    private Consumer<JSONObject> jsonValidator;
 
     @Autowired
     protected EnvelopeRepository envelopeRepository;
@@ -91,6 +96,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
 
         envelopeProcessor = new EnvelopeProcessor(
+            jsonValidator,
             envelopeRepository,
             processEventRepository,
             reUploadBatchSize,

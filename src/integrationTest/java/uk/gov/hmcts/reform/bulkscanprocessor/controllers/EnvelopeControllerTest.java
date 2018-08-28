@@ -8,6 +8,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.Charsets;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,6 +42,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.function.Consumer;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -70,6 +72,9 @@ public class EnvelopeControllerTest {
     private CloudBlobClient cloudBlobClient;
 
     private BlobProcessorTask blobProcessorTask;
+
+    @Autowired
+    private Consumer<JSONObject> jsonValidator;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -129,6 +134,7 @@ public class EnvelopeControllerTest {
         );
 
         envelopeProcessor = new EnvelopeProcessor(
+            jsonValidator,
             envelopeRepository,
             processEventRepository,
             reUploadBatchSize,

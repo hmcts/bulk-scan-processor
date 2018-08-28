@@ -153,11 +153,21 @@ dependencyManagement {
   }
 }
 
+configurations {
+  implementation {
+    exclude group: 'com.vaadin.external.google', module: 'android-json'
+  }
+}
+
 repositories {
   jcenter()
 
   maven {
     url "https://dl.bintray.com/hmcts/hmcts-maven"
+  }
+
+  maven {
+    url "https://jitpack.io"
   }
 }
 
@@ -180,6 +190,8 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
+
+  compile group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.9.1'
 
   compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.4'
