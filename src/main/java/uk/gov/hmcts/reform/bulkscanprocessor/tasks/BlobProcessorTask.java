@@ -79,7 +79,7 @@ public class BlobProcessorTask extends Processor {
         if (Objects.nonNull(blobWithLeaseAcquired)) {
             BlobInputStream blobInputStream = blobWithLeaseAcquired.openInputStream();
 
-            //Zip file will include metadata.json and collection of pdf documents
+            // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
                 ZipFileProcessor zipFileProcessor = processZipInputStream(zis, zipFilename, container.getName());
 

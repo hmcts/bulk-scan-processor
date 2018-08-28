@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
+import com.netflix.servo.util.ThreadFactories;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +16,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -22,11 +26,12 @@ import java.util.concurrent.Future;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class BlobProcessorTaskWithAcquireLeaseTest extends ProcessorTestSuite<BlobProcessorTask> {
+public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<BlobProcessorTask> {
     @Rule
     public OutputCapture outputCapture = new OutputCapture();
 
@@ -48,46 +53,65 @@ public class BlobProcessorTaskWithAcquireLeaseTest extends ProcessorTestSuite<Bl
         givenValidZipFileUploadedAndDocStoreMocked();
 
         // When
-        Future<Void> future = processBlobUsingExecutor();
+        // 5 blob processor task threads try to process single blob
+        List<Future<Void>> futureTasks = processBlobUsingExecutor(5);
 
-        processor.processBlobs();
-
-        future.get(); // wait for completion of processor.processBlobs()
+        futureTasks.forEach(future -> {
+            try {
+                future.get(); // wait for completion of processor.processBlobs()
+            } catch (Exception e) {
+                fail("Failed while processing blobs with exception " + e);
+            }
+        });
 
         // Then
-        // One thread should not be able to acquire lease and other should fail
-        assertThat(outputCapture.toString())
-            .contains("Lease already acquired for container test and zip file 1_24-06-2018-00-00-00.zip");
+        // Only one thread should not be able to acquire lease and others should fail
+        assertThat(
+            StringUtils.countMatches(
+                outputCapture.toString(),
+                "Lease already acquired for container test and zip file 1_24-06-2018-00-00-00.zip")
+        ).isEqualTo(4);
 
         // We expect only one envelope which was uploaded and other failed
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes.size()).isEqualTo(1);
 
         // and
+        // We expect only two events one for doc upload and another for doc processed
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(2);
     }
 
     @NotNull
-    private Future<Void> processBlobUsingExecutor() {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private List<Future<Void>> processBlobUsingExecutor(int numberofThreads) throws Exception {
+        ExecutorService executorService = Executors.newFixedThreadPool(
+            numberofThreads,
+            ThreadFactories.withName("BSP-ACQUIRE-LEASE-%d")
+        );
 
-        return executorService.submit(() -> {
+        List<Callable<Void>> tasks = new ArrayList<>();
+
+        for (int threadCount = 0; threadCount < numberofThreads; threadCount++) {
+            tasks.add(callableTask());
+        }
+
+        return executorService.invokeAll(tasks);
+    }
+
+    private Callable<Void> callableTask() {
+        return () -> {
             processor.processBlobs();
             return null;
-        });
+        };
     }
 
     private void givenValidZipFileUploadedAndDocStoreMocked() throws Exception {
         uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
 
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
-
-        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
-            .willReturn(getFileUploadResponse());
+        given(documentManagementService.uploadDocuments(
+            ImmutableList.of(
+                new Pdf("1111001.pdf", toByteArray(getResource("1111001.pdf"))),
+                new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")))
+            ))).willReturn(getFileUploadResponse());
     }
 }
