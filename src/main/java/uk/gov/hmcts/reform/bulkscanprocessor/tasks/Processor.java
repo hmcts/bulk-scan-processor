@@ -62,7 +62,7 @@ public abstract class Processor {
      * In case there is a mismatch an exception is thrown.
      *
      * @param envelope to assert against
-     * @param pdfs to assert against
+     * @param pdfs     to assert against
      */
     private void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
