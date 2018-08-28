@@ -44,22 +44,22 @@ public class BlobProcessorTaskWithAcquireLeaseTest extends ProcessorTestSuite<Bl
     @Test
     public void should_process_zip_file_only_once_by_processor_thread_which_acquires_lease_on_blob()
         throws Exception {
-        //Given
+        // Given
         givenValidZipFileUploadedAndDocStoreMocked();
 
-        //When
+        // When
         Future<Void> future = processBlobUsingExecutor();
 
         processor.processBlobs();
 
         future.get(); // wait for completion of processor.processBlobs()
 
-        //Then
-        //One thread should not be able to acquire lease and other should fail
+        // Then
+        // One thread should not be able to acquire lease and other should fail
         assertThat(outputCapture.toString())
             .contains("Lease already acquired for container test and zip file 1_24-06-2018-00-00-00.zip");
 
-        //We expect only one envelope which was uploaded and other failed
+        // We expect only one envelope which was uploaded and other failed
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes.size()).isEqualTo(1);
 
