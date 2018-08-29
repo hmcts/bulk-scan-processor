@@ -5,8 +5,8 @@
   "opening_date": "24-02-2017 00:00:00.010000",
   "zip_file_createddate": "24-02-2017 00:00:00.001000",
   "zip_file_name": "1_24-02-2017-00-00-00.zip",
+  "classification": "new_application",
   "urgent": "false",
-  "classification": "New_Application",
   "scannable_items": [
     {
       "document_control_number": "1111001",
@@ -31,10 +31,12 @@
       "document_type": "Other"
     }
   ],
-  "non_scannable_items": [
+  "payments": [
     {
-      "item_type": "CD",
-      "notes": "4GB USB memory stick"
+      "document_control_number": "1111002",
+      "method": "Cheque",
+      "amount": "100.00",
+      "currency": "GBP"
     }
   ]
 }
