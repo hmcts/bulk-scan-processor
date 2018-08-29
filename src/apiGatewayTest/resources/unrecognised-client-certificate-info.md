@@ -5,8 +5,8 @@ that HTTPS requests with this certificate are rejected. Here's how it was create
 
 ```bash
 openssl genrsa 2048 > private.pem
-openssl req -x509 -new -key private.pem -out cert.pem
-openssl pkcs12 -export -in cert.pem -inkey private.pem -out unknown-client-certificate.pfx -noiter -nomaciter
+openssl req -x509 -new -key private.pem -out cert.pem -days 36500
+openssl pkcs12 -export -in cert.pem -inkey private.pem -out unrecognised-client-certificate.pfx -noiter -nomaciter
 ```
 
 The key store was created with password `testcert`.
