@@ -65,7 +65,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         });
 
         // Then
-        // Only one thread should not be able to acquire lease and others should fail
+        // Only one thread should be able to acquire lease and others should fail
         assertThat(
             StringUtils.countMatches(
                 outputCapture.toString(),
@@ -86,7 +86,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     private List<Future<Void>> processBlobUsingExecutor(int numberofThreads) throws Exception {
         ExecutorService executorService = Executors.newFixedThreadPool(
             numberofThreads,
-            ThreadFactories.withName("BSP-ACQUIRE-LEASE-%d")
+            ThreadFactories.withName("BSP-ACQUIRE-LEASE-TEST")
         );
 
         List<Callable<Void>> tasks = new ArrayList<>();
