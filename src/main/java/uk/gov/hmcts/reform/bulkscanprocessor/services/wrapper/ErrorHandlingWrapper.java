@@ -61,20 +61,20 @@ public class ErrorHandlingWrapper {
     ) {
         try {
             return supplier.get();
-        } catch (Exception exception) {
-            if (exception instanceof StorageException
-                && ((StorageException) exception).getHttpStatusCode() == HttpStatus.CONFLICT.value()
-                ) {
+        } catch (StorageException storageException) {
+            if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
                 errorHandler.handleError(
                     new LeaseAlreadyPresentException(
                         "Lease already acquired for container " + containerName + " and zip file " + zipFileName,
-                        exception
+                        storageException
                     )
                 );
             } else {
-                errorHandler.handleError(exception);
+                errorHandler.handleError(storageException);
             }
-
+            return null;
+        } catch (Exception exception) {
+            errorHandler.handleError(exception);
             return null;
         }
     }
