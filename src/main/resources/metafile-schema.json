@@ -63,7 +63,7 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "title": "Array representing items in the even lope that can be scanned for",
+      "title": "Array representing items in the envelope that can be scanned for",
       "items": {
         "id": "#/properties/scannable_items/items",
         "type": "object",

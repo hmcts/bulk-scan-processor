@@ -24,8 +24,9 @@ public class JsonConfiguration {
     }
 
     @Bean
-    public JsonSchema jsonValidator(ObjectMapper mapper) throws IOException, ProcessingException {
-        try (InputStream inputStream = getClass().getResourceAsStream("/metadata-schema.json")) {
+    public JsonSchema jsonSchemaValidator(ObjectMapper mapper) throws IOException, ProcessingException {
+        // library only supports up to draft-04 of json schema
+        try (InputStream inputStream = getClass().getResourceAsStream("/metafile-schema.json")) {
             return JsonSchemaFactory
                 .byDefault()
                 .getJsonSchema(mapper.readTree(inputStream));
