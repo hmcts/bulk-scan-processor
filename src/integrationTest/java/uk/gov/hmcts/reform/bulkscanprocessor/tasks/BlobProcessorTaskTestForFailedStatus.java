@@ -72,6 +72,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // and
         uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+
         processor.processBlobs();
 
         // then

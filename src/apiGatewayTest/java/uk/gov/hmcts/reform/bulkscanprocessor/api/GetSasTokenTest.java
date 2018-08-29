@@ -8,7 +8,6 @@ import io.restassured.config.SSLConfig;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -60,7 +59,6 @@ public class GetSasTokenTest {
         assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
-    @Ignore
     public void should_reject_request_with_unrecognised_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
             getUnrecognisedClientKeyStore(),
