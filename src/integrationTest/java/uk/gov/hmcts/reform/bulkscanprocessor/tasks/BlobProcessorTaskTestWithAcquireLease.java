@@ -35,7 +35,6 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     @Rule
     public OutputCapture outputCapture = new OutputCapture();
 
-
     @Before
     public void setUp() throws Exception {
         super.setUp(BlobProcessorTask::new);
