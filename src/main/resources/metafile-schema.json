@@ -125,11 +125,7 @@
         "required": [
           "document_control_number",
           "scanning_date",
-          "manual_intervention",
-          "next_action",
-          "next_action_date",
           "file_name",
-          "notes",
           "document_type"
         ]
       }
@@ -196,11 +192,7 @@
             "type": "string",
             "title": "contextual information describing this item"
           }
-        },
-        "required": [
-          "item_type",
-          "notes"
-        ]
+        }
       }
     }
   },
