@@ -46,6 +46,8 @@ public abstract class Processor {
             documentProcessor.processPdfFiles(pdfs, envelope.getScannableItems());
             envelopeProcessor.markAsUploaded(envelope);
 
+            // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
+            cloudBlockBlob.breakLease(0);
             cloudBlockBlob.delete();
 
             envelopeProcessor.markAsProcessed(envelope);
@@ -60,7 +62,7 @@ public abstract class Processor {
      * In case there is a mismatch an exception is thrown.
      *
      * @param envelope to assert against
-     * @param pdfs to assert against
+     * @param pdfs     to assert against
      */
     private void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
