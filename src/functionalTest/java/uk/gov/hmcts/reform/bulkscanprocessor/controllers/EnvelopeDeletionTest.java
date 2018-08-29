@@ -82,6 +82,7 @@ public class EnvelopeDeletionTest {
 
         // 0 implies immediately breaking the lease
         // Lease needs to broken before deleting file
+        testContainer.getBlockBlobReference(destZipFilename).breakLease(0);
         testContainer.getBlockBlobReference(destZipFilename).delete();
 
         assertThat(testHelper.storageHasFile(testContainer, destZipFilename)).isFalse();
