@@ -83,15 +83,15 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     }
 
     @NotNull
-    private List<Future<Void>> processBlobUsingExecutor(int numberofThreads) throws Exception {
+    private List<Future<Void>> processBlobUsingExecutor(int numberOfThreads) throws Exception {
         ExecutorService executorService = Executors.newFixedThreadPool(
-            numberofThreads,
+            numberOfThreads,
             ThreadFactories.withName("BSP-ACQUIRE-LEASE-TEST")
         );
 
         List<Callable<Void>> tasks = new ArrayList<>();
 
-        for (int threadCount = 0; threadCount < numberofThreads; threadCount++) {
+        for (int threadCount = 0; threadCount < numberOfThreads; threadCount++) {
             tasks.add(callableTask());
         }
 
