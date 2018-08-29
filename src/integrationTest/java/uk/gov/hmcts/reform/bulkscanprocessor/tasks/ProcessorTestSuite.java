@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonschema.main.JsonSchema;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -23,6 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeSchemaValidator;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +57,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     private ObjectMapper mapper;
 
     @Autowired
-    private JsonSchema jsonValidator;
+    private EnvelopeSchemaValidator schemaValidator;
 
     @Autowired
     protected EnvelopeRepository envelopeRepository;
@@ -100,7 +100,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
         envelopeProcessor = new EnvelopeProcessor(
             mapper,
-            jsonValidator,
+            schemaValidator,
             envelopeRepository,
             processEventRepository,
             reUploadBatchSize,

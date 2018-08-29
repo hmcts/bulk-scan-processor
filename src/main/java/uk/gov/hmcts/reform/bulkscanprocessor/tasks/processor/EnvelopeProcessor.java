@@ -3,9 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingMessage;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.main.JsonSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,15 +14,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetadataException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeSchemaValidator;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
@@ -36,7 +31,7 @@ public class EnvelopeProcessor {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeProcessor.class);
 
     private final ObjectMapper mapper;
-    private final JsonSchema jsonValidator;
+    private final EnvelopeSchemaValidator schemaValidator;
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final int reUploadBatchSize;
@@ -44,14 +39,14 @@ public class EnvelopeProcessor {
 
     public EnvelopeProcessor(
         ObjectMapper mapper,
-        JsonSchema jsonValidator,
+        EnvelopeSchemaValidator schemaValidator,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
         @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize,
         @Value("${scheduling.task.reupload.max_tries}") int maxReuploadTriesCount
     ) {
         this.mapper = mapper;
-        this.jsonValidator = jsonValidator;
+        this.schemaValidator = schemaValidator;
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
         this.reUploadBatchSize = reUploadBatchSize;
@@ -64,21 +59,9 @@ public class EnvelopeProcessor {
         }
 
         JsonNode metadataNode = mapper.readTree(metadataStream);
-        ProcessingReport report = jsonValidator.validate(metadataNode, true);
+        schemaValidator.validate(metadataNode);
 
-        if (report.isSuccess()) {
-            return mapper.readValue(metadataNode.traverse(), Envelope.class);
-        } else {
-            List<String> failures = StreamSupport
-                .stream(report.spliterator(), false)
-                .map(ProcessingMessage::getMessage)
-                .collect(Collectors.toList());
-            failures.forEach(log::error);
-
-            throw new InvalidMetadataException(
-                "There was a failure validating metadata file. Errors: " + failures.size()
-            );
-        }
+        return mapper.readValue(metadataNode.traverse(), Envelope.class);
     }
 
     /**
