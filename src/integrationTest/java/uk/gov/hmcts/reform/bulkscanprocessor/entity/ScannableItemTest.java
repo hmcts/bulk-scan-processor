@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ValidationConfiguration;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.JsonConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-@Import(ValidationConfiguration.class)
+@Import(JsonConfiguration.class)
 public class ScannableItemTest {
 
     @Autowired

@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ValidationConfiguration;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.JsonConfiguration;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  * This is unit test. Falls under integration to make use of existing zip file resources.
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ValidationConfiguration.class)
+@ContextConfiguration(classes = JsonConfiguration.class)
 public class ZipFileProcessorValidationTest {
 
     @Autowired

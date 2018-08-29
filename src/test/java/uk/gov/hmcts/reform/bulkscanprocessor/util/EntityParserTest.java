@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ValidationConfiguration;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.JsonConfiguration;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 
@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 // TODO convert/move to validation test
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ValidationConfiguration.class)
+@ContextConfiguration(classes = JsonConfiguration.class)
 public class EntityParserTest {
 
     @Autowired

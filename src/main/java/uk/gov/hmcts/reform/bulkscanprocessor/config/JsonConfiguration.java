@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Configuration
-public class ValidationConfiguration {
+public class JsonConfiguration {
 
     @Bean
     public ObjectMapper defaultObjectMapper() {
