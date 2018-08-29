@@ -1,10 +1,16 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ValidationConfiguration;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,7 +26,12 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 /**
  * This is unit test. Falls under integration to make use of existing zip file resources.
  */
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ValidationConfiguration.class)
 public class ZipFileProcessorValidationTest {
+
+    @Autowired
+    private ObjectMapper mapper;
 
     private static final Processor processor = new Processor(
         null,
@@ -85,8 +96,9 @@ public class ZipFileProcessorValidationTest {
 
         try (ZipInputStream zis = getZipInputStream(zipFileName)) {
             processor.process(zis);
-            processor.setEnvelope(EntityParser.parseEnvelopeMetadata(
-                new ByteArrayInputStream(processor.getMetadata())
+            processor.setEnvelope(mapper.readValue(
+                new ByteArrayInputStream(processor.getMetadata()),
+                Envelope.class
             ));
         }
 

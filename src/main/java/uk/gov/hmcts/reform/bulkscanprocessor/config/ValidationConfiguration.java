@@ -1,33 +1,34 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.Validator;
-import org.everit.json.schema.loader.SchemaLoader;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.main.JsonSchema;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Consumer;
 
 @Configuration
 public class ValidationConfiguration {
 
     @Bean
-    public Validator jsonSchemaValidator() {
-        return Validator.builder().failEarly().build();
+    public ObjectMapper defaultObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+
+        return mapper;
     }
 
     @Bean
-    public Consumer<JSONObject> jsonValidator(Validator validator) throws IOException {
+    public JsonSchema jsonValidator(ObjectMapper mapper) throws IOException, ProcessingException {
         try (InputStream inputStream = getClass().getResourceAsStream("/metadata-schema.json")) {
-            Schema schema = SchemaLoader.load(
-                new JSONObject(new JSONTokener(inputStream))
-            );
-
-            return (JSONObject json) -> validator.performValidation(schema, json);
+            return JsonSchemaFactory
+                .byDefault()
+                .getJsonSchema(mapper.readTree(inputStream));
         }
     }
 }

@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonschema.main.JsonSchema;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
@@ -8,7 +10,6 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.Charsets;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,7 +43,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.function.Consumer;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -74,7 +74,10 @@ public class EnvelopeControllerTest {
     private BlobProcessorTask blobProcessorTask;
 
     @Autowired
-    private Consumer<JSONObject> jsonValidator;
+    private ObjectMapper mapper;
+
+    @Autowired
+    private JsonSchema jsonValidator;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -134,6 +137,7 @@ public class EnvelopeControllerTest {
         );
 
         envelopeProcessor = new EnvelopeProcessor(
+            mapper,
             jsonValidator,
             envelopeRepository,
             processEventRepository,

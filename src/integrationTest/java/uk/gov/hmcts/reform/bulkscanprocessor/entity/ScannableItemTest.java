@@ -1,12 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ValidationConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
+@Import(ValidationConfiguration.class)
 public class ScannableItemTest {
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -30,7 +36,7 @@ public class ScannableItemTest {
     public void should_update_document_url_of_scannable_item() throws IOException {
         // given
         InputStream metafile = getClass().getResourceAsStream("/metafile.json");
-        Envelope envelope = EntityParser.parseEnvelopeMetadata(metafile);
+        Envelope envelope = mapper.readValue(metafile, Envelope.class);
         envelope.setContainer("container");
 
         // and
