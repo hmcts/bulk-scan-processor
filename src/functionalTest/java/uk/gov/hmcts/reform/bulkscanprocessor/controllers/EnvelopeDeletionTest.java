@@ -80,6 +80,8 @@ public class EnvelopeDeletionTest {
             .pollDelay(scanDelay * 2, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(true));
 
+        // 0 implies immediately breaking the lease
+        // Lease needs to broken before deleting file
         testContainer.getBlockBlobReference(destZipFilename).delete();
 
         assertThat(testHelper.storageHasFile(testContainer, destZipFilename)).isFalse();
