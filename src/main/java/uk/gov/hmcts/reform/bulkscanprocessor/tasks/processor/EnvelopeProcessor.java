@@ -16,7 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeSchemaValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,7 +31,7 @@ public class EnvelopeProcessor {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeProcessor.class);
 
     private final ObjectMapper mapper;
-    private final EnvelopeSchemaValidator schemaValidator;
+    private final MetafileJsonValidator schemaValidator;
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final int reUploadBatchSize;
@@ -39,7 +39,7 @@ public class EnvelopeProcessor {
 
     public EnvelopeProcessor(
         ObjectMapper mapper,
-        EnvelopeSchemaValidator schemaValidator,
+        MetafileJsonValidator schemaValidator,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
         @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize,

@@ -38,7 +38,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeSchemaValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class EnvelopeControllerTest {
     private ObjectMapper mapper;
 
     @Autowired
-    private EnvelopeSchemaValidator schemaValidator;
+    private MetafileJsonValidator schemaValidator;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;

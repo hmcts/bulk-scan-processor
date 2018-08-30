@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 
 @Component
-public class EnvelopeSchemaValidator {
+public class MetafileJsonValidator {
 
     private final JsonSchema jsonSchemaValidator;
 
-    public EnvelopeSchemaValidator(JsonSchema jsonSchemaValidator) {
+    public MetafileJsonValidator(JsonSchema jsonSchemaValidator) {
         this.jsonSchemaValidator = jsonSchemaValidator;
     }
 

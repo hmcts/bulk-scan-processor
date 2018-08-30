@@ -22,7 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeSchemaValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +57,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     private ObjectMapper mapper;
 
     @Autowired
-    private EnvelopeSchemaValidator schemaValidator;
+    private MetafileJsonValidator schemaValidator;
 
     @Autowired
     protected EnvelopeRepository envelopeRepository;
