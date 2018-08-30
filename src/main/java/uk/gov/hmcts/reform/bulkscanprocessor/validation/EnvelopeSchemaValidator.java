@@ -4,15 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 
 @Component
 public class EnvelopeSchemaValidator {
-
-    private static final Logger log = LoggerFactory.getLogger(EnvelopeSchemaValidator.class);
 
     private final JsonSchema jsonSchemaValidator;
 
