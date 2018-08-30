@@ -3,10 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 
@@ -15,7 +12,6 @@ import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 public class MetafileJsonValidatorTest {
 
     private MetafileJsonValidator validator;
@@ -55,16 +51,6 @@ public class MetafileJsonValidatorTest {
 
         assertThat(envelope.getNonScannableItems()).hasSize(0);
         assertThat(envelope.getScannableItems()).hasSize(2);
-        assertThat(envelope.getPayments()).hasSize(1);
-    }
-
-    @Ignore
-    @Test
-    public void should_parse_envelope_data_with_no_scannable_items_in() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/invalid/no-scannables.json");
-
-        assertThat(envelope.getNonScannableItems()).hasSize(1);
-        assertThat(envelope.getScannableItems()).hasSize(0);
         assertThat(envelope.getPayments()).hasSize(1);
     }
 
