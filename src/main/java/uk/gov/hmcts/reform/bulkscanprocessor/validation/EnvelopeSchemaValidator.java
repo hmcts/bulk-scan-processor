@@ -2,17 +2,12 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public class EnvelopeSchemaValidator {
@@ -36,15 +31,7 @@ public class EnvelopeSchemaValidator {
         ProcessingReport report = jsonSchemaValidator.validate(jsonObject, true);
 
         if (!report.isSuccess()) {
-            List<String> failures = StreamSupport
-                .stream(report.spliterator(), false)
-                .map(ProcessingMessage::getMessage)
-                .collect(Collectors.toList());
-            failures.forEach(log::error);
-
-            throw new InvalidEnvelopeSchemaException(
-                "There was a failure validating metadata file. Errors: " + failures.size()
-            );
+            throw new InvalidEnvelopeSchemaException(report);
         }
     }
 }
