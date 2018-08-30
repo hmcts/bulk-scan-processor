@@ -8,7 +8,7 @@ import com.github.fge.jsonschema.main.JsonSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidSchemaException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class EnvelopeSchemaValidator {
 
     /**
      * Validate object against envelope schema.
-     * Throws an {@code InvalidSchemaException} in case there are errors.
+     * Throws an {@code InvalidEnvelopeSchemaException} in case there are errors.
      *
      * @param jsonObject to validate against
      * @throws ProcessingException processing error during the validation
@@ -42,7 +42,7 @@ public class EnvelopeSchemaValidator {
                 .collect(Collectors.toList());
             failures.forEach(log::error);
 
-            throw new InvalidSchemaException(
+            throw new InvalidEnvelopeSchemaException(
                 "There was a failure validating metadata file. Errors: " + failures.size()
             );
         }
