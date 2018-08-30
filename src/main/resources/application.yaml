@@ -46,7 +46,7 @@ storage:
   blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
 
 servicebus:
-  queue_envelope_send: ${QUEUE_ENVELOPE_SEND:queue_envelope_send}
+  queue_envelope_send: ${QUEUE_ENVELOPE_SEND:https://bulkscanning.servicebus.windows.net/envelopes}
 
 accesstoken:
   serviceConfig:
