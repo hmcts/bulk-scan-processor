@@ -82,3 +82,8 @@ envelope-access:
      - jurisdiction: TEST
        readService: bulk_scan_processor_tests
        updateService: bulk_scan_processor_tests
+
+# The value of the parameter 'leaseTimeInSeconds' should be between 15 and 60 seconds.
+blob:
+  lease:
+    timeout: ${BLOB_LEASE_TIMEOUT:15}

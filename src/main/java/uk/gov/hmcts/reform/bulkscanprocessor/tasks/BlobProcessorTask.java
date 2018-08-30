@@ -9,6 +9,7 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ import java.util.zip.ZipInputStream;
  * This class is a task executed by Scheduler as per configured interval.
  * It will read all the blobs from Azure Blob storage and will do below things:
  * <ol>
- * <li>Read Blob from container</li>
+ * <li>Read Blob from container by acquiring lease</li>
  * <li>Extract Zip file (blob)</li>
  * <li>Transform metadata json to DB entities</li>
  * <li>Save PDF files in document storage</li>
@@ -39,6 +40,9 @@ import java.util.zip.ZipInputStream;
 public class BlobProcessorTask extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
+
+    @Value("${blob.lease.timeout}")
+    private Integer blobLeaseTimeout;
 
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
@@ -95,10 +99,8 @@ public class BlobProcessorTask extends Processor {
     }
 
     private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
-        // TODO - Lease time  needs to be made configurable
         return errorWrapper.wrapAcquireLeaseFailure(containerName, zipFilename, () -> {
-            // The value of the parameter 'leaseTimeInSeconds' should be between 15 and 60 seconds.
-            cloudBlockBlob.acquireLease(15, null);
+            cloudBlockBlob.acquireLease(blobLeaseTimeout, null);
             return cloudBlockBlob;
         });
     }

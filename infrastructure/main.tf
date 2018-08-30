@@ -97,6 +97,7 @@ module "bulk-scan" {
     REUPLOAD_ENABLED              = "${var.reupload_enabled}"
     SCAN_DELAY                    = "${var.scan_delay}"
     SCAN_ENABLED                  = "${var.scan_enabled}"
+    BLOB_LEASE_TIMEOUT            = "${var.blob_lease_timeout}" // In seconds
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL   = false
     LOGBACK_REQUIRE_ERROR_CODE    = false

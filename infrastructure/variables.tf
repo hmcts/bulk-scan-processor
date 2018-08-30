@@ -96,3 +96,9 @@ variable "allowed_client_certificate_thumbprints" {
   type = "list"
   default = []
 }
+
+# The value of the parameter 'blob_lease_timeout' should be between 15 and 60 seconds.
+variable "blob_lease_timeout" {
+  default = "15"
+}
+
