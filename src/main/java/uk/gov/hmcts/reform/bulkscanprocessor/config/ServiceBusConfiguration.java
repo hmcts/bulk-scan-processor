@@ -21,7 +21,7 @@ public class ServiceBusConfiguration {
         @Value("${servicebus.queue_envelope_send}") String connectionString
     ) throws ServiceBusException, InterruptedException {
 
-        log.info("Queue Client connection string = [{}]", connectionString);
+        System.out.println("Queue Client connection string = " + connectionString);
 
         return new QueueClient(
             new ConnectionStringBuilder(connectionString),
