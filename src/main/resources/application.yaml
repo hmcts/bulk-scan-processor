@@ -43,6 +43,7 @@ info:
 storage:
   account_name: ${STORAGE_ACCOUNT_NAME:bulkscanning}
   key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
+  blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
 
 accesstoken:
   serviceConfig:
@@ -82,8 +83,3 @@ envelope-access:
      - jurisdiction: TEST
        readService: bulk_scan_processor_tests
        updateService: bulk_scan_processor_tests
-
-# The value of the parameter 'leaseTimeInSeconds' should be between 15 and 60 seconds.
-blob:
-  lease:
-    timeout: ${BLOB_LEASE_TIMEOUT:15}
