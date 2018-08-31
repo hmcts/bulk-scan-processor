@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -54,9 +53,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected T processor;
 
     @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
     private MetafileJsonValidator schemaValidator;
 
     @Autowired
@@ -99,7 +95,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
 
         envelopeProcessor = new EnvelopeProcessor(
-            mapper,
             schemaValidator,
             envelopeRepository,
             processEventRepository,

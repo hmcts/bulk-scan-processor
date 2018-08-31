@@ -1,18 +1,15 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.JsonConfiguration;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -27,11 +24,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  * This is unit test. Falls under integration to make use of existing zip file resources.
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = JsonConfiguration.class)
 public class ZipFileProcessorValidationTest {
 
-    @Autowired
-    private ObjectMapper mapper;
+    private MetafileJsonValidator validator;
 
     private static final Processor processor = new Processor(
         null,
@@ -42,6 +37,11 @@ public class ZipFileProcessorValidationTest {
         })
     ) {
     };
+
+    @Before
+    public void setUp() throws IOException, ProcessingException {
+        validator = new MetafileJsonValidator();
+    }
 
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws IOException, URISyntaxException {
@@ -96,10 +96,7 @@ public class ZipFileProcessorValidationTest {
 
         try (ZipInputStream zis = getZipInputStream(zipFileName)) {
             processor.process(zis);
-            processor.setEnvelope(mapper.readValue(
-                new ByteArrayInputStream(processor.getMetadata()),
-                Envelope.class
-            ));
+            processor.setEnvelope(validator.parseMetafile(processor.getMetadata()));
         }
 
         return processor;

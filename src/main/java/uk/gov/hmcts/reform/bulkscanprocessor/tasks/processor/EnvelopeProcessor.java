@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 public class EnvelopeProcessor {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeProcessor.class);
 
-    private final ObjectMapper mapper;
     private final MetafileJsonValidator schemaValidator;
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
@@ -38,14 +35,12 @@ public class EnvelopeProcessor {
     private final int maxReuploadTriesCount;
 
     public EnvelopeProcessor(
-        ObjectMapper mapper,
         MetafileJsonValidator schemaValidator,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
         @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize,
         @Value("${scheduling.task.reupload.max_tries}") int maxReuploadTriesCount
     ) {
-        this.mapper = mapper;
         this.schemaValidator = schemaValidator;
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
@@ -58,10 +53,9 @@ public class EnvelopeProcessor {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
 
-        JsonNode metadataNode = mapper.readTree(metadataStream);
-        schemaValidator.validate(metadataNode);
+        schemaValidator.validate(metadataStream);
 
-        return mapper.readValue(metadataNode.traverse(), Envelope.class);
+        return schemaValidator.parseMetafile(metadataStream);
     }
 
     /**

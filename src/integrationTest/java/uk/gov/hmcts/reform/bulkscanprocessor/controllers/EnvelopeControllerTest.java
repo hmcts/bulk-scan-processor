@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
@@ -74,9 +73,6 @@ public class EnvelopeControllerTest {
     private BlobProcessorTask blobProcessorTask;
 
     @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
     private MetafileJsonValidator schemaValidator;
 
     @Autowired
@@ -137,7 +133,6 @@ public class EnvelopeControllerTest {
         );
 
         envelopeProcessor = new EnvelopeProcessor(
-            mapper,
             schemaValidator,
             envelopeRepository,
             processEventRepository,

@@ -1,9 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,9 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.rule.OutputCapture;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.JsonConfiguration;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,17 +26,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-@Import(JsonConfiguration.class)
 public class EnvelopeTest {
 
     @Rule
     public OutputCapture capture = new OutputCapture();
 
-    @Autowired
-    private ObjectMapper mapper;
+    private MetafileJsonValidator validator;
 
     @Autowired
     private EnvelopeRepository repository;
+
+    @Before
+    public void setUp() throws IOException, ProcessingException {
+        validator = new MetafileJsonValidator();
+    }
 
     @After
     public void cleanUp() {
@@ -45,7 +49,7 @@ public class EnvelopeTest {
     @Test
     public void should_insert_into_db_and_validate_data_correctness_when_retrieved() throws IOException {
         // given
-        Envelope envelope = mapper.readValue(getMetaFile(), Envelope.class);
+        Envelope envelope = getEnvelope();
         envelope.setContainer("container");
 
         // and
@@ -75,7 +79,7 @@ public class EnvelopeTest {
     @Test
     public void should_log_a_warning_when_container_is_not_set() throws IOException {
         // given
-        Envelope envelope = mapper.readValue(getMetaFile(), Envelope.class);
+        Envelope envelope = getEnvelope();
 
         // when
         Envelope dbEnvelope = repository.save(envelope);
@@ -91,5 +95,11 @@ public class EnvelopeTest {
 
     private InputStream getMetaFile() {
         return getClass().getResourceAsStream("/metafile.json");
+    }
+
+    private Envelope getEnvelope() throws IOException {
+        try (InputStream inputStream = getMetaFile()) {
+            return validator.parseMetafile(IOUtils.toByteArray(inputStream));
+        }
     }
 }
