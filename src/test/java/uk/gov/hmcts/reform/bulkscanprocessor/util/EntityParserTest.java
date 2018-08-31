@@ -1,20 +1,30 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.JsonConfiguration;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO convert/move to validation test
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = JsonConfiguration.class)
 public class EntityParserTest {
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Test
     public void should_successfully_map_json_file_to_entities() throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/metafile.json");
-        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+        Envelope envelope = getEnvelope("/metafile.json");
 
         assertThat(envelope.getNonScannableItems()).hasSize(1);
         assertThat(envelope.getScannableItems()).hasSize(2);
@@ -29,8 +39,7 @@ public class EntityParserTest {
 
     @Test
     public void should_parse_envelop_data_with_no_payments_in() throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/metafile-no-payment.json");
-        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+        Envelope envelope = getEnvelope("/metafile-no-payment.json");
 
         assertThat(envelope.getNonScannableItems()).hasSize(1);
         assertThat(envelope.getScannableItems()).hasSize(2);
@@ -39,8 +48,7 @@ public class EntityParserTest {
 
     @Test
     public void should_parse_envelop_data_with_no_non_scannable_items_in() throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/metafile-no-non-scannables.json");
-        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+        Envelope envelope = getEnvelope("/metafile-no-non-scannables.json");
 
         assertThat(envelope.getNonScannableItems()).hasSize(0);
         assertThat(envelope.getScannableItems()).hasSize(2);
@@ -49,8 +57,7 @@ public class EntityParserTest {
 
     @Test
     public void should_parse_envelop_data_with_no_scannable_items_in() throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/metafile-no-scannables.json");
-        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+        Envelope envelope = getEnvelope("/metafile-no-scannables.json");
 
         assertThat(envelope.getNonScannableItems()).hasSize(1);
         assertThat(envelope.getScannableItems()).hasSize(0);
@@ -59,8 +66,7 @@ public class EntityParserTest {
 
     @Test
     public void should_parse_envelop_data_with_updated_spec_fields() throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/metafile-model-update-rpe610.json");
-        Envelope envelope = EntityParser.parseEnvelopeMetadata(inputStream);
+        Envelope envelope = getEnvelope("/metafile-model-update-rpe610.json");
 
         assertThat(envelope.getUrgent()).isTrue();
         assertThat(envelope.getClassification()).isEqualTo(Classification.NEW_APPLICATION);
@@ -72,4 +78,7 @@ public class EntityParserTest {
         assertThat(envelope.getPayments()).hasSize(1);
     }
 
+    private Envelope getEnvelope(String resource) throws IOException {
+        return mapper.readValue(getClass().getResource(resource), Envelope.class);
+    }
 }

@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,11 +16,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.EntityParser;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,30 +30,38 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 public class EnvelopeProcessor {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeProcessor.class);
 
+    private final ObjectMapper mapper;
+    private final MetafileJsonValidator schemaValidator;
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final int reUploadBatchSize;
     private final int maxReuploadTriesCount;
 
     public EnvelopeProcessor(
+        ObjectMapper mapper,
+        MetafileJsonValidator schemaValidator,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
         @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize,
         @Value("${scheduling.task.reupload.max_tries}") int maxReuploadTriesCount
     ) {
+        this.mapper = mapper;
+        this.schemaValidator = schemaValidator;
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
         this.reUploadBatchSize = reUploadBatchSize;
         this.maxReuploadTriesCount = maxReuploadTriesCount;
     }
 
-    public Envelope parseEnvelope(byte[] metadataStream) throws IOException {
+    public Envelope parseEnvelope(byte[] metadataStream) throws IOException, ProcessingException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
-        //TODO Perform json schema validation for the metadata file
-        InputStream inputStream = new ByteArrayInputStream(metadataStream);
-        return EntityParser.parseEnvelopeMetadata(inputStream);
+
+        JsonNode metadataNode = mapper.readTree(metadataStream);
+        schemaValidator.validate(metadataNode);
+
+        return mapper.readValue(metadataNode.traverse(), Envelope.class);
     }
 
     /**
