@@ -1,7 +1,7 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
+import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
-import com.microsoft.azure.servicebus.QueueClient;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
@@ -10,10 +10,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class ServiceBusService {
 
-    private final QueueClient sendClient;
+    private final IQueueClient sendClient;
 
-    public ServiceBusService(QueueClient sendClient) {
-        this.sendClient = sendClient;
+    public ServiceBusService(QueueClientSupplier queueClientSupplier) {
+        this.sendClient = queueClientSupplier.get();
     }
 
     public CompletableFuture<Void> sendMessageAsync(Msg msg) {
