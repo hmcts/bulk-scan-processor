@@ -8,4 +8,5 @@ public enum Event {
     DOC_UPLOAD_FAILURE,
     DOC_PROCESSED, // when blob is successfully deleted after storing all docs in DM
     DOC_CONSUMED, // client service handled the documents
+    DOC_PROCESSED_NOTIFICATION_SENT,
 }

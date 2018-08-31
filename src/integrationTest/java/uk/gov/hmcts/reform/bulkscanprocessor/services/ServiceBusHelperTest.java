@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.QueueClientSupplier;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @SpringBootTest
-public class ServiceBusServiceTest {
+public class ServiceBusHelperTest {
 
     @Mock
     IQueueClient queueClient;
@@ -28,12 +28,12 @@ public class ServiceBusServiceTest {
     @Mock
     QueueClientSupplier queueClientSupplier;
 
-    ServiceBusService serviceBusService;
+    ServiceBusHelper serviceBusService;
 
     @Before
     public void setUp() {
         when(queueClientSupplier.get()).thenReturn(this.queueClient);
-        serviceBusService = new ServiceBusService(queueClientSupplier);
+        serviceBusService = new ServiceBusHelper(queueClientSupplier);
     }
 
     @Test
