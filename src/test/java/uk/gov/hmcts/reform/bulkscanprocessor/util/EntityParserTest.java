@@ -1,26 +1,30 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.JsonConfiguration;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 // TODO convert/move to validation test
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = JsonConfiguration.class)
 public class EntityParserTest {
 
-    @Autowired
-    private ObjectMapper mapper;
+    private MetafileJsonValidator validator;
+
+    @Before
+    public void setUp() throws IOException, ProcessingException {
+        validator = new MetafileJsonValidator();
+    }
 
     @Test
     public void should_successfully_map_json_file_to_entities() throws IOException {
@@ -79,6 +83,8 @@ public class EntityParserTest {
     }
 
     private Envelope getEnvelope(String resource) throws IOException {
-        return mapper.readValue(getClass().getResource(resource), Envelope.class);
+        try (InputStream inputStream = getClass().getResourceAsStream(resource)) {
+            return validator.parseMetafile(IOUtils.toByteArray(inputStream));
+        }
     }
 }
