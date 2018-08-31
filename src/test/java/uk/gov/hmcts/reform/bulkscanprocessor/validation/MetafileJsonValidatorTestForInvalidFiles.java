@@ -3,11 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.AbstractThrowableAssert;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 
 import java.io.IOException;
@@ -16,19 +13,11 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class MetafileJsonValidatorTestForInvalidFiles {
 
-    @Rule
-    public OutputCapture capture = new OutputCapture();
-
     private MetafileJsonValidator validator;
 
     @Before
     public void setUp() throws IOException, ProcessingException {
         validator = new MetafileJsonValidator();
-    }
-
-    @After
-    public void tearDown() {
-        capture.flush();
     }
 
     @Test
