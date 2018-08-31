@@ -43,6 +43,7 @@ info:
 storage:
   account_name: ${STORAGE_ACCOUNT_NAME:bulkscanning}
   key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
+  blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
 
 accesstoken:
   serviceConfig:
