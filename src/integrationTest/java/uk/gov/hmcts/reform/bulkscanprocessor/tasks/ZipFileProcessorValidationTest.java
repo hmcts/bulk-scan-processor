@@ -1,14 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -26,8 +24,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @RunWith(SpringRunner.class)
 public class ZipFileProcessorValidationTest {
 
-    private MetafileJsonValidator validator;
-
     private static final Processor processor = new Processor(
         null,
         null,
@@ -37,11 +33,6 @@ public class ZipFileProcessorValidationTest {
         })
     ) {
     };
-
-    @Before
-    public void setUp() throws IOException, ProcessingException {
-        validator = new MetafileJsonValidator();
-    }
 
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws IOException, URISyntaxException {
@@ -96,7 +87,7 @@ public class ZipFileProcessorValidationTest {
 
         try (ZipInputStream zis = getZipInputStream(zipFileName)) {
             processor.process(zis);
-            processor.setEnvelope(validator.parseMetafile(processor.getMetadata()));
+            processor.setEnvelope(EnvelopeCreator.getEnvelopeFromMetafile(processor.getMetadata()));
         }
 
         return processor;

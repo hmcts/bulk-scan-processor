@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.io.IOUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
@@ -9,7 +11,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,8 +24,31 @@ import java.util.UUID;
 
 public final class EnvelopeCreator {
 
+    private static final MetafileJsonValidator validator;
+
+    static {
+        try {
+            validator = new MetafileJsonValidator();
+        } catch (IOException | ProcessingException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
 
     private EnvelopeCreator() {
+    }
+
+    public static InputStream getMetaFile() {
+        return EnvelopeCreator.class.getResourceAsStream("/metafile.json");
+    }
+
+    public static Envelope getEnvelopeFromMetafile() throws IOException {
+        try (InputStream inputStream = getMetaFile()) {
+            return validator.parseMetafile(IOUtils.toByteArray(inputStream));
+        }
+    }
+
+    public static Envelope getEnvelopeFromMetafile(byte[] metafile) throws IOException {
+        return validator.parseMetafile(metafile);
     }
 
     public static List<EnvelopeResponse> envelopeResponses() throws Exception {
