@@ -5,8 +5,8 @@
   "opening_date": "24-02-2017 00:00:00.010000",
   "zip_file_createddate": "24-02-2017 00:00:00.001000",
   "zip_file_name": "1_24-02-2017-00-00-00.zip",
-  "classification": "New_Application",
   "urgent": "false",
+  "classification": "new_application",
   "scannable_items": [
     {
       "document_control_number": "1111001",
@@ -18,7 +18,7 @@
       "ocr_data": "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==",
       "file_name": "1111001.pdf",
       "notes": "The document had ink spilled on it",
-      "document_type": "Other"
+      "document_type": "Passport"
     },
     {
       "document_control_number": "1111002",
@@ -37,6 +37,12 @@
       "method": "Cheque",
       "amount": "100.00",
       "currency": "GBP"
+    }
+  ],
+  "non_scannable_items": [
+    {
+      "item_type": "CD",
+      "notes": "4GB USB memory stick"
     }
   ]
 }
