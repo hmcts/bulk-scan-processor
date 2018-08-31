@@ -41,7 +41,7 @@ public class BlobProcessorTask extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
 
-    @Value("${blob.lease.timeout}")
+    @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
     public BlobProcessorTask(
