@@ -28,18 +28,18 @@ public class ServiceBusHelperTest {
     @Mock
     QueueClientSupplier queueClientSupplier;
 
-    ServiceBusHelper serviceBusService;
+    ServiceBusHelper serviceBusHelper;
 
     @Before
     public void setUp() {
         when(queueClientSupplier.get()).thenReturn(this.queueClient);
-        serviceBusService = new ServiceBusHelper(queueClientSupplier);
+        serviceBusHelper = new ServiceBusHelper(queueClientSupplier);
     }
 
     @Test
     public void should_send_message_with_messageId() throws Exception {
         Msg msg = new EnvelopeMsg("envelopeId");
-        serviceBusService.sendMessageAsync(msg);
+        serviceBusHelper.sendMessageAsync(msg);
         
         ArgumentCaptor<IMessage> argument = ArgumentCaptor.forClass(IMessage.class);
         verify(queueClient).sendAsync(argument.capture());
