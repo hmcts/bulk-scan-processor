@@ -5,7 +5,7 @@ properties([
   pipelineTriggers([cron('H 05 * * *')])
 ])
 
-@Library("Infrastructure")
+@Library("Infrastructure@feature/db-migration-ssl-mode")
 
 def type = "java"
 def product = "rpe"
