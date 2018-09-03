@@ -18,12 +18,4 @@
     <cve>CVE-2016-6497</cve>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-   Need to update web jar version once available .
-   d3.js was a malicious module published with the intent to hijack environment variables
-   ]]></notes>
-    <gav regex="true">^org\.webjars:d3js:.*$</gav>
-    <cpe>cpe:/a:d3.js_project:d3.js</cpe>
-  </suppress>
 </suppressions>
