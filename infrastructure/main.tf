@@ -20,7 +20,6 @@ locals {
 
   s2s_url        = "http://rpe-service-auth-provider-${local.local_env}.service.core-compute-${local.local_env}.internal"
   dm_store_url   = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
-  bsp_vault_uri  = "https://rpe-bsp-${var.env}.vault.azure.net/"
 
   db_connection_options  = "?ssl=true"
 
@@ -189,7 +188,7 @@ data "vault_generic_secret" "s2s_secret_test" {
 
 data "azurerm_key_vault_secret" "queue_send_connection_string" {
   name      = "envelope-queue-send-conn-string"
-  vault_uri = "${local.bsp_vault_uri}"
+  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
 }
 
 # region API (gateway)
