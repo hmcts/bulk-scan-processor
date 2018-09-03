@@ -37,12 +37,23 @@ public class ServiceBusHelperTest {
     }
 
     @Test
-    public void should_send_message_with_messageId() throws Exception {
+    public void should_send_message_async_with_messageId() throws Exception {
         Msg msg = new EnvelopeMsg("envelopeId");
         serviceBusHelper.sendMessageAsync(msg);
-        
+
         ArgumentCaptor<IMessage> argument = ArgumentCaptor.forClass(IMessage.class);
         verify(queueClient).sendAsync(argument.capture());
+        assertThat(argument.getValue())
+            .extracting(IMessage::getMessageId).containsExactly(msg.getMsgId());
+    }
+
+    @Test
+    public void should_send_message_with_messageId() throws Exception {
+        Msg msg = new EnvelopeMsg("envelopeId");
+        serviceBusHelper.sendMessage(msg);
+
+        ArgumentCaptor<IMessage> argument = ArgumentCaptor.forClass(IMessage.class);
+        verify(queueClient).send(argument.capture());
         assertThat(argument.getValue())
             .extracting(IMessage::getMessageId).containsExactly(msg.getMsgId());
     }
