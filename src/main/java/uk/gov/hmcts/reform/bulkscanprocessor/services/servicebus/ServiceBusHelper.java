@@ -37,6 +37,7 @@ public class ServiceBusHelper {
         try {
             sendClient.send(busMessage);
         } catch (InterruptedException | ServiceBusException exception) {
+            Thread.currentThread().interrupt();
             throw new ConnectionException("Unable to connect to Azure service bus", exception);
         }
     }
