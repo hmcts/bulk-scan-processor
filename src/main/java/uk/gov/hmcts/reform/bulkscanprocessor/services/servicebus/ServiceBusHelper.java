@@ -2,14 +2,20 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
+import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConnectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
 import java.util.concurrent.CompletableFuture;
 
 @Component
+// Service bus clients are expensive to create and thread safe so perfectly reusable.
+// With prototype scope we can have more than 1 client instance. Also injection happens
+// when the supplier is accessed for the first time (not at application startup), this
+// allows to avoid mocking the supplier in every single integration test.
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ServiceBusHelper {
 
@@ -23,6 +29,16 @@ public class ServiceBusHelper {
         Message busMessage = new Message();
         busMessage.setMessageId(msg.getMsgId());
         return sendClient.sendAsync(busMessage);
+    }
+
+    public void sendMessage(Msg msg) {
+        Message busMessage = new Message();
+        busMessage.setMessageId(msg.getMsgId());
+        try {
+            sendClient.send(busMessage);
+        } catch (InterruptedException | ServiceBusException exception) {
+            throw new ConnectionException("Unable to connect to Azure service bus", exception);
+        }
     }
 
 }
