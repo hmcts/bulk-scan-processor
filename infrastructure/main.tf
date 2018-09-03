@@ -188,7 +188,7 @@ data "vault_generic_secret" "s2s_secret_test" {
 
 data "azurerm_key_vault_secret" "queue_send_connection_string" {
   name      = "envelope-queue-send-conn-string"
-  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+  vault_uri = "rpe-bsp-${var.env}.key_vault_uri"
 }
 
 # region API (gateway)
