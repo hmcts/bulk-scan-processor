@@ -5,21 +5,6 @@
 
   <suppress>
     <notes><![CDATA[Used only for testing not used in prod]]></notes>
-    <cpe>cpe:/a:docker:docker:0.34.0</cpe>
-    <cve>CVE-2014-0047</cve>
-    <cve>CVE-2014-5277</cve>
-    <cve>CVE-2014-6407</cve>
-    <cve>CVE-2014-9358</cve>
-    <cve>CVE-2015-3627</cve>
-    <cve>CVE-2015-3630</cve>
-    <cve>CVE-2015-3631</cve>
-    <cve>CVE-2016-3697</cve>
-    <cve>CVE-2017-14992</cve>
-    <cve>CVE-2017-7297</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[Used only for testing not used in prod]]></notes>
     <gav regex="true">^org\.testcontainers:postgresql:.*$</gav>
     <cpe>cpe:/a:postgresql:postgresql</cpe>
   </suppress>
@@ -33,12 +18,4 @@
     <cve>CVE-2016-6497</cve>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-   Need to update web jar version once available .
-   d3.js was a malicious module published with the intent to hijack environment variables
-   ]]></notes>
-    <gav regex="true">^org\.webjars:d3js:.*$</gav>
-    <cpe>cpe:/a:d3.js_project:d3.js</cpe>
-  </suppress>
 </suppressions>
