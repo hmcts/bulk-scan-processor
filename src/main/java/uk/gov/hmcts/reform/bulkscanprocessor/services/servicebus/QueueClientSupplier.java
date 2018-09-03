@@ -28,6 +28,7 @@ public class QueueClientSupplier implements Supplier<IQueueClient> {
                 ReceiveMode.PEEKLOCK
             );
         } catch (InterruptedException | ServiceBusException exception) {
+            Thread.currentThread().interrupt();
             throw new ConnectionException("Unable to connect to Azure service bus", exception);
         }
     }
