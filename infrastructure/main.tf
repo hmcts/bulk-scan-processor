@@ -53,6 +53,7 @@ module "bulk-scan-db" {
   env                 = "${var.env}"
   database_name       = "bulk_scan"
   postgresql_user     = "bulk_scanner"
+  postgresql_version  = "10"
   sku_name            = "GP_Gen5_2"
   sku_tier            = "GeneralPurpose"
   common_tags         = "${var.common_tags}"
