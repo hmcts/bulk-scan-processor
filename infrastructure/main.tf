@@ -21,7 +21,7 @@ locals {
   s2s_url        = "http://rpe-service-auth-provider-${local.local_env}.service.core-compute-${local.local_env}.internal"
   dm_store_url   = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
 
-  db_connection_options  = "?ssl=true"
+  db_connection_options  = "?ssl=true&sslmode=require"
 
   #region API gateway
   create_api = "${var.env != "preview" && var.env != "spreview"}"
