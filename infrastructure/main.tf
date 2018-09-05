@@ -153,25 +153,25 @@ resource "azurerm_key_vault_secret" "POSTGRES-USER" {
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
   name      = "${var.component}-POSTGRES-PASS"
   value     = "${module.bulk-scan-db.postgresql_password}"
-  vault_uri = "${data.azurerm_key_vault.key_vault}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
   name      = "${var.component}-POSTGRES-HOST"
   value     = "${module.bulk-scan-db.host_name}"
-  vault_uri = "${data.azurerm_key_vault.key_vault}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
   name      = "${var.component}-POSTGRES-PORT"
   value     = "${module.bulk-scan-db.postgresql_listen_port}"
-  vault_uri = "${data.azurerm_key_vault.key_vault}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name      = "${var.component}-POSTGRES-DATABASE"
   value     = "${module.bulk-scan-db.postgresql_database}"
-  vault_uri = "${data.azurerm_key_vault.key_vault}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 data "vault_generic_secret" "s2s_secret" {
