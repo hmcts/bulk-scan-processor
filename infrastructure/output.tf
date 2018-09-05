@@ -24,12 +24,12 @@ output "TEST_SCAN_DELAY" {
 
 output "TEST_STORAGE_ACCOUNT_NAME" {
   sensitive = true
-  value = "${azurerm_storage_account.provider.name}"
+  value     = "${azurerm_storage_account.provider.name}"
 }
 
 output "TEST_STORAGE_ACCOUNT_KEY" {
   sensitive = true
-  value = "${azurerm_storage_account.provider.primary_access_key}"
+  value     = "${azurerm_storage_account.provider.primary_access_key}"
 }
 
 output "TEST_S2S_URL" {
@@ -38,12 +38,12 @@ output "TEST_S2S_URL" {
 
 output "TEST_S2S_NAME" {
   sensitive = true
-  value = "${var.test_s2s_name}"
+  value     = "${var.test_s2s_name}"
 }
 
 output "TEST_S2S_SECRET" {
   sensitive = true
-  value = "${data.vault_generic_secret.s2s_secret_test.data["value"]}"
+  value     = "${data.vault_generic_secret.s2s_secret_test.data["value"]}"
 }
 
 # this variable will be accessible to tests as API_GATEWAY_URL environment variable
