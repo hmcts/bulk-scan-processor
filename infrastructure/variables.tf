@@ -25,13 +25,13 @@ variable "subscription" {
   type = "string"
 }
 
-variable "ilbIp"{}
+variable "ilbIp" {}
 
 variable "tenant_id" {}
 
 variable "jenkins_AAD_objectId" {
-  type                        = "string"
-  description                 = "(Required) The Azure AD object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies."
+  type        = "string"
+  description = "(Required) The Azure AD object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies."
 }
 
 variable "capacity" {
@@ -71,7 +71,7 @@ variable "reupload_batch" {
 }
 
 variable "reupload_delay" {
-  default = "1800000"  # In milliseconds
+  default = "1800000" # In milliseconds
 }
 
 variable "reupload_max_tries" {
@@ -83,7 +83,7 @@ variable "reupload_enabled" {
 }
 
 variable "scan_delay" {
-  default = "30000"  # In milliseconds
+  default = "30000" # In milliseconds
 }
 
 variable "scan_enabled" {
@@ -93,7 +93,7 @@ variable "scan_enabled" {
 # list of SSL client certificate thumbprints that are accepted by the API (gateway)
 # (excludes certificates used by API tests)
 variable "allowed_client_certificate_thumbprints" {
-  type = "list"
+  type    = "list"
   default = []
 }
 
@@ -104,5 +104,5 @@ variable "blob_lease_timeout" {
 
 variable "appinsights_instrumentation_key" {
   description = "Instrumentation key of the App Insights instance this webapp should use. Module will create own App Insights resource if this is not provided"
-  default = ""
+  default     = ""
 }
