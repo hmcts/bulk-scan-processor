@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
@@ -24,27 +24,25 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @RunWith(SpringRunner.class)
 public class ZipFileProcessorValidationTest {
 
-    private static final Processor processor = new Processor(
+    private static final EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
         null,
         null,
         null,
-        new ErrorHandlingWrapper((Throwable t) -> {
-            throw new RuntimeException(t);
-        })
-    ) {
+        1,
+        1) {
     };
+
 
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws IOException, URISyntaxException {
         ZipFileProcessor zipFileProcessor = getZipFileProcessor("4_24-06-2018-00-00-00.zip");
 
         Throwable throwable = catchThrowable(() ->
-            processor.processParsedEnvelopeDocuments(
+            envelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
-                zipFileProcessor.getPdfs(),
-                null
+                zipFileProcessor.getPdfs()
             )
-        ).getCause();
+        );
 
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
             .hasMessageMatching("Missing PDFs: 1111001.pdf");
@@ -55,12 +53,11 @@ public class ZipFileProcessorValidationTest {
         ZipFileProcessor zipFileProcessor = getZipFileProcessor("9_24-06-2018-00-00-00.zip");
 
         Throwable throwable = catchThrowable(() ->
-            processor.processParsedEnvelopeDocuments(
+            envelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
-                zipFileProcessor.getPdfs(),
-                null
+                zipFileProcessor.getPdfs()
             )
-        ).getCause();
+        );
 
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
             .hasMessageMatching("Missing PDFs: 1111002.pdf");
@@ -71,12 +68,11 @@ public class ZipFileProcessorValidationTest {
         ZipFileProcessor zipFileProcessor = getZipFileProcessor("8_24-06-2018-00-00-00.zip");
 
         Throwable throwable = catchThrowable(() ->
-            processor.processParsedEnvelopeDocuments(
+            envelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
-                zipFileProcessor.getPdfs(),
-                null
+                zipFileProcessor.getPdfs()
             )
-        ).getCause();
+        );
 
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
             .hasMessage("Missing PDFs: 1111001.pdf, 1111005.pdf");
