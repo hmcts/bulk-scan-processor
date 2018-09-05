@@ -11,8 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.LeaseAlreadyPresentException;
 
-import java.util.Optional;
-
 @Component
 public class ErrorHandlingWrapper {
 
@@ -32,11 +30,11 @@ public class ErrorHandlingWrapper {
         try {
             return supplier.get();
         } catch (Exception exception) {
-            Exception exc = Optional.of(exception)
-                .filter(EventRelatedThrowable.class::isInstance)
-                .orElse(new DocFailureGenericException(containerName, zipFileName, exception));
-
-            errorHandler.handleError(exc);
+            if (exception instanceof EventRelatedThrowable) {
+                errorHandler.handleError(exception);
+            } else {
+                errorHandler.handleError(new DocFailureGenericException(containerName, zipFileName, exception));
+            }
 
             return null;
         }
@@ -46,11 +44,11 @@ public class ErrorHandlingWrapper {
         try {
             supplier.get();
         } catch (Exception exception) {
-            Exception exc = Optional.of(exception)
-                .filter(EnvelopeAwareThrowable.class::isInstance)
-                .orElse(new DocUploadFailureGenericException(envelope, exception));
-
-            errorHandler.handleError(exc);
+            if (exception instanceof EnvelopeAwareThrowable) {
+                errorHandler.handleError(exception);
+            } else {
+                errorHandler.handleError(new DocUploadFailureGenericException(envelope, exception));
+            }
         }
     }
 
