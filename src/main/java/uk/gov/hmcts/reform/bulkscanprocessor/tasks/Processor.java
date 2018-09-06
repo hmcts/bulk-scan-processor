@@ -36,7 +36,7 @@ public abstract class Processor {
     ) {
         errorWrapper.wrapDocUploadFailure(envelope, () -> {
 
-            documentProcessor.processPdfFiles(pdfs, envelope.getScannableItems());
+            documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
             envelopeProcessor.markAsUploaded(envelope);
 
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately

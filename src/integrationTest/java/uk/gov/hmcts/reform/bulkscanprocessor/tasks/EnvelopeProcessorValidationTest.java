@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  * This is unit test. Falls under integration to make use of existing zip file resources.
  */
 @RunWith(SpringRunner.class)
-public class ZipFileProcessorValidationTest {
+public class EnvelopeProcessorValidationTest {
 
     private static final EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
         null,

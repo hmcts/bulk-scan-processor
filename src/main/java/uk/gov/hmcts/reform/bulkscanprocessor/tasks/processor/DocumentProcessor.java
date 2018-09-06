@@ -28,7 +28,7 @@ public class DocumentProcessor {
         this.scannableItemRepository = scannableItemRepository;
     }
 
-    public void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
+    public void uploadPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
         Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
 
         log.info("Document service response with file name and doc url {}", response);
