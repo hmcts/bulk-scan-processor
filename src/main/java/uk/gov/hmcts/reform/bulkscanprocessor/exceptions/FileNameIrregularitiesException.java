@@ -5,7 +5,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
 import java.util.Collection;
 
-public class FileNameIrregularitiesException extends RuntimeException implements EnvelopeAwareThrowable {
+public class FileNameIrregularitiesException extends RuntimeException implements EventRelatedThrowable {
 
     private static final Event FAILURE_EVENT = Event.DOC_FAILURE;
 
@@ -16,12 +16,7 @@ public class FileNameIrregularitiesException extends RuntimeException implements
 
         this.envelope = envelope;
     }
-
-    @Override
-    public Envelope getEnvelope() {
-        return envelope;
-    }
-
+    
     @Override
     public Event getEvent() {
         return FAILURE_EVENT;
