@@ -5,7 +5,6 @@ provider "vault" {
 }
 
 locals {
-  app                  = "bulk-scan-processor"
   is_preview           = "${(var.env == "preview" || var.env == "spreview")}"
   preview_account_name = "${var.product}bsp"
   default_account_name = "${var.product}bsp${var.env}"
@@ -62,7 +61,7 @@ module "bulk-scan-db" {
 
 module "bulk-scan" {
   source                          = "git@github.com:hmcts/cnp-module-webapp?ref=master"
-  product                         = "${var.product}-${local.app}"
+  product                         = "${var.product}-${var.component}"
   location                        = "${var.location}"
   env                             = "${var.env}"
   ilbIp                           = "${var.ilbIp}"
@@ -199,7 +198,7 @@ resource "azurerm_template_deployment" "api" {
     apiManagementServiceName = "core-api-mgmt-${var.env}"
     apiName                  = "bulk-scan-api"
     apiProductName           = "bulk-scan"
-    serviceUrl               = "http://${var.product}-${local.app}-${var.env}.service.core-compute-${var.env}.internal"
+    serviceUrl               = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
     apiBasePath              = "${local.api_base_path}"
     policy                   = "${local.api_policy}"
   }

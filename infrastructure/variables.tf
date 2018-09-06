@@ -4,9 +4,7 @@ variable "raw_product" {
   default = "bulk-scan" // jenkins-library overrides product for PRs and adds e.g. pr-118-bulk-scan
 }
 
-variable "component" {
-  type = "string"
-}
+variable "component" {}
 
 variable "location" {
   type    = "string"
