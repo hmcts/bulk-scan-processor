@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NonScannableItemResponse {
 
+    @JsonProperty("document_control_number")
+    private String documentControlNumber;
+
     @JsonProperty("item_type")
     private String itemType;
     
@@ -11,11 +14,17 @@ public class NonScannableItemResponse {
     private String notes;
 
     public NonScannableItemResponse(
+        @JsonProperty("document_control_number") String documentControlNumber,
         @JsonProperty("item_type") String itemType,
         @JsonProperty("notes") String notes
     ) {
+        this.documentControlNumber = documentControlNumber;
         this.itemType = itemType;
         this.notes = notes;
+    }
+
+    public String getDocumentControlNumber() {
+        return documentControlNumber;
     }
 
     public String getItemType() {
@@ -29,6 +38,7 @@ public class NonScannableItemResponse {
     @Override
     public String toString() {
         return "NonScannableItemResponse{"
+            + "documentControlNumber='" + documentControlNumber + '\''
             + "itemType='" + itemType + '\''
             + ", notes='" + notes + '\''
             + '}';

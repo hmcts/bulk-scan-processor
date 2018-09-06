@@ -19,6 +19,9 @@ public class EnvelopeResponse {
     @JsonProperty("id")
     private UUID id;
 
+    @JsonProperty("case_number")
+    private String caseNumber;
+
     @JsonProperty("container")
     private String container;
 
@@ -64,6 +67,7 @@ public class EnvelopeResponse {
     @JsonCreator
     public EnvelopeResponse(
         @JsonProperty("id") UUID id,
+        @JsonProperty("case_number") String caseNumber,
         @JsonProperty("container") String container,
         @JsonProperty("po_box") String poBox,
         @JsonProperty("jurisdiction") String jurisdiction,
@@ -82,6 +86,7 @@ public class EnvelopeResponse {
         @JsonProperty("non_scannable_items") List<NonScannableItemResponse> nonScannableItems
     ) {
         this.id = id;
+        this.caseNumber = caseNumber;
         this.container = container;
         this.poBox = poBox;
         this.jurisdiction = jurisdiction;
@@ -99,6 +104,10 @@ public class EnvelopeResponse {
 
     public UUID getId() {
         return id;
+    }
+
+    public String getCaseNumber() {
+        return caseNumber;
     }
 
     public Status getStatus() {
@@ -157,6 +166,7 @@ public class EnvelopeResponse {
     public String toString() {
         return "EnvelopeResponse{"
             + "id=" + id
+            + ", caseNumber='" + caseNumber + '\''
             + ", container='" + container + '\''
             + ", poBox='" + poBox + '\''
             + ", jurisdiction='" + jurisdiction + '\''

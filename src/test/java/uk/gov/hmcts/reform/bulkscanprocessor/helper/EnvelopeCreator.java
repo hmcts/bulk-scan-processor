@@ -77,6 +77,7 @@ public final class EnvelopeCreator {
             timestamp,
             timestamp,
             UUID.randomUUID() + ".zip",
+            "1111222233334446",
             Classification.EXCEPTION,
             false,
             scannableItems(),
@@ -104,6 +105,7 @@ public final class EnvelopeCreator {
             timestamp,
             timestamp,
             UUID.randomUUID() + ".zip",
+            "1111222233334446",
             Classification.NEW_APPLICATION,
             true,
             scannableItems(),
@@ -140,13 +142,13 @@ public final class EnvelopeCreator {
 
     private static List<NonScannableItem> nonScannableItems() {
         return ImmutableList.of(
-            new NonScannableItem("CD", "4GB USB memory stick")
+            new NonScannableItem("1111002", "CD", "4GB USB memory stick")
         );
     }
 
     private static List<Payment> payments() {
         return ImmutableList.of(
-            new Payment("1111002", "Cheque", "100.00", "GBP")
+            new Payment("1111002", "Cheque", "100.00", "GBP", "1000000000", "112233", "12345678")
         );
     }
 
