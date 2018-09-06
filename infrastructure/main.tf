@@ -11,7 +11,7 @@ locals {
   default_account_name = "${var.product}bsp${var.env}"
   base_account_name    = "${local.is_preview ? local.preview_account_name : local.default_account_name}"
   account_name         = "${replace(local.base_account_name, "-", "")}"
-  previewVaultName     = "${var.product}-aat"
+  previewVaultName     = "${var.raw_product}-aat"
   nonPreviewVaultName  = "${var.product}-${var.env}"
   vaultName            = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 
