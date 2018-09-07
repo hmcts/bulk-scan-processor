@@ -72,9 +72,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
             .hasMessageContaining("classification")
             .hasMessageContaining("jurisdiction")
-            .hasMessageContaining("method")
             .hasMessageContaining("scanning_date")
             .hasMessageContaining("document_type")
+            .hasMessageContaining("next_action")
+            .hasMessageContaining("next_action_date")
+            .hasMessageContaining("document_control_number")
             .hasMessageContaining("file_name");
     }
 
@@ -173,8 +175,22 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\t"
-                + "instance type (number) does not match any allowed primitive type")
-            .hasMessageContaining("\"string\"");
+                + "instance failed to match exactly one schema (matched 0 out of 2)");
+    }
+
+    @Test
+    public void should_not_parse_envelope_with_no_required_fields_for_cheque_payment() throws IOException {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/invalid-cheque-payment.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith("Failed validation against schema:\n\t"
+                + "instance failed to match exactly one schema (matched 0 out of 2)");
     }
 
     private byte[] getMetafile(String resource) throws IOException {

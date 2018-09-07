@@ -1,4 +1,5 @@
 {
+  "case_number": "1111222233334446",
   "po_box": "XXXX",
   "jurisdiction": "SSCS",
   "delivery_date": "23-02-2017 00:00:00.100000",
@@ -33,6 +34,7 @@
   ],
   "non_scannable_items": [
     {
+      "document_control_number": "1111002",
       "item_type": "CD",
       "notes": "4GB USB memory stick"
     }

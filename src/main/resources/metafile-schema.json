@@ -146,51 +146,111 @@
       "items": {
         "id": "#/properties/payments/items",
         "type": "object",
-        "properties": {
-          "document_control_number": {
-            "id": "#/properties/payments/items/properties/document_control_number",
-            "type": "string",
-            "title": "The unique identifier for the scanned document forThe uni",
-            "pattern": "^[0-9]+$"
+        "oneOf": [
+          {
+            "properties": {
+              "document_control_number": {
+                "id": "#/properties/payments/items/properties/document_control_number",
+                "type": "string",
+                "title": "The unique identifier for the scanned document forThe uni",
+                "pattern": "^[0-9]+$"
+              },
+              "method": {
+                "id": "#/properties/payments/items/properties/method",
+                "type": "string",
+                "enum": ["Cheque"],
+                "title": "The payment method"
+              },
+              "amount": {
+                "id": "#/properties/payments/items/properties/amount",
+                "type": "string",
+                "title": "The payment amount",
+                "pattern": "^[0-9]+\\.[0-9]{2}$"
+              },
+              "currency": {
+                "id": "#/properties/payments/items/properties/currency",
+                "type": "string",
+                "title": "ISO 4217 Currency CodeISO 42",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "payment_instrument_number": {
+                "id": "#/properties/payments/items/properties/payment_instrument_number",
+                "type": "string",
+                "title": "Cheque number in case of cheques ; postal order number in case of postal orders"
+              },
+              "sort_code": {
+                "id": "#/properties/payments/items/properties/sort_code",
+                "type": "string",
+                "title": "The sort code in case of cheque payments otherwise empty",
+                "pattern": "^[0-9]{6}$"
+              },
+              "account_number": {
+                "id": "#/properties/payments/items/properties/account_number",
+                "type": "string",
+                "title": "The account number in case of cheque payments otherwise empty",
+                "pattern": "^[0-9]{8}$"
+              }
+            },
+            "required": [
+              "document_control_number",
+              "method",
+              "amount",
+              "currency",
+              "payment_instrument_number",
+              "sort_code",
+              "account_number"
+            ]
           },
-          "method": {
-            "id": "#/properties/payments/items/properties/method",
-            "type": "string",
-            "title": "The payment method"
-          },
-          "amount": {
-            "id": "#/properties/payments/items/properties/amount",
-            "type": "string",
-            "title": "The payment amount",
-            "pattern": "^[0-9]+\\.[0-9]{2}$"
-          },
-          "currency": {
-            "id": "#/properties/payments/items/properties/currency",
-            "type": "string",
-            "title": "ISO 4217 Currency CodeISO 42",
-            "pattern": "^[A-Z]{3}$"
-          },
-          "payment_instrument_number": {
-            "id": "#/properties/payments/items/properties/payment_instrument_number",
-            "type": "string",
-            "title": "Cheque number in case of cheques ; postal order number in case of postal orders"
-          },
-          "sort_code": {
-            "id": "#/properties/payments/items/properties/sort_code",
-            "type": "string",
-            "title": "The sort code in case of cheque payments otherwise empty"
-          },
-          "account_number": {
-            "id": "#/properties/payments/items/properties/account_number",
-            "type": "string",
-            "title": "The account number in case of cheque payments otherwise empty"
+          {
+            "properties": {
+              "document_control_number": {
+                "id": "#/properties/payments/items/properties/document_control_number",
+                "type": "string",
+                "title": "The unique identifier for the scanned document forThe uni",
+                "pattern": "^[0-9]+$"
+              },
+              "method": {
+                "id": "#/properties/payments/items/properties/method",
+                "type": "string",
+                "title": "The payment method",
+                "pattern": "^(?!.*Cheque).*$"
+              },
+              "amount": {
+                "id": "#/properties/payments/items/properties/amount",
+                "type": "string",
+                "title": "The payment amount",
+                "pattern": "^[0-9]+\\.[0-9]{2}$"
+              },
+              "currency": {
+                "id": "#/properties/payments/items/properties/currency",
+                "type": "string",
+                "title": "ISO 4217 Currency CodeISO 42",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "payment_instrument_number": {
+                "id": "#/properties/payments/items/properties/payment_instrument_number",
+                "type": "string",
+                "title": "Cheque number in case of cheques ; postal order number in case of postal orders"
+              },
+              "sort_code": {
+                "id": "#/properties/payments/items/properties/sort_code",
+                "type": "string",
+                "title": "The sort code in case of cheque payments otherwise empty"
+              },
+              "account_number": {
+                "id": "#/properties/payments/items/properties/account_number",
+                "type": "string",
+                "title": "The account number in case of cheque payments otherwise empty"
+              }
+            },
+            "required": [
+              "document_control_number",
+              "method",
+              "amount",
+              "currency",
+              "payment_instrument_number"
+            ]
           }
-        },
-        "required": [
-          "document_control_number",
-          "method",
-          "amount",
-          "currency"
         ]
       }
     },

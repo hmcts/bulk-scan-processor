@@ -30,10 +30,21 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.getPayments()).hasSize(1);
         assertThat(envelope.getPayments().get(0).getAmount()).isEqualTo(100.0);
         assertThat(envelope.getUrgent()).isFalse();
+        assertThat(envelope.getCaseNumber()).isEqualTo("1111222233334446");
         assertThat(envelope.getClassification()).isEqualTo(Classification.NEW_APPLICATION);
         assertThat(envelope.getScannableItems())
             .extracting("documentType")
             .containsExactlyInAnyOrder("Passport", "Other");
+    }
+
+    @Test
+    public void should_parse_envelope_data_with_no_case_number() throws IOException {
+        Envelope envelope = getEnvelope("/metafiles/valid/no-case-number.json");
+
+        assertThat(envelope.getCaseNumber()).isNull();
+        assertThat(envelope.getNonScannableItems()).hasSize(1);
+        assertThat(envelope.getScannableItems()).hasSize(2);
+        assertThat(envelope.getPayments()).hasSize(1);
     }
 
     @Test
@@ -52,6 +63,29 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.getNonScannableItems()).hasSize(0);
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getPayments()).hasSize(1);
+    }
+
+    @Test
+    public void should_parse_envelope_data_with_no_account_details_for_postal_payment() throws IOException {
+        Envelope envelope = getEnvelope("/metafiles/valid/postal-payment-method.json");
+
+        assertThat(envelope.getPayments()).hasSize(1);
+        assertThat(envelope.getPayments().get(0).getAmount()).isEqualTo(100.0);
+        assertThat(envelope.getPayments().get(0).getPaymentInstrumentNumber()).isEqualTo("1000000000");
+        assertThat(envelope.getPayments().get(0).getAccountNumber()).isNull();
+        assertThat(envelope.getPayments().get(0).getSortCode()).isNull();
+    }
+
+    @Test
+    public void should_parse_envelope_data_with_account_details_for_cheque_payment() throws IOException {
+        Envelope envelope = getEnvelope("/metafiles/valid/cheque-payment-method.json");
+
+        assertThat(envelope.getPayments()).hasSize(1);
+        assertThat(envelope.getPayments().get(0).getAmount()).isEqualTo(100.0);
+        assertThat(envelope.getPayments().get(0).getPaymentInstrumentNumber()).isEqualTo("1000000000");
+        assertThat(envelope.getPayments().get(0).getAccountNumber()).isEqualTo("12345678");
+        assertThat(envelope.getPayments().get(0).getSortCode()).isEqualTo("112233");
+
     }
 
     private Envelope getEnvelope(String resource) throws IOException {

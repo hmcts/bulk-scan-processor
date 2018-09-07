@@ -19,7 +19,7 @@
       "ocr_data": "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==",
       "file_name": "1111001.pdf",
       "notes": "The document had ink spilled on it",
-      "document_type": "Passport"
+      "document_type": "Other"
     },
     {
       "document_control_number": "1111002",
@@ -35,12 +35,10 @@
   "payments": [
     {
       "document_control_number": "1111002",
-      "method": "Cheque",
+      "method": "Postal",
       "amount": "100.00",
       "currency": "GBP",
-      "payment_instrument_number": "1000000000",
-      "sort_code": "112233",
-      "account_number": "12345678"
+      "payment_instrument_number": "1000000000"
     }
   ],
   "non_scannable_items": [
