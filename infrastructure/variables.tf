@@ -1,11 +1,10 @@
-variable "product" {
-  type    = "string"
-  default = "rpe"
+variable "product" {}
+
+variable "raw_product" {
+  default = "bulk-scan" // jenkins-library overrides product for PRs and adds e.g. pr-118-bulk-scan
 }
 
-variable "component" {
-  type = "string"
-}
+variable "component" {}
 
 variable "location" {
   type    = "string"
@@ -100,4 +99,9 @@ variable "allowed_client_certificate_thumbprints" {
 # The value of the parameter 'blob_lease_timeout' should be between 15 and 60 seconds.
 variable "blob_lease_timeout" {
   default = "15"
+}
+
+variable "appinsights_instrumentation_key" {
+  description = "Instrumentation key of the App Insights instance this webapp should use. Module will create own App Insights resource if this is not provided"
+  default     = ""
 }

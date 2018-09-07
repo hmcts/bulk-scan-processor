@@ -30,8 +30,8 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 
 properties([
   parameters([
-    string(name: 'PRODUCT_NAME', defaultValue: 'rpe', description: ''),
-    string(name: 'APP', defaultValue: 'bulk-scan-processor', description: ''),
+    string(name: 'PRODUCT_NAME', defaultValue: 'bulk-scan', description: ''),
+    string(name: 'APP', defaultValue: 'processor', description: ''),
     string(name: 'TYPE', defaultValue: 'java', description: ''),
     string(name: 'ENVIRONMENT', defaultValue: 'sandbox', description: 'Environment where code should be built and deployed'),
     choice(name: 'SUBSCRIPTION', choices: 'sandbox\nnonprod\nprod', description: 'Azure subscriptions available to build in')
