@@ -77,6 +77,10 @@ public class BlobProcessorTask extends Processor {
         log.info("Processing zip file {}", zipFilename);
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
+        if (envelopeProcessor.didFailToDeleteBlobBefore(container.getName(), zipFilename)) {
+            delete(cloudBlockBlob);
+            return;
+        }
 
         CloudBlockBlob blobWithLeaseAcquired = acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
@@ -96,6 +100,16 @@ public class BlobProcessorTask extends Processor {
                 }
             }
         }
+    }
+
+    private void delete(CloudBlockBlob cloudBlockBlob) {
+        try {
+            if (cloudBlockBlob != null) {
+                cloudBlockBlob.deleteIfExists();
+            }
+        } catch (StorageException e) {
+            log.warn("Failed to delete blob [{}]", cloudBlockBlob.getName());
+        } // Do not propagate exception as this blob has already been marked with a delete failure
     }
 
     private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {

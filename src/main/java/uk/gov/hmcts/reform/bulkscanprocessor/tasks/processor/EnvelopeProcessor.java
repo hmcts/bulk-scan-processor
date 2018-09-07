@@ -93,6 +93,26 @@ public class EnvelopeProcessor {
     }
 
     /**
+     * Check blob did not fail to be deleted before. This means that
+     * processing is complete and an envelope has already been created as
+     * blob deletion is the last processing step.
+     *
+     */
+    public boolean didFailToDeleteBlobBefore(String container, String zipFileName) {
+        List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
+            container,
+            zipFileName,
+            Status.DELETE_BLOB_FAILURE,
+            PageRequest.of(0, 1)
+        );
+
+        if (envelopes.size() >= 1) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Assert given envelope has scannable items exactly matching
      * the filenames with list of pdfs acquired from zip file.
      * In case there is a mismatch an exception is thrown.
