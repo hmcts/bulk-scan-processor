@@ -101,7 +101,7 @@ module "bulk-scan" {
     SCAN_ENABLED               = "${var.scan_enabled}"
     STORAGE_BLOB_LEASE_TIMEOUT = "${var.blob_lease_timeout}" // In seconds
 
-    QUEUE_ENVELOPE_SEND = "${data.azurerm_key_vault_secret.queue_send_connection_string.value}"
+    QUEUE_ENVELOPE_SEND = "${data.terraform_remote_state.shared_infra.queue_primary_listen_connection_string}"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = false
@@ -187,11 +187,6 @@ data "vault_generic_secret" "s2s_secret" {
 
 data "vault_generic_secret" "s2s_secret_test" {
   path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/bulk-scan-processor-tests"
-}
-
-data "azurerm_key_vault_secret" "queue_send_connection_string" {
-  name      = "envelope-queue-send-conn-string"
-  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
 }
 
 # region API (gateway)
