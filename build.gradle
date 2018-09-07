@@ -154,7 +154,6 @@ dependencyManagement {
 }
 
 repositories {
-  mavenCentral()
   jcenter()
 
   maven {
