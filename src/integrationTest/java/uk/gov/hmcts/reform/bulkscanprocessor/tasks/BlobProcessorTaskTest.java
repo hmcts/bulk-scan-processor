@@ -257,6 +257,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @After
     public void cleanUp() {
         envelopeRepository.deleteAll();
+        processEventRepository.deleteAll();
     }
 
 }

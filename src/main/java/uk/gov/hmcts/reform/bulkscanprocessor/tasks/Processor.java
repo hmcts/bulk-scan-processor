@@ -37,47 +37,53 @@ public abstract class Processor {
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
-        uploadParsedEnvelopeDocuments(envelope, pdfs);
-        markAsUploaded(envelope);
-
-        deleteBlob(envelope, cloudBlockBlob);
-        markAsProcessed(envelope);
+        if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
+            return;
+        }
+        if (!markAsUploaded(envelope)) {
+            return;
+        }
+        if (!deleteBlob(envelope, cloudBlockBlob)) {
+            return;
+        }
+        if (markAsProcessed(envelope)) {
+            return;
+        }
     }
 
-    private void uploadParsedEnvelopeDocuments(
+    private Boolean uploadParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs
     ) {
-        errorWrapper.wrapDocUploadFailure(envelope, () -> {
+        return errorWrapper.wrapDocUploadFailure(envelope, () -> {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
-            return null;
+            return Boolean.TRUE;
         });
-        markAsUploaded(envelope);
     }
 
-    private void deleteBlob(
+    private Boolean deleteBlob(
         Envelope envelope,
         CloudBlockBlob cloudBlockBlob
     ) {
-        errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
+        return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
             cloudBlockBlob.deleteIfExists();
-            return null;
+            return Boolean.TRUE;
         });
     }
 
-    private void markAsUploaded(Envelope envelope) {
-        errorWrapper.wrapFailure(() -> {
+    private Boolean markAsUploaded(Envelope envelope) {
+        return errorWrapper.wrapFailure(() -> {
             envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
-            return null;
+            return Boolean.TRUE;
         });
     }
 
-    public void markAsProcessed(Envelope envelope) {
-        errorWrapper.wrapFailure(() -> {
+    public Boolean markAsProcessed(Envelope envelope) {
+        return errorWrapper.wrapFailure(() -> {
             envelopeProcessor.handleEvent(envelope, DOC_PROCESSED);
-            return null;
+            return Boolean.TRUE;
         });
     }
 

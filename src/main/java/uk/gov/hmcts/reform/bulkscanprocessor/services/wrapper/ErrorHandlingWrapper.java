@@ -41,15 +41,16 @@ public class ErrorHandlingWrapper {
         }
     }
 
-    public void wrapDocUploadFailure(Envelope envelope, Supplier<Void> supplier) {
+    public Boolean wrapDocUploadFailure(Envelope envelope, Supplier<Boolean> supplier) {
         try {
-            supplier.get();
+            return supplier.get();
         } catch (Exception exception) {
             if (exception instanceof EnvelopeAwareThrowable) {
                 errorHandler.handleError(exception);
             } else {
                 errorHandler.handleError(new DocUploadFailureGenericException(envelope, exception));
             }
+            return Boolean.FALSE;
         }
     }
 
@@ -78,26 +79,28 @@ public class ErrorHandlingWrapper {
         }
     }
 
-    public void wrapDeleteBlobFailure(
+    public Boolean wrapDeleteBlobFailure(
         Envelope envelope,
-        Supplier<Void> supplier
+        Supplier<Boolean> supplier
     ) {
         try {
-            supplier.get();
+            return supplier.get();
         } catch (Exception exception) {
             if (exception instanceof EnvelopeAwareThrowable) {
                 errorHandler.handleError(exception);
             } else {
                 errorHandler.handleError(new BlobDeleteFailureException(envelope, exception));
             }
+            return Boolean.FALSE;
         }
     }
 
-    public void wrapFailure(Supplier<Void> supplier) {
+    public Boolean wrapFailure(Supplier<Boolean> supplier) {
         try {
-            supplier.get();
+            return supplier.get();
         } catch (Exception exception) {
             errorHandler.handleError(exception);
+            return Boolean.FALSE;
         }
     }
 
