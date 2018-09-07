@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
@@ -76,4 +77,28 @@ public class ErrorHandlingWrapper {
             return null;
         }
     }
+
+    public void wrapDeleteBlobFailure(
+        Envelope envelope,
+        Supplier<Void> supplier
+    ) {
+        try {
+            supplier.get();
+        } catch (Exception exception) {
+            if (exception instanceof EnvelopeAwareThrowable) {
+                errorHandler.handleError(exception);
+            } else {
+                errorHandler.handleError(new BlobDeleteFailureException(envelope, exception));
+            }
+        }
+    }
+
+    public void wrapFailure(Supplier<Void> supplier) {
+        try {
+            supplier.get();
+        } catch (Exception exception) {
+            errorHandler.handleError(exception);
+        }
+    }
+
 }

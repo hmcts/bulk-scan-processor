@@ -27,8 +27,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @Component
@@ -144,21 +142,10 @@ public class EnvelopeProcessor {
         );
     }
 
-    public void markAsUploaded(Envelope envelope) {
-        persistEvent(envelope, envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED);
-    }
-
-    public void markAsProcessed(Envelope envelope) {
-        persistEvent(envelope, envelope.getContainer(), envelope.getZipFileName(), DOC_PROCESSED);
-    }
-
-    private void persistEvent(
-        Envelope envelope,
-        String containerName,
-        String zipFileName,
-        Event event
-    ) {
-        processEventRepository.save(new ProcessEvent(containerName, zipFileName, event));
+    public void handleEvent(Envelope envelope, Event event) {
+        processEventRepository.save(
+            new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
+        );
 
         if (envelope != null) {
             Status.fromEvent(event).ifPresent(status -> {
@@ -167,4 +154,5 @@ public class EnvelopeProcessor {
             });
         }
     }
+
 }

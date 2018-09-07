@@ -85,7 +85,7 @@ public class BlobProcessorTask extends Processor {
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-                ZipFileProcessor zipFileProcessor = processZipInputStream(zis, zipFilename, container.getName());
+                ZipFileProcessor zipFileProcessor = processZipFileContent(zis, zipFilename, container.getName());
 
                 if (zipFileProcessor != null) {
                     processParsedEnvelopeDocuments(
@@ -105,7 +105,7 @@ public class BlobProcessorTask extends Processor {
         });
     }
 
-    private ZipFileProcessor processZipInputStream(
+    private ZipFileProcessor processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
         String containerName

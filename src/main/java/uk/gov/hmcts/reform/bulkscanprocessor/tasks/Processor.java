@@ -10,6 +10,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
+
 public abstract class Processor {
 
     protected final CloudBlobClient cloudBlobClient;
@@ -34,17 +37,46 @@ public abstract class Processor {
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
+        uploadParsedEnvelopeDocuments(envelope, pdfs);
+        markAsUploaded(envelope);
+
+        deleteBlob(envelope, cloudBlockBlob);
+        markAsProcessed(envelope);
+    }
+
+    private void uploadParsedEnvelopeDocuments(
+        Envelope envelope,
+        List<Pdf> pdfs
+    ) {
         errorWrapper.wrapDocUploadFailure(envelope, () -> {
-
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
-            envelopeProcessor.markAsUploaded(envelope);
+            return null;
+        });
+        markAsUploaded(envelope);
+    }
 
+    private void deleteBlob(
+        Envelope envelope,
+        CloudBlockBlob cloudBlockBlob
+    ) {
+        errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
-            cloudBlockBlob.delete();
+            cloudBlockBlob.deleteIfExists();
+            return null;
+        });
+    }
 
-            envelopeProcessor.markAsProcessed(envelope);
+    private void markAsUploaded(Envelope envelope) {
+        errorWrapper.wrapFailure(() -> {
+            envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
+            return null;
+        });
+    }
 
+    public void markAsProcessed(Envelope envelope) {
+        errorWrapper.wrapFailure(() -> {
+            envelopeProcessor.handleEvent(envelope, DOC_PROCESSED);
             return null;
         });
     }
