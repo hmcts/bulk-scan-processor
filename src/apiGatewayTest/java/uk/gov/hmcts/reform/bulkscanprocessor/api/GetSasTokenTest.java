@@ -59,6 +59,7 @@ public class GetSasTokenTest {
         assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
+    @Test
     public void should_reject_request_with_unrecognised_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
             getUnrecognisedClientKeyStore(),

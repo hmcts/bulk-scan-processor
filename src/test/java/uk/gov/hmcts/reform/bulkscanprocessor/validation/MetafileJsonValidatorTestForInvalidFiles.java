@@ -2,14 +2,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
-import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 
 import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class MetafileJsonValidatorTestForInvalidFiles {
 
@@ -26,10 +26,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/no-scannables.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
             .hasMessageContaining("scannable_items");
     }
@@ -40,10 +41,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/missing-top-level-fields.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
             .hasMessageContaining("classification")
             .hasMessageContaining("jurisdiction")
@@ -62,10 +64,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/missing-required-fields.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
             .hasMessageContaining("classification")
             .hasMessageContaining("jurisdiction")
@@ -81,10 +84,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-date-format.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\tECMA 262 regex ")
             .hasMessageContaining("2013-02-20 00:00:00.100000");
     }
@@ -95,10 +99,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-zip-file-name-format.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\tECMA 262 regex ")
             .hasMessageContaining("1a_24-02-2017-00-00-00.zip");
     }
@@ -109,10 +114,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/enum-boundaries-for-clasification.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\t"
                 + "instance value (\"NEW_application\") not found in enum")
             .hasMessageContaining("exception")
@@ -126,10 +132,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/non-pdf-extension.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\tECMA 262 regex ")
             .hasMessageContaining("1111001.gif");
     }
@@ -143,10 +150,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/use-of-boolean.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\tinstance value (false) not found in enum")
             .hasMessageContaining("instance type (boolean) does not match any allowed primitive type")
             .hasMessageContaining("\"false\"")
@@ -159,10 +167,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/use-of-numeric.json");
 
         // when
-        AbstractThrowableAssert assertion = tryToValidateMetafile(metafile);
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
 
         // then
-        assertion
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith("Failed validation against schema:\n\t"
                 + "instance type (number) does not match any allowed primitive type")
             .hasMessageContaining("\"string\"");
@@ -170,10 +179,5 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));
-    }
-
-    private AbstractThrowableAssert tryToValidateMetafile(byte[] metafile) {
-        return assertThatCode(() -> validator.validate(metafile))
-            .isInstanceOf(InvalidEnvelopeSchemaException.class);
     }
 }
