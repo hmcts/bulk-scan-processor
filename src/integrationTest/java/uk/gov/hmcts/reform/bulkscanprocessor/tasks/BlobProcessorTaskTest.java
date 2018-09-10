@@ -238,7 +238,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
-    public void should_not_process_again_if_blob_delete_failure()
+    public void should_not_process_again_if_blob_delete_failed()
         throws Exception {
         //Given
         uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
