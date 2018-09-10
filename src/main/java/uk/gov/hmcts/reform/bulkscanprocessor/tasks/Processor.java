@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -66,7 +67,10 @@ public abstract class Processor {
         return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
-            cloudBlockBlob.deleteIfExists();
+            boolean deleted = cloudBlockBlob.deleteIfExists();
+            if (!deleted) {
+                throw new BlobDeleteFailureException(envelope);
+            }
             return Boolean.TRUE;
         });
     }

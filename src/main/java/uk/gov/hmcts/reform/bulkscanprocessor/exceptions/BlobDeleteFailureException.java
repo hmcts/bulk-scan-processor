@@ -8,6 +8,12 @@ public class BlobDeleteFailureException extends RuntimeException implements Enve
 
     private final transient Envelope envelope;
 
+    public BlobDeleteFailureException(Envelope envelope) {
+        super("Blob delete failure");
+
+        this.envelope = envelope;
+    }
+
     public BlobDeleteFailureException(Envelope envelope, Throwable cause) {
         super(cause.getMessage(), cause);
 
