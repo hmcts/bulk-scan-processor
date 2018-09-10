@@ -27,8 +27,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @Component
@@ -95,6 +93,26 @@ public class EnvelopeProcessor {
     }
 
     /**
+     * Check blob did not fail to be deleted before. This means that
+     * processing is complete and an envelope has already been created as
+     * blob deletion is the last processing step.
+     *
+     */
+    public Envelope getIfFailToDeleteBlobBefore(String container, String zipFileName) {
+        List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
+            container,
+            zipFileName,
+            Status.DELETE_BLOB_FAILURE,
+            PageRequest.of(0, 1)
+        );
+
+        if (!envelopes.isEmpty()) {
+            return envelopes.get(0);
+        }
+        return null;
+    }
+
+    /**
      * Assert given envelope has scannable items exactly matching
      * the filenames with list of pdfs acquired from zip file.
      * In case there is a mismatch an exception is thrown.
@@ -144,27 +162,15 @@ public class EnvelopeProcessor {
         );
     }
 
-    public void markAsUploaded(Envelope envelope) {
-        persistEvent(envelope, envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED);
+    public void handleEvent(Envelope envelope, Event event) {
+        processEventRepository.save(
+            new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
+        );
+
+        Status.fromEvent(event).ifPresent(status -> {
+            envelope.setStatus(status);
+            envelopeRepository.save(envelope);
+        });
     }
 
-    public void markAsProcessed(Envelope envelope) {
-        persistEvent(envelope, envelope.getContainer(), envelope.getZipFileName(), DOC_PROCESSED);
-    }
-
-    private void persistEvent(
-        Envelope envelope,
-        String containerName,
-        String zipFileName,
-        Event event
-    ) {
-        processEventRepository.save(new ProcessEvent(containerName, zipFileName, event));
-
-        if (envelope != null) {
-            Status.fromEvent(event).ifPresent(status -> {
-                envelope.setStatus(status);
-                envelopeRepository.save(envelope);
-            });
-        }
-    }
 }
