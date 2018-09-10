@@ -47,7 +47,7 @@ public class ErrorHandlingWrapper {
      * @param envelope for the documents to upload
      * @param supplier upload function
      * @return false in case of error handled by this wrapper. Whatever the
-     * supplier returns otherwise (that will probably be true).
+     *     supplier returns otherwise (that will probably be true).
      */
     public Boolean wrapDocUploadFailure(Envelope envelope, Supplier<Boolean> supplier) {
         try {
