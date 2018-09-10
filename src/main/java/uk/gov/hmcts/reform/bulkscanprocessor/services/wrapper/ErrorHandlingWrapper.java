@@ -41,6 +41,13 @@ public class ErrorHandlingWrapper {
         }
     }
 
+    /**
+     * Wraps docs upload to handles related errors.
+     *
+     * @param envelope for the documents to upload
+     * @param supplier upload function
+     * @return true if upload successful
+     */
     public Boolean wrapDocUploadFailure(Envelope envelope, Supplier<Boolean> supplier) {
         try {
             return supplier.get();
