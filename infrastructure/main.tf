@@ -6,7 +6,7 @@ provider "vault" {
 
 locals {
   is_preview           = "${(var.env == "preview" || var.env == "spreview")}"
-  preview_account_name = "${var.product}-aat"
+  preview_account_name = "${var.raw_product}-aat"
   default_account_name = "${var.product}${var.env}"
   base_account_name    = "${local.is_preview ? local.preview_account_name : local.default_account_name}"
   account_name         = "${replace(local.base_account_name, "-", "")}"
