@@ -106,10 +106,7 @@ public class EnvelopeProcessor {
             PageRequest.of(0, 1)
         );
 
-        if (envelopes.size() >= 1) {
-            return true;
-        }
-        return false;
+        return !envelopes.isEmpty();
     }
 
     /**
@@ -167,12 +164,10 @@ public class EnvelopeProcessor {
             new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
         );
 
-        if (envelope != null) {
-            Status.fromEvent(event).ifPresent(status -> {
-                envelope.setStatus(status);
-                envelopeRepository.save(envelope);
-            });
-        }
+        Status.fromEvent(event).ifPresent(status -> {
+            envelope.setStatus(status);
+            envelopeRepository.save(envelope);
+        });
     }
 
 }

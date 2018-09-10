@@ -46,9 +46,7 @@ public abstract class Processor {
         if (!deleteBlob(envelope, cloudBlockBlob)) {
             return;
         }
-        if (markAsProcessed(envelope)) {
-            return;
-        }
+        markAsProcessed(envelope);
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
