@@ -98,7 +98,7 @@ public class EnvelopeProcessor {
      * blob deletion is the last processing step.
      *
      */
-    public boolean didFailToDeleteBlobBefore(String container, String zipFileName) {
+    public Envelope getIfFailToDeleteBlobBefore(String container, String zipFileName) {
         List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
             container,
             zipFileName,
@@ -106,7 +106,10 @@ public class EnvelopeProcessor {
             PageRequest.of(0, 1)
         );
 
-        return !envelopes.isEmpty();
+        if (!envelopes.isEmpty()) {
+            return envelopes.get(0);
+        }
+        return null;
     }
 
     /**

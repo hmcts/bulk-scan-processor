@@ -77,8 +77,10 @@ public class BlobProcessorTask extends Processor {
         log.info("Processing zip file {}", zipFilename);
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
-        if (envelopeProcessor.didFailToDeleteBlobBefore(container.getName(), zipFilename)) {
-            delete(cloudBlockBlob);
+        Envelope failedDeleteEnvelope =
+            envelopeProcessor.getIfFailToDeleteBlobBefore(container.getName(), zipFilename);
+        if (failedDeleteEnvelope != null) {
+            delete(cloudBlockBlob, failedDeleteEnvelope);
             return;
         }
 
@@ -102,10 +104,13 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private void delete(CloudBlockBlob cloudBlockBlob) {
+    private void delete(CloudBlockBlob cloudBlockBlob, Envelope envelope) {
         try {
             if (cloudBlockBlob != null) {
-                cloudBlockBlob.deleteIfExists();
+                boolean deleted = cloudBlockBlob.deleteIfExists();
+                if (deleted) {
+                    markAsProcessed(envelope);
+                }
             }
         } catch (StorageException e) {
             log.warn("Failed to delete blob [{}]", cloudBlockBlob.getName());
