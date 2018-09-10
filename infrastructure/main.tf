@@ -5,14 +5,13 @@ provider "vault" {
 }
 
 locals {
-  app                  = "bulk-scan-processor"
   is_preview           = "${(var.env == "preview" || var.env == "spreview")}"
   preview_account_name = "${var.product}bsp"
   default_account_name = "${var.product}bsp${var.env}"
   base_account_name    = "${local.is_preview ? local.preview_account_name : local.default_account_name}"
   account_name         = "${replace(local.base_account_name, "-", "")}"
-  previewVaultName     = "${var.product}-bsp"
-  nonPreviewVaultName  = "${var.product}-bsp-${var.env}"
+  previewVaultName     = "${var.raw_product}-aat"
+  nonPreviewVaultName  = "${var.product}-${var.env}"
   vaultName            = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 
   aseName   = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
@@ -48,8 +47,8 @@ locals {
 }
 
 module "bulk-scan-db" {
-  source             = "git@github.com:hmcts/moj-module-postgres?ref=master"
-  product            = "${var.product}-${var.component}-db"
+  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  product            = "${var.product}-${var.component}"
   location           = "${var.location_db}"
   env                = "${var.env}"
   database_name      = "bulk_scan"
@@ -61,15 +60,18 @@ module "bulk-scan-db" {
 }
 
 module "bulk-scan" {
-  source       = "git@github.com:hmcts/moj-module-webapp?ref=master"
-  product      = "${var.product}-${local.app}"
-  location     = "${var.location}"
-  env          = "${var.env}"
-  ilbIp        = "${var.ilbIp}"
-  subscription = "${var.subscription}"
-  is_frontend  = false
-  capacity     = "${var.capacity}"
-  common_tags  = "${var.common_tags}"
+  source                          = "git@github.com:hmcts/cnp-module-webapp?ref=master"
+  product                         = "${var.product}-${var.component}"
+  location                        = "${var.location}"
+  env                             = "${var.env}"
+  ilbIp                           = "${var.ilbIp}"
+  subscription                    = "${var.subscription}"
+  is_frontend                     = false
+  capacity                        = "${var.capacity}"
+  common_tags                     = "${var.common_tags}"
+  appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
+  asp_name                        = "${var.product}-${var.env}"
+  asp_rg                          = "${var.product}-${var.env}"
 
   app_settings = {
     // db
@@ -107,19 +109,6 @@ module "bulk-scan" {
   }
 }
 
-module "bulk-scan-key-vault" {
-  source              = "git@github.com:hmcts/moj-module-key-vault?ref=master"
-  name                = "${local.vaultName}"
-  product             = "${var.product}"
-  env                 = "${var.env}"
-  tenant_id           = "${var.tenant_id}"
-  object_id           = "${var.jenkins_AAD_objectId}"
-  resource_group_name = "${module.bulk-scan.resource_group_name}"
-
-  # dcd_cc_dev group object ID
-  product_group_object_id = "38f9dea6-e861-4a50-9e73-21e64f563537"
-}
-
 resource "azurerm_storage_account" "provider" {
   name                      = "${local.account_name}"
   resource_group_name       = "${module.bulk-scan.resource_group_name}"
@@ -149,34 +138,39 @@ resource "azurerm_storage_container" "test" {
   depends_on = ["azurerm_storage_account.provider"]
 }
 
+data "azurerm_key_vault" "key_vault" {
+  name                = "${local.vaultName}"
+  resource_group_name = "${local.vaultName}"
+}
+
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name      = "${var.component}-POSTGRES-USER"
   value     = "${module.bulk-scan-db.user_name}"
-  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
   name      = "${var.component}-POSTGRES-PASS"
   value     = "${module.bulk-scan-db.postgresql_password}"
-  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
   name      = "${var.component}-POSTGRES-HOST"
   value     = "${module.bulk-scan-db.host_name}"
-  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
   name      = "${var.component}-POSTGRES-PORT"
   value     = "${module.bulk-scan-db.postgresql_listen_port}"
-  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name      = "${var.component}-POSTGRES-DATABASE"
   value     = "${module.bulk-scan-db.postgresql_database}"
-  vault_uri = "${module.bulk-scan-key-vault.key_vault_uri}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 data "vault_generic_secret" "s2s_secret" {
@@ -204,7 +198,7 @@ resource "azurerm_template_deployment" "api" {
     apiManagementServiceName = "core-api-mgmt-${var.env}"
     apiName                  = "bulk-scan-api"
     apiProductName           = "bulk-scan"
-    serviceUrl               = "http://${var.product}-${local.app}-${var.env}.service.core-compute-${var.env}.internal"
+    serviceUrl               = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
     apiBasePath              = "${local.api_base_path}"
     policy                   = "${local.api_policy}"
   }

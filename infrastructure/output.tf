@@ -3,11 +3,11 @@ output "app_namespace" {
 }
 
 output "vaultName" {
-  value = "${module.bulk-scan-key-vault.key_vault_name}"
+  value = "${local.vaultName}"
 }
 
 output "vaultUri" {
-  value = "${module.bulk-scan-key-vault.key_vault_uri}"
+  value = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 output "microserviceName" {
