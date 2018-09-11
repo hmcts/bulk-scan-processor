@@ -1,0 +1,40 @@
+{
+  "case_number": "1111222233334446",
+  "po_box": "XXXX",
+  "jurisdiction": "SSCS",
+  "delivery_date": "23-02-2017 00:00:00.100000",
+  "opening_date": "24-02-2017 00:00:00.010000",
+  "zip_file_createddate": "24-02-2017 00:00:00.001000",
+  "zip_file_name": "1_24-02-2017-00-00-00.zip",
+  "urgent": "false",
+  "classification": "new_application",
+  "scannable_items": [
+    {
+      "document_control_number": "1111001",
+      "scanning_date": "24-02-2017 00:00:00.000100",
+      "ocr_accuracy": "string",
+      "manual_intervention": "string",
+      "next_action": "return",
+      "next_action_date": "24-02-2017 00:00:00.000010",
+      "ocr_data": "R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==",
+      "file_name": "1111001.pdf",
+      "notes": "The document had ink spilled on it",
+      "document_type": "Passport"
+    }
+  ],
+  "payments": [
+    {
+      "document_control_number": "1111002",
+      "method": "Postal Order",
+      "amount": "100.00",
+      "currency": "GBP"
+    }
+  ],
+  "non_scannable_items": [
+    {
+      "document_control_number": "1111002",
+      "item_type": "CD",
+      "notes": "4GB USB memory stick"
+    }
+  ]
+}

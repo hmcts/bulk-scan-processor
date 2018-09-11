@@ -77,6 +77,17 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
+    public void should_parse_envelope_data_with_no_payment_reference_number_for_cash_payment() throws IOException {
+        Envelope envelope = getEnvelope("/metafiles/valid/cash-payment-method.json");
+
+        assertThat(envelope.getPayments()).hasSize(1);
+        assertThat(envelope.getPayments().get(0).getAmount()).isEqualTo(100.0);
+        assertThat(envelope.getPayments().get(0).getPaymentInstrumentNumber()).isNull();
+        assertThat(envelope.getPayments().get(0).getAccountNumber()).isNull();
+        assertThat(envelope.getPayments().get(0).getSortCode()).isNull();
+    }
+
+    @Test
     public void should_parse_envelope_data_with_account_details_for_cheque_payment() throws IOException {
         Envelope envelope = getEnvelope("/metafiles/valid/cheque-payment-method.json");
 

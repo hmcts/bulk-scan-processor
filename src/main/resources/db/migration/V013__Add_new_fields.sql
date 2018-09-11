@@ -6,5 +6,8 @@ ALTER TABLE non_scannable_items
 
 ALTER TABLE payments
   ADD COLUMN paymentInstrumentNumber VARCHAR(100),
-  ADD COLUMN sortCode VARCHAR(50) NULL,
-  ADD COLUMN accountNumber VARCHAR(50) NULL;
+  ADD COLUMN sortCode VARCHAR(10) NULL DEFAULT 112233,
+  ADD COLUMN accountNumber VARCHAR(50) NULL DEFAULT 12345678;
+
+ALTER TABLE scannable_items
+  ALTER COLUMN documentControlNumber SET NOT NULL;
