@@ -77,6 +77,12 @@ public class BlobProcessorTask extends Processor {
         log.info("Processing zip file {}", zipFilename);
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
+        Envelope failedDeleteEnvelope =
+            envelopeProcessor.getIfFailToDeleteBlobBefore(container.getName(), zipFilename);
+        if (failedDeleteEnvelope != null) {
+            delete(cloudBlockBlob, failedDeleteEnvelope);
+            return;
+        }
 
         CloudBlockBlob blobWithLeaseAcquired = acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
@@ -85,7 +91,7 @@ public class BlobProcessorTask extends Processor {
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-                ZipFileProcessor zipFileProcessor = processZipInputStream(zis, zipFilename, container.getName());
+                ZipFileProcessor zipFileProcessor = processZipFileContent(zis, zipFilename, container.getName());
 
                 if (zipFileProcessor != null) {
                     processParsedEnvelopeDocuments(
@@ -98,6 +104,19 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
+    private void delete(CloudBlockBlob cloudBlockBlob, Envelope envelope) {
+        try {
+            if (cloudBlockBlob != null) {
+                boolean deleted = cloudBlockBlob.deleteIfExists();
+                if (deleted) {
+                    markAsProcessed(envelope);
+                }
+            }
+        } catch (StorageException e) {
+            log.warn("Failed to delete blob [{}]", cloudBlockBlob.getName());
+        } // Do not propagate exception as this blob has already been marked with a delete failure
+    }
+
     private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
         return errorWrapper.wrapAcquireLeaseFailure(containerName, zipFilename, () -> {
             cloudBlockBlob.acquireLease(blobLeaseTimeout, null);
@@ -105,7 +124,7 @@ public class BlobProcessorTask extends Processor {
         });
     }
 
-    private ZipFileProcessor processZipInputStream(
+    private ZipFileProcessor processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
         String containerName

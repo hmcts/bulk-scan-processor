@@ -3,12 +3,16 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
+
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 public abstract class Processor {
 
@@ -34,18 +38,54 @@ public abstract class Processor {
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
-        errorWrapper.wrapDocUploadFailure(envelope, () -> {
+        if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
+            return;
+        }
+        if (!markAsUploaded(envelope)) {
+            return;
+        }
+        if (!deleteBlob(envelope, cloudBlockBlob)) {
+            return;
+        }
+        markAsProcessed(envelope);
+    }
 
+    private Boolean uploadParsedEnvelopeDocuments(
+        Envelope envelope,
+        List<Pdf> pdfs
+    ) {
+        return errorWrapper.wrapDocUploadFailure(envelope, () -> {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
-            envelopeProcessor.markAsUploaded(envelope);
+            return Boolean.TRUE;
+        });
+    }
 
+    private Boolean deleteBlob(
+        Envelope envelope,
+        CloudBlockBlob cloudBlockBlob
+    ) {
+        return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
-            cloudBlockBlob.delete();
+            boolean deleted = cloudBlockBlob.deleteIfExists();
+            if (!deleted) {
+                throw new BlobDeleteFailureException(envelope);
+            }
+            return Boolean.TRUE;
+        });
+    }
 
-            envelopeProcessor.markAsProcessed(envelope);
+    private Boolean markAsUploaded(Envelope envelope) {
+        return errorWrapper.wrapFailure(() -> {
+            envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
+            return Boolean.TRUE;
+        });
+    }
 
-            return null;
+    public Boolean markAsProcessed(Envelope envelope) {
+        return errorWrapper.wrapFailure(() -> {
+            envelopeProcessor.handleEvent(envelope, DOC_PROCESSED);
+            return Boolean.TRUE;
         });
     }
 
