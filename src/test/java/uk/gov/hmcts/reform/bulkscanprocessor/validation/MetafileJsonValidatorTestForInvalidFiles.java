@@ -209,21 +209,6 @@ public class MetafileJsonValidatorTestForInvalidFiles {
                 + "instance failed to match exactly one schema (matched 0 out of 3)");
     }
 
-    @Test
-    public void should_not_parse_envelope_with_no_required_fields_in_scannable_items() throws IOException {
-        // given
-        byte[] metafile = getMetafile("/metafiles/invalid/invalid-scannable-items.json");
-
-        // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
-
-        // then
-        assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
-            .hasMessageContaining("document_control_number");
-    }
-
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));
     }
