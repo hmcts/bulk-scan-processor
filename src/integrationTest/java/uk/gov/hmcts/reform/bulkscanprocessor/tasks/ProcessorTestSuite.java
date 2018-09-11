@@ -34,6 +34,7 @@ import static com.google.common.io.Resources.toByteArray;
 public abstract class ProcessorTestSuite<T extends Processor> {
 
     protected static final String ZIP_FILE_NAME_SUCCESS = "1_24-06-2018-00-00-00.zip";
+    protected static final String ZIP_FILE_NAME_SUCCESS_WITHOUT_CASE_NUMBER = "10_24-06-2018-00-00-00.zip";
 
     protected static final String DOCUMENT_URL1 =
         "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
