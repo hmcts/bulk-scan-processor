@@ -13,6 +13,6 @@ ALTER TABLE scannable_items
   ALTER COLUMN documentControlNumber SET NOT NULL;
 
 UPDATE payments
-  SET sortCode = "112233",
-      accountNumber = "12345678"
-  WHERE method = "Cheque";
+  SET sortCode = '112233',
+      accountNumber = '12345678'
+  WHERE method = 'Cheque';
