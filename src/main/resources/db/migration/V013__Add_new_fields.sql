@@ -6,5 +6,13 @@ ALTER TABLE non_scannable_items
 
 ALTER TABLE payments
   ADD COLUMN paymentInstrumentNumber VARCHAR(100),
-  ADD COLUMN sortCode VARCHAR(10) DEFAULT 112233,
-  ADD COLUMN accountNumber VARCHAR(50) DEFAULT 12345678;
+  ADD COLUMN sortCode VARCHAR(10) NULL,
+  ADD COLUMN accountNumber VARCHAR(50) NULL;
+
+ALTER TABLE scannable_items
+  ALTER COLUMN documentControlNumber SET NOT NULL;
+
+UPDATE TABLE payments
+  SET sortCode = "112233",
+      accountNumber = "12345678"
+  WHERE method = "Cheque";
