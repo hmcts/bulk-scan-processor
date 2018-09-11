@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.io.Resources.getResource;
@@ -246,7 +247,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.DELETE_BLOB_FAILURE);
         existingEnvelope.setZipFileName(ZIP_FILE_NAME_SUCCESS);
         existingEnvelope.setContainer(testContainer.getName());
-        envelopeRepository.save(existingEnvelope);
+        existingEnvelope = envelopeRepository.save(existingEnvelope);
         // Upload blob to process. This should not be uploaded or processed.
         // It should only be deleted from storage and the envelope should be marked
         // as processed.
@@ -265,10 +266,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .until(blob::exists, is(false));
 
         // Check envelope status has been updated
-        List<Envelope> envelopes = envelopeRepository.findAll();
-        assertThat(envelopes).hasSize(1);
-        Envelope envelope = envelopes.get(0);
-        assertThat(envelope.getStatus()).isEqualTo(Status.PROCESSED);
+        Optional<Envelope> envelope = envelopeRepository.findById(existingEnvelope.getId());
+        assertThat(envelope.isPresent()).isTrue();
+        assertThat(envelope.get().getStatus()).isEqualTo(Status.PROCESSED);
     }
 
     @After
