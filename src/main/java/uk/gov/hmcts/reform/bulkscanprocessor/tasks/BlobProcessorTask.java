@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
-import javax.inject.Provider;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -47,10 +45,6 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
-    private Provider<ServiceBusHelper> serviceBusHelperProvider;
-
-    private ServiceBusHelper serviceBusHelper;
-
     @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
@@ -59,10 +53,6 @@ public class BlobProcessorTask extends Processor {
         ErrorHandlingWrapper errorWrapper
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-    }
-
-    @Autowired
-    public void setServiceBusHelperProvider(Provider<ServiceBusHelper> serviceBusHelperProvider) {
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
