@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConnectionException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,12 +28,12 @@ public class ServiceBusHelper {
     }
 
     public CompletableFuture<Void> sendMessageAsync(Msg msg) {
-        Message busMessage = maptoBusMessage(msg);
+        Message busMessage = mapToBusMessage(msg);
         return sendClient.sendAsync(busMessage);
     }
 
     public void sendMessage(Msg msg) {
-        Message busMessage = maptoBusMessage(msg);
+        Message busMessage = mapToBusMessage(msg);
         try {
             sendClient.send(busMessage);
         } catch (InterruptedException | ServiceBusException exception) {
@@ -41,12 +42,12 @@ public class ServiceBusHelper {
         }
     }
 
-    private Message maptoBusMessage(Msg msg) {
+    private Message mapToBusMessage(Msg msg) {
         if (msg == null) {
-            throw new ConnectionException("Msg == null");
+            throw new InvalidMessageException("Msg == null");
         }
         if (Strings.isNullOrEmpty(msg.getMsgId())) {
-            throw new ConnectionException("Msg Id == null");
+            throw new InvalidMessageException("Msg Id == null");
         }
         Message busMessage = new Message();
         busMessage.setMessageId(msg.getMsgId());

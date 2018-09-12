@@ -63,7 +63,6 @@ public class BlobProcessorTask extends Processor {
 
     @Autowired
     public void setServiceBusHelperProvider(Provider<ServiceBusHelper> serviceBusHelperProvider) {
-        this.serviceBusHelperProvider = serviceBusHelperProvider;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
