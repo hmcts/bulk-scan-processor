@@ -223,6 +223,21 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("document_control_number");
     }
 
+    @Test
+    public void should_not_parse_envelope_with_no_required_fields_in_non_scannable_items() throws IOException {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/invalid-non-scannable-items.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
+            .hasMessageContaining("document_control_number")
+            .hasMessageContaining("item_type");
+    }
 
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));

@@ -105,7 +105,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     }
 
     private void givenValidZipFileUploadedAndDocStoreMocked() throws Exception {
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS_WITHOUT_CASE_NUMBER);
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITHOUT_CASE_NUMBER);
 
         given(documentManagementService.uploadDocuments(
             ImmutableList.of(

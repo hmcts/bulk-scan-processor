@@ -37,11 +37,6 @@
         }
       ],
       "non_scannable_items": [
-        {
-          "document_control_number": "1111002",
-          "item_type": "CD",
-          "notes": "4GB USB memory stick"
-        }
       ],
       "status": "PROCESSED",
       "zip_file_createddate": "23-06-2018 00:00:00.000000"
