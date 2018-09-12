@@ -100,7 +100,7 @@ module "bulk-scan" {
     SCAN_ENABLED                  = "${var.scan_enabled}"
     STORAGE_BLOB_LEASE_TIMEOUT    = "${var.blob_lease_timeout}" // In seconds
 
-    QUEUE_ENVELOPE_SEND           = "${data.terraform_remote_state.shared_infra.queue_primary_listen_connection_string}"
+    QUEUE_ENVELOPE_SEND           = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
     
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = false
