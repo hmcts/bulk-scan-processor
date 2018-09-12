@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConnectionException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.QueueClientSupplier;
@@ -59,7 +60,7 @@ public class ServiceBusHelperTest {
             .extracting(IMessage::getMessageId).containsExactly(msg.getMsgId());
     }
 
-    @Test(expected = ConnectionException.class)
+    @Test(expected = InvalidMessageException.class)
     public void should_throw_exception_for_empty_messageId() {
         Msg msg = new EnvelopeMsg("");
         serviceBusHelper.sendMessage(msg);
