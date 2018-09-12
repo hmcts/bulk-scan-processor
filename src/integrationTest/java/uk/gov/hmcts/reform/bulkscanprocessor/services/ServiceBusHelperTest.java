@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConnectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.QueueClientSupplier;
@@ -56,6 +57,12 @@ public class ServiceBusHelperTest {
         verify(queueClient).send(argument.capture());
         assertThat(argument.getValue())
             .extracting(IMessage::getMessageId).containsExactly(msg.getMsgId());
+    }
+
+    @Test(expected = ConnectionException.class)
+    public void should_throw_exception_for_empty_messageId() {
+        Msg msg = new EnvelopeMsg("");
+        serviceBusHelper.sendMessage(msg);
     }
 
 }

@@ -1,22 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
-import java.util.UUID;
 
-public abstract class Msg {
+public interface Msg {
 
-    private final String msgId;
+    String getMsgId();
 
-    public Msg() {
-        this.msgId = UUID.randomUUID().toString();
-    }
-
-    public Msg(String msgId) {
-        this.msgId = msgId;
-    }
-
-
-    public String getMsgId() {
-        return msgId;
-    }
-
+    byte[] getMsgBody();
+    
 }

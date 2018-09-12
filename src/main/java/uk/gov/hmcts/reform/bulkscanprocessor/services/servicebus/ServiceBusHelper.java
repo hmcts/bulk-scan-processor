@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
+import com.google.common.base.Strings;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
@@ -26,20 +27,31 @@ public class ServiceBusHelper {
     }
 
     public CompletableFuture<Void> sendMessageAsync(Msg msg) {
-        Message busMessage = new Message();
-        busMessage.setMessageId(msg.getMsgId());
+        Message busMessage = maptoBusMessage(msg);
         return sendClient.sendAsync(busMessage);
     }
 
     public void sendMessage(Msg msg) {
-        Message busMessage = new Message();
-        busMessage.setMessageId(msg.getMsgId());
+        Message busMessage = maptoBusMessage(msg);
         try {
             sendClient.send(busMessage);
         } catch (InterruptedException | ServiceBusException exception) {
             Thread.currentThread().interrupt();
             throw new ConnectionException("Unable to connect to Azure service bus", exception);
         }
+    }
+
+    private Message maptoBusMessage(Msg msg) {
+        if (msg == null) {
+            throw new ConnectionException("Msg == null");
+        }
+        if (msg == null || Strings.isNullOrEmpty(msg.getMsgId())) {
+            throw new ConnectionException("Msg Id == null");
+        }
+        Message busMessage = new Message();
+        busMessage.setMessageId(msg.getMsgId());
+        busMessage.setBody(msg.getMsgBody());
+        return busMessage;
     }
 
 }

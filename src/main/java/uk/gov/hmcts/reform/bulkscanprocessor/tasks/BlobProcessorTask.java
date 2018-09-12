@@ -9,11 +9,13 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -44,6 +46,9 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
+    private ServiceBusHelper serviceBusHelper;
+
+    @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -51,6 +56,11 @@ public class BlobProcessorTask extends Processor {
         ErrorHandlingWrapper errorWrapper
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+    }
+
+    @Autowired
+    public void setServiceBusHelper(ServiceBusHelper serviceBusHelper) {
+        this.serviceBusHelper = serviceBusHelper;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
