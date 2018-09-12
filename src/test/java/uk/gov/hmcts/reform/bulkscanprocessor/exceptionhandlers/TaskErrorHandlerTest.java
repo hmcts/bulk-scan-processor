@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 
@@ -18,7 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.BLOB_DELETE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 
@@ -39,11 +42,24 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void should_update_all_entities_when_envelope_aware_exception_is_thrown() {
+    public void should_update_all_entities_when_envelope_aware_upload_exception_is_thrown() {
+        should_update_all_entities_when_envelope_aware_exception_is_thrown(
+            DOC_UPLOAD_FAILURE, Status.UPLOAD_FAILURE
+        );
+    }
+
+    @Test
+    public void should_update_all_entities_when_envelope_aware_blob_delete_exception_is_thrown() {
+        should_update_all_entities_when_envelope_aware_exception_is_thrown(
+            BLOB_DELETE_FAILURE, Status.DELETE_BLOB_FAILURE
+        );
+    }
+
+    private void should_update_all_entities_when_envelope_aware_exception_is_thrown(Event event, Status status) {
         // given
         Envelope envelope = mock(Envelope.class);
         ArgumentCaptor<ProcessEvent> eventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
-        Throwable envelopeException = new EnvelopeException(envelope, DOC_UPLOAD_FAILURE);
+        Throwable envelopeException = new EnvelopeException(envelope, event);
 
         // when
         handler.handleError(envelopeException);
@@ -53,7 +69,8 @@ public class TaskErrorHandlerTest {
         verify(eventRepository).save(eventCaptor.capture());
 
         // and
-        assertThat(eventCaptor.getValue().getEvent()).isEqualByComparingTo(DOC_UPLOAD_FAILURE);
+        verify(envelope, times(1)).setStatus(status);
+        assertThat(eventCaptor.getValue().getEvent()).isEqualByComparingTo(event);
     }
 
     @Test

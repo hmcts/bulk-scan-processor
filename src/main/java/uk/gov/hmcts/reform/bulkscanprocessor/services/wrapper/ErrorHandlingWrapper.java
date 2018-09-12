@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
@@ -40,15 +41,24 @@ public class ErrorHandlingWrapper {
         }
     }
 
-    public void wrapDocUploadFailure(Envelope envelope, Supplier<Void> supplier) {
+    /**
+     * Wraps docs upload to handles related errors.
+     *
+     * @param envelope for the documents to upload
+     * @param supplier upload function
+     * @return false in case of error handled by this wrapper. Whatever the
+     *     supplier returns otherwise (that will probably be true).
+     */
+    public Boolean wrapDocUploadFailure(Envelope envelope, Supplier<Boolean> supplier) {
         try {
-            supplier.get();
+            return supplier.get();
         } catch (Exception exception) {
             if (exception instanceof EnvelopeAwareThrowable) {
                 errorHandler.handleError(exception);
             } else {
                 errorHandler.handleError(new DocUploadFailureGenericException(envelope, exception));
             }
+            return Boolean.FALSE;
         }
     }
 
@@ -76,4 +86,30 @@ public class ErrorHandlingWrapper {
             return null;
         }
     }
+
+    public Boolean wrapDeleteBlobFailure(
+        Envelope envelope,
+        Supplier<Boolean> supplier
+    ) {
+        try {
+            return supplier.get();
+        } catch (Exception exception) {
+            if (exception instanceof EnvelopeAwareThrowable) {
+                errorHandler.handleError(exception);
+            } else {
+                errorHandler.handleError(new BlobDeleteFailureException(envelope, exception));
+            }
+            return Boolean.FALSE;
+        }
+    }
+
+    public Boolean wrapFailure(Supplier<Boolean> supplier) {
+        try {
+            return supplier.get();
+        } catch (Exception exception) {
+            errorHandler.handleError(exception);
+            return Boolean.FALSE;
+        }
+    }
+
 }

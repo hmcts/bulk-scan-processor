@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,12 +13,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
+import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.io.Resources.getResource;
@@ -28,6 +32,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -232,4 +237,44 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         Envelope envelope = envelopes.get(0);
         assertThat(envelope.getUploadFailureCount()).isEqualTo(1);
     }
+
+    @Test
+    public void should_not_process_again_if_blob_delete_failed()
+        throws Exception {
+        //Given
+
+        // Create envelope to simulate existing envelope with 'blob delete failed' status
+        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.DELETE_BLOB_FAILURE);
+        existingEnvelope.setZipFileName(ZIP_FILE_NAME_SUCCESS);
+        existingEnvelope.setContainer(testContainer.getName());
+        existingEnvelope = envelopeRepository.save(existingEnvelope);
+        // Upload blob to process. This should not be uploaded or processed.
+        // It should only be deleted from storage and the envelope should be marked
+        // as processed.
+        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+
+        //when
+        processor.processBlobs();
+
+        // Check blob was never uploaded
+        verify(documentManagementService, never()).uploadDocuments(anyList());
+
+        // Check blob is deleted
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(ZIP_FILE_NAME_SUCCESS);
+        await("file should be deleted")
+            .atMost(2, SECONDS)
+            .until(blob::exists, is(false));
+
+        // Check envelope status has been updated
+        Optional<Envelope> envelope = envelopeRepository.findById(existingEnvelope.getId());
+        assertThat(envelope.isPresent()).isTrue();
+        assertThat(envelope.get().getStatus()).isEqualTo(Status.PROCESSED);
+    }
+
+    @After
+    public void cleanUp() {
+        envelopeRepository.deleteAll();
+        processEventRepository.deleteAll();
+    }
+
 }
