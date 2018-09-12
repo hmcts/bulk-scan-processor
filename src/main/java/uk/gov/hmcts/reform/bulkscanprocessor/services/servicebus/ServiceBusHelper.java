@@ -45,7 +45,7 @@ public class ServiceBusHelper {
         if (msg == null) {
             throw new ConnectionException("Msg == null");
         }
-        if (msg == null || Strings.isNullOrEmpty(msg.getMsgId())) {
+        if (Strings.isNullOrEmpty(msg.getMsgId())) {
             throw new ConnectionException("Msg Id == null");
         }
         Message busMessage = new Message();
