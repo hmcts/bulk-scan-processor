@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
+import javax.inject.Provider;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -46,6 +47,8 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
+    private Provider<ServiceBusHelper> serviceBusHelperProvider;
+
     private ServiceBusHelper serviceBusHelper;
 
     @Autowired
@@ -59,8 +62,8 @@ public class BlobProcessorTask extends Processor {
     }
 
     @Autowired
-    public void setServiceBusHelper(ServiceBusHelper serviceBusHelper) {
-        this.serviceBusHelper = serviceBusHelper;
+    public void setServiceBusHelperProvider(Provider<ServiceBusHelper> serviceBusHelperProvider) {
+        this.serviceBusHelperProvider = serviceBusHelperProvider;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
