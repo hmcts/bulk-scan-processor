@@ -2,7 +2,7 @@ ALTER TABLE envelopes
   ADD COLUMN caseNumber VARCHAR(100) NULL;
 
 ALTER TABLE non_scannable_items
-  ADD COLUMN documentControlNumber VARCHAR(100) NOT NULL DEFAULT "1111111" ;
+  ADD COLUMN documentControlNumber VARCHAR(100) NOT NULL DEFAULT '1111111';
 
 ALTER TABLE payments
   ADD COLUMN paymentInstrumentNumber VARCHAR(100) NULL,
