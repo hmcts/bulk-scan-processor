@@ -34,6 +34,7 @@ public final class EnvelopeResponseMapper {
         }
         return new EnvelopeResponse(
             envelope.getId(),
+            envelope.getCaseNumber(),
             envelope.getContainer(),
             envelope.getPoBox(),
             envelope.getJurisdiction(),
@@ -96,6 +97,7 @@ public final class EnvelopeResponseMapper {
             return null;
         }
         return new NonScannableItemResponse(
+            nonScannableItem.getDocumentControlNumber(),
             nonScannableItem.getItemType(),
             nonScannableItem.getNotes()
         );
@@ -118,7 +120,10 @@ public final class EnvelopeResponseMapper {
             payment.getDocumentControlNumber(),
             payment.getMethod(),
             Double.toString(payment.getAmount()),
-            payment.getCurrency()
+            payment.getCurrency(),
+            payment.getPaymentInstrumentNumber(),
+            payment.getSortCode(),
+            payment.getAccountNumber()
         );
     }
 

@@ -27,6 +27,12 @@ public class Payment implements EnvelopeAssignable {
 
     private String currency;
 
+    private String paymentInstrumentNumber;
+
+    private String sortCode;
+
+    private String accountNumber;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
     private Envelope envelope;
@@ -39,7 +45,10 @@ public class Payment implements EnvelopeAssignable {
         @JsonProperty("document_control_number") String documentControlNumber,
         @JsonProperty("method") String method,
         @JsonProperty("amount") String amount,
-        @JsonProperty("currency") String currency
+        @JsonProperty("currency") String currency,
+        @JsonProperty("payment_instrument_number") String paymentInstrumentNumber,
+        @JsonProperty("sort_code") String sortCode,
+        @JsonProperty("account_number") String accountNumber
     ) {
         Double amountInPence = Double.valueOf(amount) * 100;
 
@@ -47,6 +56,9 @@ public class Payment implements EnvelopeAssignable {
         this.method = method;
         this.amountInPence = amountInPence.intValue();
         this.currency = currency;
+        this.paymentInstrumentNumber = paymentInstrumentNumber;
+        this.sortCode = sortCode;
+        this.accountNumber = accountNumber;
     }
 
     public double getAmount() {
@@ -74,4 +86,15 @@ public class Payment implements EnvelopeAssignable {
         return currency;
     }
 
+    public String getPaymentInstrumentNumber() {
+        return paymentInstrumentNumber;
+    }
+
+    public String getSortCode() {
+        return sortCode;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
 }

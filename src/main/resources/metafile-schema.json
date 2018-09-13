@@ -4,6 +4,11 @@
   "type": "object",
   "title": "Envelope schema",
   "properties": {
+    "case_number": {
+      "id": "#/properties/case_number",
+      "type": "string",
+      "title": "Case reference number to which the envelope belongs to"
+    },
     "po_box": {
       "id": "#/properties/po_box",
       "type": "string",
@@ -126,7 +131,9 @@
           "document_control_number",
           "scanning_date",
           "file_name",
-          "document_type"
+          "document_type",
+          "next_action",
+          "next_action_date"
         ]
       }
     },
@@ -139,36 +146,160 @@
       "items": {
         "id": "#/properties/payments/items",
         "type": "object",
-        "properties": {
-          "document_control_number": {
-            "id": "#/properties/payments/items/properties/document_control_number",
-            "type": "string",
-            "title": "The unique identifier for the scanned document forThe uni",
-            "pattern": "^[0-9]+$"
+        "oneOf": [
+          {
+            "properties": {
+              "document_control_number": {
+                "id": "#/properties/payments/items/properties/document_control_number",
+                "type": "string",
+                "title": "The unique identifier for the scanned document forThe uni",
+                "pattern": "^[0-9]+$"
+              },
+              "method": {
+                "id": "#/properties/payments/items/properties/method",
+                "type": "string",
+                "enum": ["Cheque"],
+                "title": "The payment method"
+              },
+              "amount": {
+                "id": "#/properties/payments/items/properties/amount",
+                "type": "string",
+                "title": "The payment amount",
+                "pattern": "^[0-9]+\\.[0-9]{2}$"
+              },
+              "currency": {
+                "id": "#/properties/payments/items/properties/currency",
+                "type": "string",
+                "title": "ISO 4217 Currency CodeISO 42",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "payment_instrument_number": {
+                "id": "#/properties/payments/items/properties/payment_instrument_number",
+                "type": "string",
+                "title": "Cheque number in case of cheques ; postal order number in case of postal orders"
+              },
+              "sort_code": {
+                "id": "#/properties/payments/items/properties/sort_code",
+                "type": "string",
+                "title": "The sort code in case of cheque payments otherwise empty",
+                "pattern": "^[0-9]{6}$"
+              },
+              "account_number": {
+                "id": "#/properties/payments/items/properties/account_number",
+                "type": "string",
+                "title": "The account number in case of cheque payments otherwise empty",
+                "pattern": "^[0-9]{8}$"
+              }
+            },
+            "required": [
+              "document_control_number",
+              "method",
+              "amount",
+              "currency",
+              "payment_instrument_number",
+              "sort_code",
+              "account_number"
+            ]
           },
-          "method": {
-            "id": "#/properties/payments/items/properties/method",
-            "type": "string",
-            "title": "The payment method"
+          {
+            "properties": {
+              "document_control_number": {
+                "id": "#/properties/payments/items/properties/document_control_number",
+                "type": "string",
+                "title": "The unique identifier for the scanned document forThe uni",
+                "pattern": "^[0-9]+$"
+              },
+              "method": {
+                "id": "#/properties/payments/items/properties/method",
+                "type": "string",
+                "enum": ["Postal Order"],
+                "title": "The payment method"
+              },
+              "amount": {
+                "id": "#/properties/payments/items/properties/amount",
+                "type": "string",
+                "title": "The payment amount",
+                "pattern": "^[0-9]+\\.[0-9]{2}$"
+              },
+              "currency": {
+                "id": "#/properties/payments/items/properties/currency",
+                "type": "string",
+                "title": "ISO 4217 Currency CodeISO 42",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "payment_instrument_number": {
+                "id": "#/properties/payments/items/properties/payment_instrument_number",
+                "type": "string",
+                "title": "Cheque number in case of cheques ; postal order number in case of postal orders"
+              },
+              "sort_code": {
+                "id": "#/properties/payments/items/properties/sort_code",
+                "type": "string",
+                "title": "The sort code in case of cheque payments otherwise empty"
+              },
+              "account_number": {
+                "id": "#/properties/payments/items/properties/account_number",
+                "type": "string",
+                "title": "The account number in case of cheque payments otherwise empty"
+              }
+            },
+            "required": [
+              "document_control_number",
+              "method",
+              "amount",
+              "currency",
+              "payment_instrument_number"
+            ]
           },
-          "amount": {
-            "id": "#/properties/payments/items/properties/amount",
-            "type": "string",
-            "title": "The payment amount",
-            "pattern": "^[0-9]+\\.[0-9]{2}$"
-          },
-          "currency": {
-            "id": "#/properties/payments/items/properties/currency",
-            "type": "string",
-            "title": "ISO 4217 Currency CodeISO 42",
-            "pattern": "^[A-Z]{3}$"
+          {
+            "properties": {
+              "document_control_number": {
+                "id": "#/properties/payments/items/properties/document_control_number",
+                "type": "string",
+                "title": "The unique identifier for the scanned document forThe uni",
+                "pattern": "^[0-9]+$"
+              },
+              "method": {
+                "id": "#/properties/payments/items/properties/method",
+                "type": "string",
+                "enum": ["Cash"],
+                "title": "The payment method"
+              },
+              "amount": {
+                "id": "#/properties/payments/items/properties/amount",
+                "type": "string",
+                "title": "The payment amount",
+                "pattern": "^[0-9]+\\.[0-9]{2}$"
+              },
+              "currency": {
+                "id": "#/properties/payments/items/properties/currency",
+                "type": "string",
+                "title": "ISO 4217 Currency CodeISO 42",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "payment_instrument_number": {
+                "id": "#/properties/payments/items/properties/payment_instrument_number",
+                "type": "string",
+                "title": "Cheque number in case of cheques ; postal order number in case of postal orders"
+              },
+              "sort_code": {
+                "id": "#/properties/payments/items/properties/sort_code",
+                "type": "string",
+                "title": "The sort code in case of cheque payments otherwise empty"
+              },
+              "account_number": {
+                "id": "#/properties/payments/items/properties/account_number",
+                "type": "string",
+                "title": "The account number in case of cheque payments otherwise empty"
+              }
+            },
+            "required": [
+              "document_control_number",
+              "method",
+              "amount",
+              "currency"
+            ]
           }
-        },
-        "required": [
-          "document_control_number",
-          "method",
-          "amount",
-          "currency"
         ]
       }
     },
@@ -182,6 +313,12 @@
         "id": "#/properties/non_scannable_items/items",
         "type": "object",
         "properties": {
+          "document_control_number": {
+            "id": "#/properties/non_scannable_items/items/properties/document_control_number",
+            "type": "string",
+            "title": "The unique identifier for the scanned document for the no",
+            "pattern": "^[0-9]+$"
+          },
           "item_type": {
             "id": "#/properties/non_scannable_items/items/properties/item_type",
             "type": "string",
@@ -192,7 +329,11 @@
             "type": "string",
             "title": "contextual information describing this item"
           }
-        }
+        },
+        "required": [
+          "document_control_number",
+          "item_type"
+        ]
       }
     }
   },

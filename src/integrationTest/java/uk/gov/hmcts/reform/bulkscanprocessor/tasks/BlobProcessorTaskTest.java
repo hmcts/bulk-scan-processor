@@ -55,7 +55,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
@@ -97,8 +97,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(processEvents)
             .extracting("container", "zipFileName", "event")
             .contains(
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOADED),
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_PROCESSED)
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOADED),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED)
             );
 
         assertThat(processEvents).extracting("id").hasSize(2);
@@ -245,13 +245,13 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         // Create envelope to simulate existing envelope with 'blob delete failed' status
         Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.DELETE_BLOB_FAILURE);
-        existingEnvelope.setZipFileName(ZIP_FILE_NAME_SUCCESS);
+        existingEnvelope.setZipFileName(VALID_ZIP_FILE_WITH_CASE_NUMBER);
         existingEnvelope.setContainer(testContainer.getName());
         existingEnvelope = envelopeRepository.save(existingEnvelope);
         // Upload blob to process. This should not be uploaded or processed.
         // It should only be deleted from storage and the envelope should be marked
         // as processed.
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
         //when
         processor.processBlobs();
@@ -260,7 +260,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         verify(documentManagementService, never()).uploadDocuments(anyList());
 
         // Check blob is deleted
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(ZIP_FILE_NAME_SUCCESS);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
         await("file should be deleted")
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));

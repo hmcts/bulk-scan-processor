@@ -77,6 +77,7 @@ public final class EnvelopeCreator {
             timestamp,
             timestamp,
             UUID.randomUUID() + ".zip",
+            "1111222233334446",
             Classification.EXCEPTION,
             false,
             scannableItems(),
@@ -104,6 +105,7 @@ public final class EnvelopeCreator {
             timestamp,
             timestamp,
             UUID.randomUUID() + ".zip",
+            "1111222233334446",
             Classification.NEW_APPLICATION,
             true,
             scannableItems(),
@@ -120,8 +122,22 @@ public final class EnvelopeCreator {
     private static List<ScannableItem> scannableItems() throws Exception {
         Timestamp timestamp = getTimestamp();
 
+        ScannableItem scannableItem1 = new ScannableItem(
+            "1111001",
+            timestamp,
+            "test",
+            "test",
+            "return",
+            timestamp,
+            "dGVzdA==", //Base 64 value=test
+            "1111001.pdf",
+            "test",
+            "Other"
+        );
+        scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
-        ScannableItem scannableItem = new ScannableItem(
+
+        ScannableItem scannableItem2 = new ScannableItem(
             "1111002",
             timestamp,
             "test",
@@ -133,20 +149,20 @@ public final class EnvelopeCreator {
             "test",
             "Other"
         );
-        scannableItem.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
+        scannableItem2.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
-        return ImmutableList.of(scannableItem);
+        return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
     private static List<NonScannableItem> nonScannableItems() {
         return ImmutableList.of(
-            new NonScannableItem("CD", "4GB USB memory stick")
+            new NonScannableItem("1111001", "CD", "4GB USB memory stick")
         );
     }
 
     private static List<Payment> payments() {
         return ImmutableList.of(
-            new Payment("1111002", "Cheque", "100.00", "GBP")
+            new Payment("1111002", "Cheque", "100.00", "GBP", "1000000000", "112233", "12345678")
         );
     }
 
