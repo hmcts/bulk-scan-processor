@@ -31,8 +31,8 @@ public class GetSasTokenTest {
             callSasTokenEndpoint(getValidClientKeyStore(), getValidSubscriptionKey())
                 .thenReturn();
 
-        assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
         assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
     }
 
     @Test
