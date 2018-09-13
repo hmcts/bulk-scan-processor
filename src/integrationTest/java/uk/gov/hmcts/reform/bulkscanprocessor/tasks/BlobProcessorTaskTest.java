@@ -50,7 +50,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
@@ -92,8 +92,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(processEvents)
             .extracting("container", "zipFileName", "event")
             .contains(
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOADED),
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_PROCESSED)
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOADED),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED)
             );
 
         assertThat(processEvents).extracting("id").hasSize(2);

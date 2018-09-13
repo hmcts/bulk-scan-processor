@@ -56,7 +56,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
     public void should_successfully_reupload_documents_when_initial_blob_processor_was_unable_to_do_so()
         throws Exception {
         // given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
@@ -91,16 +91,16 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .hasSize(3)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOADED, null),
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_PROCESSED, null)
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOADED, null),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED, null)
             );
     }
 
     @Test
     public void should_fail_to_upload_pdfs_when_retrying_with_reupload_task() throws Exception {
         // given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
@@ -130,15 +130,15 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .hasSize(2)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE, "oh no")
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE, "oh no")
             );
     }
 
     @Test
     public void should_increment_upload_failure_count_if_unable_to_upload_files() throws Exception {
         // given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS); //Zip file with metadata and pdfs
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
         given(documentManagementService.uploadDocuments(any()))
             .willThrow(UnableToUploadDocumentException.class);

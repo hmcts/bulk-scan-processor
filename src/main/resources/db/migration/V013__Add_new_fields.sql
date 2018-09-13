@@ -15,4 +15,4 @@ ALTER TABLE scannable_items
 UPDATE payments
   SET sortCode = '112233',
       accountNumber = '12345678'
-  WHERE method = 'Cheque';
+  WHERE method = 'Cheque' AND sortCode IS NULL AND accountNumber IS NULL;

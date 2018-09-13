@@ -33,7 +33,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     @Test
     public void should_record_failure_of_upload_when_document_management_returns_empty_response() throws Exception {
         // given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         // and
         given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
@@ -54,7 +54,12 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         ProcessEvent processEvent = processEvents.get(0);
         assertThat(processEvent)
             .extracting("container", "zipFileName", "event")
-            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE));
+            .hasSameElementsAs(
+                ImmutableList.of(
+                    testContainer.getName(),
+                    VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE
+                )
+            );
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
     }
@@ -62,7 +67,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     @Test
     public void should_record_failure_of_upload_when_same_zip_file_is_attempted_to_be_processed() throws Exception {
         // given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         // and
         given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
@@ -71,7 +76,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // and
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         processor.processBlobs();
 
@@ -87,14 +92,14 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
             .hasSize(2)
             .extracting("container", "zipFileName", "event")
             .allMatch(t -> t.equals(
-                tuple(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE)
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE)
             ));
     }
 
     @Test
     public void should_record_failure_of_upload_when_document_management_throws_exception() throws Exception {
         // given
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         // and
         Throwable throwable = new UnableToUploadDocumentException("oh no", null);
@@ -116,7 +121,13 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         ProcessEvent processEvent = processEvents.get(0);
         assertThat(processEvent)
             .extracting("container", "zipFileName", "event")
-            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), ZIP_FILE_NAME_SUCCESS, DOC_UPLOAD_FAILURE));
+            .hasSameElementsAs(
+                ImmutableList.of(
+                    testContainer.getName(),
+                    VALID_ZIP_FILE_WITH_CASE_NUMBER,
+                    DOC_UPLOAD_FAILURE
+                )
+            );
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isEqualTo(throwable.getMessage());
     }
