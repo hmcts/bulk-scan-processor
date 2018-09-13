@@ -4,6 +4,11 @@
   <!-- not used by server -->
 
   <suppress>
+    <notes><![CDATA[Pulled in by azure-servicebus. No newer version available]]></notes>
+    <cve>CVE-2011-1068</cve>
+  </suppress>
+
+  <suppress>
     <notes><![CDATA[Used only for testing not used in prod]]></notes>
     <gav regex="true">^org\.testcontainers:postgresql:.*$</gav>
     <cpe>cpe:/a:postgresql:postgresql</cpe>

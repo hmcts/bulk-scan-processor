@@ -60,7 +60,7 @@ public class DocumentProcessorTest {
 
         //when
         ScannableItem scannableItem = scannableItem();
-        documentProcessor.processPdfFiles(pdfs, ImmutableList.of(scannableItem));
+        documentProcessor.uploadPdfFiles(pdfs, ImmutableList.of(scannableItem));
 
         //then
 
@@ -90,7 +90,7 @@ public class DocumentProcessorTest {
         ScannableItem scannableItem = scannableItem();
 
         //then
-        assertThatThrownBy(() -> documentProcessor.processPdfFiles(pdfs, ImmutableList.of(scannableItem)))
+        assertThatThrownBy(() -> documentProcessor.uploadPdfFiles(pdfs, ImmutableList.of(scannableItem)))
             .isInstanceOf(DocumentNotFoundException.class)
             .hasMessage("Document metadata not found for file test1.pdf");
 

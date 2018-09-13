@@ -3,18 +3,16 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 public abstract class Processor {
 
@@ -40,50 +38,55 @@ public abstract class Processor {
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
-        errorWrapper.wrapDocUploadFailure(envelope, () -> {
-            assertEnvelopeHasPdfs(envelope, pdfs);
+        if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
+            return;
+        }
+        if (!markAsUploaded(envelope)) {
+            return;
+        }
+        if (!deleteBlob(envelope, cloudBlockBlob)) {
+            return;
+        }
+        markAsProcessed(envelope);
+    }
 
-            documentProcessor.processPdfFiles(pdfs, envelope.getScannableItems());
-            envelopeProcessor.markAsUploaded(envelope);
-
-            // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
-            cloudBlockBlob.breakLease(0);
-            cloudBlockBlob.delete();
-
-            envelopeProcessor.markAsProcessed(envelope);
-
-            return null;
+    private Boolean uploadParsedEnvelopeDocuments(
+        Envelope envelope,
+        List<Pdf> pdfs
+    ) {
+        return errorWrapper.wrapDocUploadFailure(envelope, () -> {
+            documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
+            return Boolean.TRUE;
         });
     }
 
-    /**
-     * Assert given envelope has scannable items exactly matching
-     * the filenames with list of pdfs acquired from zip file.
-     * In case there is a mismatch an exception is thrown.
-     *
-     * @param envelope to assert against
-     * @param pdfs     to assert against
-     */
-    private void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
-        Set<String> scannedFileNames = envelope
-            .getScannableItems()
-            .stream()
-            .map(ScannableItem::getFileName)
-            .collect(Collectors.toSet());
-        Set<String> pdfFileNames = pdfs
-            .stream()
-            .map(Pdf::getFilename)
-            .collect(Collectors.toSet());
-
-        Collection<String> missingScannedFiles = new HashSet<>(scannedFileNames);
-        missingScannedFiles.removeAll(pdfFileNames);
-        Collection<String> missingPdfFiles = new HashSet<>(pdfFileNames);
-        missingPdfFiles.removeAll(scannedFileNames);
-
-        missingScannedFiles.addAll(missingPdfFiles);
-
-        if (!missingScannedFiles.isEmpty()) {
-            throw new FileNameIrregularitiesException(envelope, missingScannedFiles);
-        }
+    private Boolean deleteBlob(
+        Envelope envelope,
+        CloudBlockBlob cloudBlockBlob
+    ) {
+        return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
+            // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
+            cloudBlockBlob.breakLease(0);
+            boolean deleted = cloudBlockBlob.deleteIfExists();
+            if (!deleted) {
+                throw new BlobDeleteFailureException(envelope);
+            }
+            return Boolean.TRUE;
+        });
     }
+
+    private Boolean markAsUploaded(Envelope envelope) {
+        return errorWrapper.wrapFailure(() -> {
+            envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
+            return Boolean.TRUE;
+        });
+    }
+
+    public Boolean markAsProcessed(Envelope envelope) {
+        return errorWrapper.wrapFailure(() -> {
+            envelopeProcessor.handleEvent(envelope, DOC_PROCESSED);
+            return Boolean.TRUE;
+        });
+    }
+
 }

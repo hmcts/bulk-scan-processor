@@ -3,23 +3,26 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-import java.util.Collection;
+public class BlobDeleteFailureException extends RuntimeException implements EnvelopeAwareThrowable {
 
-public class FileNameIrregularitiesException extends RuntimeException implements EventRelatedThrowable {
-
-    private static final Event FAILURE_EVENT = Event.DOC_FAILURE;
 
     private final transient Envelope envelope;
 
-    public FileNameIrregularitiesException(Envelope envelope, Collection<String> fileNames) {
-        super("Missing PDFs: " + String.join(", ", fileNames));
+    public BlobDeleteFailureException(Envelope envelope) {
+        super("Blob delete failure");
 
         this.envelope = envelope;
     }
-    
+
+    public BlobDeleteFailureException(Envelope envelope, Throwable cause) {
+        super(cause.getMessage(), cause);
+
+        this.envelope = envelope;
+    }
+
     @Override
     public Event getEvent() {
-        return FAILURE_EVENT;
+        return Event.BLOB_DELETE_FAILURE;
     }
 
     @Override
@@ -30,5 +33,10 @@ public class FileNameIrregularitiesException extends RuntimeException implements
     @Override
     public String getZipFileName() {
         return envelope.getZipFileName();
+    }
+
+    @Override
+    public Envelope getEnvelope() {
+        return envelope;
     }
 }

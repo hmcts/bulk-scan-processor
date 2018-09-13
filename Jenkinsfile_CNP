@@ -3,8 +3,8 @@
 @Library("Infrastructure")
 
 def type = "java"
-def product = "rpe"
-def component = "bulk-scan-processor"
+def product = "bulk-scan"
+def component = "processor"
 
 def channel = '#rpe-build-notices'
 
@@ -40,6 +40,7 @@ withPipeline(type, product, component) {
   enableDbMigration()
   enableSlackNotifications(channel)
   enableApiGatewayTest()
+  enableDockerBuild()
 
   onNonPR() {
     loadVaultSecrets(apiTestSecrets)

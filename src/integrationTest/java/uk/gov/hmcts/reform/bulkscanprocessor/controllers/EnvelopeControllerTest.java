@@ -54,7 +54,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.METADATA_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 
 @RunWith(SpringRunner.class)
@@ -184,11 +183,10 @@ public class EnvelopeControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 
         assertThat(envelopeRepository.findAll())
-            .hasSize(2)
+            .hasSize(1)
             .extracting("zipFileName", "status")
             .containsExactlyInAnyOrder(
-                tuple("7_24-06-2018-00-00-00.zip", PROCESSED),
-                tuple("8_24-06-2018-00-00-00.zip", METADATA_FAILURE)
+                tuple("7_24-06-2018-00-00-00.zip", PROCESSED)
             );
 
         byte[] mismatchingPdfBytes = toByteArray(getResource("1111005.pdf"));

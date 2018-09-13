@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
@@ -29,8 +28,7 @@ public class DocumentProcessor {
         this.scannableItemRepository = scannableItemRepository;
     }
 
-    @Transactional
-    public void processPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
+    public void uploadPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
         Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
 
         log.info("Document service response with file name and doc url {}", response);
