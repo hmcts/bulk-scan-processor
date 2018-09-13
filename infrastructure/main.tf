@@ -5,11 +5,11 @@ provider "vault" {
 }
 
 locals {
-  is_preview           = "${(var.env == "preview" || var.env == "spreview")}"
-  account_name         = "${replace("${var.product}${var.env}", "-", "")}"
-  previewVaultName     = "${var.raw_product}-aat"
-  nonPreviewVaultName  = "${var.product}-${var.env}"
-  vaultName            = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
+  is_preview          = "${(var.env == "preview" || var.env == "spreview")}"
+  account_name        = "${replace("${var.product}${var.env}", "-", "")}"
+  previewVaultName    = "${var.raw_product}-aat"
+  nonPreviewVaultName = "${var.product}-${var.env}"
+  vaultName           = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 
   aseName   = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
   local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
@@ -41,6 +41,8 @@ locals {
   api_base_path             = "bulk-scan"
 
   #endregion
+
+  sku_size = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
 }
 
 module "bulk-scan-db" {
@@ -69,6 +71,7 @@ module "bulk-scan" {
   appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
   asp_name                        = "${var.product}-${var.env}"
   asp_rg                          = "${var.product}-${var.env}"
+  instance_size                   = "${local.sku_size}"
 
   app_settings = {
     // db
