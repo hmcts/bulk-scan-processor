@@ -5,17 +5,18 @@ provider "vault" {
 }
 
 locals {
-  is_preview          = "${(var.env == "preview" || var.env == "spreview")}"
-  account_name        = "${replace("${var.product}${var.env}", "-", "")}"
-  previewVaultName    = "${var.raw_product}-aat"
-  nonPreviewVaultName = "${var.product}-${var.env}"
-  vaultName           = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
+  is_preview            = "${(var.env == "preview" || var.env == "spreview")}"
+  account_name          = "${replace("${var.product}${var.env}", "-", "")}"
+  previewVaultName      = "${var.raw_product}-aat"
+  nonPreviewVaultName   = "${var.product}-${var.env}"
+  vaultName             = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 
-  aseName   = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
-  local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
+  aseName               = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
+  local_env             = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
 
-  s2s_url      = "http://rpe-service-auth-provider-${local.local_env}.service.core-compute-${local.local_env}.internal"
-  dm_store_url = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
+  s2s_url               = "http://rpe-service-auth-provider-${local.local_env}.service.core-compute-${local.local_env}.internal"
+  s2s_vault_url         = "https://s2s-${local.local_env}.vault.azure.net/"
+  dm_store_url          = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
 
   db_connection_options = "?ssl=true"
 
@@ -93,7 +94,7 @@ module "bulk-scan" {
 
     S2S_URL    = "${local.s2s_url}"
     S2S_NAME   = "${var.s2s_name}"
-    S2S_SECRET = "${data.vault_generic_secret.s2s_secret.data["value"]}"
+    S2S_SECRET = "${data.azurerm_key_vault_secret.s2s_secret.value}"
 
     REUPLOAD_BATCH                = "${var.reupload_batch}"
     REUPLOAD_DELAY                = "${var.reupload_delay}"
@@ -104,7 +105,7 @@ module "bulk-scan" {
     STORAGE_BLOB_LEASE_TIMEOUT    = "${var.blob_lease_timeout}" // In seconds
 
     QUEUE_ENVELOPE_SEND           = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
-    
+
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = false
     LOGBACK_REQUIRE_ERROR_CODE  = false
@@ -175,12 +176,14 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
-data "vault_generic_secret" "s2s_secret" {
-  path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/bulk-scan-processor"
+data "azurerm_key_vault_secret" "s2s_secret" {
+  name = "microservicekey-bulk-scan-processor"
+  vault_uri = "${local.s2s_vault_url}"
 }
 
-data "vault_generic_secret" "s2s_secret_test" {
-  path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/bulk-scan-processor-tests"
+data "azurerm_key_vault_secret" "s2s_secret_test" {
+  name = "microservicekey-bulk-scan-processor-tests"
+  vault_uri = "${local.s2s_vault_url}"
 }
 
 # region API (gateway)
