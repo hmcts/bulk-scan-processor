@@ -7,7 +7,6 @@ import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConnectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
@@ -36,9 +35,11 @@ public class ServiceBusHelper {
         Message busMessage = mapToBusMessage(msg);
         try {
             sendClient.send(busMessage);
-        } catch (InterruptedException | ServiceBusException exception) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ConnectionException("Unable to connect to Azure service bus", exception);
+            throw new InvalidMessageException("Unable to send message", e);
+        } catch (ServiceBusException e) {
+            throw new InvalidMessageException("Unable to send message", e);
         }
     }
 
