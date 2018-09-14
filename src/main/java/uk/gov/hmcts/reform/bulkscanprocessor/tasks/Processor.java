@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -13,9 +12,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 public abstract class Processor {
@@ -45,73 +44,117 @@ public abstract class Processor {
         CloudBlockBlob cloudBlockBlob,
         ServiceBusHelper serviceBusHelper
     ) {
-        if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
-            return;
+        WrapperContext context = new WrapperContext(
+            documentProcessor, envelopeProcessor, errorWrapper, serviceBusHelper, cloudBlockBlob, envelope, pdfs
+        );
+        Processor.uploadParsedEnvelopeDocuments(context)
+            .andThen(Processor::markAsUploaded)
+            .andThen(Processor::markAsProcessed)
+            .andThen(Processor::sendProcessedMessage)
+            .andThen(Processor::markAsNotified)
+            .andThen(Processor::deleteBlob);
+    }
+
+    private static WrapperContext uploadParsedEnvelopeDocuments(WrapperContext context) {
+        if (context.success) {
+            context.success = context.errorWrapper.wrapDocUploadFailure(context.envelope, () -> {
+                context.documentProcessor.uploadPdfFiles(context.pdfs, context.envelope.getScannableItems());
+                return Boolean.TRUE;
+            });
         }
-        if (!markAsUploaded(envelope)) {
-            return;
+        return context;
+    }
+
+    private static WrapperContext  deleteBlob(WrapperContext context) {
+        if (context.success) {
+            context.success = context.errorWrapper.wrapDeleteBlobFailure(context.envelope, () -> {
+                // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
+                context.cloudBlockBlob.breakLease(0);
+                boolean deleted = context.cloudBlockBlob.deleteIfExists();
+                if (!deleted) {
+                    throw new BlobDeleteFailureException(context.envelope);
+                }
+                context.envelope.setZipDeleted(true);
+                context.envelopeProcessor.saveEnvelope(context.envelope);
+                return Boolean.TRUE;
+            });
         }
-        if (!markAsProcessed(envelope)) {
-            return;
+        return context;
+    }
+
+    private static WrapperContext sendProcessedMessage(WrapperContext context) {
+        if (context.success) {
+            context.success = context.errorWrapper.wrapNotificationFailure(context.envelope, () -> {
+                context.serviceBusHelper.sendMessage(
+                    new EnvelopeMsg(context.envelope)
+                );
+                return Boolean.TRUE;
+            });
         }
-        if (!sendProcessedMessage(serviceBusHelper, envelope)) {
-            return;
+        return context;
+    }
+
+    private static WrapperContext markAsUploaded(WrapperContext context) {
+        if (context.success) {
+            context.success = context.errorWrapper.wrapFailure(() -> {
+                context.envelopeProcessor.handleEvent(context.envelope, DOC_UPLOADED);
+                return Boolean.TRUE;
+            });
         }
-        markAsNotified(envelope);
-        deleteBlob(envelope, cloudBlockBlob);
+        return context;
     }
 
-    private Boolean uploadParsedEnvelopeDocuments(
-        Envelope envelope,
-        List<Pdf> pdfs
-    ) {
-        return errorWrapper.wrapDocUploadFailure(envelope, () -> {
-            documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
-            return Boolean.TRUE;
-        });
+    private static WrapperContext markAsProcessed(WrapperContext context) {
+        if (context.success) {
+            context.success = context.errorWrapper.wrapFailure(() -> {
+                context.envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED);
+                return Boolean.TRUE;
+            });
+        }
+        return context;
     }
 
-    private Boolean deleteBlob(
-        Envelope envelope,
-        CloudBlockBlob cloudBlockBlob
-    ) {
-        return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
-            // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
-            cloudBlockBlob.breakLease(0);
-            boolean deleted = cloudBlockBlob.deleteIfExists();
-            if (!deleted) {
-                throw new BlobDeleteFailureException(envelope);
-            }
-            envelope.setZipDeleted(true);
-            envelopeProcessor.saveEnvelope(envelope);
-            return Boolean.TRUE;
-        });
+    private static WrapperContext markAsNotified(WrapperContext context) {
+        if (context.success) {
+            context.success = context.errorWrapper.wrapFailure(() -> {
+                context.envelopeProcessor.handleEvent(context.envelope, DOC_UPLOADED);
+                return Boolean.TRUE;
+            });
+        }
+        return context;
     }
 
-    private Boolean sendProcessedMessage(ServiceBusHelper serviceBusHelper, Envelope envelope) {
-        return errorWrapper.wrapNotificationFailure(envelope, () -> {
-            serviceBusHelper.sendMessage(new EnvelopeMsg(envelope));
-            return Boolean.TRUE;
-        });
-    }
+    public static class WrapperContext implements UnaryOperator<WrapperContext> {
+        public DocumentProcessor documentProcessor;
+        public EnvelopeProcessor envelopeProcessor;
+        public ErrorHandlingWrapper errorWrapper;
+        public ServiceBusHelper serviceBusHelper;
+        public CloudBlockBlob cloudBlockBlob;
+        public Envelope envelope;
+        public List<Pdf> pdfs;
+        public boolean success = true;
 
-    private Boolean markAsUploaded(Envelope envelope) {
-        return handleEvent(envelope, DOC_UPLOADED);
-    }
+        public WrapperContext(
+            DocumentProcessor documentProcessor,
+            EnvelopeProcessor envelopeProcessor,
+            ErrorHandlingWrapper errorWrapper,
+            ServiceBusHelper serviceBusHelper,
+            CloudBlockBlob cloudBlockBlob,
+            Envelope envelope,
+            List<Pdf> pdfs
+        ) {
+            this.documentProcessor = documentProcessor;
+            this.envelopeProcessor = envelopeProcessor;
+            this.errorWrapper = errorWrapper;
+            this.cloudBlockBlob = cloudBlockBlob;
+            this.envelope = envelope;
+            this.pdfs = pdfs;
+            this.serviceBusHelper = serviceBusHelper;
+        }
 
-    private Boolean markAsProcessed(Envelope envelope) {
-        return handleEvent(envelope, DOC_PROCESSED);
+        @Override
+        public WrapperContext apply(WrapperContext context) {
+            return context;
+        }
     }
-
-    private Boolean markAsNotified(Envelope envelope) {
-        return handleEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT);
-    }
-
-    private Boolean handleEvent(Envelope envelope, Event event) {
-        return errorWrapper.wrapFailure(() -> {
-            envelopeProcessor.handleEvent(envelope, event);
-            return Boolean.TRUE;
-        });
-    }
-
 }
