@@ -43,7 +43,7 @@ output "TEST_S2S_NAME" {
 
 output "TEST_S2S_SECRET" {
   sensitive = true
-  value     = "${data.vault_generic_secret.s2s_secret_test.data["value"]}"
+  value     = "${data.azurerm_key_vault_secret.s2s_secret_test.value}"
 }
 
 # this variable will be accessible to tests as API_GATEWAY_URL environment variable
