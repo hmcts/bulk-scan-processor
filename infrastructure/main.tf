@@ -181,11 +181,6 @@ data "azurerm_key_vault_secret" "s2s_secret" {
   vault_uri = "${local.s2s_vault_url}"
 }
 
-data "azurerm_key_vault_secret" "s2s_secret_test" {
-  name = "microservicekey-bulk-scan-processor-tests"
-  vault_uri = "${local.s2s_vault_url}"
-}
-
 # region API (gateway)
 
 data "template_file" "api_template" {

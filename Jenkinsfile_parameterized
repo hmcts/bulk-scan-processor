@@ -19,6 +19,11 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
   secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY')
 ]
 
+List<LinkedHashMap<String, Object>> commonSecrets = [
+  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+  secret('test-s2s-secret', 'TEST_S2S_SECRET'),
+]
+
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [ $class: 'AzureKeyVaultSecret',
     secretType: 'Secret',
@@ -45,7 +50,11 @@ withParameterizedPipeline(params.TYPE, params.PRODUCT_NAME, params.APP, params.E
   enableSlackNotifications(channel)
   enableApiGatewayTest()
 
+  onPR() {
+    loadVaultSecrets(commonSecrets)
+  }
+
   onNonPR() {
-    loadVaultSecrets(apiTestSecrets)
+    loadVaultSecrets(commonSecrets + apiTestSecrets)
   }
 }
