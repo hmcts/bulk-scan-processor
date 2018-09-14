@@ -89,7 +89,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents)
-            .hasSize(2)
+            .hasSize(1)
             .extracting("container", "zipFileName", "event")
             .allMatch(t -> t.equals(
                 tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE)

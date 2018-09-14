@@ -244,9 +244,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         //Given
 
         // Create envelope to simulate existing envelope with 'blob delete failed' status
-        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.DELETE_BLOB_FAILURE);
+        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.PROCESSED);
         existingEnvelope.setZipFileName(VALID_ZIP_FILE_WITH_CASE_NUMBER);
         existingEnvelope.setContainer(testContainer.getName());
+        existingEnvelope.setZipDeleted(false);
         existingEnvelope = envelopeRepository.save(existingEnvelope);
         // Upload blob to process. This should not be uploaded or processed.
         // It should only be deleted from storage and the envelope should be marked
@@ -268,7 +269,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // Check envelope status has been updated
         Optional<Envelope> envelope = envelopeRepository.findById(existingEnvelope.getId());
         assertThat(envelope.isPresent()).isTrue();
-        assertThat(envelope.get().getStatus()).isEqualTo(Status.PROCESSED);
+        assertThat(envelope.get().isZipDeleted()).isTrue();
     }
 
     @After
