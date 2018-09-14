@@ -36,6 +36,8 @@ public class Envelope {
     @GeneratedValue
     private UUID id;
 
+    private String caseNumber;
+
     private String container;
 
     private String poBox;
@@ -93,6 +95,7 @@ public class Envelope {
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
+        @JsonProperty("case_number") String caseNumber,
         @JsonProperty("classification") Classification classification,
         @JsonProperty("urgent") boolean urgent,
         @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
@@ -105,6 +108,7 @@ public class Envelope {
         this.openingDate = openingDate;
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
+        this.caseNumber = caseNumber;
         this.classification = classification;
         this.urgent = urgent;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
@@ -134,6 +138,10 @@ public class Envelope {
 
     public String getContainer() {
         return container;
+    }
+
+    public String getCaseNumber() {
+        return caseNumber;
     }
 
     public void setContainer(String container) {

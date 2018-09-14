@@ -172,9 +172,15 @@ def versions = [
 ]
 
 dependencies {
+  // exclude old version of json-smart as it prevents the application from starting
+  def withoutJsonSmart = {
+    exclude group: 'net.minidev', module: 'json-smart'
+  }
+
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '1.0.0'
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '1.0.0'
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.0.0'
+  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.7', withoutJsonSmart
 
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: versions.springBoot

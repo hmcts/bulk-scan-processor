@@ -19,6 +19,8 @@ public class NonScannableItem implements EnvelopeAssignable {
     @GeneratedValue
     private UUID id;
 
+    private String documentControlNumber;
+
     private String itemType;
 
     private String notes;
@@ -32,11 +34,17 @@ public class NonScannableItem implements EnvelopeAssignable {
     }
 
     public NonScannableItem(
+        @JsonProperty("document_control_number") String documentControlNumber,
         @JsonProperty("item_type") String itemType,
         @JsonProperty("notes") String notes
     ) {
+        this.documentControlNumber = documentControlNumber;
         this.itemType = itemType;
         this.notes = notes;
+    }
+
+    public String getDocumentControlNumber() {
+        return documentControlNumber;
     }
 
     public String getItemType() {

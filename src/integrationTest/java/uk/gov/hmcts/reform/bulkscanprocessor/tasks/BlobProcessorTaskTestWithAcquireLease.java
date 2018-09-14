@@ -68,7 +68,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         assertThat(
             StringUtils.countMatches(
                 outputCapture.toString(),
-                "Lease already acquired for container test and zip file 1_24-06-2018-00-00-00.zip")
+                "Lease already acquired for container test and zip file 10_24-06-2018-00-00-00.zip")
         ).isEqualTo(4);
 
         // We expect only one envelope which was uploaded and other failed
@@ -105,7 +105,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     }
 
     private void givenValidZipFileUploadedAndDocStoreMocked() throws Exception {
-        uploadZipToBlobStore(ZIP_FILE_NAME_SUCCESS);
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITHOUT_CASE_NUMBER);
 
         given(documentManagementService.uploadDocuments(
             ImmutableList.of(
