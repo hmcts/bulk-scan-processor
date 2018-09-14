@@ -9,12 +9,14 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -54,6 +56,16 @@ public class BlobProcessorTask extends Processor {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
     }
 
+    /**
+     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
+     *
+     * @return Instance of {@code ServiceBusHelper}
+     */
+    @Lookup
+    public ServiceBusHelper serviceBusHelper() {
+        return null;
+    }
+
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
@@ -65,14 +77,16 @@ public class BlobProcessorTask extends Processor {
         throws IOException, StorageException, URISyntaxException {
         log.info("Processing blobs for container {}", container.getName());
 
+        ServiceBusHelper serviceBusHelper = serviceBusHelper();
+
         for (ListBlobItem blobItem : container.listBlobs()) {
             String zipFilename = FilenameUtils.getName(blobItem.getUri().toString());
 
-            processZipFile(container, zipFilename);
+            processZipFile(container, zipFilename, serviceBusHelper);
         }
     }
 
-    private void processZipFile(CloudBlobContainer container, String zipFilename)
+    private void processZipFile(CloudBlobContainer container, String zipFilename, ServiceBusHelper serviceBusHelper)
         throws IOException, StorageException, URISyntaxException {
 
         log.info("Processing zip file {}", zipFilename);
@@ -98,7 +112,8 @@ public class BlobProcessorTask extends Processor {
                     processParsedEnvelopeDocuments(
                         zipFileProcessor.getEnvelope(),
                         zipFileProcessor.getPdfs(),
-                        blobWithLeaseAcquired
+                        blobWithLeaseAcquired,
+                        serviceBusHelper
                     );
                 }
             }

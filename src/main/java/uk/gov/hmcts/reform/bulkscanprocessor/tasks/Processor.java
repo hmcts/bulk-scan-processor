@@ -5,6 +5,7 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -36,7 +37,8 @@ public abstract class Processor {
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs,
-        CloudBlockBlob cloudBlockBlob
+        CloudBlockBlob cloudBlockBlob,
+        ServiceBusHelper serviceBusHelper
     ) {
         if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
             return;
