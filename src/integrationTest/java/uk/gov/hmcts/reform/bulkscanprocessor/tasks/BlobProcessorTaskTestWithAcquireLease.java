@@ -78,7 +78,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         // and
         // We expect only two events one for doc upload and another for doc processed
         List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(2);
+        assertThat(processEvents).hasSize(3);
     }
 
     @NotNull

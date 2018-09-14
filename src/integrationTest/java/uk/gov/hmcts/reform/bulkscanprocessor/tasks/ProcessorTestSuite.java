@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -30,6 +31,8 @@ import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
 
@@ -81,6 +84,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Mock
     protected DocumentManagementService documentManagementService;
 
+    @Mock
+    protected ServiceBusHelper serviceBusHelper;
+
     protected CloudBlobContainer testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
@@ -103,13 +109,16 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             reuploadMaxTries
         );
 
-        processor = processorConstruct.apply(
+        T p = processorConstruct.apply(
             cloudBlobClient,
             documentProcessor,
             envelopeProcessor,
             errorWrapper
         );
 
+        processor = spy(p);
+        doReturn(serviceBusHelper).when(processor).serviceBusHelper();
+        
         testContainer = cloudBlobClient.getContainerReference("test");
         testContainer.createIfNotExists();
     }

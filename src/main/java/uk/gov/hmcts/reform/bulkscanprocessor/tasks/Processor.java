@@ -3,16 +3,20 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
+import javax.ws.rs.HEAD;
 import java.util.List;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 public abstract class Processor {
@@ -34,6 +38,8 @@ public abstract class Processor {
         this.errorWrapper = errorWrapper;
     }
 
+    protected abstract ServiceBusHelper serviceBusHelper();
+
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs,
@@ -49,6 +55,10 @@ public abstract class Processor {
         if (!markAsProcessed(envelope)) {
             return;
         }
+        if (!sendProcessedMessage(serviceBusHelper, envelope)) {
+            return;
+        }
+        markAsNotified(envelope);
         deleteBlob(envelope, cloudBlockBlob);
     }
 
@@ -79,16 +89,28 @@ public abstract class Processor {
         });
     }
 
-    private Boolean markAsUploaded(Envelope envelope) {
-        return errorWrapper.wrapFailure(() -> {
-            envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
+    private Boolean sendProcessedMessage(ServiceBusHelper serviceBusHelper, Envelope envelope) {
+        return errorWrapper.wrapNotificationFailure(envelope, () -> {
+            serviceBusHelper.sendMessage(new EnvelopeMsg(envelope.getId().toString()));
             return Boolean.TRUE;
         });
     }
 
+    private Boolean markAsUploaded(Envelope envelope) {
+        return handleEvent(envelope, DOC_UPLOADED);
+    }
+
     public Boolean markAsProcessed(Envelope envelope) {
+        return handleEvent(envelope, DOC_PROCESSED);
+    }
+
+    private Boolean markAsNotified(Envelope envelope) {
+        return handleEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT);
+    }
+
+    private Boolean handleEvent(Envelope envelope, Event event) {
         return errorWrapper.wrapFailure(() -> {
-            envelopeProcessor.handleEvent(envelope, DOC_PROCESSED);
+            envelopeProcessor.handleEvent(envelope, event);
             return Boolean.TRUE;
         });
     }
