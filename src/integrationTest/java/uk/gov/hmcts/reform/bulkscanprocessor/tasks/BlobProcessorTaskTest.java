@@ -86,6 +86,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
+        assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         //This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf1, pdf2));
@@ -170,8 +171,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // Verify envelope status is updated to PROCESSED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
-            .extracting("status")
-            .containsOnly(PROCESSED);
+            .extracting("status", "zipDeleted")
+            .containsOnly(tuple(PROCESSED, true));
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -204,8 +205,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // Verify envelope status is updated to UPLOAD_FAILED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
-            .extracting("status")
-            .containsOnly(UPLOAD_FAILURE);
+            .extracting("status", "zipDeleted")
+            .containsOnly(tuple(UPLOAD_FAILURE, false));
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -236,6 +237,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(envelopes).hasSize(1);
         Envelope envelope = envelopes.get(0);
         assertThat(envelope.getUploadFailureCount()).isEqualTo(1);
+        assertThat(envelope.isZipDeleted()).isFalse();
     }
 
     @Test
