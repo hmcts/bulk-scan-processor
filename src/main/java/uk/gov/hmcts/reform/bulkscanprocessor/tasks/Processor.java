@@ -44,10 +44,8 @@ public abstract class Processor {
         if (!markAsUploaded(envelope)) {
             return;
         }
-        if (!deleteBlob(envelope, cloudBlockBlob)) {
-            return;
-        }
         markAsProcessed(envelope);
+        deleteBlob(envelope, cloudBlockBlob);
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
@@ -71,6 +69,8 @@ public abstract class Processor {
             if (!deleted) {
                 throw new BlobDeleteFailureException(envelope);
             }
+            envelope.setZipDeleted(true);
+            envelopeProcessor.saveEnvelope(envelope);
             return Boolean.TRUE;
         });
     }

@@ -64,6 +64,8 @@ public class Envelope {
 
     private int uploadFailureCount = 0;
 
+    private boolean zipDeleted = false;
+
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
@@ -202,6 +204,14 @@ public class Envelope {
 
     public void setUploadFailureCount(int uploadFailureCount) {
         this.uploadFailureCount = uploadFailureCount;
+    }
+
+    public boolean isZipDeleted() {
+        return zipDeleted;
+    }
+
+    public void setZipDeleted(boolean zipDeleted) {
+        this.zipDeleted = zipDeleted;
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {

@@ -99,10 +99,9 @@ public class EnvelopeProcessor {
      *
      */
     public Envelope getIfFailToDeleteBlobBefore(String container, String zipFileName) {
-        List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
+        List<Envelope> envelopes = envelopeRepository.findEnvelopesWithZipNotDeleted(
             container,
             zipFileName,
-            Status.DELETE_BLOB_FAILURE,
             PageRequest.of(0, 1)
         );
 

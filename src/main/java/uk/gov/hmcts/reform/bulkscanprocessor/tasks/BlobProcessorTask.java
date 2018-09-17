@@ -107,9 +107,15 @@ public class BlobProcessorTask extends Processor {
     private void delete(CloudBlockBlob cloudBlockBlob, Envelope envelope) {
         try {
             if (cloudBlockBlob != null) {
-                boolean deleted = cloudBlockBlob.deleteIfExists();
+                boolean deleted;
+                if (cloudBlockBlob.exists()) {
+                    deleted = cloudBlockBlob.deleteIfExists();
+                } else {
+                    deleted = true;
+                }
                 if (deleted) {
-                    markAsProcessed(envelope);
+                    envelope.setZipDeleted(true);
+                    envelopeProcessor.saveEnvelope(envelope);
                 }
             }
         } catch (StorageException e) {
