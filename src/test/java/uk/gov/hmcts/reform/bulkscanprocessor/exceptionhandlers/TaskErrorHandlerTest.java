@@ -48,13 +48,6 @@ public class TaskErrorHandlerTest {
         );
     }
 
-    @Test
-    public void should_update_all_entities_when_envelope_aware_blob_delete_exception_is_thrown() {
-        should_update_all_entities_when_envelope_aware_exception_is_thrown(
-            BLOB_DELETE_FAILURE, Status.DELETE_BLOB_FAILURE
-        );
-    }
-
     private void should_update_all_entities_when_envelope_aware_exception_is_thrown(Event event, Status status) {
         // given
         Envelope envelope = mock(Envelope.class);
@@ -71,13 +64,23 @@ public class TaskErrorHandlerTest {
         // and
         verify(envelope, times(1)).setStatus(status);
         assertThat(eventCaptor.getValue().getEvent()).isEqualByComparingTo(event);
+        assertThat(envelope.isZipDeleted()).isFalse();
     }
 
     @Test
-    public void should_only_create_event_when_event_aware_exception_is_thrown() {
+    public void should_only_create_delete_failure_event_when_related_exception_is_thrown() {
+        should_only_create_event_when_event_aware_exception_is_thrown(BLOB_DELETE_FAILURE);
+    }
+
+    @Test
+    public void should_only_create_doc_failure_event_when_related_exception_is_thrown() {
+        should_only_create_event_when_event_aware_exception_is_thrown(DOC_FAILURE);
+    }
+
+    private void should_only_create_event_when_event_aware_exception_is_thrown(Event event) {
         // given
         ArgumentCaptor<ProcessEvent> eventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
-        Throwable eventException = new EventException(DOC_FAILURE, "container", "zip");
+        Throwable eventException = new EventException(event, "container", "zip");
 
         // when
         handler.handleError(eventException);
@@ -89,7 +92,7 @@ public class TaskErrorHandlerTest {
         // and
         assertThat(eventCaptor.getValue())
             .extracting("event", "container", "zipFileName")
-            .contains(DOC_FAILURE, "container", "zip");
+            .contains(event, "container", "zip");
     }
 
     private static class EnvelopeException extends RuntimeException implements EnvelopeAwareThrowable {

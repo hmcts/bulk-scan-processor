@@ -7,10 +7,9 @@ public enum Status {
     CONSUMED, // client service handled the documents
     CREATED,
     METADATA_FAILURE, // when we are aware of envelope, but there are inconsistency among files and metadata info
-    PROCESSED, // when blob is successfully deleted after storing all docs in DM
+    PROCESSED, // after storing all docs in DM
     UPLOADED,
-    UPLOAD_FAILURE,
-    DELETE_BLOB_FAILURE;
+    UPLOAD_FAILURE;
 
     public static Optional<Status> fromEvent(Event event) {
         Status status = null;
@@ -34,10 +33,6 @@ public enum Status {
                 break;
             case DOC_CONSUMED:
                 status = CONSUMED;
-
-                break;
-            case BLOB_DELETE_FAILURE:
-                status = DELETE_BLOB_FAILURE;
 
                 break;
             default:

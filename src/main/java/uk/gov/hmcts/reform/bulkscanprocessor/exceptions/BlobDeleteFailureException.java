@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public class BlobDeleteFailureException extends RuntimeException implements EnvelopeAwareThrowable {
+public class BlobDeleteFailureException extends RuntimeException implements EventRelatedThrowable {
 
 
     private final transient Envelope envelope;
@@ -35,7 +35,6 @@ public class BlobDeleteFailureException extends RuntimeException implements Enve
         return envelope.getZipFileName();
     }
 
-    @Override
     public Envelope getEnvelope() {
         return envelope;
     }
