@@ -67,10 +67,6 @@ public final class EnvelopeCreator {
         return envelope("SSCS", Status.PROCESSED);
     }
 
-    public static Envelope envelopeNotified() throws Exception {
-        return envelope("SSCS", Status.NOTIFICATION_SENT);
-    }
-
     public static Envelope envelope(String jurisdiction, Status status) throws Exception {
         Timestamp timestamp = getTimestamp();
 
@@ -93,6 +89,10 @@ public final class EnvelopeCreator {
         envelope.setContainer("SSCS");
 
         return envelope;
+    }
+
+    public static Envelope envelopeNotified() throws Exception {
+        return envelope("SSCS", Status.NOTIFICATION_SENT);
     }
 
     public static Envelope envelopeUrgent() throws Exception {
