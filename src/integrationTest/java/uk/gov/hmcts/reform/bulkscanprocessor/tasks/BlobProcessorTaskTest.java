@@ -86,6 +86,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
+        assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         //This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf1, pdf2));
@@ -170,8 +171,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // Verify envelope status is updated to PROCESSED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
-            .extracting("status")
-            .containsOnly(PROCESSED);
+            .extracting("status", "zipDeleted")
+            .containsOnly(tuple(PROCESSED, true));
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -204,8 +205,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // Verify envelope status is updated to UPLOAD_FAILED
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
-            .extracting("status")
-            .containsOnly(UPLOAD_FAILURE);
+            .extracting("status", "zipDeleted")
+            .containsOnly(tuple(UPLOAD_FAILURE, false));
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -236,6 +237,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(envelopes).hasSize(1);
         Envelope envelope = envelopes.get(0);
         assertThat(envelope.getUploadFailureCount()).isEqualTo(1);
+        assertThat(envelope.isZipDeleted()).isFalse();
     }
 
     @Test
@@ -244,9 +246,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         //Given
 
         // Create envelope to simulate existing envelope with 'blob delete failed' status
-        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.DELETE_BLOB_FAILURE);
+        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.PROCESSED);
         existingEnvelope.setZipFileName(VALID_ZIP_FILE_WITH_CASE_NUMBER);
         existingEnvelope.setContainer(testContainer.getName());
+        existingEnvelope.setZipDeleted(false);
         existingEnvelope = envelopeRepository.save(existingEnvelope);
         // Upload blob to process. This should not be uploaded or processed.
         // It should only be deleted from storage and the envelope should be marked
@@ -268,7 +271,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // Check envelope status has been updated
         Optional<Envelope> envelope = envelopeRepository.findById(existingEnvelope.getId());
         assertThat(envelope.isPresent()).isTrue();
-        assertThat(envelope.get().getStatus()).isEqualTo(Status.PROCESSED);
+        assertThat(envelope.get().isZipDeleted()).isTrue();
     }
 
     @After

@@ -24,6 +24,25 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> findByJurisdiction(String jurisdiction);
 
     /**
+     * Finds envelope with a blob not deleted for a given container and zip file name.
+     *
+     * @param container from where container originated.
+     * @param zipFileName of envelope.
+     * @return A list of envelopes.
+     */
+    @Query("select e from Envelope e"
+        + " where e.container = :container"
+        + "   and e.zipFileName = :zip"
+        + "   and e.zipDeleted = false"
+        + " order by e.createdAt desc"
+    )
+    List<Envelope> findEnvelopesWithZipNotDeleted(
+        @Param("container") String container,
+        @Param("zip") String zipFileName,
+        Pageable pageable
+    );
+
+    /**
      * Finds envelope for a given container, zip file name and status.
      *
      * @param container from where container originated.
@@ -43,7 +62,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("status") Status status,
         Pageable pageable
     );
-
+    
     /**
      * Finds first N envelopes for a given jurisdiction that should be resent.
      *
