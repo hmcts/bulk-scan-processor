@@ -72,7 +72,7 @@ public class UpdateStatusTest {
         // find our envelope
         UUID envelopeId =
             testHelper
-                .getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED)
+                .getEnvelopes(this.testUrl, s2sToken, Status.NOTIFICATION_SENT)
                 .envelopes
                 .stream()
                 .filter(e -> Objects.equals(e.getZipFileName(), destZipFilename))

@@ -44,7 +44,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
@@ -89,7 +89,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             parse(originalMetaFile),
             "id", "amount", "amount_in_pence", "configuration", "json"
         );
-        assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(NOTIFICATION_SENT);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
@@ -182,7 +182,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status", "zipDeleted")
-            .containsOnly(tuple(PROCESSED, true));
+            .containsOnly(tuple(NOTIFICATION_SENT, true));
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()

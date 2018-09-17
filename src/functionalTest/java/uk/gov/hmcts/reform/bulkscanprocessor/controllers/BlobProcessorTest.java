@@ -71,14 +71,14 @@ public class BlobProcessorTest {
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
         EnvelopeListResponse envelopeListResponse =
-            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED);
+            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.NOTIFICATION_SENT);
 
         // some test DBs are not cleaned so there will probably be more than 1
         assertThat(envelopeListResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
 
         assertThat(envelopeListResponse.envelopes)
             .extracting("zipFileName", "status")
-            .containsOnlyOnce(tuple(destZipFilename, Status.PROCESSED));
+            .containsOnlyOnce(tuple(destZipFilename, Status.NOTIFICATION_SENT));
 
 
         List<EnvelopeResponse> envelopes = envelopeListResponse.envelopes

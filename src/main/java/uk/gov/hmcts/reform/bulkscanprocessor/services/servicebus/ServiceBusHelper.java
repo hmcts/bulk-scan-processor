@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -58,7 +59,7 @@ public class ServiceBusHelper {
         busMessage.setMessageId(msg.getMsgId());
         busMessage.setBody(msg.getMsgBody());
         if (msg.isTestOnly()) {
-            busMessage.setLabel(Msg.TEST_MSG_LABEL);
+            busMessage.setLabel(MsgLabel.TEST.toString());
         }
         return busMessage;
     }
