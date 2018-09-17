@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidStatusChangeExcep
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 public class EnvelopeStatusChangeValidatorTest {
@@ -27,7 +27,7 @@ public class EnvelopeStatusChangeValidatorTest {
 
     @Test
     public void should_not_throw_an_exception_if_status_transition_is_allowed() {
-        assertThatCode(() -> validator.assertCanUpdate(PROCESSED, CONSUMED))
+        assertThatCode(() -> validator.assertCanUpdate(NOTIFICATION_SENT, CONSUMED))
             .doesNotThrowAnyException();
     }
 }
