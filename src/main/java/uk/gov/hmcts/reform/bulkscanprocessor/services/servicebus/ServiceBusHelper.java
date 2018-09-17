@@ -57,6 +57,9 @@ public class ServiceBusHelper {
         Message busMessage = new Message();
         busMessage.setMessageId(msg.getMsgId());
         busMessage.setBody(msg.getMsgBody());
+        if (msg.isTestOnly()) {
+            busMessage.setLabel(Msg.TEST_MSG_LABEL);
+        }
         return busMessage;
     }
 

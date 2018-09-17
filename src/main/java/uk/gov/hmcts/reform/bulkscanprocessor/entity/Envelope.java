@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Strings;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.slf4j.Logger;
@@ -31,6 +32,8 @@ import static java.util.Collections.emptyList;
 public class Envelope {
 
     private static final Logger log = LoggerFactory.getLogger(Envelope.class);
+
+    public static final String TEST_FILE_SUFFIX = ".test.zip";
 
     @Id
     @GeneratedValue
@@ -212,6 +215,11 @@ public class Envelope {
 
     public void setZipDeleted(boolean zipDeleted) {
         this.zipDeleted = zipDeleted;
+    }
+
+    public boolean isTestOnly() {
+        return !Strings.isNullOrEmpty(zipFileName)
+            && zipFileName.toLowerCase().endsWith(TEST_FILE_SUFFIX);
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {

@@ -54,7 +54,7 @@ public class UpdateStatusTest {
 
     @Test
     public void should_allow_update_envelope_status() throws Exception {
-        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.zip");
+        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
         testHelper.uploadZipFile(
             testContainer,

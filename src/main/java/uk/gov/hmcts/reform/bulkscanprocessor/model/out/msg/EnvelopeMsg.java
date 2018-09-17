@@ -6,12 +6,18 @@ public class EnvelopeMsg implements Msg {
 
     private final byte[] envelope;
 
+    private final boolean testOnly;
+
 
     public EnvelopeMsg(String envelopeId) {
-        this.envelopeId = envelopeId;
-        this.envelope = new byte[0];
+        this(envelopeId, false);
     }
 
+    public EnvelopeMsg(String envelopeId, boolean testOnly) {
+        this.envelopeId = envelopeId;
+        this.envelope = new byte[0];
+        this.testOnly = testOnly;
+    }
 
     @Override
     public String getMsgId() {
@@ -24,9 +30,15 @@ public class EnvelopeMsg implements Msg {
     }
 
     @Override
+    public boolean isTestOnly() {
+        return testOnly;
+    }
+
+    @Override
     public String toString() {
         return "EnvelopeMsg{"
             + "envelopeId='" + envelopeId + '\''
+            + "testOnly='" + testOnly + '\''
             + '}';
     }
 
