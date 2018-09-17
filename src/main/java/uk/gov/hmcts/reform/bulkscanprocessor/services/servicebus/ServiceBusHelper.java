@@ -48,7 +48,7 @@ public class ServiceBusHelper {
         }
     }
 
-    private Message mapToBusMessage(Msg msg) {
+    Message mapToBusMessage(Msg msg) {
         if (msg == null) {
             throw new InvalidMessageException("Msg == null");
         }

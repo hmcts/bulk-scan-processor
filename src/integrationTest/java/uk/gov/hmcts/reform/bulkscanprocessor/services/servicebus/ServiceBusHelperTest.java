@@ -1,7 +1,8 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
+import com.microsoft.azure.servicebus.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.QueueClientSupplier;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -63,6 +63,20 @@ public class ServiceBusHelperTest {
     public void should_throw_exception_for_empty_messageId() {
         Msg msg = new EnvelopeMsg("");
         serviceBusHelper.sendMessage(msg);
+    }
+
+    @Test
+    public void should_add_test_label_to_test_message() {
+        Msg msg = new EnvelopeMsg("envelopeId", true);
+        Message busMessage = serviceBusHelper.mapToBusMessage(msg);
+        assertThat(busMessage.getLabel()).isEqualTo(MsgLabel.TEST.toString());
+    }
+
+    @Test
+    public void should_not_add_any_label_to_standard_message() {
+        Msg msg = new EnvelopeMsg("envelopeId");
+        Message busMessage = serviceBusHelper.mapToBusMessage(msg);
+        assertThat(busMessage.getLabel()).isNullOrEmpty();
     }
 
 }
