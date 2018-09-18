@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
+import javax.ws.rs.HEAD;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -48,6 +49,7 @@ public abstract class Processor {
         WrapperContext context = new WrapperContext(
             serviceBusHelper, cloudBlockBlob, envelope, pdfs
         );
+
         new WrapperContextProcessor()
             .andThen(this::uploadParsedEnvelopeDocuments)
             .andThen(this::markAsUploaded)

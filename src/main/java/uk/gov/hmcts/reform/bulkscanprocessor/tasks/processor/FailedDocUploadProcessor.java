@@ -86,7 +86,7 @@ public class FailedDocUploadProcessor extends Processor {
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            ZipFileProcessor zipFileProcessor = processZipInputStream(zis, envelope);
+            ZipFileProcessor zipFileProcessor = processZipFileContent(zis, envelope);
 
             if (zipFileProcessor != null) {
                 processParsedEnvelopeDocuments(
@@ -99,7 +99,7 @@ public class FailedDocUploadProcessor extends Processor {
         }
     }
 
-    private ZipFileProcessor processZipInputStream(ZipInputStream zis, Envelope envelope) {
+    private ZipFileProcessor processZipFileContent(ZipInputStream zis, Envelope envelope) {
         return errorWrapper.wrapDocFailure(envelope.getContainer(), envelope.getZipFileName(), () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
             zipFileProcessor.process(zis);
