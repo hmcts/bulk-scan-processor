@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 public abstract class Processor {
@@ -45,29 +46,31 @@ public abstract class Processor {
         ServiceBusHelper serviceBusHelper
     ) {
         WrapperContext context = new WrapperContext(
-            documentProcessor, envelopeProcessor, errorWrapper, serviceBusHelper, cloudBlockBlob, envelope, pdfs
+            serviceBusHelper, cloudBlockBlob, envelope, pdfs
         );
-        Processor.uploadParsedEnvelopeDocuments(context)
-            .andThen(Processor::markAsUploaded)
-            .andThen(Processor::markAsProcessed)
-            .andThen(Processor::sendProcessedMessage)
-            .andThen(Processor::markAsNotified)
-            .andThen(Processor::deleteBlob);
+        new WrapperContextProcessor()
+            .andThen(this::uploadParsedEnvelopeDocuments)
+            .andThen(this::markAsUploaded)
+            .andThen(this::markAsProcessed)
+            .andThen(this::sendProcessedMessage)
+            .andThen(this::markAsNotified)
+            .andThen(this::deleteBlob)
+            .apply(context);
     }
 
-    private static WrapperContext uploadParsedEnvelopeDocuments(WrapperContext context) {
+    private WrapperContext uploadParsedEnvelopeDocuments(WrapperContext context) {
         if (context.success) {
-            context.success = context.errorWrapper.wrapDocUploadFailure(context.envelope, () -> {
-                context.documentProcessor.uploadPdfFiles(context.pdfs, context.envelope.getScannableItems());
+            context.success = errorWrapper.wrapDocUploadFailure(context.envelope, () -> {
+                documentProcessor.uploadPdfFiles(context.pdfs, context.envelope.getScannableItems());
                 return Boolean.TRUE;
             });
         }
         return context;
     }
 
-    private static WrapperContext  deleteBlob(WrapperContext context) {
+    private WrapperContext  deleteBlob(WrapperContext context) {
         if (context.success) {
-            context.success = context.errorWrapper.wrapDeleteBlobFailure(context.envelope, () -> {
+            context.success = errorWrapper.wrapDeleteBlobFailure(context.envelope, () -> {
                 // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
                 context.cloudBlockBlob.breakLease(0);
                 boolean deleted = context.cloudBlockBlob.deleteIfExists();
@@ -75,16 +78,16 @@ public abstract class Processor {
                     throw new BlobDeleteFailureException(context.envelope);
                 }
                 context.envelope.setZipDeleted(true);
-                context.envelopeProcessor.saveEnvelope(context.envelope);
+                envelopeProcessor.saveEnvelope(context.envelope);
                 return Boolean.TRUE;
             });
         }
         return context;
     }
 
-    private static WrapperContext sendProcessedMessage(WrapperContext context) {
+    private WrapperContext sendProcessedMessage(WrapperContext context) {
         if (context.success) {
-            context.success = context.errorWrapper.wrapNotificationFailure(context.envelope, () -> {
+            context.success = errorWrapper.wrapNotificationFailure(context.envelope, () -> {
                 context.serviceBusHelper.sendMessage(
                     new EnvelopeMsg(context.envelope)
                 );
@@ -94,40 +97,37 @@ public abstract class Processor {
         return context;
     }
 
-    private static WrapperContext markAsUploaded(WrapperContext context) {
+    private WrapperContext markAsUploaded(WrapperContext context) {
         if (context.success) {
-            context.success = context.errorWrapper.wrapFailure(() -> {
-                context.envelopeProcessor.handleEvent(context.envelope, DOC_UPLOADED);
+            context.success = errorWrapper.wrapFailure(() -> {
+                envelopeProcessor.handleEvent(context.envelope, DOC_UPLOADED);
                 return Boolean.TRUE;
             });
         }
         return context;
     }
 
-    private static WrapperContext markAsProcessed(WrapperContext context) {
+    private WrapperContext markAsProcessed(WrapperContext context) {
         if (context.success) {
-            context.success = context.errorWrapper.wrapFailure(() -> {
-                context.envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED);
+            context.success = errorWrapper.wrapFailure(() -> {
+                envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED);
                 return Boolean.TRUE;
             });
         }
         return context;
     }
 
-    private static WrapperContext markAsNotified(WrapperContext context) {
+    private WrapperContext markAsNotified(WrapperContext context) {
         if (context.success) {
-            context.success = context.errorWrapper.wrapFailure(() -> {
-                context.envelopeProcessor.handleEvent(context.envelope, DOC_UPLOADED);
+            context.success = errorWrapper.wrapFailure(() -> {
+                envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED_NOTIFICATION_SENT);
                 return Boolean.TRUE;
             });
         }
         return context;
     }
 
-    public static class WrapperContext implements UnaryOperator<WrapperContext> {
-        public DocumentProcessor documentProcessor;
-        public EnvelopeProcessor envelopeProcessor;
-        public ErrorHandlingWrapper errorWrapper;
+    public static class WrapperContext {
         public ServiceBusHelper serviceBusHelper;
         public CloudBlockBlob cloudBlockBlob;
         public Envelope envelope;
@@ -135,26 +135,23 @@ public abstract class Processor {
         public boolean success = true;
 
         public WrapperContext(
-            DocumentProcessor documentProcessor,
-            EnvelopeProcessor envelopeProcessor,
-            ErrorHandlingWrapper errorWrapper,
             ServiceBusHelper serviceBusHelper,
             CloudBlockBlob cloudBlockBlob,
             Envelope envelope,
             List<Pdf> pdfs
         ) {
-            this.documentProcessor = documentProcessor;
-            this.envelopeProcessor = envelopeProcessor;
-            this.errorWrapper = errorWrapper;
+            this.serviceBusHelper = serviceBusHelper;
             this.cloudBlockBlob = cloudBlockBlob;
             this.envelope = envelope;
             this.pdfs = pdfs;
-            this.serviceBusHelper = serviceBusHelper;
         }
+    }
 
+    public static class WrapperContextProcessor implements UnaryOperator<WrapperContext> {
         @Override
         public WrapperContext apply(WrapperContext context) {
             return context;
         }
     }
+
 }
