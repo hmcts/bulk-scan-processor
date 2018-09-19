@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -106,7 +107,7 @@ public class BlobProcessorTask extends Processor {
 
     private void delete(CloudBlockBlob cloudBlockBlob, Envelope envelope) {
         try {
-            if (cloudBlockBlob != null) {
+            if (cloudBlockBlob != null && envelope.getStatus() == Status.PROCESSED) {
                 boolean deleted;
                 if (cloudBlockBlob.exists()) {
                     deleted = cloudBlockBlob.deleteIfExists();

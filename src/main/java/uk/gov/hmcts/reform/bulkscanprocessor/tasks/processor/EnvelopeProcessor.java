@@ -99,16 +99,14 @@ public class EnvelopeProcessor {
      *
      */
     public Envelope getIfFailToDeleteBlobBefore(String container, String zipFileName) {
-        List<Envelope> envelopes = envelopeRepository.findEnvelopesWithZipNotDeleted(
+        return envelopeRepository.findEnvelopesWithZipNotDeleted(
             container,
             zipFileName,
             PageRequest.of(0, 1)
-        );
-
-        if (!envelopes.isEmpty()) {
-            return envelopes.get(0);
-        }
-        return null;
+        )
+        .stream()
+        .findFirst()
+        .orElse(null);
     }
 
     /**
