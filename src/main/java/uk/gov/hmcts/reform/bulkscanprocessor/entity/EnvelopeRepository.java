@@ -33,10 +33,9 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     @Query("select e from Envelope e"
         + " where e.container = :container"
         + "   and e.zipFileName = :zip"
-        + "   and e.zipDeleted = false"
         + " order by e.createdAt desc"
     )
-    List<Envelope> findEnvelopesWithZipNotDeleted(
+    List<Envelope> findEnvelopesByFileAndContainer(
         @Param("container") String container,
         @Param("zip") String zipFileName,
         Pageable pageable
