@@ -116,7 +116,7 @@ public class ErrorHandlingWrapper {
         }
     }
 
-    public Boolean wrapFailure(Supplier<Boolean> supplier) {
+    public Boolean wrapGenericFailure(Supplier<Boolean> supplier) {
         try {
             return supplier.get();
         } catch (Exception exception) {

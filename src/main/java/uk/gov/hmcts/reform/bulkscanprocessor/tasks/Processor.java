@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
-import javax.ws.rs.HEAD;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -101,7 +100,7 @@ public abstract class Processor {
 
     private WrapperContext markAsUploaded(WrapperContext context) {
         if (context.success) {
-            context.success = errorWrapper.wrapFailure(() -> {
+            context.success = errorWrapper.wrapGenericFailure(() -> {
                 envelopeProcessor.handleEvent(context.envelope, DOC_UPLOADED);
                 return Boolean.TRUE;
             });
@@ -111,7 +110,7 @@ public abstract class Processor {
 
     private WrapperContext markAsProcessed(WrapperContext context) {
         if (context.success) {
-            context.success = errorWrapper.wrapFailure(() -> {
+            context.success = errorWrapper.wrapGenericFailure(() -> {
                 envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED);
                 return Boolean.TRUE;
             });
@@ -121,7 +120,7 @@ public abstract class Processor {
 
     private WrapperContext markAsNotified(WrapperContext context) {
         if (context.success) {
-            context.success = errorWrapper.wrapFailure(() -> {
+            context.success = errorWrapper.wrapGenericFailure(() -> {
                 envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED_NOTIFICATION_SENT);
                 return Boolean.TRUE;
             });
