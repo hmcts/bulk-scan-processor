@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.io.Resources.getResource;
@@ -166,6 +167,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await("file should be deleted")
             .atMost(2, SECONDS)
+            .pollInterval(1, TimeUnit.SECONDS)
             .until(blob::exists, is(false));
 
         // Verify envelope status is updated to PROCESSED
@@ -266,6 +268,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
         await("file should be deleted")
             .atMost(2, SECONDS)
+            .pollInterval(1, TimeUnit.SECONDS)
             .until(blob::exists, is(false));
 
         // Check envelope status has been updated
