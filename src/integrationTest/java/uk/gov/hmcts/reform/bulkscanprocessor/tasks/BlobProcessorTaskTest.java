@@ -202,7 +202,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
         await("file should not be deleted")
             .timeout(2, SECONDS)
-            .pollInterval(1, TimeUnit.SECONDS)
             .until(blob::exists, is(true));
 
         // Verify envelope status is updated to UPLOAD_FAILED
@@ -303,7 +302,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
         await("file should not be deleted")
             .atMost(5, SECONDS)
-            .pollInterval(1, TimeUnit.SECONDS)
             .until(blob::exists, is(true));
     }
 
