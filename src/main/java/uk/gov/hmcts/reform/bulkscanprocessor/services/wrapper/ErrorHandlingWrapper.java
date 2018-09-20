@@ -87,19 +87,18 @@ public class ErrorHandlingWrapper {
         }
     }
 
-    public Boolean wrapDeleteBlobFailure(
+    public void wrapDeleteBlobFailure(
         Envelope envelope,
         Supplier<Boolean> supplier
     ) {
         try {
-            return supplier.get();
+            supplier.get();
         } catch (Exception exception) {
             if (exception instanceof EnvelopeAwareThrowable) {
                 errorHandler.handleError(exception);
             } else {
                 errorHandler.handleError(new BlobDeleteFailureException(envelope, exception));
             }
-            return Boolean.FALSE;
         }
     }
 
