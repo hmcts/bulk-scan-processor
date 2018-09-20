@@ -38,16 +38,12 @@ public abstract class Processor {
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
-        if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
-            return;
+        if (uploadParsedEnvelopeDocuments(envelope, pdfs)
+            && markAsUploaded(envelope)
+            && markAsProcessed(envelope)
+            ) {
+            deleteBlob(envelope, cloudBlockBlob);
         }
-        if (!markAsUploaded(envelope)) {
-            return;
-        }
-        if (!markAsProcessed(envelope)) {
-            return;
-        }
-        deleteBlob(envelope, cloudBlockBlob);
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
@@ -60,11 +56,11 @@ public abstract class Processor {
         });
     }
 
-    private Boolean deleteBlob(
+    private void deleteBlob(
         Envelope envelope,
         CloudBlockBlob cloudBlockBlob
     ) {
-        return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
+        errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
             boolean deleted = cloudBlockBlob.deleteIfExists();
@@ -73,7 +69,7 @@ public abstract class Processor {
             }
             envelope.setZipDeleted(true);
             envelopeProcessor.saveEnvelope(envelope);
-            return Boolean.TRUE;
+            return null;
         });
     }
 
@@ -84,7 +80,7 @@ public abstract class Processor {
         });
     }
 
-    public Boolean markAsProcessed(Envelope envelope) {
+    private Boolean markAsProcessed(Envelope envelope) {
         return errorWrapper.wrapFailure(() -> {
             envelopeProcessor.handleEvent(envelope, DOC_PROCESSED);
             return Boolean.TRUE;
