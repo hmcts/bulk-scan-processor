@@ -274,6 +274,34 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(envelope.get().isZipDeleted()).isTrue();
     }
 
+    @Test
+    public void should_not_delete_blob_unless_processed()
+        throws Exception {
+        //Given
+
+        // Create envelope to simulate existing envelope with 'blob delete failed' status
+        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.UPLOADED);
+        existingEnvelope.setZipFileName(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        existingEnvelope.setContainer(testContainer.getName());
+        existingEnvelope.setZipDeleted(false);
+        existingEnvelope = envelopeRepository.save(existingEnvelope);
+        // Upload blob to process. This should not be deleted from storage
+        // as it still needs processing
+        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+
+        //when
+        processor.processBlobs();
+
+        // Check blob was never uploaded
+        verify(documentManagementService, never()).uploadDocuments(anyList());
+
+        // Check blob is not deleted
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        await("file should not be deleted")
+            .atMost(5, SECONDS)
+            .until(blob::exists, is(true));
+    }
+
     @After
     public void cleanUp() {
         envelopeRepository.deleteAll();

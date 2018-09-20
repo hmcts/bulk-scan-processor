@@ -44,7 +44,9 @@ public abstract class Processor {
         if (!markAsUploaded(envelope)) {
             return;
         }
-        markAsProcessed(envelope);
+        if (!markAsProcessed(envelope)) {
+            return;
+        }
         deleteBlob(envelope, cloudBlockBlob);
     }
 
