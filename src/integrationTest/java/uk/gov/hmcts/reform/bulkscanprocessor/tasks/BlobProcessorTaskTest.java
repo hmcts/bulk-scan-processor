@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
@@ -32,14 +33,18 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
@@ -66,6 +71,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
             .willReturn(getFileUploadResponse());
 
+        doNothing().when(serviceBusHelper).sendMessage(any(Msg.class));
+
         //when
         processor.processBlobs();
 
@@ -82,7 +89,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             parse(originalMetaFile),
             "id", "amount", "amount_in_pence", "configuration", "json"
         );
-        assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(NOTIFICATION_SENT);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
@@ -91,18 +98,21 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         //This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf1, pdf2));
 
+        verify(serviceBusHelper, times(1)).sendMessage(any());
+
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(2);
+        assertThat(processEvents).hasSize(3);
 
         assertThat(processEvents)
             .extracting("container", "zipFileName", "event")
             .contains(
                 tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOADED),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED)
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED_NOTIFICATION_SENT)
             );
 
-        assertThat(processEvents).extracting("id").hasSize(2);
+        assertThat(processEvents).extracting("id").hasSize(3);
         assertThat(processEvents).extracting("reason").containsOnlyNulls();
     }
 
@@ -172,14 +182,14 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
             .extracting("status", "zipDeleted")
-            .containsOnly(tuple(PROCESSED, true));
+            .containsOnly(tuple(NOTIFICATION_SENT, true));
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
             .collect(Collectors.toList());
 
-        assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED);
+        assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED, DOC_PROCESSED_NOTIFICATION_SENT);
     }
 
     @Test

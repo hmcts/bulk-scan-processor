@@ -59,7 +59,7 @@ public class BlobProcessorTest {
     public void should_process_zipfile_after_upload_and_set_status() throws Exception {
         List<String> files = Arrays.asList("1111006.pdf", "1111002.pdf");
         String metadataFile = "1111006_2.metadata.json";
-        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.zip");
+        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
         testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
 
@@ -71,14 +71,14 @@ public class BlobProcessorTest {
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
         EnvelopeListResponse envelopeListResponse =
-            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED);
+            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.NOTIFICATION_SENT);
 
         // some test DBs are not cleaned so there will probably be more than 1
         assertThat(envelopeListResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
 
         assertThat(envelopeListResponse.envelopes)
             .extracting("zipFileName", "status")
-            .containsOnlyOnce(tuple(destZipFilename, Status.PROCESSED));
+            .containsOnlyOnce(tuple(destZipFilename, Status.NOTIFICATION_SENT));
 
 
         List<EnvelopeResponse> envelopes = envelopeListResponse.envelopes

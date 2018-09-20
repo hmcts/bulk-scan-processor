@@ -7,6 +7,7 @@ import org.springframework.util.ErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocFailureGenericException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocProcessedNotificationFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocUploadFailureGenericException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeAwareThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
@@ -99,6 +100,18 @@ public class ErrorHandlingWrapper {
             } else {
                 errorHandler.handleError(new BlobDeleteFailureException(envelope, exception));
             }
+            return Boolean.FALSE;
+        }
+    }
+
+    public Boolean wrapNotificationFailure(
+        Envelope envelope,
+        Supplier<Boolean> supplier
+    ) {
+        try {
+            return supplier.get();
+        } catch (Exception exception) {
+            errorHandler.handleError(new DocProcessedNotificationFailureException(envelope, exception));
             return Boolean.FALSE;
         }
     }

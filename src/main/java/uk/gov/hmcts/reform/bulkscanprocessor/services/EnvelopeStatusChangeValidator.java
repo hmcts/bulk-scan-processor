@@ -11,14 +11,14 @@ import java.util.Map;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 
 @Service
 public class EnvelopeStatusChangeValidator {
 
     private static final Map<Status, List<Status>> allowedTransitions =
         ImmutableMap.of(
-            PROCESSED, singletonList(CONSUMED)
+            NOTIFICATION_SENT, singletonList(CONSUMED)
         );
 
     /**

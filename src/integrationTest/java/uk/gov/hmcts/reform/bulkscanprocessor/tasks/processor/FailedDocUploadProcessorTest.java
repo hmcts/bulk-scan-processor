@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
@@ -88,12 +89,17 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         String failureReason = "Document metadata not found for file " + pdf1.getFilename();
 
         assertThat(processEventRepository.findAll())
-            .hasSize(3)
+            .hasSize(4)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOADED, null),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED, null)
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
+                    DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
+                    DOC_UPLOADED, null),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
+                    DOC_PROCESSED, null),
+                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
+                    DOC_PROCESSED_NOTIFICATION_FAILURE, null)
             );
     }
 

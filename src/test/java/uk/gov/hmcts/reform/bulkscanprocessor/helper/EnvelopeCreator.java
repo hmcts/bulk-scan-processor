@@ -91,6 +91,10 @@ public final class EnvelopeCreator {
         return envelope;
     }
 
+    public static Envelope envelopeNotified() throws Exception {
+        return envelope("SSCS", Status.NOTIFICATION_SENT);
+    }
+
     public static Envelope envelopeUrgent() throws Exception {
         return envelopeUrgent("SSCS", Status.CREATED);
     }

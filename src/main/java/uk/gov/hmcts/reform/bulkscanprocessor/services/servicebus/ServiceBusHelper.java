@@ -4,11 +4,13 @@ import com.google.common.base.Strings;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,7 +19,10 @@ import java.util.concurrent.CompletableFuture;
 // With prototype scope we can have more than 1 client instance. Also injection happens
 // when the supplier is accessed for the first time (not at application startup), this
 // allows to avoid mocking the supplier in every single integration test.
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Scope(
+    value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, // every other call to return bean will create new instance
+    proxyMode = ScopedProxyMode.TARGET_CLASS // allows prototyping
+)
 public class ServiceBusHelper {
 
     private final IQueueClient sendClient;
@@ -43,7 +48,7 @@ public class ServiceBusHelper {
         }
     }
 
-    private Message mapToBusMessage(Msg msg) {
+    Message mapToBusMessage(Msg msg) {
         if (msg == null) {
             throw new InvalidMessageException("Msg == null");
         }
@@ -53,6 +58,9 @@ public class ServiceBusHelper {
         Message busMessage = new Message();
         busMessage.setMessageId(msg.getMsgId());
         busMessage.setBody(msg.getMsgBody());
+        if (msg.isTestOnly()) {
+            busMessage.setLabel(MsgLabel.TEST.toString());
+        }
         return busMessage;
     }
 

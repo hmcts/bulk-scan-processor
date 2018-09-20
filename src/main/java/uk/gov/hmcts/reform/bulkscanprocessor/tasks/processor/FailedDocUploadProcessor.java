@@ -7,11 +7,13 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
@@ -29,6 +31,8 @@ public class FailedDocUploadProcessor extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
 
+    private final ServiceBusHelper serviceBusHelper;
+
     public FailedDocUploadProcessor(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -36,6 +40,17 @@ public class FailedDocUploadProcessor extends Processor {
         ErrorHandlingWrapper errorWrapper
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        this.serviceBusHelper = serviceBusHelper();
+    }
+
+    /**
+     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
+     *
+     * @return Instance of {@code ServiceBusHelper}
+     */
+    @Lookup
+    public ServiceBusHelper serviceBusHelper() {
+        return null;
     }
 
     public void processJurisdiction(String jurisdiction)
@@ -77,7 +92,8 @@ public class FailedDocUploadProcessor extends Processor {
                 processParsedEnvelopeDocuments(
                     envelope,
                     zipFileProcessor.getPdfs(),
-                    cloudBlockBlob
+                    cloudBlockBlob,
+                    serviceBusHelper
                 );
             }
         }

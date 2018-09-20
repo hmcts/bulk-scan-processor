@@ -9,7 +9,8 @@ public enum Status {
     METADATA_FAILURE, // when we are aware of envelope, but there are inconsistency among files and metadata info
     PROCESSED, // after storing all docs in DM
     UPLOADED,
-    UPLOAD_FAILURE;
+    UPLOAD_FAILURE,
+    NOTIFICATION_SENT; // after notifying that processing is complete
 
     public static Optional<Status> fromEvent(Event event) {
         Status status = null;
@@ -35,10 +36,19 @@ public enum Status {
                 status = CONSUMED;
 
                 break;
+            case DOC_PROCESSED_NOTIFICATION_SENT:
+                status = NOTIFICATION_SENT;
+
+                break;
             default:
                 break;
         }
 
         return Optional.ofNullable(status);
     }
+
+    public boolean isProcessed() {
+        return (this == PROCESSED || this == NOTIFICATION_SENT);
+    }
+
 }
