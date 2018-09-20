@@ -46,4 +46,9 @@ public enum Status {
 
         return Optional.ofNullable(status);
     }
+
+    public boolean isProcessed() {
+        return (this == PROCESSED || this == NOTIFICATION_SENT);
+    }
+
 }
