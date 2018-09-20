@@ -38,7 +38,10 @@ public abstract class Processor {
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
-        if (uploadParsedEnvelopeDocuments(envelope, pdfs) && markAsUploaded(envelope) && markAsProcessed(envelope)) {
+        if (uploadParsedEnvelopeDocuments(envelope, pdfs)
+            && markAsUploaded(envelope)
+            && markAsProcessed(envelope)
+            ) {
             deleteBlob(envelope, cloudBlockBlob);
         }
     }
