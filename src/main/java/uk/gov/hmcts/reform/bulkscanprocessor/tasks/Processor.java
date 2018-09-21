@@ -60,11 +60,11 @@ public abstract class Processor {
     }
 
     private WrapperContext uploadParsedEnvelopeDocuments(WrapperContext context) {
-        if (context.success) {
-            context.success = errorWrapper.wrapDocUploadFailure(context.envelope, () -> {
+        if (context.isSuccess()) {
+            context.setSuccess(errorWrapper.wrapDocUploadFailure(context.envelope, () -> {
                 documentProcessor.uploadPdfFiles(context.pdfs, context.envelope.getScannableItems());
                 return Boolean.TRUE;
-            });
+            }));
         }
         return context;
     }
@@ -87,43 +87,43 @@ public abstract class Processor {
     }
 
     private WrapperContext sendProcessedMessage(WrapperContext context) {
-        if (context.success) {
-            context.success = errorWrapper.wrapNotificationFailure(context.envelope, () -> {
+        if (context.isSuccess()) {
+            context.setSuccess(errorWrapper.wrapNotificationFailure(context.envelope, () -> {
                 context.serviceBusHelper.sendMessage(
                     new EnvelopeMsg(context.envelope)
                 );
                 return Boolean.TRUE;
-            });
+            }));
         }
         return context;
     }
 
     private WrapperContext markAsUploaded(WrapperContext context) {
-        if (context.success) {
-            context.success = errorWrapper.wrapGenericFailure(() -> {
+        if (context.isSuccess()) {
+            context.setSuccess(errorWrapper.wrapGenericFailure(() -> {
                 envelopeProcessor.handleEvent(context.envelope, DOC_UPLOADED);
                 return Boolean.TRUE;
-            });
+            }));
         }
         return context;
     }
 
     private WrapperContext markAsProcessed(WrapperContext context) {
-        if (context.success) {
-            context.success = errorWrapper.wrapGenericFailure(() -> {
+        if (context.isSuccess()) {
+            context.setSuccess(errorWrapper.wrapGenericFailure(() -> {
                 envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED);
                 return Boolean.TRUE;
-            });
+            }));
         }
         return context;
     }
 
     private WrapperContext markAsNotified(WrapperContext context) {
-        if (context.success) {
-            context.success = errorWrapper.wrapGenericFailure(() -> {
+        if (context.isSuccess()) {
+            context.setSuccess(errorWrapper.wrapGenericFailure(() -> {
                 envelopeProcessor.handleEvent(context.envelope, DOC_PROCESSED_NOTIFICATION_SENT);
                 return Boolean.TRUE;
-            });
+            }));
         }
         return context;
     }
@@ -133,7 +133,7 @@ public abstract class Processor {
         public final CloudBlockBlob cloudBlockBlob;
         public final Envelope envelope;
         public final List<Pdf> pdfs;
-        public boolean success = true;
+        private boolean success = true;
 
         public WrapperContext(
             ServiceBusHelper serviceBusHelper,
@@ -145,6 +145,14 @@ public abstract class Processor {
             this.cloudBlockBlob = cloudBlockBlob;
             this.envelope = envelope;
             this.pdfs = pdfs;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public void setSuccess(boolean success) {
+            this.success = success;
         }
     }
 
