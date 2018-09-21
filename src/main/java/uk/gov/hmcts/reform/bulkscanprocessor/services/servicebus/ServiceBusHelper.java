@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
@@ -27,7 +29,9 @@ public class ServiceBusHelper {
 
     private final IQueueClient sendClient;
 
-    public ServiceBusHelper(QueueClientSupplier queueClientSupplier) {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    ServiceBusHelper(QueueClientSupplier queueClientSupplier) {
         this.sendClient = queueClientSupplier.get();
     }
 
@@ -56,8 +60,15 @@ public class ServiceBusHelper {
             throw new InvalidMessageException("Msg Id == null");
         }
         Message busMessage = new Message();
+        busMessage.setContentType("application/json");
         busMessage.setMessageId(msg.getMsgId());
-        busMessage.setBody(msg.getMsgBody());
+
+        try {
+            byte[] messageBody = objectMapper.writeValueAsBytes(msg); //default encoding is UTF-8
+            busMessage.setBody(messageBody);
+        } catch (JsonProcessingException e) {
+            throw new InvalidMessageException("Unable to create message body in json format", e);
+        }
         if (msg.isTestOnly()) {
             busMessage.setLabel(MsgLabel.TEST.toString());
         }
