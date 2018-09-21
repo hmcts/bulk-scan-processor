@@ -55,7 +55,7 @@ public abstract class Processor {
             .andThen(this::markAsProcessed)
             .andThen(this::sendProcessedMessage)
             .andThen(this::markAsNotified)
-            .andThen(this::deleteBlob)
+            .andThen(this::deleteBlobIfProcessed)
             .apply(context);
     }
 
@@ -69,9 +69,9 @@ public abstract class Processor {
         return context;
     }
 
-    private WrapperContext  deleteBlob(WrapperContext context) {
-        if (context.success) {
-            context.success = errorWrapper.wrapDeleteBlobFailure(context.envelope, () -> {
+    private WrapperContext deleteBlobIfProcessed(WrapperContext context) {
+        if (context.envelope.getStatus().isProcessed()) {
+            errorWrapper.wrapDeleteBlobFailure(context.envelope, () -> {
                 // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
                 context.cloudBlockBlob.breakLease(0);
                 boolean deleted = context.cloudBlockBlob.deleteIfExists();
@@ -129,10 +129,10 @@ public abstract class Processor {
     }
 
     public static class WrapperContext {
-        public ServiceBusHelper serviceBusHelper;
-        public CloudBlockBlob cloudBlockBlob;
-        public Envelope envelope;
-        public List<Pdf> pdfs;
+        public final ServiceBusHelper serviceBusHelper;
+        public final CloudBlockBlob cloudBlockBlob;
+        public final Envelope envelope;
+        public final List<Pdf> pdfs;
         public boolean success = true;
 
         public WrapperContext(
