@@ -64,7 +64,8 @@ public class UpdateStatusTest {
         );
 
         await("file should be deleted")
-            .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
+            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
