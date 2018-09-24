@@ -100,21 +100,21 @@ public class ServiceBusHelperTest {
     @Test
     public void should_send_message_with_envelope_data() throws Exception {
 
-        Msg message = new EnvelopeMsg(envelope);
+        EnvelopeMsg message = new EnvelopeMsg(envelope);
         Message busMessage = serviceBusHelper.mapToBusMessage(message);
 
         JsonNode jsonNode = objectMapper.readTree(busMessage.getBody());
 
-        assertThat(jsonNode.get("case_ref").textValue()).isEqualTo("1111222233334446");
-        assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo("SSCS");
-        assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo("zip-file-test.zip");
-        assertThat(jsonNode.get("classification").textValue()).isEqualTo(Classification.EXCEPTION.name());
+        assertThat(jsonNode.get("case_ref").textValue()).isEqualTo(message.getCaseNumber());
+        assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
+        assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo(message.getZipFileName());
+        assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
 
         JsonNode docUrls = jsonNode.get("doc_urls");
         assertThat(docUrls.isArray()).isTrue();
         assertThat(docUrls.size()).isEqualTo(2);
-        assertThat(docUrls.get(0).asText()).isEqualTo("documentUrl1");
-        assertThat(docUrls.get(1).asText()).isEqualTo("documentUrl2");
+        assertThat(docUrls.get(0).asText()).isEqualTo(scannableItem1.getDocumentUrl());
+        assertThat(docUrls.get(1).asText()).isEqualTo(scannableItem2.getDocumentUrl());
     }
 
     private void mockEnevelopeData() {
