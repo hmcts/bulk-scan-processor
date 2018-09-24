@@ -36,11 +36,11 @@ public class MetafileJsonValidator {
      * @param metafile to validate against
      * @throws ProcessingException processing error during the validation
      */
-    public void validate(byte[] metafile) throws IOException, ProcessingException {
+    public void validate(byte[] metafile, String zipFileName) throws IOException, ProcessingException {
         ProcessingReport report = jsonSchemaValidator.validate(MAPPER.readTree(metafile), true);
 
         if (!report.isSuccess()) {
-            throw new InvalidEnvelopeSchemaException(report);
+            throw new InvalidEnvelopeSchemaException(report, zipFileName);
         }
     }
 

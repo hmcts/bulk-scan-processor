@@ -8,11 +8,15 @@ import java.util.stream.StreamSupport;
 
 public class InvalidEnvelopeSchemaException extends RuntimeException {
 
-    public InvalidEnvelopeSchemaException(ProcessingReport report) {
-        super("Failed validation against schema:\n\t" + StreamSupport
-            .stream(report.spliterator(), false)
-            .map(ProcessingMessage::getMessage)
-            .collect(Collectors.joining("\n\t"))
+    public InvalidEnvelopeSchemaException(ProcessingReport report, String zipFileName) {
+        super(
+            String.format("Failed validation for file %s against schema. Errors:%n\t%s",
+                zipFileName,
+                StreamSupport
+                    .stream(report.spliterator(), false)
+                    .map(ProcessingMessage::toString)
+                    .collect(Collectors.joining("\n\t"))
+            )
         );
     }
 }
