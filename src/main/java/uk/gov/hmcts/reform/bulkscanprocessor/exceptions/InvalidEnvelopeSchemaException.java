@@ -10,7 +10,7 @@ public class InvalidEnvelopeSchemaException extends RuntimeException {
 
     public InvalidEnvelopeSchemaException(ProcessingReport report, String zipFileName) {
         super(
-            String.format("Failed validation for file %s against schema. Errors:\n\t%s",
+            String.format("Failed validation for file %s against schema. Errors:%n\t%s",
                 zipFileName,
                 StreamSupport
                     .stream(report.spliterator(), false)
