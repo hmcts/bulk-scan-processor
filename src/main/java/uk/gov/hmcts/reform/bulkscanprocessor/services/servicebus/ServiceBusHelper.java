@@ -12,7 +12,6 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -29,10 +28,11 @@ public class ServiceBusHelper {
 
     private final IQueueClient sendClient;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    ServiceBusHelper(QueueClientSupplier queueClientSupplier) {
+    ServiceBusHelper(QueueClientSupplier queueClientSupplier, ObjectMapper objectMapper) {
         this.sendClient = queueClientSupplier.get();
+        this.objectMapper = objectMapper;
     }
 
     public CompletableFuture<Void> sendMessageAsync(Msg msg) {
@@ -62,17 +62,19 @@ public class ServiceBusHelper {
         Message busMessage = new Message();
         busMessage.setContentType("application/json");
         busMessage.setMessageId(msg.getMsgId());
-
-        try {
-            byte[] messageBody = objectMapper.writeValueAsBytes(msg); //default encoding is UTF-8
-            busMessage.setBody(messageBody);
-        } catch (JsonProcessingException e) {
-            throw new InvalidMessageException("Unable to create message body in json format", e);
-        }
-        if (msg.isTestOnly()) {
-            busMessage.setLabel(MsgLabel.TEST.toString());
-        }
+        busMessage.setBody(getMsgBodyInBytes(msg));
         return busMessage;
     }
 
+    private byte[] getMsgBodyInBytes(Msg message) {
+        try {
+            String bytes = objectMapper.writeValueAsString(message); //default encoding is UTF-8
+//            objectMapper.writeValueAsBytes(message);
+            System.out.println(bytes);
+            return bytes.getBytes();
+        } catch (JsonProcessingException e) {
+            throw new InvalidMessageException("Unable to create message body in json format", e);
+        }
+    }
 }
+

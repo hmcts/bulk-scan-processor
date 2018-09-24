@@ -25,26 +25,28 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("classification")
     private Classification classification;
 
+    @JsonProperty("zipFileName")
+    private String zipFileName;
+
     @JsonProperty("doc_urls")
     private List<String> documentUrls;
 
-    @JsonIgnore
-    private final byte[] envelope;
-
-    @JsonIgnore
-    private final boolean testOnly;
-
-    public EnvelopeMsg(Envelope envelope, boolean testOnly) {
+    public EnvelopeMsg(Envelope envelope) {
         this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
-        this.envelope = new byte[0];
         this.caseNumber = envelope.getCaseNumber();
         this.classification = envelope.getClassification();
         this.jurisdiction = envelope.getJurisdiction();
+        this.zipFileName = envelope.getZipFileName();
         this.documentUrls = envelope.getScannableItems()
             .stream()
             .map(ScannableItem::getDocumentUrl)
             .collect(Collectors.toList());
-        this.testOnly = testOnly;
+    }
+
+    @Override
+    @JsonIgnore
+    public byte[] getMsgBody() {
+        return new byte[0];
     }
 
     @Override
@@ -53,46 +55,32 @@ public class EnvelopeMsg implements Msg {
         return envelopeId;
     }
 
-    @Override
-    @JsonIgnore
-    public byte[] getMsgBody() {
-        return envelope;
-    }
-
-    @Override
-    public boolean isTestOnly() {
-        return testOnly;
-    }
-
-    @Override
     public String getCaseNumber() {
         return caseNumber;
     }
 
-    @Override
     public Classification getClassification() {
         return classification;
     }
 
-    @Override
     public String getJurisdiction() {
         return jurisdiction;
     }
 
-    @Override
     public List<String> getDocumentUrls() {
         return documentUrls;
     }
 
+    public String getZipFileName() {
+        return zipFileName;
+    }
+
     @Override
+    @JsonIgnore
     public String toString() {
         return "EnvelopeMsg{"
             + "envelopeId='" + envelopeId + "'"
-            + "caseNumber='" + caseNumber + "'"
-            + "classification='" + classification + "'"
-            + "jurisdiction='" + jurisdiction + "'"
-            + "documentUrls=[" + String.join(",", documentUrls) + "]"
-            + "testOnly='" + testOnly + "'"
+            + "zipFileName='" + zipFileName + "'"
             + "}";
     }
 
