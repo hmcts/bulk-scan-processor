@@ -59,7 +59,7 @@ public class ServiceBusHelperTest {
         when(queueClientSupplier.get()).thenReturn(this.queueClient);
         serviceBusHelper = new ServiceBusHelper(queueClientSupplier, this.objectMapper);
 
-        mockEnevelopeData();
+        mockEnvelopeData();
     }
 
     @Test
@@ -127,7 +127,7 @@ public class ServiceBusHelperTest {
         assertThat(docUrls.get(1).asText()).isEqualTo(scannableItem2.getDocumentUrl());
     }
 
-    private void mockEnevelopeData() {
+    private void mockEnvelopeData() {
         when(envelope.getId()).thenReturn(envelopeId);
         when(envelope.getCaseNumber()).thenReturn("1111222233334446");
         when(envelope.getJurisdiction()).thenReturn("SSCS");

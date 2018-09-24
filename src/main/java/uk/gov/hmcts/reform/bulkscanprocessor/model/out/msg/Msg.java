@@ -4,8 +4,6 @@ public interface Msg {
 
     String getMsgId();
 
-    byte[] getMsgBody();
-
     boolean isTestOnly();
 
 }

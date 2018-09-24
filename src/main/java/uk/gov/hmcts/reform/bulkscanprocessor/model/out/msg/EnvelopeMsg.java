@@ -48,12 +48,6 @@ public class EnvelopeMsg implements Msg {
 
     @Override
     @JsonIgnore
-    public byte[] getMsgBody() {
-        return new byte[0];
-    }
-
-    @Override
-    @JsonIgnore
     public String getMsgId() {
         return envelopeId;
     }
