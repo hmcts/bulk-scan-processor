@@ -13,6 +13,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class MetafileJsonValidatorTestForInvalidFiles {
 
+    private static final String SAMPLE_ZIP_FILE_NAME = "zip-file-123";
+
     private MetafileJsonValidator validator;
 
     @Before
@@ -26,13 +28,15 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/no-scannables.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
-            .hasMessageContaining("scannable_items");
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                + "\n\terror: object has missing required properties"
+            )
+            .hasMessageContaining("missing: [\"scannable_items\"]");
     }
 
     @Test
@@ -41,12 +45,14 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/missing-top-level-fields.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: object has missing required properties"
+            )
             .hasMessageContaining("classification")
             .hasMessageContaining("jurisdiction")
             .hasMessageContaining("opening_date");
@@ -64,12 +70,14 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/missing-required-fields.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: object has missing required properties"
+            )
             .hasMessageContaining("classification")
             .hasMessageContaining("jurisdiction")
             .hasMessageContaining("scanning_date")
@@ -86,13 +94,14 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-date-format.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tECMA 262 regex ")
-            .hasMessageContaining("2013-02-20 00:00:00.100000");
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
+            .hasMessageContaining("2013-02-20 00:00:00.100000")
+            .hasMessageContaining("instance: {\"pointer\":\"/delivery_date\"}");
     }
 
     @Test
@@ -101,13 +110,14 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-zip-file-name-format.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tECMA 262 regex ")
-            .hasMessageContaining("1a_24-02-2017-00-00-00.zip");
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
+            .hasMessageContaining("1a_24-02-2017-00-00-00.zip")
+            .hasMessageContaining("instance: {\"pointer\":\"/zip_file_name\"}");
     }
 
     @Test
@@ -116,16 +126,19 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/enum-boundaries-for-clasification.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\t"
-                + "instance value (\"NEW_application\") not found in enum")
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: instance value (\"NEW_application\") not found in enum"
+            )
             .hasMessageContaining("exception")
             .hasMessageContaining("new_application")
-            .hasMessageContaining("supplementary_evidence");
+            .hasMessageContaining("supplementary_evidence")
+            .hasMessageContaining("instance: {\"pointer\":\"/classification\"}");
     }
 
     @Test
@@ -134,13 +147,14 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/non-pdf-extension.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tECMA 262 regex ")
-            .hasMessageContaining("1111001.gif");
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
+            .hasMessageContaining("1111001.gif")
+            .hasMessageContaining("instance: {\"pointer\":\"/scannable_items/0/file_name\"}");
     }
 
     // Failed validation against schema:
@@ -152,15 +166,20 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/use-of-boolean.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tinstance value (false) not found in enum")
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: instance value (false) not found in enum"
+            )
+
             .hasMessageContaining("instance type (boolean) does not match any allowed primitive type")
             .hasMessageContaining("\"false\"")
-            .hasMessageContaining("\"true\"");
+            .hasMessageContaining("\"true\"")
+            .hasMessageContaining("instance: {\"pointer\":\"/urgent\"}");
     }
 
     @Test
@@ -169,13 +188,16 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/use-of-numeric.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\t"
-                + "instance failed to match exactly one schema (matched 0 out of 3)");
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: instance failed to match exactly one schema (matched 0 out of 3)"
+            )
+            .hasMessageContaining("instance: {\"pointer\":\"/payments/0\"}");
     }
 
     @Test
@@ -184,13 +206,16 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-cheque-payment.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\t"
-                + "instance failed to match exactly one schema (matched 0 out of 3)");
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: instance failed to match exactly one schema (matched 0 out of 3)"
+            )
+            .hasMessageContaining("instance: {\"pointer\":\"/payments/0\"}");
     }
 
     @Test
@@ -199,13 +224,15 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-postal-order-payment.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\t"
-                + "instance failed to match exactly one schema (matched 0 out of 3)");
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                + "\n\terror: instance failed to match exactly one schema (matched 0 out of 3)"
+            )
+            .hasMessageContaining("instance: {\"pointer\":\"/payments/0\"}");
     }
 
     @Test
@@ -214,13 +241,17 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-scannable-items.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
-            .hasMessageContaining("document_control_number");
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: object has missing required properties"
+            )
+            .hasMessageContaining("document_control_number")
+            .hasMessageContaining("instance: {\"pointer\":\"/scannable_items/1\"}");
     }
 
     @Test
@@ -229,17 +260,25 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-non-scannable-items.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith("Failed validation against schema:\n\tobject has missing required properties")
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: object has missing required properties"
+            )
             .hasMessageContaining("document_control_number")
-            .hasMessageContaining("item_type");
+            .hasMessageContaining("item_type")
+            .hasMessageContaining("instance: {\"pointer\":\"/non_scannable_items/0\"}");
     }
 
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));
+    }
+
+    private String getExpectedErrorHeaderLine(String zipFilename) {
+        return String.format("Failed validation for file %s against schema. Errors:", zipFilename);
     }
 }

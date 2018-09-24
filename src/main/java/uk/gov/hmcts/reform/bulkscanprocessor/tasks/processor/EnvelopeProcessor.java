@@ -53,12 +53,12 @@ public class EnvelopeProcessor {
         this.maxReuploadTriesCount = maxReuploadTriesCount;
     }
 
-    public Envelope parseEnvelope(byte[] metadataStream) throws IOException, ProcessingException {
+    public Envelope parseEnvelope(byte[] metadataStream, String zipFileName) throws IOException, ProcessingException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
 
-        schemaValidator.validate(metadataStream);
+        schemaValidator.validate(metadataStream, zipFileName);
 
         return schemaValidator.parseMetafile(metadataStream);
     }
