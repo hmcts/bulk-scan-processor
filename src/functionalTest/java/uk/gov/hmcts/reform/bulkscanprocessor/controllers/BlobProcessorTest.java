@@ -82,7 +82,7 @@ public class BlobProcessorTest {
         assertThat(envelopeListResponse.envelopes
             .stream().filter(e -> destZipFilename.equals(e.getZipFileName()))
             .map(e -> e.getStatus()))
-            .isEqualTo(Status.NOTIFICATION_SENT);
+            .containsOnlyOnce(Status.NOTIFICATION_SENT);
 
         List<EnvelopeResponse> envelopes = envelopeListResponse.envelopes
             .stream()
