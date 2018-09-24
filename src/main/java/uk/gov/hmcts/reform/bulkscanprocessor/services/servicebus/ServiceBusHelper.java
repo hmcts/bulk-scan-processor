@@ -15,6 +15,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
 import java.util.concurrent.CompletableFuture;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel.TEST;
+
 @Component
 // Service bus clients are expensive to create and thread safe so perfectly reusable.
 // With prototype scope we can have more than 1 client instance. Also injection happens
@@ -63,6 +65,9 @@ public class ServiceBusHelper {
         busMessage.setContentType("application/json");
         busMessage.setMessageId(msg.getMsgId());
         busMessage.setBody(getMsgBodyInBytes(msg));
+        if (msg.isTestOnly()) {
+            busMessage.setLabel(TEST.toString());
+        }
         return busMessage;
     }
 

@@ -6,4 +6,6 @@ public interface Msg {
 
     byte[] getMsgBody();
 
+    boolean isTestOnly();
+
 }

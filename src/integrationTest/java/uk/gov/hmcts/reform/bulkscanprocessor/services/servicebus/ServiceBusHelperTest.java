@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -88,6 +89,15 @@ public class ServiceBusHelperTest {
         when(envelope.getId()).thenReturn(null);
         Msg msg = new EnvelopeMsg(envelope);
         serviceBusHelper.sendMessage(msg);
+    }
+
+    @Test
+    public void should_add_test_label_to_test_message() {
+        when(envelope.getZipFileName()).thenReturn("zip-file.test.zip");
+        when(envelope.isTestOnly()).thenReturn(true);
+        Msg msg = new EnvelopeMsg(envelope);
+        Message busMessage = serviceBusHelper.mapToBusMessage(msg);
+        assertThat(busMessage.getLabel()).isEqualTo(MsgLabel.TEST.toString());
     }
 
     @Test

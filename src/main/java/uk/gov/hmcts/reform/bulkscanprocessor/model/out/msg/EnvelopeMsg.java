@@ -31,12 +31,15 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("doc_urls")
     private List<String> documentUrls;
 
+    private final boolean testOnly;
+
     public EnvelopeMsg(Envelope envelope) {
         this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
         this.caseNumber = envelope.getCaseNumber();
         this.classification = envelope.getClassification();
         this.jurisdiction = envelope.getJurisdiction();
         this.zipFileName = envelope.getZipFileName();
+        this.testOnly = envelope.isTestOnly();
         this.documentUrls = envelope.getScannableItems()
             .stream()
             .map(ScannableItem::getDocumentUrl)
@@ -76,10 +79,16 @@ public class EnvelopeMsg implements Msg {
     }
 
     @Override
+    public boolean isTestOnly() {
+        return testOnly;
+    }
+
+    @Override
     @JsonIgnore
     public String toString() {
         return "EnvelopeMsg{"
             + "envelopeId='" + envelopeId + "'"
+            + "testOnly='" + testOnly  + "'"
             + "zipFileName='" + zipFileName + "'"
             + "}";
     }
