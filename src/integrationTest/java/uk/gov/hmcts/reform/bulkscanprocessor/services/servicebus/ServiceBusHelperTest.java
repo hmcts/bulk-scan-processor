@@ -107,7 +107,7 @@ public class ServiceBusHelperTest {
 
         assertThat(jsonNode.get("case_ref").textValue()).isEqualTo("1111222233334446");
         assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo("SSCS");
-        assertThat(jsonNode.get("zipFileName").textValue()).isEqualTo("zip-file-test.zip");
+        assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo("zip-file-test.zip");
         assertThat(jsonNode.get("classification").textValue()).isEqualTo(Classification.EXCEPTION.name());
 
         JsonNode docUrls = jsonNode.get("doc_urls");

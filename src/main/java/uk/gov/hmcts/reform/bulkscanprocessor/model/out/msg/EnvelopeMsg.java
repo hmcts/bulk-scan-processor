@@ -25,7 +25,7 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("classification")
     private Classification classification;
 
-    @JsonProperty("zipFileName")
+    @JsonProperty("zip_file_name")
     private String zipFileName;
 
     @JsonProperty("doc_urls")
