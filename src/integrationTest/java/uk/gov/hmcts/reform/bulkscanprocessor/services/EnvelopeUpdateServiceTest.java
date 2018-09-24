@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,4 +55,11 @@ public class EnvelopeUpdateServiceTest {
         eventRepo.deleteAll();
         envelopeRepo.deleteAll();
     }
+
+    @Before
+    public void prepare() throws Exception {
+        eventRepo.deleteAll();
+        envelopeRepo.deleteAll();
+    }
+
 }
