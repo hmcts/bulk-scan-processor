@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers.TaskErrorHandler;
+import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 
 import java.io.File;
@@ -78,8 +79,26 @@ public class ErrorHandlingWrapperTest {
     }
 
     @Test
-    public void should_result_in_illlegal_argument_exception_and_return_null_when_parsing_storage_credentials() {
+    public void should_result_in_illegal_argument_exception_and_return_null_when_parsing_storage_credentials() {
         assertThat(errorHandlingWrapper.wrapAcquireLeaseFailure("test", "test",
             () -> StorageCredentials.tryParseCredentials("invalidconnstring"))).isNull();
     }
+
+
+    @Test
+    public void should_return_false_if_generic_invocation_fails() {
+        assertThat(errorHandlingWrapper.wrapFailure(this::exceptionThrowingSupplier)).isFalse();
+    }
+
+    @Test
+    public void should_return_false_if_delete_invocation_fails() throws Exception {
+        assertThat(errorHandlingWrapper.wrapDeleteBlobFailure(
+            EnvelopeCreator.envelope(), this::exceptionThrowingSupplier)
+        ).isFalse();
+    }
+
+    private Boolean exceptionThrowingSupplier() throws Exception {
+        throw new RuntimeException();
+    }
+
 }
