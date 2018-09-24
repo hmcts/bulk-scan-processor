@@ -68,10 +68,7 @@ public class ServiceBusHelper {
 
     private byte[] getMsgBodyInBytes(Msg message) {
         try {
-            String bytes = objectMapper.writeValueAsString(message); //default encoding is UTF-8
-//            objectMapper.writeValueAsBytes(message);
-            System.out.println(bytes);
-            return bytes.getBytes();
+            return objectMapper.writeValueAsBytes(message); //default encoding is UTF-8
         } catch (JsonProcessingException e) {
             throw new InvalidMessageException("Unable to create message body in json format", e);
         }
