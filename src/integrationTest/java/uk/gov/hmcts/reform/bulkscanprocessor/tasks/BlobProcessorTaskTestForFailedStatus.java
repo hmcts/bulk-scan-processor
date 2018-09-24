@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +15,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentEx
 import java.util.Collections;
 import java.util.List;
 
+import static com.jayway.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
@@ -65,7 +69,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_record_failure_of_upload_when_same_zip_file_is_attempted_to_be_processed() throws Exception {
+    public void should_record_failure_of_upload_once_and_not_reprocess() throws Exception {
         // given
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
@@ -75,14 +79,18 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // when
         processor.processBlobs();
 
-        // and
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        await("file should not be deleted")
+            .timeout(2, SECONDS)
+            .until(blob::exists, is(true));
 
         processor.processBlobs();
 
         // then
-        Envelope actualEnvelope = envelopeRepository.findAll().get(0);
+        List<Envelope> actualEnvelopes = envelopeRepository.findAll();
+        assertThat(actualEnvelopes.size()).as("Only 1 envelope expected").isEqualTo(1);
 
+        Envelope actualEnvelope = actualEnvelopes.get(0);
         assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 

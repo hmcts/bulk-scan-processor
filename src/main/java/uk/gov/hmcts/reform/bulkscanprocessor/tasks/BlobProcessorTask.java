@@ -118,7 +118,7 @@ public class BlobProcessorTask extends Processor {
             }
         }
     }
-    
+
     private void deleteIfProcessed(CloudBlockBlob cloudBlockBlob, Envelope envelope) {
         try {
             if (cloudBlockBlob != null && envelope.getStatus().isProcessed()) {
@@ -154,7 +154,7 @@ public class BlobProcessorTask extends Processor {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             zipFileProcessor.process(zis);
 
-            Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata());
+            Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);
 
             envelopeProcessor.assertEnvelopeHasPdfs(envelope, zipFileProcessor.getPdfs());

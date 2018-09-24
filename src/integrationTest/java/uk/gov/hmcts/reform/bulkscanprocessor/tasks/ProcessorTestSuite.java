@@ -8,6 +8,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,6 +127,12 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @After
     public void cleanUp() throws Exception {
         testContainer.deleteIfExists();
+        envelopeRepository.deleteAll();
+        processEventRepository.deleteAll();
+    }
+
+    @Before
+    public void prepare() throws Exception {
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
     }
