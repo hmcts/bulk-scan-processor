@@ -93,7 +93,6 @@ public class ServiceBusHelperTest {
 
     @Test
     public void should_add_test_label_to_test_message() {
-        when(envelope.getZipFileName()).thenReturn("zip-file.test.zip");
         when(envelope.isTestOnly()).thenReturn(true);
         Msg msg = new EnvelopeMsg(envelope);
         Message busMessage = serviceBusHelper.mapToBusMessage(msg);
@@ -111,9 +110,12 @@ public class ServiceBusHelperTest {
     public void should_send_message_with_envelope_data() throws Exception {
 
         EnvelopeMsg message = new EnvelopeMsg(envelope);
-        Message busMessage = serviceBusHelper.mapToBusMessage(message);
 
-        JsonNode jsonNode = objectMapper.readTree(busMessage.getBody());
+        serviceBusHelper.sendMessage(message);
+        ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
+        verify(queueClient).send(argument.capture());
+
+        JsonNode jsonNode = objectMapper.readTree(argument.getValue().getBody());
 
         assertThat(jsonNode.get("case_ref").textValue()).isEqualTo(message.getCaseNumber());
         assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
