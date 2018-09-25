@@ -60,8 +60,8 @@ public class EnvelopeDeletionTest {
         filesToDeleteAfterTest.add(destZipFilename);
 
         await("file should be deleted")
-            .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
-            .pollInterval(1, TimeUnit.SECONDS)
+            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
 
         assertThat(testHelper.storageHasFile(testContainer, destZipFilename)).isFalse();
