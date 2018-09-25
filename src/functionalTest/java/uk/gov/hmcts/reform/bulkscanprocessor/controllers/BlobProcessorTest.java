@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 
 public class BlobProcessorTest {
@@ -77,9 +76,13 @@ public class BlobProcessorTest {
         assertThat(envelopeListResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
 
         assertThat(envelopeListResponse.envelopes)
-            .extracting("zipFileName", "status")
-            .containsOnlyOnce(tuple(destZipFilename, Status.NOTIFICATION_SENT));
+            .extracting("zipFileName")
+            .containsOnlyOnce(destZipFilename);
 
+        assertThat(envelopeListResponse.envelopes
+            .stream().filter(e -> destZipFilename.equals(e.getZipFileName()))
+            .map(e -> e.getStatus()))
+            .containsExactly(Status.NOTIFICATION_SENT);
 
         List<EnvelopeResponse> envelopes = envelopeListResponse.envelopes
             .stream()
