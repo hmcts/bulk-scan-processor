@@ -1,32 +1,75 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
+
 public class EnvelopeMsg implements Msg {
 
+    @JsonProperty("id")
     private final String envelopeId;
 
-    private final byte[] envelope;
+    @JsonProperty("case_ref")
+    private String caseNumber;
+
+    @JsonProperty("jurisdiction")
+    private String jurisdiction;
+
+    @JsonProperty("classification")
+    private Classification classification;
+
+    @JsonProperty("zip_file_name")
+    private String zipFileName;
+
+    @JsonProperty("doc_urls")
+    private List<String> documentUrls;
 
     private final boolean testOnly;
 
-
-    public EnvelopeMsg(String envelopeId) {
-        this(envelopeId, false);
-    }
-
-    public EnvelopeMsg(String envelopeId, boolean testOnly) {
-        this.envelopeId = envelopeId;
-        this.envelope = new byte[0];
-        this.testOnly = testOnly;
+    public EnvelopeMsg(Envelope envelope) {
+        this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
+        this.caseNumber = envelope.getCaseNumber();
+        this.classification = envelope.getClassification();
+        this.jurisdiction = envelope.getJurisdiction();
+        this.zipFileName = envelope.getZipFileName();
+        this.testOnly = envelope.isTestOnly();
+        this.documentUrls = envelope.getScannableItems()
+            .stream()
+            .map(ScannableItem::getDocumentUrl)
+            .collect(Collectors.toList());
     }
 
     @Override
+    @JsonIgnore
     public String getMsgId() {
         return envelopeId;
     }
 
-    @Override
-    public byte[] getMsgBody() {
-        return envelope;
+    public String getCaseNumber() {
+        return caseNumber;
+    }
+
+    public Classification getClassification() {
+        return classification;
+    }
+
+    public String getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public List<String> getDocumentUrls() {
+        return documentUrls;
+    }
+
+    public String getZipFileName() {
+        return zipFileName;
     }
 
     @Override
@@ -35,11 +78,13 @@ public class EnvelopeMsg implements Msg {
     }
 
     @Override
+    @JsonIgnore
     public String toString() {
         return "EnvelopeMsg{"
-            + "envelopeId='" + envelopeId + '\''
-            + "testOnly='" + testOnly + '\''
-            + '}';
+            + "envelopeId='" + envelopeId + "'"
+            + "testOnly='" + testOnly  + "'"
+            + "zipFileName='" + zipFileName + "'"
+            + "}";
     }
 
 }

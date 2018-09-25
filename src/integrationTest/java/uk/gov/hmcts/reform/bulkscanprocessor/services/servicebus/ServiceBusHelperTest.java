@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
@@ -8,38 +10,61 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
+import java.util.Arrays;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest
 public class ServiceBusHelperTest {
 
     @Mock
-    IQueueClient queueClient;
+    private IQueueClient queueClient;
 
     @Mock
-    QueueClientSupplier queueClientSupplier;
+    private QueueClientSupplier queueClientSupplier;
 
-    ServiceBusHelper serviceBusHelper;
+    private ServiceBusHelper serviceBusHelper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Mock
+    private Envelope envelope;
+
+    private UUID envelopeId = UUID.randomUUID();
+
+    @Mock
+    private ScannableItem scannableItem1;
+
+    @Mock
+    private ScannableItem scannableItem2;
 
     @Before
     public void setUp() {
         when(queueClientSupplier.get()).thenReturn(this.queueClient);
-        serviceBusHelper = new ServiceBusHelper(queueClientSupplier);
+        serviceBusHelper = new ServiceBusHelper(queueClientSupplier, this.objectMapper);
+
+        mockEnvelopeData();
     }
 
     @Test
-    public void should_send_message_async_with_messageId() throws Exception {
-        Msg msg = new EnvelopeMsg("envelopeId");
+    public void should_send_message_async_with_messageId() {
+        Msg msg = new EnvelopeMsg(envelope);
         serviceBusHelper.sendMessageAsync(msg);
 
         ArgumentCaptor<IMessage> argument = ArgumentCaptor.forClass(IMessage.class);
@@ -50,7 +75,7 @@ public class ServiceBusHelperTest {
 
     @Test
     public void should_send_message_with_messageId() throws Exception {
-        Msg msg = new EnvelopeMsg("envelopeId");
+        Msg msg = new EnvelopeMsg(envelope);
         serviceBusHelper.sendMessage(msg);
 
         ArgumentCaptor<IMessage> argument = ArgumentCaptor.forClass(IMessage.class);
@@ -61,22 +86,58 @@ public class ServiceBusHelperTest {
 
     @Test(expected = InvalidMessageException.class)
     public void should_throw_exception_for_empty_messageId() {
-        Msg msg = new EnvelopeMsg("");
+        when(envelope.getId()).thenReturn(null);
+        Msg msg = new EnvelopeMsg(envelope);
         serviceBusHelper.sendMessage(msg);
     }
 
     @Test
     public void should_add_test_label_to_test_message() {
-        Msg msg = new EnvelopeMsg("envelopeId", true);
+        when(envelope.isTestOnly()).thenReturn(true);
+        Msg msg = new EnvelopeMsg(envelope);
         Message busMessage = serviceBusHelper.mapToBusMessage(msg);
         assertThat(busMessage.getLabel()).isEqualTo(MsgLabel.TEST.toString());
     }
 
     @Test
     public void should_not_add_any_label_to_standard_message() {
-        Msg msg = new EnvelopeMsg("envelopeId");
+        Msg msg = new EnvelopeMsg(envelope);
         Message busMessage = serviceBusHelper.mapToBusMessage(msg);
         assertThat(busMessage.getLabel()).isNullOrEmpty();
+    }
+
+    @Test
+    public void should_send_message_with_envelope_data() throws Exception {
+
+        EnvelopeMsg message = new EnvelopeMsg(envelope);
+
+        serviceBusHelper.sendMessage(message);
+        ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
+        verify(queueClient).send(argument.capture());
+
+        JsonNode jsonNode = objectMapper.readTree(argument.getValue().getBody());
+
+        assertThat(jsonNode.get("case_ref").textValue()).isEqualTo(message.getCaseNumber());
+        assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
+        assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo(message.getZipFileName());
+        assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
+
+        JsonNode docUrls = jsonNode.get("doc_urls");
+        assertThat(docUrls.isArray()).isTrue();
+        assertThat(docUrls.size()).isEqualTo(2);
+        assertThat(docUrls.get(0).asText()).isEqualTo(scannableItem1.getDocumentUrl());
+        assertThat(docUrls.get(1).asText()).isEqualTo(scannableItem2.getDocumentUrl());
+    }
+
+    private void mockEnvelopeData() {
+        when(envelope.getId()).thenReturn(envelopeId);
+        when(envelope.getCaseNumber()).thenReturn("1111222233334446");
+        when(envelope.getJurisdiction()).thenReturn("SSCS");
+        when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
+        when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
+        when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
+        when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
+        when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
     }
 
 }

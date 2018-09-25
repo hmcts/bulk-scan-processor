@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
@@ -10,9 +12,10 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
 import java.util.concurrent.CompletableFuture;
+
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel.TEST;
 
 @Component
 // Service bus clients are expensive to create and thread safe so perfectly reusable.
@@ -27,8 +30,11 @@ public class ServiceBusHelper {
 
     private final IQueueClient sendClient;
 
-    public ServiceBusHelper(QueueClientSupplier queueClientSupplier) {
+    private final ObjectMapper objectMapper;
+
+    ServiceBusHelper(QueueClientSupplier queueClientSupplier, ObjectMapper objectMapper) {
         this.sendClient = queueClientSupplier.get();
+        this.objectMapper = objectMapper;
     }
 
     public CompletableFuture<Void> sendMessageAsync(Msg msg) {
@@ -56,12 +62,21 @@ public class ServiceBusHelper {
             throw new InvalidMessageException("Msg Id == null");
         }
         Message busMessage = new Message();
+        busMessage.setContentType("application/json");
         busMessage.setMessageId(msg.getMsgId());
-        busMessage.setBody(msg.getMsgBody());
+        busMessage.setBody(getMsgBodyInBytes(msg));
         if (msg.isTestOnly()) {
-            busMessage.setLabel(MsgLabel.TEST.toString());
+            busMessage.setLabel(TEST.toString());
         }
         return busMessage;
     }
 
+    private byte[] getMsgBodyInBytes(Msg message) {
+        try {
+            return objectMapper.writeValueAsBytes(message); //default encoding is UTF-8
+        } catch (JsonProcessingException e) {
+            throw new InvalidMessageException("Unable to create message body in json format", e);
+        }
+    }
 }
+

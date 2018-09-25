@@ -90,7 +90,7 @@ public abstract class Processor {
 
     private Boolean sendProcessedMessage(ServiceBusHelper serviceBusHelper, Envelope envelope) {
         return errorWrapper.wrapNotificationFailure(envelope, () -> {
-            serviceBusHelper.sendMessage(new EnvelopeMsg(envelope.getId().toString(), envelope.isTestOnly()));
+            serviceBusHelper.sendMessage(new EnvelopeMsg(envelope));
             return Boolean.TRUE;
         });
     }
@@ -99,7 +99,7 @@ public abstract class Processor {
         return handleEvent(envelope, DOC_UPLOADED);
     }
 
-    public Boolean markAsProcessed(Envelope envelope) {
+    private Boolean markAsProcessed(Envelope envelope) {
         return handleEvent(envelope, DOC_PROCESSED);
     }
 
