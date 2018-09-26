@@ -14,5 +14,11 @@
         <Class name="com.microsoft.azure.servicebus.QueueClient">
             <Method name="sendAsync"/>
         </Class>
+        <Class name="com.microsoft.azure.storage.blob.CloudBlobClient">
+            <Method name="getContainerReference"/>
+        </Class>
+        <Class name="com.microsoft.azure.storage.blob.CloudBlobClient">
+            <Method name="listContainers" signature="()Ljava/lang/Iterable;"/>
+        </Class>
     </Instrumentation>
 </ApplicationInsightsAgent>
