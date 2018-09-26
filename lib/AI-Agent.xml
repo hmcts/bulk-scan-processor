@@ -16,5 +16,10 @@
             <Method name="getContainerReference"/>
             <Method name="listContainers" signature="()Ljava/lang/Iterable;"/>
         </Class>
+        <Class name="com.microsoft.azure.storage.blob.CloudBlockBlob">
+            <Method name="acquireLease"
+                    signature="(Ljava/lang/Integer;Ljava/lang/String;)Ljava/lang/String;"/>
+            <Method name="deleteIfExists" signature="()boolean;"/>
+        </Class>
     </Instrumentation>
 </ApplicationInsightsAgent>
