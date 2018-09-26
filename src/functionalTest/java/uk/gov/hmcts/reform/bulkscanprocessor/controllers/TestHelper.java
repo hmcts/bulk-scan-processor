@@ -198,10 +198,7 @@ public class TestHelper {
 
     public static boolean isMasterBranch() {
         String branch = System.getenv("CHANGE_BRANCH");
-        if (!Strings.isNullOrEmpty(branch) && "master".equalsIgnoreCase(branch)) {
-            return true;
-        }
-        return false;
+        return !Strings.isNullOrEmpty(branch) && "master".equalsIgnoreCase(branch);
     }
 
 }
