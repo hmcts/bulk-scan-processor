@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assume.assumeThat;
 
 public class UpdateStatusTest {
 
@@ -54,6 +55,9 @@ public class UpdateStatusTest {
 
     @Test
     public void should_allow_update_envelope_status() throws Exception {
+        // NOTE: remove this as soon as servicebus issue is fixed
+        assumeThat(TestHelper.isMasterBranch(), is(false));
+
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
         testHelper.uploadZipFile(
