@@ -12,7 +12,6 @@
             <Method name="send"/>
         </Class>
         <Class name="com.microsoft.azure.storage.blob.CloudBlobClient">
-            <Method name="getContainerReference"/>
             <Method name="listContainers" signature="()Ljava/lang/Iterable;"/>
         </Class>
         <Class name="com.microsoft.azure.storage.blob.CloudBlockBlob">
