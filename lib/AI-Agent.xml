@@ -7,5 +7,12 @@
             <HTTP enabled="true"/>
             <JDBC enabled="true"/>
         </BuiltIn>
+
+        <Class name="com.microsoft.azure.servicebus.QueueClient">
+            <Method name="send"/>
+        </Class>
+        <Class name="com.microsoft.azure.servicebus.QueueClient">
+            <Method name="sendAsync"/>
+        </Class>
     </Instrumentation>
 </ApplicationInsightsAgent>
