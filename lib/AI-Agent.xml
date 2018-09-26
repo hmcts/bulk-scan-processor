@@ -10,7 +10,6 @@
 
         <Class name="com.microsoft.azure.servicebus.QueueClient">
             <Method name="send"/>
-            <Method name="sendAsync"/>
         </Class>
         <Class name="com.microsoft.azure.storage.blob.CloudBlobClient">
             <Method name="getContainerReference"/>
