@@ -199,7 +199,7 @@ public class TestHelper {
     public static boolean isMasterBranch() {
         String branch = System.getenv("BRANCH_NAME");
         if (Strings.isNullOrEmpty(branch)) {
-           branch = System.getenv("CHANGE_BRANCH");
+            branch = System.getenv("CHANGE_BRANCH");
         }
         return "master".equalsIgnoreCase(branch);
     }
