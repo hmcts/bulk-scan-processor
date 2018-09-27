@@ -195,4 +195,10 @@ public class TestHelper {
             .as("Should get success response on update")
             .isEqualTo(204);
     }
+
+    public static boolean isMasterBranch() {
+        String branch = System.getenv("CHANGE_BRANCH");
+        return !Strings.isNullOrEmpty(branch) && "master".equalsIgnoreCase(branch);
+    }
+
 }
