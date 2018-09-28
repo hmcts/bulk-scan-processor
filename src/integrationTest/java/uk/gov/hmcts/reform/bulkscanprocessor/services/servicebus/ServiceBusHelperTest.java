@@ -37,27 +37,15 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class ServiceBusHelperTest {
 
-    @Mock
-    private IQueueClient queueClient;
+    @Autowired private ObjectMapper objectMapper;
 
-    @Mock
-    private QueueClientSupplier queueClientSupplier;
+    @Mock private IQueueClient queueClient;
+    @Mock private QueueClientSupplier queueClientSupplier;
+    @Mock private Envelope envelope;
+    @Mock private ScannableItem scannableItem1;
+    @Mock private ScannableItem scannableItem2;
 
     private ServiceBusHelper serviceBusHelper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Mock
-    private Envelope envelope;
-
-    private UUID envelopeId = UUID.randomUUID();
-
-    @Mock
-    private ScannableItem scannableItem1;
-
-    @Mock
-    private ScannableItem scannableItem2;
 
     @Before
     public void setUp() {
@@ -141,7 +129,7 @@ public class ServiceBusHelperTest {
     }
 
     private void mockEnvelopeData() {
-        when(envelope.getId()).thenReturn(envelopeId);
+        when(envelope.getId()).thenReturn(UUID.randomUUID());
         when(envelope.getCaseNumber()).thenReturn("1111222233334446");
         when(envelope.getJurisdiction()).thenReturn("SSCS");
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
