@@ -21,6 +21,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -127,6 +132,12 @@ public class ServiceBusHelperTest {
         assertThat(docUrls.size()).isEqualTo(2);
         assertThat(docUrls.get(0).asText()).isEqualTo(scannableItem1.getDocumentUrl());
         assertThat(docUrls.get(1).asText()).isEqualTo(scannableItem2.getDocumentUrl());
+
+        JsonNode docs = jsonNode.get("documents");
+        assertThat(docs.isArray()).isTrue();
+        assertThat(docs.size()).isEqualTo(2);
+        checkScannableItem(docs.get(0), scannableItem1);
+        checkScannableItem(docs.get(1), scannableItem2);
     }
 
     private void mockEnvelopeData() {
@@ -136,8 +147,31 @@ public class ServiceBusHelperTest {
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
         when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
+
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
+        when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
+        when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
+        when(scannableItem1.getDocumentType()).thenReturn("doc1_type");
+        when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
+
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
+        when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
+        when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
+        when(scannableItem2.getDocumentType()).thenReturn("doc2_type");
+        when(scannableItem2.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
     }
 
+    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
+        assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
+        assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
+        assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType());
+        assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
+
+        String iso8601DateTime =
+            ZonedDateTime
+                .ofInstant(scannableItem.getScanningDate().toInstant(), ZoneId.of("UTC"))
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+
+        assertThat(jsonNode.get("scanned_at").asText()).isEqualTo(iso8601DateTime);
+    }
 }

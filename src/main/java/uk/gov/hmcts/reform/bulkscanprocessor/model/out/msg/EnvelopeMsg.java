@@ -28,8 +28,12 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("zip_file_name")
     private String zipFileName;
 
+    // TODO: remove, after no longer used by orchestrator
     @JsonProperty("doc_urls")
     private List<String> documentUrls;
+
+    @JsonProperty("documents")
+    private List<Document> documents;
 
     private final boolean testOnly;
 
@@ -44,6 +48,16 @@ public class EnvelopeMsg implements Msg {
             .stream()
             .map(ScannableItem::getDocumentUrl)
             .collect(Collectors.toList());
+        this.documents = envelope
+            .getScannableItems()
+            .stream()
+            .map(item -> new Document(
+                item.getFileName(),
+                item.getDocumentControlNumber(),
+                item.getDocumentType(),
+                item.getScanningDate().toInstant(),
+                item.getDocumentUrl()
+            )).collect(Collectors.toList());
     }
 
     @Override
@@ -70,6 +84,10 @@ public class EnvelopeMsg implements Msg {
 
     public String getZipFileName() {
         return zipFileName;
+    }
+
+    public List<Document> getDocuments() {
+        return documents;
     }
 
     @Override
