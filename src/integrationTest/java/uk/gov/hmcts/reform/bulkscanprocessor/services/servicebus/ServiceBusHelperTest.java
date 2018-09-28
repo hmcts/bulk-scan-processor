@@ -21,6 +21,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -127,6 +129,15 @@ public class ServiceBusHelperTest {
         assertThat(docUrls.size()).isEqualTo(2);
         assertThat(docUrls.get(0).asText()).isEqualTo(scannableItem1.getDocumentUrl());
         assertThat(docUrls.get(1).asText()).isEqualTo(scannableItem2.getDocumentUrl());
+
+        JsonNode docs = jsonNode.get("documents");
+        assertThat(docs.isArray()).isTrue();
+        assertThat(docs.size()).isEqualTo(2);
+        assertThat(docs.get(0).get("file_name")).isEqualTo(scannableItem1.getFileName());
+        assertThat(docs.get(0).get("control_number")).isEqualTo(scannableItem1.getDocumentControlNumber());
+        assertThat(docs.get(0).get("type")).isEqualTo(scannableItem1.getDocumentType());
+        assertThat(docs.get(0).get("scanned_at")).isEqualTo(scannableItem1.getScanningDate());
+        assertThat(docs.get(0).get("url")).isEqualTo(scannableItem1.getDocumentUrl());
     }
 
     private void mockEnvelopeData() {
@@ -136,8 +147,18 @@ public class ServiceBusHelperTest {
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
         when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
+
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
+        when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
+        when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
+        when(scannableItem1.getDocumentType()).thenReturn("doc1_type");
+        when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
+
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
+        when(scannableItem1.getDocumentControlNumber()).thenReturn("doc2_control_number");
+        when(scannableItem1.getFileName()).thenReturn("doc2_file_name");
+        when(scannableItem1.getDocumentType()).thenReturn("doc2_type");
+        when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
     }
 
 }
