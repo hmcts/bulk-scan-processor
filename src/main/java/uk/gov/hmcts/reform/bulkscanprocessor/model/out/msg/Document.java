@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class Document {
 
@@ -16,7 +16,7 @@ public class Document {
     public final String type;
 
     @JsonProperty("scanned_at")
-    public final LocalDateTime scannedAt;
+    public final Instant scannedAt;
 
     @JsonProperty("url")
     public final String url;
@@ -26,7 +26,7 @@ public class Document {
         String fileName,
         String controlNumber,
         String type,
-        LocalDateTime scannedAt,
+        Instant scannedAt,
         String url
     ) {
         this.fileName = fileName;

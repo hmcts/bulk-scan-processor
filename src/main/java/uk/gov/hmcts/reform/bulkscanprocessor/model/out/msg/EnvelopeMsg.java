@@ -55,7 +55,7 @@ public class EnvelopeMsg implements Msg {
                 item.getFileName(),
                 item.getDocumentControlNumber(),
                 item.getDocumentType(),
-                item.getScanningDate().toLocalDateTime(),
+                item.getScanningDate().toInstant(),
                 item.getDocumentUrl()
             )).collect(Collectors.toList());
     }
