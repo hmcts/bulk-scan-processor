@@ -87,7 +87,7 @@ public class ErrorHandlingWrapperTest {
 
     @Test
     public void should_return_false_if_generic_invocation_fails() {
-        assertThat(errorHandlingWrapper.wrapFailure(this::exceptionThrowingSupplier)).isFalse();
+        assertThat(errorHandlingWrapper.wrapGenericFailure(this::exceptionThrowingSupplier)).isFalse();
     }
 
     @Test
