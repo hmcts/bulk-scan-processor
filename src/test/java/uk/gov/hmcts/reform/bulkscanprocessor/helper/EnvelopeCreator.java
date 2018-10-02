@@ -79,7 +79,6 @@ public final class EnvelopeCreator {
             UUID.randomUUID() + ".zip",
             "1111222233334446",
             Classification.EXCEPTION,
-            false,
             scannableItems(),
             payments(),
             nonScannableItems()
@@ -93,34 +92,6 @@ public final class EnvelopeCreator {
 
     public static Envelope envelopeNotified() throws Exception {
         return envelope("SSCS", Status.NOTIFICATION_SENT);
-    }
-
-    public static Envelope envelopeUrgent() throws Exception {
-        return envelopeUrgent("SSCS", Status.CREATED);
-    }
-
-    public static Envelope envelopeUrgent(String jurisdiction, Status status) throws Exception {
-        Timestamp timestamp = getTimestamp();
-
-        Envelope envelope = new Envelope(
-            "SSCSPO",
-            jurisdiction,
-            timestamp,
-            timestamp,
-            timestamp,
-            UUID.randomUUID() + ".zip",
-            "1111222233334446",
-            Classification.NEW_APPLICATION,
-            true,
-            scannableItems(),
-            payments(),
-            nonScannableItems()
-        );
-
-        envelope.setStatus(status);
-        envelope.setContainer("SSCS");
-
-        return envelope;
     }
 
     private static List<ScannableItem> scannableItems() throws Exception {
