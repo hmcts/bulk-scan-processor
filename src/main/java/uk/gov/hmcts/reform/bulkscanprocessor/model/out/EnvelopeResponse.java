@@ -52,9 +52,6 @@ public class EnvelopeResponse {
     @JsonProperty("classification")
     private String classification;
 
-    @JsonProperty("urgent")
-    private boolean urgent;
-
     @JsonProperty("scannable_items")
     private List<ScannableItemResponse> scannableItems;
 
@@ -80,7 +77,6 @@ public class EnvelopeResponse {
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("status") Status status,
         @JsonProperty("classification") String classification,
-        @JsonProperty("urgent") boolean urgent,
         @JsonProperty("scannable_items") List<ScannableItemResponse> scannableItems,
         @JsonProperty("payments") List<PaymentResponse> payments,
         @JsonProperty("non_scannable_items") List<NonScannableItemResponse> nonScannableItems
@@ -96,7 +92,6 @@ public class EnvelopeResponse {
         this.zipFileName = zipFileName;
         this.status = status;
         this.classification = classification;
-        this.urgent = urgent;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
@@ -146,10 +141,6 @@ public class EnvelopeResponse {
         return classification;
     }
 
-    public Boolean getUrgent() {
-        return urgent;
-    }
-
     public List<ScannableItemResponse> getScannableItems() {
         return scannableItems;
     }
@@ -176,7 +167,6 @@ public class EnvelopeResponse {
             + ", zipFileName='" + zipFileName + '\''
             + ", status=" + status
             + ", classification=" + classification
-            + ", urgent=" + urgent
             + ", scannableItems=" + scannableItems
             + ", payments=" + payments
             + ", nonScannableItems=" + nonScannableItems
