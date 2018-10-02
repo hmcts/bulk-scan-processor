@@ -44,7 +44,6 @@ public final class EnvelopeResponseMapper {
             envelope.getZipFileName(),
             envelope.getStatus(),
             envelope.getClassification().toString(),
-            envelope.getUrgent(),
             toScannableItemsResponse(envelope.getScannableItems()),
             toPaymentsResponse(envelope.getPayments()),
             toNonScannableItemsResponse(envelope.getNonScannableItems())
