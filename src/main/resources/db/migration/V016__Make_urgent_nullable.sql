@@ -1,0 +1,2 @@
+ALTER TABLE envelopes
+ALTER COLUMN urgent DROP NOT NULL;
