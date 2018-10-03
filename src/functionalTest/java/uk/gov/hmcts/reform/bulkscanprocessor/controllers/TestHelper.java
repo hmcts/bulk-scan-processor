@@ -77,6 +77,15 @@ public class TestHelper {
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
+    public void uploadAndLeaseZipFile(
+        CloudBlobContainer container, String srcZipFilename, String destZipFilename
+    ) throws Exception {
+        byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
+        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
+        blockBlobReference.acquireLease();
+        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+    }
+
     public boolean storageHasFile(CloudBlobContainer container, String fileName) {
         return StreamSupport.stream(container.listBlobs().spliterator(), false)
             .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));

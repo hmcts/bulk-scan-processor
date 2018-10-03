@@ -59,6 +59,7 @@ public class GetSasTokenTest {
                 .createCloudBlobClient()
                 .getContainerReference("test");
 
+            testContainer.getBlockBlobReference(destZipFilename).breakLease(0);
             testContainer.getBlockBlobReference(destZipFilename).deleteIfExists();
         }
     }
@@ -109,8 +110,8 @@ public class GetSasTokenTest {
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadZipFile(testSasContainer, zipFilename, destZipFilename);
-        assertThat(testHelper.storageHasFile(testSasContainer, zipFilename)).isTrue();
+        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
+        assertThat(testHelper.storageHasFile(testSasContainer, destZipFilename)).isTrue();
     }
 
     @Test(expected = StorageException.class)
@@ -120,7 +121,7 @@ public class GetSasTokenTest {
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadZipFile(testSasContainer, zipFilename, destZipFilename);
+        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
     }
 
 }
