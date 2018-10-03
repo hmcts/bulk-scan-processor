@@ -82,8 +82,8 @@ public class TestHelper {
     ) throws Exception {
         byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-        blockBlobReference.acquireLease();
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+        blockBlobReference.acquireLease();
     }
 
     public boolean storageHasFile(CloudBlobContainer container, String fileName) {
