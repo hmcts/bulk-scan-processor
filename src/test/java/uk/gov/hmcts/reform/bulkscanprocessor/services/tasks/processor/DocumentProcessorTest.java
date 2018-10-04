@@ -86,11 +86,11 @@ public class DocumentProcessorTest {
                 scannableItem("c.pdf")
             );
 
+        // 'c' is missing
         given(documentManagementService.uploadDocuments(any()))
             .willReturn(ImmutableMap.of(
                 "a.pdf", "http://localhost/documents/a",
                 "b.pdf", "http://localhost/documents/b"
-                // 'c' is missing
             ));
 
         // when
