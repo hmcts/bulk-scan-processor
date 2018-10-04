@@ -2,7 +2,7 @@ provider "azurerm" {}
 
 locals {
   is_preview            = "${(var.env == "preview" || var.env == "spreview")}"
-  account_name          = "${replace("${var.product}${var.env}", "-", "")}"
+  account_name          = "${replace("${var.product}old${var.env}", "-", "")}"
   previewVaultName      = "${var.raw_product}-aat"
   nonPreviewVaultName   = "${var.product}-${var.env}"
   vaultName             = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
