@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
@@ -77,13 +78,17 @@ public class TestHelper {
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
-    public void uploadAndLeaseZipFile(
+    public CloudBlockBlob uploadAndLeaseZipFile(
         CloudBlobContainer container, String srcZipFilename, String destZipFilename
     ) throws Exception {
         byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-        blockBlobReference.acquireLease();
+        String leaseId = UUID.randomUUID().toString();
+        blockBlobReference.uploadFromByteArray(
+            zipFile, 0, zipFile.length, AccessCondition.generateLeaseCondition(leaseId),null,null
+        );
+        blockBlobReference.acquireLease(null, leaseId);
+        return blockBlobReference;
     }
 
     public boolean storageHasFile(CloudBlobContainer container, String fileName) {

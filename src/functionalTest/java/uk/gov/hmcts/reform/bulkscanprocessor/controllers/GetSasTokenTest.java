@@ -2,11 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -33,8 +31,8 @@ public class GetSasTokenTest {
     private String blobContainerUrl;
     private TestHelper testHelper;
 
-    private String destZipFilename;
-    
+    private CloudBlockBlob blob;
+
     private static final String zipFilename = "2_24-06-2018-00-00-00.test.zip";
 
     @Before
@@ -48,19 +46,8 @@ public class GetSasTokenTest {
     @After
     public void tearDown() throws Exception {
         // cleanup previous runs
-        if (!Strings.isNullOrEmpty(destZipFilename)) {
-            StorageCredentialsAccountAndKey storageCredentials =
-                new StorageCredentialsAccountAndKey(
-                    conf.getString("test-storage-account-name"),
-                    conf.getString("test-storage-account-key")
-                );
-
-            CloudBlobContainer testContainer = new CloudStorageAccount(storageCredentials, true)
-                .createCloudBlobClient()
-                .getContainerReference("test");
-
-            testContainer.getBlockBlobReference(destZipFilename).breakLease(0);
-            testContainer.getBlockBlobReference(destZipFilename).deleteIfExists();
+        if (blob != null  && blob.exists()) {
+            blob.deleteIfExists();
         }
     }
 
@@ -109,8 +96,8 @@ public class GetSasTokenTest {
         CloudBlobContainer testSasContainer =
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
-        destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
+        String destZipFilename = testHelper.getRandomFilename(zipFilename);
+        blob = testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
         assertThat(testHelper.storageHasFile(testSasContainer, destZipFilename)).isTrue();
     }
 
@@ -120,8 +107,8 @@ public class GetSasTokenTest {
         CloudBlobContainer testSasContainer =
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
-        destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
+        String destZipFilename = testHelper.getRandomFilename(zipFilename);
+        blob = testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
     }
 
 }
