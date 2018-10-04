@@ -46,7 +46,7 @@ public class GetSasTokenTest {
     @After
     public void tearDown() throws Exception {
         // cleanup previous runs
-        if (blob != null  && blob.exists()) {
+        if (blob != null) {
             blob.deleteIfExists();
         }
     }
