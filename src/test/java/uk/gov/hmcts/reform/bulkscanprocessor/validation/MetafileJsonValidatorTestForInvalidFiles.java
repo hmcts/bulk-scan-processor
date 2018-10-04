@@ -157,31 +157,6 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("instance: {\"pointer\":\"/scannable_items/0/file_name\"}");
     }
 
-    // Failed validation against schema:
-    //    instance value (false) not found in enum (possible values: ["false","true"])
-    //    instance type (boolean) does not match any allowed primitive type (allowed: ["string"])
-    @Test
-    public void should_not_parse_envelope_with_direct_usage_of_boolean() throws IOException {
-        // given
-        byte[] metafile = getMetafile("/metafiles/invalid/use-of-boolean.json");
-
-        // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
-
-        // then
-        assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith(
-                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
-                    + "\n\terror: instance value (false) not found in enum"
-            )
-
-            .hasMessageContaining("instance type (boolean) does not match any allowed primitive type")
-            .hasMessageContaining("\"false\"")
-            .hasMessageContaining("\"true\"")
-            .hasMessageContaining("instance: {\"pointer\":\"/urgent\"}");
-    }
-
     @Test
     public void should_not_parse_envelope_with_direct_usage_of_numeric() throws IOException {
         // given
