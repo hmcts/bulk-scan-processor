@@ -29,7 +29,6 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getPayments()).hasSize(1);
         assertThat(envelope.getPayments().get(0).getAmount()).isEqualTo(100.0);
-        assertThat(envelope.getUrgent()).isFalse();
         assertThat(envelope.getCaseNumber()).isEqualTo("1111222233334446");
         assertThat(envelope.getClassification()).isEqualTo(Classification.NEW_APPLICATION);
         assertThat(envelope.getScannableItems())

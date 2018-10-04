@@ -63,8 +63,6 @@ public class Envelope {
     @Enumerated(EnumType.STRING)
     private Classification classification = Classification.EXCEPTION;
 
-    private boolean urgent = false;
-
     private int uploadFailureCount = 0;
 
     private boolean zipDeleted = false;
@@ -102,7 +100,6 @@ public class Envelope {
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("case_number") String caseNumber,
         @JsonProperty("classification") Classification classification,
-        @JsonProperty("urgent") boolean urgent,
         @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
         @JsonProperty("payments") List<Payment> payments,
         @JsonProperty("non_scannable_items") List<NonScannableItem> nonScannableItems
@@ -115,7 +112,6 @@ public class Envelope {
         this.zipFileName = zipFileName;
         this.caseNumber = caseNumber;
         this.classification = classification;
-        this.urgent = urgent;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
@@ -195,10 +191,6 @@ public class Envelope {
 
     public Classification getClassification() {
         return classification;
-    }
-
-    public boolean getUrgent() {
-        return urgent;
     }
 
     public int getUploadFailureCount() {
