@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -20,9 +20,12 @@ import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.Mockito.times;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +62,7 @@ public class DocumentProcessorTest {
         when(documentManagementService.uploadDocuments(pdfs)).thenReturn(response);
 
         //when
-        ScannableItem scannableItem = scannableItem();
+        ScannableItem scannableItem = scannableItem("test1.pdf");
         documentProcessor.uploadPdfFiles(pdfs, ImmutableList.of(scannableItem));
 
         //then
@@ -74,31 +77,32 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void should_throw_doc_not_found_exc_when_doc_response_does_not_contain_matching_file_name_and_doc_url()
-        throws Exception {
-        //Given
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
+    public void should_throw_exception_when_doc_response_does_not_contain_matching_file_name_and_doc_url() {
+        // given
+        List<ScannableItem> scannableItems =
+            asList(
+                scannableItem("a.pdf"),
+                scannableItem("b.pdf"),
+                scannableItem("c.pdf")
+            );
 
-        Pdf pdf = new Pdf("test1.pdf", test1PdfBytes);
-        List<Pdf> pdfs = ImmutableList.of(pdf);
+        // 'c' is missing
+        given(documentManagementService.uploadDocuments(any()))
+            .willReturn(ImmutableMap.of(
+                "a.pdf", "http://localhost/documents/a",
+                "b.pdf", "http://localhost/documents/b"
+            ));
 
-        Map<String, String> response = ImmutableMap.of("test2.pdf", "http://localhost/documents/5fef5f98-e875-4084-b115-47188bc9066b");
+        // when
+        Throwable exc = catchThrowable(() -> documentProcessor.uploadPdfFiles(emptyList(), scannableItems));
 
-        when(documentManagementService.uploadDocuments(pdfs)).thenReturn(response);
-
-        //when
-        ScannableItem scannableItem = scannableItem();
-
-        //then
-        assertThatThrownBy(() -> documentProcessor.uploadPdfFiles(pdfs, ImmutableList.of(scannableItem)))
-            .isInstanceOf(DocumentNotFoundException.class)
-            .hasMessage("Document metadata not found for file test1.pdf");
-
-        verify(documentManagementService).uploadDocuments(pdfs);
-        verify(scannableItemRepository, times(0)).saveAll(anyCollection());
+        // then
+        assertThat(exc)
+            .isInstanceOf(DocumentUrlNotRetrievedException.class)
+            .hasMessageContaining("c.pdf");
     }
 
-    private ScannableItem scannableItem() {
+    private ScannableItem scannableItem(String fileName) {
         return new ScannableItem(
             "1111002",
             new Timestamp(System.currentTimeMillis()),
@@ -107,7 +111,7 @@ public class DocumentProcessorTest {
             null,
             new Timestamp(System.currentTimeMillis()),
             null,
-            "test1.pdf",
+            fileName,
             null,
             null
         );
