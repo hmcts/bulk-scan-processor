@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 @Component
 public class DocumentProcessor {
@@ -33,14 +35,18 @@ public class DocumentProcessor {
 
         log.info("Document service response with file name and doc url {}", response);
 
-        scannedItems.forEach(item -> {
-            if (response.containsKey(item.getFileName())) {
-                item.setDocumentUrl(response.get(item.getFileName()));
-            } else {
-                throw new DocumentNotFoundException("Document metadata not found for file " + item.getFileName());
-            }
-        });
+        List<String> filesWithoutUrl =
+            scannedItems
+                .stream()
+                .map(item -> item.getFileName())
+                .filter(fileName -> !response.keySet().contains(fileName))
+                .collect(toList());
 
-        scannableItemRepository.saveAll(scannedItems);
+        if (filesWithoutUrl.isEmpty()) {
+            scannedItems.forEach(item -> item.setDocumentUrl(response.get(item.getFileName())));
+            scannableItemRepository.saveAll(scannedItems);
+        } else {
+            throw new DocumentUrlNotRetrievedException(filesWithoutUrl);
+        }
     }
 }
