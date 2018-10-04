@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
@@ -203,7 +203,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
-            .willThrow(DocumentNotFoundException.class);
+            .willThrow(DocumentUrlNotRetrievedException.class);
 
         processor.processBlobs();
 
