@@ -86,7 +86,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
 
         // and
-        String failureReason = "Document metadata not found for file " + pdf1.getFilename();
+        String failureReason = "Error retrieving urls for uploaded files: 1111001.pdf, 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
             .hasSize(4)
@@ -130,7 +130,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .containsOnlyOnce(UPLOAD_FAILURE);
 
         // and
-        String failureReason = "Document metadata not found for file " + pdf1.getFilename();
+        String failureReason = "Error retrieving urls for uploaded files: 1111001.pdf, 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
             .hasSize(2)
