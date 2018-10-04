@@ -7,6 +7,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -34,7 +35,7 @@ public class GetSasTokenTest {
     private TestHelper testHelper;
 
     private String destZipFilename;
-    
+
     private static final String zipFilename = "2_24-06-2018-00-00-00.test.zip";
 
     @Before
@@ -59,7 +60,11 @@ public class GetSasTokenTest {
                 .createCloudBlobClient()
                 .getContainerReference("test");
 
-            testContainer.getBlockBlobReference(destZipFilename).deleteIfExists();
+            CloudBlockBlob blob = testContainer.getBlockBlobReference(destZipFilename);
+            if (blob.exists()) {
+                blob.breakLease(0);
+                blob.deleteIfExists();
+            }
         }
     }
 
@@ -109,8 +114,8 @@ public class GetSasTokenTest {
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadZipFile(testSasContainer, zipFilename, destZipFilename);
-        assertThat(testHelper.storageHasFile(testSasContainer, zipFilename)).isTrue();
+        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
+        assertThat(testHelper.storageHasFile(testSasContainer, destZipFilename)).isTrue();
     }
 
     @Test(expected = StorageException.class)
@@ -120,7 +125,7 @@ public class GetSasTokenTest {
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadZipFile(testSasContainer, zipFilename, destZipFilename);
+        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
     }
 
 }
