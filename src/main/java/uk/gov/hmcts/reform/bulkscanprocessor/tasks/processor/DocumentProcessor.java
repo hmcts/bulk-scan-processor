@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -11,8 +12,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Component
 public class DocumentProcessor {
@@ -35,12 +37,11 @@ public class DocumentProcessor {
 
         log.info("Document service response with file name and doc url {}", response);
 
-        List<String> filesWithoutUrl =
-            scannedItems
-                .stream()
-                .map(item -> item.getFileName())
-                .filter(fileName -> !response.keySet().contains(fileName))
-                .collect(toList());
+        Set<String> filesWithoutUrl =
+            Sets.difference(
+                scannedItems.stream().map(it -> it.getFileName()).collect(toSet()),
+                response.keySet()
+            );
 
         if (filesWithoutUrl.isEmpty()) {
             scannedItems.forEach(item -> item.setDocumentUrl(response.get(item.getFileName())));
