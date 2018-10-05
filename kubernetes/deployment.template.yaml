@@ -22,7 +22,7 @@ data:
   POSTGRES_PASSWORD: bsppassword
 ---
 #
-# Rhubarb Config
+# Bulk Scan Processor Config
 #
 apiVersion: v1
 kind: ConfigMap
@@ -62,7 +62,7 @@ spec:
     spec:
       containers:
       - image: postgres:10-alpine
-          name: rhubarb-postgres
+          name: bsp-postgres
           envFrom:
           - configMapRef:
               name: shared-config
