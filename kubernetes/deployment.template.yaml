@@ -16,7 +16,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: shared-config
-  namespace: cnp
+  namespace: ${NAMESPACE}
 data:
   POSTGRES_USER: bspuser
   POSTGRES_PASSWORD: bsppassword
@@ -28,7 +28,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: bsp-config
-  namespace: cnp
+  namespace: ${NAMESPACE}
 data:
   POSTGRES_HOST: localhost
   POSTGRES_DATABASE: bulk_scan
@@ -41,7 +41,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
-  namespace: cnp
+  namespace: ${NAMESPACE}
 data:
   POSTGRES_DB: bulk_scan
 ---
