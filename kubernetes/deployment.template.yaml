@@ -1,0 +1,186 @@
+# Kubernetes bulk-scan-processor resource template
+#
+# All variables are replaced at deployment time with environment variables.
+#
+# The following variables are derived as follows by the pipeline. DO NOT CHANGE:
+#
+#   - NAMESPACE:    product
+#   - SERVICE_NAME: product-component-branch
+#   - IMAGE_NAME:   registry-name/hmcts/product-component:branch
+#
+---
+#
+# Shared Config
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shared-config
+  namespace: cnp
+data:
+  POSTGRES_USER: bspuser
+  POSTGRES_PASSWORD: bsppassword
+---
+#
+# Rhubarb Config
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bsp-config
+  namespace: cnp
+data:
+  POSTGRES_HOST: localhost
+  POSTGRES_DATABASE: bulk_scan
+  POSTGRES_SSL_MODE: disable
+---
+#
+# Postgres Config
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: cnp
+data:
+  POSTGRES_DB: bulk_scan
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${SERVICE_NAME}
+  namespace: ${NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${SERVICE_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${SERVICE_NAME}
+    spec:
+      containers:
+      - image: postgres:10-alpine
+          name: rhubarb-postgres
+          envFrom:
+          - configMapRef:
+              name: shared-config
+          - configMapRef:
+              name: postgres-config
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"
+          imagePullPolicy: Always
+      - image: ${IMAGE_NAME}
+        name: ${SERVICE_NAME}
+        envFrom:
+        - configMapRef:
+            name: bsp-config
+        - configMapRef:
+            name: shared-config
+        - configMapRef:
+            name: postgres-config
+        env:
+        - name: QUEUE_ENVELOPE_SEND
+          valueFrom:
+            secretKeyRef:
+              name: ${SERVICE_NAME}-servicebus-secret
+              key: connectionString
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1024Mi"
+            cpu: "2500m"
+        ports:
+        - containerPort: 8581
+          name: http
+        imagePullPolicy: Always
+---
+#
+# Service Catalog Servicebus queue Instance
+#
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: ${SERVICE_NAME}-servicebus-instance
+  namespace: ${NAMESPACE}
+spec:
+  #
+  # Get the value of this from 'svcat get classes'
+  #
+  clusterServiceClassExternalName: azure-servicebus
+
+  #
+  # The 'SKU'. Get the value of this from 'svc describe class <class name>'
+  #
+  clusterServicePlanExternalName: basic
+
+  #
+  # Parameters.  Get these from here: https://github.com/Azure/open-service-broker-azure/blob/master/docs/modules/postgresql.md
+  # or 'svcat describe <class>/<plan>'
+  # e.g. 'svcat describe plan azure-postgresql-9-6-database/database'
+  #
+  parameters:
+    location: "UK South"
+---
+#
+# The binding.  This will return the secret with connection details, etc.
+#
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: ${SERVICE_NAME}-servicebus-binding
+  namespace: ${NAMESPACE}
+spec:
+  instanceRef:
+    name: ${SERVICE_NAME}-servicebus-instance
+  #
+  # This is the secret used above in your pod environment config
+  #
+  secretName: ${SERVICE_NAME}-servicebus-secret
+---
+#
+# Service
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${SERVICE_NAME}
+  namespace: ${NAMESPACE}
+  labels:
+    app: ${SERVICE_NAME}
+spec:
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8581
+  selector:
+    app: ${SERVICE_NAME}
+---
+#
+# Ingress
+#
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ${SERVICE_NAME}
+  namespace: ${NAMESPACE}
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: ${SERVICE_FQDN}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: ${SERVICE_NAME}
+          servicePort: 80
