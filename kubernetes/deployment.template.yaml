@@ -61,12 +61,12 @@ spec:
         app: ${SERVICE_NAME}
     spec:
       containers:
-      - image: postgres:10-alpine
+        - image: postgres:10-alpine
           name: bsp-postgres
           envFrom:
-          - configMapRef:
+            - configMapRef:
               name: shared-config
-          - configMapRef:
+            - configMapRef:
               name: postgres-config
           resources:
             requests:
@@ -76,32 +76,32 @@ spec:
               memory: "1024Mi"
               cpu: "1000m"
           imagePullPolicy: Always
-      - image: ${IMAGE_NAME}
-        name: ${SERVICE_NAME}
-        envFrom:
-        - configMapRef:
-            name: bsp-config
-        - configMapRef:
-            name: shared-config
-        - configMapRef:
-            name: postgres-config
-        env:
-        - name: QUEUE_ENVELOPE_SEND
-          valueFrom:
-            secretKeyRef:
-              name: ${SERVICE_NAME}-servicebus-secret
-              key: connectionString
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
-            memory: "1024Mi"
-            cpu: "2500m"
-        ports:
-        - containerPort: 8581
-          name: http
-        imagePullPolicy: Always
+        - image: ${IMAGE_NAME}
+          name: ${SERVICE_NAME}
+          envFrom:
+            - configMapRef:
+              name: bsp-config
+            - configMapRef:
+              name: shared-config
+            - configMapRef:
+              name: postgres-config
+          env:
+            - name: QUEUE_ENVELOPE_SEND
+              valueFrom:
+                secretKeyRef:
+                  name: ${SERVICE_NAME}-servicebus-secret
+                  key: connectionString
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1024Mi"
+              cpu: "2500m"
+          ports:
+            - containerPort: 8581
+              name: http
+          imagePullPolicy: Always
 ---
 #
 # Service Catalog Servicebus queue Instance
@@ -123,7 +123,8 @@ spec:
   clusterServicePlanExternalName: basic
 
   #
-  # Parameters.  Get these from here: https://github.com/Azure/open-service-broker-azure/blob/master/docs/modules/postgresql.md
+  # Parameters.
+  # See: https://github.com/Azure/open-service-broker-azure/blob/master/docs/modules/postgresql.md
   # or 'svcat describe <class>/<plan>'
   # e.g. 'svcat describe plan azure-postgresql-9-6-database/database'
   #
@@ -158,10 +159,10 @@ metadata:
     app: ${SERVICE_NAME}
 spec:
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 8581
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8581
   selector:
     app: ${SERVICE_NAME}
 ---
@@ -177,10 +178,10 @@ metadata:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
-  - host: ${SERVICE_FQDN}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: ${SERVICE_NAME}
-          servicePort: 80
+    - host: ${SERVICE_FQDN}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: ${SERVICE_NAME}
+              servicePort: 80
