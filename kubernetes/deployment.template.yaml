@@ -130,6 +130,7 @@ spec:
   #
   parameters:
     location: "UK South"
+    resourceGroup: ${NAMESPACE}
 ---
 #
 # The binding.  This will return the secret with connection details, etc.
