@@ -129,7 +129,7 @@ spec:
   # e.g. 'svcat describe plan azure-postgresql-9-6-database/database'
   #
   parameters:
-    location: "UK South"
+    location: uksouth
     resourceGroup: ${NAMESPACE}
 ---
 #
