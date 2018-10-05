@@ -30,6 +30,10 @@ List<LinkedHashMap<String, Object>> commonSecrets = [
   secret('test-s2s-secret', 'TEST_S2S_SECRET'),
 ]
 
+List<LinkedHashMap<String, Object>> secrets = [
+  secret('secret-name-in-keyvault', 'SOME_VARIABLE'),
+]
+
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [ $class: 'AzureKeyVaultSecret',
     secretType: 'Secret',
@@ -50,6 +54,8 @@ withPipeline(type, product, component) {
   enableApiGatewayTest()
   enableDockerBuild()
   enableDeployToAKS()
+  loadVaultSecrets(secrets)
+  setVaultName('bulk-scan')
 
   onPR() {
     loadVaultSecrets(commonSecrets)
