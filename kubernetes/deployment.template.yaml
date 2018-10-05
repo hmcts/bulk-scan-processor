@@ -65,9 +65,9 @@ spec:
           name: bsp-postgres
           envFrom:
             - configMapRef:
-              name: shared-config
+                name: shared-config
             - configMapRef:
-              name: postgres-config
+                name: postgres-config
           resources:
             requests:
               memory: "256Mi"
@@ -80,11 +80,11 @@ spec:
           name: ${SERVICE_NAME}
           envFrom:
             - configMapRef:
-              name: bsp-config
+                name: bsp-config
             - configMapRef:
-              name: shared-config
+                name: shared-config
             - configMapRef:
-              name: postgres-config
+                name: postgres-config
           env:
             - name: QUEUE_ENVELOPE_SEND
               valueFrom:
