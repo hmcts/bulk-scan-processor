@@ -39,6 +39,8 @@ data:
   FLYWAY_USER: bulkscanner
   FLYWAY_PASSWORD: bsppassword
   flyway.noop.strategy: "false"
+  LOGBACK_REQUIRE_ALERT_LEVEL: "false"
+  LOGBACK_REQUIRE_ERROR_CODE: "false"
 ---
 #
 # Postgres Config
@@ -91,6 +93,8 @@ spec:
                 name: shared-config
             - configMapRef:
                 name: postgres-config
+            - configMapRef:
+                name: ${SERVICE_NAME}-config
           env:
             - name: QUEUE_ENVELOPE_SEND
               valueFrom:
