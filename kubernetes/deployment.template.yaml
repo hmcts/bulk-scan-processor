@@ -38,7 +38,7 @@ data:
   FLYWAY_URL: "jdbc:postgresql://localhost:5432/bulk_scan"
   FLYWAY_USER: bulkscanner
   FLYWAY_PASSWORD: bsppassword
-  flyway.noop.strategy: false
+  flyway.noop.strategy: "false"
 ---
 #
 # Postgres Config
