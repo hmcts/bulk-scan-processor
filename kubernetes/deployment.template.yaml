@@ -18,8 +18,10 @@ metadata:
   name: shared-config
   namespace: ${NAMESPACE}
 data:
-  POSTGRES_USER: bspuser
+  POSTGRES_USER: bulkscanner
   POSTGRES_PASSWORD: bsppassword
+  BULK_SCANNING_DB_USER_NAME: bulkscanner
+  BULK_SCANNING_DB_PASSWORD: bsppassword
 ---
 #
 # Bulk Scan Processor Config
@@ -33,6 +35,9 @@ data:
   POSTGRES_HOST: localhost
   POSTGRES_DATABASE: bulk_scan
   POSTGRES_SSL_MODE: disable
+  BULK_SCANNING_DB_NAME: bulk_scan
+  BULK_SCANNING_DB_HOST: localhost
+  BULK_SCANNING_DB_PORT: 5432
 ---
 #
 # Postgres Config
@@ -91,14 +96,6 @@ spec:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-servicebus-secret
                   key: connectionString
-            - name: BULK_SCANNING_DB_PORT
-              value: '5432'
-            - name: BULK_SCANNING_DB_HOST
-              value: "${POSTGRES_HOST}"
-            - name: BULK_SCANNING_DB_PASSWORD
-              value: "${POSTGRES_PASSWORD}"
-            - name: BULK_SCANNING_DB_NAME
-              value: "${POSTGRES_DATABASE}"
           resources:
             requests:
               memory: "512Mi"
