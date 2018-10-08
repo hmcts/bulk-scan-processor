@@ -32,12 +32,13 @@ metadata:
   name: bsp-config
   namespace: ${NAMESPACE}
 data:
-  POSTGRES_HOST: localhost
-  POSTGRES_DATABASE: bulk_scan
-  POSTGRES_SSL_MODE: disable
   BULK_SCANNING_DB_NAME: bulk_scan
   BULK_SCANNING_DB_HOST: localhost
   BULK_SCANNING_DB_PORT: "5432"
+  FLYWAY_URL = "jdbc:postgresql://localhost:5432/bulk_scan"
+  FLYWAY_USER = bulkscanner
+  FLYWAY_PASSWORD = bsppassword
+
 ---
 #
 # Postgres Config
