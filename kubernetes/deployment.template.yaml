@@ -32,7 +32,7 @@ metadata:
 data:
   POSTGRES_HOST: localhost
   POSTGRES_DATABASE: bulk_scan
-  POSTGRES_SSL_MODE: disable
+  POSTGRES_SSL_MODE: enable
 ---
 #
 # Postgres Config
@@ -91,6 +91,16 @@ spec:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-servicebus-secret
                   key: connectionString
+            - name: BULK_SCANNING_DB_PORT
+              value: '5432'
+            - name: BULK_SCANNING_DB_HOST
+              value: "${POSTGRES_HOST}"
+            - name: BULK_SCANNING_DB_PASSWORD
+              value: "${POSTGRES_PASSWORD}"
+            - name: BULK_SCANNING_DB_NAME
+              value: "${POSTGRES_DATABASE}"
+            - name: BULK_SCANNING_DB_CONN_OPTIONS
+              value: '?ssl&sslmode=require'
           resources:
             requests:
               memory: "512Mi"
