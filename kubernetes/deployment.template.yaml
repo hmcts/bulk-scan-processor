@@ -37,7 +37,7 @@ data:
   POSTGRES_SSL_MODE: disable
   BULK_SCANNING_DB_NAME: bulk_scan
   BULK_SCANNING_DB_HOST: localhost
-  BULK_SCANNING_DB_PORT: 5432
+  BULK_SCANNING_DB_PORT: "5432"
 ---
 #
 # Postgres Config
