@@ -46,6 +46,10 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
+  after('checkout') {
+    print env.getEnvironment()
+    echo sh(returnStdout: true, script: 'env')
+  }
   after('test') {
     builder.gradle('integration')
   }
