@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.not;
 @TestPropertySource("classpath:application.yaml")
 public class WhenApplicationDeployedTest {
 
-    @Value("${test-url}")
+    @Value("http://${test-host}")
     private String testUrl;
 
     @Value("${test-s2s-name}")

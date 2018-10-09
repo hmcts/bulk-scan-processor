@@ -173,7 +173,7 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 8581
+      port: 80
       targetPort: 8581
   selector:
     app: ${SERVICE_NAME}
@@ -196,4 +196,4 @@ spec:
           - path: /
             backend:
               serviceName: ${SERVICE_NAME}
-              servicePort: 8581
+              servicePort: 80
