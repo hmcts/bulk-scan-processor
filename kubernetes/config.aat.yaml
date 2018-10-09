@@ -10,5 +10,5 @@ data:
   TEST_STORAGE_ACCOUNT_NAME: "bulkscanoldaat"
   TEST_SCAN_DELAY: "4000"
   test_storage_container_name: "test"
-  TEST_URL: "http://localhost:8581"
+  TEST_URL: ${TEST_URL}
   DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
