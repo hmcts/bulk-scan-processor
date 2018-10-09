@@ -40,6 +40,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 // Vars needed for AKS testing
+env.TEST_URL = "http://${env.SERVICE_FQDN}:8581"
 env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
 env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 env.TEST_STORAGE_ACCOUNT_NAME = 'bulkscanoldaat'
