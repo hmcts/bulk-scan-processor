@@ -26,12 +26,9 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
 ]
 
 List<LinkedHashMap<String, Object>> commonSecrets = [
+  secret('test-storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
   secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
   secret('test-s2s-secret', 'TEST_S2S_SECRET'),
-]
-
-List<LinkedHashMap<String, Object>> secrets = [
-  secret('secret-name-in-keyvault', 'SOME_VARIABLE'),
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
@@ -46,9 +43,9 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
-  after('checkout') {
-    echo sh(returnStdout: true, script: 'env')
-  }
+  //after('checkout') {
+  //  echo sh(returnStdout: true, script: 'env')
+  //}
   after('test') {
     builder.gradle('integration')
   }
@@ -57,8 +54,6 @@ withPipeline(type, product, component) {
   enableApiGatewayTest()
   enableDockerBuild()
   enableDeployToAKS()
-  loadVaultSecrets(secrets)
-  setVaultName('bulk-scan')
 
   onPR() {
     loadVaultSecrets(commonSecrets)
