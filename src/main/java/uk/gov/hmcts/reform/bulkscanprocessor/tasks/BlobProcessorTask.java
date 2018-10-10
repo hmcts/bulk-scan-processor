@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -45,6 +46,12 @@ public class BlobProcessorTask extends Processor {
 
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
+
+    @Value("${storage.check_signature}")
+    private boolean checkSignature;
+
+    @Value("${storage.public_key_base64}")
+    private String publicKeyBase64;
 
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
@@ -152,7 +159,9 @@ public class BlobProcessorTask extends Processor {
     ) {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
-            zipFileProcessor.process(zis);
+            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
+                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
+            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(checkSignature));
 
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);

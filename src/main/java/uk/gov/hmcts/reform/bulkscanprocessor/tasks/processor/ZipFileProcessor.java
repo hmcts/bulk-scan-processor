@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -39,7 +40,11 @@ public class ZipFileProcessor {
         this.envelope = envelope;
     }
 
-    public void process(ZipInputStream zis) throws IOException {
+    public void process(
+        ZipVerifiers.ZipStreamWithSignature signedZip,
+        Function<ZipVerifiers.ZipStreamWithSignature, ZipInputStream> preprocessor
+    ) throws IOException {
+        ZipInputStream zis = preprocessor.apply(signedZip);
         ZipEntry zipEntry;
 
         while ((zipEntry = zis.getNextEntry()) != null) {

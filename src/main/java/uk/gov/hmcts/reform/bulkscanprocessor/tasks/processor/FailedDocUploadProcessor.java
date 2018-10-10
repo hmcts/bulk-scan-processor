@@ -8,6 +8,7 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -32,6 +33,12 @@ public class FailedDocUploadProcessor extends Processor {
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
 
     private final ServiceBusHelper serviceBusHelper;
+
+    @Value("${storage.check_signature}")
+    private boolean checkSignature;
+
+    @Value("${storage.public_key_base64}")
+    private String publicKeyBase64;
 
     public FailedDocUploadProcessor(
         CloudBlobClient cloudBlobClient,
@@ -102,7 +109,9 @@ public class FailedDocUploadProcessor extends Processor {
     private ZipFileProcessor processZipInputStream(ZipInputStream zis, Envelope envelope) {
         return errorWrapper.wrapDocFailure(envelope.getContainer(), envelope.getZipFileName(), () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
-            zipFileProcessor.process(zis);
+            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
+                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
+            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(checkSignature));
 
             return zipFileProcessor;
         });
