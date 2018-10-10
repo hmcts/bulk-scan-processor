@@ -112,6 +112,16 @@ spec:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-storage-secret
                   key: accessKey
+            - name: STORAGE_ACCOUNT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: ${SERVICE_NAME}-storage-secret
+                  key: storageAccountName
+            - name: STORAGE_ACCOUNT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ${SERVICE_NAME}-storage-secret
+                  key: accessKey
           resources:
             requests:
               memory: "512Mi"
