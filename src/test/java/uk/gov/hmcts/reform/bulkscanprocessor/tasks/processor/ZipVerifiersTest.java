@@ -68,7 +68,7 @@ public class ZipVerifiersTest {
             new ZipInputStream(new ByteArrayInputStream(test1Bytes)),
             publicKeyBase64
         );
-        ZipInputStream zis = ZipVerifiers.signatureCheckVerification(zipStreamWithSig);
+        ZipInputStream zis = ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
         assertThat(zis).isNotNull();
     }
 
@@ -79,7 +79,7 @@ public class ZipVerifiersTest {
             new ZipInputStream(new ByteArrayInputStream(test1Bytes)),
             publicKeyBase64
         );
-        ZipVerifiers.signatureCheckVerification(zipStreamWithSig);
+        ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
     }
 
 }

@@ -85,7 +85,7 @@ public class EnvelopeProcessorValidationTest {
         try (ZipInputStream zis = getZipInputStream(zipFileName)) {
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 new ZipVerifiers.ZipStreamWithSignature(zis, null);
-            processor.process(zipWithSignature, ZipVerifiers.getPreprocessor(false));
+            processor.process(zipWithSignature, ZipVerifiers.getPreprocessor("none"));
             processor.setEnvelope(EnvelopeCreator.getEnvelopeFromMetafile(processor.getMetadata()));
         }
 

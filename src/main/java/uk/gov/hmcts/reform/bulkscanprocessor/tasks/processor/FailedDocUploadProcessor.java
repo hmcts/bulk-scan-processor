@@ -34,8 +34,8 @@ public class FailedDocUploadProcessor extends Processor {
 
     private final ServiceBusHelper serviceBusHelper;
 
-    @Value("${storage.check_signature}")
-    private boolean checkSignature;
+    @Value("${storage.signature_algorithm}")
+    private String signatureAlg;
 
     @Value("${storage.public_key_base64}")
     private String publicKeyBase64;
@@ -111,7 +111,7 @@ public class FailedDocUploadProcessor extends Processor {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
-            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(checkSignature));
+            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             return zipFileProcessor;
         });

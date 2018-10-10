@@ -47,8 +47,8 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
-    @Value("${storage.check_signature}")
-    private boolean checkSignature;
+    @Value("${storage.signature_algorithm}")
+    private String signatureAlg;
 
     @Value("${storage.public_key_base64}")
     private String publicKeyBase64;
@@ -161,7 +161,7 @@ public class BlobProcessorTask extends Processor {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
-            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(checkSignature));
+            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);

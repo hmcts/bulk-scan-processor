@@ -28,19 +28,21 @@ public class ZipVerifiers {
     }
 
     public static Function<ZipStreamWithSignature, ZipInputStream> getPreprocessor(
-        boolean hasSignatureCheck
+        String signatureAlgorithm
     ) {
-        if (hasSignatureCheck) {
-            return ZipVerifiers::signatureCheckVerification;
+        if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
+            return ZipVerifiers::sha256WithRsaVerification;
+        } else if ("none".equalsIgnoreCase(signatureAlgorithm)) {
+            return ZipVerifiers::noOpVerification;
         }
-        return ZipVerifiers::noOpVerification;
+        throw new RuntimeException("Undefined signature verification algorithm");
     }
 
-    public static ZipInputStream noOpVerification(ZipStreamWithSignature zipWithSignature) {
+    static ZipInputStream noOpVerification(ZipStreamWithSignature zipWithSignature) {
         return zipWithSignature.zipInputStream;
     }
 
-    public static ZipInputStream signatureCheckVerification(ZipStreamWithSignature zipWithSignature) {
+    static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
         if (!verifyFileNames(zipEntries)) {
             throw new RuntimeException(
