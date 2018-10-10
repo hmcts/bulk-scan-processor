@@ -20,8 +20,7 @@ public class ZipVerifiersTest {
         "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEXfjyDFFigzsmFvTe2cWZ45ggH/XoS/3C6Ur/"
             + "V0egi8k5hnIIgPEOUqhrX5UcQorSX7bIlMped6TtPkYdGs/QI6S5m2uz+6Mjai7ZfACGhYxIs8"
             + "35msqvRsDM0tIle/h3eZJb7iPE0anMWb8MkBYU3D3vAnPdBZxiEIwNMUNzqQIDAQAB";
-
-
+    
     @Test
     public void should_verify_signed_file_successfully() throws Exception {
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
