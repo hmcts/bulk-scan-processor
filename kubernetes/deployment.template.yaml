@@ -102,6 +102,16 @@ spec:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-servicebus-secret
                   key: connectionString
+            - name: TEST_STORAGE_ACCOUNT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: ${SERVICE_NAME}-storage-secret
+                  key: storageAccountName
+            - name: TEST_STORAGE_ACCOUNT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ${SERVICE_NAME}-storage-secret
+                  key: accessKey
           resources:
             requests:
               memory: "512Mi"
@@ -158,6 +168,52 @@ spec:
   # This is the secret used above in your pod environment config
   #
   secretName: ${SERVICE_NAME}-servicebus-secret
+---
+---
+#
+# Service Catalog Storage Instance
+#
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: ${SERVICE_NAME}-storage-instance
+  namespace: ${NAMESPACE}
+spec:
+  #
+  # Get the value of this from 'svcat get classes'
+  #
+  clusterServiceClassExternalName: azure-storage
+
+  #
+  # The 'SKU'. Get the value of this from 'svcat describe class <class name>'
+  #
+  clusterServicePlanExternalName: blob-storage-account
+
+  #
+  # Parameters.
+  # See: https://github.com/Azure/open-service-broker-azure/blob/master/docs/modules/postgresql.md
+  # or 'svcat describe <class>/<plan>'
+  # e.g. 'svcat describe plan azure-postgresql-9-6-database/database'
+  #
+  parameters:
+    location: uksouth
+    resourceGroup: ${NAMESPACE}
+---
+#
+# The binding.  This will return the secret with connection details, etc.
+#
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: ${SERVICE_NAME}-storage-binding
+  namespace: ${NAMESPACE}
+spec:
+  instanceRef:
+    name: ${SERVICE_NAME}-storage-instance
+  #
+  # This is the secret used above in your pod environment config
+  #
+  secretName: ${SERVICE_NAME}-storage-secret
 ---
 #
 # Service
