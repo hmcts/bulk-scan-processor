@@ -67,12 +67,12 @@ public class BlobProcessorTask extends Processor {
     }
 
     @Override
-    protected void setVerificationAlg(String signatureAlg) {
+    public void setVerificationAlg(String signatureAlg) {
         this.signatureAlg = signatureAlg;
     }
 
     @Override
-    protected void setPublicKeyBase64(String publicKeyBase64) {
+    public void setPublicKeyBase64(String publicKeyBase64) {
         this.publicKeyBase64 = publicKeyBase64;
     }
 
