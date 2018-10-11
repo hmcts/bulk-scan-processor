@@ -47,12 +47,6 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
-    @Value("${storage.signature_algorithm}")
-    private String signatureAlg;
-
-    @Value("${storage.public_key_base64}")
-    private String publicKeyBase64;
-
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -70,6 +64,16 @@ public class BlobProcessorTask extends Processor {
     @Lookup
     public ServiceBusHelper serviceBusHelper() {
         return null;
+    }
+
+    @Override
+    protected void setVerificationAlg(String signatureAlg) {
+        this.signatureAlg = signatureAlg;
+    }
+
+    @Override
+    protected void setPublicKeyBase64(String publicKeyBase64) {
+        this.publicKeyBase64 = publicKeyBase64;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")

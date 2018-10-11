@@ -8,7 +8,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -34,12 +33,6 @@ public class FailedDocUploadProcessor extends Processor {
 
     private final ServiceBusHelper serviceBusHelper;
 
-    @Value("${storage.signature_algorithm}")
-    private String signatureAlg;
-
-    @Value("${storage.public_key_base64}")
-    private String publicKeyBase64;
-
     public FailedDocUploadProcessor(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -60,6 +53,16 @@ public class FailedDocUploadProcessor extends Processor {
         return null;
     }
 
+    @Override
+    protected void setVerificationAlg(String signatureAlg) {
+        this.signatureAlg = signatureAlg;
+    }
+
+    @Override
+    protected void setPublicKeyBase64(String publicKeyBase64) {
+        this.publicKeyBase64 = publicKeyBase64;
+    }
+    
     public void processJurisdiction(String jurisdiction)
         throws IOException, StorageException, URISyntaxException {
 

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -53,7 +54,7 @@ public class ZipVerifiers {
         if (!verifySignature(zipWithSignature.publicKeyBase64, zipEntries)) {
             throw new RuntimeException("Zip signature failed verification");
         }
-        return zipWithSignature.zipInputStream;
+        return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
     }
 
     private static Map<String, byte[]> extractZipEntries(ZipInputStream zis) {
