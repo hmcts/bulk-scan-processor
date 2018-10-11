@@ -21,7 +21,7 @@ public class ZipVerifiersTest {
         "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEXfjyDFFigzsmFvTe2cWZ45ggH/XoS/3C6Ur/"
             + "V0egi8k5hnIIgPEOUqhrX5UcQorSX7bIlMped6TtPkYdGs/QI6S5m2uz+6Mjai7ZfACGhYxIs8"
             + "35msqvRsDM0tIle/h3eZJb7iPE0anMWb8MkBYU3D3vAnPdBZxiEIwNMUNzqQIDAQAB";
-    
+
     @Test
     public void should_verify_signed_file_successfully() throws Exception {
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
@@ -74,7 +74,7 @@ public class ZipVerifiersTest {
 
     @Test(expected = SignatureValidationException.class)
     public void should_not_verify_invalid_zip_successfully() throws Exception {
-        byte[] test1Bytes = toByteArray(getResource("2_24-06-2018-00-00-00.test.zip"));
+        byte[] test1Bytes = toByteArray(getResource("signature/2_24-06-2018-00-00-00.test.zip"));
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(test1Bytes)),
             publicKeyBase64
