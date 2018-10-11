@@ -50,7 +50,8 @@ public class EnvelopeDeletionTest {
             try {
                 testContainer.getBlockBlobReference(filename).breakLease(0);
             } catch (StorageException e) {
-            } // Do nothing as the file was not leased
+                // Do nothing as the file was not leased
+            }
             testContainer.getBlockBlobReference(filename).deleteIfExists();
         }
     }
