@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -36,7 +38,7 @@ public class ZipVerifiers {
         } else if ("none".equalsIgnoreCase(signatureAlgorithm)) {
             return ZipVerifiers::noOpVerification;
         }
-        throw new RuntimeException("Undefined signature verification algorithm");
+        throw new SignatureValidationException("Undefined signature verification algorithm");
     }
 
     static ZipInputStream noOpVerification(ZipStreamWithSignature zipWithSignature) {
@@ -46,13 +48,13 @@ public class ZipVerifiers {
     static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
         if (!verifyFileNames(zipEntries)) {
-            throw new RuntimeException(
+            throw new SignatureValidationException(
                 "Zip entries do not match expected file names. "
                 + "Actual names = " + zipEntries.keySet()
             );
         }
         if (!verifySignature(zipWithSignature.publicKeyBase64, zipEntries)) {
-            throw new RuntimeException("Zip signature failed verification");
+            throw new SignatureValidationException("Zip signature failed verification");
         }
         return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
     }
@@ -65,7 +67,7 @@ public class ZipVerifiers {
                 zipEntries.put(zipEntry.getName(), toByteArray(zis));
             }
         } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
+            throw new SignatureValidationException(ioe);
         }
 
         return zipEntries;
@@ -97,7 +99,7 @@ public class ZipVerifiers {
             signature.update(data);
             return signature.verify(signed);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
-            throw new RuntimeException(e);
+            throw new SignatureValidationException(e);
         }
     }
 
@@ -109,7 +111,7 @@ public class ZipVerifiers {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             return kf.generatePublic(spec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException(e);
+            throw new SignatureValidationException(e);
         }
     }
 

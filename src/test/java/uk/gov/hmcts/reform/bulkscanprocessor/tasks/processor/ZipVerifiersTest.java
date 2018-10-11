@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -71,7 +72,7 @@ public class ZipVerifiersTest {
         assertThat(zis).isNotNull();
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = SignatureValidationException.class)
     public void should_not_verify_invalid_zip_successfully() throws Exception {
         byte[] test1Bytes = toByteArray(getResource("2_24-06-2018-00-00-00.test.zip"));
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
