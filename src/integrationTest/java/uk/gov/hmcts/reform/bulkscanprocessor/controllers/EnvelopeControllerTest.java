@@ -145,6 +145,7 @@ public class EnvelopeControllerTest {
             envelopeProcessor,
             errorWrapper
         );
+        blobProcessorTask.setVerificationAlg("none");
 
         testContainer = cloudBlobClient.getContainerReference("test");
         testContainer.createIfNotExists();

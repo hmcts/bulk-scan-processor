@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesEx
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -82,7 +83,9 @@ public class EnvelopeProcessorValidationTest {
         ZipFileProcessor processor = new ZipFileProcessor("container", zipFileName);
 
         try (ZipInputStream zis = getZipInputStream(zipFileName)) {
-            processor.process(zis);
+            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
+                new ZipVerifiers.ZipStreamWithSignature(zis, null);
+            processor.process(zipWithSignature, ZipVerifiers.getPreprocessor("none"));
             processor.setEnvelope(EnvelopeCreator.getEnvelopeFromMetafile(processor.getMetadata()));
         }
 

@@ -44,6 +44,8 @@ storage:
   account_name: ${STORAGE_ACCOUNT_NAME:bulkscanning}
   key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
   blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
+  signature_algorithm: ${STORAGE_BLOB_SIGNATURE_ALGORITHM:none}  # none or sha256withrsa
+  public_key_base64: ${STORAGE_BLOB_PUBLIC_KEY:dGVzdA==} #Base 64 encoded
 
 servicebus:
   queue_envelope_send: ${QUEUE_ENVELOPE_SEND}
