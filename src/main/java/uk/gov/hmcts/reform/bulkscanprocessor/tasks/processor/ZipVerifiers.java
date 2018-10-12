@@ -24,8 +24,8 @@ import static com.google.common.io.ByteStreams.toByteArray;
 
 public class ZipVerifiers {
 
-    public static final String DOCUMENTS_ZIP = "documents.zip";
-    public static final String SIGNATURE_SIG = "signature.sig";
+    public static final String DOCUMENTS_ZIP = "envelope.zip";
+    public static final String SIGNATURE_SIG = "signature";
 
     private ZipVerifiers() {
     }
