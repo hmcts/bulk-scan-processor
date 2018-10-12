@@ -43,10 +43,11 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             testContainer.getServiceClient(),
             documentProcessor,
             envelopeProcessor,
-            errorWrapper
+            errorWrapper,
+            SIGNATURE_ALGORITHM,
+            PUBLIC_KEY_BASE64
+
         );
-        // Unfortunately this cannot be injected as the bean is instantiated with new (sigh!)
-        blobProcessorTask.setVerificationAlg("none");
     }
 
     @After

@@ -66,6 +66,8 @@ public class EnvelopeControllerTest {
 
     private static final String DOCUMENT_URL = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
+    protected static final String SIGNATURE_ALGORITHM = "none";
+    protected static final String PUBLIC_KEY_BASE64 = "none";
 
     private CloudBlobClient cloudBlobClient;
 
@@ -143,9 +145,11 @@ public class EnvelopeControllerTest {
             cloudBlobClient,
             documentProcessor,
             envelopeProcessor,
-            errorWrapper
+            errorWrapper,
+            SIGNATURE_ALGORITHM,
+            PUBLIC_KEY_BASE64
+
         );
-        blobProcessorTask.setVerificationAlg("none");
 
         testContainer = cloudBlobClient.getContainerReference("test");
         testContainer.createIfNotExists();

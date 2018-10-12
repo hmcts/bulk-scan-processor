@@ -9,6 +9,7 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -47,6 +48,7 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
+    @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -54,6 +56,21 @@ public class BlobProcessorTask extends Processor {
         ErrorHandlingWrapper errorWrapper
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+    }
+
+    // NOTE: this is needed for testing as children of this class are instantiated
+    // using "new" in tests despite being spring beans (sigh!)
+    public BlobProcessorTask(
+        CloudBlobClient cloudBlobClient,
+        DocumentProcessor documentProcessor,
+        EnvelopeProcessor envelopeProcessor,
+        ErrorHandlingWrapper errorWrapper,
+        String signatureAlg,
+        String publicKeyBase64
+    ) {
+        this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        this.signatureAlg = signatureAlg;
+        this.publicKeyBase64 = publicKeyBase64;
     }
 
     /**
@@ -64,16 +81,6 @@ public class BlobProcessorTask extends Processor {
     @Lookup
     public ServiceBusHelper serviceBusHelper() {
         return null;
-    }
-
-    @Override
-    public void setVerificationAlg(String signatureAlg) {
-        this.signatureAlg = signatureAlg;
-    }
-
-    @Override
-    public void setPublicKeyBase64(String publicKeyBase64) {
-        this.publicKeyBase64 = publicKeyBase64;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")

@@ -47,12 +47,6 @@ public abstract class Processor {
 
     protected abstract ServiceBusHelper serviceBusHelper();
 
-    // NOTE: these 2 are needed for testing as children of this class are instantiated
-    // using "new" in tests despite being spring beans (sigh!)
-    protected abstract void setVerificationAlg(String signatureAlg);
-
-    protected abstract void setPublicKeyBase64(String publicKeyBase64);
-
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs,
