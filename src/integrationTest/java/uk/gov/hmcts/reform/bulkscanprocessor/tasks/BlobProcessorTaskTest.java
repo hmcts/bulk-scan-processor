@@ -46,6 +46,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirZipper.zipDir;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -60,16 +61,19 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        uploadToBlobStorage("hello.zip", zipDir("zipcontents/ok_with_case_number"));
 
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
+        byte[] test1PdfBytes = toByteArray(getResource("zipcontents/ok_with_case_number/1111001.pdf"));
+        byte[] test2PdfBytes = toByteArray(getResource("zipcontents/ok_with_case_number/1111002.pdf"));
 
         Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
         Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
-            .willReturn(getFileUploadResponse());
+            .willReturn(ImmutableMap.of(
+                "1111001.pdf", DOCUMENT_URL1,
+                "1111002.pdf", DOCUMENT_URL2
+            ));
 
         doNothing().when(serviceBusHelper).sendMessage(any(Msg.class));
 
@@ -81,7 +85,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
         String originalMetaFile = Resources.toString(
-            getResource("metadata.json"),
+            getResource("zipcontents/ok_with_case_number/metadata.json"),
             Charset.defaultCharset()
         );
 
