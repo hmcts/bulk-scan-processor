@@ -51,17 +51,36 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 @SpringBootTest
 public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask> {
 
+    protected static final String VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER = "42_24-06-2018-00-00-00.test.zip";
+
     @Before
     public void setUp() throws Exception {
         super.setUp(BlobProcessorTask::new);
     }
 
     @Test
-    public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
+    public void should_read_blob_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        testBlobFileProcessed();
+    }
 
+    @Test
+    public void should_read_blob_check_signature_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
+        throws Exception {
+        //Given
+        processor.signatureAlg = "sha256withrsa";
+        processor.publicKeyBase64 =
+            "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEXfjyDFFigzsmFvTe2cWZ45ggH/XoS/3C6Ur/"
+                + "V0egi8k5hnIIgPEOUqhrX5UcQorSX7bIlMped6TtPkYdGs/QI6S5m2uz+6Mjai7ZfACGhYxIs8"
+                + "35msqvRsDM0tIle/h3eZJb7iPE0anMWb8MkBYU3D3vAnPdBZxiEIwNMUNzqQIDAQAB";
+
+        uploadZipToBlobStore(VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER); //Signed zip file with metadata and pdfs
+        testBlobFileProcessed();
+    }
+
+    private void testBlobFileProcessed() throws Exception {
         byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
         byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
 
