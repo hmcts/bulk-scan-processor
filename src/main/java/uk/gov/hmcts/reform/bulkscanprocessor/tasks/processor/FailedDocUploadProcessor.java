@@ -7,6 +7,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -33,6 +34,7 @@ public class FailedDocUploadProcessor extends Processor {
 
     private final ServiceBusHelper serviceBusHelper;
 
+    @Autowired
     public FailedDocUploadProcessor(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -41,6 +43,21 @@ public class FailedDocUploadProcessor extends Processor {
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
         this.serviceBusHelper = serviceBusHelper();
+    }
+
+    // NOTE: this is needed for testing as children of this class are instantiated
+    // using "new" in tests despite being spring beans (sigh!)
+    public FailedDocUploadProcessor(
+        CloudBlobClient cloudBlobClient,
+        DocumentProcessor documentProcessor,
+        EnvelopeProcessor envelopeProcessor,
+        ErrorHandlingWrapper errorWrapper,
+        String signatureAlg,
+        String publicKeyBase64
+    ) {
+        this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        this.signatureAlg = signatureAlg;
+        this.publicKeyBase64 = publicKeyBase64;
     }
 
     /**
@@ -53,16 +70,6 @@ public class FailedDocUploadProcessor extends Processor {
         return null;
     }
 
-    @Override
-    protected void setVerificationAlg(String signatureAlg) {
-        this.signatureAlg = signatureAlg;
-    }
-
-    @Override
-    protected void setPublicKeyBase64(String publicKeyBase64) {
-        this.publicKeyBase64 = publicKeyBase64;
-    }
-    
     public void processJurisdiction(String jurisdiction)
         throws IOException, StorageException, URISyntaxException {
 

@@ -26,14 +26,14 @@ public class ZipVerifiersTest {
     public void should_verify_signed_file_successfully() throws Exception {
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
         byte[] test1SigPdfBytes = toByteArray(getResource("signature/test1.pdf.sig"));
-        ZipVerifiers.verifySignature(publicKeyBase64, test1PdfBytes, test1SigPdfBytes);
+        assertThat(ZipVerifiers.verifySignature(publicKeyBase64, test1PdfBytes, test1SigPdfBytes)).isTrue();
     }
 
     @Test
     public void should_not_verify_other_file_successfully() throws Exception {
         byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
         byte[] test1SigPdfBytes = toByteArray(getResource("signature/test1.pdf.sig"));
-        ZipVerifiers.verifySignature(publicKeyBase64, test2PdfBytes, test1SigPdfBytes);
+        assertThat(ZipVerifiers.verifySignature(publicKeyBase64, test2PdfBytes, test1SigPdfBytes)).isFalse();
     }
 
     @Test
