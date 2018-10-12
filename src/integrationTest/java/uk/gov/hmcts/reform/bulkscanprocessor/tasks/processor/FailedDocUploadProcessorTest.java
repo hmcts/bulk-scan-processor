@@ -45,6 +45,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             envelopeProcessor,
             errorWrapper
         );
+        // Unfortunately this cannot be injected as the bean is instantiated with new (sigh!)
+        blobProcessorTask.setVerificationAlg("none");
     }
 
     @After

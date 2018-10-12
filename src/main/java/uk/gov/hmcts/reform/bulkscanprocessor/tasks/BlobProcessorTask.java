@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -63,6 +64,16 @@ public class BlobProcessorTask extends Processor {
     @Lookup
     public ServiceBusHelper serviceBusHelper() {
         return null;
+    }
+
+    @Override
+    public void setVerificationAlg(String signatureAlg) {
+        this.signatureAlg = signatureAlg;
+    }
+
+    @Override
+    public void setPublicKeyBase64(String publicKeyBase64) {
+        this.publicKeyBase64 = publicKeyBase64;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
@@ -152,7 +163,9 @@ public class BlobProcessorTask extends Processor {
     ) {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
-            zipFileProcessor.process(zis);
+            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
+                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
+            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);

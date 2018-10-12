@@ -53,6 +53,16 @@ public class FailedDocUploadProcessor extends Processor {
         return null;
     }
 
+    @Override
+    protected void setVerificationAlg(String signatureAlg) {
+        this.signatureAlg = signatureAlg;
+    }
+
+    @Override
+    protected void setPublicKeyBase64(String publicKeyBase64) {
+        this.publicKeyBase64 = publicKeyBase64;
+    }
+    
     public void processJurisdiction(String jurisdiction)
         throws IOException, StorageException, URISyntaxException {
 
@@ -102,7 +112,9 @@ public class FailedDocUploadProcessor extends Processor {
     private ZipFileProcessor processZipInputStream(ZipInputStream zis, Envelope envelope) {
         return errorWrapper.wrapDocFailure(envelope.getContainer(), envelope.getZipFileName(), () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
-            zipFileProcessor.process(zis);
+            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
+                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
+            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             return zipFileProcessor;
         });

@@ -117,6 +117,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             envelopeProcessor,
             errorWrapper
         );
+        // Unfortunately this cannot be injected as the bean is instantiated with new (sigh!)
+        p.setVerificationAlg("none");
 
         processor = spy(p);
         doReturn(serviceBusHelper).when(processor).serviceBusHelper();
