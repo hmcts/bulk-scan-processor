@@ -22,7 +22,7 @@ public class ZipVerifiersTest {
             + "V0egi8k5hnIIgPEOUqhrX5UcQorSX7bIlMped6TtPkYdGs/QI6S5m2uz+6Mjai7ZfACGhYxIs8"
             + "35msqvRsDM0tIle/h3eZJb7iPE0anMWb8MkBYU3D3vAnPdBZxiEIwNMUNzqQIDAQAB";
 
-    private String exelaPublicKeyBase64 =
+    private String xyzPublicKeyBase64 =
         "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNtN8RHTjPFvYkooMy68Rrs8d9"
         + "PN0nGQgKGjk/JhBGHvxVr4RAw33jgBSNIERnNQWMk/uiBo7gBuSFvDznAgZGDTvo"
         + "0ucMuuN0zbjkyv1s/D/6fmpY54cECNCQRxuht9WP8M5TIC2bQU8bt78fZydWjocQ"
@@ -45,25 +45,25 @@ public class ZipVerifiersTest {
     @Test
     public void should_verify_2_valid_filenames_successfully() throws Exception {
         Map<String, byte[]> files = new HashMap<>();
-        files.put("documents.zip", new byte[0]);
-        files.put("signature.sig", new byte[0]);
+        files.put("envelope.zip", new byte[0]);
+        files.put("signature", new byte[0]);
         assertThat(ZipVerifiers.verifyFileNames(files)).isTrue();
     }
 
     @Test
     public void should_not_verify_more_than_2_files_successfully() throws Exception {
         Map<String, byte[]> files = new HashMap<>();
-        files.put("documents.zip", new byte[0]);
-        files.put("signature.sig", new byte[0]);
-        files.put("signature2.sig", new byte[0]);
+        files.put("envelope.zip", new byte[0]);
+        files.put("signature", new byte[0]);
+        files.put("signature2", new byte[0]);
         assertThat(ZipVerifiers.verifyFileNames(files)).isFalse();
     }
 
     @Test
     public void should_not_verify_invalid_filenames_successfully() throws Exception {
         Map<String, byte[]> files = new HashMap<>();
-        files.put("documents.zip", new byte[0]);
-        files.put("signature2.sig", new byte[0]);
+        files.put("envelope.zip", new byte[0]);
+        files.put("signature.sig", new byte[0]);
         assertThat(ZipVerifiers.verifyFileNames(files)).isFalse();
     }
 
@@ -89,31 +89,31 @@ public class ZipVerifiersTest {
     }
 
     @Test
-    public void should_verify_valid_exela_test_zip_successfully() throws Exception {
-        byte[] test1ExBytes = toByteArray(getResource("signature/exela_test_envelope.zip"));
-        byte[] test1SigExBytes = toByteArray(getResource("signature/exela_test_signature"));
-        assertThat(ZipVerifiers.verifySignature(exelaPublicKeyBase64, test1ExBytes, test1SigExBytes)).isTrue();
+    public void should_verify_valid_xyz_test_zip_successfully() throws Exception {
+        byte[] test1XyzBytes = toByteArray(getResource("signature/xyz_test_envelope.zip"));
+        byte[] test1SigXyzBytes = toByteArray(getResource("signature/xyz_test_signature"));
+        assertThat(ZipVerifiers.verifySignature(xyzPublicKeyBase64, test1XyzBytes, test1SigXyzBytes)).isTrue();
     }
 
     @Test
-    public void should_not_verify_invalid_exela_test_zip_successfully() throws Exception {
-        byte[] test1ExBytes = toByteArray(getResource("signature/documents.zip"));
-        byte[] test1SigExBytes = toByteArray(getResource("signature/exela_test_signature"));
-        assertThat(ZipVerifiers.verifySignature(exelaPublicKeyBase64, test1ExBytes, test1SigExBytes)).isFalse();
+    public void should_not_verify_invalid_xyz_test_zip_successfully() throws Exception {
+        byte[] test1XyzBytes = toByteArray(getResource("signature/envelope.zip"));
+        byte[] test1SigXyzBytes = toByteArray(getResource("signature/xyz_test_signature"));
+        assertThat(ZipVerifiers.verifySignature(xyzPublicKeyBase64, test1XyzBytes, test1SigXyzBytes)).isFalse();
     }
 
     @Test
-    public void should_not_verify_invalid_exela_signature_successfully() throws Exception {
-        byte[] test1ExBytes = toByteArray(getResource("signature/exela_test_envelope.zip"));
-        byte[] test1SigExBytes = toByteArray(getResource("signature/signature.sig"));
-        assertThat(ZipVerifiers.verifySignature(exelaPublicKeyBase64, test1ExBytes, test1SigExBytes)).isFalse();
+    public void should_not_verify_invalid_xyz_signature_successfully() throws Exception {
+        byte[] test1XyzBytes = toByteArray(getResource("signature/xyz_test_envelope.zip"));
+        byte[] test1SigXyzBytes = toByteArray(getResource("signature/signature"));
+        assertThat(ZipVerifiers.verifySignature(xyzPublicKeyBase64, test1XyzBytes, test1SigXyzBytes)).isFalse();
     }
 
     @Test
-    public void should_not_verify_valid_exela_test_zip_with_wrong_public_key_successfully() throws Exception {
-        byte[] test1ExBytes = toByteArray(getResource("signature/exela_test_envelope.zip"));
-        byte[] test1SigExBytes = toByteArray(getResource("signature/exela_test_signature"));
-        assertThat(ZipVerifiers.verifySignature(publicKeyBase64, test1ExBytes, test1SigExBytes)).isFalse();
+    public void should_not_verify_valid_xyz_test_zip_with_wrong_public_key_successfully() throws Exception {
+        byte[] test1XyzBytes = toByteArray(getResource("signature/xyz_test_envelope.zip"));
+        byte[] test1SigXyzBytes = toByteArray(getResource("signature/xyz_test_signature"));
+        assertThat(ZipVerifiers.verifySignature(publicKeyBase64, test1XyzBytes, test1SigXyzBytes)).isFalse();
     }
 
 }
