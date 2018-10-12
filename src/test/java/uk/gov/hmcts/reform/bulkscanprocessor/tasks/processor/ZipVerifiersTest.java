@@ -45,16 +45,16 @@ public class ZipVerifiersTest {
     @Test
     public void should_verify_2_valid_filenames_successfully() throws Exception {
         Map<String, byte[]> files = new HashMap<>();
-        files.put("envelope.zip", new byte[0]);
-        files.put("signature", new byte[0]);
+        files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
+        files.put(ZipVerifiers.SIGNATURE_SIG, new byte[0]);
         assertThat(ZipVerifiers.verifyFileNames(files)).isTrue();
     }
 
     @Test
     public void should_not_verify_more_than_2_files_successfully() throws Exception {
         Map<String, byte[]> files = new HashMap<>();
-        files.put("envelope.zip", new byte[0]);
-        files.put("signature", new byte[0]);
+        files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
+        files.put(ZipVerifiers.SIGNATURE_SIG, new byte[0]);
         files.put("signature2", new byte[0]);
         assertThat(ZipVerifiers.verifyFileNames(files)).isFalse();
     }
@@ -62,7 +62,7 @@ public class ZipVerifiersTest {
     @Test
     public void should_not_verify_invalid_filenames_successfully() throws Exception {
         Map<String, byte[]> files = new HashMap<>();
-        files.put("envelope.zip", new byte[0]);
+        files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
         files.put("signature.sig", new byte[0]);
         assertThat(ZipVerifiers.verifyFileNames(files)).isFalse();
     }
