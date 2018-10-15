@@ -112,6 +112,11 @@ spec:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-storage-secret
                   key: accessKey
+            - name: TEST_STORAGE_CONTAINER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: ${SERVICE_NAME}-storage-secret
+                  key: containerName
             - name: STORAGE_ACCOUNT_NAME
               valueFrom:
                 secretKeyRef:
@@ -197,7 +202,7 @@ spec:
   #
   # The 'SKU'. Get the value of this from 'svcat describe class <class name>'
   #
-  clusterServicePlanExternalName: blob-storage-account
+  clusterServicePlanExternalName: blob-container
 
   #
   # Parameters.
