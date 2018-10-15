@@ -114,6 +114,10 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
         assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo(message.getZipFileName());
         assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
+        assertThat(jsonNode.get("delivery_date").textValue())
+            .isEqualTo(objectMapper.writeValueAsString(message.getDeliveryDate()).replace("\"", ""));
+        assertThat(jsonNode.get("opening_date").textValue())
+            .isEqualTo(objectMapper.writeValueAsString(message.getOpeningDate()).replace("\"", ""));
 
         JsonNode docUrls = jsonNode.get("doc_urls");
         assertThat(docUrls.isArray()).isTrue();
@@ -134,6 +138,8 @@ public class ServiceBusHelperTest {
         when(envelope.getJurisdiction()).thenReturn("SSCS");
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
         when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
+        when(envelope.getDeliveryDate()).thenReturn(Timestamp.valueOf("2010-10-10 10:10:10.101010"));
+        when(envelope.getOpeningDate()).thenReturn(Timestamp.valueOf("2010-10-10 10:10:10.101010"));
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
 
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
