@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -46,6 +47,11 @@ public class EnvelopeDeletionTest {
     @After
     public void tearDown() throws Exception {
         for (String filename: filesToDeleteAfterTest) {
+            try {
+                testContainer.getBlockBlobReference(filename).breakLease(0);
+            } catch (StorageException e) {
+                // Do nothing as the file was not leased
+            }
             testContainer.getBlockBlobReference(filename).deleteIfExists();
         }
     }
@@ -79,12 +85,5 @@ public class EnvelopeDeletionTest {
             .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
             .pollDelay(scanDelay * 2, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(true));
-
-        // 0 implies immediately breaking the lease
-        // Lease needs to broken before deleting file
-        testContainer.getBlockBlobReference(destZipFilename).breakLease(0);
-        testContainer.getBlockBlobReference(destZipFilename).delete();
-
-        assertThat(testHelper.storageHasFile(testContainer, destZipFilename)).isFalse();
     }
 }

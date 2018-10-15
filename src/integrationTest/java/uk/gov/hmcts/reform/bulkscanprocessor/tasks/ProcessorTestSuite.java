@@ -45,13 +45,18 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected static final String DOCUMENT_URL2 =
         "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
+    protected static final String SIGNATURE_ALGORITHM = "none";
+    protected static final String PUBLIC_KEY_BASE64 = "none";
+
     @FunctionalInterface
     public interface Construct<T extends Processor> {
         T apply(
             CloudBlobClient cloudBlobClient,
             DocumentProcessor documentProcessor,
             EnvelopeProcessor envelopeProcessor,
-            ErrorHandlingWrapper errorWrapper
+            ErrorHandlingWrapper errorWrapper,
+            String signatureAlg,
+            String publicKeyBase64
         );
     }
 
@@ -114,7 +119,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             cloudBlobClient,
             documentProcessor,
             envelopeProcessor,
-            errorWrapper
+            errorWrapper,
+            SIGNATURE_ALGORITHM,
+            PUBLIC_KEY_BASE64
         );
 
         processor = spy(p);

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
@@ -24,6 +25,13 @@ public abstract class Processor {
     private final DocumentProcessor documentProcessor;
     protected final EnvelopeProcessor envelopeProcessor;
     protected final ErrorHandlingWrapper errorWrapper;
+
+    @Value("${storage.signature_algorithm}")
+    protected String signatureAlg;
+
+    @Value("${storage.public_key_base64}")
+    protected String publicKeyBase64;
+
 
     protected Processor(
         CloudBlobClient cloudBlobClient,

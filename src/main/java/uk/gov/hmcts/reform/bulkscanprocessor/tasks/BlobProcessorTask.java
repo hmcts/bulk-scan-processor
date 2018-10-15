@@ -9,6 +9,7 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapp
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -46,6 +48,7 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
 
+    @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -53,6 +56,21 @@ public class BlobProcessorTask extends Processor {
         ErrorHandlingWrapper errorWrapper
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+    }
+
+    // NOTE: this is needed for testing as children of this class are instantiated
+    // using "new" in tests despite being spring beans (sigh!)
+    public BlobProcessorTask(
+        CloudBlobClient cloudBlobClient,
+        DocumentProcessor documentProcessor,
+        EnvelopeProcessor envelopeProcessor,
+        ErrorHandlingWrapper errorWrapper,
+        String signatureAlg,
+        String publicKeyBase64
+    ) {
+        this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        this.signatureAlg = signatureAlg;
+        this.publicKeyBase64 = publicKeyBase64;
     }
 
     /**
@@ -152,7 +170,9 @@ public class BlobProcessorTask extends Processor {
     ) {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
-            zipFileProcessor.process(zis);
+            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
+                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
+            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);

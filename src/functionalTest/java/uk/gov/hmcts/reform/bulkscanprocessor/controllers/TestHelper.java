@@ -77,6 +77,16 @@ public class TestHelper {
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 
+    public CloudBlockBlob uploadAndLeaseZipFile(
+        CloudBlobContainer container, String srcZipFilename, String destZipFilename
+    ) throws Exception {
+        byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
+        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
+        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+        blockBlobReference.acquireLease();
+        return blockBlobReference;
+    }
+
     public boolean storageHasFile(CloudBlobContainer container, String fileName) {
         return StreamSupport.stream(container.listBlobs().spliterator(), false)
             .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
@@ -195,4 +205,13 @@ public class TestHelper {
             .as("Should get success response on update")
             .isEqualTo(204);
     }
+
+    public static boolean isMasterBranch() {
+        String branch = System.getenv("BRANCH_NAME");
+        if (Strings.isNullOrEmpty(branch)) {
+            branch = System.getenv("CHANGE_BRANCH");
+        }
+        return "master".equalsIgnoreCase(branch);
+    }
+
 }

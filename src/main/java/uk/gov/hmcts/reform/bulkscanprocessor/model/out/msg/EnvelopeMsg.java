@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,11 +26,21 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("classification")
     private Classification classification;
 
+    @JsonProperty("delivery_date")
+    private LocalDateTime deliveryDate;
+
+    @JsonProperty("opening_date")
+    private LocalDateTime openingDate;
+
     @JsonProperty("zip_file_name")
     private String zipFileName;
 
+    // TODO: remove, after no longer used by orchestrator
     @JsonProperty("doc_urls")
     private List<String> documentUrls;
+
+    @JsonProperty("documents")
+    private List<Document> documents;
 
     private final boolean testOnly;
 
@@ -38,12 +49,24 @@ public class EnvelopeMsg implements Msg {
         this.caseNumber = envelope.getCaseNumber();
         this.classification = envelope.getClassification();
         this.jurisdiction = envelope.getJurisdiction();
+        this.deliveryDate = envelope.getDeliveryDate().toLocalDateTime();
+        this.openingDate = envelope.getOpeningDate().toLocalDateTime();
         this.zipFileName = envelope.getZipFileName();
         this.testOnly = envelope.isTestOnly();
         this.documentUrls = envelope.getScannableItems()
             .stream()
             .map(ScannableItem::getDocumentUrl)
             .collect(Collectors.toList());
+        this.documents = envelope
+            .getScannableItems()
+            .stream()
+            .map(item -> new Document(
+                item.getFileName(),
+                item.getDocumentControlNumber(),
+                item.getDocumentType(),
+                item.getScanningDate().toInstant(),
+                item.getDocumentUrl()
+            )).collect(Collectors.toList());
     }
 
     @Override
@@ -68,8 +91,20 @@ public class EnvelopeMsg implements Msg {
         return documentUrls;
     }
 
+    public LocalDateTime getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public LocalDateTime getOpeningDate() {
+        return openingDate;
+    }
+
     public String getZipFileName() {
         return zipFileName;
+    }
+
+    public List<Document> getDocuments() {
+        return documents;
     }
 
     @Override
