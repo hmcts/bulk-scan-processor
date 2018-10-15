@@ -199,10 +199,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     @Test
     public void should_record_signature_failure_when_zip_contains_invalid_signature() throws Exception {
         processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyBase64 =
-            "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEXfjyDFFigzsmFvTe2cWZ45ggH/XoS/3C6Ur/"
-            + "V0egi8k5hnIIgPEOUqhrX5UcQorSX7bIlMped6TtPkYdGs/QI6S5m2uz+6Mjai7ZfACGhYxIs8"
-            + "35msqvRsDM0tIle/h3eZJb7iPE0anMWb8MkBYU3D3vAnPdBZxiEIwNMUNzqQIDAQAB";
+        processor.publicKeyBase64 = getXyzPublicKey64();
         checkFailureEvent("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
     }
 
