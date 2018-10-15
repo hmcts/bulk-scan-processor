@@ -20,6 +20,9 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("case_ref")
     private String caseNumber;
 
+    @JsonProperty("po_box")
+    private String poBox;
+
     @JsonProperty("jurisdiction")
     private String jurisdiction;
 
@@ -48,6 +51,7 @@ public class EnvelopeMsg implements Msg {
         this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
         this.caseNumber = envelope.getCaseNumber();
         this.classification = envelope.getClassification();
+        this.poBox = envelope.getPoBox();
         this.jurisdiction = envelope.getJurisdiction();
         this.deliveryDate = envelope.getDeliveryDate().toInstant();
         this.openingDate = envelope.getOpeningDate().toInstant();
@@ -81,6 +85,10 @@ public class EnvelopeMsg implements Msg {
 
     public Classification getClassification() {
         return classification;
+    }
+
+    public String getPoBox() {
+        return poBox;
     }
 
     public String getJurisdiction() {
