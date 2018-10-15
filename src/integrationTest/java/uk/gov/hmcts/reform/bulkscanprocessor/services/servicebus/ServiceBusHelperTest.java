@@ -114,10 +114,9 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
         assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo(message.getZipFileName());
         assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
-        assertThat(jsonNode.get("delivery_date").textValue())
-            .isEqualTo(objectMapper.writeValueAsString(message.getDeliveryDate()).replace("\"", ""));
-        assertThat(jsonNode.get("opening_date").textValue())
-            .isEqualTo(objectMapper.writeValueAsString(message.getOpeningDate()).replace("\"", ""));
+
+        assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
+        assertDateField(jsonNode, "opening_date", message.getOpeningDate());
 
         JsonNode docUrls = jsonNode.get("doc_urls");
         assertThat(docUrls.isArray()).isTrue();
@@ -138,8 +137,8 @@ public class ServiceBusHelperTest {
         when(envelope.getJurisdiction()).thenReturn("SSCS");
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
         when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
-        when(envelope.getDeliveryDate()).thenReturn(Timestamp.valueOf("2010-10-10 10:10:10.101010"));
-        when(envelope.getOpeningDate()).thenReturn(Timestamp.valueOf("2010-10-10 10:10:10.101010"));
+        when(envelope.getDeliveryDate()).thenReturn(Timestamp.from(Instant.now()));
+        when(envelope.getOpeningDate()).thenReturn(Timestamp.from(Instant.now()));
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
 
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
@@ -161,11 +160,14 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
 
-        String iso8601DateTime =
-            ZonedDateTime
-                .ofInstant(scannableItem.getScanningDate().toInstant(), ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+        assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate().toInstant());
+    }
 
-        assertThat(jsonNode.get("scanned_at").asText()).isEqualTo(iso8601DateTime);
+    private void assertDateField(JsonNode jsonNode, String field, Instant expectedDate) {
+        String iso8601DateTime = ZonedDateTime
+            .ofInstant(expectedDate, ZoneId.of("UTC"))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+
+        assertThat(jsonNode.get(field).asText()).isEqualTo(iso8601DateTime);
     }
 }
