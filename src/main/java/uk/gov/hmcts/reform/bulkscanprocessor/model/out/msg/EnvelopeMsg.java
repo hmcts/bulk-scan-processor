@@ -64,13 +64,8 @@ public class EnvelopeMsg implements Msg {
         this.documents = envelope
             .getScannableItems()
             .stream()
-            .map(item -> new Document(
-                item.getFileName(),
-                item.getDocumentControlNumber(),
-                item.getDocumentType(),
-                item.getScanningDate().toInstant(),
-                item.getDocumentUrl()
-            )).collect(Collectors.toList());
+            .map(Document::fromScannableItem)
+            .collect(Collectors.toList());
     }
 
     @Override
