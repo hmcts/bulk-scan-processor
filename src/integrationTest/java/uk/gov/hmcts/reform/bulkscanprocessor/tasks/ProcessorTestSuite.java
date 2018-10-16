@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -192,6 +193,11 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             "1111001.pdf", DOCUMENT_URL1,
             "1111002.pdf", DOCUMENT_URL2
         );
+    }
+
+    protected String getXyzPublicKey64() throws IOException {
+        byte[] xyzPublicKeyBytes = toByteArray(getResource("public_key.der"));
+        return Base64.getEncoder().encodeToString(xyzPublicKeyBytes);
     }
 
 }

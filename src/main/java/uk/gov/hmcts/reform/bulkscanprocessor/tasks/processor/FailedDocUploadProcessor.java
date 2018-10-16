@@ -120,7 +120,9 @@ public class FailedDocUploadProcessor extends Processor {
         return errorWrapper.wrapDocFailure(envelope.getContainer(), envelope.getZipFileName(), () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
+                new ZipVerifiers.ZipStreamWithSignature(
+                    zis, publicKeyBase64, envelope.getZipFileName(), envelope.getContainer()
+                );
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             return zipFileProcessor;

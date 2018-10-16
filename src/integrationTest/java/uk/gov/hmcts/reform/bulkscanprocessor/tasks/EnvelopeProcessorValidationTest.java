@@ -80,11 +80,12 @@ public class EnvelopeProcessorValidationTest {
     }
 
     private ZipFileProcessor getZipFileProcessor(String zipFileName) throws IOException, URISyntaxException {
-        ZipFileProcessor processor = new ZipFileProcessor("container", zipFileName);
+        String container = "container";
+        ZipFileProcessor processor = new ZipFileProcessor(container, zipFileName);
 
         try (ZipInputStream zis = getZipInputStream(zipFileName)) {
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                new ZipVerifiers.ZipStreamWithSignature(zis, null);
+                new ZipVerifiers.ZipStreamWithSignature(zis, null, zipFileName, container);
             processor.process(zipWithSignature, ZipVerifiers.getPreprocessor("none"));
             processor.setEnvelope(EnvelopeCreator.getEnvelopeFromMetafile(processor.getMetadata()));
         }

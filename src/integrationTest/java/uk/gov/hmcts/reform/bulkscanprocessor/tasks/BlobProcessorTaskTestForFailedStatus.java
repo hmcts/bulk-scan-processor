@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 
@@ -192,9 +193,19 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
     @Test
     public void should_record_generic_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
+        checkFailureEvent("5_24-06-2018-00-00-00.zip", Event.DOC_FAILURE);
+    }
+
+    @Test
+    public void should_record_signature_failure_when_zip_contains_invalid_signature() throws Exception {
+        processor.signatureAlg = "sha256withrsa";
+        processor.publicKeyBase64 = getXyzPublicKey64();
+        checkFailureEvent("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
+    }
+
+    public void checkFailureEvent(String invalidZipFile, Event event) throws Exception {
         // given
-        String noPdfZip = "5_24-06-2018-00-00-00.zip";
-        uploadZipToBlobStore(noPdfZip); // Zip file with cheque gif and metadata
+        uploadZipToBlobStore(invalidZipFile);
 
         // when
         processor.processBlobs();
@@ -210,8 +221,9 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         ProcessEvent processEvent = processEvents.get(0);
         assertThat(processEvent)
             .extracting("container", "zipFileName", "event")
-            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), noPdfZip, DOC_FAILURE));
+            .hasSameElementsAs(ImmutableList.of(testContainer.getName(), invalidZipFile, event));
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
     }
+
 }
