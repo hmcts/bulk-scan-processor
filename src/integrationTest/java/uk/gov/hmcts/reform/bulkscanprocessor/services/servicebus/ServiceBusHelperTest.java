@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -148,6 +149,9 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
         when(scannableItem1.getDocumentType()).thenReturn("doc1_type");
         when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
+        when(scannableItem1.getOcrData()).thenReturn(Base64.getEncoder().encodeToString(
+            "[{\"some-key\":\"some-value\"}]".getBytes()
+        ));
 
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
@@ -163,6 +167,10 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
 
         assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate().toInstant());
+
+        if (scannableItem.getOcrData() != null) {
+            assertThat(jsonNode.get("ocr_data").toString()).isEqualTo("[{\"some-key\":\"some-value\"}]");
+        }
     }
 
     private void assertDateField(JsonNode jsonNode, String field, Instant expectedDate) {
