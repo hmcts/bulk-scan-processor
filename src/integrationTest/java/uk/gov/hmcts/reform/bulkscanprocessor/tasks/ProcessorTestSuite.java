@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -14,6 +13,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.testcontainers.containers.DockerComposeContainer;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
@@ -29,10 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -188,11 +188,13 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         return ImmutableList.of(pdf1, pdf2);
     }
 
-    protected Map<String, String> getFileUploadResponse() {
-        return ImmutableMap.of(
-            "1111001.pdf", DOCUMENT_URL1,
-            "1111002.pdf", DOCUMENT_URL2
-        );
+    // TODO: add repo method to read single envelope by zip file name and jurisdiction.
+    protected Envelope getSingleEnvelopeFromDb() {
+        // We expect only one envelope which was uploaded
+        List<Envelope> envelopes = envelopeRepository.findAll();
+        assertThat(envelopes).hasSize(1);
+
+        return envelopes.get(0);
     }
 
     protected String getXyzPublicKey64() throws IOException {

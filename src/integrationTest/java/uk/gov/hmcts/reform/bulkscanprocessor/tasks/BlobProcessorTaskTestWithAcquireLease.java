@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.netflix.servo.util.ThreadFactories;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -111,6 +112,10 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
             ImmutableList.of(
                 new Pdf("1111001.pdf", toByteArray(getResource("1111001.pdf"))),
                 new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")))
-            ))).willReturn(getFileUploadResponse());
+            ))
+        ).willReturn(ImmutableMap.of(
+            "1111001.pdf", DOCUMENT_URL1,
+            "1111002.pdf", DOCUMENT_URL2
+        ));
     }
 }

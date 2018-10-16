@@ -144,7 +144,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         Pdf pdf2 = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
-            .willReturn(getFileUploadResponse());
+            .willReturn(ImmutableMap.of(
+                "1111001.pdf", DOCUMENT_URL1,
+                "1111002.pdf", DOCUMENT_URL2
+            ));
 
         // when
         processor.processBlobs();
@@ -322,15 +325,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         await("file should not be deleted")
             .atMost(5, SECONDS)
             .until(blob::exists, is(true));
-    }
-
-    // TODO: add repo method to read single envelope by zip file name and jurisdiction.
-    private Envelope getSingleEnvelopeFromDb() {
-        // We expect only one envelope which was uploaded
-        List<Envelope> envelopes = envelopeRepository.findAll();
-        assertThat(envelopes).hasSize(1);
-
-        return envelopes.get(0);
     }
 
     @After
