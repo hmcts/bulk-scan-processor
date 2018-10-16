@@ -100,6 +100,9 @@ module "bulk-scan" {
     SCAN_ENABLED                  = "${var.scan_enabled}"
     STORAGE_BLOB_LEASE_TIMEOUT    = "${var.blob_lease_timeout}" // In seconds
 
+    STORAGE_BLOB_SIGNATURE_ALGORITHM = "none" // none or sha256withrsa
+    STORAGE_BLOB_PUBLIC_KEY          = "${data.azurerm_key_vault_secret.exela-public-key.value}"
+
     QUEUE_ENVELOPE_SEND           = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
 
     // silence the "bad implementation" logs
@@ -175,6 +178,11 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 data "azurerm_key_vault_secret" "s2s_secret" {
   name = "microservicekey-bulk-scan-processor"
   vault_uri = "${local.s2s_vault_url}"
+}
+
+data "azurerm_key_vault_secret" "exela-public-key" {
+  name      = "bulkscan-exela-public-key"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 # region API (gateway)
