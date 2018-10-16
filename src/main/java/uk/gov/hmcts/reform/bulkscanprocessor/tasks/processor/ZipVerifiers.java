@@ -24,7 +24,42 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 
-
+/**
+ * Signed zip archive verification utilities. Currently 2 modes are supported:
+ * <ul>
+ *  <li>none = no signature verification</li>
+ *  <li>sha256withrsa = sha256 + rsa signature verification</li>
+ * </ul>
+ * With the obvious exclusion of the no verification case, a signed zip
+ * archive must include 2 files named envelope.zip and signature. The
+ * former is the archive content while the latter is the signature the
+ * archive has to be verified against.
+ * <p>
+ * Some openssl commands related to sha256withrsa signatures:
+ * <ul>
+ *  <li>Create rsa private key:
+ *      openssl genrsa -out private_key.pem 1024
+ *  </li>
+ *  <li>Generate DER format private key from PEM:
+ *      openssl pkcs8 -topk8 -inform PEM -outform DER -in private_key.pem
+ *      -out private_key.der -nocrypt
+ *  </li>
+ *  <li>Generate DER format public key from PEM private key:
+ *      openssl rsa -in private_key.pem -pubout -outform DER -out public_key.der
+ *  </li>
+ *  <li>Generate DER format public key from PEM public key:
+ *      openssl rsa -pubin -inform PEM -outform DER -in public_key.pem
+ *  </li>
+ *  <li>Generate signature for file:
+ *      openssl dgst -sha256 -sign private_key.pem -out signature envelope.zip
+ *  </li>
+ *  <li>Verify file signature:
+ *      openssl dgst -sha256 -verify public_key.pem -signature signature envelope.zip
+ *  </li>
+ * </ul>
+ * </p>
+ *
+ */
 public class ZipVerifiers {
 
     public static final String DOCUMENTS_ZIP = "envelope.zip";
