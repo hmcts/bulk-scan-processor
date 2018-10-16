@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
@@ -27,6 +30,8 @@ public class ZipVerifiers {
     public static final String DOCUMENTS_ZIP = "envelope.zip";
     public static final String SIGNATURE_SIG = "signature";
 
+    private static final Logger log = LoggerFactory.getLogger(ZipVerifiers.class);
+
     private ZipVerifiers() {
     }
 
@@ -48,13 +53,24 @@ public class ZipVerifiers {
     static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
         if (!verifyFileNames(zipEntries)) {
-            throw new SignatureValidationException(
-                "Zip entries do not match expected file names. "
-                + "Actual names = " + zipEntries.keySet()
+            log.warn("Signature Failure. Zip entries do not match expected file names. "
+                + "Container = {} - File = {} - Actual names = {}",
+                zipWithSignature.container, zipWithSignature.zipFileName, zipEntries.keySet()
+            );
+            throw new DocSignatureFailureException(
+                zipWithSignature.container,
+                zipWithSignature.zipFileName,
+                "Zip entries do not match expected file names. Actual names = " + zipEntries.keySet()
             );
         }
         if (!verifySignature(zipWithSignature.publicKeyBase64, zipEntries)) {
-            throw new SignatureValidationException("Zip signature failed verification");
+            log.warn("Signature Failure. Zip signature failed verification. "
+                + "Container = {} - File = {}",
+                zipWithSignature.container, zipWithSignature.zipFileName
+            );
+            throw new DocSignatureFailureException(
+                zipWithSignature.container, zipWithSignature.zipFileName, "Zip signature failed verification"
+            );
         }
         return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
     }
@@ -118,10 +134,19 @@ public class ZipVerifiers {
     public static class ZipStreamWithSignature {
         public final ZipInputStream zipInputStream;
         public final String publicKeyBase64;
+        public final String zipFileName;
+        public final String container;
 
-        public ZipStreamWithSignature(ZipInputStream zipInputStream, String publicKeyBase64) {
+        public ZipStreamWithSignature(
+            ZipInputStream zipInputStream,
+            String publicKeyBase64,
+            String zipFileName,
+            String container
+        ) {
             this.zipInputStream = zipInputStream;
             this.publicKeyBase64 = publicKeyBase64;
+            this.zipFileName = zipFileName;
+            this.container = container;
         }
     }
 

@@ -14,6 +14,11 @@
   </suppress>
 
   <suppress>
+    <notes><![CDATA[No version resolving the issue is available yet.]]></notes>
+    <cve>CVE-2016-7048</cve>
+  </suppress>
+
+  <suppress>
     <notes><![CDATA[Used only for testing not used in prod]]></notes>
     <gav regex="true">^org\.testcontainers:postgresql:.*$</gav>
     <cpe>cpe:/a:postgresql:postgresql</cpe>

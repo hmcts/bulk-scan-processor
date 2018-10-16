@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,11 +20,20 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("case_ref")
     private String caseNumber;
 
+    @JsonProperty("po_box")
+    private String poBox;
+
     @JsonProperty("jurisdiction")
     private String jurisdiction;
 
     @JsonProperty("classification")
     private Classification classification;
+
+    @JsonProperty("delivery_date")
+    private Instant deliveryDate;
+
+    @JsonProperty("opening_date")
+    private Instant openingDate;
 
     @JsonProperty("zip_file_name")
     private String zipFileName;
@@ -41,7 +51,10 @@ public class EnvelopeMsg implements Msg {
         this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
         this.caseNumber = envelope.getCaseNumber();
         this.classification = envelope.getClassification();
+        this.poBox = envelope.getPoBox();
         this.jurisdiction = envelope.getJurisdiction();
+        this.deliveryDate = envelope.getDeliveryDate().toInstant();
+        this.openingDate = envelope.getOpeningDate().toInstant();
         this.zipFileName = envelope.getZipFileName();
         this.testOnly = envelope.isTestOnly();
         this.documentUrls = envelope.getScannableItems()
@@ -51,13 +64,8 @@ public class EnvelopeMsg implements Msg {
         this.documents = envelope
             .getScannableItems()
             .stream()
-            .map(item -> new Document(
-                item.getFileName(),
-                item.getDocumentControlNumber(),
-                item.getDocumentType(),
-                item.getScanningDate().toInstant(),
-                item.getDocumentUrl()
-            )).collect(Collectors.toList());
+            .map(Document::fromScannableItem)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -74,12 +82,24 @@ public class EnvelopeMsg implements Msg {
         return classification;
     }
 
+    public String getPoBox() {
+        return poBox;
+    }
+
     public String getJurisdiction() {
         return jurisdiction;
     }
 
     public List<String> getDocumentUrls() {
         return documentUrls;
+    }
+
+    public Instant getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public Instant getOpeningDate() {
+        return openingDate;
     }
 
     public String getZipFileName() {
