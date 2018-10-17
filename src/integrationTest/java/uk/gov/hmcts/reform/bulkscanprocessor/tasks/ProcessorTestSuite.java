@@ -161,9 +161,11 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     }
 
     protected void uploadZipToBlobStore(String zipFileName) throws Exception {
-        byte[] zipFile = toByteArray(getResource(zipFileName));
+        uploadToBlobStorage(zipFileName, toByteArray(getResource(zipFileName)));
+    }
 
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(zipFileName);
+    public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {
+        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
 
         // Blob need to be deleted as same blob may exists if previously uploaded blob was not deleted
         // due to doc upload failure
@@ -174,8 +176,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
         // A Put Blob operation may succeed against a blob that exists in the storage emulator with an active lease,
         // even if the lease ID has not been specified in the request.
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-
+        blockBlobReference.uploadFromByteArray(fileContent, 0, fileContent.length);
     }
 
     List<Pdf> getUploadResources() throws IOException {

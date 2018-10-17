@@ -45,6 +45,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -181,11 +182,11 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
 
         // given
-        String zipFile = "7_24-06-2018-00-00-00.zip"; // Zip with pdf and metadata
+        String zipFileName = "7_24-06-2018-00-00-00.zip";
 
-        uploadZipToBlobStore(zipFile);
+        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
 
-        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
+        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(ImmutableMap.of("1111002.pdf", DOCUMENT_URL2));
@@ -194,7 +195,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFileName);
         await("file should be deleted")
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
