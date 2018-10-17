@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,6 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             errorWrapper,
             SIGNATURE_ALGORITHM,
             PUBLIC_KEY_BASE64
-
         );
     }
 
@@ -62,15 +62,15 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         // given
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
-
-        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
+        Pdf pdf1 = new Pdf("1111001.pdf", toByteArray(getResource("1111001.pdf")));
+        Pdf pdf2 = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
             .willReturn(Collections.emptyMap())
-            .willReturn(getFileUploadResponse());
+            .willReturn(ImmutableMap.of(
+                "1111001.pdf", DOCUMENT_URL1,
+                "1111002.pdf", DOCUMENT_URL2
+            ));
 
         blobProcessorTask.processBlobs();
 
