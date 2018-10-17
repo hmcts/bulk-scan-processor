@@ -69,11 +69,11 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper,
         String signatureAlg,
-        String publicKeyBase64
+        String publicKeyDerFilename
     ) {
         this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
         this.signatureAlg = signatureAlg;
-        this.publicKeyBase64 = publicKeyBase64;
+        this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
     /**
@@ -192,7 +192,7 @@ public class BlobProcessorTask extends Processor {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64, zipFilename, containerName);
+                ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);

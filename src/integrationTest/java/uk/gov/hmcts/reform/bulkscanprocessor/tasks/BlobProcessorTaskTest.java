@@ -71,7 +71,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
         //Given
         processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyBase64 = getXyzPublicKey64();
+        processor.publicKeyDerFilename = TEST_PUBLIC_KEY_FILE;
 
         uploadZipToBlobStore(VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER); //Signed zip file with metadata and pdfs
         testBlobFileProcessed();

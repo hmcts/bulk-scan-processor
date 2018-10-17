@@ -17,12 +17,16 @@ import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +38,8 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
+
+    public static final String SIGNATURE_FILE = "private_key.der";
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -72,7 +78,8 @@ public class TestHelper {
         String metadataFile,
         final String destZipFilename
     ) throws Exception {
-        byte[] zipFile = createZipArchiveWithRandomName(files, metadataFile, destZipFilename);
+        byte[] zipFile =
+            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, SIGNATURE_FILE);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
@@ -143,6 +150,35 @@ public class TestHelper {
             zos.closeEntry();
         }
         return outputStream.toByteArray();
+    }
+
+    public byte[] createSignedZipArchiveWithRandomName(
+        List<String> files, String metadataFile, String zipFilename, String privateKeyFilename
+    ) throws Exception {
+        byte[] zipArchive = createZipArchiveWithRandomName(files, metadataFile, zipFilename);
+        byte[] signature = signWithSha256Rsa(zipArchive, privateKeyFilename);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+            zos.putNextEntry(new ZipEntry(ZipVerifiers.DOCUMENTS_ZIP));
+            zos.write(zipArchive);
+            zos.closeEntry();
+            zos.putNextEntry(new ZipEntry(ZipVerifiers.SIGNATURE_SIG));
+            zos.write(signature);
+            zos.closeEntry();
+        }
+        return outputStream.toByteArray();
+    }
+
+    // Create signature using SHA256/RSA.
+    public byte[] signWithSha256Rsa(byte[] input, String privateKeyFilename) throws Exception {
+        byte[] keyBytes = Resources.toByteArray(Resources.getResource(privateKeyFilename));
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(kf.generatePrivate(spec));
+        privateSignature.update(input);
+        return privateSignature.sign();
     }
 
     public EnvelopeListResponse getEnvelopes(String baseUrl, String s2sToken, Status status) {

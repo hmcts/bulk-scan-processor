@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.google.common.base.Strings;
+import com.google.common.io.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
@@ -23,6 +25,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
+import static com.google.common.io.Resources.getResource;
 
 /**
  * Signed zip archive verification utilities. Currently 2 modes are supported:
@@ -182,6 +185,21 @@ public class ZipVerifiers {
             this.publicKeyBase64 = publicKeyBase64;
             this.zipFileName = zipFileName;
             this.container = container;
+        }
+
+        public static ZipStreamWithSignature fromKeyfile(
+            ZipInputStream zipInputStream,
+            String publicKeyDerFile,
+            String zipFileName,
+            String container
+        ) throws IOException {
+            String publicKeyBase64 =
+                Strings.isNullOrEmpty(publicKeyDerFile) || "none".equalsIgnoreCase(publicKeyDerFile)
+                ? null
+                : Base64.getEncoder().encodeToString(
+                    Resources.toByteArray(getResource(publicKeyDerFile))
+                );
+            return new ZipStreamWithSignature(zipInputStream, publicKeyBase64, zipFileName, container);
         }
     }
 

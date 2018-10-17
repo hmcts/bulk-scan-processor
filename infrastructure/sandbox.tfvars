@@ -1,1 +1,2 @@
 api_gateway_test_valid_certificate_thumbprint = "3A75F7FF9973F2E9DF95D765682725AFA584154B"
+blob_signature_verification_key_file = "test_public_key.der"

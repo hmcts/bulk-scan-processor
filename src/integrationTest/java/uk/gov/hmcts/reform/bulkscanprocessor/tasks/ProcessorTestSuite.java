@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
@@ -47,7 +46,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
     protected static final String SIGNATURE_ALGORITHM = "none";
-    protected static final String PUBLIC_KEY_BASE64 = "none";
+    protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
+    protected static final String TEST_PUBLIC_KEY_FILE = "test_public_key.der";
 
     @FunctionalInterface
     public interface Construct<T extends Processor> {
@@ -122,7 +122,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             envelopeProcessor,
             errorWrapper,
             SIGNATURE_ALGORITHM,
-            PUBLIC_KEY_BASE64
+            DEFAULT_PUBLIC_KEY_BASE64
         );
 
         processor = spy(p);
@@ -186,11 +186,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         assertThat(envelopes).hasSize(1);
 
         return envelopes.get(0);
-    }
-
-    protected String getXyzPublicKey64() throws IOException {
-        byte[] xyzPublicKeyBytes = toByteArray(getResource("public_key.der"));
-        return Base64.getEncoder().encodeToString(xyzPublicKeyBytes);
     }
 
 }
