@@ -38,6 +38,8 @@ import static org.mockito.Mockito.spy;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
 
+    protected static final String SAMPLE_ZIP_FILE_NAME = "hello_24-06-2018-00-00-00.zip";
+
     protected static final String VALID_ZIP_FILE_WITH_CASE_NUMBER = "1_24-06-2018-00-00-00.zip";
     protected static final String VALID_ZIP_FILE_WITHOUT_CASE_NUMBER = "10_24-06-2018-00-00-00.zip";
 

@@ -139,14 +139,13 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_process_other_zip_files_if_previous_zip_fails_to_process() throws Exception {
         // given
-        uploadZipToBlobStore("3_24-06-2018-00-00-00.zip"); //Zip with only pdf without metadata
-        uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip with pdf and metadata
+        uploadToBlobStorage("bad_24-06-2018-00-00-00.zip", zipDir("zipcontents/missing_metadata"));
+        uploadToBlobStorage("good_24-06-2018-00-00-00.zip", zipDir("zipcontents/ok"));
 
-        Pdf pdf2 = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
+        Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
+        given(documentManagementService.uploadDocuments(ImmutableList.of(okPdf)))
             .willReturn(ImmutableMap.of(
-                "1111001.pdf", DOCUMENT_URL1,
                 "1111002.pdf", DOCUMENT_URL2
             ));
 
@@ -154,11 +153,11 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        // We expect only one envelope 4_24-06-2018-00-00-00.zip which was uploaded
+        // We expect only one envelope from the valid zip file which was uploaded
         Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
-            getResource("metadata_4_24-06-2018-00-00-00.json"),
+            getResource("zipcontents/ok/metadata.json"),
             Charset.defaultCharset()
         );
 
@@ -168,13 +167,13 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         );
 
         //This verifies only pdf included in the zip with metadata was processed
-        verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf2));
+        verify(documentManagementService).uploadDocuments(ImmutableList.of(okPdf));
 
         //Verify first pdf file was never processed
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
+        byte[] pdfFromBadZip = toByteArray(getResource("zipcontents/missing_metadata/1111001.pdf"));
 
         verify(documentManagementService, never())
-            .uploadDocuments(ImmutableList.of(new Pdf("1111001.pdf", test1PdfBytes)));
+            .uploadDocuments(ImmutableList.of(new Pdf("1111001.pdf", pdfFromBadZip)));
     }
 
     @Test
@@ -182,9 +181,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
 
         // given
-        String zipFileName = "7_24-06-2018-00-00-00.zip";
-
-        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
@@ -195,7 +192,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFileName);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         await("file should be deleted")
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
@@ -216,11 +213,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_keep_zip_file_after_unsuccessful_upload_and_not_create_doc_processed_event() throws Exception {
         // given
-        String zipFile = "7_24-06-2018-00-00-00.zip"; // Zip with pdf and metadata
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
-        uploadZipToBlobStore(zipFile);
-
-        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
+        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willThrow(DocumentUrlNotRetrievedException.class);
@@ -229,7 +224,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         await("file should not be deleted")
             .timeout(2, SECONDS)
             .until(blob::exists, is(true));
@@ -249,13 +244,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_increment_failure_count_when_unable_to_upload_file() throws Exception {
         // given
-        String zipFile = "7_24-06-2018-00-00-00.zip";
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
-        uploadZipToBlobStore(zipFile);
-
-        Pdf pdfInZipFile = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdfInZipFile)))
+        given(documentManagementService.uploadDocuments(any()))
             .willThrow(UnableToUploadDocumentException.class);
 
         // when
