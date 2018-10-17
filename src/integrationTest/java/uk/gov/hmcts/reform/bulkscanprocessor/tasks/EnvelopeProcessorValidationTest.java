@@ -25,21 +25,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipD
 @RunWith(SpringRunner.class)
 public class EnvelopeProcessorValidationTest {
 
-    private static final EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
-        null,
-        null,
-        null,
-        1,
-        1) {
-    };
-
-
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
         ZipFileProcessor zipFileProcessor = getZipFileProcessor("zipcontents/fewer_pdfs_than_declared");
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
                 zipFileProcessor.getPdfs()
             )
@@ -54,14 +45,14 @@ public class EnvelopeProcessorValidationTest {
         ZipFileProcessor zipFileProcessor = getZipFileProcessor("zipcontents/more_pdfs_than_declared");
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
                 zipFileProcessor.getPdfs()
             )
         );
 
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
-            .hasMessageMatching("Missing PDFs: 1111002.pdf");
+            .hasMessageMatching("Not declared PDFs: 1111002.pdf");
     }
 
     @Test
@@ -69,14 +60,15 @@ public class EnvelopeProcessorValidationTest {
         ZipFileProcessor zipFileProcessor = getZipFileProcessor("zipcontents/mismatching_pdfs");
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
                 zipFileProcessor.getPdfs()
             )
         );
 
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
-            .hasMessage("Missing PDFs: 1111001.pdf, 1111005.pdf");
+            .hasMessageContaining("Not declared PDFs: 1111002.pdf")
+            .hasMessageContaining("Missing PDFs: 1111001.pdf");
     }
 
     private ZipFileProcessor getZipFileProcessor(String zipContentDirectory) throws IOException {
