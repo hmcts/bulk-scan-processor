@@ -19,7 +19,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipD
 
 /**
  * This is unit test. Falls under integration to make use of existing zip file resources.
- * TODO: Refactor and move to unit tests. Tested method takes Envelope object and list of PDF objects. Zip files are not needed.
+ * TODO: Refactor and move to unit tests. Tested method takes Envelope object and list of PDF objects.
+ *       Zip files are not needed.
  */
 @RunWith(SpringRunner.class)
 public class EnvelopeProcessorValidationTest {
