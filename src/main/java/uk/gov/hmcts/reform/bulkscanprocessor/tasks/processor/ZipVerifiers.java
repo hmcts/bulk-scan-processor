@@ -193,13 +193,11 @@ public class ZipVerifiers {
             String zipFileName,
             String container
         ) {
-            String publicKeyBase64;
+            String publicKeyBase64 = null;
             try {
-                publicKeyBase64 = Strings.isNullOrEmpty(publicKeyDerFile) || "none".equalsIgnoreCase(publicKeyDerFile)
-                ? null
-                : Base64.getEncoder().encodeToString(
-                    Resources.toByteArray(getResource(publicKeyDerFile))
-                );
+                if (Strings.isNullOrEmpty(publicKeyDerFile) || "none".equalsIgnoreCase(publicKeyDerFile)) {
+                    Base64.getEncoder().encodeToString(Resources.toByteArray(getResource(publicKeyDerFile)));
+                }
             } catch (IOException e) {
                 throw new SignatureValidationException(e);
             }
