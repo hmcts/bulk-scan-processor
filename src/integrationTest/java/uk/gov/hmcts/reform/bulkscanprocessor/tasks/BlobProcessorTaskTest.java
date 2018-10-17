@@ -182,9 +182,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
 
         // given
-        String zipFile = "7_24-06-2018-00-00-00.zip"; // Zip with pdf and metadata
-
-        // given
         String zipFileName = "7_24-06-2018-00-00-00.zip";
 
         uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
