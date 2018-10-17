@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,7 @@ public class EnvelopeProcessorValidationTest {
 
 
     @Test
-    public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws IOException, URISyntaxException {
+    public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
         ZipFileProcessor zipFileProcessor = getZipFileProcessor("zipcontents/fewer_pdfs_than_declared");
 
         Throwable throwable = catchThrowable(() ->
