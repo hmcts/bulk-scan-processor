@@ -177,7 +177,7 @@ public class BlobProcessorTask extends Processor {
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);
 
-            envelopeProcessor.assertEnvelopeHasPdfs(envelope, zipFileProcessor.getPdfs());
+            EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, zipFileProcessor.getPdfs());
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope);
 
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
