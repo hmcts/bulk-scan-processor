@@ -45,7 +45,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

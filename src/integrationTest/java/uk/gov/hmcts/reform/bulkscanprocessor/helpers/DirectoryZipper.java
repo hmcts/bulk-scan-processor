@@ -13,7 +13,7 @@ import java.util.zip.ZipOutputStream;
 import static com.google.common.io.Resources.getResource;
 import static java.util.stream.Collectors.toList;
 
-public class DirZipper {
+public final class DirectoryZipper {
 
     /**
      * Zips files from given directory. Files in resulting archive are NOT wrapped in a directory.
@@ -39,5 +39,9 @@ public class DirZipper {
         }
 
         return outputStream.toByteArray();
+    }
+
+    private DirectoryZipper() {
+        // util class
     }
 }
