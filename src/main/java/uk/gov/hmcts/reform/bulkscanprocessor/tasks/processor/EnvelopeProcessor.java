@@ -113,7 +113,7 @@ public class EnvelopeProcessor {
      * Assert given envelope has scannable items exactly matching
      * the filenames with list of pdfs acquired from zip file.
      * In case there is a mismatch an exception is thrown.
-     *
+     * <p>
      * TODO: move to separate class.
      *
      * @param envelope to assert against
