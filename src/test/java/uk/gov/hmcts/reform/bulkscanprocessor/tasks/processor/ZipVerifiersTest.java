@@ -31,7 +31,7 @@ public class ZipVerifiersTest {
     public static void setUp() throws IOException {
         xyzPublicKeyBase64 =
             Base64.getEncoder().encodeToString(
-                toByteArray(getResource("trusted_public_key.der"))
+                toByteArray(getResource("signature/xyz_test_public_key.der"))
             );
     }
 
