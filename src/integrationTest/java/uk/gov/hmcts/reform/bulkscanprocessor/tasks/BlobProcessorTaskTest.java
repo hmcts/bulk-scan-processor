@@ -205,6 +205,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(envelope.getStatus()).isEqualTo(NOTIFICATION_SENT);
         assertThat(envelope.isZipDeleted()).isTrue();
 
+        // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
             .collect(toList());
