@@ -53,7 +53,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
 
         // and
-        eventWasCreated(SAMPLE_ZIP_FILE_NAME, DOC_UPLOAD_FAILURE);
+        eventWasCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        eventWasCreated(SAMPLE_ZIP_FILE_NAME, DOC_UPLOAD_FAILURE);
+        eventWasCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        eventWasCreated(SAMPLE_ZIP_FILE_NAME, DOC_UPLOAD_FAILURE);
+        eventWasCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(SAMPLE_ZIP_FILE_NAME, DOC_FAILURE);
+        eventWasCreated(DOC_FAILURE);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(SAMPLE_ZIP_FILE_NAME, DOC_FAILURE);
+        eventWasCreated(DOC_FAILURE);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(SAMPLE_ZIP_FILE_NAME, Event.DOC_FAILURE);
+        eventWasCreated(Event.DOC_FAILURE);
     }
 
     @Test
@@ -158,17 +158,16 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
+        eventWasCreated(Event.DOC_SIGNATURE_FAILURE);
     }
 
-    private void eventWasCreated(String zipFileName, Event event) {
+    private void eventWasCreated(Event event) {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(1);
 
         ProcessEvent processEvent = processEvents.get(0);
 
         assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(zipFileName);
         assertThat(processEvent.getEvent()).isEqualTo(event);
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
