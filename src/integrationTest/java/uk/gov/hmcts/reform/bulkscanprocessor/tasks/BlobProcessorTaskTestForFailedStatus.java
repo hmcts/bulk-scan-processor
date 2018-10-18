@@ -12,13 +12,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
@@ -39,7 +40,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         // and
-        given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
+        given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
 
         // when
         processor.processBlobs();
@@ -60,7 +61,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         // and
-        given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
+        given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
 
         // when
         processor.processBlobs();
@@ -89,7 +90,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // and
         Throwable throwable = new UnableToUploadDocumentException("oh no", null);
-        given(documentManagementService.uploadDocuments(getUploadResources())).willThrow(throwable);
+        given(documentManagementService.uploadDocuments(any())).willThrow(throwable);
 
         // when
         processor.processBlobs();

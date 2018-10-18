@@ -181,16 +181,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         blockBlobReference.uploadFromByteArray(fileContent, 0, fileContent.length);
     }
 
-    List<Pdf> getUploadResources() throws IOException {
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
-
-        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
-
-        return ImmutableList.of(pdf1, pdf2);
-    }
-
     // TODO: add repo method to read single envelope by zip file name and jurisdiction.
     protected Envelope getSingleEnvelopeFromDb() {
         // We expect only one envelope which was uploaded
