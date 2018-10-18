@@ -12,13 +12,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
@@ -39,7 +40,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         // and
-        given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
+        given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
 
         // when
         processor.processBlobs();
@@ -51,16 +52,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
 
         // and
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(1);
-
-        ProcessEvent processEvent = processEvents.get(0);
-
-        assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(VALID_ZIP_FILE_WITH_CASE_NUMBER);
-        assertThat(processEvent.getEvent()).isEqualTo(DOC_UPLOAD_FAILURE);
-        assertThat(processEvent.getId()).isNotNull();
-        assertThat(processEvent.getReason()).isNotBlank();
+        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -69,7 +61,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
 
         // and
-        given(documentManagementService.uploadDocuments(getUploadResources())).willReturn(Collections.emptyMap());
+        given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
 
         // when
         processor.processBlobs();
@@ -88,14 +80,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(1);
-
-        ProcessEvent processEvent = processEvents.get(0);
-
-        assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(VALID_ZIP_FILE_WITH_CASE_NUMBER);
-        assertThat(processEvent.getEvent()).isEqualTo(DOC_UPLOAD_FAILURE);
+        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -105,7 +90,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // and
         Throwable throwable = new UnableToUploadDocumentException("oh no", null);
-        given(documentManagementService.uploadDocuments(getUploadResources())).willThrow(throwable);
+        given(documentManagementService.uploadDocuments(any())).willThrow(throwable);
 
         // when
         processor.processBlobs();
@@ -117,16 +102,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(1);
-
-        ProcessEvent processEvent = processEvents.get(0);
-
-        assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(VALID_ZIP_FILE_WITH_CASE_NUMBER);
-        assertThat(processEvent.getEvent()).isEqualTo(DOC_UPLOAD_FAILURE);
-        assertThat(processEvent.getId()).isNotNull();
-        assertThat(processEvent.getReason()).isEqualTo(throwable.getMessage());
+        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -139,20 +115,8 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // then
-        List<Envelope> envelopesInDb = envelopeRepository.findAll();
-        assertThat(envelopesInDb).isEmpty();
-
-        // and
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(1);
-
-        ProcessEvent processEvent = processEvents.get(0);
-
-        assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(noMetafileZip);
-        assertThat(processEvent.getEvent()).isEqualTo(DOC_FAILURE);
-        assertThat(processEvent.getId()).isNotNull();
-        assertThat(processEvent.getReason()).isNotBlank();
+        envelopeWasNotCreated();
+        eventWasCreated(noMetafileZip, DOC_FAILURE);
     }
 
     @Test
@@ -165,56 +129,55 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // then
-        List<Envelope> envelopesInDb = envelopeRepository.findAll();
-        assertThat(envelopesInDb).isEmpty();
-
-        // and
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(1);
-
-        ProcessEvent processEvent = processEvents.get(0);
-
-        assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(invalidMetafileZip);
-        assertThat(processEvent.getEvent()).isEqualTo(DOC_FAILURE);
-        assertThat(processEvent.getId()).isNotNull();
-        assertThat(processEvent.getReason()).isNotBlank();
+        envelopeWasNotCreated();
+        eventWasCreated(invalidMetafileZip, DOC_FAILURE);
     }
 
     @Test
     public void should_record_generic_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
-        checkFailureEvent("5_24-06-2018-00-00-00.zip", Event.DOC_FAILURE);
-    }
-
-    @Test
-    public void should_record_signature_failure_when_zip_contains_invalid_signature() throws Exception {
-        processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyBase64 = getXyzPublicKey64();
-        checkFailureEvent("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
-    }
-
-    public void checkFailureEvent(String invalidZipFile, Event event) throws Exception {
         // given
-        uploadZipToBlobStore(invalidZipFile);
+        uploadZipToBlobStore("5_24-06-2018-00-00-00.zip");
 
         // when
         processor.processBlobs();
 
         // then
-        List<Envelope> envelopesInDb = envelopeRepository.findAll();
-        assertThat(envelopesInDb).isEmpty();
+        envelopeWasNotCreated();
+        eventWasCreated("5_24-06-2018-00-00-00.zip", Event.DOC_FAILURE);
+    }
 
-        // and
+    @Test
+    public void should_record_signature_failure_when_zip_contains_invalid_signature() throws Exception {
+        // given
+        processor.signatureAlg = "sha256withrsa";
+        processor.publicKeyBase64 = getXyzPublicKey64();
+
+        uploadZipToBlobStore("43_24-06-2018-00-00-00.test.zip");
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventWasCreated("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
+    }
+
+    private void eventWasCreated(String zipFileName, Event event) {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(1);
 
         ProcessEvent processEvent = processEvents.get(0);
 
         assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(invalidZipFile);
+        assertThat(processEvent.getZipFileName()).isEqualTo(zipFileName);
         assertThat(processEvent.getEvent()).isEqualTo(event);
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
+    }
+
+    private void envelopeWasNotCreated() {
+        List<Envelope> envelopesInDb = envelopeRepository.findAll();
+        assertThat(envelopesInDb).isEmpty();
     }
 
 }
