@@ -63,11 +63,6 @@ public class EnvelopeControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String DOCUMENT_URL = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
-
-    private static final String SIGNATURE_ALGORITHM = "none";
-    private static final String PUBLIC_KEY_BASE64 = "none";
-
     private BlobProcessorTask blobProcessorTask;
 
     @Autowired
@@ -135,8 +130,8 @@ public class EnvelopeControllerTest {
                 reuploadMaxTries
             ),
             errorWrapper,
-            SIGNATURE_ALGORITHM,
-            PUBLIC_KEY_BASE64
+            "none",
+            "none"
 
         );
 
@@ -161,7 +156,9 @@ public class EnvelopeControllerTest {
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
-            .willReturn(ImmutableMap.of("1111002.pdf", DOCUMENT_URL));
+            .willReturn(
+                ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
+            );
 
         blobProcessorTask.processBlobs();
 
