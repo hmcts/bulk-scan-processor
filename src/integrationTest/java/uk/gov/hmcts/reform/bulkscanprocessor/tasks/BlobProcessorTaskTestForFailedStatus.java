@@ -161,7 +161,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         checkFailureEvent("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
     }
 
-    public void checkFailureEvent(String invalidZipFile, Event event) throws Exception {
+    private void checkFailureEvent(String invalidZipFile, Event event) {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(1);
 
@@ -174,7 +174,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(processEvent.getReason()).isNotBlank();
     }
 
-    public void envelopeWasNotCreated() {
+    private void envelopeWasNotCreated() {
         List<Envelope> envelopesInDb = envelopeRepository.findAll();
         assertThat(envelopesInDb).isEmpty();
     }
