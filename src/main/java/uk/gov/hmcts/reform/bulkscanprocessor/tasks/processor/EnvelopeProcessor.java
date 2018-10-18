@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,8 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -109,6 +109,7 @@ public class EnvelopeProcessor {
         .orElse(null);
     }
 
+    // TODO: move to separate class.
     /**
      * Assert given envelope has scannable items exactly matching
      * the filenames with list of pdfs acquired from zip file.
@@ -117,26 +118,33 @@ public class EnvelopeProcessor {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
+    public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
             .getScannableItems()
             .stream()
             .map(ScannableItem::getFileName)
             .collect(Collectors.toSet());
+
         Set<String> pdfFileNames = pdfs
             .stream()
             .map(Pdf::getFilename)
             .collect(Collectors.toSet());
 
-        Collection<String> missingScannedFiles = new HashSet<>(scannedFileNames);
-        missingScannedFiles.removeAll(pdfFileNames);
-        Collection<String> missingPdfFiles = new HashSet<>(pdfFileNames);
-        missingPdfFiles.removeAll(scannedFileNames);
+        Set<String> missingActualPdfFiles = Sets.difference(scannedFileNames, pdfFileNames);
+        Set<String> notDeclaredPdfs = Sets.difference(pdfFileNames, scannedFileNames);
 
-        missingScannedFiles.addAll(missingPdfFiles);
+        List<String> problems = new ArrayList<>();
 
-        if (!missingScannedFiles.isEmpty()) {
-            throw new FileNameIrregularitiesException(envelope, missingScannedFiles);
+        if (!notDeclaredPdfs.isEmpty()) {
+            problems.add("Not declared PDFs: " + String.join(", ", notDeclaredPdfs));
+        }
+
+        if (!missingActualPdfFiles.isEmpty()) {
+            problems.add("Missing PDFs: " + String.join(", ", missingActualPdfFiles));
+        }
+
+        if (!problems.isEmpty()) {
+            throw new FileNameIrregularitiesException(envelope, String.join(". ", problems));
         }
     }
 

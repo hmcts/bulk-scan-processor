@@ -9,37 +9,28 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.zip.ZipInputStream;
 
-import static com.google.common.io.Resources.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
 
 /**
  * This is unit test. Falls under integration to make use of existing zip file resources.
+ * TODO: Refactor and move to unit tests. Tested method takes Envelope object and list of PDF objects.
+ *       Zip files are not needed.
  */
 @RunWith(SpringRunner.class)
 public class EnvelopeProcessorValidationTest {
 
-    private static final EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
-        null,
-        null,
-        null,
-        1,
-        1) {
-    };
-
-
     @Test
-    public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws IOException, URISyntaxException {
-        ZipFileProcessor zipFileProcessor = getZipFileProcessor("4_24-06-2018-00-00-00.zip");
+    public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
+        ZipFileProcessor zipFileProcessor = getZipFileProcessor("zipcontents/fewer_pdfs_than_declared");
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
                 zipFileProcessor.getPdfs()
             )
@@ -50,41 +41,45 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_zip_file_contains_more_pdfs() throws IOException, URISyntaxException {
-        ZipFileProcessor zipFileProcessor = getZipFileProcessor("9_24-06-2018-00-00-00.zip");
+    public void should_throw_exception_when_zip_file_contains_more_pdfs() throws Exception {
+        ZipFileProcessor zipFileProcessor = getZipFileProcessor("zipcontents/more_pdfs_than_declared");
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
                 zipFileProcessor.getPdfs()
             )
         );
 
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
-            .hasMessageMatching("Missing PDFs: 1111002.pdf");
+            .hasMessageMatching("Not declared PDFs: 1111002.pdf");
     }
 
     @Test
-    public void should_throw_exception_when_zip_file_has_mismatching_pdf() throws IOException, URISyntaxException {
-        ZipFileProcessor zipFileProcessor = getZipFileProcessor("8_24-06-2018-00-00-00.zip");
+    public void should_throw_exception_when_zip_file_has_mismatching_pdf() throws Exception {
+        ZipFileProcessor zipFileProcessor = getZipFileProcessor("zipcontents/mismatching_pdfs");
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeProcessor.assertEnvelopeHasPdfs(
                 zipFileProcessor.getEnvelope(),
                 zipFileProcessor.getPdfs()
             )
         );
 
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
-            .hasMessage("Missing PDFs: 1111001.pdf, 1111005.pdf");
+            .hasMessageContaining("Not declared PDFs: 1111002.pdf")
+            .hasMessageContaining("Missing PDFs: 1111001.pdf");
     }
 
-    private ZipFileProcessor getZipFileProcessor(String zipFileName) throws IOException, URISyntaxException {
-        ZipFileProcessor processor = new ZipFileProcessor("container", zipFileName);
+    private ZipFileProcessor getZipFileProcessor(String zipContentDirectory) throws IOException {
+        String container = "container";
+        String zipFileName = "hello.zip";
 
-        try (ZipInputStream zis = getZipInputStream(zipFileName)) {
+        ZipFileProcessor processor = new ZipFileProcessor(container, zipFileName);
+
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipDir(zipContentDirectory)))) {
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                new ZipVerifiers.ZipStreamWithSignature(zis, null);
+                new ZipVerifiers.ZipStreamWithSignature(zis, null, zipFileName, container);
             processor.process(zipWithSignature, ZipVerifiers.getPreprocessor("none"));
             processor.setEnvelope(EnvelopeCreator.getEnvelopeFromMetafile(processor.getMetadata()));
         }
@@ -92,7 +87,4 @@ public class EnvelopeProcessorValidationTest {
         return processor;
     }
 
-    private ZipInputStream getZipInputStream(String zipFileName) throws IOException, URISyntaxException {
-        return new ZipInputStream(Files.newInputStream(Paths.get(getResource(zipFileName).toURI())));
-    }
 }

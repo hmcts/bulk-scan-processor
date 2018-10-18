@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -69,21 +69,23 @@ public class ZipVerifiersTest {
 
     @Test
     public void should_verify_valid_zip_successfully() throws Exception {
-        byte[] test1Bytes = toByteArray(getResource("signature/1_24-06-2018-00-00-00.test.zip"));
+        String zipFileName = "1_24-06-2018-00-00-00.test.zip";
+        String container = "signature";
+        byte[] test1Bytes = toByteArray(getResource(container + "/" + zipFileName));
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(test1Bytes)),
-            publicKeyBase64
+            new ZipInputStream(new ByteArrayInputStream(test1Bytes)), publicKeyBase64, zipFileName, container
         );
         ZipInputStream zis = ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
         assertThat(zis).isNotNull();
     }
 
-    @Test(expected = SignatureValidationException.class)
+    @Test(expected = DocSignatureFailureException.class)
     public void should_not_verify_invalid_zip_successfully() throws Exception {
-        byte[] test1Bytes = toByteArray(getResource("signature/2_24-06-2018-00-00-00.test.zip"));
+        String zipFileName = "2_24-06-2018-00-00-00.test.zip";
+        String container = "signature";
+        byte[] test1Bytes = toByteArray(getResource(container + "/" + zipFileName));
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(test1Bytes)),
-            publicKeyBase64
+            new ZipInputStream(new ByteArrayInputStream(test1Bytes)), publicKeyBase64, zipFileName, container
         );
         ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
     }

@@ -171,13 +171,13 @@ public class BlobProcessorTask extends Processor {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64);
+                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64, zipFilename, containerName);
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);
 
-            envelopeProcessor.assertEnvelopeHasPdfs(envelope, zipFileProcessor.getPdfs());
+            EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, zipFileProcessor.getPdfs());
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope);
 
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));

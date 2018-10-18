@@ -7,6 +7,7 @@ public enum Status {
     CONSUMED, // client service handled the documents
     CREATED,
     METADATA_FAILURE, // when we are aware of envelope, but there are inconsistency among files and metadata info
+    SIGNATURE_FAILURE, // the zip archive failed signature verification
     PROCESSED, // after storing all docs in DM
     UPLOADED,
     UPLOAD_FAILURE,
@@ -18,6 +19,10 @@ public enum Status {
         switch (event) {
             case DOC_FAILURE:
                 status = METADATA_FAILURE;
+
+                break;
+            case DOC_SIGNATURE_FAILURE:
+                status = SIGNATURE_FAILURE;
 
                 break;
             case DOC_UPLOADED:

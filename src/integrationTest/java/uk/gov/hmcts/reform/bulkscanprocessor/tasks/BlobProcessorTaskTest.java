@@ -22,16 +22,15 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.jsonpath.JsonPath.parse;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -46,10 +45,13 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask> {
+
+    protected static final String VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER = "42_24-06-2018-00-00-00.test.zip";
 
     @Before
     public void setUp() throws Exception {
@@ -57,28 +59,42 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
-    public void should_read_from_blob_storage_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
+    public void should_read_blob_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        testBlobFileProcessed();
+    }
 
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
+    @Test
+    public void should_read_blob_check_signature_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
+        throws Exception {
+        //Given
+        processor.signatureAlg = "sha256withrsa";
+        processor.publicKeyBase64 = getXyzPublicKey64();
 
-        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
+        uploadZipToBlobStore(VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER); //Signed zip file with metadata and pdfs
+        testBlobFileProcessed();
+    }
+
+    private void testBlobFileProcessed() throws Exception {
+        // given
+        Pdf pdf1 = new Pdf("1111001.pdf", toByteArray(getResource("1111001.pdf")));
+        Pdf pdf2 = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
-            .willReturn(getFileUploadResponse());
+            .willReturn(ImmutableMap.of(
+                "1111001.pdf", DOCUMENT_URL1,
+                "1111002.pdf", DOCUMENT_URL2
+            ));
 
         doNothing().when(serviceBusHelper).sendMessage(any(Msg.class));
 
-        //when
+        // when
         processor.processBlobs();
 
-        //then
-        //We expect only one envelope which was uploaded
-        Envelope actualEnvelope = envelopeRepository.findAll().get(0);
+        // then
+        Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
             getResource("metadata.json"),
@@ -95,7 +111,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
         assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
-        //This verifies pdf file objects were created from the zip file
+        // This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf1, pdf2));
 
         verify(serviceBusHelper, times(1)).sendMessage(any());
@@ -103,41 +119,45 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(3);
-
         assertThat(processEvents)
-            .extracting("container", "zipFileName", "event")
-            .contains(
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOADED),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_PROCESSED_NOTIFICATION_SENT)
+            .as("All events should be related to our envelope")
+            .allMatch(pe ->
+                Objects.equals(pe.getContainer(), testContainer.getName())
+                    && Objects.equals(pe.getZipFileName(), VALID_ZIP_FILE_WITH_CASE_NUMBER)
             );
 
-        assertThat(processEvents).extracting("id").hasSize(3);
-        assertThat(processEvents).extracting("reason").containsOnlyNulls();
+        assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
+            .containsExactlyInAnyOrder(
+                DOC_UPLOADED,
+                DOC_PROCESSED,
+                DOC_PROCESSED_NOTIFICATION_SENT
+            );
+
+        assertThat(processEvents).allMatch(pe -> pe.getReason() == null);
     }
 
     @Test
     public void should_process_other_zip_files_if_previous_zip_fails_to_process() throws Exception {
         // given
-        uploadZipToBlobStore("3_24-06-2018-00-00-00.zip"); //Zip with only pdf without metadata
-        uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip with pdf and metadata
+        uploadToBlobStorage("bad_24-06-2018-00-00-00.zip", zipDir("zipcontents/missing_metadata"));
+        uploadToBlobStorage("good_24-06-2018-00-00-00.zip", zipDir("zipcontents/ok"));
 
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
+        Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
-        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
-            .willReturn(getFileUploadResponse());
+        given(documentManagementService.uploadDocuments(ImmutableList.of(okPdf)))
+            .willReturn(ImmutableMap.of(
+                "1111002.pdf", DOCUMENT_URL2
+            ));
 
         // when
         processor.processBlobs();
 
         // then
-        // We expect only one envelope 4_24-06-2018-00-00-00.zip which was uploaded
-        Envelope actualEnvelope = envelopeRepository.findAll().get(0);
+        // We expect only one envelope from the valid zip file which was uploaded
+        Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
-            getResource("metadata_4_24-06-2018-00-00-00.json"),
+            getResource("zipcontents/ok/metadata.json"),
             Charset.defaultCharset()
         );
 
@@ -147,81 +167,76 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         );
 
         //This verifies only pdf included in the zip with metadata was processed
-        verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf2));
+        verify(documentManagementService).uploadDocuments(ImmutableList.of(okPdf));
 
         //Verify first pdf file was never processed
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
+        byte[] pdfFromBadZip = toByteArray(getResource("zipcontents/missing_metadata/1111001.pdf"));
 
         verify(documentManagementService, never())
-            .uploadDocuments(ImmutableList.of(new Pdf("1111001.pdf", test1PdfBytes)));
+            .uploadDocuments(ImmutableList.of(new Pdf("1111001.pdf", pdfFromBadZip)));
     }
 
     @Test
     public void should_delete_blob_after_doc_upload_and_mark_envelope_status_as_processed_and_create_new_event()
         throws Exception {
-        // Zip with pdf and metadata
-        String zipFile = "7_24-06-2018-00-00-00.zip";
 
-        uploadZipToBlobStore(zipFile);
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
-        byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
-        Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
+        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(ImmutableMap.of("1111002.pdf", DOCUMENT_URL2));
 
+        // when
         processor.processBlobs();
 
-        //Check blob is deleted
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
+        // then
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         await("file should be deleted")
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
 
-        // Verify envelope status is updated to PROCESSED
-        assertThat(envelopeRepository.findAll())
-            .hasSize(1)
-            .extracting("status", "zipDeleted")
-            .containsOnly(tuple(NOTIFICATION_SENT, true));
+        Envelope envelope = getSingleEnvelopeFromDb();
+
+        assertThat(envelope.getStatus()).isEqualTo(NOTIFICATION_SENT);
+        assertThat(envelope.isZipDeleted()).isTrue();
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
-            .collect(Collectors.toList());
+            .collect(toList());
 
         assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED, DOC_PROCESSED_NOTIFICATION_SENT);
     }
 
     @Test
     public void should_keep_zip_file_after_unsuccessful_upload_and_not_create_doc_processed_event() throws Exception {
-        // Zip with pdf and metadata
-        String zipFile = "7_24-06-2018-00-00-00.zip";
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
-        uploadZipToBlobStore(zipFile);
-
-        byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
-        Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
+        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willThrow(DocumentUrlNotRetrievedException.class);
 
+        // when
         processor.processBlobs();
 
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(zipFile);
+        // then
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         await("file should not be deleted")
             .timeout(2, SECONDS)
             .until(blob::exists, is(true));
 
-        // Verify envelope status is updated to UPLOAD_FAILED
-        assertThat(envelopeRepository.findAll())
-            .hasSize(1)
-            .extracting("status", "zipDeleted")
-            .containsOnly(tuple(UPLOAD_FAILURE, false));
+        Envelope envelope = getSingleEnvelopeFromDb();
 
-        // Check events created
+        assertThat(envelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
+        assertThat(envelope.isZipDeleted()).isFalse();
+
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
-            .collect(Collectors.toList());
+            .collect(toList());
 
         assertThat(actualEvents).containsOnly(DOC_UPLOAD_FAILURE);
     }
@@ -229,31 +244,24 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_increment_failure_count_when_unable_to_upload_file() throws Exception {
         // given
-        String zipFile = "7_24-06-2018-00-00-00.zip";
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
-        uploadZipToBlobStore(zipFile);
-
-        Pdf pdfInZipFile = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdfInZipFile)))
+        given(documentManagementService.uploadDocuments(any()))
             .willThrow(UnableToUploadDocumentException.class);
 
         // when
         processor.processBlobs();
 
         // then
-        // TODO: add repo method to read single envelope by zip file name and jurisdiction.
-        List<Envelope> envelopes = envelopeRepository.findAll();
-        assertThat(envelopes).hasSize(1);
-        Envelope envelope = envelopes.get(0);
+        Envelope envelope = getSingleEnvelopeFromDb();
+
         assertThat(envelope.getUploadFailureCount()).isEqualTo(1);
         assertThat(envelope.isZipDeleted()).isFalse();
     }
 
     @Test
-    public void should_not_process_again_if_blob_delete_failed()
-        throws Exception {
-        //Given
+    public void should_not_process_again_if_blob_delete_failed() throws Exception {
+        // given
 
         // Create envelope to simulate existing envelope with 'blob delete failed' status
         Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.PROCESSED);
@@ -266,9 +274,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // as processed.
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
-        //when
+        // when
         processor.processBlobs();
 
+        // then
         // Check blob was never uploaded
         verify(documentManagementService, never()).uploadDocuments(anyList());
 
@@ -278,16 +287,13 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
 
-        // Check envelope status has been updated
-        Optional<Envelope> envelope = envelopeRepository.findById(existingEnvelope.getId());
-        assertThat(envelope.isPresent()).isTrue();
-        assertThat(envelope.get().isZipDeleted()).isTrue();
+        Envelope envelope = getSingleEnvelopeFromDb();
+        assertThat(envelope.isZipDeleted()).isTrue();
     }
 
     @Test
-    public void should_not_delete_blob_unless_processed()
-        throws Exception {
-        //Given
+    public void should_not_delete_blob_unless_processed() throws Exception {
+        // given
 
         // Create envelope to simulate existing envelope with 'blob delete failed' status
         Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.UPLOADED);
@@ -299,9 +305,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // as it still needs processing
         uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
 
-        //when
+        // when
         processor.processBlobs();
 
+        // then
         // Check blob was never uploaded
         verify(documentManagementService, never()).uploadDocuments(anyList());
 
