@@ -24,7 +24,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
