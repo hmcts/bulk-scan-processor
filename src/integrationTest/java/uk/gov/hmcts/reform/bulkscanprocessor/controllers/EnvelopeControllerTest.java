@@ -7,7 +7,6 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.apache.commons.io.Charsets;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,6 +25,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
@@ -40,13 +40,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
+import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -63,13 +62,6 @@ public class EnvelopeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private static final String DOCUMENT_URL = "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
-
-    protected static final String SIGNATURE_ALGORITHM = "none";
-    protected static final String PUBLIC_KEY_BASE64 = "none";
-
-    private CloudBlobClient cloudBlobClient;
 
     private BlobProcessorTask blobProcessorTask;
 
@@ -100,10 +92,6 @@ public class EnvelopeControllerTest {
     @MockBean
     private AuthTokenValidator tokenValidator;
 
-    private DocumentProcessor documentProcessor;
-
-    private EnvelopeProcessor envelopeProcessor;
-
     private CloudBlobContainer testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
@@ -126,28 +114,24 @@ public class EnvelopeControllerTest {
     @Before
     public void setup() throws Exception {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
-        cloudBlobClient = account.createCloudBlobClient();
-
-        documentProcessor = new DocumentProcessor(
-            documentManagementService,
-            scannableItemRepository
-        );
-
-        envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            envelopeRepository,
-            processEventRepository,
-            reUploadBatchSize,
-            reuploadMaxTries
-        );
+        CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
         blobProcessorTask = new BlobProcessorTask(
             cloudBlobClient,
-            documentProcessor,
-            envelopeProcessor,
+            new DocumentProcessor(
+                documentManagementService,
+                scannableItemRepository
+            ),
+            new EnvelopeProcessor(
+                schemaValidator,
+                envelopeRepository,
+                processEventRepository,
+                reUploadBatchSize,
+                reuploadMaxTries
+            ),
             errorWrapper,
-            SIGNATURE_ALGORITHM,
-            PUBLIC_KEY_BASE64
+            "none",
+            "none"
 
         );
 
@@ -172,7 +156,9 @@ public class EnvelopeControllerTest {
         Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
-            .willReturn(ImmutableMap.of("1111002.pdf", DOCUMENT_URL));
+            .willReturn(
+                ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
+            );
 
         blobProcessorTask.processBlobs();
 
@@ -183,16 +169,14 @@ public class EnvelopeControllerTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json;charset=UTF-8"))
-            .andExpect(content().json(expectedEnvelopes()))
+            .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
             // Envelope id is checked explicitly as it is dynamically generated.
             .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 
-        assertThat(envelopeRepository.findAll())
-            .hasSize(1)
-            .extracting("zipFileName", "status")
-            .containsExactlyInAnyOrder(
-                tuple("7_24-06-2018-00-00-00.zip", PROCESSED)
-            );
+        List<Envelope> envelopes = envelopeRepository.findAll();
+        assertThat(envelopes).hasSize(1);
+        assertThat(envelopes.get(0).getZipFileName()).isEqualTo("7_24-06-2018-00-00-00.zip");
+        assertThat(envelopes.get(0).getStatus()).isEqualTo(PROCESSED);
 
         byte[] mismatchingPdfBytes = toByteArray(getResource("1111005.pdf"));
         Pdf mismatchingPdf = new Pdf("1111005.pdf", mismatchingPdfBytes);
@@ -239,11 +223,6 @@ public class EnvelopeControllerTest {
         assertThat(result.getResponse().getStatus()).isEqualTo(401);
 
         assertThat(result.getResolvedException()).isInstanceOf(UnAuthenticatedException.class);
-    }
-
-    private String expectedEnvelopes() throws IOException {
-        URL url = getResource("envelope.json");
-        return Resources.toString(url, Charsets.toCharset("UTF-8"));
     }
 
     private void uploadZipToBlobStore(String fileName) throws Exception {
