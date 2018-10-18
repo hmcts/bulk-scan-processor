@@ -65,14 +65,13 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         });
 
         // Then
-        // Only one thread should be able to acquire lease and others should fail
 
-        // We expect only one envelope which was uploaded and other failed
+        // Only one thread should be able to acquire lease and others should fail.
+        // Therefore we expect only one envelope which was uploaded and others failed
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes.size()).isEqualTo(1);
 
         // and
-        // We expect only 3 events: doc upload, doc processed and notification sent
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents)
             .extracting("event")
