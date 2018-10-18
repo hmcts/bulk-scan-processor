@@ -51,7 +51,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
 
         // and
-        checkFailureEvent(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
+        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        checkFailureEvent(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
+        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        checkFailureEvent(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
+        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        checkFailureEvent(noMetafileZip, DOC_FAILURE);
+        eventWasCreated(noMetafileZip, DOC_FAILURE);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        checkFailureEvent(invalidMetafileZip, DOC_FAILURE);
+        eventWasCreated(invalidMetafileZip, DOC_FAILURE);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        checkFailureEvent("5_24-06-2018-00-00-00.zip", Event.DOC_FAILURE);
+        eventWasCreated("5_24-06-2018-00-00-00.zip", Event.DOC_FAILURE);
     }
 
     @Test
@@ -158,17 +158,17 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        checkFailureEvent("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
+        eventWasCreated("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
     }
 
-    private void checkFailureEvent(String invalidZipFile, Event event) {
+    private void eventWasCreated(String zipFileName, Event event) {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(1);
 
         ProcessEvent processEvent = processEvents.get(0);
 
         assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(invalidZipFile);
+        assertThat(processEvent.getZipFileName()).isEqualTo(zipFileName);
         assertThat(processEvent.getEvent()).isEqualTo(event);
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
