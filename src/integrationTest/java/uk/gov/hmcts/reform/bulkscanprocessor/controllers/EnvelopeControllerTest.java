@@ -7,7 +7,6 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.apache.commons.io.Charsets;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -45,6 +44,7 @@ import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -164,14 +164,12 @@ public class EnvelopeControllerTest {
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
-        String expectedJsonResponse = Resources.toString(getResource("envelope.json"), Charsets.toCharset("UTF-8"));
-
         mockMvc.perform(get("/envelopes?status=" + PROCESSED)
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json;charset=UTF-8"))
-            .andExpect(content().json(expectedJsonResponse))
+            .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
             // Envelope id is checked explicitly as it is dynamically generated.
             .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 
