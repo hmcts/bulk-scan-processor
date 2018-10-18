@@ -24,6 +24,7 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,7 +38,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     @Test
     public void should_record_failure_of_upload_when_document_management_returns_empty_response() throws Exception {
         // given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         // and
         given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
@@ -52,13 +53,13 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
 
         // and
-        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
+        eventWasCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
     public void should_record_failure_of_upload_once_and_not_reprocess() throws Exception {
         // given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         // and
         given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
@@ -66,7 +67,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // when
         processor.processBlobs();
 
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         await("file should not be deleted")
             .timeout(2, SECONDS)
             .until(blob::exists, is(true));
@@ -80,13 +81,13 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
+        eventWasCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
     public void should_record_failure_of_upload_when_document_management_throws_exception() throws Exception {
         // given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         // and
         Throwable throwable = new UnableToUploadDocumentException("oh no", null);
@@ -102,48 +103,46 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
 
         // and
-        eventWasCreated(VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE);
+        eventWasCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
     public void should_record_generic_failure_when_zip_does_not_contain_metadata_json() throws Exception {
         // given
-        String noMetafileZip = "2_24-06-2018-00-00-00.zip";
-        uploadZipToBlobStore(noMetafileZip); //Zip file with only pdfs and no metadata
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_metadata"));
 
         // when
         processor.processBlobs();
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(noMetafileZip, DOC_FAILURE);
+        eventWasCreated(DOC_FAILURE);
     }
 
     @Test
     public void should_record_generic_failure_when_metadata_parsing_fails() throws Exception {
         // given
-        String invalidMetafileZip = "6_24-06-2018-00-00-00.zip";
-        uploadZipToBlobStore(invalidMetafileZip); //Zip file with pdf and invalid metadata
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/invalid_metadata"));
 
         // when
         processor.processBlobs();
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(invalidMetafileZip, DOC_FAILURE);
+        eventWasCreated(DOC_FAILURE);
     }
 
     @Test
     public void should_record_generic_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
         // given
-        uploadZipToBlobStore("5_24-06-2018-00-00-00.zip");
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/non_pdf"));
 
         // when
         processor.processBlobs();
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated("5_24-06-2018-00-00-00.zip", Event.DOC_FAILURE);
+        eventWasCreated(Event.DOC_FAILURE);
     }
 
     @Test
@@ -159,17 +158,16 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated("43_24-06-2018-00-00-00.test.zip", Event.DOC_SIGNATURE_FAILURE);
+        eventWasCreated(Event.DOC_SIGNATURE_FAILURE);
     }
 
-    private void eventWasCreated(String zipFileName, Event event) {
+    private void eventWasCreated(Event event) {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(1);
 
         ProcessEvent processEvent = processEvents.get(0);
 
         assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getZipFileName()).isEqualTo(zipFileName);
         assertThat(processEvent.getEvent()).isEqualTo(event);
         assertThat(processEvent.getId()).isNotNull();
         assertThat(processEvent.getReason()).isNotBlank();
