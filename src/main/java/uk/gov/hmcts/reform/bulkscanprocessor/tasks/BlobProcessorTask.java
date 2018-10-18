@@ -100,6 +100,8 @@ public class BlobProcessorTask extends Processor {
         ServiceBusHelper serviceBusHelper = serviceBusHelper();
 
         // Randomise iteration order to minimise lease acquire contention
+        // For this purpose it's more efficient to have a collection that
+        // implements RandomAccess (e.g. ArrayList)
         List<String> zipFilenames = new ArrayList<>();
         container.listBlobs().forEach(
             b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
