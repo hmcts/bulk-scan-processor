@@ -122,7 +122,7 @@ spec:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-storage-secret
                   key: storageAccountName
-            - name: STORAGE_ACCOUNT_KEY
+            - name: STORAGE_KEY
               valueFrom:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-storage-secret
