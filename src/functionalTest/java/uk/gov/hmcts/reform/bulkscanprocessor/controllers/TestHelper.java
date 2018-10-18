@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
 
-    public static final String SIGNATURE_FILE = "test_private_key.der";
+    public static final String TEST_PRIVATE_KEY_DER = "test_private_key.der";
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -79,7 +79,7 @@ public class TestHelper {
         final String destZipFilename
     ) throws Exception {
         byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, SIGNATURE_FILE);
+            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
