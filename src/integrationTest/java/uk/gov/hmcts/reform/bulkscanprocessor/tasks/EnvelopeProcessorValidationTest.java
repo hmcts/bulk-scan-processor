@@ -75,7 +75,7 @@ public class EnvelopeProcessorValidationTest {
         String container = "container";
         String zipFileName = "hello.zip";
 
-        ZipFileProcessor processor = new ZipFileProcessor(container, zipFileName);
+        ZipFileProcessor processor = new ZipFileProcessor();
 
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipDir(zipContentDirectory)))) {
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =

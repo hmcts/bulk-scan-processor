@@ -20,26 +20,17 @@ public class ZipFileProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
 
-    private final String containerName;
-
-    private final String zipFileName;
-
+    // TODO: remove
     private Envelope envelope;
 
     private List<Pdf> pdfs = new ArrayList<>();
 
     private byte[] metadata;
 
-    public ZipFileProcessor(String containerName, String zipFileName) {
-        this.containerName = containerName;
-        this.zipFileName = zipFileName;
+    public ZipFileProcessor() {
     }
 
-    public ZipFileProcessor(Envelope envelope) {
-        this(envelope.getContainer(), envelope.getZipFileName());
-        this.envelope = envelope;
-    }
-
+    // TODO: make it return processing result instead of setting fields on itself
     public void process(
         ZipVerifiers.ZipStreamWithSignature signedZip,
         Function<ZipVerifiers.ZipStreamWithSignature, ZipInputStream> preprocessor
@@ -59,11 +50,11 @@ public class ZipFileProcessor {
                     break;
                 default:
                     // contract breakage
-                    throw new NonPdfFileFoundException(containerName, zipFileName, zipEntry.getName());
+                    throw new NonPdfFileFoundException(signedZip.container, signedZip.zipFileName, zipEntry.getName());
             }
         }
 
-        log.info("PDFs found in {}: {}", zipFileName, pdfs.size());
+        log.info("PDFs found in {}: {}", signedZip.zipFileName, pdfs.size());
     }
 
     public byte[] getMetadata() {
