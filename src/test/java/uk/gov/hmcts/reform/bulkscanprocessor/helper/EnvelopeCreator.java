@@ -38,7 +38,7 @@ public final class EnvelopeCreator {
     }
 
     public static InputStream getMetaFile() {
-        return EnvelopeCreator.class.getResourceAsStream("/metafile.json");
+        return EnvelopeCreator.class.getResourceAsStream("/metafiles/valid/from-spec.json");
     }
 
     public static Envelope getEnvelopeFromMetafile() throws IOException {
