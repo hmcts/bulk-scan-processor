@@ -209,7 +209,7 @@ public class ZipVerifiers {
             String publicKeyBase64 = null;
             try {
                 if (!Strings.isNullOrEmpty(publicKeyDerFile) && !"none".equalsIgnoreCase(publicKeyDerFile)) {
-                    if (publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
+                    if (cachedPublicKeyFile != null && publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
                         publicKeyBase64 = cachedPublicKeyFile.publicKeyBase64;
                     } else {
                         publicKeyBase64 =
