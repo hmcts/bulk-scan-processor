@@ -70,6 +70,8 @@ public class ZipVerifiers {
 
     private static final Logger log = LoggerFactory.getLogger(ZipVerifiers.class);
 
+    private static PublicKeyFile cachedPublicKeyFile;
+
     private ZipVerifiers() {
     }
 
@@ -169,6 +171,17 @@ public class ZipVerifiers {
         }
     }
 
+    public static class PublicKeyFile {
+        public final String derFilename;
+        public final String publicKeyBase64;
+
+        public PublicKeyFile(String derFilename, String publicKeyBase64) {
+            this.derFilename = derFilename;
+            this.publicKeyBase64 = publicKeyBase64;
+        }
+
+    }
+
     public static class ZipStreamWithSignature {
         public final ZipInputStream zipInputStream;
         public final String publicKeyBase64;
@@ -196,10 +209,15 @@ public class ZipVerifiers {
             String publicKeyBase64 = null;
             try {
                 if (!Strings.isNullOrEmpty(publicKeyDerFile) && !"none".equalsIgnoreCase(publicKeyDerFile)) {
-                    publicKeyBase64 =
-                        Base64.getEncoder().encodeToString(
-                            Resources.toByteArray(getResource(publicKeyDerFile))
-                        );
+                    if (publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
+                        publicKeyBase64 = cachedPublicKeyFile.publicKeyBase64;
+                    } else {
+                        publicKeyBase64 =
+                            Base64.getEncoder().encodeToString(
+                                Resources.toByteArray(getResource(publicKeyDerFile))
+                            );
+                        cachedPublicKeyFile = new PublicKeyFile(publicKeyDerFile, publicKeyBase64);
+                    }
                 }
             } catch (IOException e) {
                 throw new SignatureValidationException(e);
