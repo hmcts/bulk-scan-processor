@@ -44,9 +44,8 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 // Vars needed for AKS testing
 env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
 env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
-//env.TEST_STORAGE_ACCOUNT_NAME = 'bulkscanoldaat'
-//env.test_storage_container_name = 'test'
 env.TEST_SCAN_DELAY = '4000'
+env.RESOURCE_GROUP = bulk-scan-processor-pr-206
 
 GradleBuilder builder = new GradleBuilder(this, product)
 
@@ -57,15 +56,15 @@ withPipeline(type, product, component) {
   after('smoketest:aks') {
     echo sh(returnStdout: true, script: 'env')
 
-    def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-$subscription az $cmd", returnStdout: true).trim() }
+    def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION} az $cmd", returnStdout: true).trim() }
 
     jsonSlurper = new JsonSlurperClassic()
     //storageAccounts = sh(returnStdOut: true, script: "az storage account list --resource-group ${env.BRANCH_NAME}")
-    storageAccounts = az "storage account list --resource-group ${env.BRANCH_NAME}"
+    storageAccounts = az "storage account list --resource-group ${env.RESOURCE_GROUP}"
     env.TEST_STORAGE_ACCOUNT_NAME = jsonSlurper.parseText(storageAccounts).get(0).name
 
     //storageKeys = sh(returnStdOut: true, script: "az storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}")
-    storageKeys = az "storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}"
+    storageKeys = az "storage account keys list -g ${env.RESOURCE_GROUP} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}"
     env.TEST_STORAGE_ACCOUNT_KEY = jsonSlurper.parseText(storageAccounts).get(0).value
 
     echo sh(returnStdout: true, script: 'env')
