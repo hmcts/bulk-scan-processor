@@ -100,6 +100,9 @@ module "bulk-scan" {
     SCAN_ENABLED                  = "${var.scan_enabled}"
     STORAGE_BLOB_LEASE_TIMEOUT    = "${var.blob_lease_timeout}" // In seconds
 
+    STORAGE_BLOB_SIGNATURE_ALGORITHM = "sha256withrsa" // none or sha256withrsa
+    STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
+
     QUEUE_ENVELOPE_SEND           = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
 
     // silence the "bad implementation" logs

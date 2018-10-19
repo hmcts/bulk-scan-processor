@@ -1,11 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
@@ -22,11 +25,15 @@ public class ZipVerifiersTest {
             + "V0egi8k5hnIIgPEOUqhrX5UcQorSX7bIlMped6TtPkYdGs/QI6S5m2uz+6Mjai7ZfACGhYxIs8"
             + "35msqvRsDM0tIle/h3eZJb7iPE0anMWb8MkBYU3D3vAnPdBZxiEIwNMUNzqQIDAQAB";
 
-    private String xyzPublicKeyBase64 =
-        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNtN8RHTjPFvYkooMy68Rrs8d9"
-        + "PN0nGQgKGjk/JhBGHvxVr4RAw33jgBSNIERnNQWMk/uiBo7gBuSFvDznAgZGDTvo"
-        + "0ucMuuN0zbjkyv1s/D/6fmpY54cECNCQRxuht9WP8M5TIC2bQU8bt78fZydWjocQ"
-        + "oGHorDu0l3GhSVTePQIDAQAB";
+    private static String xyzPublicKeyBase64;
+
+    @BeforeClass
+    public static void setUp() throws IOException {
+        xyzPublicKeyBase64 =
+            Base64.getEncoder().encodeToString(
+                toByteArray(getResource("signature/xyz_test_public_key.der"))
+            );
+    }
 
     @Test
     public void should_verify_signed_file_successfully() throws Exception {
