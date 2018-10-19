@@ -54,12 +54,19 @@ withPipeline(type, product, component) {
   //after('checkout') {
   //  echo sh(returnStdout: true, script: 'env')
   //}
-  after('deploy:aks') {
+  before('smoketest:aks') {
+    def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-$subscription az $cmd", returnStdout: true).trim() }
+
     jsonSlurper = new JsonSlurperClassic()
-    storageAccounts = sh(returnStdOut: true, script: "az storage account list --resource-group ${env.BRANCH_NAME}")
+    //storageAccounts = sh(returnStdOut: true, script: "az storage account list --resource-group ${env.BRANCH_NAME}")
+    storageAccounts = az "storage account list --resource-group ${env.BRANCH_NAME}"
     env.TEST_STORAGE_ACCOUNT_NAME = jsonSlurper.parseText(storageAccounts).get(0).name
-    storageKeys = sh(returnStdOut: true, script: "az storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}")
+
+    //storageKeys = sh(returnStdOut: true, script: "az storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}")
+    storageKeys = az "storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}"
     env.TEST_STORAGE_ACCOUNT_KEY = jsonSlurper.parseText(storageAccounts).get(0).value
+
+    echo sh(returnStdout: true, script: 'env')
   }
 
   after('test') {
