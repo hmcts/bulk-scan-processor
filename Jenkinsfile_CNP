@@ -54,7 +54,9 @@ withPipeline(type, product, component) {
   //after('checkout') {
   //  echo sh(returnStdout: true, script: 'env')
   //}
-  before('smoketest:aks') {
+  after('smoketest:aks') {
+    echo sh(returnStdout: true, script: 'env')
+
     def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-$subscription az $cmd", returnStdout: true).trim() }
 
     jsonSlurper = new JsonSlurperClassic()
