@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.google.common.base.Strings;
+import com.google.common.io.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
@@ -23,8 +25,44 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
+import static com.google.common.io.Resources.getResource;
 
-
+/**
+ * Signed zip archive verification utilities. Currently 2 modes are supported:
+ * <ul>
+ *  <li>none = no signature verification</li>
+ *  <li>sha256withrsa = sha256 + rsa signature verification</li>
+ * </ul>
+ * With the obvious exclusion of the no verification case, a signed zip
+ * archive must include 2 files named envelope.zip and signature. The
+ * former is the archive content while the latter is the signature the
+ * archive has to be verified against.
+ * <p>
+ * Some openssl commands related to sha256withrsa signatures:
+ * <ul>
+ *  <li>Create rsa private key:
+ *      openssl genrsa -out private_key.pem 1024
+ *  </li>
+ *  <li>Generate DER format private key from PEM:
+ *      openssl pkcs8 -topk8 -inform PEM -outform DER -in private_key.pem
+ *      -out private_key.der -nocrypt
+ *  </li>
+ *  <li>Generate DER format public key from PEM private key:
+ *      openssl rsa -in private_key.pem -pubout -outform DER -out public_key.der
+ *  </li>
+ *  <li>Generate DER format public key from PEM public key:
+ *      openssl rsa -pubin -inform PEM -outform DER -in public_key.pem
+ *  </li>
+ *  <li>Generate signature for file:
+ *      openssl dgst -sha256 -sign private_key.pem -out signature envelope.zip
+ *  </li>
+ *  <li>Verify file signature:
+ *      openssl dgst -sha256 -verify public_key.pem -signature signature envelope.zip
+ *  </li>
+ * </ul>
+ * </p>
+ *
+ */
 public class ZipVerifiers {
 
     public static final String DOCUMENTS_ZIP = "envelope.zip";
@@ -147,6 +185,26 @@ public class ZipVerifiers {
             this.publicKeyBase64 = publicKeyBase64;
             this.zipFileName = zipFileName;
             this.container = container;
+        }
+
+        public static ZipStreamWithSignature fromKeyfile(
+            ZipInputStream zipInputStream,
+            String publicKeyDerFile,
+            String zipFileName,
+            String container
+        ) {
+            String publicKeyBase64 = null;
+            try {
+                if (!Strings.isNullOrEmpty(publicKeyDerFile) && !"none".equalsIgnoreCase(publicKeyDerFile)) {
+                    publicKeyBase64 =
+                        Base64.getEncoder().encodeToString(
+                            Resources.toByteArray(getResource(publicKeyDerFile))
+                        );
+                }
+            } catch (IOException e) {
+                throw new SignatureValidationException(e);
+            }
+            return new ZipStreamWithSignature(zipInputStream, publicKeyBase64, zipFileName, container);
         }
     }
 

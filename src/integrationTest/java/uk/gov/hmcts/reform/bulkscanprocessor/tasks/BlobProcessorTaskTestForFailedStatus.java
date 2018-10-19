@@ -149,7 +149,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     public void should_record_signature_failure_when_zip_contains_invalid_signature() throws Exception {
         // given
         processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyBase64 = getXyzPublicKey64();
+        processor.publicKeyDerFilename = TEST_PUBLIC_KEY_FILE;
 
         uploadZipToBlobStore("43_24-06-2018-00-00-00.test.zip");
 
