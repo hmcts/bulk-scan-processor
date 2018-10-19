@@ -10,15 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessorTestSuite;
 
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +26,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -59,16 +57,14 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
     @Test
     public void should_successfully_reupload_documents_when_initial_blob_processor_was_unable_to_do_so()
         throws Exception {
+
         // given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        final String zipFileName = "7_24-06-2018-00-00-00.zip";
+        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
 
-        Pdf pdf1 = new Pdf("1111001.pdf", toByteArray(getResource("1111001.pdf")));
-        Pdf pdf2 = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
+        given(documentManagementService.uploadDocuments(any()))
             .willReturn(Collections.emptyMap())
             .willReturn(ImmutableMap.of(
-                "1111001.pdf", DOCUMENT_URL1,
                 "1111002.pdf", DOCUMENT_URL2
             ));
 
@@ -86,38 +82,29 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .containsOnlyOnce(PROCESSED);
         assertThat(dbEnvelopes.get(0).getScannableItems())
             .extracting("documentUrl")
-            .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
+            .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
 
         // and
-        String failureReason = "Error retrieving urls for uploaded files: 1111001.pdf, 1111002.pdf";
+        String failureReason = "Error retrieving urls for uploaded files: 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
             .hasSize(4)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
-                    DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
-                    DOC_UPLOADED, null),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
-                    DOC_PROCESSED, null),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER,
-                    DOC_PROCESSED_NOTIFICATION_FAILURE, null)
+                tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), zipFileName, DOC_UPLOADED, null),
+                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null),
+                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED_NOTIFICATION_FAILURE, null)
             );
     }
 
     @Test
     public void should_fail_to_upload_pdfs_when_retrying_with_reupload_task() throws Exception {
         // given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        final String zipFileName = "7_24-06-2018-00-00-00.zip";
+        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
 
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
-
-        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
+        given(documentManagementService.uploadDocuments(any()))
             .willReturn(Collections.emptyMap()) // blob processor had empty response
             .willThrow(new UnableToUploadDocumentException("oh no", null)); // reupload task - failure
 
@@ -133,21 +120,22 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .containsOnlyOnce(UPLOAD_FAILURE);
 
         // and
-        String failureReason = "Error retrieving urls for uploaded files: 1111001.pdf, 1111002.pdf";
+        String failureReason = "Error retrieving urls for uploaded files: 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
             .hasSize(2)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), VALID_ZIP_FILE_WITH_CASE_NUMBER, DOC_UPLOAD_FAILURE, "oh no")
+                tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, "oh no")
             );
     }
 
     @Test
     public void should_increment_upload_failure_count_if_unable_to_upload_files() throws Exception {
         // given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        final String zipFileName = "7_24-06-2018-00-00-00.zip";
+        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
 
         given(documentManagementService.uploadDocuments(any()))
             .willThrow(UnableToUploadDocumentException.class);

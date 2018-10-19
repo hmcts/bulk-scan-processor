@@ -6,7 +6,6 @@ import com.google.common.io.Resources;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -31,6 +30,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
+import uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
@@ -41,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -149,13 +150,13 @@ public class EnvelopeControllerTest {
     @Test
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
         throws Exception {
-        uploadZipToBlobStore("7_24-06-2018-00-00-00.zip"); //Zip file with metadata and pdf
-        uploadZipToBlobStore("8_24-06-2018-00-00-00.zip"); // Zip file with metadata and mismatching pdf
 
-        byte[] testPdfBytes = toByteArray(getResource("1111002.pdf"));
-        Pdf pdf = new Pdf("1111002.pdf", testPdfBytes);
+        uploadZipToBlobStore("zipcontents/ok");
+        uploadZipToBlobStore("zipcontents/mismatching_pdfs");
 
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
+        Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
+
+        given(documentManagementService.uploadDocuments(ImmutableList.of(okPdf)))
             .willReturn(
                 ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
             );
@@ -175,13 +176,14 @@ public class EnvelopeControllerTest {
 
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
-        assertThat(envelopes.get(0).getZipFileName()).isEqualTo("7_24-06-2018-00-00-00.zip");
         assertThat(envelopes.get(0).getStatus()).isEqualTo(PROCESSED);
 
-        byte[] mismatchingPdfBytes = toByteArray(getResource("1111005.pdf"));
-        Pdf mismatchingPdf = new Pdf("1111005.pdf", mismatchingPdfBytes);
-
-        verify(documentManagementService, never()).uploadDocuments(ImmutableList.of(mismatchingPdf));
+        verify(documentManagementService, never())
+            .uploadDocuments(
+                ImmutableList.of(
+                    new Pdf("1111005.pdf", toByteArray(getResource("zipcontents/mismatching_pdfs/1111005.pdf")))
+                )
+            );
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
@@ -225,10 +227,11 @@ public class EnvelopeControllerTest {
         assertThat(result.getResolvedException()).isInstanceOf(UnAuthenticatedException.class);
     }
 
-    private void uploadZipToBlobStore(String fileName) throws Exception {
-        byte[] zipFile = toByteArray(getResource(fileName));
+    private void uploadZipToBlobStore(String dirToZip) throws Exception {
+        byte[] zipFile = DirectoryZipper.zipDir(dirToZip);
 
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+        testContainer
+            .getBlockBlobReference(UUID.randomUUID() + "_01-01-2018-00-00-00.zip")
+            .uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 }
