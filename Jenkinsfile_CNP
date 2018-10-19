@@ -3,6 +3,8 @@
 @Library("Infrastructure")
 import uk.gov.hmcts.contino.GradleBuilder
 
+import groovy.json.JsonSlurperClassic
+
 def type = "java"
 def product = "bulk-scan"
 def component = "processor"
@@ -26,7 +28,7 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
 ]
 
 List<LinkedHashMap<String, Object>> commonSecrets = [
-  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+  //secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
   secret('test-s2s-secret', 'TEST_S2S_SECRET'),
 ]
 
@@ -52,6 +54,14 @@ withPipeline(type, product, component) {
   //after('checkout') {
   //  echo sh(returnStdout: true, script: 'env')
   //}
+  before('smoketest:dev') {
+    jsonSlurper = new JsonSlurperClassic()
+    storageAccounts = sh(returnStdOut: true, script: 'az storage account list --resource-group env.BRANCH_NAME')
+    echo "SA  ${storageAccounts}"
+    env.TEST_STORAGE_ACCOUNT_NAME = jsonSlurper.parseText(storageAccounts).get(0).name
+    echo "TSA  ${env.TEST_STORAGE_ACCOUNT_NAME}"
+  }
+
   after('test') {
     builder.gradle('integration')
   }
