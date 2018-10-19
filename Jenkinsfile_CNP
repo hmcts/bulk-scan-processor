@@ -56,7 +56,7 @@ withPipeline(type, product, component) {
   //}
   after('deploy:aks') {
     jsonSlurper = new JsonSlurperClassic()
-    storageAccounts = sh(returnStdOut: true, script: 'az storage account list --resource-group env.BRANCH_NAME')
+    storageAccounts = sh(returnStdOut: true, script: "az storage account list --resource-group ${env.BRANCH_NAME}")
     echo "SA  ${storageAccounts}"
     env.TEST_STORAGE_ACCOUNT_NAME = jsonSlurper.parseText(storageAccounts).get(0).name
     echo "TSA  ${env.TEST_STORAGE_ACCOUNT_NAME}"
