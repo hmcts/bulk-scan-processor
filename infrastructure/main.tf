@@ -66,8 +66,6 @@ module "bulk-scan" {
   capacity                        = "${var.capacity}"
   common_tags                     = "${var.common_tags}"
   appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
-  asp_name                        = "${var.product}-${var.env}"
-  asp_rg                          = "${var.product}-${var.env}"
   instance_size                   = "${local.sku_size}"
 
   app_settings = {
