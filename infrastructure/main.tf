@@ -106,8 +106,6 @@ module "bulk-scan" {
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = false
     LOGBACK_REQUIRE_ERROR_CODE  = false
-
-    FORCE_CHANGE = "blah"
   }
 }
 
