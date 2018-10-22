@@ -70,8 +70,6 @@ public class ZipVerifiers {
 
     private static final Logger log = LoggerFactory.getLogger(ZipVerifiers.class);
 
-    private static PublicKeyFile cachedPublicKeyFile;
-
     private ZipVerifiers() {
     }
 
@@ -187,6 +185,8 @@ public class ZipVerifiers {
         public final String publicKeyBase64;
         public final String zipFileName;
         public final String container;
+
+        private static PublicKeyFile cachedPublicKeyFile;
 
         public ZipStreamWithSignature(
             ZipInputStream zipInputStream,
