@@ -78,6 +78,7 @@ public class ReuploadFailedEnvelopeTask {
             });
 
         awaitCompletion(completionService);
+        executorService.shutdown();
     }
 
     private void awaitCompletion(CompletionService<Void> completionService) throws InterruptedException {
