@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Objects;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -45,13 +44,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask> {
-
-    protected static final String VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER = "42_24-06-2018-00-00-00.test.zip";
 
     @Before
     public void setUp() throws Exception {
@@ -62,7 +60,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     public void should_read_blob_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
         testBlobFileProcessed();
     }
 
@@ -71,20 +69,18 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
         //Given
         processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyDerFilename = TEST_PUBLIC_KEY_FILE;
+        processor.publicKeyDerFilename = "signing/test_public_key.der";
 
-        uploadZipToBlobStore(VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER); //Signed zip file with metadata and pdfs
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipAndSignDir("zipcontents/ok", "signing/test_private_key.der"));
         testBlobFileProcessed();
     }
 
     private void testBlobFileProcessed() throws Exception {
         // given
-        Pdf pdf1 = new Pdf("1111001.pdf", toByteArray(getResource("1111001.pdf")));
-        Pdf pdf2 = new Pdf("1111002.pdf", toByteArray(getResource("1111002.pdf")));
+        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1, pdf2)))
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(ImmutableMap.of(
-                "1111001.pdf", DOCUMENT_URL1,
                 "1111002.pdf", DOCUMENT_URL2
             ));
 
@@ -97,7 +93,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
-            getResource("metadata.json"),
+            getResource("zipcontents/ok/metadata.json"),
             Charset.defaultCharset()
         );
 
@@ -108,24 +104,17 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(actualEnvelope.getStatus()).isEqualTo(NOTIFICATION_SENT);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
-            .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL1, DOCUMENT_URL2));
+            .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
         assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         // This verifies pdf file objects were created from the zip file
-        verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf1, pdf2));
+        verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf));
 
         verify(serviceBusHelper, times(1)).sendMessage(any());
 
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(3);
-        assertThat(processEvents)
-            .as("All events should be related to our envelope")
-            .allMatch(pe ->
-                Objects.equals(pe.getContainer(), testContainer.getName())
-                    && Objects.equals(pe.getZipFileName(), VALID_ZIP_FILE_WITH_CASE_NUMBER)
-            );
-
         assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
             .containsExactlyInAnyOrder(
                 DOC_UPLOADED,
