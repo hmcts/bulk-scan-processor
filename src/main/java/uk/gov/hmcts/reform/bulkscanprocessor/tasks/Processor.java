@@ -29,8 +29,8 @@ public abstract class Processor {
     @Value("${storage.signature_algorithm}")
     protected String signatureAlg;
 
-    @Value("${storage.public_key_base64}")
-    protected String publicKeyBase64;
+    @Value("${storage.public_key_der_file}")
+    protected String publicKeyDerFilename;
 
 
     protected Processor(

@@ -71,7 +71,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
         //Given
         processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyBase64 = getXyzPublicKey64();
+        processor.publicKeyDerFilename = TEST_PUBLIC_KEY_FILE;
 
         uploadZipToBlobStore(VALID_SIGNED_ZIP_FILE_WITH_CASE_NUMBER); //Signed zip file with metadata and pdfs
         testBlobFileProcessed();
@@ -262,17 +262,12 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_not_process_again_if_blob_delete_failed() throws Exception {
         // given
+        dbContainsEnvelopeThatWasNotYetDeleted(SAMPLE_ZIP_FILE_NAME, Status.PROCESSED);
 
-        // Create envelope to simulate existing envelope with 'blob delete failed' status
-        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.PROCESSED);
-        existingEnvelope.setZipFileName(VALID_ZIP_FILE_WITH_CASE_NUMBER);
-        existingEnvelope.setContainer(testContainer.getName());
-        existingEnvelope.setZipDeleted(false);
-        existingEnvelope = envelopeRepository.save(existingEnvelope);
         // Upload blob to process. This should not be uploaded or processed.
         // It should only be deleted from storage and the envelope should be marked
         // as processed.
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         // when
         processor.processBlobs();
@@ -282,7 +277,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         verify(documentManagementService, never()).uploadDocuments(anyList());
 
         // Check blob is deleted
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         await("file should be deleted")
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
@@ -294,16 +289,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_not_delete_blob_unless_processed() throws Exception {
         // given
+        dbContainsEnvelopeThatWasNotYetDeleted(SAMPLE_ZIP_FILE_NAME, Status.UPLOADED);
 
-        // Create envelope to simulate existing envelope with 'blob delete failed' status
-        Envelope existingEnvelope = EnvelopeCreator.envelope("A", Status.UPLOADED);
-        existingEnvelope.setZipFileName(VALID_ZIP_FILE_WITH_CASE_NUMBER);
-        existingEnvelope.setContainer(testContainer.getName());
-        existingEnvelope.setZipDeleted(false);
-        existingEnvelope = envelopeRepository.save(existingEnvelope);
-        // Upload blob to process. This should not be deleted from storage
-        // as it still needs processing
-        uploadZipToBlobStore(VALID_ZIP_FILE_WITH_CASE_NUMBER); //Zip file with metadata and pdfs
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         // when
         processor.processBlobs();
@@ -313,10 +301,18 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         verify(documentManagementService, never()).uploadDocuments(anyList());
 
         // Check blob is not deleted
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(VALID_ZIP_FILE_WITH_CASE_NUMBER);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         await("file should not be deleted")
             .atMost(5, SECONDS)
             .until(blob::exists, is(true));
+    }
+
+    private void dbContainsEnvelopeThatWasNotYetDeleted(String zipFileName, Status status) throws Exception {
+        Envelope existingEnvelope = EnvelopeCreator.envelope("A", status);
+        existingEnvelope.setZipFileName(zipFileName);
+        existingEnvelope.setContainer(testContainer.getName());
+        existingEnvelope.setZipDeleted(false);
+        envelopeRepository.save(existingEnvelope);
     }
 
     @After

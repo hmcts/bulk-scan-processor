@@ -66,8 +66,6 @@ module "bulk-scan" {
   capacity                        = "${var.capacity}"
   common_tags                     = "${var.common_tags}"
   appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
-  asp_name                        = "${var.product}-${var.env}"
-  asp_rg                          = "${var.product}-${var.env}"
   instance_size                   = "${local.sku_size}"
 
   app_settings = {
@@ -99,6 +97,9 @@ module "bulk-scan" {
     SCAN_DELAY                    = "${var.scan_delay}"
     SCAN_ENABLED                  = "${var.scan_enabled}"
     STORAGE_BLOB_LEASE_TIMEOUT    = "${var.blob_lease_timeout}" // In seconds
+
+    STORAGE_BLOB_SIGNATURE_ALGORITHM = "sha256withrsa" // none or sha256withrsa
+    STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
 
     QUEUE_ENVELOPE_SEND           = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
 

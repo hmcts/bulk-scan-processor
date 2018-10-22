@@ -101,6 +101,10 @@ variable "blob_lease_timeout" {
   default = "15"
 }
 
+variable "blob_signature_verification_key_file" {
+  default = "trusted_public_key.der"
+}
+
 variable "appinsights_instrumentation_key" {
   description = "Instrumentation key of the App Insights instance this webapp should use. Module will create own App Insights resource if this is not provided"
   default     = ""

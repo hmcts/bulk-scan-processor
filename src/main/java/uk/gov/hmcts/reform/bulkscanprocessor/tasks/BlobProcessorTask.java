@@ -5,7 +5,7 @@ import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.microsoft.azure.storage.blob.LeaseStatus;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
@@ -66,11 +69,11 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper,
         String signatureAlg,
-        String publicKeyBase64
+        String publicKeyDerFilename
     ) {
         this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
         this.signatureAlg = signatureAlg;
-        this.publicKeyBase64 = publicKeyBase64;
+        this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
     /**
@@ -96,9 +99,15 @@ public class BlobProcessorTask extends Processor {
 
         ServiceBusHelper serviceBusHelper = serviceBusHelper();
 
-        for (ListBlobItem blobItem : container.listBlobs()) {
-            String zipFilename = FilenameUtils.getName(blobItem.getUri().toString());
-
+        // Randomise iteration order to minimise lease acquire contention
+        // For this purpose it's more efficient to have a collection that
+        // implements RandomAccess (e.g. ArrayList)
+        List<String> zipFilenames = new ArrayList<>();
+        container.listBlobs().forEach(
+            b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
+        );
+        Collections.shuffle(zipFilenames);
+        for (String zipFilename: zipFilenames) {
             processZipFile(container, zipFilename, serviceBusHelper);
         }
     }
@@ -158,6 +167,18 @@ public class BlobProcessorTask extends Processor {
 
     private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
         return errorWrapper.wrapAcquireLeaseFailure(containerName, zipFilename, () -> {
+            // Note: trying to lease an already leased blob throws an exception and
+            // we really do not want to fill the application logs with these. Unfortunately
+            // even with this check there is still a chance of an exception as check + lease
+            // cannot be expressed as an atomic operation (not that I can see anyway).
+            // All considered this should still be much better than not checking lease status
+            // at all.
+            cloudBlockBlob.downloadAttributes();
+            if (cloudBlockBlob.getProperties().getLeaseStatus() == LeaseStatus.LOCKED) {
+                log.debug("Lease already acquired for container {} and zip file {}",
+                    containerName, zipFilename);
+                return null;
+            }
             cloudBlockBlob.acquireLease(blobLeaseTimeout, null);
             return cloudBlockBlob;
         });
@@ -171,7 +192,7 @@ public class BlobProcessorTask extends Processor {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                new ZipVerifiers.ZipStreamWithSignature(zis, publicKeyBase64, zipFilename, containerName);
+                ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);

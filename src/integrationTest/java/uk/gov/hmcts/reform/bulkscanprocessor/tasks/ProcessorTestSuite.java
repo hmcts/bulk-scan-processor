@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.google.common.collect.ImmutableList;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -18,7 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -26,8 +24,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
@@ -41,7 +37,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected static final String SAMPLE_ZIP_FILE_NAME = "hello_24-06-2018-00-00-00.zip";
 
     protected static final String VALID_ZIP_FILE_WITH_CASE_NUMBER = "1_24-06-2018-00-00-00.zip";
-    protected static final String VALID_ZIP_FILE_WITHOUT_CASE_NUMBER = "10_24-06-2018-00-00-00.zip";
 
     protected static final String DOCUMENT_URL1 =
         "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
@@ -49,7 +44,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
     protected static final String SIGNATURE_ALGORITHM = "none";
-    protected static final String PUBLIC_KEY_BASE64 = "none";
+    protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
+    protected static final String TEST_PUBLIC_KEY_FILE = "test_public_key.der";
 
     @FunctionalInterface
     public interface Construct<T extends Processor> {
@@ -124,7 +120,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             envelopeProcessor,
             errorWrapper,
             SIGNATURE_ALGORITHM,
-            PUBLIC_KEY_BASE64
+            DEFAULT_PUBLIC_KEY_BASE64
         );
 
         processor = spy(p);
@@ -181,16 +177,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         blockBlobReference.uploadFromByteArray(fileContent, 0, fileContent.length);
     }
 
-    List<Pdf> getUploadResources() throws IOException {
-        byte[] test1PdfBytes = toByteArray(getResource("1111001.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("1111002.pdf"));
-
-        Pdf pdf1 = new Pdf("1111001.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("1111002.pdf", test2PdfBytes);
-
-        return ImmutableList.of(pdf1, pdf2);
-    }
-
     // TODO: add repo method to read single envelope by zip file name and jurisdiction.
     protected Envelope getSingleEnvelopeFromDb() {
         // We expect only one envelope which was uploaded
@@ -198,11 +184,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         assertThat(envelopes).hasSize(1);
 
         return envelopes.get(0);
-    }
-
-    protected String getXyzPublicKey64() throws IOException {
-        byte[] xyzPublicKeyBytes = toByteArray(getResource("public_key.der"));
-        return Base64.getEncoder().encodeToString(xyzPublicKeyBytes);
     }
 
 }
