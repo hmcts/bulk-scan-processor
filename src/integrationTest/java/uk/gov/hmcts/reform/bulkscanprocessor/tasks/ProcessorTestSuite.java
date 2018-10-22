@@ -43,7 +43,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     protected static final String SIGNATURE_ALGORITHM = "none";
     protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
-    protected static final String TEST_PUBLIC_KEY_FILE = "test_public_key.der";
 
     @FunctionalInterface
     public interface Construct<T extends Processor> {
