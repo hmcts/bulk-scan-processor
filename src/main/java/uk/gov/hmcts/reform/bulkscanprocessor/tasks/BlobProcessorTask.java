@@ -116,6 +116,8 @@ public class BlobProcessorTask extends Processor {
         for (String zipFilename: zipFilenames) {
             processZipFile(container, zipFilename, serviceBusHelper);
         }
+
+        serviceBusHelper.close();
     }
 
     private void processZipFile(CloudBlobContainer container, String zipFilename, ServiceBusHelper serviceBusHelper)

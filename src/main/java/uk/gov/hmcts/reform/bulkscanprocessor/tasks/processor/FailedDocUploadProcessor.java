@@ -92,6 +92,10 @@ public class FailedDocUploadProcessor extends Processor {
         for (Envelope envelope : envelopes) {
             processEnvelope(container, envelope);
         }
+
+        if (serviceBusHelper != null) {
+            serviceBusHelper.close();
+        }
     }
 
     private void processEnvelope(CloudBlobContainer container, Envelope envelope)
