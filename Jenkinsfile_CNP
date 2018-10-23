@@ -55,49 +55,51 @@ withPipeline(type, product, component) {
   //  echo sh(returnStdout: true, script: 'env')
   //}
   after('smoketest:aks') {
-    echo sh(returnStdout: true, script: 'env')
+    withAksClient('nonprod') {
+      echo sh(returnStdout: true, script: 'env')
 
-    def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
+      def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
 
-    /*
-    jsonSlurper = new JsonSlurperClassic()
-    //storageAccounts = sh(returnStdOut: true, script: "az storage account list --resource-group ${env.BRANCH_NAME}")
-    storageAccounts = az "storage account list --resource-group ${env.RESOURCE_GROUP}"
-    env.TEST_STORAGE_ACCOUNT_NAME = jsonSlurper.parseText(storageAccounts).get(0).name
+      /*
+      jsonSlurper = new JsonSlurperClassic()
+      //storageAccounts = sh(returnStdOut: true, script: "az storage account list --resource-group ${env.BRANCH_NAME}")
+      storageAccounts = az "storage account list --resource-group ${env.RESOURCE_GROUP}"
+      env.TEST_STORAGE_ACCOUNT_NAME = jsonSlurper.parseText(storageAccounts).get(0).name
 
-    //storageKeys = sh(returnStdOut: true, script: "az storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}")
-    storageKeys = az "storage account keys list -g ${env.RESOURCE_GROUP} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}"
-    env.TEST_STORAGE_ACCOUNT_KEY = jsonSlurper.parseText(storageAccounts).get(0).value
-    */
+      //storageKeys = sh(returnStdOut: true, script: "az storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}")
+      storageKeys = az "storage account keys list -g ${env.RESOURCE_GROUP} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}"
+      env.TEST_STORAGE_ACCOUNT_KEY = jsonSlurper.parseText(storageAccounts).get(0).value
+      */
 
-    //def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
-    def subscription = env.SUBSCRIPTION_NAME
-    def aksServiceName = "${product}-${component}-${env.BRANCH_NAME}".toLowerCase()
-    def storageSecret = "${aksServiceName}-storage-secret"
-    def serviceBusSecret = "${aksServiceName}-servicebus-secret"
-    def queueName = "envelopes"
+      //def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
+      def subscription = env.SUBSCRIPTION_NAME
+      def aksServiceName = "${product}-${component}-${env.BRANCH_NAME}".toLowerCase()
+      def storageSecret = "${aksServiceName}-storage-secret"
+      def serviceBusSecret = "${aksServiceName}-servicebus-secret"
+      def queueName = "envelopes"
 
-    env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}'")
-    env.TEST_STORAGE_ACCOUNT_KEY = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.accessKey}'")
+      env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}'")
+      env.TEST_STORAGE_ACCOUNT_KEY = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.accessKey}'")
 
-    def serviceBusConnectionStrBase64 = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.connectionString}'")
-    def serviceBusConnectionStr = new String(serviceBusConnectionStrBase64.decodeBase64())
-    def m = serviceBusConnectionStr =~ /Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*/
-    def serviceBusNamespace = m[0][1]
+      def serviceBusConnectionStrBase64 = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.connectionString}'")
+      def serviceBusConnectionStr = new String(serviceBusConnectionStrBase64.decodeBase64())
+      def m = serviceBusConnectionStr =~ /Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*/
+      def serviceBusNamespace = m[0][1]
 
-    // create queue
-    az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
+      // create queue
+      az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
 
-    // create shared access keys
-    az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --rights Send"
-    az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name ListenSharedAccessKey --rights Listen"
+      // create shared access keys
+      az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --rights Send"
+      az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name ListenSharedAccessKey --rights Listen"
 
-    // get connection string for send access key
-    env.QUEUE_ENVELOPE_SEND = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
+      // get connection string for send access key
+      env.QUEUE_ENVELOPE_SEND = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
 
-    echo sh(returnStdout: true, script: 'env')
+      echo sh(returnStdout: true, script: 'env')
+    }
   }
-
+  
   after('test') {
     builder.gradle('integration')
   }
