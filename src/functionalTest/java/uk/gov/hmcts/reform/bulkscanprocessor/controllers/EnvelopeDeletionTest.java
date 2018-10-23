@@ -75,10 +75,15 @@ public class EnvelopeDeletionTest {
 
     @Test
     public void should_keep_zip_file_after_failed_processing() throws Exception {
-        String srcZipFilename = "2_24-06-2018-00-00-00.test.zip";
-        String destZipFilename = testHelper.getRandomFilename(srcZipFilename.substring(2));
+        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
-        testHelper.uploadZipFile(testContainer, srcZipFilename, destZipFilename); // invalid due to missing json file
+        testHelper.uploadZipFile(
+            testContainer,
+            Arrays.asList("1111006.pdf"),
+            null, // missing metadata file
+            destZipFilename
+        );
+
         filesToDeleteAfterTest.add(destZipFilename);
 
         await("file should not be deleted")
