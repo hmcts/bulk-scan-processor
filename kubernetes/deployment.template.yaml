@@ -166,7 +166,7 @@ spec:
   #
   parameters:
     location: uksouth
-    resourceGroup: ${NAMESPACE}
+    resourceGroup: bulk-scan-aks-rg
 ---
 #
 # The binding.  This will return the secret with connection details, etc.
@@ -212,7 +212,7 @@ spec:
   #
   parameters:
     location: uksouth
-    resourceGroup: ${NAMESPACE}
+    resourceGroup: bulk-scan-aks-rg
 ---
 #
 # The binding.  This will return the secret with connection details, etc.
