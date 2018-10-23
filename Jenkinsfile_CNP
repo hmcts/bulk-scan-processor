@@ -77,10 +77,10 @@ withPipeline(type, product, component) {
     def serviceBusSecret = ${aksServiceName}-servicebus-secret
     def queueName = "envelopes"
 
-    env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}")
-    env.TEST_STORAGE_ACCOUNT_KEY = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.accessKey}")
+    env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}'")
+    env.TEST_STORAGE_ACCOUNT_KEY = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.accessKey}'")
 
-    def serviceBusConnectionStrBase64 = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.connectionString}")
+    def serviceBusConnectionStrBase64 = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.connectionString}'")
     def serviceBusConnectionStr = new String(serviceBusConnectionStrBase64.decodeBase64())
     def m = serviceBusConnectionStr =~ /Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*/
     def serviceBusNamespace = m[0][1]
