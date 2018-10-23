@@ -7,5 +7,17 @@
             <HTTP enabled="true"/>
             <JDBC enabled="true"/>
         </BuiltIn>
+
+        <Class name="com.microsoft.azure.servicebus.QueueClient">
+            <Method name="send"/>
+        </Class>
+        <Class name="com.microsoft.azure.storage.blob.CloudBlobClient">
+            <Method name="listContainers" signature="()Ljava/lang/Iterable;"/>
+        </Class>
+        <Class name="com.microsoft.azure.storage.blob.CloudBlob">
+            <Method name="acquireLease"
+                    signature="(Ljava/lang/Integer;Ljava/lang/String;)Ljava/lang/String;"/>
+            <Method name="deleteIfExists" signature="()Z"/>
+        </Class>
     </Instrumentation>
 </ApplicationInsightsAgent>
