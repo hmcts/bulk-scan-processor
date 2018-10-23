@@ -1,6 +1,6 @@
 #!groovy
 
-@Library("Infrastructure")
+@Library("Infrastructure@with-aks-client")
 import uk.gov.hmcts.contino.GradleBuilder
 
 //import uk.gov.hmcts.contino.DockerImage
