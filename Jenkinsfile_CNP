@@ -73,8 +73,8 @@ withPipeline(type, product, component) {
     //def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
     def subscription = env.SUBSCRIPTION_NAME
     def aksServiceName = "${product}-${component}-${env.BRANCH_NAME}".toLowerCase()
-    def storageSecret = ${aksServiceName}-storage-secret
-    def serviceBusSecret = ${aksServiceName}-servicebus-secret
+    def storageSecret = "${aksServiceName}-storage-secret"
+    def serviceBusSecret = "${aksServiceName}-servicebus-secret"
     def queueName = "envelopes"
 
     env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}'")
