@@ -119,12 +119,6 @@ public class ServiceBusHelperTest {
         assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
         assertDateField(jsonNode, "opening_date", message.getOpeningDate());
 
-        JsonNode docUrls = jsonNode.get("doc_urls");
-        assertThat(docUrls.isArray()).isTrue();
-        assertThat(docUrls.size()).isEqualTo(2);
-        assertThat(docUrls.get(0).asText()).isEqualTo(scannableItem1.getDocumentUrl());
-        assertThat(docUrls.get(1).asText()).isEqualTo(scannableItem2.getDocumentUrl());
-
         JsonNode docs = jsonNode.get("documents");
         assertThat(docs.isArray()).isTrue();
         assertThat(docs.size()).isEqualTo(2);
