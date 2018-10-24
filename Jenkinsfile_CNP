@@ -91,9 +91,8 @@ withPipeline(type, product, component) {
       //env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}'")
       //env.TEST_STORAGE_ACCOUNT_KEY = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.accessKey}'")
 
-      def serviceBusConnectionStrBase64 = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
-      echo "SBC: ${serviceBusConnectionStrBase64}"
-      def serviceBusConnectionStr = new String(serviceBusConnectionStrBase64.decodeBase64())
+      def serviceBusConnectionStr = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
+      echo "SBC: ${serviceBusConnectionStr}"
       def m = serviceBusConnectionStr =~ /Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*/
       def serviceBusNamespace = m[0][1]
       echo "SBNS: ${serviceBusNamespace}"
