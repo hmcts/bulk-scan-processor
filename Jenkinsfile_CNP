@@ -98,11 +98,18 @@ withPipeline(type, product, component) {
       echo "SBNS: ${serviceBusNamespace}"
 
       // create queue
-      az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
-
+      def queues = az "servicebus queue list ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
+      if (!queues.contains(queueName)) {
+        az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
+      }
       // create shared access keys
-      az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --rights Send"
-      az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name ListenSharedAccessKey --rights Listen"
+      def queueRules = az "servicebus queue authorization-rule list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --query '[].name'"
+      if (!queueRules.contains("SendSharedAccessKey")) {
+        az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --rights Send"
+      }
+      if (!queueRules.contains("ListenSharedAccessKey")) {
+        az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name ListenSharedAccessKey --rights Listen"
+      }
 
       // get connection string for send access key
       env.QUEUE_ENVELOPE_SEND = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
