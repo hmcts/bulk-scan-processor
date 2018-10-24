@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.helpers;
+package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import java.security.KeyFactory;
 import java.security.Signature;
