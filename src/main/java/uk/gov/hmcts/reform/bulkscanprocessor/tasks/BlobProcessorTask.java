@@ -118,7 +118,9 @@ public class BlobProcessorTask extends Processor {
                 processZipFile(container, zipFilename, serviceBusHelper);
             }
         } finally {
-            serviceBusHelper.close();
+            if (serviceBusHelper != null) {
+                serviceBusHelper.close();
+            }
         }
     }
 
