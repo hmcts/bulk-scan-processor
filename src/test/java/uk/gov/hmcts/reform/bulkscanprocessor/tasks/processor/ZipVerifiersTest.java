@@ -121,4 +121,13 @@ public class ZipVerifiersTest {
         assertThat(ZipVerifiers.verifySignature(xyzPublicKeyBase64, zipBytes, signature)).isFalse();
     }
 
+    @Test
+    public void should_handle_sample_prod_signature() throws Exception {
+        byte[] prodZip = toByteArray(getResource("signature/prod_test_envelope.zip")); // inner zip
+        byte[] prodSignature = toByteArray(getResource("signature/prod_test_signature"));
+        String prodPublicKey =
+            Base64.getEncoder().encodeToString(toByteArray(getResource("signature/prod_public_key.der")));
+
+        assertThat(ZipVerifiers.verifySignature(prodPublicKey, prodZip, prodSignature)).isTrue();
+    }
 }
