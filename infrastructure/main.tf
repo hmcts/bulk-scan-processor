@@ -40,6 +40,9 @@ locals {
   #endregion
 
   sku_size = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
+
+  storage_account_name = "${data.terraform_remote_state.shared_infra.storage_account_name}"
+  storage_account_primary_key = "${data.terraform_remote_state.shared_infra.storage_account_primary_key}"
 }
 
 module "bulk-scan-db" {
@@ -82,8 +85,8 @@ module "bulk-scan" {
     FLYWAY_USER                   = "${module.bulk-scan-db.user_name}"
     FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
 
-    STORAGE_ACCOUNT_NAME = "${azurerm_storage_account.provider.name}"
-    STORAGE_KEY          = "${azurerm_storage_account.provider.primary_access_key}"
+    STORAGE_ACCOUNT_NAME = "${local.storage_account_name}"
+    STORAGE_KEY          = "${local.storage_account_primary_key}"
     SAS_TOKEN_VALIDITY   = "${var.token_validity}"
 
     DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"
@@ -109,35 +112,6 @@ module "bulk-scan" {
     LOGBACK_REQUIRE_ALERT_LEVEL = false
     LOGBACK_REQUIRE_ERROR_CODE  = false
   }
-}
-
-resource "azurerm_storage_account" "provider" {
-  name                      = "${local.account_name}"
-  resource_group_name       = "${module.bulk-scan.resource_group_name}"
-  location                  = "${var.location}"
-  account_tier              = "Standard"
-  account_replication_type  = "LRS"
-  account_kind              = "BlobStorage"
-  enable_https_traffic_only = true
-}
-
-resource "azurerm_storage_container" "sscs" {
-  name                  = "sscs"
-  resource_group_name   = "${module.bulk-scan.resource_group_name}"
-  storage_account_name  = "${azurerm_storage_account.provider.name}"
-  container_access_type = "private"
-
-  depends_on = ["azurerm_storage_account.provider"]
-}
-
-# container used by end-to-end tests
-resource "azurerm_storage_container" "test" {
-  name                  = "test"
-  resource_group_name   = "${module.bulk-scan.resource_group_name}"
-  storage_account_name  = "${azurerm_storage_account.provider.name}"
-  container_access_type = "private"
-
-  depends_on = ["azurerm_storage_account.provider"]
 }
 
 data "azurerm_key_vault" "key_vault" {

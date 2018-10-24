@@ -1,6 +1,6 @@
 resource "azurerm_key_vault_secret" "test_storage_account_key" {
   name = "test-storage-account-key"
-  value = "${azurerm_storage_account.provider.primary_access_key}"
+  value = "${local.storage_account_primary_key}"
   vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
