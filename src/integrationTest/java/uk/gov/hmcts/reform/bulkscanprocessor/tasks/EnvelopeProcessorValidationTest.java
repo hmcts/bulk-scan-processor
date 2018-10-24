@@ -15,7 +15,7 @@ import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
 /**
  * This is unit test. Falls under integration to make use of existing zip file resources.
