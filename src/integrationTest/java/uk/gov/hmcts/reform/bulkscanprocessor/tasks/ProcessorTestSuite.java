@@ -155,10 +155,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         dockerComposeContainer.stop();
     }
 
-    protected void uploadZipToBlobStore(String zipFileName) throws Exception {
-        uploadToBlobStorage(zipFileName, toByteArray(getResource(zipFileName)));
-    }
-
     public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {
         CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
 
