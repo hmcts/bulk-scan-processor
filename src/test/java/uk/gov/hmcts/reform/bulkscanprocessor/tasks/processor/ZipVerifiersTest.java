@@ -79,7 +79,7 @@ public class ZipVerifiersTest {
 
     @Test
     public void should_verify_valid_zip_successfully() throws Exception {
-        byte[] zipBytes = zipAndSignDir("signature/ok", "signature/test_private_key.der");
+        byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
 
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64, "hello.zip", "some_container"
@@ -90,7 +90,7 @@ public class ZipVerifiersTest {
 
     @Test(expected = DocSignatureFailureException.class)
     public void should_not_verify_invalid_zip_successfully() throws Exception {
-        byte[] zipBytes = zipAndSignDir("signature/ok", "signature/some_other_private_key.der");
+        byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64, "hello.zip", "x"
         );
@@ -99,7 +99,7 @@ public class ZipVerifiersTest {
 
     @Test
     public void should_verify_valid_test_zip_successfully() throws Exception {
-        byte[] zipBytes = zipDir("signature/ok");
+        byte[] zipBytes = zipDir("signature/sample_valid_content");
         byte[] signature = signWithSha256Rsa(
             zipBytes,
             toByteArray(getResource("signature/test_private_key.der"))
@@ -109,14 +109,14 @@ public class ZipVerifiersTest {
 
     @Test
     public void should_not_verify_invalid_signature_successfully() throws Exception {
-        byte[] zipBytes = zipDir("signature/ok");
+        byte[] zipBytes = zipDir("signature/sample_valid_content");
         byte[] otherSignature = toByteArray(getResource("signature/signature"));
         assertThat(ZipVerifiers.verifySignature(xyzPublicKeyBase64, zipBytes, otherSignature)).isFalse();
     }
 
     @Test
     public void should_not_verify_valid_zip_with_wrong_public_key_successfully() throws Exception {
-        byte[] zipBytes = zipDir("signature/ok");
+        byte[] zipBytes = zipDir("signature/sample_valid_content");
         byte[] signature = signWithSha256Rsa(zipBytes, toByteArray(getResource("signature/test_private_key.der")));
         assertThat(ZipVerifiers.verifySignature(xyzPublicKeyBase64, zipBytes, signature)).isFalse();
     }
