@@ -98,7 +98,7 @@ withPipeline(type, product, component) {
       echo "SBNS: ${serviceBusNamespace}"
 
       // create queue
-      def queues = az "servicebus queue list ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
+      def queues = az "servicebus queue list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
       if (!queues.contains(queueName)) {
         az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
       }
