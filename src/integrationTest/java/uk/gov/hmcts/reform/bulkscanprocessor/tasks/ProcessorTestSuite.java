@@ -26,8 +26,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import java.io.File;
 import java.util.List;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -153,10 +151,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @AfterClass
     public static void tearDownContainer() {
         dockerComposeContainer.stop();
-    }
-
-    protected void uploadZipToBlobStore(String zipFileName) throws Exception {
-        uploadToBlobStorage(zipFileName, toByteArray(getResource(zipFileName)));
     }
 
     public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {
