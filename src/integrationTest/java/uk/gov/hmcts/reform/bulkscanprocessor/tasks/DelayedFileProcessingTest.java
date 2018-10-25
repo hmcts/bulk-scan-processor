@@ -23,18 +23,21 @@ public class DelayedFileProcessingTest extends ProcessorTestSuite<BlobProcessorT
     public void should_not_process_file_if_delay_is_greater_than_zero() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
+        processor.blobProcessingDelayInMinutes = 5;
 
         // when
-        processor.blobProcessingDelayInMinutes = 5;
         processor.processBlobs();
 
         // then
         assertThat(envelopeRepository.findAll()).hasSize(0); // file not processed -> no envelopes created
 
-        // when
+        // but given
         processor.blobProcessingDelayInMinutes = 0;
+
+        // when
         processor.processBlobs();
 
+        // then
         assertThat(envelopeRepository.findAll()).hasSize(1); // file processed -> envelope created
     }
 
