@@ -101,6 +101,10 @@ variable "blob_lease_timeout" {
   default = "15"
 }
 
+variable "blob_processing_delay_in_minutes" {
+  default = "0"
+}
+
 variable "blob_signature_verification_key_file" {
   default = "trusted_public_key.der"
 }
