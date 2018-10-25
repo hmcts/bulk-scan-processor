@@ -10,3 +10,5 @@ data:
   TEST_SCAN_DELAY: "4000"
   DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
   SCAN_ENABLED: "true"
+  STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
+  STORAGE_BLOB_PUBLIC_KEY: "test_public_key.der"
