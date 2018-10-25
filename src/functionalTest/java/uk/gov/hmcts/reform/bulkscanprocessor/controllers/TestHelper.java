@@ -65,14 +65,6 @@ public class TestHelper {
     }
 
     public void uploadZipFile(
-        CloudBlobContainer container, String srcZipFilename, String destZipFilename
-    ) throws Exception {
-        byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
-        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-    }
-
-    public void uploadZipFile(
         CloudBlobContainer container,
         List<String> files,
         String metadataFile,
@@ -85,9 +77,13 @@ public class TestHelper {
     }
 
     public CloudBlockBlob uploadAndLeaseZipFile(
-        CloudBlobContainer container, String srcZipFilename, String destZipFilename
+        CloudBlobContainer container,
+        List<String> files,
+        String metadataFile,
+        String destZipFilename
     ) throws Exception {
-        byte[] zipFile = Resources.toByteArray(Resources.getResource(srcZipFilename));
+        byte[] zipFile =
+            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
         blockBlobReference.acquireLease();
@@ -142,12 +138,15 @@ public class TestHelper {
                 zos.write(Resources.toByteArray(Resources.getResource(file)));
                 zos.closeEntry();
             }
-            String metadataTemplate =
-                Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
-            String metadata = metadataTemplate.replace("$$zip_file_name$$", zipFilename);
-            zos.putNextEntry(new ZipEntry("metadata.json"));
-            zos.write(metadata.getBytes());
-            zos.closeEntry();
+
+            if (metadataFile != null) {
+                String metadataTemplate =
+                    Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
+                String metadata = metadataTemplate.replace("$$zip_file_name$$", zipFilename);
+                zos.putNextEntry(new ZipEntry("metadata.json"));
+                zos.write(metadata.getBytes());
+                zos.closeEntry();
+            }
         }
         return outputStream.toByteArray();
     }

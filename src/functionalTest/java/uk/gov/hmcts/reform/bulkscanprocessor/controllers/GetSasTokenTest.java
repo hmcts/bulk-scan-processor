@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class GetSasTokenTest {
 
     private String destZipFilename;
 
-    private static final String zipFilename = "2_24-06-2018-00-00-00.test.zip";
+    private static final String zipFilename = "24-06-2018-00-00-00.test.zip";
 
     @Before
     public void setUp() {
@@ -114,7 +115,15 @@ public class GetSasTokenTest {
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
+        testHelper.uploadAndLeaseZipFile(
+            testSasContainer,
+            Arrays.asList(
+                "1111006.pdf"
+            ),
+            "1111006.metadata.json",
+            destZipFilename
+        );
+
         assertThat(testHelper.storageHasFile(testSasContainer, destZipFilename)).isTrue();
     }
 
@@ -125,7 +134,14 @@ public class GetSasTokenTest {
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadAndLeaseZipFile(testSasContainer, zipFilename, destZipFilename);
+        testHelper.uploadAndLeaseZipFile(
+            testSasContainer,
+            Arrays.asList(
+                "1111006.pdf"
+            ),
+            "1111006.metadata.json",
+            destZipFilename
+        );
     }
 
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
 import java.time.Instant;
 import java.util.List;
@@ -38,10 +37,6 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("zip_file_name")
     private String zipFileName;
 
-    // TODO: remove, after no longer used by orchestrator
-    @JsonProperty("doc_urls")
-    private List<String> documentUrls;
-
     @JsonProperty("documents")
     private List<Document> documents;
 
@@ -57,10 +52,6 @@ public class EnvelopeMsg implements Msg {
         this.openingDate = envelope.getOpeningDate().toInstant();
         this.zipFileName = envelope.getZipFileName();
         this.testOnly = envelope.isTestOnly();
-        this.documentUrls = envelope.getScannableItems()
-            .stream()
-            .map(ScannableItem::getDocumentUrl)
-            .collect(Collectors.toList());
         this.documents = envelope
             .getScannableItems()
             .stream()
@@ -88,10 +79,6 @@ public class EnvelopeMsg implements Msg {
 
     public String getJurisdiction() {
         return jurisdiction;
-    }
-
-    public List<String> getDocumentUrls() {
-        return documentUrls;
     }
 
     public Instant getDeliveryDate() {

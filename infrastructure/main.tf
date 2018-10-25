@@ -67,6 +67,8 @@ module "bulk-scan" {
   common_tags                     = "${var.common_tags}"
   appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
   instance_size                   = "${local.sku_size}"
+  asp_name                        = "${var.product}-${var.env}"
+  asp_rg                          = "${var.product}-${var.env}"
 
   app_settings = {
     // db
@@ -97,6 +99,7 @@ module "bulk-scan" {
     SCAN_DELAY                    = "${var.scan_delay}"
     SCAN_ENABLED                  = "${var.scan_enabled}"
     STORAGE_BLOB_LEASE_TIMEOUT    = "${var.blob_lease_timeout}" // In seconds
+    STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES = "${var.blob_processing_delay_in_minutes}"
 
     STORAGE_BLOB_SIGNATURE_ALGORITHM = "sha256withrsa" // none or sha256withrsa
     STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"

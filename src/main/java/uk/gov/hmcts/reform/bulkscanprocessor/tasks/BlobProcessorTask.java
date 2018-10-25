@@ -25,6 +25,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +53,9 @@ public class BlobProcessorTask extends Processor {
 
     @Value("${storage.blob_lease_timeout}")
     private Integer blobLeaseTimeout;
+
+    @Value("${storage.blob_processing_delay_in_minutes}")
+    protected int blobProcessingDelayInMinutes = 0;
 
     @Autowired
     public BlobProcessorTask(
@@ -115,9 +121,15 @@ public class BlobProcessorTask extends Processor {
     private void processZipFile(CloudBlobContainer container, String zipFilename, ServiceBusHelper serviceBusHelper)
         throws IOException, StorageException, URISyntaxException {
 
+        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
+        cloudBlockBlob.downloadAttributes();
+
+        if (!isReadyToBeProcessed(cloudBlockBlob)) {
+            return;
+        }
+
         log.info("Processing zip file {}", zipFilename);
 
-        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
         Envelope existingEnvelope =
             envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
         if (existingEnvelope != null) {
@@ -173,7 +185,6 @@ public class BlobProcessorTask extends Processor {
             // cannot be expressed as an atomic operation (not that I can see anyway).
             // All considered this should still be much better than not checking lease status
             // at all.
-            cloudBlockBlob.downloadAttributes();
             if (cloudBlockBlob.getProperties().getLeaseStatus() == LeaseStatus.LOCKED) {
                 log.debug("Lease already acquired for container {} and zip file {}",
                     containerName, zipFilename);
@@ -205,5 +216,10 @@ public class BlobProcessorTask extends Processor {
 
             return zipFileProcessor;
         });
+    }
+
+    private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
+        java.util.Date cutoff = Date.from(Instant.now().minus(this.blobProcessingDelayInMinutes, ChronoUnit.MINUTES));
+        return blob.getProperties().getLastModified().before(cutoff);
     }
 }

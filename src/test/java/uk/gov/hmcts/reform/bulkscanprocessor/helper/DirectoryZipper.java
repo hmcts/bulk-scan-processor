@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.helpers;
+package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.google.common.io.Files;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
@@ -15,7 +15,7 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.bulkscanprocessor.helpers.SigningHelper.signWithSha256Rsa;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helper.SigningHelper.signWithSha256Rsa;
 
 public final class DirectoryZipper {
 
