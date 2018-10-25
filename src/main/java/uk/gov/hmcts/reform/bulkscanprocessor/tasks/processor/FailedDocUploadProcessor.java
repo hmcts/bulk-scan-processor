@@ -87,10 +87,16 @@ public class FailedDocUploadProcessor extends Processor {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
-        CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
+        try {
+            CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
 
-        for (Envelope envelope : envelopes) {
-            processEnvelope(container, envelope);
+            for (Envelope envelope : envelopes) {
+                processEnvelope(container, envelope);
+            }
+        } finally {
+            if (serviceBusHelper != null) {
+                serviceBusHelper.close();
+            }
         }
     }
 
