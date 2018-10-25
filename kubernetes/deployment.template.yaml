@@ -145,7 +145,7 @@ spec:
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: ${SERVICE_NAME}-servicebus-instance
+  name: ${SERVICE_NAME}-servicebus-instance-1
   namespace: ${NAMESPACE}
 spec:
   #
@@ -174,11 +174,11 @@ spec:
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
-  name: ${SERVICE_NAME}-servicebus-binding
+  name: ${SERVICE_NAME}-servicebus-binding-1
   namespace: ${NAMESPACE}
 spec:
   instanceRef:
-    name: ${SERVICE_NAME}-servicebus-instance
+    name: ${SERVICE_NAME}-servicebus-instance-1
   #
   # This is the secret used above in your pod environment config
   #
@@ -191,7 +191,7 @@ spec:
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: ${SERVICE_NAME}-storage-instance
+  name: ${SERVICE_NAME}-storage-instance-1
   namespace: ${NAMESPACE}
 spec:
   #
@@ -220,11 +220,11 @@ spec:
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
-  name: ${SERVICE_NAME}-storage-binding
+  name: ${SERVICE_NAME}-storage-binding-1
   namespace: ${NAMESPACE}
 spec:
   instanceRef:
-    name: ${SERVICE_NAME}-storage-instance
+    name: ${SERVICE_NAME}-storage-instance-1
   #
   # This is the secret used above in your pod environment config
   #
