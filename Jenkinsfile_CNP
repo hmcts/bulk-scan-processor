@@ -90,6 +90,13 @@ withPipeline(type, product, component) {
       echo "SAK: ${env.TEST_STORAGE_ACCOUNT_KEY}"
       //env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}'")
       //env.TEST_STORAGE_ACCOUNT_KEY = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.accessKey}'")
+      def containers = az "storage container list --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --query '[].name'"
+      if (!containers.contains("test")) {
+        az "storage container create --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --name test"
+      }
+      if (!containers.contains("sscs")) {
+        az "storage container create --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --name sscs"
+      }
 
       def serviceBusConnectionStr = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
       echo "SBC: ${serviceBusConnectionStr}"
