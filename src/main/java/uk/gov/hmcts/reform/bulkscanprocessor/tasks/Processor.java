@@ -1,17 +1,16 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.springframework.beans.factory.annotation.Value;
+import com.microsoft.azure.storage.blob.BlockBlobURL;
+import com.microsoft.rest.v2.Context;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
 
 import java.util.List;
 
@@ -21,28 +20,28 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
 public abstract class Processor {
 
-    protected final CloudBlobClient cloudBlobClient;
+    protected final AzureStorageHelper azureStorageHelper;
     private final DocumentProcessor documentProcessor;
     protected final EnvelopeProcessor envelopeProcessor;
     protected final ErrorHandlingWrapper errorWrapper;
-
-    @Value("${storage.signature_algorithm}")
     protected String signatureAlg;
-
-    @Value("${storage.public_key_der_file}")
     protected String publicKeyDerFilename;
 
 
     protected Processor(
-        CloudBlobClient cloudBlobClient,
+        AzureStorageHelper azureStorageHelper,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
-        ErrorHandlingWrapper errorWrapper
+        ErrorHandlingWrapper errorWrapper,
+        String signatureAlg,
+        String publicKeyDerFilename
     ) {
-        this.cloudBlobClient = cloudBlobClient;
+        this.azureStorageHelper = azureStorageHelper;
         this.documentProcessor = documentProcessor;
         this.envelopeProcessor = envelopeProcessor;
         this.errorWrapper = errorWrapper;
+        this.signatureAlg = signatureAlg;
+        this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
     protected abstract ServiceBusHelper serviceBusHelper();
@@ -50,7 +49,7 @@ public abstract class Processor {
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs,
-        CloudBlockBlob cloudBlockBlob,
+        BlockBlobURL blockBlobURL,
         ServiceBusHelper serviceBusHelper
     ) {
         if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
@@ -66,7 +65,7 @@ public abstract class Processor {
             return;
         }
         markAsNotified(envelope);
-        deleteBlob(envelope, cloudBlockBlob);
+        deleteBlob(envelope, blockBlobURL);
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
@@ -81,15 +80,15 @@ public abstract class Processor {
 
     private Boolean deleteBlob(
         Envelope envelope,
-        CloudBlockBlob cloudBlockBlob
+        BlockBlobURL blockBlobURL
     ) {
         return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
-            cloudBlockBlob.breakLease(0);
-            boolean deleted = cloudBlockBlob.deleteIfExists();
-            if (!deleted) {
-                throw new BlobDeleteFailureException(envelope);
-            }
+
+            blockBlobURL.breakLease(0, null, Context.NONE)
+                .flatMap(res -> blockBlobURL.delete(null, null, Context.NONE))
+                .blockingGet();
+
             envelope.setZipDeleted(true);
             envelopeProcessor.saveEnvelope(envelope);
             return Boolean.TRUE;

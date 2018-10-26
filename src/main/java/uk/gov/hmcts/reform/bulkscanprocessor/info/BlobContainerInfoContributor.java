@@ -1,30 +1,30 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.info;
 
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info.Builder;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
 
 @Component
 public class BlobContainerInfoContributor implements InfoContributor {
 
-    private final CloudBlobClient client;
+    private final AzureStorageHelper client;
 
-    public BlobContainerInfoContributor(CloudBlobClient client) {
+    @Autowired
+    public BlobContainerInfoContributor(AzureStorageHelper client) {
         this.client = client;
     }
 
     @Override
     public void contribute(Builder builder) {
+        // The asynchronous requests require we use recursion to continue our listing.
         builder.withDetail(
-            "containers",
-            StreamSupport.stream(client.listContainers().spliterator(), false)
-                .map(CloudBlobContainer::getName)
-                .collect(Collectors.toList())
+            "containers", client
+                .listContainers()
+                .blockingGet()
+                .body()
+                .containerItems()
         );
     }
 }

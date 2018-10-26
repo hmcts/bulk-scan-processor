@@ -43,6 +43,7 @@ info:
 storage:
   account_name: ${STORAGE_ACCOUNT_NAME:bulkscanning}
   key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
+  endpoint: blob.core.windows.net
   blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
   blob_processing_delay_in_minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES:0}
   signature_algorithm: ${STORAGE_BLOB_SIGNATURE_ALGORITHM:none}  # none or sha256withrsa

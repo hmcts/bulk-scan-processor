@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper;
 
-import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.models.StorageErrorException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ErrorHandler;
@@ -70,8 +70,8 @@ public class ErrorHandlingWrapper {
     ) {
         try {
             return supplier.get();
-        } catch (StorageException storageException) {
-            if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
+        } catch (StorageErrorException storageException) {
+            if (storageException.response().statusCode() == HttpStatus.CONFLICT.value()) {
                 errorHandler.handleError(
                     new LeaseAlreadyPresentException(
                         "Lease already acquired for container " + containerName + " and zip file " + zipFileName,

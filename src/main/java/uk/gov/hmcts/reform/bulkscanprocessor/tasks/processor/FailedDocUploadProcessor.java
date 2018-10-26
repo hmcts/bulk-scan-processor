@@ -1,14 +1,15 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.BlobInputStream;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.azure.storage.blob.BlobAccessConditions;
+import com.microsoft.azure.storage.blob.BlockBlobURL;
+import com.microsoft.azure.storage.blob.ContainerURL;
+import com.microsoft.azure.storage.blob.models.BlobGetPropertiesResponse;
+import com.microsoft.rest.v2.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -17,9 +18,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
@@ -36,28 +38,15 @@ public class FailedDocUploadProcessor extends Processor {
 
     @Autowired
     public FailedDocUploadProcessor(
-        CloudBlobClient cloudBlobClient,
-        DocumentProcessor documentProcessor,
-        EnvelopeProcessor envelopeProcessor,
-        ErrorHandlingWrapper errorWrapper
-    ) {
-        super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-        this.serviceBusHelper = serviceBusHelper();
-    }
-
-    // NOTE: this is needed for testing as children of this class are instantiated
-    // using "new" in tests despite being spring beans (sigh!)
-    public FailedDocUploadProcessor(
-        CloudBlobClient cloudBlobClient,
+        AzureStorageHelper azureStorageHelper,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper,
-        String signatureAlg,
-        String publicKeyDerFilename
+        @Value("${storage.signature_algorithm}") String signatureAlg,
+        @Value("${storage.public_key_der_file}") String publicKeyDerFilename
     ) {
-        this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-        this.signatureAlg = signatureAlg;
-        this.publicKeyDerFilename = publicKeyDerFilename;
+        super(azureStorageHelper, documentProcessor, envelopeProcessor, errorWrapper, signatureAlg, publicKeyDerFilename);
+        this.serviceBusHelper = serviceBusHelper();
     }
 
     /**
@@ -70,8 +59,7 @@ public class FailedDocUploadProcessor extends Processor {
         return null;
     }
 
-    public void processJurisdiction(String jurisdiction)
-        throws IOException, StorageException, URISyntaxException {
+    public void processJurisdiction(String jurisdiction) throws IOException {
 
         List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
@@ -83,15 +71,16 @@ public class FailedDocUploadProcessor extends Processor {
     }
 
     private void processEnvelopes(String containerName, List<Envelope> envelopes)
-        throws IOException, StorageException, URISyntaxException {
+        throws IOException {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
         try {
-            CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
+            ContainerURL container = azureStorageHelper.getClient()
+                .createContainerURL(containerName);
 
             for (Envelope envelope : envelopes) {
-                processEnvelope(container, envelope);
+                processEnvelope(containerName, container, envelope);
             }
         } finally {
             if (serviceBusHelper != null) {
@@ -100,24 +89,35 @@ public class FailedDocUploadProcessor extends Processor {
         }
     }
 
-    private void processEnvelope(CloudBlobContainer container, Envelope envelope)
-        throws IOException, StorageException, URISyntaxException {
+    private void processEnvelope(String containerName, ContainerURL container, Envelope envelope)
+        throws IOException {
 
-        log.info("Processing zip file {}", envelope.getZipFileName());
+        String zipFileName = envelope.getZipFileName();
+        log.info("Processing zip file {}", zipFileName);
 
-        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
-        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
+        BlockBlobURL blockBlobURL = container.createBlockBlobURL(zipFileName);
 
-        try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            ZipFileProcessor zipFileProcessor = processZipInputStream(zis, envelope);
+        BlobGetPropertiesResponse properties = blockBlobURL
+            .getProperties(new BlobAccessConditions(), Context.NONE)
+            .blockingGet();
 
-            if (zipFileProcessor != null) {
-                processParsedEnvelopeDocuments(
-                    envelope,
-                    zipFileProcessor.getPdfs(),
-                    cloudBlockBlob,
-                    serviceBusHelper
-                );
+        boolean leaseAvailable = azureStorageHelper
+            .checkLeaseAvailable(containerName, zipFileName, properties.headers().leaseState());
+
+        if (leaseAvailable) {
+            byte[] blob = azureStorageHelper.downloadBlob(blockBlobURL).blockingGet().array();
+
+            try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(blob))) {
+                ZipFileProcessor zipFileProcessor = processZipInputStream(zis, envelope);
+
+                if (zipFileProcessor != null) {
+                    processParsedEnvelopeDocuments(
+                        envelope,
+                        zipFileProcessor.getPdfs(),
+                        blockBlobURL,
+                        serviceBusHelper
+                    );
+                }
             }
         }
     }

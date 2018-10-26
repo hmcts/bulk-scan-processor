@@ -1,11 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentials;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.core.PathUtility;
+import com.microsoft.azure.storage.blob.StorageException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
