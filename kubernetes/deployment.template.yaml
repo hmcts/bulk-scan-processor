@@ -42,6 +42,8 @@ data:
   LOGBACK_REQUIRE_ALERT_LEVEL: "false"
   LOGBACK_REQUIRE_ERROR_CODE: "false"
   S2S_NAME: "bulk_scan_processor"
+  STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
+  STORAGE_BLOB_PUBLIC_KEY: "test_public_key.der"
 ---
 #
 # Postgres Config
