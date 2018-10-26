@@ -14,3 +14,9 @@ resource "azurerm_key_vault_secret" "test_s2s_secret" {
   value     = "${data.azurerm_key_vault_secret.source_test_s2s_secret.value}"
   vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
+
+resource "azurerm_key_vault_secret" "s2s_secret" {
+  name      = "s2s-secret"
+  value     = "${data.azurerm_key_vault_secret.s2s_secret.value}"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
