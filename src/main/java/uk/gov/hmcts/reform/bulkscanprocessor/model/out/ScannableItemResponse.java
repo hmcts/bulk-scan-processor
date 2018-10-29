@@ -12,39 +12,39 @@ import java.sql.Timestamp;
 public class ScannableItemResponse {
 
     @JsonProperty("document_control_number")
-    private String documentControlNumber;
+    private final String documentControlNumber;
 
     @JsonProperty("scanning_date")
     @JsonSerialize(using = CustomTimestampSerialiser.class)
-    private Timestamp scanningDate;
+    private final Timestamp scanningDate;
 
     @JsonProperty("ocr_accuracy")
-    private String ocrAccuracy;
+    private final String ocrAccuracy;
 
     @JsonProperty("manual_intervention")
-    private String manualIntervention;
+    private final String manualIntervention;
 
     @JsonProperty("next_action")
-    private String nextAction;
+    private final String nextAction;
 
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("next_action_date")
-    private Timestamp nextActionDate;
+    private final Timestamp nextActionDate;
 
     @JsonProperty("ocr_data")
-    private String ocrData;
+    private final String ocrData;
 
     @JsonProperty("file_name")
-    private String fileName;
+    private final String fileName;
 
     @JsonProperty("notes")
-    private String notes;
+    private final String notes;
 
     @JsonProperty("document_url")
     private String documentUrl;
 
     @JsonProperty("document_type")
-    private String documentType;
+    private final String documentType;
 
     @JsonCreator
     public ScannableItemResponse(

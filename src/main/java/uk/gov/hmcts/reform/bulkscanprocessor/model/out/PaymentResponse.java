@@ -5,25 +5,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PaymentResponse {
 
     @JsonProperty("document_control_number")
-    private String documentControlNumber;
+    private final String documentControlNumber;
 
     @JsonProperty("method")
-    private String method;
+    private final String method;
 
     @JsonProperty("amount_in_pence")
-    private int amountInPence;
+    private final int amountInPence;
 
     @JsonProperty("currency")
-    private String currency;
+    private final String currency;
 
     @JsonProperty("payment_instrument_number")
-    private String paymentInstrumentNumber;
+    private final String paymentInstrumentNumber;
 
     @JsonProperty("sort_code")
-    private String sortCode;
+    private final String sortCode;
 
     @JsonProperty("account_number")
-    private String accountNumber;
+    private final String accountNumber;
 
     public PaymentResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
