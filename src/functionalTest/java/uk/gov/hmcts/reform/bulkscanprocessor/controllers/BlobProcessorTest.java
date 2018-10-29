@@ -57,9 +57,6 @@ public class BlobProcessorTest {
 
     @Test
     public void should_process_zipfile_after_upload_and_set_status() throws Exception {
-        // print environment
-        System.getenv().forEach((k, v) -> System.out.format("ENV: %s=%s%n", k, v));
-
         List<String> files = Arrays.asList("1111006.pdf", "1111002.pdf");
         String metadataFile = "1111006_2.metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
