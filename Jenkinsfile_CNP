@@ -1,6 +1,6 @@
 #!groovy
 
-@Library("Infrastructure")
+@Library("Infrastructure@quiet-retry")
 import uk.gov.hmcts.contino.GradleBuilder
 
 def type = "java"
