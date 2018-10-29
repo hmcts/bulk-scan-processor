@@ -17,28 +17,28 @@ public class EnvelopeMsg implements Msg {
     private final String envelopeId;
 
     @JsonProperty("case_ref")
-    private String caseNumber;
+    private final String caseNumber;
 
     @JsonProperty("po_box")
-    private String poBox;
+    private final String poBox;
 
     @JsonProperty("jurisdiction")
-    private String jurisdiction;
+    private final String jurisdiction;
 
     @JsonProperty("classification")
-    private Classification classification;
+    private final Classification classification;
 
     @JsonProperty("delivery_date")
-    private Instant deliveryDate;
+    private final Instant deliveryDate;
 
     @JsonProperty("opening_date")
-    private Instant openingDate;
+    private final Instant openingDate;
 
     @JsonProperty("zip_file_name")
-    private String zipFileName;
+    private final String zipFileName;
 
     @JsonProperty("documents")
-    private List<Document> documents;
+    private final List<Document> documents;
 
     private final boolean testOnly;
 

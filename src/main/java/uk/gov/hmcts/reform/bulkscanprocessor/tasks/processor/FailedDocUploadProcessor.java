@@ -75,7 +75,7 @@ public class FailedDocUploadProcessor extends Processor {
 
         List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
-        if (envelopes.size() > 0) {
+        if (!envelopes.isEmpty()) {
             String containerName = envelopes.get(0).getContainer();
 
             processEnvelopes(containerName, envelopes);
