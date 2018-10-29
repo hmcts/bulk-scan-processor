@@ -94,6 +94,9 @@ public class BlobProcessorTask extends Processor {
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
+        // print environment
+        System.getenv().forEach((k, v) -> log.info("ENV: {}={}", k, v));
+
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
             processZipFiles(container);
         }
