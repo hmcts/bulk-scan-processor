@@ -59,20 +59,9 @@ withPipeline(type, product, component) {
   //}
   after('smoketest:aks') {
     withAksClient('nonprod') {
-      echo sh(returnStdout: true, script: 'env')
+      //echo sh(returnStdout: true, script: 'env')
 
       def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
-
-      /*
-      jsonSlurper = new JsonSlurperClassic()
-      //storageAccounts = sh(returnStdOut: true, script: "az storage account list --resource-group ${env.BRANCH_NAME}")
-      storageAccounts = az "storage account list --resource-group ${env.RESOURCE_GROUP}"
-      env.TEST_STORAGE_ACCOUNT_NAME = jsonSlurper.parseText(storageAccounts).get(0).name
-
-      //storageKeys = sh(returnStdOut: true, script: "az storage account keys list -g ${env.BRANCH_NAME} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}")
-      storageKeys = az "storage account keys list -g ${env.RESOURCE_GROUP} --account-name ${env.TEST_STORAGE_ACCOUNT_NAME}"
-      env.TEST_STORAGE_ACCOUNT_KEY = jsonSlurper.parseText(storageAccounts).get(0).value
-      */
 
       //def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
       def subscription = env.SUBSCRIPTION_NAME
@@ -80,30 +69,27 @@ withPipeline(type, product, component) {
       def storageSecret = "${aksServiceName}-storage-secret"
       def serviceBusSecret = "${aksServiceName}-servicebus-secret"
       def queueName = "envelopes"
+      def storageContainers = ["test", "sscs"]
 
       def namespace = aksServiceName
       def kubectl = new Kubectl(this, subscription, namespace)
       kubectl.login()
 
+      // Get storage account details from kubernetes
       env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecret, namespace, "{.data.storageAccountName}")
-      echo "SAN: ${env.TEST_STORAGE_ACCOUNT_NAME}"
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
-      echo "SAK: ${env.TEST_STORAGE_ACCOUNT_KEY}"
-      //env.TEST_STORAGE_ACCOUNT_NAME = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.storageAccountName}'")
-      //env.TEST_STORAGE_ACCOUNT_KEY = echo sh(returnStdout: true, script: "kubectl get secret  -n ${aksServiceName} ${storageSecret} -o=jsonpath='{.data.accessKey}'")
+      // Check containers and create if they don't exist
       def containers = az "storage container list --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --query '[].name'"
-      if (!containers.contains("test")) {
-        az "storage container create --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --name test"
-      }
-      if (!containers.contains("sscs")) {
-        az "storage container create --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --name sscs"
+      storageContainers.each {
+        if (!containers.contains("${it}")) {
+          az "storage container create --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --name ${it}"
+        }
       }
 
+      // Get service bus connection string and parse to get namespace
       def serviceBusConnectionStr = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
-      echo "SBC: ${serviceBusConnectionStr}"
       //Regex: Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*
       def serviceBusNamespace = serviceBusConnectionStr.substring(14).split("\\.")[0]
-      echo "SBNS: ${serviceBusNamespace}"
 
       // create queue
       def queues = az "servicebus queue list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
@@ -111,19 +97,18 @@ withPipeline(type, product, component) {
         az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
       }
       // create shared access keys
-      def queueRules = az "servicebus queue authorization-rule list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --query '[].name'"
-      if (!queueRules.contains("SendSharedAccessKey")) {
-        az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --rights Send"
-      }
-      if (!queueRules.contains("ListenSharedAccessKey")) {
-        az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name ListenSharedAccessKey --rights Listen"
-      }
+      //def queueRules = az "servicebus queue authorization-rule list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --query '[].name'"
+      //if (!queueRules.contains("SendSharedAccessKey")) {
+      //  az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --rights Send"
+      //}
+      //if (!queueRules.contains("ListenSharedAccessKey")) {
+      //  az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name ListenSharedAccessKey --rights Listen"
+      //}
 
       // get connection string for send access key
-      env.QUEUE_ENVELOPE_SEND = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
-      echo "QES: ${env.QUEUE_ENVELOPE_SEND}"
+      //env.QUEUE_ENVELOPE_SEND = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
 
-      echo sh(returnStdout: true, script: 'env')
+      //echo sh(returnStdout: true, script: 'env')
     }
   }
   
