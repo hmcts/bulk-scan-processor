@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class NonScannableItemResponse {
 
     @JsonProperty("document_control_number")
-    private String documentControlNumber;
+    private final String documentControlNumber;
 
     @JsonProperty("item_type")
-    private String itemType;
+    private final String itemType;
     
     @JsonProperty("notes")
-    private String notes;
+    private final String notes;
 
     public NonScannableItemResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
