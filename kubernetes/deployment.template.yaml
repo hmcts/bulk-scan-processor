@@ -99,6 +99,10 @@ spec:
             - configMapRef:
                 name: ${SERVICE_NAME}-config
           env:
+            - name: TEST_S2S_SECRET
+              value: "${TEST_S2S_SECRET}"
+            - name: S2S_SECRET
+              value: "${S2S_SECRET}"
             - name: QUEUE_ENVELOPE_SEND
               valueFrom:
                 secretKeyRef:
