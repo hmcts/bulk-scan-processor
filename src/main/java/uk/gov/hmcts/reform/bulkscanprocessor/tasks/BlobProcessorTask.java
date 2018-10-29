@@ -109,12 +109,18 @@ public class BlobProcessorTask extends Processor {
         // For this purpose it's more efficient to have a collection that
         // implements RandomAccess (e.g. ArrayList)
         List<String> zipFilenames = new ArrayList<>();
-        container.listBlobs().forEach(
-            b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
-        );
-        Collections.shuffle(zipFilenames);
-        for (String zipFilename: zipFilenames) {
-            processZipFile(container, zipFilename, serviceBusHelper);
+        try {
+            container.listBlobs().forEach(
+                b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
+            );
+            Collections.shuffle(zipFilenames);
+            for (String zipFilename : zipFilenames) {
+                processZipFile(container, zipFilename, serviceBusHelper);
+            }
+        } finally {
+            if (serviceBusHelper != null) {
+                serviceBusHelper.close();
+            }
         }
     }
 

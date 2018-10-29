@@ -34,4 +34,3 @@ data "terraform_remote_state" "shared_infra" {
     key                  = "bulk-scan/${local.local_env}/terraform.tfstate"
   }
 }
-
