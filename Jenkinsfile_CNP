@@ -120,8 +120,8 @@ withPipeline(type, product, component) {
       }
 
       // get connection string for send access key
-      env.QUEUE_ENVELOPE_SEND = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
-      echo "QES: ${env.QUEUE_ENVELOPE_SEND}"
+      env.QUEUE_SEND_CONN_STRING = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
+      echo "QES: ${env.QUEUE_SEND_CONN_STRING}"
 
       echo sh(returnStdout: true, script: 'env')
     }

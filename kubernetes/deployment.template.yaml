@@ -104,10 +104,7 @@ spec:
             - name: S2S_SECRET
               value: "${S2S_SECRET}"
             - name: QUEUE_ENVELOPE_SEND
-              valueFrom:
-                secretKeyRef:
-                  name: ${SERVICE_NAME}-servicebus-secret
-                  key: connectionString
+              value: "${QUEUE_SEND_CONN_STRING}"
             - name: TEST_STORAGE_ACCOUNT_NAME
               valueFrom:
                 secretKeyRef:
