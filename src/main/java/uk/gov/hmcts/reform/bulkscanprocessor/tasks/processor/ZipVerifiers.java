@@ -114,17 +114,17 @@ public class ZipVerifiers {
     }
 
     private static Map<String, byte[]> extractZipEntries(ZipInputStream zis) {
-        Map<String, byte[]> zipEntries = new HashMap<>();
-        ZipEntry zipEntry;
         try {
+            Map<String, byte[]> zipEntries = new HashMap<>();
+            ZipEntry zipEntry;
             while ((zipEntry = zis.getNextEntry()) != null) {
                 zipEntries.put(zipEntry.getName(), toByteArray(zis));
             }
+
+            return zipEntries;
         } catch (IOException ioe) {
             throw new SignatureValidationException(ioe);
         }
-
-        return zipEntries;
     }
 
 
@@ -137,7 +137,7 @@ public class ZipVerifiers {
             .count() == 2;
     }
 
-    static boolean verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
+    private static boolean verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
         return verifySignature(
             publicKeyBase64,
             entries.get(DOCUMENTS_ZIP),
@@ -206,8 +206,8 @@ public class ZipVerifiers {
             String zipFileName,
             String container
         ) {
-            String publicKeyBase64 = null;
             try {
+                String publicKeyBase64 = null;
                 if (!Strings.isNullOrEmpty(publicKeyDerFile) && !"none".equalsIgnoreCase(publicKeyDerFile)) {
                     if (cachedPublicKeyFile != null && publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
                         publicKeyBase64 = cachedPublicKeyFile.publicKeyBase64;
@@ -219,10 +219,11 @@ public class ZipVerifiers {
                         cachedPublicKeyFile = new PublicKeyFile(publicKeyDerFile, publicKeyBase64);
                     }
                 }
+
+                return new ZipStreamWithSignature(zipInputStream, publicKeyBase64, zipFileName, container);
             } catch (IOException e) {
                 throw new SignatureValidationException(e);
             }
-            return new ZipStreamWithSignature(zipInputStream, publicKeyBase64, zipFileName, container);
         }
     }
 
