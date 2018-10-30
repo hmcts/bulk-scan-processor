@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.microsoft.azure.storage.blob.ContainerURL;
+import com.microsoft.azure.storage.blob.ServiceURL;
+import com.microsoft.rest.v2.Context;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.reactivex.Flowable;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.ObjectUtils;
@@ -10,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +50,8 @@ public class BlobProcessorTest {
             conf.getString("test-storage-account-url")
         );
 
-        testContainer = testHelper.getServiceURL().createContainerURL("bulkscan");
+        ServiceURL serviceURL = testHelper.getServiceURL();
+        testContainer = serviceURL.createContainerURL("bulkscan");
     }
 
     @Test
@@ -55,7 +60,13 @@ public class BlobProcessorTest {
         String metadataFile = "1111006_2.metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
-        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
+        byte[] array = {0, 1, 2};
+        testContainer.createBlockBlobURL("testblob")
+        .upload(Flowable.just(ByteBuffer.wrap(array)), 3L, null, null, null, Context.NONE)
+        .blockingGet();
+
+        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename)
+            .blockingGet(); // valid zip file
 
         await("file should be deleted")
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
@@ -65,7 +76,9 @@ public class BlobProcessorTest {
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
         EnvelopeListResponse envelopeListResponse =
-            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.NOTIFICATION_SENT);
+            testHelper.getEnvelopes(this.testUrl, s2sToken, null);
+
+        System.out.println(envelopeListResponse);
 
         // some test DBs are not cleaned so there will probably be more than 1
         assertThat(envelopeListResponse.envelopes.size()).isGreaterThanOrEqualTo(1);

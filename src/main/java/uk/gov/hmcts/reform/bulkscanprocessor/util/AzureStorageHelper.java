@@ -9,7 +9,6 @@ import com.microsoft.azure.storage.blob.ReliableDownloadOptions;
 import com.microsoft.azure.storage.blob.ServiceURL;
 import com.microsoft.azure.storage.blob.models.BlobFlatListSegment;
 import com.microsoft.azure.storage.blob.models.BlobItem;
-import com.microsoft.azure.storage.blob.models.ContainerItem;
 import com.microsoft.azure.storage.blob.models.ContainerListBlobFlatSegmentResponse;
 import com.microsoft.azure.storage.blob.models.LeaseAccessConditions;
 import com.microsoft.azure.storage.blob.models.LeaseStateType;
@@ -79,15 +78,6 @@ public class AzureStorageHelper {
     private Single<ServiceListContainersSegmentResponse> listContainers(
         ServiceListContainersSegmentResponse response
     ) {
-
-        // Process the containers returned in this result segment (if the segment is empty, containerItems will be null.
-        if (response.body().containerItems() != null) {
-            for (ContainerItem b : response.body().containerItems()) {
-                String output = "Container name: " + b.name();
-                System.out.println(output);
-            }
-        }
-
         // If there is not another segment, return this response as the final response.
         if (response.body().nextMarker() == null) {
             return Single.just(response);

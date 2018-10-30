@@ -74,7 +74,7 @@ scheduling:
   lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
   task:
     scan:
-      delay: ${SCAN_DELAY:10000} # In milliseconds
+      delay: ${SCAN_DELAY:30000} # In milliseconds
       enabled: ${SCAN_ENABLED:true}
     reupload:
       batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all

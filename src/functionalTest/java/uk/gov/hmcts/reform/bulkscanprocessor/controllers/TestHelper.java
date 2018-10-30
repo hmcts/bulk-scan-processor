@@ -103,8 +103,10 @@ public class TestHelper {
             createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
 
         BlockBlobURL blockBlobURL = container.createBlockBlobURL(destZipFilename);
+        ByteBuffer wrapped = ByteBuffer.wrap(zipFile);
+        Flowable<ByteBuffer> just = Flowable.just(wrapped);
         return blockBlobURL
-            .upload(Flowable.just(ByteBuffer.wrap(zipFile)), zipFile.length, null, null, null, Context.NONE);
+            .upload(just, zipFile.length, null, null, null, Context.NONE);
     }
 
     public String uploadAndLeaseZipFile(
