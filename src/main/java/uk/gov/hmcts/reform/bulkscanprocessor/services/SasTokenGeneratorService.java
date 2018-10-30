@@ -32,13 +32,12 @@ public class SasTokenGeneratorService {
     }
 
     public String generateSasToken(String serviceName) {
-
         log.info("SAS Token request received for service {} ", serviceName);
         TokenConfig config = getTokenConfigForService(serviceName);
 
         return new ServiceSASSignatureValues()
-            .withProtocol(SASProtocol.HTTPS_HTTP) // Users MUST use HTTPS (not HTTP).
-            .withExpiryTime(OffsetDateTime.now().plusSeconds(config.getValidity())) // 2 days before expiration.
+            .withProtocol(SASProtocol.HTTPS_HTTP)
+            .withExpiryTime(OffsetDateTime.now().plusSeconds(config.getValidity()))
             .withContainerName(serviceName)
             .withPermissions(new ContainerSASPermission().withWrite(true).withList(true).toString())
             .generateSASQueryParameters(sharedKeyCredentials)

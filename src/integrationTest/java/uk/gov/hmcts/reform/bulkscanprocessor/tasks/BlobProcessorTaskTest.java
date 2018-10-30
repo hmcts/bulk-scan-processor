@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.BlockBlobURL;
+import com.microsoft.azure.storage.blob.ContainerURL;
+import com.microsoft.azure.storage.blob.models.StorageErrorException;
+import com.microsoft.rest.v2.Context;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.After;
@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.is;
 public class EnvelopeDeletionTest {
 
     private transient long scanDelay;
-    private transient CloudBlobContainer testContainer;
+    private transient ContainerURL testContainer;
     private List<String> filesToDeleteAfterTest = new ArrayList<>();
     private transient TestHelper testHelper;
 
@@ -31,28 +31,27 @@ public class EnvelopeDeletionTest {
         Config conf = ConfigFactory.load();
         this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
 
-        StorageCredentialsAccountAndKey credentials =
-            new StorageCredentialsAccountAndKey(
-                conf.getString("test-storage-account-name"),
-                conf.getString("test-storage-account-key")
-            );
+        this.testHelper = new TestHelper(
+            conf.getString("test-storage-account-name"),
+            conf.getString("test-storage-account-key"),
+            conf.getString("test-storage-account-url")
+        );
 
-        testContainer = new CloudStorageAccount(credentials, true)
-            .createCloudBlobClient()
-            .getContainerReference("test");
-
-        testHelper = new TestHelper();
+        testContainer = testHelper.getServiceURL().createContainerURL("bulkscan");
     }
 
     @After
-    public void tearDown() throws Exception {
-        for (String filename: filesToDeleteAfterTest) {
+    public void tearDown() {
+        for (String filename : filesToDeleteAfterTest) {
+            BlockBlobURL blockBlobURL = testContainer.createBlockBlobURL(filename);
             try {
-                testContainer.getBlockBlobReference(filename).breakLease(0);
-            } catch (StorageException e) {
+                blockBlobURL
+                    .breakLease(0, null, Context.NONE);
+            } catch (StorageErrorException e) {
                 // Do nothing as the file was not leased
             }
-            testContainer.getBlockBlobReference(filename).deleteIfExists();
+            blockBlobURL.delete(null, null, Context.NONE)
+            .blockingGet();
         }
     }
 

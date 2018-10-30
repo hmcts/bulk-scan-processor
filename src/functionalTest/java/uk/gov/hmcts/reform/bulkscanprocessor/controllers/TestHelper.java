@@ -5,10 +5,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.core.PathUtility;
+import com.microsoft.azure.storage.blob.AnonymousCredentials;
+import com.microsoft.azure.storage.blob.BlockBlobURL;
+import com.microsoft.azure.storage.blob.ContainerURL;
+import com.microsoft.azure.storage.blob.PipelineOptions;
+import com.microsoft.azure.storage.blob.ServiceURL;
+import com.microsoft.azure.storage.blob.SharedKeyCredentials;
+import com.microsoft.azure.storage.blob.StorageURL;
+import com.microsoft.azure.storage.blob.models.BlockBlobUploadResponse;
+import com.microsoft.rest.v2.Context;
+import com.microsoft.rest.v2.http.HttpPipeline;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
@@ -18,12 +27,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -31,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -40,6 +52,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestHelper {
 
     public static final String TEST_PRIVATE_KEY_DER = "test_private_key.der";
+    private final ServiceURL serviceURL;
+
+    public TestHelper(final String accountName, final String accountKey, final String accountUrl) throws InvalidKeyException, MalformedURLException {
+        SharedKeyCredentials credential = new SharedKeyCredentials(
+            accountName,
+            accountKey
+        );
+
+        HttpPipeline pipeline = StorageURL.createPipeline(credential, new PipelineOptions());
+
+        URL url = new URL(accountUrl);
+        serviceURL = new ServiceURL(url, pipeline);
+    }
+
+    public ServiceURL getServiceURL() {
+        return serviceURL;
+    }
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -64,35 +93,41 @@ public class TestHelper {
             .print();
     }
 
-    public void uploadZipFile(
-        CloudBlobContainer container,
+    public Single<BlockBlobUploadResponse> uploadZipFile(
+        ContainerURL container,
         List<String> files,
         String metadataFile,
         final String destZipFilename
     ) throws Exception {
         byte[] zipFile =
             createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
-        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+
+        BlockBlobURL blockBlobURL = container.createBlockBlobURL(destZipFilename);
+        return blockBlobURL
+            .upload(Flowable.just(ByteBuffer.wrap(zipFile)), zipFile.length, null, null, null, Context.NONE);
     }
 
-    public CloudBlockBlob uploadAndLeaseZipFile(
-        CloudBlobContainer container,
+    public String uploadAndLeaseZipFile(
+        ContainerURL container,
         List<String> files,
         String metadataFile,
         String destZipFilename
     ) throws Exception {
-        byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
-        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-        blockBlobReference.acquireLease();
-        return blockBlobReference;
+        BlockBlobURL blockBlobURL = container.createBlockBlobURL(destZipFilename);
+
+        return uploadZipFile(container, files, metadataFile, destZipFilename)
+            .flatMap(r -> blockBlobURL.acquireLease(null, -1, null, Context.NONE))
+            .flatMap(r -> Single.just(r.headers().leaseId()))
+            .blockingGet();
     }
 
-    public boolean storageHasFile(CloudBlobContainer container, String fileName) {
-        return StreamSupport.stream(container.listBlobs().spliterator(), false)
-            .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
+    public boolean storageHasFile(ContainerURL container, String fileName) {
+        AzureStorageHelper azureStorageHelper = new AzureStorageHelper(serviceURL);
+
+        return azureStorageHelper.listBlobsLazy(container)
+            .any(blobItem -> blobItem.name().contains(fileName))
+            .blockingGet();
+
     }
 
     public String getSasToken(String containerName, String testUrl) throws Exception {
@@ -112,11 +147,14 @@ public class TestHelper {
         return node.get("sas_token").asText();
     }
 
-    public CloudBlobContainer getCloudContainer(
-        String sasToken, String containerName, String containerUrl
-    ) throws Exception {
-        URI containerUri = new URI(containerUrl + containerName);
-        return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
+    /**
+     * Used for testing with a SAS token
+     */
+    public ServiceURL getAnonymousAccessServiceURL(String containerUrl) throws Exception {
+        URL url = new URL(containerUrl);
+        HttpPipeline pipeline = ServiceURL.createPipeline(new AnonymousCredentials(), new PipelineOptions());
+
+        return new ServiceURL(url, pipeline);
     }
 
     public String getRandomFilename(String suffix) {
@@ -240,13 +278,4 @@ public class TestHelper {
             .as("Should get success response on update")
             .isEqualTo(204);
     }
-
-    public static boolean isMasterBranch() {
-        String branch = System.getenv("BRANCH_NAME");
-        if (Strings.isNullOrEmpty(branch)) {
-            branch = System.getenv("CHANGE_BRANCH");
-        }
-        return "master".equalsIgnoreCase(branch);
-    }
-
 }

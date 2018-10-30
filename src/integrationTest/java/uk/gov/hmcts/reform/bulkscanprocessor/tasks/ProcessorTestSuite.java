@@ -1,9 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -17,10 +13,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.File;
@@ -45,12 +41,14 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @FunctionalInterface
     public interface Construct<T extends Processor> {
         T apply(
-            CloudBlobClient cloudBlobClient,
+            AzureStorageHelper azureStorageHelper,
             DocumentProcessor documentProcessor,
             EnvelopeProcessor envelopeProcessor,
             ErrorHandlingWrapper errorWrapper,
             String signatureAlg,
-            String publicKeyBase64
+            String publicKeyBase64,
+            Integer blobLeaseTimeout,
+            int blobProcessingDelayInMinutes
         );
     }
 
@@ -85,16 +83,14 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected DocumentManagementService documentManagementService;
 
     @Mock
-    protected ServiceBusHelper serviceBusHelper;
-
-    protected CloudBlobContainer testContainer;
+    protected AzureStorageHelper azureStorageHelper;
 
     private static DockerComposeContainer dockerComposeContainer;
 
-    public void setUp(Construct<T> processorConstruct) throws Exception {
+    public void setUp(Construct<T> processorConstruct) {
 
-        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
-        CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
+//        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
+//        CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
@@ -110,24 +106,26 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
 
         T p = processorConstruct.apply(
-            cloudBlobClient,
+            azureStorageHelper,
             documentProcessor,
             envelopeProcessor,
             errorWrapper,
             SIGNATURE_ALGORITHM,
-            DEFAULT_PUBLIC_KEY_BASE64
+            DEFAULT_PUBLIC_KEY_BASE64,
+            0,
+            0
         );
 
         processor = spy(p);
-        doReturn(serviceBusHelper).when(processor).serviceBusHelper();
-        
-        testContainer = cloudBlobClient.getContainerReference("test");
-        testContainer.createIfNotExists();
+        doReturn(azureStorageHelper).when(processor).serviceBusHelper();
+
+//        testContainer = cloudBlobClient.getContainerReference("test");
+//        testContainer.createIfNotExists();
     }
 
     @After
     public void cleanUp() throws Exception {
-        testContainer.deleteIfExists();
+//        testContainer.deleteIfExists();
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
     }
@@ -154,18 +152,18 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     }
 
     public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {
-        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
+//        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
 
         // Blob need to be deleted as same blob may exists if previously uploaded blob was not deleted
         // due to doc upload failure
-        if (blockBlobReference.exists()) {
-            blockBlobReference.breakLease(0);
-            blockBlobReference.delete();
-        }
-
-        // A Put Blob operation may succeed against a blob that exists in the storage emulator with an active lease,
-        // even if the lease ID has not been specified in the request.
-        blockBlobReference.uploadFromByteArray(fileContent, 0, fileContent.length);
+//        if (blockBlobReference.exists()) {
+//            blockBlobReference.breakLease(0);
+//            blockBlobReference.delete();
+//        }
+//
+//        // A Put Blob operation may succeed against a blob that exists in the storage emulator with an active lease,
+//        // even if the lease ID has not been specified in the request.
+//        blockBlobReference.uploadFromByteArray(fileContent, 0, fileContent.length);
     }
 
     // TODO: add repo method to read single envelope by zip file name and jurisdiction.

@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,15 +39,20 @@ public class FailedDocUploadProcessorTest {
     @Mock
     private ServiceBusHelper serviceBusHelper;
 
+    @Mock
+    private AzureStorageHelper azureStorageHelper;
+
     private FailedDocUploadProcessor processor;
 
     @Before
     public void setUp() {
         processor = new FailedDocUploadProcessor(
-            null,
+            azureStorageHelper,
             documentProcessor,
             envelopeProcessor,
-            errorWrapper
+            errorWrapper,
+            null,
+            null
         );
     }
 

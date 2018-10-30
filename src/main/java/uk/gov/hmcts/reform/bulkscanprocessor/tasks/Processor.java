@@ -27,7 +27,6 @@ public abstract class Processor {
     protected String signatureAlg;
     protected String publicKeyDerFilename;
 
-
     protected Processor(
         AzureStorageHelper azureStorageHelper,
         DocumentProcessor documentProcessor,

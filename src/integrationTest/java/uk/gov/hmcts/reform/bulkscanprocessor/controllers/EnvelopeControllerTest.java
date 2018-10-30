@@ -3,9 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -114,6 +111,8 @@ public class EnvelopeControllerTest {
 
     @Before
     public void setup() throws Exception {
+        //
+
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 

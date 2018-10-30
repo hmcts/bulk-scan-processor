@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.ContainerURL;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
@@ -26,9 +24,9 @@ public class UpdateStatusTest {
     private String s2sUrl;
     private String s2sName;
     private String s2sSecret;
-    private CloudBlobContainer testContainer;
+    private ContainerURL testContainer;
 
-    private TestHelper testHelper = new TestHelper();
+    private TestHelper testHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -40,16 +38,13 @@ public class UpdateStatusTest {
         this.s2sName = conf.getString("test-s2s-name");
         this.s2sSecret = conf.getString("test-s2s-secret");
 
-        this.testContainer =
-            new CloudStorageAccount(
-                new StorageCredentialsAccountAndKey(
-                    conf.getString("test-storage-account-name"),
-                    conf.getString("test-storage-account-key")
-                ),
-                true
-            )
-                .createCloudBlobClient()
-                .getContainerReference("test");
+        this.testHelper = new TestHelper(
+            conf.getString("test-storage-account-name"),
+            conf.getString("test-storage-account-key"),
+            conf.getString("test-storage-account-url")
+        );
+
+        testContainer = this.testHelper.getServiceURL().createContainerURL("bulkscan");
     }
 
     @Test
@@ -77,7 +72,7 @@ public class UpdateStatusTest {
                 .envelopes
                 .stream()
                 .filter(e -> Objects.equals(e.getZipFileName(), destZipFilename))
-                .map(e -> e.getId())
+                .map(EnvelopeResponse::getId)
                 .findFirst()
                 .get();
 

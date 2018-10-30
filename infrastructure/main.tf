@@ -40,6 +40,8 @@ locals {
   #endregion
 
   sku_size = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
+
+  storage_account_url = "https://${azurerm_storage_account.provider.name}.blob.core.windows.net"
 }
 
 module "bulk-scan-db" {
@@ -83,6 +85,7 @@ module "bulk-scan" {
     FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
 
     STORAGE_ACCOUNT_NAME = "${azurerm_storage_account.provider.name}"
+    STORAGE_URL          = "${local.storage_account_url}"
     STORAGE_KEY          = "${azurerm_storage_account.provider.primary_access_key}"
     SAS_TOKEN_VALIDITY   = "${var.token_validity}"
 

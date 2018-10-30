@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * This class is a task executed by Scheduler as per configured interval.
  * It will read all the blobs from Azure Blob storage and will do below things:
@@ -86,7 +88,16 @@ public class BlobProcessorTask extends Processor {
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException {
-        for (ContainerItem container : azureStorageHelper.listContainers().blockingGet().body().containerItems()) {
+        List<ContainerItem> containerItems = azureStorageHelper.listContainers().blockingGet().body().containerItems()
+            .stream()
+            .filter(c -> !c.name().equals("$web"))
+            .collect(toList());
+
+        log.info("Processing blobs in containers: {}", containerItems.stream()
+            .map(ContainerItem::name)
+            .collect(toList()));
+
+        for (ContainerItem container : containerItems) {
             processZipFiles(container);
         }
     }

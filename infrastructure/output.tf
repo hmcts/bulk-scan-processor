@@ -36,11 +36,14 @@ output "TEST_S2S_NAME" {
   value     = "${var.test_s2s_name}"
 }
 
-# this variable will be accessible to tests as API_GATEWAY_URL environment variable
 output "api_gateway_url" {
   value = "https://core-api-mgmt-${var.env}.azure-api.net/${local.api_base_path}"
 }
 
 output "test_storage_container_name" {
   value = "${azurerm_storage_container.test.name}"
+}
+
+output "test_storage_account_url" {
+  value = "${local.storage_account_url}"
 }

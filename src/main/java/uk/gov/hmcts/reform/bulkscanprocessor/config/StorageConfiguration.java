@@ -32,10 +32,9 @@ public class StorageConfiguration {
     @Bean
     public ServiceURL serviceUrl(
         HttpPipeline httpPipeline,
-        @Value("${storage.account_name}") String accountName,
-        @Value("${storage.endpoint}") String endpoint
+        @Value("${storage.url}") String endpoint
     ) throws MalformedURLException {
-        URL url = new URL(String.format("https://%s.%s", accountName, endpoint));
+        URL url = new URL(endpoint);
         return new ServiceURL(url, httpPipeline);
     }
 }
