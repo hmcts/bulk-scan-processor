@@ -5,8 +5,7 @@ import uk.gov.hmcts.contino.GradleBuilder
 
 import uk.gov.hmcts.contino.Kubectl
 
-//import uk.gov.hmcts.contino.DockerImage
-//import groovy.json.JsonSlurperClassic
+import uk.gov.hmcts.contino.DockerImage
 
 def type = "java"
 def product = "bulk-scan"
@@ -54,18 +53,14 @@ env.RESOURCE_GROUP = 'bulk-scan-aks-rg'
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
-  //after('checkout') {
-  //  echo sh(returnStdout: true, script: 'env')
-  //}
-  after('smoketest:aks') {
+  after('deploy:dev') {
     withAksClient('nonprod') {
-      //echo sh(returnStdout: true, script: 'env')
-
       def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
 
-      //def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
+      def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
       def subscription = env.SUBSCRIPTION_NAME
-      def aksServiceName = "${product}-${component}-${env.BRANCH_NAME}".toLowerCase()
+      //def aksServiceName = "${product}-${component}-${env.BRANCH_NAME}".toLowerCase()
+      def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def storageSecret = "${aksServiceName}-storage-secret"
       def serviceBusSecret = "${aksServiceName}-servicebus-secret"
       def queueName = "envelopes"
@@ -96,19 +91,6 @@ withPipeline(type, product, component) {
       if (!queues.contains(queueName)) {
         az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
       }
-      // create shared access keys
-      //def queueRules = az "servicebus queue authorization-rule list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --query '[].name'"
-      //if (!queueRules.contains("SendSharedAccessKey")) {
-      //  az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --rights Send"
-      //}
-      //if (!queueRules.contains("ListenSharedAccessKey")) {
-      //  az "servicebus queue authorization-rule create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name ListenSharedAccessKey --rights Listen"
-      //}
-
-      // get connection string for send access key
-      //env.QUEUE_ENVELOPE_SEND = az "servicebus queue authorization-rule keys list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --queue-name ${queueName} --name SendSharedAccessKey --query primaryConnectionString"
-
-      //echo sh(returnStdout: true, script: 'env')
     }
   }
   
