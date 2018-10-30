@@ -39,6 +39,7 @@ data:
   FLYWAY_USER: bulkscanner
   FLYWAY_PASSWORD: bsppassword
   flyway.noop.strategy: "false"
+  spring.flyway.enabled: "true"
   LOGBACK_REQUIRE_ALERT_LEVEL: "false"
   LOGBACK_REQUIRE_ERROR_CODE: "false"
   S2S_NAME: "bulk_scan_processor"

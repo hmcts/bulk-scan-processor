@@ -30,7 +30,6 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
 ]
 
 List<LinkedHashMap<String, Object>> commonSecrets = [
-  //secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
   secret('test-s2s-secret', 'TEST_S2S_SECRET'),
   secret('s2s-secret', 'S2S_SECRET'),
 ]
