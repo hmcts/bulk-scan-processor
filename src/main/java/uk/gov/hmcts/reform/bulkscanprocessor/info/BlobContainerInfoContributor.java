@@ -1,10 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.info;
 
+import com.microsoft.azure.storage.blob.models.ContainerItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info.Builder;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
+
+import static java.util.stream.Collectors.toList;
 
 @Component
 public class BlobContainerInfoContributor implements InfoContributor {
@@ -25,6 +28,9 @@ public class BlobContainerInfoContributor implements InfoContributor {
                 .blockingGet()
                 .body()
                 .containerItems()
+                .stream()
+                .map(ContainerItem::name)
+                .collect(toList())
         );
     }
 }
