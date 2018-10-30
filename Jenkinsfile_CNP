@@ -53,13 +53,12 @@ env.RESOURCE_GROUP = 'bulk-scan-aks-rg'
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
-  before('smoketest:aks') {
+  before('smoketest:aks') {  // or should this be after('aksdeploy')?
     withAksClient('nonprod') {
       def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
 
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
       def subscription = env.SUBSCRIPTION_NAME
-      //def aksServiceName = "${product}-${component}-${env.BRANCH_NAME}".toLowerCase()
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def storageSecret = "${aksServiceName}-storage-secret"
       def serviceBusSecret = "${aksServiceName}-servicebus-secret"
@@ -73,7 +72,7 @@ withPipeline(type, product, component) {
       // Get storage account details from kubernetes
       env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecret, namespace, "{.data.storageAccountName}")
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
-      // Check containers and create if they don't exist
+      // Check storage containers exist and create if they don't
       def containers = az "storage container list --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --query '[].name'"
       storageContainers.each {
         if (!containers.contains("${it}")) {
