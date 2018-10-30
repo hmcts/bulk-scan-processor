@@ -7,6 +7,7 @@ import com.microsoft.azure.storage.blob.ListBlobsOptions;
 import com.microsoft.azure.storage.blob.ListContainersOptions;
 import com.microsoft.azure.storage.blob.ReliableDownloadOptions;
 import com.microsoft.azure.storage.blob.ServiceURL;
+import com.microsoft.azure.storage.blob.models.BlobFlatListSegment;
 import com.microsoft.azure.storage.blob.models.BlobItem;
 import com.microsoft.azure.storage.blob.models.ContainerItem;
 import com.microsoft.azure.storage.blob.models.ContainerListBlobFlatSegmentResponse;
@@ -51,21 +52,28 @@ public class AzureStorageHelper {
 
     private static Observable<BlobItem> listContainersResultToContainerObservable(
         ContainerURL containerURL, ListBlobsOptions listBlobsOptions,
-        ContainerListBlobFlatSegmentResponse response) {
-        Observable<BlobItem> result = Observable.fromIterable(response.body().segment().blobItems());
+        ContainerListBlobFlatSegmentResponse response
+    ) {
+        BlobFlatListSegment segment = response.body().segment();
+        if (segment != null) {
+            Observable<BlobItem> result = Observable.fromIterable(segment.blobItems());
 
-        LOGGER.info("Count: {}", response.body().segment().blobItems());
+            LOGGER.info("Count: {}", segment.blobItems());
 
-        if (response.body().nextMarker() != null) {
-            LOGGER.info("Hit continuation in listing at {}", response.body().segment().blobItems().get(
-                response.body().segment().blobItems().size() - 1).name());
-            // Recursively add the continuation items to the observable.
-            result = result.concatWith(containerURL.listBlobsFlatSegment(response.body().nextMarker(), listBlobsOptions, null)
-                .flatMapObservable((r) ->
-                    listContainersResultToContainerObservable(containerURL, listBlobsOptions, r)));
+            if (response.body().nextMarker() != null) {
+                LOGGER.info("Hit continuation in listing at {}", segment.blobItems().get(
+                    segment.blobItems().size() - 1).name());
+                // Recursively add the continuation items to the observable.
+                result = result
+                    .concatWith(containerURL.listBlobsFlatSegment(response.body().nextMarker(), listBlobsOptions, null)
+                        .flatMapObservable((r) ->
+                            listContainersResultToContainerObservable(containerURL, listBlobsOptions, r)));
+            }
+
+            return result;
         }
 
-        return result;
+        return Observable.empty();
     }
 
     private Single<ServiceListContainersSegmentResponse> listContainers(
