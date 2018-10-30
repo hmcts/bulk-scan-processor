@@ -1,4 +1,4 @@
-FROM hmcts/cnp-java-base:openjdk-jre-8-slim-stretch-1.0
+FROM hmcts/cnp-java-base:openjdk-jre-8-alpine-1.4
 
 ENV APP bulk-scan-processor.jar
 ENV APPLICATION_TOTAL_MEMORY 1024M
