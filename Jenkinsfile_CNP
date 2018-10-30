@@ -53,7 +53,7 @@ env.RESOURCE_GROUP = 'bulk-scan-aks-rg'
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
-  after('deploy:dev') {
+  after('deploy:aks') {
     withAksClient('nonprod') {
       def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
 
