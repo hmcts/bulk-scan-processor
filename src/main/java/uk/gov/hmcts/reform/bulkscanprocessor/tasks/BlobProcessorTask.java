@@ -207,7 +207,7 @@ public class BlobProcessorTask extends Processor {
         String containerName
     ) {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
-            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
+            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));

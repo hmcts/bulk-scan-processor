@@ -109,7 +109,11 @@ public class FailedDocUploadProcessor extends Processor {
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            ZipFileProcessor zipFileProcessor = processZipInputStream(zis, envelope);
+            ZipFileProcessor zipFileProcessor = processZipInputStream(
+                zis,
+                envelope.getContainer(),
+                envelope.getZipFileName()
+            );
 
             if (zipFileProcessor != null) {
                 processParsedEnvelopeDocuments(
@@ -122,13 +126,18 @@ public class FailedDocUploadProcessor extends Processor {
         }
     }
 
-    private ZipFileProcessor processZipInputStream(ZipInputStream zis, Envelope envelope) {
-        return errorWrapper.wrapDocFailure(envelope.getContainer(), envelope.getZipFileName(), () -> {
-            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
+    private ZipFileProcessor processZipInputStream(
+        ZipInputStream zis,
+        String containerName,
+        String zipFileName
+    ) {
+        return errorWrapper.wrapDocFailure(containerName, zipFileName, () -> {
+            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-                    zis, publicKeyDerFilename, envelope.getZipFileName(), envelope.getContainer()
+                    zis, publicKeyDerFilename, zipFileName, containerName
                 );
+
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             return zipFileProcessor;
