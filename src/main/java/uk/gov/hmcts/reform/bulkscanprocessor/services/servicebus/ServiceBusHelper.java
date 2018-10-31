@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConnectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
@@ -57,11 +56,7 @@ public class ServiceBusHelper {
 
     public void close() {
         if (sendClient != null) {
-            try {
-                sendClient.close();
-            } catch (ServiceBusException e) {
-                throw new ConnectionException("Unable to close connection to Azure service bus", e);
-            }
+            sendClient.closeAsync();
         }
     }
 
