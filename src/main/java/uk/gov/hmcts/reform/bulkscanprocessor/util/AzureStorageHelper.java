@@ -57,7 +57,7 @@ public class AzureStorageHelper {
         if (segment != null) {
             Observable<BlobItem> result = Observable.fromIterable(segment.blobItems());
 
-            LOGGER.info("Count: {}", segment.blobItems());
+            LOGGER.info("Count: {}", segment.blobItems().size());
 
             if (response.body().nextMarker() != null) {
                 LOGGER.info("Hit continuation in listing at {}", segment.blobItems().get(
