@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.microsoft.azure.storage.blob.ContainerURL;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -83,7 +85,10 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected DocumentManagementService documentManagementService;
 
     @Mock
+    protected ServiceBusHelper serviceBusHelper;
+
     protected AzureStorageHelper azureStorageHelper;
+    protected ContainerURL testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
 
@@ -117,10 +122,11 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
 
         processor = spy(p);
-        doReturn(azureStorageHelper).when(processor).serviceBusHelper();
+        doReturn(serviceBusHelper).when(processor).serviceBusHelper();
 
-//        testContainer = cloudBlobClient.getContainerReference("test");
-//        testContainer.createIfNotExists();
+        testContainer = azureStorageHelper.getClient().createContainerURL("test");
+        testContainer.create(null, null, null).blockingGet();
+
     }
 
     @After
