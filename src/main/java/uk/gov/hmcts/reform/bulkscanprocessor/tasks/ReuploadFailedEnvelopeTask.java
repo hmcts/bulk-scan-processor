@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.FailedDocUploadProcessor;
 
 import java.util.List;
@@ -38,6 +39,8 @@ public class ReuploadFailedEnvelopeTask {
     private static final Logger log = LoggerFactory.getLogger(ReuploadFailedEnvelopeTask.class);
 
     private final List<Mapping> accessMapping;
+    private ServiceBusHelper serviceBusHelper;
+
 
     public ReuploadFailedEnvelopeTask(EnvelopeAccessProperties accessProperties) {
         this.accessMapping = accessProperties.getMappings();
@@ -53,9 +56,22 @@ public class ReuploadFailedEnvelopeTask {
         return null;
     }
 
+    /**
+     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
+     *
+     * @return Instance of {@code ServiceBusHelper}
+     */
+    @Lookup
+    public ServiceBusHelper serviceBusHelper() {
+        return null;
+    }
+
     @SchedulerLock(name = "re-upload-failures")
     @Scheduled(fixedDelayString = "${scheduling.task.reupload.delay}")
     public void processUploadFailures() throws InterruptedException {
+        if (serviceBusHelper == null) {
+            serviceBusHelper = serviceBusHelper();
+        }
         ExecutorService executorService = Executors.newFixedThreadPool(
             accessMapping.size(),
             ThreadFactories.withName("BSP-REUPLOAD-%d")
@@ -71,7 +87,7 @@ public class ReuploadFailedEnvelopeTask {
                 completionService.submit(() -> {
                     log.info("Processing failed documents for jurisdiction {}", jurisdiction);
 
-                    processor.processJurisdiction(jurisdiction);
+                    processor.processJurisdiction(jurisdiction, serviceBusHelper);
 
                     return null;
                 });

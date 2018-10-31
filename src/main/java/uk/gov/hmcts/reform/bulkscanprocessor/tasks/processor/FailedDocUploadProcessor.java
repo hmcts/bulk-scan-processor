@@ -32,7 +32,7 @@ public class FailedDocUploadProcessor extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
 
-    private final ServiceBusHelper serviceBusHelper;
+    private ServiceBusHelper serviceBusHelper;
 
     @Autowired
     public FailedDocUploadProcessor(
@@ -42,7 +42,6 @@ public class FailedDocUploadProcessor extends Processor {
         ErrorHandlingWrapper errorWrapper
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-        this.serviceBusHelper = serviceBusHelper();
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -70,8 +69,10 @@ public class FailedDocUploadProcessor extends Processor {
         return null;
     }
 
-    public void processJurisdiction(String jurisdiction)
+    public void processJurisdiction(String jurisdiction, ServiceBusHelper serviceBusHelper)
         throws IOException, StorageException, URISyntaxException {
+
+        this.serviceBusHelper = serviceBusHelper;
 
         List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
@@ -87,16 +88,10 @@ public class FailedDocUploadProcessor extends Processor {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
-        try {
-            CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
+        CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
 
-            for (Envelope envelope : envelopes) {
-                processEnvelope(container, envelope);
-            }
-        } finally {
-            if (serviceBusHelper != null) {
-                serviceBusHelper.close();
-            }
+        for (Envelope envelope : envelopes) {
+            processEnvelope(container, envelope);
         }
     }
 

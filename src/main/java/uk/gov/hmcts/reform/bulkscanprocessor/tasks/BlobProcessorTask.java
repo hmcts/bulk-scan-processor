@@ -57,6 +57,8 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_processing_delay_in_minutes}")
     protected int blobProcessingDelayInMinutes = 0;
 
+    private ServiceBusHelper serviceBusHelper;
+
     @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
@@ -94,6 +96,9 @@ public class BlobProcessorTask extends Processor {
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
+        if (serviceBusHelper == null) {
+            serviceBusHelper = serviceBusHelper();
+        }
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
             processZipFiles(container);
         }
@@ -103,24 +108,16 @@ public class BlobProcessorTask extends Processor {
         throws IOException, StorageException, URISyntaxException {
         log.info("Processing blobs for container {}", container.getName());
 
-        ServiceBusHelper serviceBusHelper = serviceBusHelper();
-
         // Randomise iteration order to minimise lease acquire contention
         // For this purpose it's more efficient to have a collection that
         // implements RandomAccess (e.g. ArrayList)
         List<String> zipFilenames = new ArrayList<>();
-        try {
-            container.listBlobs().forEach(
-                b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
-            );
-            Collections.shuffle(zipFilenames);
-            for (String zipFilename : zipFilenames) {
-                processZipFile(container, zipFilename, serviceBusHelper);
-            }
-        } finally {
-            if (serviceBusHelper != null) {
-                serviceBusHelper.close();
-            }
+        container.listBlobs().forEach(
+            b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
+        );
+        Collections.shuffle(zipFilenames);
+        for (String zipFilename : zipFilenames) {
+            processZipFile(container, zipFilename, serviceBusHelper);
         }
     }
 

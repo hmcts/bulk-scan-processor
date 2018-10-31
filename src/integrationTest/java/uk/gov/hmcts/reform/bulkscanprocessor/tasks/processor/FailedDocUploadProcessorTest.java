@@ -6,10 +6,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessorTestSuite;
 
@@ -21,10 +23,10 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
@@ -33,6 +35,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUploadProcessor> {
 
     private BlobProcessorTask blobProcessorTask;
+
+    @Mock
+    private ServiceBusHelper serviceBusHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -71,7 +76,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction("SSCS");
+        processor.processJurisdiction("SSCS", serviceBusHelper);
 
         // then
         List<Envelope> dbEnvelopes = envelopeRepository.findAll();
@@ -79,7 +84,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         assertThat(dbEnvelopes)
             .hasSize(1)
             .extracting("status")
-            .containsOnlyOnce(PROCESSED);
+            .containsOnlyOnce(NOTIFICATION_SENT);
         assertThat(dbEnvelopes.get(0).getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
@@ -94,7 +99,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOADED, null),
                 tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED_NOTIFICATION_FAILURE, null)
+                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED_NOTIFICATION_SENT, null)
             );
     }
 
@@ -111,7 +116,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction("SSCS");
+        processor.processJurisdiction("SSCS", serviceBusHelper);
 
         // then
         assertThat(envelopeRepository.findAll())
@@ -143,8 +148,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs(); // original run
 
         // when
-        processor.processJurisdiction("SSCS"); // retry run
-        processor.processJurisdiction("SSCS"); // another retry run
+        processor.processJurisdiction("SSCS", serviceBusHelper); // retry run
+        processor.processJurisdiction("SSCS", serviceBusHelper); // another retry run
 
         // then
         List<Envelope> envelopes = envelopeRepository.findAll();
