@@ -1,6 +1,6 @@
 #!groovy
 
-@Library("Infrastructure@with-aks-client")
+@Library("Infrastructure")
 import uk.gov.hmcts.contino.GradleBuilder
 
 import uk.gov.hmcts.contino.Kubectl
