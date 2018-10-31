@@ -56,7 +56,7 @@ public class ServiceBusHelper {
 
     public void close() {
         if (sendClient != null) {
-            sendClient.closeAsync();
+            //sendClient.closeAsync();
         }
     }
 
