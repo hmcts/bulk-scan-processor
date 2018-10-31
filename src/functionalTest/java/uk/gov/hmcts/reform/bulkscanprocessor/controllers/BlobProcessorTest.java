@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.microsoft.azure.storage.blob.ContainerURL;
+import com.microsoft.azure.storage.blob.PipelineOptions;
 import com.microsoft.azure.storage.blob.ServiceURL;
-import com.microsoft.rest.v2.Context;
+import com.microsoft.azure.storage.blob.SharedKeyCredentials;
+import com.microsoft.azure.storage.blob.StorageURL;
+import com.microsoft.azure.storage.blob.models.ContainerItem;
+import com.microsoft.rest.v2.http.HttpPipeline;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.reactivex.Flowable;
@@ -12,7 +16,9 @@ import org.springframework.util.ObjectUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.AzureStorageHelper;
 
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -60,13 +66,39 @@ public class BlobProcessorTest {
         String metadataFile = "1111006_2.metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
-        byte[] array = {0, 1, 2};
-        testContainer.createBlockBlobURL("testblob")
-        .upload(Flowable.just(ByteBuffer.wrap(array)), 3L, null, null, null, Context.NONE)
-        .blockingGet();
+        String data = "Hello world!";
 
-        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename)
-            .blockingGet(); // valid zip file
+        Config conf = ConfigFactory.load();
+
+        SharedKeyCredentials credential = new SharedKeyCredentials(
+            "bulkscansandbox",
+            conf.getString("test-storage-account-key")
+        );
+
+        HttpPipeline pipeline = StorageURL.createPipeline(credential, new PipelineOptions());
+
+        URL url = new URL("https://bulkscan.sandbox.platform.hmcts.net");
+        ServiceURL serviceURL = new ServiceURL(url, pipeline);
+
+        AzureStorageHelper azureStorageHelper = new AzureStorageHelper(serviceURL);
+
+        List<String> containers = azureStorageHelper.listContainers()
+            .blockingGet().body().containerItems()
+            .stream()
+            .map(ContainerItem::name)
+            .collect(Collectors.toList());
+
+        System.out.println(containers);
+
+        byte[] bytes = data.getBytes();
+        ByteBuffer wrap = ByteBuffer.wrap(bytes);
+        serviceURL.createContainerURL("bulkscan")
+            .createBlockBlobURL("testblob")
+            .upload(Flowable.just(wrap), data.length(), null, null, null, null)
+            .blockingGet();
+
+//        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename)
+//            .blockingGet(); // valid zip file
 
         await("file should be deleted")
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
