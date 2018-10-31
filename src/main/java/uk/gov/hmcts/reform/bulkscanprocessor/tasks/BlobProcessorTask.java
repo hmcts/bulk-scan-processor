@@ -145,7 +145,7 @@ public class BlobProcessorTask extends Processor {
             return;
         }
 
-        log.info("Processing zip file {}", zipFilename);
+        log.debug("Processing zip file {}", zipFilename);
 
         Envelope existingEnvelope =
             envelopeProcessor.getEnvelopeByFileAndContainer(containerName, zipFilename);
@@ -156,9 +156,12 @@ public class BlobProcessorTask extends Processor {
 
         LeaseStateType leaseStateType = properties.headers().leaseState();
         boolean leaseAvailable = azureStorageHelper.checkLeaseAvailable(containerName, zipFilename, leaseStateType);
+        log.debug("Lease available {} for {} in container: {}", leaseAvailable, zipFilename, containerName);
 
         if (leaseAvailable) {
+            log.debug("Downloading blob: {} in container: {}", zipFilename, containerName);
             byte[] blob = azureStorageHelper.downloadBlob(blockBlobURL).blockingGet().array();
+            log.debug("Download complete blob: {} in container: {}", zipFilename, containerName);
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(blob))) {
@@ -173,12 +176,15 @@ public class BlobProcessorTask extends Processor {
                     );
                 }
             }
+        } else {
+            log.debug("Skipping processing of blob {} in container {} due to blob being already leased", zipFilename, containerName);
         }
     }
 
     private void deleteIfProcessed(BlockBlobURL blockBlobURL, Envelope envelope) {
         try {
             if (envelope.getStatus().isProcessed()) {
+                log.debug("Deleting blob {} because envelope has been processed", envelope.getZipFileName());
                 blockBlobURL.delete(DeleteSnapshotsOptionType.INCLUDE,
                     new BlobAccessConditions().withModifiedAccessConditions(
                         // Wildcard will match any etag.
@@ -187,6 +193,9 @@ public class BlobProcessorTask extends Processor {
 
                 envelope.setZipDeleted(true);
                 envelopeProcessor.saveEnvelope(envelope);
+                log.debug("Blob deleted {}", envelope.getZipFileName());
+            } else {
+                log.debug("Not deleting blob {} as it is not processed", envelope.getZipFileName());
             }
         } catch (StorageErrorException e) {
             log.warn("Failed to delete blob [{}]", blockBlobURL.toURL());
@@ -199,11 +208,14 @@ public class BlobProcessorTask extends Processor {
         String containerName
     ) {
         return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
+            log.debug("Processing zip content: {} {}", zipFilename, containerName);
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(containerName, zipFilename);
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
+            log.debug("Zip file processing finished {} {}", zipFilename, containerName);
+            log.debug("Parsing envelope {} {}", zipFilename, containerName);
             Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
             envelope.setContainer(containerName);
 
@@ -211,6 +223,7 @@ public class BlobProcessorTask extends Processor {
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope);
 
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
+            log.debug("Envelope saved to database {}", envelope.getId());
 
             return zipFileProcessor;
         });

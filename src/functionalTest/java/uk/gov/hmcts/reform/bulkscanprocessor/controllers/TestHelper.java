@@ -53,9 +53,10 @@ public class TestHelper {
 
     public static final String TEST_PRIVATE_KEY_DER = "test_private_key.der";
     private final ServiceURL serviceURL;
+    private final SharedKeyCredentials credential;
 
     public TestHelper(final String accountName, final String accountKey, final String accountUrl) throws InvalidKeyException, MalformedURLException {
-        SharedKeyCredentials credential = new SharedKeyCredentials(
+        credential = new SharedKeyCredentials(
             accountName,
             accountKey
         );
@@ -102,7 +103,22 @@ public class TestHelper {
         byte[] zipFile =
             createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
 
-        BlockBlobURL blockBlobURL = container.createBlockBlobURL(destZipFilename);
+//        SASQueryParameters sas = new ServiceSASSignatureValues()
+//            .withProtocol(SASProtocol.HTTPS_HTTP)
+//            .withExpiryTime(OffsetDateTime.now().plusSeconds(12222222L))
+//            .withContainerName("bulkscan")
+//            .withPermissions(new ContainerSASPermission().withWrite(true).withList(true).toString())
+//            .generateSASQueryParameters(credential);
+//
+//        System.out.println(sas);
+//
+//        BlobURLParts parts = URLParser
+//            .parse(container.createBlobURL(destZipFilename).toURL())
+//            .withSasQueryParameters(sas);
+//        BlockBlobURL blockBlobURL = new BlockBlobURL(parts.toURL(), StorageURL.createPipeline(new AnonymousCredentials(),
+//            new PipelineOptions()));
+
+        BlockBlobURL blockBlobURL = container.createBlockBlobURL(destZipFilename );
         ByteBuffer wrapped = ByteBuffer.wrap(zipFile);
         Flowable<ByteBuffer> just = Flowable.just(wrapped);
         return blockBlobURL

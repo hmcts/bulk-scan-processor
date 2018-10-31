@@ -46,7 +46,7 @@ storage:
   url: https://bulkscan.sandbox.platform.hmcts.net
   blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
   blob_processing_delay_in_minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES:0}
-  signature_algorithm: ${STORAGE_BLOB_SIGNATURE_ALGORITHM:none}  # none or sha256withrsa
+  signature_algorithm: ${STORAGE_BLOB_SIGNATURE_ALGORITHM:sha256withrsa}  # none or sha256withrsa
   public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY:trusted_public_key.der} # public key file in der format
 
 servicebus:
@@ -92,3 +92,7 @@ envelope-access:
        updateService: bulk_scan_processor_tests
 
 flyway.noop.strategy: false
+
+logging:
+  level:
+    uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask: debug
