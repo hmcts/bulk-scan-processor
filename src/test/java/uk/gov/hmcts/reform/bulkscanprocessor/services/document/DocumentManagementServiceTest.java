@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -17,8 +17,8 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.IncompleteResponseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -58,8 +58,7 @@ public class DocumentManagementServiceTest {
 
         documentManagementService = new DocumentManagementService(
             authTokenGenerator,
-            restTemplate,
-            "http://localhost:8080"
+            new DocumentUploadClientApi("http://localhost:8080", restTemplate, new ObjectMapper())
         );
     }
 

@@ -51,8 +51,8 @@ public class BlobProcessorTest {
         this.testHelper = new TestHelper(
             conf.getString("test-storage-account-name"),
             conf.getString("test-storage-account-key"),
-//            "http://bulkscansandbox.blob.core.windows.net"
-            "https://bulkscan.sandbox.platform.hmcts.net"
+            "http://bulkscansandbox.blob.core.windows.net"
+//            "https://bulkscan.sandbox.platform.hmcts.net"
         );
 
         ServiceURL serviceURL = testHelper.getServiceURL();
