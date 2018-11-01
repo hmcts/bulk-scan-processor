@@ -1,10 +1,9 @@
 #!groovy
 
 @Library("Infrastructure")
+
 import uk.gov.hmcts.contino.GradleBuilder
-
 import uk.gov.hmcts.contino.Kubectl
-
 import uk.gov.hmcts.contino.DockerImage
 
 def type = "java"
@@ -47,12 +46,12 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
 env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 env.TEST_SCAN_DELAY = '4000'
-env.RESOURCE_GROUP = 'bulk-scan-aks-rg'
+env.RESOURCE_GROUP = 'bulk-scan-aks'
 
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
-  before('smoketest:aks') {  // or should this be after('aksdeploy')?
+  before('smoketest:aks') {
     withAksClient('nonprod') {
       def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
 
