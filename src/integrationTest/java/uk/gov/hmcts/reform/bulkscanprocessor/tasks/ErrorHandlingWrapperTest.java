@@ -42,7 +42,7 @@ public class ErrorHandlingWrapperTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         cloudBlobClient = account.createCloudBlobClient();
 
-        testContainer = cloudBlobClient.getContainerReference("test");
+        testContainer = cloudBlobClient.getContainerReference("bulkscan");
         testContainer.createIfNotExists();
 
         errorHandlingWrapper = new ErrorHandlingWrapper(taskErrorHandler);

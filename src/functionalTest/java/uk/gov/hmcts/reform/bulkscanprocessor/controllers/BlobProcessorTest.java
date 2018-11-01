@@ -54,7 +54,7 @@ public class BlobProcessorTest {
 
         testContainer = new CloudStorageAccount(
             storageCredentials,
-            new StorageUri(new URI("https://bulkscan.saat.platform.hmcts.net"), null),
+            new StorageUri(new URI(conf.getString("test-storage-account-url")), null),
             null,
             null
         )

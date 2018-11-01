@@ -39,7 +39,7 @@ locals {
 
   #endregion
 
-  sku_size = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
+  sku_size                    = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
   storage_account_name        = "${data.terraform_remote_state.shared_infra.storage_account_name}"
   storage_account_primary_key = "${data.terraform_remote_state.shared_infra.storage_account_primary_key}"
   storage_account_url_prod    = "https://bulkscan.platform.hmcts.net"

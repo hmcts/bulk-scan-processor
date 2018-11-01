@@ -120,8 +120,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
         processor = spy(p);
         doReturn(serviceBusHelper).when(processor).serviceBusHelper();
-        
-        testContainer = cloudBlobClient.getContainerReference("test");
+
+        testContainer = cloudBlobClient.getContainerReference("bulkscan");
         testContainer.createIfNotExists();
     }
 
