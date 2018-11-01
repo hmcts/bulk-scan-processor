@@ -52,14 +52,13 @@ public class SendNotificationTask {
     }
 
     private void createEvent(Envelope envelope) {
-        processEventRepo
-            .save(
-                new ProcessEvent(
-                    envelope.getContainer(),
-                    envelope.getZipFileName(),
-                    Event.DOC_PROCESSED_NOTIFICATION_SENT
-                )
-            );
+        processEventRepo.save(
+            new ProcessEvent(
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                Event.DOC_PROCESSED_NOTIFICATION_SENT
+            )
+        );
     }
 
     private void updateStatus(Envelope envelope) {
