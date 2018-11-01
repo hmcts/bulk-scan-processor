@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
+import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -12,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -50,9 +52,14 @@ public class BlobProcessorTest {
                 conf.getString("test-storage-account-key")
             );
 
-        testContainer = new CloudStorageAccount(storageCredentials, true)
+        testContainer = new CloudStorageAccount(
+            storageCredentials,
+            new StorageUri(new URI(conf.getString("test-storage-account-url")), null),
+            null,
+            null
+        )
             .createCloudBlobClient()
-            .getContainerReference("test");
+            .getContainerReference("bulkscan");
     }
 
     @Test

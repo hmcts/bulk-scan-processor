@@ -23,15 +23,16 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.SigningHelper.signWit
 @RunWith(MockitoJUnitRunner.class)
 public class ZipVerifiersTest {
 
-    private String publicKeyBase64 =
-        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEXfjyDFFigzsmFvTe2cWZ45ggH/XoS/3C6Ur/"
-            + "V0egi8k5hnIIgPEOUqhrX5UcQorSX7bIlMped6TtPkYdGs/QI6S5m2uz+6Mjai7ZfACGhYxIs8"
-            + "35msqvRsDM0tIle/h3eZJb7iPE0anMWb8MkBYU3D3vAnPdBZxiEIwNMUNzqQIDAQAB";
-
+    private static String publicKeyBase64;
     private static String xyzPublicKeyBase64;
 
     @BeforeClass
     public static void setUp() throws IOException {
+        publicKeyBase64 =
+            Base64.getEncoder().encodeToString(
+                toByteArray(getResource("signature/public_key.der"))
+            );
+
         xyzPublicKeyBase64 =
             Base64.getEncoder().encodeToString(
                 toByteArray(getResource("signature/xyz_test_public_key.der"))

@@ -75,7 +75,7 @@ public class FailedDocUploadProcessor extends Processor {
 
         List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
-        if (envelopes.size() > 0) {
+        if (!envelopes.isEmpty()) {
             String containerName = envelopes.get(0).getContainer();
 
             processEnvelopes(containerName, envelopes);
@@ -87,10 +87,16 @@ public class FailedDocUploadProcessor extends Processor {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
-        CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
+        try {
+            CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
 
-        for (Envelope envelope : envelopes) {
-            processEnvelope(container, envelope);
+            for (Envelope envelope : envelopes) {
+                processEnvelope(container, envelope);
+            }
+        } finally {
+            if (serviceBusHelper != null) {
+                serviceBusHelper.close();
+            }
         }
     }
 
@@ -103,7 +109,11 @@ public class FailedDocUploadProcessor extends Processor {
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            ZipFileProcessor zipFileProcessor = processZipInputStream(zis, envelope);
+            ZipFileProcessor zipFileProcessor = processZipInputStream(
+                zis,
+                envelope.getContainer(),
+                envelope.getZipFileName()
+            );
 
             if (zipFileProcessor != null) {
                 processParsedEnvelopeDocuments(
@@ -116,13 +126,18 @@ public class FailedDocUploadProcessor extends Processor {
         }
     }
 
-    private ZipFileProcessor processZipInputStream(ZipInputStream zis, Envelope envelope) {
-        return errorWrapper.wrapDocFailure(envelope.getContainer(), envelope.getZipFileName(), () -> {
-            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(envelope);
+    private ZipFileProcessor processZipInputStream(
+        ZipInputStream zis,
+        String containerName,
+        String zipFileName
+    ) {
+        return errorWrapper.wrapDocFailure(containerName, zipFileName, () -> {
+            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-                    zis, publicKeyDerFilename, envelope.getZipFileName(), envelope.getContainer()
+                    zis, publicKeyDerFilename, zipFileName, containerName
                 );
+
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             return zipFileProcessor;

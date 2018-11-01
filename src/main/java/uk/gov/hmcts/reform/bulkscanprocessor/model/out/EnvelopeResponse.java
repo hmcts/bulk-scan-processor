@@ -17,49 +17,49 @@ import static java.util.Collections.emptyList;
 public class EnvelopeResponse {
 
     @JsonProperty("id")
-    private UUID id;
+    private final UUID id;
 
     @JsonProperty("case_number")
-    private String caseNumber;
+    private final String caseNumber;
 
     @JsonProperty("container")
-    private String container;
+    private final String container;
 
     @JsonProperty("po_box")
-    private String poBox;
+    private final String poBox;
 
     @JsonProperty("jurisdiction")
-    private String jurisdiction;
+    private final String jurisdiction;
 
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("delivery_date")
-    private Timestamp deliveryDate;
+    private final Timestamp deliveryDate;
 
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("opening_date")
-    private Timestamp openingDate;
+    private final Timestamp openingDate;
 
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("zip_file_createddate")
-    private Timestamp zipFileCreateddate;
+    private final Timestamp zipFileCreateddate;
 
     @JsonProperty("zip_file_name")
-    private String zipFileName;
+    private final String zipFileName;
 
     @JsonProperty("status")
-    private Status status;
+    private final Status status;
 
     @JsonProperty("classification")
-    private String classification;
+    private final String classification;
 
     @JsonProperty("scannable_items")
-    private List<ScannableItemResponse> scannableItems;
+    private final List<ScannableItemResponse> scannableItems;
 
     @JsonProperty("payments")
-    private List<PaymentResponse> payments;
+    private final List<PaymentResponse> payments;
 
     @JsonProperty("non_scannable_items")
-    private List<NonScannableItemResponse> nonScannableItems;
+    private final List<NonScannableItemResponse> nonScannableItems;
 
     @JsonCreator
     public EnvelopeResponse(

@@ -49,7 +49,7 @@ public class UpdateStatusTest {
                 true
             )
                 .createCloudBlobClient()
-                .getContainerReference("test");
+                .getContainerReference("bulkscan");
     }
 
     @Test

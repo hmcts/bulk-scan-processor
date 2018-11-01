@@ -14,42 +14,24 @@ public enum Status {
     NOTIFICATION_SENT; // after notifying that processing is complete
 
     public static Optional<Status> fromEvent(Event event) {
-        Status status = null;
-
         switch (event) {
             case DOC_FAILURE:
-                status = METADATA_FAILURE;
-
-                break;
+                return Optional.of(METADATA_FAILURE);
             case DOC_SIGNATURE_FAILURE:
-                status = SIGNATURE_FAILURE;
-
-                break;
+                return Optional.of(SIGNATURE_FAILURE);
             case DOC_UPLOADED:
-                status = UPLOADED;
-
-                break;
+                return Optional.of(UPLOADED);
             case DOC_UPLOAD_FAILURE:
-                status = UPLOAD_FAILURE;
-
-                break;
+                return Optional.of(UPLOAD_FAILURE);
             case DOC_PROCESSED:
-                status = PROCESSED;
-
-                break;
+                return Optional.of(PROCESSED);
             case DOC_CONSUMED:
-                status = CONSUMED;
-
-                break;
+                return Optional.of(CONSUMED);
             case DOC_PROCESSED_NOTIFICATION_SENT:
-                status = NOTIFICATION_SENT;
-
-                break;
+                return Optional.of(NOTIFICATION_SENT);
             default:
-                break;
+                return Optional.empty();
         }
-
-        return Optional.ofNullable(status);
     }
 
     public boolean isProcessed() {

@@ -23,7 +23,7 @@ output "TEST_SCAN_DELAY" {
 }
 
 output "TEST_STORAGE_ACCOUNT_NAME" {
-  value     = "${local.storage_account_name}"
+  value = "${local.storage_account_name}"
 }
 
 output "TEST_S2S_URL" {
@@ -33,6 +33,10 @@ output "TEST_S2S_URL" {
 output "TEST_S2S_NAME" {
   sensitive = true
   value     = "${var.test_s2s_name}"
+}
+
+output "TEST_STORAGE_ACCOUNT_URL" {
+  value = "${local.storage_account_url}"
 }
 
 output "api_gateway_url" {
