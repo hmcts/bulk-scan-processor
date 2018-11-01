@@ -16,7 +16,7 @@ public class QueueClientSupplier implements Supplier<IQueueClient> {
 
     private final String connectionString;
 
-    public QueueClientSupplier(@Value("${servicebus.queue_envelope_send}") String connectionString) {
+    public QueueClientSupplier(@Value("${azure.servicebus.connection-string}") String connectionString) {
         this.connectionString = connectionString;
     }
 

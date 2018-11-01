@@ -49,8 +49,7 @@ public class ServiceBusHelperTest {
 
     @Before
     public void setUp() {
-        when(queueClientSupplier.get()).thenReturn(this.queueClient);
-        serviceBusHelper = new ServiceBusHelper(queueClientSupplier, this.objectMapper);
+        serviceBusHelper = new ServiceBusHelper(queueClient, this.objectMapper);
 
         mockEnvelopeData();
     }

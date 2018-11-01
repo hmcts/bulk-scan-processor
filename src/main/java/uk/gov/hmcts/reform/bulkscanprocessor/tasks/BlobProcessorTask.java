@@ -10,9 +10,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -57,6 +57,8 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_processing_delay_in_minutes}")
     protected int blobProcessingDelayInMinutes = 0;
 
+    @Autowired
+    @Lazy
     private ServiceBusHelper serviceBusHelper;
 
     @Autowired
@@ -76,29 +78,18 @@ public class BlobProcessorTask extends Processor {
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper,
+        ServiceBusHelper serviceBusHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
         this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        this.serviceBusHelper = serviceBusHelper;
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
-    /**
-     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
-     *
-     * @return Instance of {@code ServiceBusHelper}
-     */
-    @Lookup
-    public ServiceBusHelper serviceBusHelper() {
-        return null;
-    }
-
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
-        if (serviceBusHelper == null) {
-            serviceBusHelper = serviceBusHelper();
-        }
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
             processZipFiles(container);
         }
