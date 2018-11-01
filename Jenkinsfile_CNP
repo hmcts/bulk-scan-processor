@@ -29,6 +29,7 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
 ]
 
 List<LinkedHashMap<String, Object>> commonSecrets = [
+  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
   secret('test-s2s-secret', 'TEST_S2S_SECRET'),
   secret('s2s-secret', 'S2S_SECRET'),
 ]
@@ -42,17 +43,18 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   ]
 }
 
-// Vars needed for AKS testing
-env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
-env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
-env.TEST_SCAN_DELAY = '4000'
-env.RESOURCE_GROUP = 'bulk-scan-aks'
-
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
   before('smoketest:aks') {
     withAksClient('nonprod') {
+
+      // Vars needed for AKS testing
+      env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
+      env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+      env.TEST_SCAN_DELAY = '4000'
+      env.RESOURCE_GROUP = 'bulk-scan-aks'
+
       def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
 
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
