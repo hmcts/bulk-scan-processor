@@ -39,7 +39,7 @@ public class EnvelopeDeletionTest {
 
         testContainer = new CloudStorageAccount(credentials, true)
             .createCloudBlobClient()
-            .getContainerReference("bulkscan");
+            .getContainerReference(conf.getString("test-storage-container-name"));
 
         testHelper = new TestHelper();
     }

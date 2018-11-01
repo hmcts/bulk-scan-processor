@@ -59,7 +59,7 @@ public class GetSasTokenTest {
 
             CloudBlobContainer testContainer = new CloudStorageAccount(storageCredentials, true)
                 .createCloudBlobClient()
-                .getContainerReference("bulkscan");
+                .getContainerReference(conf.getString("test-storage-container-name"));
 
             CloudBlockBlob blob = testContainer.getBlockBlobReference(destZipFilename);
             if (blob.exists()) {

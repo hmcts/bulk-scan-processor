@@ -59,7 +59,7 @@ public class BlobProcessorTest {
             null
         )
             .createCloudBlobClient()
-            .getContainerReference("bulkscan");
+            .getContainerReference(conf.getString("test-storage-container-name"));
     }
 
     @Test
