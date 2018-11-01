@@ -174,7 +174,7 @@ spec:
   #
   parameters:
     location: uksouth
-    resourceGroup: bulk-scan-2
+    resourceGroup: bulk-scan-aks
 ---
 #
 # The binding.  This will return the secret with connection details, etc.
@@ -220,7 +220,7 @@ spec:
   #
   parameters:
     location: uksouth
-    resourceGroup: bulk-scan-2
+    resourceGroup: bulk-scan-aks
 ---
 #
 # The binding.  This will return the secret with connection details, etc.
