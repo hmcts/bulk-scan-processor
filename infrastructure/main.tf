@@ -40,6 +40,11 @@ locals {
   #endregion
 
   sku_size = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
+  storage_account_name        = "${data.terraform_remote_state.shared_infra.storage_account_name}"
+  storage_account_primary_key = "${data.terraform_remote_state.shared_infra.storage_account_primary_key}"
+  storage_account_url_prod    = "https://bulkscan.platform.hmcts.net"
+  storage_account_url_notprod = "https://bulkscan.${var.env}.platform.hmcts.net"
+  storage_account_url         = "${var.env == "prod" ? local.storage_account_url_prod : local.storage_account_url_notprod}"
 }
 
 module "bulk-scan-db" {
@@ -82,8 +87,9 @@ module "bulk-scan" {
     FLYWAY_USER                   = "${module.bulk-scan-db.user_name}"
     FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
 
-    STORAGE_ACCOUNT_NAME = "${azurerm_storage_account.provider.name}"
-    STORAGE_KEY          = "${azurerm_storage_account.provider.primary_access_key}"
+    STORAGE_ACCOUNT_NAME = "${local.storage_account_name}"
+    STORAGE_KEY          = "${local.storage_account_primary_key}"
+    STORAGE_URL          = "${local.storage_account_url}"
     SAS_TOKEN_VALIDITY   = "${var.token_validity}"
 
     DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"

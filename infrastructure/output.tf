@@ -23,8 +23,7 @@ output "TEST_SCAN_DELAY" {
 }
 
 output "TEST_STORAGE_ACCOUNT_NAME" {
-  sensitive = true
-  value     = "${azurerm_storage_account.provider.name}"
+  value = "${local.storage_account_name}"
 }
 
 output "TEST_S2S_URL" {
@@ -36,7 +35,10 @@ output "TEST_S2S_NAME" {
   value     = "${var.test_s2s_name}"
 }
 
-# this variable will be accessible to tests as API_GATEWAY_URL environment variable
+output "TEST_STORAGE_ACCOUNT_URL" {
+  value = "${local.storage_account_url}"
+}
+
 output "api_gateway_url" {
   value = "https://core-api-mgmt-${var.env}.azure-api.net/${local.api_base_path}"
 }
