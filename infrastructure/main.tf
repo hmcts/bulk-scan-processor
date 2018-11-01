@@ -113,10 +113,8 @@ module "bulk-scan" {
     QUEUE_ENVELOPE_SEND = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
 
     // silence the "bad implementation" logs
-    LOGBACK_REQUIRE_ALERT_LEVEL = false
-    LOGBACK_REQUIRE_ERROR_CODE  = false
-
-    FORCE_INFRA_CHANGE = "remove-me"
+    LOGBACK_REQUIRE_ALERT_LEVEL = "false"
+    LOGBACK_REQUIRE_ERROR_CODE  = "false"
   }
 }
 
