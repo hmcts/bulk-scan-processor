@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,11 +14,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @SpringBootTest
@@ -58,5 +62,29 @@ public class SendNotificationTaskTest {
                 assertThat(event.getZipFileName()).isEqualTo(envelopeInDb.getZipFileName());
                 assertThat(event.getEvent()).isEqualTo(Event.DOC_PROCESSED_NOTIFICATION_SENT);
             });
+    }
+
+    @Test
+    public void should_not_update_envelope_if_sending_notification_failed() {
+        // given
+        Envelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
+
+        doThrow(InvalidMessageException.class)
+            .when(serviceBusHelper).sendMessage(any());
+
+        // when
+        task.run();
+
+        // then
+        Envelope envelopeAfterTaskRun = envelopeRepo.getOne(envelopeInDb.getId());
+
+        assertThat(envelopeAfterTaskRun.getStatus())
+            .isEqualTo(Status.PROCESSED); // status still the same.
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        processEventRepo.deleteAll();
+        envelopeRepo.deleteAll();
     }
 }
