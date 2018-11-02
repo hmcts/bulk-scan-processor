@@ -23,6 +23,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
      */
     List<Envelope> findByJurisdiction(String jurisdiction);
 
+    List<Envelope> findByStatus(Status status);
+
     /**
      * Finds envelope with a blob not deleted for a given container and zip file name.
      *
