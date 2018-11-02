@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableMap;
-import com.netflix.servo.util.ThreadFactories;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
@@ -17,9 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,8 +54,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
             ));
 
         // When
-        // 5 blob processor task threads try to process single blob
-        List<Future<Void>> futureTasks = processBlobUsingExecutor(5);
+        List<Future<Void>> futureTasks = processBlobUsingExecutor();
 
         futureTasks.forEach(future -> {
             try {
@@ -85,25 +81,23 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     }
 
     @NotNull
-    private List<Future<Void>> processBlobUsingExecutor(int numberOfThreads) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(
-            numberOfThreads,
-            ThreadFactories.withName("BSP-ACQUIRE-LEASE-TEST")
-        );
+    private List<Future<Void>> processBlobUsingExecutor() {
+        List<Future<Void>> tasks = new ArrayList<>();
 
-        List<Callable<Void>> tasks = new ArrayList<>();
-
-        for (int threadCount = 0; threadCount < numberOfThreads; threadCount++) {
-            tasks.add(callableTask());
+        for (int threadCount = 0; threadCount < 5; threadCount++) {
+            tasks.add(CompletableFuture.runAsync(runnableTask()));
         }
 
-        return executorService.invokeAll(tasks);
+        return tasks;
     }
 
-    private Callable<Void> callableTask() {
+    private Runnable runnableTask() {
         return () -> {
-            processor.processBlobs();
-            return null;
+            try {
+                processor.processBlobs();
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
         };
     }
 
