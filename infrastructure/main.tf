@@ -98,6 +98,10 @@ module "bulk-scan" {
     REUPLOAD_ENABLED                         = "${var.reupload_enabled}"
     SCAN_DELAY                               = "${var.scan_delay}"
     SCAN_ENABLED                             = "${var.scan_enabled}"
+
+    SEND_NOTIFICATIONS_TASK_ENABLED          = "${var.notifications_task_enabled}"
+    SEND_NOTIFICATIONS_TASK_DELAY            = "${var.notifications_task_delay}"
+
     STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES = "${var.blob_processing_delay_in_minutes}"
 

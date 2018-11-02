@@ -12,11 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -58,10 +56,6 @@ public class BlobProcessorTask extends Processor {
     protected int blobProcessingDelayInMinutes = 0;
 
     @Autowired
-    @Lazy
-    private ServiceBusHelper serviceBusHelper;
-
-    @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -78,12 +72,10 @@ public class BlobProcessorTask extends Processor {
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper,
-        ServiceBusHelper serviceBusHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
         this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-        this.serviceBusHelper = serviceBusHelper;
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -108,11 +100,11 @@ public class BlobProcessorTask extends Processor {
         );
         Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
-            processZipFile(container, zipFilename, serviceBusHelper);
+            processZipFile(container, zipFilename);
         }
     }
 
-    private void processZipFile(CloudBlobContainer container, String zipFilename, ServiceBusHelper serviceBusHelper)
+    private void processZipFile(CloudBlobContainer container, String zipFilename)
         throws IOException, StorageException, URISyntaxException {
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
@@ -144,8 +136,7 @@ public class BlobProcessorTask extends Processor {
                     processParsedEnvelopeDocuments(
                         zipFileProcessor.getEnvelope(),
                         zipFileProcessor.getPdfs(),
-                        blobWithLeaseAcquired,
-                        serviceBusHelper
+                        blobWithLeaseAcquired
                     );
                 }
             }

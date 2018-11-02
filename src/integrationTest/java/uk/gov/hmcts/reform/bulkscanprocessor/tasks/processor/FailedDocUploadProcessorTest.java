@@ -6,12 +6,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessorTestSuite;
 
@@ -23,10 +21,9 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
@@ -35,9 +32,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUploadProcessor> {
 
     private BlobProcessorTask blobProcessorTask;
-
-    @Mock
-    private ServiceBusHelper serviceBusHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +42,6 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             documentProcessor,
             envelopeProcessor,
             errorWrapper,
-            serviceBusHelper,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );
@@ -85,7 +78,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         assertThat(dbEnvelopes)
             .hasSize(1)
             .extracting("status")
-            .containsOnlyOnce(NOTIFICATION_SENT);
+            .containsOnlyOnce(PROCESSED);
         assertThat(dbEnvelopes.get(0).getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
@@ -94,13 +87,11 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         String failureReason = "Error retrieving urls for uploaded files: 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
-            .hasSize(4)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOADED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED_NOTIFICATION_SENT, null)
+                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null)
             );
     }
 

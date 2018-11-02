@@ -9,12 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
@@ -33,10 +31,6 @@ public class FailedDocUploadProcessor extends Processor {
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
 
     @Autowired
-    @Lazy
-    private ServiceBusHelper serviceBusHelper;
-
-    @Autowired
     public FailedDocUploadProcessor(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -53,12 +47,10 @@ public class FailedDocUploadProcessor extends Processor {
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper,
-        ServiceBusHelper serviceBusHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
         this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-        this.serviceBusHelper = serviceBusHelper;
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -106,8 +98,7 @@ public class FailedDocUploadProcessor extends Processor {
                 processParsedEnvelopeDocuments(
                     envelope,
                     zipFileProcessor.getPdfs(),
-                    cloudBlockBlob,
-                    serviceBusHelper
+                    cloudBlockBlob
                 );
             }
         }
