@@ -117,9 +117,10 @@ public class GetSasTokenTest {
 
     @Test
     public void sas_token_should_have_read_and_write_capabilities_for_service() throws Exception {
-        String sasToken = testHelper.getSasToken(conf.getString("test-storage-container-name"), this.testUrl);
+        String testContainerName = conf.getString("test-storage-container-name");
+        String sasToken = testHelper.getSasToken(testContainerName, this.testUrl);
         CloudBlobContainer testSasContainer =
-            testHelper.getCloudContainer(sasToken, conf.getString("test-storage-container-name"), this.blobContainerUrl);
+            testHelper.getCloudContainer(sasToken, testContainerName, this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
         testHelper.uploadAndLeaseZipFile(
