@@ -67,7 +67,7 @@ public class FailedDocUploadProcessorTest {
 
         // we only test the output pattern. client is null
         // when
-        catchThrowableOfType(() -> processor.processJurisdiction("SSCS", serviceBusHelper), NullPointerException.class);
+        catchThrowableOfType(() -> processor.processJurisdiction("SSCS"), NullPointerException.class);
 
         // then
         assertThat(outputCapture.toString()).containsPattern("Processing 3 failed documents for container test");

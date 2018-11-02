@@ -63,10 +63,8 @@ public class FailedDocUploadProcessor extends Processor {
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
-    public void processJurisdiction(String jurisdiction, ServiceBusHelper serviceBusHelper)
+    public void processJurisdiction(String jurisdiction)
         throws IOException, StorageException, URISyntaxException {
-
-        this.serviceBusHelper = serviceBusHelper;
 
         List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 

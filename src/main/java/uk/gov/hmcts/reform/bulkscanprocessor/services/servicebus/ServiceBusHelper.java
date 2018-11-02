@@ -45,12 +45,6 @@ public class ServiceBusHelper {
         }
     }
 
-    public void close() {
-        if (sendClient != null) {
-            sendClient.closeAsync();
-        }
-    }
-
     Message mapToBusMessage(Msg msg) {
         if (msg == null) {
             throw new InvalidMessageException("Msg == null");

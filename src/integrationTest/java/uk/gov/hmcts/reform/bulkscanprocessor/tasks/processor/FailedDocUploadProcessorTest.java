@@ -77,7 +77,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction("SSCS", serviceBusHelper);
+        processor.processJurisdiction("SSCS");
 
         // then
         List<Envelope> dbEnvelopes = envelopeRepository.findAll();
@@ -117,7 +117,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction("SSCS", serviceBusHelper);
+        processor.processJurisdiction("SSCS");
 
         // then
         assertThat(envelopeRepository.findAll())
@@ -149,8 +149,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs(); // original run
 
         // when
-        processor.processJurisdiction("SSCS", serviceBusHelper); // retry run
-        processor.processJurisdiction("SSCS", serviceBusHelper); // another retry run
+        processor.processJurisdiction("SSCS"); // retry run
+        processor.processJurisdiction("SSCS"); // another retry run
 
         // then
         List<Envelope> envelopes = envelopeRepository.findAll();
