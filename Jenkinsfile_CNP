@@ -73,6 +73,7 @@ withPipeline(type, product, component) {
 
       // Get storage account details from kubernetes
       env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecret, namespace, "{.data.storageAccountName}")
+      env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
       // Check storage containers exist and create if they don't
       def containers = az "storage container list --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --query '[].name'"
