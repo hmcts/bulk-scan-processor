@@ -45,8 +45,6 @@ public abstract class Processor {
         this.errorWrapper = errorWrapper;
     }
 
-    protected abstract ServiceBusHelper serviceBusHelper();
-
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs,

@@ -40,7 +40,6 @@ public class ServiceBusHelperTest {
     @Autowired private ObjectMapper objectMapper;
 
     @Mock private IQueueClient queueClient;
-    @Mock private QueueClientSupplier queueClientSupplier;
     @Mock private Envelope envelope;
     @Mock private ScannableItem scannableItem1;
     @Mock private ScannableItem scannableItem2;
@@ -49,8 +48,7 @@ public class ServiceBusHelperTest {
 
     @Before
     public void setUp() {
-        when(queueClientSupplier.get()).thenReturn(this.queueClient);
-        serviceBusHelper = new ServiceBusHelper(queueClientSupplier, this.objectMapper);
+        serviceBusHelper = new ServiceBusHelper(queueClient, this.objectMapper);
 
         mockEnvelopeData();
     }
