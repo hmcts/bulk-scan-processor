@@ -69,7 +69,7 @@ idam:
 
 dm:
   api_gateway:
-    url: ${DOCUMENT_MANAGEMENT_URL:http://localhost:8082}
+    url: ${DOCUMENT_MANAGEMENT_URL:http://localhost:4460}
 
 scheduling:
   pool: ${SCHEDULING_POOL:10}
