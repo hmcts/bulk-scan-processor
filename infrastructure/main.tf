@@ -86,6 +86,7 @@ module "bulk-scan" {
     FLYWAY_URL                    = "jdbc:postgresql://${module.bulk-scan-db.host_name}:${module.bulk-scan-db.postgresql_listen_port}/${module.bulk-scan-db.postgresql_database}${local.db_connection_options}"
     FLYWAY_USER                   = "${module.bulk-scan-db.user_name}"
     FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
+    FLYWAY_NOOP_STRATEGY          = "true"
 
     STORAGE_ACCOUNT_NAME = "${local.storage_account_name}"
     STORAGE_KEY          = "${local.storage_account_primary_key}"
