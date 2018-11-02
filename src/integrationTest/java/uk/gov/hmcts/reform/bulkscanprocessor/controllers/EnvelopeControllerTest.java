@@ -33,7 +33,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -55,7 +54,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -90,9 +89,6 @@ public class EnvelopeControllerTest {
 
     @Mock
     private DocumentManagementService documentManagementService;
-
-    @Mock
-    private ServiceBusHelper serviceBusHelper;
 
     @MockBean
     private AuthTokenValidator tokenValidator;
@@ -135,7 +131,6 @@ public class EnvelopeControllerTest {
                 reuploadMaxTries
             ),
             errorWrapper,
-            serviceBusHelper,
             "none",
             "none"
 
@@ -170,7 +165,7 @@ public class EnvelopeControllerTest {
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
-        mockMvc.perform(get("/envelopes?status=" + NOTIFICATION_SENT)
+        mockMvc.perform(get("/envelopes?status=" + PROCESSED)
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
@@ -181,7 +176,7 @@ public class EnvelopeControllerTest {
 
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
-        assertThat(envelopes.get(0).getStatus()).isEqualTo(NOTIFICATION_SENT);
+        assertThat(envelopes.get(0).getStatus()).isEqualTo(PROCESSED);
 
         verify(documentManagementService, never())
             .uploadDocuments(

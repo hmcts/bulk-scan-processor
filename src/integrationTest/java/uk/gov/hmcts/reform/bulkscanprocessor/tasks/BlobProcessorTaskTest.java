@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
@@ -34,15 +33,12 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
@@ -84,8 +80,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
                 "1111002.pdf", DOCUMENT_URL2
             ));
 
-        doNothing().when(serviceBusHelper).sendMessage(any(Msg.class));
-
         // when
         processor.processBlobs();
 
@@ -101,7 +95,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             parse(originalMetaFile),
             "id", "amount", "amount_in_pence", "configuration", "json"
         );
-        assertThat(actualEnvelope.getStatus()).isEqualTo(NOTIFICATION_SENT);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
         assertThat(actualEnvelope.getScannableItems())
             .extracting("documentUrl")
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
@@ -110,16 +104,12 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf));
 
-        verify(serviceBusHelper, times(1)).sendMessage(any());
-
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(3);
         assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
             .containsExactlyInAnyOrder(
                 DOC_UPLOADED,
-                DOC_PROCESSED,
-                DOC_PROCESSED_NOTIFICATION_SENT
+                DOC_PROCESSED
             );
 
         assertThat(processEvents).allMatch(pe -> pe.getReason() == null);
@@ -188,7 +178,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         Envelope envelope = getSingleEnvelopeFromDb();
 
-        assertThat(envelope.getStatus()).isEqualTo(NOTIFICATION_SENT);
+        assertThat(envelope.getStatus()).isEqualTo(PROCESSED);
         assertThat(envelope.isZipDeleted()).isTrue();
 
         // Check events created
@@ -196,7 +186,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .map(ProcessEvent::getEvent)
             .collect(toList());
 
-        assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED, DOC_PROCESSED_NOTIFICATION_SENT);
+        assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED);
     }
 
     @Test
