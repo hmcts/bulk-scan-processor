@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -76,16 +75,20 @@ public class UpdateStatusTest {
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
+        await("processing should end")
+            .atMost(scanDelay, TimeUnit.MILLISECONDS)
+            .pollInterval(500, TimeUnit.MILLISECONDS)
+            .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, destZipFilename)
+                .filter(env -> env.getStatus() == Status.NOTIFICATION_SENT)
+                .isPresent()
+            );
+
         // find our envelope
         UUID envelopeId =
             testHelper
-                .getEnvelopes(this.testUrl, s2sToken, Status.NOTIFICATION_SENT)
-                .envelopes
-                .stream()
-                .filter(e -> Objects.equals(e.getZipFileName(), destZipFilename))
-                .map(EnvelopeResponse::getId)
-                .findFirst()
-                .get();
+                .getEnvelopeByZipFileName(testUrl, s2sToken, destZipFilename)
+                .get()
+                .getId();
 
         testHelper.updateEnvelopeStatus(
             this.testUrl,
