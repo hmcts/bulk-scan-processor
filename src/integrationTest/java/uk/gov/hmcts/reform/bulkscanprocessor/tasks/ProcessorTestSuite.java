@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
@@ -49,6 +48,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             DocumentProcessor documentProcessor,
             EnvelopeProcessor envelopeProcessor,
             ErrorHandlingWrapper errorWrapper,
+            ServiceBusHelper serviceBusHelper,
             String signatureAlg,
             String publicKeyBase64
         );
@@ -114,14 +114,15 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             documentProcessor,
             envelopeProcessor,
             errorWrapper,
+            serviceBusHelper,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );
 
         processor = spy(p);
-        doReturn(serviceBusHelper).when(processor).serviceBusHelper();
 
         testContainer = cloudBlobClient.getContainerReference("bulkscan");
+
         testContainer.createIfNotExists();
     }
 
