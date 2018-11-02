@@ -10,7 +10,9 @@ data:
   TEST_S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
   TEST_SCAN_DELAY: "4000"
   DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
+
   SCAN_ENABLED: "true"
+  SCAN_DELAY: "4000"
 
   REUPLOAD_ENABLED: "true"
   REUPLOAD_DELAY: "4000"
