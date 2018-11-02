@@ -1,7 +1,10 @@
 #!groovy
 
 @Library("Infrastructure")
+
 import uk.gov.hmcts.contino.GradleBuilder
+import uk.gov.hmcts.contino.Kubectl
+import uk.gov.hmcts.contino.DockerImage
 
 def type = "java"
 def product = "bulk-scan"
@@ -22,12 +25,14 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
   secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
   secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
 
-  secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY')
+  secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
+
+  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
 ]
 
 List<LinkedHashMap<String, Object>> commonSecrets = [
-  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
   secret('test-s2s-secret', 'TEST_S2S_SECRET'),
+  secret('s2s-secret', 'S2S_SECRET'),
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
@@ -42,6 +47,53 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
+  before('smoketest:aks') {
+    withAksClient('nonprod') {
+
+      // Vars needed for AKS testing
+      env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
+      env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+      env.TEST_SCAN_DELAY = '4000'
+      env.RESOURCE_GROUP = 'bulk-scan-aks'
+
+      def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
+
+      def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
+      def subscription = env.SUBSCRIPTION_NAME
+      def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
+      def storageSecret = "${aksServiceName}-storage-secret"
+      def serviceBusSecret = "${aksServiceName}-servicebus-secret"
+      def queueName = "envelopes"
+      def storageContainers = ["test", "sscs"]
+
+      def namespace = aksServiceName
+      def kubectl = new Kubectl(this, subscription, namespace)
+      kubectl.login()
+
+      // Get storage account details from kubernetes
+      env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecret, namespace, "{.data.storageAccountName}")
+      env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
+      // Check storage containers exist and create if they don't
+      def containers = az "storage container list --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --query '[].name'"
+      storageContainers.each {
+        if (!containers.contains("${it}")) {
+          az "storage container create --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --name ${it}"
+        }
+      }
+
+      // Get service bus connection string and parse to get namespace
+      def serviceBusConnectionStr = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
+      //Regex: Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*
+      def serviceBusNamespace = serviceBusConnectionStr.substring(14).split("\\.")[0]
+
+      // create queue
+      def queues = az "servicebus queue list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
+      if (!queues.contains(queueName)) {
+        az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
+      }
+    }
+  }
+  
   after('test') {
     builder.gradle('integration')
   }
@@ -49,6 +101,7 @@ withPipeline(type, product, component) {
   enableSlackNotifications(channel)
   enableApiGatewayTest()
   enableDockerBuild()
+  enableDeployToAKS()
 
   onPR() {
     loadVaultSecrets(commonSecrets)
@@ -57,4 +110,6 @@ withPipeline(type, product, component) {
   onNonPR() {
     loadVaultSecrets(commonSecrets + apiTestSecrets)
   }
+
+  setVaultName('bulk-scan')
 }
