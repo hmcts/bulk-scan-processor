@@ -55,6 +55,7 @@ withPipeline(type, product, component) {
       env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
       env.TEST_SCAN_DELAY = '4000'
       env.RESOURCE_GROUP = 'bulk-scan-aks'
+      env.TEST_STORAGE_CONTAINER_NAME = 'bulk-scan'
 
       def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
 
@@ -93,7 +94,7 @@ withPipeline(type, product, component) {
       }
     }
   }
-  
+
   after('test') {
     builder.gradle('integration')
   }
