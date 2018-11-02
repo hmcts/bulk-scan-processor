@@ -93,6 +93,8 @@ withPipeline(type, product, component) {
       if (!queues.contains(queueName)) {
         az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
       }
+
+      sh "env"
     }
   }
 
