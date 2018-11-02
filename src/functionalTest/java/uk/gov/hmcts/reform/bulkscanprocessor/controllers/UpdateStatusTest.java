@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
+import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,16 +42,20 @@ public class UpdateStatusTest {
         this.s2sName = conf.getString("test-s2s-name");
         this.s2sSecret = conf.getString("test-s2s-secret");
 
-        this.testContainer =
-            new CloudStorageAccount(
-                new StorageCredentialsAccountAndKey(
-                    conf.getString("test-storage-account-name"),
-                    conf.getString("test-storage-account-key")
-                ),
-                true
-            )
-                .createCloudBlobClient()
-                .getContainerReference(conf.getString("test-storage-container-name"));
+        StorageCredentialsAccountAndKey storageCredentials =
+            new StorageCredentialsAccountAndKey(
+                conf.getString("test-storage-account-name"),
+                conf.getString("test-storage-account-key")
+            );
+
+        testContainer = new CloudStorageAccount(
+            storageCredentials,
+            new StorageUri(new URI(conf.getString("test-storage-account-url")), null),
+            null,
+            null
+        )
+            .createCloudBlobClient()
+            .getContainerReference(conf.getString("test-storage-container-name"));
     }
 
     @Test
@@ -77,7 +83,7 @@ public class UpdateStatusTest {
                 .envelopes
                 .stream()
                 .filter(e -> Objects.equals(e.getZipFileName(), destZipFilename))
-                .map(e -> e.getId())
+                .map(EnvelopeResponse::getId)
                 .findFirst()
                 .get();
 

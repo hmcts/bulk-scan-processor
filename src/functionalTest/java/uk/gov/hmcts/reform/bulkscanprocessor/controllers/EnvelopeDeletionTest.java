@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -10,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,13 +33,18 @@ public class EnvelopeDeletionTest {
         Config conf = ConfigFactory.load();
         this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
 
-        StorageCredentialsAccountAndKey credentials =
+        StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(
                 conf.getString("test-storage-account-name"),
                 conf.getString("test-storage-account-key")
             );
 
-        testContainer = new CloudStorageAccount(credentials, true)
+        testContainer = new CloudStorageAccount(
+            storageCredentials,
+            new StorageUri(new URI(conf.getString("test-storage-account-url")), null),
+            null,
+            null
+        )
             .createCloudBlobClient()
             .getContainerReference(conf.getString("test-storage-container-name"));
 
