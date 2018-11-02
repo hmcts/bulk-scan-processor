@@ -115,7 +115,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
         processor = spy(p);
 
-        testContainer = cloudBlobClient.getContainerReference("test");
+        testContainer = cloudBlobClient.getContainerReference("bulkscan");
+
         testContainer.createIfNotExists();
     }
 

@@ -61,7 +61,7 @@ public class TestHelper {
 
         return response
             .getBody()
-            .print();
+            .asString();
     }
 
     public void uploadZipFile(
