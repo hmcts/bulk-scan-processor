@@ -12,12 +12,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
 import java.util.concurrent.CompletableFuture;
+import javax.annotation.PreDestroy;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel.TEST;
 
 @Component
 @Lazy
-public class ServiceBusHelper {
+public class ServiceBusHelper implements AutoCloseable {
 
     private final IQueueClient sendClient;
 
@@ -45,6 +46,13 @@ public class ServiceBusHelper {
         }
     }
 
+    @Override
+    public void close() {
+        if (sendClient != null) {
+            sendClient.closeAsync();
+        }
+    }
+
     Message mapToBusMessage(Msg msg) {
         if (msg == null) {
             throw new InvalidMessageException("Msg == null");
@@ -69,5 +77,11 @@ public class ServiceBusHelper {
             throw new InvalidMessageException("Unable to create message body in json format", e);
         }
     }
+
+    @PreDestroy
+    public void preDestroy() {
+        close();
+    }
+
 }
 
