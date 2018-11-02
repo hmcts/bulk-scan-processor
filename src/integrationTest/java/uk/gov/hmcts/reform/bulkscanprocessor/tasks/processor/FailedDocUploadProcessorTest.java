@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
