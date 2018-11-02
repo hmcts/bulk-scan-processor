@@ -12,4 +12,5 @@ data:
   DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
   SCAN_ENABLED: "true"
   REUPLOAD_ENABLED: "true"
+  SEND_NOTIFICATIONS_TASK_ENABLED: "true"
   REUPLOAD_DELAY: "4000"

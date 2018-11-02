@@ -78,6 +78,9 @@ scheduling:
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
       enabled: ${SCAN_ENABLED:false}
+    send_notifications:
+      delay: ${SEND_NOTIFICATIONS_TASK_DELAY:30000} # in ms
+      enabled: ${SEND_NOTIFICATIONS_TASK_ENABLED:false}
     reupload:
       batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all
       delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min

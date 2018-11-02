@@ -2,6 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
@@ -16,6 +19,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 /**
  * Sends notifications to the orchestrator containing processed envelopes.
  */
+@Component
+@ConditionalOnProperty(value = "scheduling.task.send_notifications.enabled", matchIfMissing = true)
 public class SendNotificationTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendNotificationTask.class);
@@ -36,6 +41,7 @@ public class SendNotificationTask {
     }
     // endregion
 
+    @Scheduled(fixedDelayString = "${scheduling.task.send_notifications.delay}")
     public void run() {
         envelopeRepo
             .findByStatus(PROCESSED)
