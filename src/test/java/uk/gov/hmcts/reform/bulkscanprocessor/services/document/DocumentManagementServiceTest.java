@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.IncompleteResponseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
@@ -98,27 +96,6 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_incomplete_response_exception_when_response_from_document_storage_is_empty()
-        throws IOException {
-        // given
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
-
-        Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
-
-        // and
-        given(restTemplate.postForObject(eq("http://localhost:8080/documents"), any(), any())).willReturn(null);
-
-        // when
-        Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
-
-        // then
-        assertThat(exc).isInstanceOf(UnableToUploadDocumentException.class)
-            .hasCauseInstanceOf(IncompleteResponseException.class);
-    }
-
-    @Test
     public void should_throw_client_exception_when_service_auth_throws_unauthorized_exception() throws Exception {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
@@ -192,8 +169,7 @@ public class DocumentManagementServiceTest {
         verify(authTokenGenerator).generate();
     }
 
-    private ObjectNode getResponse() throws IOException {
-        String response = Resources.toString(getResource("fileuploadresponse.json"), Charset.defaultCharset());
-        return (ObjectNode) new ObjectMapper().readTree(response);
+    private String getResponse() throws IOException {
+        return Resources.toString(getResource("fileuploadresponse.json"), Charset.defaultCharset());
     }
 }

@@ -47,10 +47,11 @@ public class DocumentManagementService {
             ))
             .collect(toList());
 
+        String s2sToken = authTokenGenerator.generate();
         try {
             UploadResponse upload = documentUploadClientApi.upload(
                 null,
-                authTokenGenerator.generate(),
+                s2sToken,
                 null,
                 multipartFiles
             );
