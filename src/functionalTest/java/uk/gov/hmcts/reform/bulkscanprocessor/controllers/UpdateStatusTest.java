@@ -68,15 +68,10 @@ public class UpdateStatusTest {
             destZipFilename
         );
 
-        await("file should be deleted")
-            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
-            .pollInterval(2, TimeUnit.SECONDS)
-            .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
-
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
         await("processing should end")
-            .atMost(scanDelay, TimeUnit.MILLISECONDS)
+            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, destZipFilename)
                 .filter(env -> env.getStatus() == Status.NOTIFICATION_SENT)
