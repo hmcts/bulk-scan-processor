@@ -121,7 +121,6 @@ public abstract class Processor {
             cloudBlockBlob.breakLease(0);
             boolean deleted = cloudBlockBlob.deleteIfExists();
             if (!deleted) {
-                // TODO: should this situation really be treated like an error?
                 handleBlobDeletionError(envelope, null);
             }
             envelope.setZipDeleted(true);
