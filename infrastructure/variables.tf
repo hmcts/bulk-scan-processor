@@ -89,6 +89,14 @@ variable "scan_enabled" {
   default = "false"
 }
 
+variable "notifications_task_enabled" {
+  default = "false"
+}
+
+variable "notifications_task_delay" {
+  default = "30000" # in ms
+}
+
 # list of SSL client certificate thumbprints that are accepted by the API (gateway)
 # (excludes certificates used by API tests)
 variable "allowed_client_certificate_thumbprints" {

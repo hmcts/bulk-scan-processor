@@ -11,8 +11,8 @@ spring:
     name: Bulk Scanning
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5432}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
-    username: ${BULK_SCANNING_DB_USER_NAME:bulkscanner}
+    url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5435}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
+    username: ${BULK_SCANNING_DB_USER_NAME:bulkscans}
     password: ${BULK_SCANNING_DB_PASSWORD:}
     properties:
       charSet: UTF-8
@@ -41,7 +41,7 @@ info:
     description: Ingest scanned documents.
 
 storage:
-  account_name: ${STORAGE_ACCOUNT_NAME:bulkscanning}
+  account_name: ${STORAGE_ACCOUNT_NAME:bulkscansandbox}
   key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
   blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
   blob_processing_delay_in_minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES:0}
@@ -58,13 +58,13 @@ accesstoken:
   serviceConfig:
     - serviceName: sscs
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
-    - serviceName: test
+    - serviceName: bulkscan
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 idam:
   s2s-auth:
-    url: ${S2S_URL:http://localhost:8081}
-    secret: ${S2S_SECRET:MKX9BVWS5T5UGURS}
+    url: ${S2S_URL:http://localhost:4552}
+    secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME:bulk_scan_processor}
 
 document_management:
@@ -77,6 +77,9 @@ scheduling:
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
       enabled: ${SCAN_ENABLED:false}
+    send_notifications:
+      delay: ${SEND_NOTIFICATIONS_TASK_DELAY:30000} # in ms
+      enabled: ${SEND_NOTIFICATIONS_TASK_ENABLED:false}
     reupload:
       batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all
       delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
@@ -88,6 +91,10 @@ envelope-access:
      - jurisdiction: SSCS
        readService: sscs
        updateService: TBD
-     - jurisdiction: TEST
+     - jurisdiction: BULKSCAN
        readService: bulk_scan_processor_tests
        updateService: bulk_scan_processor_tests
+
+flyway:
+  noop:
+    strategy: "false"
