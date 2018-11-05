@@ -13,7 +13,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
 import java.io.IOException;
@@ -35,9 +39,10 @@ public class FailedDocUploadProcessor extends Processor {
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
-        ErrorHandlingWrapper errorWrapper
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository eventRepository
     ) {
-        super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        super(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -46,11 +51,12 @@ public class FailedDocUploadProcessor extends Processor {
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
-        ErrorHandlingWrapper errorWrapper,
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository eventRepository,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        this(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -109,7 +115,7 @@ public class FailedDocUploadProcessor extends Processor {
         String containerName,
         String zipFileName
     ) {
-        return errorWrapper.wrapDocFailure(containerName, zipFileName, () -> {
+        try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
@@ -119,6 +125,14 @@ public class FailedDocUploadProcessor extends Processor {
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             return zipFileProcessor;
-        });
+        } catch (DocSignatureFailureException | NonPdfFileFoundException ex) {
+            registerEvent(ex);
+            log.error(ex.getMessage(), ex);
+            return null;
+        } catch (Exception ex) {
+            registerEvent(Event.DOC_FAILURE, containerName, zipFileName, ex.getMessage());
+            log.error(ex.getMessage(), ex);
+            return null;
+        }
     }
 }

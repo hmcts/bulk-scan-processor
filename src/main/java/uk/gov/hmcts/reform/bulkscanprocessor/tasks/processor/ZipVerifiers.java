@@ -20,7 +20,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -73,7 +72,7 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static Function<ZipStreamWithSignature, ZipInputStream> getPreprocessor(
+    public static ZipPreprocessor getPreprocessor(
         String signatureAlgorithm
     ) {
         if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
@@ -227,4 +226,7 @@ public class ZipVerifiers {
         }
     }
 
+    interface ZipPreprocessor {
+        ZipInputStream apply(ZipStreamWithSignature stream) throws DocSignatureFailureException;
+    }
 }

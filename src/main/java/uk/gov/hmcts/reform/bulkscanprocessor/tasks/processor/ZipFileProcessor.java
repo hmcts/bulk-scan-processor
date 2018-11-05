@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -33,7 +32,7 @@ public class ZipFileProcessor {
     // TODO: make it return processing result instead of setting fields on itself
     public void process(
         ZipVerifiers.ZipStreamWithSignature signedZip,
-        Function<ZipVerifiers.ZipStreamWithSignature, ZipInputStream> preprocessor
+        ZipVerifiers.ZipPreprocessor preprocessor
     ) throws IOException {
         ZipInputStream zis = preprocessor.apply(signedZip);
         ZipEntry zipEntry;

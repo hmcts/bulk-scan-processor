@@ -2,12 +2,17 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -16,12 +21,16 @@ import java.util.List;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 
+
 public abstract class Processor {
+
+    private static final Logger log = LoggerFactory.getLogger(Processor.class);
 
     protected final CloudBlobClient cloudBlobClient;
     private final DocumentProcessor documentProcessor;
     protected final EnvelopeProcessor envelopeProcessor;
-    protected final ErrorHandlingWrapper errorWrapper;
+    protected final EnvelopeRepository envelopeRepository;
+    protected final ProcessEventRepository eventRepository;
 
     @Value("${storage.signature_algorithm}")
     protected String signatureAlg;
@@ -29,17 +38,18 @@ public abstract class Processor {
     @Value("${storage.public_key_der_file}")
     protected String publicKeyDerFilename;
 
-
     protected Processor(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
-        ErrorHandlingWrapper errorWrapper
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository eventRepository
     ) {
         this.cloudBlobClient = cloudBlobClient;
         this.documentProcessor = documentProcessor;
         this.envelopeProcessor = envelopeProcessor;
-        this.errorWrapper = errorWrapper;
+        this.envelopeRepository = envelopeRepository;
+        this.eventRepository = eventRepository;
     }
 
     protected void processParsedEnvelopeDocuments(
@@ -64,27 +74,47 @@ public abstract class Processor {
         Envelope envelope,
         List<Pdf> pdfs
     ) {
-        return errorWrapper.wrapDocUploadFailure(envelope, () -> {
+        try {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
             return Boolean.TRUE;
-        });
+        } catch (Exception ex) {
+            incrementUploadFailureCount(envelope);
+            updateEnvelopeLastStatus(envelope, Event.DOC_UPLOAD_FAILURE);
+            registerEvent(Event.DOC_UPLOAD_FAILURE, envelope, ex.getMessage());
+            log.error("An error occurred while uploading parsed envelope documents", ex);
+            return Boolean.FALSE;
+        }
+    }
+
+    private void incrementUploadFailureCount(Envelope envelope) {
+        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
+        envelopeRepository.save(envelope);
     }
 
     private Boolean deleteBlob(
         Envelope envelope,
         CloudBlockBlob cloudBlockBlob
     ) {
-        return errorWrapper.wrapDeleteBlobFailure(envelope, () -> {
+        try {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
             boolean deleted = cloudBlockBlob.deleteIfExists();
             if (!deleted) {
-                throw new BlobDeleteFailureException(envelope);
+                // TODO: should this situation really be treated like an error?
+                handleBlobDeletionError(envelope, null);
             }
             envelope.setZipDeleted(true);
             envelopeProcessor.saveEnvelope(envelope);
             return Boolean.TRUE;
-        });
+        } catch (Exception ex) {
+            handleBlobDeletionError(envelope, ex);
+            return Boolean.FALSE;
+        }
+    }
+
+    private void handleBlobDeletionError(Envelope envelope, Exception cause) {
+        registerEvent(Event.BLOB_DELETE_FAILURE, envelope, cause.getMessage());
+        log.error("Blob deletion failure for envelope {}", envelope.getId(), cause);
     }
 
     private Boolean markAsUploaded(Envelope envelope) {
@@ -96,10 +126,59 @@ public abstract class Processor {
     }
 
     private Boolean handleEvent(Envelope envelope, Event event) {
-        return errorWrapper.wrapFailure(() -> {
+        try {
             envelopeProcessor.handleEvent(envelope, event);
             return Boolean.TRUE;
-        });
+        } catch (Exception exception) {
+            log.error(exception.getMessage(), exception);
+            return Boolean.FALSE;
+        }
     }
 
+    protected void registerEvent(EventRelatedThrowable exception) {
+        registerEvent(
+            exception.getEvent(),
+            exception.getContainer(),
+            exception.getZipFileName(),
+            exception.getMessage()
+        );
+    }
+
+    protected void registerEvent(Event event, Envelope envelope, String reason) {
+        registerEvent(event, envelope.getContainer(), envelope.getZipFileName(), reason);
+    }
+
+    protected void registerEvent(Event event, String container, String zipFileName, String reason) {
+        ProcessEvent processEvent = new ProcessEvent(
+            container,
+            zipFileName,
+            event
+        );
+
+        processEvent.setReason(reason);
+        eventRepository.save(processEvent);
+
+        log.info(
+            "Zip {} from {} marked as {}",
+            processEvent.getZipFileName(),
+            processEvent.getContainer(),
+            processEvent.getEvent()
+        );
+    }
+
+    private void updateEnvelopeLastStatus(Envelope envelope, Event event) {
+        Status.fromEvent(event).ifPresent(status -> {
+            envelope.setStatus(status);
+
+            envelopeRepository.save(envelope);
+
+            log.info(
+                "Change envelope {} from {} and {} status to {}",
+                envelope.getId(),
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                status
+            );
+        });
+    }
 }

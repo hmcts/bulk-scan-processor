@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public class NonPdfFileFoundException extends RuntimeException implements EventRelatedThrowable {
+public class NonPdfFileFoundException extends EventRelatedThrowable {
 
     private static final long serialVersionUID = 9143161748679833084L;
 

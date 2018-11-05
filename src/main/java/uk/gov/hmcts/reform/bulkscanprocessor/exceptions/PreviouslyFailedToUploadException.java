@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public class PreviouslyFailedToUploadException extends RuntimeException implements EventRelatedThrowable {
+public class PreviouslyFailedToUploadException extends EventRelatedThrowable {
 
     private static final Event DOC_UPLOAD_FAILURE_EVENT = Event.DOC_UPLOAD_FAILURE;
 

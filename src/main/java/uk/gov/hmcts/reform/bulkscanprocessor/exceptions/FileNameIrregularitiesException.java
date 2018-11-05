@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public class FileNameIrregularitiesException extends RuntimeException implements EventRelatedThrowable {
+public class FileNameIrregularitiesException extends EventRelatedThrowable {
 
     private static final Event FAILURE_EVENT = Event.DOC_FAILURE;
 
@@ -14,7 +14,7 @@ public class FileNameIrregularitiesException extends RuntimeException implements
 
         this.envelope = envelope;
     }
-    
+
     @Override
     public Event getEvent() {
         return FAILURE_EVENT;

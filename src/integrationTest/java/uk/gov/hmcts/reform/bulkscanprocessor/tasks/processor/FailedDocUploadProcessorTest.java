@@ -41,7 +41,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             testContainer.getServiceClient(),
             documentProcessor,
             envelopeProcessor,
-            errorWrapper,
+            envelopeRepository,
+            processEventRepository,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );

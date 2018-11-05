@@ -2,11 +2,19 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public interface EventRelatedThrowable {
+public abstract class EventRelatedThrowable extends RuntimeException {
 
-    Event getEvent();
+    public EventRelatedThrowable(String message) {
+        super(message);
+    }
 
-    String getContainer();
+    public EventRelatedThrowable(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    String getZipFileName();
+    public abstract Event getEvent();
+
+    public abstract String getContainer();
+
+    public abstract String getZipFileName();
 }

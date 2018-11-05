@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 
-public class DocSignatureFailureException extends SignatureValidationException implements EventRelatedThrowable {
+public class DocSignatureFailureException extends EventRelatedThrowable {
 
     private final String container;
 
