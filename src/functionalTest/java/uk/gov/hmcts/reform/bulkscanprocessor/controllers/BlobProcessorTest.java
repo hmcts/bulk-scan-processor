@@ -6,23 +6,19 @@ import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.util.ObjectUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.hamcrest.Matchers.is;
 
 public class BlobProcessorTest {
 
@@ -70,35 +66,21 @@ public class BlobProcessorTest {
 
         testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
 
-        await("file should be deleted")
-            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
-            .pollInterval(2, TimeUnit.SECONDS)
-            .until(() -> testHelper.storageHasFile(testContainer, destZipFilename), is(false));
-
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
-        EnvelopeListResponse envelopeListResponse =
-            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.NOTIFICATION_SENT);
+        await("processing should end")
+            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .pollInterval(500, TimeUnit.MILLISECONDS)
+            .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, destZipFilename)
+                .filter(env -> env.getStatus() == Status.NOTIFICATION_SENT)
+                .isPresent()
+            );
 
-        // some test DBs are not cleaned so there will probably be more than 1
-        assertThat(envelopeListResponse.envelopes.size()).isGreaterThanOrEqualTo(1);
+        EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, destZipFilename).get();
 
-        assertThat(envelopeListResponse.envelopes)
-            .extracting("zipFileName", "status")
-            .containsOnlyOnce(tuple(destZipFilename, Status.NOTIFICATION_SENT));
-
-
-        List<EnvelopeResponse> envelopes = envelopeListResponse.envelopes
-            .stream()
-            .filter(e -> destZipFilename.equals(e.getZipFileName()))
-            .collect(Collectors.toList());
-        assertThat(envelopes.size()).isEqualTo(1);
-        assertThat(envelopes.get(0).getScannableItems().size()).isEqualTo(2);
-
-        assertThat(envelopes.get(0).getScannableItems())
-            .extracting("documentUrl").noneMatch(ObjectUtils::isEmpty);
-        assertThat(envelopes.get(0).getScannableItems())
-            .extracting("fileName").containsExactlyInAnyOrder("1111006.pdf", "1111002.pdf");
+        assertThat(envelope.getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
+        assertThat(envelope.getScannableItems()).hasSize(2);
+        assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.getDocumentUrl()));
     }
 
 }
