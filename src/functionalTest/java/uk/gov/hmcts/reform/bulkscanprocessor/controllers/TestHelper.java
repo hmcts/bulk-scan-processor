@@ -29,6 +29,8 @@ import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.StreamSupport;
@@ -198,6 +200,18 @@ public class TestHelper {
         assertThat(response.getStatusCode()).isEqualTo(200);
 
         return response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+    }
+
+    public Optional<EnvelopeResponse> getEnvelopeByZipFileName(
+        String baseUrl,
+        String s2sToken,
+        String zipFileName
+    ) {
+        return getEnvelopes(baseUrl, s2sToken, null)
+            .envelopes
+            .stream()
+            .filter(env -> Objects.equals(env.getZipFileName(), zipFileName))
+            .findFirst();
     }
 
     public EnvelopeResponse getEnvelope(String baseUrl, String s2sToken, UUID id) {
