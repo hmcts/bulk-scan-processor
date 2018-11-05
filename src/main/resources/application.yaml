@@ -48,8 +48,11 @@ storage:
   signature_algorithm: ${STORAGE_BLOB_SIGNATURE_ALGORITHM:sha256withrsa}  # none or sha256withrsa
   public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY:test_public_key.der} # public key file in der format
 
-servicebus:
-  queue_envelope_send: ${QUEUE_ENVELOPE_SEND}
+azure:
+  servicebus:
+    connection-string: ${QUEUE_ENVELOPE_SEND:"NO_VALUE_SUPPLIED"}
+    queue-name: envelopes
+    queue-receive-mode: peeklock
 
 accesstoken:
   serviceConfig:

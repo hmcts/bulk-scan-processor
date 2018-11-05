@@ -10,9 +10,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -58,6 +58,10 @@ public class BlobProcessorTask extends Processor {
     protected int blobProcessingDelayInMinutes = 0;
 
     @Autowired
+    @Lazy
+    private ServiceBusHelper serviceBusHelper;
+
+    @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
@@ -74,22 +78,14 @@ public class BlobProcessorTask extends Processor {
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         ErrorHandlingWrapper errorWrapper,
+        ServiceBusHelper serviceBusHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
         this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        this.serviceBusHelper = serviceBusHelper;
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
-    }
-
-    /**
-     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
-     *
-     * @return Instance of {@code ServiceBusHelper}
-     */
-    @Lookup
-    public ServiceBusHelper serviceBusHelper() {
-        return null;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
@@ -103,24 +99,16 @@ public class BlobProcessorTask extends Processor {
         throws IOException, StorageException, URISyntaxException {
         log.info("Processing blobs for container {}", container.getName());
 
-        ServiceBusHelper serviceBusHelper = serviceBusHelper();
-
         // Randomise iteration order to minimise lease acquire contention
         // For this purpose it's more efficient to have a collection that
         // implements RandomAccess (e.g. ArrayList)
         List<String> zipFilenames = new ArrayList<>();
-        try {
-            container.listBlobs().forEach(
-                b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
-            );
-            Collections.shuffle(zipFilenames);
-            for (String zipFilename : zipFilenames) {
-                processZipFile(container, zipFilename, serviceBusHelper);
-            }
-        } finally {
-            if (serviceBusHelper != null) {
-                serviceBusHelper.close();
-            }
+        container.listBlobs().forEach(
+            b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
+        );
+        Collections.shuffle(zipFilenames);
+        for (String zipFilename : zipFilenames) {
+            processZipFile(container, zipFilename, serviceBusHelper);
         }
     }
 
