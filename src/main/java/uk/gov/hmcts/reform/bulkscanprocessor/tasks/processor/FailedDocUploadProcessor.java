@@ -8,13 +8,11 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
@@ -32,8 +30,6 @@ public class FailedDocUploadProcessor extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
 
-    private final ServiceBusHelper serviceBusHelper;
-
     @Autowired
     public FailedDocUploadProcessor(
         CloudBlobClient cloudBlobClient,
@@ -42,7 +38,6 @@ public class FailedDocUploadProcessor extends Processor {
         ErrorHandlingWrapper errorWrapper
     ) {
         super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-        this.serviceBusHelper = serviceBusHelper();
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -58,16 +53,6 @@ public class FailedDocUploadProcessor extends Processor {
         this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
-    }
-
-    /**
-     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
-     *
-     * @return Instance of {@code ServiceBusHelper}
-     */
-    @Lookup
-    public ServiceBusHelper serviceBusHelper() {
-        return null;
     }
 
     public void processJurisdiction(String jurisdiction)
@@ -87,16 +72,10 @@ public class FailedDocUploadProcessor extends Processor {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
-        try {
-            CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
+        CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
 
-            for (Envelope envelope : envelopes) {
-                processEnvelope(container, envelope);
-            }
-        } finally {
-            if (serviceBusHelper != null) {
-                serviceBusHelper.close();
-            }
+        for (Envelope envelope : envelopes) {
+            processEnvelope(container, envelope);
         }
     }
 
@@ -119,8 +98,7 @@ public class FailedDocUploadProcessor extends Processor {
                 processParsedEnvelopeDocuments(
                     envelope,
                     zipFileProcessor.getPdfs(),
-                    cloudBlockBlob,
-                    serviceBusHelper
+                    cloudBlockBlob
                 );
             }
         }

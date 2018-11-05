@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -27,7 +26,6 @@ import java.io.File;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
@@ -84,9 +82,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Mock
     protected DocumentManagementService documentManagementService;
 
-    @Mock
-    protected ServiceBusHelper serviceBusHelper;
-
     protected CloudBlobContainer testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
@@ -119,9 +114,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
 
         processor = spy(p);
-        doReturn(serviceBusHelper).when(processor).serviceBusHelper();
-        
-        testContainer = cloudBlobClient.getContainerReference("test");
+
+        testContainer = cloudBlobClient.getContainerReference("bulkscan");
+
         testContainer.createIfNotExists();
     }
 

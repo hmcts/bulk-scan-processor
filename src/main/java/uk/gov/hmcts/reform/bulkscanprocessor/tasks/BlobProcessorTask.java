@@ -10,13 +10,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -82,16 +80,6 @@ public class BlobProcessorTask extends Processor {
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
-    /**
-     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
-     *
-     * @return Instance of {@code ServiceBusHelper}
-     */
-    @Lookup
-    public ServiceBusHelper serviceBusHelper() {
-        return null;
-    }
-
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
         for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
@@ -103,28 +91,20 @@ public class BlobProcessorTask extends Processor {
         throws IOException, StorageException, URISyntaxException {
         log.info("Processing blobs for container {}", container.getName());
 
-        ServiceBusHelper serviceBusHelper = serviceBusHelper();
-
         // Randomise iteration order to minimise lease acquire contention
         // For this purpose it's more efficient to have a collection that
         // implements RandomAccess (e.g. ArrayList)
         List<String> zipFilenames = new ArrayList<>();
-        try {
-            container.listBlobs().forEach(
-                b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
-            );
-            Collections.shuffle(zipFilenames);
-            for (String zipFilename : zipFilenames) {
-                processZipFile(container, zipFilename, serviceBusHelper);
-            }
-        } finally {
-            if (serviceBusHelper != null) {
-                serviceBusHelper.close();
-            }
+        container.listBlobs().forEach(
+            b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
+        );
+        Collections.shuffle(zipFilenames);
+        for (String zipFilename : zipFilenames) {
+            processZipFile(container, zipFilename);
         }
     }
 
-    private void processZipFile(CloudBlobContainer container, String zipFilename, ServiceBusHelper serviceBusHelper)
+    private void processZipFile(CloudBlobContainer container, String zipFilename)
         throws IOException, StorageException, URISyntaxException {
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
@@ -156,8 +136,7 @@ public class BlobProcessorTask extends Processor {
                     processParsedEnvelopeDocuments(
                         zipFileProcessor.getEnvelope(),
                         zipFileProcessor.getPdfs(),
-                        blobWithLeaseAcquired,
-                        serviceBusHelper
+                        blobWithLeaseAcquired
                     );
                 }
             }

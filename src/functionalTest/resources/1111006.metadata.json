@@ -1,7 +1,7 @@
 {
   "case_number": "1111222233334446",
   "po_box": "TESTPO",
-  "jurisdiction": "TEST",
+  "jurisdiction": "BULKSCAN",
   "delivery_date": "23-06-2018 00:00:00.000000",
   "opening_date": "24-06-2018 00:00:00.000000",
   "zip_file_createddate": "24-02-2018 00:00:00.000000",

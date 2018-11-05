@@ -10,7 +10,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 
 import java.util.Collections;
@@ -34,9 +33,6 @@ public class FailedDocUploadProcessorTest {
 
     @Mock
     private ErrorHandlingWrapper errorWrapper;
-
-    @Mock
-    private ServiceBusHelper serviceBusHelper;
 
     private FailedDocUploadProcessor processor;
 

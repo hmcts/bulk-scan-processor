@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -63,11 +64,11 @@ public final class EnvelopeCreator {
         return ImmutableList.of(envelope());
     }
 
-    public static Envelope envelope() throws Exception {
+    public static Envelope envelope() {
         return envelope("SSCS", Status.PROCESSED);
     }
 
-    public static Envelope envelope(String jurisdiction, Status status) throws Exception {
+    public static Envelope envelope(String jurisdiction, Status status) {
         Timestamp timestamp = getTimestamp();
 
         Envelope envelope = new Envelope(
@@ -90,11 +91,11 @@ public final class EnvelopeCreator {
         return envelope;
     }
 
-    public static Envelope envelopeNotified() throws Exception {
+    public static Envelope envelopeNotified() {
         return envelope("SSCS", Status.NOTIFICATION_SENT);
     }
 
-    private static List<ScannableItem> scannableItems() throws Exception {
+    private static List<ScannableItem> scannableItems() {
         Timestamp timestamp = getTimestamp();
 
         ScannableItem scannableItem1 = new ScannableItem(
@@ -141,10 +142,15 @@ public final class EnvelopeCreator {
         );
     }
 
-    private static Timestamp getTimestamp() throws Exception {
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        Date date = dateFormat.parse("23-06-2018");
-        long time = date.getTime();
-        return new Timestamp(time);
+    private static Timestamp getTimestamp() {
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            Date date = dateFormat.parse("23-06-2018");
+            long time = date.getTime();
+            return new Timestamp(time);
+        } catch (ParseException exc) {
+            // this will never happen...
+            throw new RuntimeException(exc);
+        }
     }
 }

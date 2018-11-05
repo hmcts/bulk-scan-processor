@@ -136,7 +136,7 @@ public class EnvelopeControllerTest {
 
         );
 
-        testContainer = cloudBlobClient.getContainerReference("test");
+        testContainer = cloudBlobClient.getContainerReference("bulkscan");
         testContainer.createIfNotExists();
     }
 

@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED_NOTIFICATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
@@ -88,13 +87,11 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         String failureReason = "Error retrieving urls for uploaded files: 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
-            .hasSize(4)
             .extracting("container", "zipFileName", "event", "reason")
             .containsOnly(
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOADED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED_NOTIFICATION_FAILURE, null)
+                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null)
             );
     }
 
