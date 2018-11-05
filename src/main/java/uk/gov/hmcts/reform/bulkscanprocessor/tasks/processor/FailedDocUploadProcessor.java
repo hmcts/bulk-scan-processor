@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
 import java.io.IOException;
@@ -115,6 +114,8 @@ public class FailedDocUploadProcessor extends Processor {
         String containerName,
         String zipFileName
     ) {
+        ZipFileProcessor processor = null;
+
         try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
@@ -124,15 +125,13 @@ public class FailedDocUploadProcessor extends Processor {
 
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
-            return zipFileProcessor;
-        } catch (DocSignatureFailureException | NonPdfFileFoundException ex) {
-            registerEvent(ex);
-            log.error(ex.getMessage(), ex);
-            return null;
+            processor = zipFileProcessor;
+        } catch (DocSignatureFailureException ex) {
+            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
         } catch (Exception ex) {
-            registerEvent(Event.DOC_FAILURE, containerName, zipFileName, ex.getMessage());
-            log.error(ex.getMessage(), ex);
-            return null;
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
         }
+
+        return processor;
     }
 }

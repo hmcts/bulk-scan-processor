@@ -19,7 +19,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -213,6 +214,8 @@ public class BlobProcessorTask extends Processor {
         String zipFilename,
         String containerName
     ) {
+        ZipFileProcessor processor = null;
+
         try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
@@ -227,16 +230,16 @@ public class BlobProcessorTask extends Processor {
 
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
-            return zipFileProcessor;
-        } catch (EventRelatedThrowable ex) {
-            registerEvent(ex);
-            log.error(ex.getMessage(), ex);
-            return null;
+            processor = zipFileProcessor;
+        } catch (DocSignatureFailureException ex) {
+            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
+        } catch (PreviouslyFailedToUploadException ex) {
+            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
         } catch (Exception ex) {
-            registerEvent(Event.DOC_FAILURE, containerName, zipFilename, ex.getMessage());
-            log.error(ex.getMessage(), ex);
-            return null;
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
         }
+
+        return processor;
     }
 
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {

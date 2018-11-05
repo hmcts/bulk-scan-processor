@@ -87,7 +87,8 @@ public class ZipVerifiers {
         return zipWithSignature.zipInputStream;
     }
 
-    static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature) {
+    static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature)
+        throws DocSignatureFailureException {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
         if (!verifyFileNames(zipEntries)) {
             log.warn("Signature Failure. Zip entries do not match expected file names. "
@@ -95,8 +96,6 @@ public class ZipVerifiers {
                 zipWithSignature.container, zipWithSignature.zipFileName, zipEntries.keySet()
             );
             throw new DocSignatureFailureException(
-                zipWithSignature.container,
-                zipWithSignature.zipFileName,
                 "Zip entries do not match expected file names. Actual names = " + zipEntries.keySet()
             );
         }
@@ -105,9 +104,8 @@ public class ZipVerifiers {
                 + "Container = {} - File = {}",
                 zipWithSignature.container, zipWithSignature.zipFileName
             );
-            throw new DocSignatureFailureException(
-                zipWithSignature.container, zipWithSignature.zipFileName, "Zip signature failed verification"
-            );
+
+            throw new DocSignatureFailureException("Zip signature failed verification");
         }
         return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
     }

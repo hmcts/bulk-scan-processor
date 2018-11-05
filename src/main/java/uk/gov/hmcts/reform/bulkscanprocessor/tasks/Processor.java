@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EventRelatedThrowable;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -70,6 +69,29 @@ public abstract class Processor {
         deleteBlob(envelope, cloudBlockBlob);
     }
 
+    protected void handleEventRelatedError(Event event, String containerName, String zipFilename, Exception exception) {
+        registerEvent(event, containerName, zipFilename, exception.getMessage());
+        log.error(exception.getMessage(), exception);
+    }
+
+    protected void registerEvent(Event event, String container, String zipFileName, String reason) {
+        ProcessEvent processEvent = new ProcessEvent(
+            container,
+            zipFileName,
+            event
+        );
+
+        processEvent.setReason(reason);
+        eventRepository.save(processEvent);
+
+        log.info(
+            "Zip {} from {} marked as {}",
+            processEvent.getZipFileName(),
+            processEvent.getContainer(),
+            processEvent.getEvent()
+        );
+    }
+
     private Boolean uploadParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs
@@ -80,8 +102,7 @@ public abstract class Processor {
         } catch (Exception ex) {
             incrementUploadFailureCount(envelope);
             updateEnvelopeLastStatus(envelope, Event.DOC_UPLOAD_FAILURE);
-            registerEvent(Event.DOC_UPLOAD_FAILURE, envelope, ex.getMessage());
-            log.error("An error occurred while uploading parsed envelope documents", ex);
+            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, envelope.getContainer(), envelope.getZipFileName(), ex);
             return Boolean.FALSE;
         }
     }
@@ -113,8 +134,12 @@ public abstract class Processor {
     }
 
     private void handleBlobDeletionError(Envelope envelope, Exception cause) {
-        registerEvent(Event.BLOB_DELETE_FAILURE, envelope, cause.getMessage());
-        log.error("Blob deletion failure for envelope {}", envelope.getId(), cause);
+        handleEventRelatedError(
+            Event.BLOB_DELETE_FAILURE,
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            cause
+        );
     }
 
     private Boolean markAsUploaded(Envelope envelope) {
@@ -133,37 +158,6 @@ public abstract class Processor {
             log.error(exception.getMessage(), exception);
             return Boolean.FALSE;
         }
-    }
-
-    protected void registerEvent(EventRelatedThrowable exception) {
-        registerEvent(
-            exception.getEvent(),
-            exception.getContainer(),
-            exception.getZipFileName(),
-            exception.getMessage()
-        );
-    }
-
-    protected void registerEvent(Event event, Envelope envelope, String reason) {
-        registerEvent(event, envelope.getContainer(), envelope.getZipFileName(), reason);
-    }
-
-    protected void registerEvent(Event event, String container, String zipFileName, String reason) {
-        ProcessEvent processEvent = new ProcessEvent(
-            container,
-            zipFileName,
-            event
-        );
-
-        processEvent.setReason(reason);
-        eventRepository.save(processEvent);
-
-        log.info(
-            "Zip {} from {} marked as {}",
-            processEvent.getZipFileName(),
-            processEvent.getContainer(),
-            processEvent.getEvent()
-        );
     }
 
     private void updateEnvelopeLastStatus(Envelope envelope, Event event) {
