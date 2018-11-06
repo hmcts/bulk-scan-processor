@@ -65,7 +65,7 @@ public class SendNotificationTaskTest {
     }
 
     @Test
-    public void should_not_update_envelope_if_sending_notification_failed() {
+    public void should_not_update_envelope_and_create_an_event_if_sending_notification_failed() {
         // given
         Envelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
 
@@ -77,9 +77,17 @@ public class SendNotificationTaskTest {
 
         // then
         Envelope envelopeAfterTaskRun = envelopeRepo.getOne(envelopeInDb.getId());
+        List<ProcessEvent> events = processEventRepo.findAll();
 
         assertThat(envelopeAfterTaskRun.getStatus())
             .isEqualTo(Status.PROCESSED); // status still the same.
+
+        assertThat(events)
+            .hasOnlyOneElementSatisfying(event -> {
+                assertThat(event.getZipFileName()).isEqualTo(envelopeInDb.getZipFileName());
+                assertThat(event.getEvent()).isEqualTo(Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
+            });
+
     }
 
     @After
