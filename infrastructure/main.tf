@@ -40,6 +40,11 @@ locals {
   #endregion
 
   sku_size = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
+  storage_account_name        = "${data.terraform_remote_state.shared_infra.storage_account_name}"
+  storage_account_primary_key = "${data.terraform_remote_state.shared_infra.storage_account_primary_key}"
+  storage_account_url_prod    = "https://bulkscan.platform.hmcts.net"
+  storage_account_url_notprod = "https://bulkscan.${var.env}.platform.hmcts.net"
+  storage_account_url         = "${var.env == "prod" ? local.storage_account_url_prod : local.storage_account_url_notprod}"
 }
 
 module "bulk-scan-db" {
@@ -81,9 +86,11 @@ module "bulk-scan" {
     FLYWAY_URL                    = "jdbc:postgresql://${module.bulk-scan-db.host_name}:${module.bulk-scan-db.postgresql_listen_port}/${module.bulk-scan-db.postgresql_database}${local.db_connection_options}"
     FLYWAY_USER                   = "${module.bulk-scan-db.user_name}"
     FLYWAY_PASSWORD               = "${module.bulk-scan-db.postgresql_password}"
+    FLYWAY_NOOP_STRATEGY          = "true"
 
-    STORAGE_ACCOUNT_NAME = "${azurerm_storage_account.provider.name}"
-    STORAGE_KEY          = "${azurerm_storage_account.provider.primary_access_key}"
+    STORAGE_ACCOUNT_NAME = "${local.storage_account_name}"
+    STORAGE_KEY          = "${local.storage_account_primary_key}"
+    STORAGE_URL          = "${local.storage_account_url}"
     SAS_TOKEN_VALIDITY   = "${var.token_validity}"
 
     DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"
@@ -98,6 +105,10 @@ module "bulk-scan" {
     REUPLOAD_ENABLED                         = "${var.reupload_enabled}"
     SCAN_DELAY                               = "${var.scan_delay}"
     SCAN_ENABLED                             = "${var.scan_enabled}"
+
+    SEND_NOTIFICATIONS_TASK_ENABLED          = "${var.notifications_task_enabled}"
+    SEND_NOTIFICATIONS_TASK_DELAY            = "${var.notifications_task_delay}"
+
     STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES = "${var.blob_processing_delay_in_minutes}"
 
@@ -110,35 +121,6 @@ module "bulk-scan" {
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
   }
-}
-
-resource "azurerm_storage_account" "provider" {
-  name                      = "${local.account_name}"
-  resource_group_name       = "${module.bulk-scan.resource_group_name}"
-  location                  = "${var.location}"
-  account_tier              = "Standard"
-  account_replication_type  = "LRS"
-  account_kind              = "BlobStorage"
-  enable_https_traffic_only = true
-}
-
-resource "azurerm_storage_container" "sscs" {
-  name                  = "sscs"
-  resource_group_name   = "${module.bulk-scan.resource_group_name}"
-  storage_account_name  = "${azurerm_storage_account.provider.name}"
-  container_access_type = "private"
-
-  depends_on = ["azurerm_storage_account.provider"]
-}
-
-# container used by end-to-end tests
-resource "azurerm_storage_container" "test" {
-  name                  = "test"
-  resource_group_name   = "${module.bulk-scan.resource_group_name}"
-  storage_account_name  = "${azurerm_storage_account.provider.name}"
-  container_access_type = "private"
-
-  depends_on = ["azurerm_storage_account.provider"]
 }
 
 data "azurerm_key_vault" "key_vault" {

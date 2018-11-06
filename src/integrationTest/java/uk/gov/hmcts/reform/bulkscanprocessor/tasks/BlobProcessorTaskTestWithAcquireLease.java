@@ -76,7 +76,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         assertThat(processEvents)
             .extracting("event")
             .containsExactlyInAnyOrder(
-                Event.DOC_UPLOADED, Event.DOC_PROCESSED, Event.DOC_PROCESSED_NOTIFICATION_SENT
+                Event.DOC_UPLOADED, Event.DOC_PROCESSED
             );
     }
 

@@ -12,12 +12,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -57,18 +60,16 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_processing_delay_in_minutes}")
     protected int blobProcessingDelayInMinutes = 0;
 
-    @Autowired
-    @Lazy
-    private ServiceBusHelper serviceBusHelper;
 
     @Autowired
     public BlobProcessorTask(
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
-        ErrorHandlingWrapper errorWrapper
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository eventRepository
     ) {
-        super(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
+        super(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -77,13 +78,12 @@ public class BlobProcessorTask extends Processor {
         CloudBlobClient cloudBlobClient,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
-        ErrorHandlingWrapper errorWrapper,
-        ServiceBusHelper serviceBusHelper,
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository eventRepository,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(cloudBlobClient, documentProcessor, envelopeProcessor, errorWrapper);
-        this.serviceBusHelper = serviceBusHelper;
+        this(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -108,11 +108,11 @@ public class BlobProcessorTask extends Processor {
         );
         Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
-            processZipFile(container, zipFilename, serviceBusHelper);
+            processZipFile(container, zipFilename);
         }
     }
 
-    private void processZipFile(CloudBlobContainer container, String zipFilename, ServiceBusHelper serviceBusHelper)
+    private void processZipFile(CloudBlobContainer container, String zipFilename)
         throws IOException, StorageException, URISyntaxException {
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
@@ -144,8 +144,7 @@ public class BlobProcessorTask extends Processor {
                     processParsedEnvelopeDocuments(
                         zipFileProcessor.getEnvelope(),
                         zipFileProcessor.getPdfs(),
-                        blobWithLeaseAcquired,
-                        serviceBusHelper
+                        blobWithLeaseAcquired
                     );
                 }
             }
@@ -172,7 +171,7 @@ public class BlobProcessorTask extends Processor {
     }
 
     private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
-        return errorWrapper.wrapAcquireLeaseFailure(containerName, zipFilename, () -> {
+        try {
             // Note: trying to lease an already leased blob throws an exception and
             // we really do not want to fill the application logs with these. Unfortunately
             // even with this check there is still a chance of an exception as check + lease
@@ -186,7 +185,28 @@ public class BlobProcessorTask extends Processor {
             }
             cloudBlockBlob.acquireLease(blobLeaseTimeout, null);
             return cloudBlockBlob;
-        });
+        } catch (StorageException storageException) {
+            if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
+                log.error(
+                    "Lease already acquired for container {} and zip file {}",
+                    containerName,
+                    zipFilename,
+                    storageException
+                );
+            } else {
+                log.error(storageException.getMessage(), storageException);
+            }
+            return null;
+        } catch (Exception exception) {
+            log.error(
+                "Failed to acquire lease on file {} in container {}",
+                zipFilename,
+                containerName,
+                exception
+            );
+
+            return null;
+        }
     }
 
     private ZipFileProcessor processZipFileContent(
@@ -194,7 +214,9 @@ public class BlobProcessorTask extends Processor {
         String zipFilename,
         String containerName
     ) {
-        return errorWrapper.wrapDocFailure(containerName, zipFilename, () -> {
+        ZipFileProcessor processor = null;
+
+        try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
@@ -208,8 +230,16 @@ public class BlobProcessorTask extends Processor {
 
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
-            return zipFileProcessor;
-        });
+            processor = zipFileProcessor;
+        } catch (DocSignatureFailureException ex) {
+            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
+        } catch (PreviouslyFailedToUploadException ex) {
+            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
+        } catch (Exception ex) {
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
+        }
+
+        return processor;
     }
 
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {

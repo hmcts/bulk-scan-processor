@@ -130,6 +130,8 @@ spec:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-storage-secret
                   key: storageAccountName
+            - name: STORAGE_URL
+              value: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
             - name: STORAGE_KEY
               valueFrom:
                 secretKeyRef:

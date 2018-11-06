@@ -69,7 +69,7 @@ public class EnvelopeProcessor {
      *
      * @param envelope details to check against.
      */
-    public void assertDidNotFailToUploadBefore(Envelope envelope) {
+    public void assertDidNotFailToUploadBefore(Envelope envelope) throws PreviouslyFailedToUploadException {
         List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
             envelope.getContainer(),
             envelope.getZipFileName(),
@@ -81,8 +81,6 @@ public class EnvelopeProcessor {
             Envelope failedEnvelope = envelopes.get(0);
 
             throw new PreviouslyFailedToUploadException(
-                failedEnvelope.getContainer(),
-                failedEnvelope.getZipFileName(),
                 String.format(
                     "Envelope %s created at %s is already marked as failed to upload. Skipping",
                     failedEnvelope.getId(),
@@ -118,7 +116,7 @@ public class EnvelopeProcessor {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
+    public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) throws FileNameIrregularitiesException {
         Set<String> scannedFileNames = envelope
             .getScannableItems()
             .stream()
@@ -144,7 +142,7 @@ public class EnvelopeProcessor {
         }
 
         if (!problems.isEmpty()) {
-            throw new FileNameIrregularitiesException(envelope, String.join(". ", problems));
+            throw new FileNameIrregularitiesException(String.join(". ", problems));
         }
     }
 

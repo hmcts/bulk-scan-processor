@@ -17,8 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -47,8 +45,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             CloudBlobClient cloudBlobClient,
             DocumentProcessor documentProcessor,
             EnvelopeProcessor envelopeProcessor,
-            ErrorHandlingWrapper errorWrapper,
-            ServiceBusHelper serviceBusHelper,
+            EnvelopeRepository envelopeRepository,
+            ProcessEventRepository processEventRepository,
             String signatureAlg,
             String publicKeyBase64
         );
@@ -70,9 +68,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected EnvelopeProcessor envelopeProcessor;
 
     @Autowired
-    protected ErrorHandlingWrapper errorWrapper;
-
-    @Autowired
     private ScannableItemRepository scannableItemRepository;
 
     @Value("${scheduling.task.reupload.batch}")
@@ -83,9 +78,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     @Mock
     protected DocumentManagementService documentManagementService;
-
-    @Mock
-    protected ServiceBusHelper serviceBusHelper;
 
     protected CloudBlobContainer testContainer;
 
@@ -113,15 +105,16 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             cloudBlobClient,
             documentProcessor,
             envelopeProcessor,
-            errorWrapper,
-            serviceBusHelper,
+            envelopeRepository,
+            processEventRepository,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );
 
         processor = spy(p);
 
-        testContainer = cloudBlobClient.getContainerReference("test");
+        testContainer = cloudBlobClient.getContainerReference("bulkscan");
+
         testContainer.createIfNotExists();
     }
 

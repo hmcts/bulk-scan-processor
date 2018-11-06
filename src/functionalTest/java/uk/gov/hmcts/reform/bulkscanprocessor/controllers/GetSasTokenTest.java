@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -42,7 +44,7 @@ public class GetSasTokenTest {
     @Before
     public void setUp() {
         this.testUrl = conf.getString("test-url");
-        this.blobContainerUrl = "https://" + conf.getString("test-storage-account-name") + ".blob.core.windows.net/";
+        this.blobContainerUrl = conf.getString("test-storage-account-url") + "/";
 
         this.testHelper = new TestHelper();
     }
@@ -57,9 +59,14 @@ public class GetSasTokenTest {
                     conf.getString("test-storage-account-key")
                 );
 
-            CloudBlobContainer testContainer = new CloudStorageAccount(storageCredentials, true)
+            CloudBlobContainer testContainer = new CloudStorageAccount(
+                storageCredentials,
+                new StorageUri(new URI(conf.getString("test-storage-account-url")), null),
+                null,
+                null
+            )
                 .createCloudBlobClient()
-                .getContainerReference("test");
+                .getContainerReference(conf.getString("test-storage-container-name"));
 
             CloudBlockBlob blob = testContainer.getBlockBlobReference(destZipFilename);
             if (blob.exists()) {
@@ -110,9 +117,10 @@ public class GetSasTokenTest {
 
     @Test
     public void sas_token_should_have_read_and_write_capabilities_for_service() throws Exception {
-        String sasToken = testHelper.getSasToken("test", this.testUrl);
+        String testContainerName = conf.getString("test-storage-container-name");
+        String sasToken = testHelper.getSasToken(testContainerName, this.testUrl);
         CloudBlobContainer testSasContainer =
-            testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
+            testHelper.getCloudContainer(sasToken, testContainerName, this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
         testHelper.uploadAndLeaseZipFile(
