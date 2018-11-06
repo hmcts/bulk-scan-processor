@@ -9,11 +9,6 @@
   </suppress>
 
   <suppress>
-    <notes><![CDATA[Pulled in by testcontainers:postgresql. Only for integration testing]]></notes>
-    <cve>CVE-2017-8316</cve>
-  </suppress>
-
-  <suppress>
     <notes><![CDATA[No version resolving the issue is available yet.]]></notes>
     <cve>CVE-2016-7048</cve>
   </suppress>
