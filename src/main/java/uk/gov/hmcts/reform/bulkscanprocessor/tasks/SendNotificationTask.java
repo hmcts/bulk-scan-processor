@@ -48,21 +48,22 @@ public class SendNotificationTask {
             .forEach(env -> {
                 try {
                     serviceBusHelper.sendMessage(new EnvelopeMsg(env));
-                    createEvent(env);
+                    createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
                     updateStatus(env);
                 } catch (Exception exc) {
+                    createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
                     // log error and try with another envelope.
                     LOGGER.error("Error sending envelope notification", exc);
                 }
             });
     }
 
-    private void createEvent(Envelope envelope) {
+    private void createEvent(Envelope envelope, Event event) {
         processEventRepo.save(
             new ProcessEvent(
                 envelope.getContainer(),
                 envelope.getZipFileName(),
-                Event.DOC_PROCESSED_NOTIFICATION_SENT
+                event
             )
         );
     }
