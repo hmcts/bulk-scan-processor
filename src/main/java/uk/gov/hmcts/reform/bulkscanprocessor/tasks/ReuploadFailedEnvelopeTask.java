@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.netflix.servo.util.ThreadFactories;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +57,7 @@ public class ReuploadFailedEnvelopeTask {
     public void processUploadFailures() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(
             accessMapping.size(),
-            ThreadFactories.withName("BSP-REUPLOAD-%d")
+            r -> new Thread(r, "BSP-REUPLOAD-%d")
         );
         CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
