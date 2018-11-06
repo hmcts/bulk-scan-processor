@@ -4,7 +4,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
@@ -34,7 +33,7 @@ public class ZipFileProcessor {
     public void process(
         ZipVerifiers.ZipStreamWithSignature signedZip,
         ZipVerifiers.ZipPreprocessor preprocessor
-    ) throws IOException, DocSignatureFailureException, NonPdfFileFoundException {
+    ) throws IOException {
         ZipInputStream zis = preprocessor.apply(signedZip);
         ZipEntry zipEntry;
 
