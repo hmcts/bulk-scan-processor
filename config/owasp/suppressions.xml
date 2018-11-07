@@ -28,4 +28,10 @@
     <cve>CVE-2016-6497</cve>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[ Only referenced from tests]]></notes>
+    <gav regex="true">^dom4j:dom4j:.*$</gav>
+    <cve>CVE-2018-1000632</cve>
+  </suppress>
+
 </suppressions>
