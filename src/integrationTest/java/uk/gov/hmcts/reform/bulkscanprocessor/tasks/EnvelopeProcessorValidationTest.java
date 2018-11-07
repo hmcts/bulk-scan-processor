@@ -3,9 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -22,7 +20,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 /**
  * This is unit test. Falls under integration to make use of existing zip file resources.
  * TODO: Refactor and move to unit tests. Tested method takes Envelope object and list of PDF objects.
- *       Zip files are not needed.
+ * Zip files are not needed.
  */
 @RunWith(SpringRunner.class)
 public class EnvelopeProcessorValidationTest {
@@ -74,7 +72,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     private ZipFileProcessor getZipFileProcessor(String zipContentDirectory)
-        throws IOException, DocSignatureFailureException, NonPdfFileFoundException {
+        throws IOException {
         String container = "container";
         String zipFileName = "hello.zip";
 
