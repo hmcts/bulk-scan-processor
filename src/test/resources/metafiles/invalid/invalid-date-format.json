@@ -2,8 +2,8 @@
   "po_box": "XXXX",
   "jurisdiction": "SSCS",
   "delivery_date": "2013-02-20 00:00:00.100000",
-  "opening_date": "24-02-2017 00:00:00.010000",
-  "zip_file_createddate": "24-02-2017 00:00:00.001000",
+  "opening_date": "24-02-2017 24:00:00.010000",
+  "zip_file_createddate": "24-13-2017 00:00:00.001000",
   "zip_file_name": "1_24-02-2017-00-00-00.zip",
   "classification": "new_application",
   "scannable_items": [
