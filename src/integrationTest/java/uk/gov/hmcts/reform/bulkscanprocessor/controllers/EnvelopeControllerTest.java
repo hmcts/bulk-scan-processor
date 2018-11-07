@@ -33,7 +33,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -77,9 +76,6 @@ public class EnvelopeControllerTest {
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
-
-    @Autowired
-    private ErrorHandlingWrapper errorWrapper;
 
     @Value("${scheduling.task.reupload.batch}")
     private int reUploadBatchSize;
@@ -130,7 +126,8 @@ public class EnvelopeControllerTest {
                 reUploadBatchSize,
                 reuploadMaxTries
             ),
-            errorWrapper,
+            envelopeRepository,
+            processEventRepository,
             "none",
             "none"
 

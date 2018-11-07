@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.wrapper.ErrorHandlingWrapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -46,7 +45,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             CloudBlobClient cloudBlobClient,
             DocumentProcessor documentProcessor,
             EnvelopeProcessor envelopeProcessor,
-            ErrorHandlingWrapper errorWrapper,
+            EnvelopeRepository envelopeRepository,
+            ProcessEventRepository processEventRepository,
             String signatureAlg,
             String publicKeyBase64
         );
@@ -66,9 +66,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected DocumentProcessor documentProcessor;
 
     protected EnvelopeProcessor envelopeProcessor;
-
-    @Autowired
-    protected ErrorHandlingWrapper errorWrapper;
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
@@ -108,7 +105,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             cloudBlobClient,
             documentProcessor,
             envelopeProcessor,
-            errorWrapper,
+            envelopeRepository,
+            processEventRepository,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );

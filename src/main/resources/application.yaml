@@ -67,9 +67,8 @@ idam:
     secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME:bulk_scan_processor}
 
-dm:
-  api_gateway:
-    url: ${DOCUMENT_MANAGEMENT_URL:http://localhost:4460}
+document_management:
+  url: http://dm-store:4460
 
 scheduling:
   pool: ${SCHEDULING_POOL:10}

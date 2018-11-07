@@ -3,7 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -71,7 +73,8 @@ public class EnvelopeProcessorValidationTest {
             .hasMessageContaining("Missing PDFs: 1111001.pdf");
     }
 
-    private ZipFileProcessor getZipFileProcessor(String zipContentDirectory) throws IOException {
+    private ZipFileProcessor getZipFileProcessor(String zipContentDirectory)
+        throws IOException, DocSignatureFailureException, NonPdfFileFoundException {
         String container = "container";
         String zipFileName = "hello.zip";
 
