@@ -148,6 +148,19 @@ spec:
             - containerPort: 8581
               name: http
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            
 ---
 #
 # Service Catalog Servicebus queue Instance
