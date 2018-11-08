@@ -142,7 +142,7 @@ You can call the API using the following curl command (assuming your current dir
 and certificate you've created earlier):
 
 ```
-curl -v --key private.pem --cert cert.pem https://core-api-mgmt-{environment}.azure-api.net/bulk-scan/token/{service name} - H "Ocp-Apim-Subscription-Key:{subscription key}"
+curl -v --key private.pem --cert cert.pem https://core-api-mgmt-{environment}.azure-api.net/bulk-scan/token/{service name} -H "Ocp-Apim-Subscription-Key:{subscription key}"
 ```
 
 You should get a response with status 200 and a token in the body.
