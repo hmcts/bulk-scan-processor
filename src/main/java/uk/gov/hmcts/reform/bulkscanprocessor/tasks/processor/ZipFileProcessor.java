@@ -4,13 +4,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -33,8 +33,8 @@ public class ZipFileProcessor {
     // TODO: make it return processing result instead of setting fields on itself
     public void process(
         ZipVerifiers.ZipStreamWithSignature signedZip,
-        ZipVerifiers.ZipPreprocessor preprocessor
-    ) throws IOException, DocSignatureFailureException, NonPdfFileFoundException {
+        Function<ZipVerifiers.ZipStreamWithSignature, ZipInputStream> preprocessor
+    ) throws IOException {
         ZipInputStream zis = preprocessor.apply(signedZip);
         ZipEntry zipEntry;
 
