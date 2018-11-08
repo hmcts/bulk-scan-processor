@@ -101,7 +101,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
             .hasMessageContaining("2013-02-20 00:00:00.100000")
-            .hasMessageContaining("instance: {\"pointer\":\"/delivery_date\"}");
+            .hasMessageContaining("instance: {\"pointer\":\"/delivery_date\"}")
+            .hasMessageContaining("24-02-2017 24:00:00.010000")
+            .hasMessageContaining("instance: {\"pointer\":\"/opening_date\"}")
+            .hasMessageContaining("24-13-2017 00:00:00.001000")
+            .hasMessageContaining("instance: {\"pointer\":\"/zip_file_createddate\"}");
     }
 
     @Test

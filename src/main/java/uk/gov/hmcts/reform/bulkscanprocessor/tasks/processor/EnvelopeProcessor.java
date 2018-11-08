@@ -69,7 +69,7 @@ public class EnvelopeProcessor {
      *
      * @param envelope details to check against.
      */
-    public void assertDidNotFailToUploadBefore(Envelope envelope) throws PreviouslyFailedToUploadException {
+    public void assertDidNotFailToUploadBefore(Envelope envelope) {
         List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
             envelope.getContainer(),
             envelope.getZipFileName(),
@@ -94,7 +94,6 @@ public class EnvelopeProcessor {
      * Check blob did not fail to be deleted before. This means that
      * processing is complete and an envelope has already been created as
      * blob deletion is the last processing step.
-     *
      */
     public Envelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
         return envelopeRepository.findEnvelopesByFileAndContainer(
@@ -102,12 +101,13 @@ public class EnvelopeProcessor {
             zipFileName,
             PageRequest.of(0, 1)
         )
-        .stream()
-        .findFirst()
-        .orElse(null);
+            .stream()
+            .findFirst()
+            .orElse(null);
     }
 
     // TODO: move to separate class.
+
     /**
      * Assert given envelope has scannable items exactly matching
      * the filenames with list of pdfs acquired from zip file.
@@ -116,7 +116,7 @@ public class EnvelopeProcessor {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) throws FileNameIrregularitiesException {
+    public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
             .getScannableItems()
             .stream()
