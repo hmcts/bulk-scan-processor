@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -42,7 +43,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @FunctionalInterface
     public interface Construct<T extends Processor> {
         T apply(
-            CloudBlobClient cloudBlobClient,
+            BlobManager blobManager,
             DocumentProcessor documentProcessor,
             EnvelopeProcessor envelopeProcessor,
             EnvelopeRepository envelopeRepository,
@@ -67,6 +68,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     protected EnvelopeProcessor envelopeProcessor;
 
+    protected BlobManager blobManager;
+
     @Autowired
     private ScannableItemRepository scannableItemRepository;
 
@@ -88,6 +91,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
+        blobManager = new BlobManager(cloudBlobClient);
+
         documentProcessor = new DocumentProcessor(
             documentManagementService,
             scannableItemRepository
@@ -102,7 +107,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
 
         T p = processorConstruct.apply(
-            cloudBlobClient,
+            blobManager,
             documentProcessor,
             envelopeProcessor,
             envelopeRepository,

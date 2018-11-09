@@ -38,7 +38,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         super.setUp(FailedDocUploadProcessor::new);
 
         blobProcessorTask = new BlobProcessorTask(
-            testContainer.getServiceClient(),
+            blobManager,
             documentProcessor,
             envelopeProcessor,
             envelopeRepository,

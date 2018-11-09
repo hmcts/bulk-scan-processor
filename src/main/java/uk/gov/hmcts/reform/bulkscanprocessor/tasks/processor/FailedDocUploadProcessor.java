@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
@@ -35,19 +34,19 @@ public class FailedDocUploadProcessor extends Processor {
 
     @Autowired
     public FailedDocUploadProcessor(
-        CloudBlobClient cloudBlobClient,
+        BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository
     ) {
-        super(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
     // using "new" in tests despite being spring beans (sigh!)
     public FailedDocUploadProcessor(
-        CloudBlobClient cloudBlobClient,
+        BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
@@ -55,7 +54,7 @@ public class FailedDocUploadProcessor extends Processor {
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -77,7 +76,7 @@ public class FailedDocUploadProcessor extends Processor {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
-        CloudBlobContainer container = cloudBlobClient.getContainerReference(containerName);
+        CloudBlobContainer container = blobManager.getContainer(containerName);
 
         for (Envelope envelope : envelopes) {
             processEnvelope(container, envelope);
