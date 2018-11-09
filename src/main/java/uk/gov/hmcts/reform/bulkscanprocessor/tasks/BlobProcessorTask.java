@@ -2,17 +2,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.LeaseStatus;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -21,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -34,7 +32,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -54,28 +51,25 @@ public class BlobProcessorTask extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
 
-    @Value("${storage.blob_lease_timeout}")
-    private Integer blobLeaseTimeout;
-
     @Value("${storage.blob_processing_delay_in_minutes}")
     protected int blobProcessingDelayInMinutes = 0;
 
 
     @Autowired
     public BlobProcessorTask(
-        CloudBlobClient cloudBlobClient,
+        BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository
     ) {
-        super(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
     // using "new" in tests despite being spring beans (sigh!)
     public BlobProcessorTask(
-        CloudBlobClient cloudBlobClient,
+        BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
@@ -83,14 +77,14 @@ public class BlobProcessorTask extends Processor {
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(cloudBlobClient, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
-        for (CloudBlobContainer container : cloudBlobClient.listContainers()) {
+        for (CloudBlobContainer container : blobManager.listContainers()) {
             processZipFiles(container);
         }
     }
@@ -131,10 +125,10 @@ public class BlobProcessorTask extends Processor {
             return;
         }
 
-        CloudBlockBlob blobWithLeaseAcquired = acquireLease(cloudBlockBlob, container.getName(), zipFilename);
+        boolean leaseAcquired = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
-        if (Objects.nonNull(blobWithLeaseAcquired)) {
-            BlobInputStream blobInputStream = blobWithLeaseAcquired.openInputStream();
+        if (leaseAcquired) {
+            BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
@@ -144,7 +138,7 @@ public class BlobProcessorTask extends Processor {
                     processParsedEnvelopeDocuments(
                         zipFileProcessor.getEnvelope(),
                         zipFileProcessor.getPdfs(),
-                        blobWithLeaseAcquired
+                        cloudBlockBlob
                     );
                 }
             }
@@ -168,45 +162,6 @@ public class BlobProcessorTask extends Processor {
         } catch (StorageException e) {
             log.warn("Failed to delete blob [{}]", cloudBlockBlob.getName());
         } // Do not propagate exception as this blob has already been marked with a delete failure
-    }
-
-    private CloudBlockBlob acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
-        try {
-            // Note: trying to lease an already leased blob throws an exception and
-            // we really do not want to fill the application logs with these. Unfortunately
-            // even with this check there is still a chance of an exception as check + lease
-            // cannot be expressed as an atomic operation (not that I can see anyway).
-            // All considered this should still be much better than not checking lease status
-            // at all.
-            if (cloudBlockBlob.getProperties().getLeaseStatus() == LeaseStatus.LOCKED) {
-                log.debug("Lease already acquired for container {} and zip file {}",
-                    containerName, zipFilename);
-                return null;
-            }
-            cloudBlockBlob.acquireLease(blobLeaseTimeout, null);
-            return cloudBlockBlob;
-        } catch (StorageException storageException) {
-            if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
-                log.error(
-                    "Lease already acquired for container {} and zip file {}",
-                    containerName,
-                    zipFilename,
-                    storageException
-                );
-            } else {
-                log.error(storageException.getMessage(), storageException);
-            }
-            return null;
-        } catch (Exception exception) {
-            log.error(
-                "Failed to acquire lease on file {} in container {}",
-                zipFilename,
-                containerName,
-                exception
-            );
-
-            return null;
-        }
     }
 
     private ZipFileProcessor processZipFileContent(

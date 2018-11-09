@@ -34,6 +34,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -112,9 +113,10 @@ public class EnvelopeControllerTest {
     public void setup() throws Exception {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
+        BlobManager blobManager = new BlobManager(cloudBlobClient);
 
         blobProcessorTask = new BlobProcessorTask(
-            cloudBlobClient,
+            blobManager,
             new DocumentProcessor(
                 documentManagementService,
                 scannableItemRepository

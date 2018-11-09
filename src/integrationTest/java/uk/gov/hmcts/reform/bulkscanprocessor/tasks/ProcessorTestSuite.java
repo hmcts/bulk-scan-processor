@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -39,19 +40,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected static final String SIGNATURE_ALGORITHM = "none";
     protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
 
-    @FunctionalInterface
-    public interface Construct<T extends Processor> {
-        T apply(
-            CloudBlobClient cloudBlobClient,
-            DocumentProcessor documentProcessor,
-            EnvelopeProcessor envelopeProcessor,
-            EnvelopeRepository envelopeRepository,
-            ProcessEventRepository processEventRepository,
-            String signatureAlg,
-            String publicKeyBase64
-        );
-    }
-
     protected T processor;
 
     @Autowired
@@ -66,6 +54,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected DocumentProcessor documentProcessor;
 
     protected EnvelopeProcessor envelopeProcessor;
+
+    protected BlobManager blobManager;
 
     @Autowired
     private ScannableItemRepository scannableItemRepository;
@@ -88,6 +78,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
+        blobManager = new BlobManager(cloudBlobClient);
+
         documentProcessor = new DocumentProcessor(
             documentManagementService,
             scannableItemRepository
@@ -102,7 +94,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         );
 
         T p = processorConstruct.apply(
-            cloudBlobClient,
+            blobManager,
             documentProcessor,
             envelopeProcessor,
             envelopeRepository,
@@ -170,4 +162,16 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         return envelopes.get(0);
     }
 
+    @FunctionalInterface
+    public interface Construct<T extends Processor> {
+        T apply(
+            BlobManager blobManager,
+            DocumentProcessor documentProcessor,
+            EnvelopeProcessor envelopeProcessor,
+            EnvelopeRepository envelopeRepository,
+            ProcessEventRepository processEventRepository,
+            String signatureAlg,
+            String publicKeyBase64
+        );
+    }
 }

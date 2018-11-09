@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -25,7 +25,7 @@ public abstract class Processor {
 
     private static final Logger log = LoggerFactory.getLogger(Processor.class);
 
-    protected final CloudBlobClient cloudBlobClient;
+    protected final BlobManager blobManager;
     private final DocumentProcessor documentProcessor;
     protected final EnvelopeProcessor envelopeProcessor;
     protected final EnvelopeRepository envelopeRepository;
@@ -38,13 +38,13 @@ public abstract class Processor {
     protected String publicKeyDerFilename;
 
     protected Processor(
-        CloudBlobClient cloudBlobClient,
+        BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository
     ) {
-        this.cloudBlobClient = cloudBlobClient;
+        this.blobManager = blobManager;
         this.documentProcessor = documentProcessor;
         this.envelopeProcessor = envelopeProcessor;
         this.envelopeRepository = envelopeRepository;
