@@ -77,7 +77,8 @@ public class BlobManagerTest {
 
     @Test
     public void listContainers_retrieves_containers_from_client() {
-        List<CloudBlobContainer> expectedContainers = Arrays.asList(mock(CloudBlobContainer.class), mock(CloudBlobContainer.class));
+        List<CloudBlobContainer> expectedContainers =
+            Arrays.asList(mock(CloudBlobContainer.class), mock(CloudBlobContainer.class));
 
         given(cloudBlobClient.listContainers()).willReturn(expectedContainers);
         Iterable<CloudBlobContainer> containers = blobManager.listContainers();
