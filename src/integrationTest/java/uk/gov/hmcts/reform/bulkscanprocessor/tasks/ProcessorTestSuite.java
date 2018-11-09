@@ -40,19 +40,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected static final String SIGNATURE_ALGORITHM = "none";
     protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
 
-    @FunctionalInterface
-    public interface Construct<T extends Processor> {
-        T apply(
-            BlobManager blobManager,
-            DocumentProcessor documentProcessor,
-            EnvelopeProcessor envelopeProcessor,
-            EnvelopeRepository envelopeRepository,
-            ProcessEventRepository processEventRepository,
-            String signatureAlg,
-            String publicKeyBase64
-        );
-    }
-
     protected T processor;
 
     @Autowired
@@ -175,4 +162,16 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         return envelopes.get(0);
     }
 
+    @FunctionalInterface
+    public interface Construct<T extends Processor> {
+        T apply(
+            BlobManager blobManager,
+            DocumentProcessor documentProcessor,
+            EnvelopeProcessor envelopeProcessor,
+            EnvelopeRepository envelopeRepository,
+            ProcessEventRepository processEventRepository,
+            String signatureAlg,
+            String publicKeyBase64
+        );
+    }
 }

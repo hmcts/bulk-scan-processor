@@ -66,8 +66,6 @@ public class EnvelopeControllerTest {
 
     private BlobProcessorTask blobProcessorTask;
 
-    private BlobManager blobManager;
-
     @Autowired
     private MetafileJsonValidator schemaValidator;
 
@@ -115,7 +113,7 @@ public class EnvelopeControllerTest {
     public void setup() throws Exception {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
-        blobManager = new BlobManager(cloudBlobClient);
+        BlobManager blobManager = new BlobManager(cloudBlobClient);
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
