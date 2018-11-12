@@ -87,18 +87,20 @@ public class BlobManager {
     }
 
     public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName) {
+        String rejectedContainerName = getRejectedContainerName(inputContainerName);
+
         try {
             moveFileToRejectedContainer(
                 fileName,
                 inputContainerName,
-                getRejectedContainerName(inputContainerName)
+                rejectedContainerName
             );
         } catch (Exception ex) {
             log.error(
                 "An error occurred when moving rejected file {} from container {} to rejected files' container {}",
                 fileName,
                 inputContainerName,
-                getRejectedContainerName(inputContainerName),
+                rejectedContainerName,
                 ex
             );
         }
