@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -87,6 +88,9 @@ public class EnvelopeControllerTest {
     @Mock
     private DocumentManagementService documentManagementService;
 
+    @Autowired
+    private BlobManagementProperties blobManagementProperties;
+
     @MockBean
     private AuthTokenValidator tokenValidator;
 
@@ -113,7 +117,7 @@ public class EnvelopeControllerTest {
     public void setup() throws Exception {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
-        BlobManager blobManager = new BlobManager(cloudBlobClient);
+        BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
