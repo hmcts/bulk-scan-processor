@@ -21,8 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
@@ -108,7 +108,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_record_generic_failure_when_zip_does_not_contain_metadata_json() throws Exception {
+    public void should_record_validation_failure_when_zip_does_not_contain_metadata_json() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_metadata"));
 
@@ -117,11 +117,11 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(DOC_FAILURE);
+        eventWasCreated(FILE_VALIDATION_FAILURE);
     }
 
     @Test
-    public void should_record_generic_failure_when_metadata_parsing_fails() throws Exception {
+    public void should_record_validation_failure_when_metadata_parsing_fails() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/invalid_metadata"));
 
@@ -130,11 +130,11 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(DOC_FAILURE);
+        eventWasCreated(FILE_VALIDATION_FAILURE);
     }
 
     @Test
-    public void should_record_generic_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
+    public void should_record_validation_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/non_pdf"));
 
@@ -143,7 +143,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(Event.DOC_FAILURE);
+        eventWasCreated(FILE_VALIDATION_FAILURE);
     }
 
     @Test

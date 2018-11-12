@@ -17,6 +17,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -52,8 +56,7 @@ public class BlobProcessorTask extends Processor {
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
 
     @Value("${storage.blob_processing_delay_in_minutes}")
-    protected int blobProcessingDelayInMinutes = 0;
-
+    protected int blobProcessingDelayInMinutes;
 
     @Autowired
     public BlobProcessorTask(
@@ -186,8 +189,13 @@ public class BlobProcessorTask extends Processor {
             zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
             processor = zipFileProcessor;
+        } catch (InvalidEnvelopeSchemaException
+            | FileNameIrregularitiesException
+            | NonPdfFileFoundException
+            | MetadataNotFoundException ex) {
+            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, ex);
         } catch (DocSignatureFailureException ex) {
-            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
+            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
         } catch (PreviouslyFailedToUploadException ex) {
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
         } catch (Exception ex) {
@@ -200,5 +208,13 @@ public class BlobProcessorTask extends Processor {
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
         java.util.Date cutoff = Date.from(Instant.now().minus(this.blobProcessingDelayInMinutes, ChronoUnit.MINUTES));
         return blob.getProperties().getLastModified().before(cutoff);
+    }
+
+    private void handleInvalidFileError(
+        Event fileValidationFailure, String containerName, String zipFilename,
+        Exception cause) {
+
+        handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName);
     }
 }
