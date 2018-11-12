@@ -103,15 +103,20 @@ public class BlobManager {
     private void moveFileToRejectedContainer(String fileName, String inputContainerName, String rejectedContainerName)
         throws URISyntaxException, StorageException, InterruptedException {
 
-        CloudBlobContainer inputContainer = cloudBlobClient.getContainerReference(inputContainerName);
-        CloudBlobContainer rejectedContainer = cloudBlobClient.getContainerReference(rejectedContainerName);
-        CloudBlockBlob inputBlob = inputContainer.getBlockBlobReference(fileName);
-        CloudBlockBlob rejectedBlob = rejectedContainer.getBlockBlobReference(fileName);
+        CloudBlockBlob inputBlob = getBlob(fileName, inputContainerName);
+        CloudBlockBlob rejectedBlob = getBlob(fileName, rejectedContainerName);
         rejectedBlob.startCopy(inputBlob);
 
         waitUntilBlobIsCopied(rejectedBlob);
         inputBlob.deleteIfExists();
-        log.info("File {} moved to rejected container {}", fileName, rejectedContainer.getName());
+        log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
+    }
+
+    private CloudBlockBlob getBlob(String fileName, String inputContainerName)
+        throws URISyntaxException, StorageException {
+        
+        CloudBlobContainer inputContainer = cloudBlobClient.getContainerReference(inputContainerName);
+        return inputContainer.getBlockBlobReference(fileName);
     }
 
     private void waitUntilBlobIsCopied(CloudBlockBlob blob)
