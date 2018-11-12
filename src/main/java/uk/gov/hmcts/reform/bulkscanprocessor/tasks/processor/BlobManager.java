@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.LeaseStatus;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -16,6 +16,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyException;
 
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Component
 @EnableConfigurationProperties(BlobManagementProperties.class)
@@ -101,7 +105,7 @@ public class BlobManager {
     }
 
     private void moveFileToRejectedContainer(String fileName, String inputContainerName, String rejectedContainerName)
-        throws URISyntaxException, StorageException, InterruptedException {
+        throws URISyntaxException, StorageException {
 
         CloudBlockBlob inputBlob = getBlob(fileName, inputContainerName);
         CloudBlockBlob rejectedBlob = getBlob(fileName, rejectedContainerName);
@@ -114,23 +118,22 @@ public class BlobManager {
 
     private CloudBlockBlob getBlob(String fileName, String inputContainerName)
         throws URISyntaxException, StorageException {
-        
+
         CloudBlobContainer inputContainer = cloudBlobClient.getContainerReference(inputContainerName);
         return inputContainer.getBlockBlobReference(fileName);
     }
 
-    private void waitUntilBlobIsCopied(CloudBlockBlob blob)
-        throws InterruptedException, StorageException {
+    private void waitUntilBlobIsCopied(CloudBlockBlob blob) throws StorageException {
 
         CopyStatus copyStatus = CopyStatus.PENDING;
         boolean timeout = false;
-        DateTime startTime = DateTime.now();
+        LocalDateTime startTime = LocalDateTime.now();
 
         do {
-            if (DateTime.now().minusMillis(properties.getBlobCopyTimeoutInMillis()).isAfter(startTime)) {
+            if (LocalDateTime.now().minus(properties.getBlobCopyTimeoutInMillis(), MILLIS).isAfter(startTime)) {
                 timeout = true;
             } else {
-                Thread.sleep(properties.getBlobCopyPollingDelayInMillis());
+                Uninterruptibles.sleepUninterruptibly(properties.getBlobCopyPollingDelayInMillis(), MILLISECONDS);
                 blob.downloadAttributes();
                 copyStatus = blob.getCopyState().getStatus();
             }
