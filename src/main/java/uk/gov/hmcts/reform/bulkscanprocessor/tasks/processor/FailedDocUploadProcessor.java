@@ -123,6 +123,7 @@ public class FailedDocUploadProcessor extends Processor {
             return zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
         } catch (DocSignatureFailureException ex) {
             handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
+            blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName);
             return null;
         } catch (Exception ex) {
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
