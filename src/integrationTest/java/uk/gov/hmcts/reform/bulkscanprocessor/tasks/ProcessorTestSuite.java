@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.testcontainers.containers.DockerComposeContainer;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -60,6 +61,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Autowired
     private ScannableItemRepository scannableItemRepository;
 
+    @Autowired
+    private BlobManagementProperties blobManagementProperties;
+
     @Value("${scheduling.task.reupload.batch}")
     private int reUploadBatchSize;
 
@@ -78,7 +82,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        blobManager = new BlobManager(cloudBlobClient);
+        blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
