@@ -195,7 +195,8 @@ public class BlobProcessorTask extends Processor {
         } catch (InvalidEnvelopeSchemaException
             | FileNameIrregularitiesException
             | NonPdfFileFoundException
-            | MetadataNotFoundException ex) {
+            | MetadataNotFoundException ex
+        ) {
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, ex);
         } catch (DocSignatureFailureException ex) {
             handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
@@ -215,9 +216,11 @@ public class BlobProcessorTask extends Processor {
     }
 
     private void handleInvalidFileError(
-        Event fileValidationFailure, String containerName, String zipFilename,
-        Exception cause) {
-
+        Event fileValidationFailure,
+        String containerName,
+        String zipFilename,
+        Exception cause
+    ) {
         handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName);
     }
