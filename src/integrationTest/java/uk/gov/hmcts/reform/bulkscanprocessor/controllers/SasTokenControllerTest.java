@@ -38,8 +38,12 @@ public class SasTokenControllerTest {
             .getResponse().getContentAsString();
 
         final ObjectNode node = new ObjectMapper().readValue(tokenResponse, ObjectNode.class);
+        String sasTokenQuery = node.get("sas_token").asText();
 
-        Map<String, String[]> queryParams = PathUtility.parseQueryString(node.get("sas_token").asText());
+        // assure response includes prepended '?'
+        assertThat(sasTokenQuery).startsWith("?");
+
+        Map<String, String[]> queryParams = PathUtility.parseQueryString(sasTokenQuery);
 
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
