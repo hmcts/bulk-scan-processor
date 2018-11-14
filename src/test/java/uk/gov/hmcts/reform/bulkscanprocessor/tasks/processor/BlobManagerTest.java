@@ -111,14 +111,18 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void listContainers_retrieves_containers_from_client() {
-        List<CloudBlobContainer> expectedContainers =
-            Arrays.asList(mock(CloudBlobContainer.class), mock(CloudBlobContainer.class));
+    public void listInputContainers_retrieves_input_containers_from_client() {
+        List<CloudBlobContainer> allContainers = Arrays.asList(
+            mockContainer("test1"),
+            mockContainer("test1-rejected"),
+            mockContainer("test2")
+        );
 
-        given(cloudBlobClient.listContainers()).willReturn(expectedContainers);
-        Iterable<CloudBlobContainer> containers = blobManager.listContainers();
+        given(cloudBlobClient.listContainers()).willReturn(allContainers);
+        List<CloudBlobContainer> containers = blobManager.listInputContainers();
+        List<String> containerNames = containers.stream().map(c -> c.getName()).collect(toList());
 
-        assertThat(containers).hasSameClassAs(expectedContainers);
+        assertThat(containerNames).hasSameElementsAs(Arrays.asList("test1", "test2"));
         verify(cloudBlobClient).listContainers();
     }
 
@@ -195,5 +199,11 @@ public class BlobManagerTest {
         CopyState copyState = mock(CopyState.class);
         given(copyState.getStatus()).willReturn(copyStatus);
         return copyState;
+    }
+
+    private CloudBlobContainer mockContainer(String name) {
+        CloudBlobContainer container = mock(CloudBlobContainer.class);
+        given(container.getName()).willReturn(name);
+        return container;
     }
 }
