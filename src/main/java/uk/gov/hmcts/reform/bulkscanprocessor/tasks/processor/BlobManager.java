@@ -17,15 +17,19 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyExceptio
 
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.StreamSupport;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.stream.Collectors.toList;
 
 @Component
 @EnableConfigurationProperties(BlobManagementProperties.class)
 public class BlobManager {
 
     private static final Logger log = LoggerFactory.getLogger(BlobManager.class);
+    private static final String REJECTED_CONTAINER_NAME_SUFFIX = "-rejected";
 
     private final CloudBlobClient cloudBlobClient;
     private final BlobManagementProperties properties;
@@ -82,8 +86,11 @@ public class BlobManager {
         return cloudBlobClient.getContainerReference(containerName);
     }
 
-    public Iterable<CloudBlobContainer> listContainers() {
-        return cloudBlobClient.listContainers();
+    public List<CloudBlobContainer> listInputContainers() {
+        return StreamSupport
+            .stream(cloudBlobClient.listContainers().spliterator(), false)
+            .filter(c -> !c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
+            .collect(toList());
     }
 
     public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName) {
@@ -151,6 +158,6 @@ public class BlobManager {
     }
 
     private String getRejectedContainerName(String inputContainerName) {
-        return inputContainerName + "-rejected";
+        return inputContainerName + REJECTED_CONTAINER_NAME_SUFFIX;
     }
 }
