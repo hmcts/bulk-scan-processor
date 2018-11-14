@@ -66,7 +66,7 @@ public class EnvelopeDeletionTest {
             } catch (StorageException e) {
                 // Do nothing as the file was not leased
             }
-            
+
             inputContainer.getBlockBlobReference(filename).deleteIfExists();
             rejectedContainer.getBlockBlobReference(filename).deleteIfExists();
         }
@@ -103,11 +103,11 @@ public class EnvelopeDeletionTest {
 
         filesToDeleteAfterTest.add(destZipFilename);
 
-        await("file should not be deleted")
-            .atMost(scanDelay + 15_000, TimeUnit.MILLISECONDS)
+        await("file should be deleted")
+            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
             .pollDelay(scanDelay * 2, TimeUnit.MILLISECONDS)
-            .until(() -> testHelper.storageHasFile(rejectedContainer, destZipFilename), is(true));
+            .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
 
-        assertThat(testHelper.storageHasFile(inputContainer, destZipFilename)).isFalse();
+        assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isTrue();
     }
 }
