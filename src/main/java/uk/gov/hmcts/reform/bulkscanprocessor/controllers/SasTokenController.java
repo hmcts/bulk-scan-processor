@@ -8,25 +8,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.SasTokenResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.SasTokenGeneratorService;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.SasQueryParamsResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.SasQueryParamsGenerator;
 
 @RestController
 @RequestMapping(path = "/token")
 public class SasTokenController {
 
-    private final SasTokenGeneratorService tokenGeneratorService;
+    private final SasQueryParamsGenerator queryParamsGenerator;
 
-    public SasTokenController(SasTokenGeneratorService tokenGeneratorService) {
-        this.tokenGeneratorService = tokenGeneratorService;
+    public SasTokenController(SasQueryParamsGenerator queryParamsGenerator) {
+        this.queryParamsGenerator = queryParamsGenerator;
     }
 
     @GetMapping(path = "/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get SAS Token to access blob storage")
     @ApiResponse(code = 200, message = "Success")
-    public ResponseEntity<SasTokenResponse> getSasToken(@PathVariable String serviceName) {
-        String sasToken = tokenGeneratorService.generateSasToken(serviceName);
+    public ResponseEntity<SasQueryParamsResponse> getSasToken(@PathVariable String serviceName) {
+        String sasQueryParams = queryParamsGenerator.generateSasQueryParams(serviceName);
 
-        return ResponseEntity.ok(new SasTokenResponse(sasToken));
+        return ResponseEntity.ok(new SasQueryParamsResponse(sasQueryParams));
     }
 }

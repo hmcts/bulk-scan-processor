@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SasTokenGeneratorServiceTest {
+public class SasQueryParamsGeneratorTest {
 
     private AccessTokenProperties accessTokenProperties;
-    private SasTokenGeneratorService tokenGeneratorService;
+    private SasQueryParamsGenerator tokenGeneratorService;
 
     @Before
     public void setUp() throws URISyntaxException {
@@ -36,7 +36,7 @@ public class SasTokenGeneratorServiceTest {
 
         createAccessTokenConfig();
 
-        tokenGeneratorService = new SasTokenGeneratorService(
+        tokenGeneratorService = new SasQueryParamsGenerator(
             cloudBlobClient,
             accessTokenProperties
         );
@@ -44,7 +44,7 @@ public class SasTokenGeneratorServiceTest {
 
     @Test
     public void should_generate_sas_token_when_service_configuration_is_available() throws StorageException {
-        String sasToken = tokenGeneratorService.generateSasToken("sscs");
+        String sasToken = tokenGeneratorService.generateSasQueryParams("sscs");
 
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
@@ -58,7 +58,7 @@ public class SasTokenGeneratorServiceTest {
 
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
-        assertThatThrownBy(() -> tokenGeneratorService.generateSasToken("doesnotexist"))
+        assertThatThrownBy(() -> tokenGeneratorService.generateSasQueryParams("doesnotexist"))
             .isInstanceOf(ServiceConfigNotFoundException.class)
             .hasMessage("No service configuration found for service doesnotexist");
     }

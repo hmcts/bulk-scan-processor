@@ -24,14 +24,14 @@ import static java.time.LocalDateTime.now;
 
 @EnableConfigurationProperties(AccessTokenProperties.class)
 @Service
-public class SasTokenGeneratorService {
+public class SasQueryParamsGenerator {
 
-    private static final Logger log = LoggerFactory.getLogger(SasTokenGeneratorService.class);
+    private static final Logger log = LoggerFactory.getLogger(SasQueryParamsGenerator.class);
 
     private final CloudBlobClient cloudBlobClient;
     private final AccessTokenProperties accessTokenProperties;
 
-    public SasTokenGeneratorService(
+    public SasQueryParamsGenerator(
         CloudBlobClient cloudBlobClient,
         AccessTokenProperties accessTokenProperties
     ) {
@@ -39,7 +39,7 @@ public class SasTokenGeneratorService {
         this.accessTokenProperties = accessTokenProperties;
     }
 
-    public String generateSasToken(String serviceName) {
+    public String generateSasQueryParams(String serviceName) {
 
         log.info("SAS Token request received for service {} ", serviceName);
 
