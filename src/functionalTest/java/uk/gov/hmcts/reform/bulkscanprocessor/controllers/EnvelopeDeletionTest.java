@@ -86,7 +86,6 @@ public class EnvelopeDeletionTest {
             .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
 
-        assertThat(testHelper.storageHasFile(inputContainer, destZipFilename)).isFalse();
         assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isFalse();
     }
 
@@ -105,7 +104,7 @@ public class EnvelopeDeletionTest {
 
         await("file should be deleted")
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
-            .pollDelay(scanDelay * 2, TimeUnit.MILLISECONDS)
+            .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
 
         assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isTrue();
