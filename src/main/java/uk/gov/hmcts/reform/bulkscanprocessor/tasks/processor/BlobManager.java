@@ -93,19 +93,18 @@ public class BlobManager {
             .collect(toList());
     }
 
-    public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName) {
+    public void tryMoveFileToRejectedContainer(CloudBlockBlob blob, String inputContainerName) {
         String rejectedContainerName = getRejectedContainerName(inputContainerName);
 
         try {
             moveFileToRejectedContainer(
-                fileName,
-                inputContainerName,
+                blob,
                 rejectedContainerName
             );
         } catch (Exception ex) {
             log.error(
                 "An error occurred when moving rejected file {} from container {} to rejected files' container {}",
-                fileName,
+                blob,
                 inputContainerName,
                 rejectedContainerName,
                 ex
@@ -113,16 +112,15 @@ public class BlobManager {
         }
     }
 
-    private void moveFileToRejectedContainer(String fileName, String inputContainerName, String rejectedContainerName)
+    private void moveFileToRejectedContainer(CloudBlockBlob blob, String rejectedContainerName)
         throws URISyntaxException, StorageException {
 
-        CloudBlockBlob inputBlob = getBlob(fileName, inputContainerName);
-        CloudBlockBlob rejectedBlob = getBlob(fileName, rejectedContainerName);
-        rejectedBlob.startCopy(inputBlob);
+        CloudBlockBlob rejectedBlob = getBlob(blob.getName(), rejectedContainerName);
+        rejectedBlob.startCopy(blob);
 
         waitUntilBlobIsCopied(rejectedBlob);
-        inputBlob.deleteIfExists();
-        log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
+        blob.deleteIfExists();
+        log.info("File {} moved to rejected container {}", blob, rejectedContainerName);
     }
 
     private CloudBlockBlob getBlob(String fileName, String inputContainerName)

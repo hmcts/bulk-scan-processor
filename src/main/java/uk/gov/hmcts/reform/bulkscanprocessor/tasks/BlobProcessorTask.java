@@ -128,14 +128,16 @@ public class BlobProcessorTask extends Processor {
             return;
         }
 
-        boolean leaseAcquired = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
+        boolean leaseAcquired =
+            blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
         if (leaseAcquired) {
             BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-                ZipFileProcessor zipFileProcessor = processZipFileContent(zis, zipFilename, container.getName());
+                ZipFileProcessor zipFileProcessor =
+                    processZipFileContent(zis, cloudBlockBlob, container.getName());
 
                 if (zipFileProcessor != null) {
                     processParsedEnvelopeDocuments(
@@ -169,7 +171,7 @@ public class BlobProcessorTask extends Processor {
 
     private ZipFileProcessor processZipFileContent(
         ZipInputStream zis,
-        String zipFilename,
+        CloudBlockBlob blob,
         String containerName
     ) {
         ZipFileProcessor processor = null;
@@ -177,10 +179,16 @@ public class BlobProcessorTask extends Processor {
         try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
+                ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
+                    zis,
+                    publicKeyDerFilename,
+                    blob.getName(),
+                    containerName
+                );
+
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
-            Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
+            Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), blob.getName());
             envelope.setContainer(containerName);
 
             EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, zipFileProcessor.getPdfs());
@@ -194,13 +202,13 @@ public class BlobProcessorTask extends Processor {
             | NonPdfFileFoundException
             | MetadataNotFoundException ex
         ) {
-            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, ex);
+            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, blob, ex);
         } catch (DocSignatureFailureException ex) {
-            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
+            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, blob, ex);
         } catch (PreviouslyFailedToUploadException ex) {
-            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
+            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, blob.getName(), ex);
         } catch (Exception ex) {
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, blob.getName(), ex);
         }
 
         return processor;
@@ -214,10 +222,10 @@ public class BlobProcessorTask extends Processor {
     private void handleInvalidFileError(
         Event fileValidationFailure,
         String containerName,
-        String zipFilename,
+        CloudBlockBlob blob,
         Exception cause
     ) {
-        handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
-        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName);
+        handleEventRelatedError(fileValidationFailure, containerName, blob.getName(), cause);
+        blobManager.tryMoveFileToRejectedContainer(blob, containerName);
     }
 }

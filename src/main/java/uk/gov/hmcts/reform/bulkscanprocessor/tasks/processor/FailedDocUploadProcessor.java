@@ -95,7 +95,7 @@ public class FailedDocUploadProcessor extends Processor {
             ZipFileProcessor zipFileProcessor = processZipInputStream(
                 zis,
                 envelope.getContainer(),
-                envelope.getZipFileName()
+                cloudBlockBlob
             );
 
             if (zipFileProcessor != null) {
@@ -111,7 +111,7 @@ public class FailedDocUploadProcessor extends Processor {
     private ZipFileProcessor processZipInputStream(
         ZipInputStream zis,
         String containerName,
-        String zipFileName
+        CloudBlockBlob blob
     ) {
         ZipFileProcessor processor = null;
 
@@ -119,17 +119,17 @@ public class FailedDocUploadProcessor extends Processor {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-                    zis, publicKeyDerFilename, zipFileName, containerName
+                    zis, publicKeyDerFilename, blob.getName(), containerName
                 );
 
             zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
             processor = zipFileProcessor;
         } catch (DocSignatureFailureException ex) {
-            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
-            blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName);
+            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, blob.getName(), ex);
+            blobManager.tryMoveFileToRejectedContainer(blob, containerName);
         } catch (Exception ex) {
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, blob.getName(), ex);
         }
 
         return processor;
