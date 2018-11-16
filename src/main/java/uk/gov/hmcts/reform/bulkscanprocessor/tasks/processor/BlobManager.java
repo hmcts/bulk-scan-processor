@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyStatus;
+import com.microsoft.azure.storage.blob.DeleteSnapshotsOption;
 import com.microsoft.azure.storage.blob.LeaseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyExceptio
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
@@ -42,7 +45,7 @@ public class BlobManager {
         this.properties = properties;
     }
 
-    public boolean acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
+    public Optional<String> acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
         try {
             // Note: trying to lease an already leased blob throws an exception and
             // we really do not want to fill the application logs with these. Unfortunately
@@ -53,11 +56,11 @@ public class BlobManager {
             if (cloudBlockBlob.getProperties().getLeaseStatus() == LeaseStatus.LOCKED) {
                 log.debug("Lease already acquired for container {} and zip file {}",
                     containerName, zipFilename);
-                return false;
+                return Optional.empty();
             }
 
-            cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
-            return true;
+            String leaseId = cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
+            return Optional.of(leaseId);
         } catch (StorageException storageException) {
             if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
                 log.error(
@@ -69,7 +72,7 @@ public class BlobManager {
             } else {
                 log.error(storageException.getMessage(), storageException);
             }
-            return false;
+            return Optional.empty();
         } catch (Exception exception) {
             log.error(
                 "Failed to acquire lease on file {} in container {}",
@@ -78,7 +81,7 @@ public class BlobManager {
                 exception
             );
 
-            return false;
+            return Optional.empty();
         }
     }
 
@@ -93,14 +96,15 @@ public class BlobManager {
             .collect(toList());
     }
 
-    public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName) {
+    public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName, String leaseId) {
         String rejectedContainerName = getRejectedContainerName(inputContainerName);
 
         try {
             moveFileToRejectedContainer(
                 fileName,
                 inputContainerName,
-                rejectedContainerName
+                rejectedContainerName,
+                leaseId
             );
         } catch (Exception ex) {
             log.error(
@@ -113,15 +117,24 @@ public class BlobManager {
         }
     }
 
-    private void moveFileToRejectedContainer(String fileName, String inputContainerName, String rejectedContainerName)
-        throws URISyntaxException, StorageException {
+    private void moveFileToRejectedContainer(
+        String fileName,
+        String inputContainerName,
+        String rejectedContainerName,
+        String leaseId
+    ) throws URISyntaxException, StorageException {
 
         CloudBlockBlob inputBlob = getBlob(fileName, inputContainerName);
         CloudBlockBlob rejectedBlob = getBlob(fileName, rejectedContainerName);
         rejectedBlob.startCopy(inputBlob);
 
         waitUntilBlobIsCopied(rejectedBlob);
-        inputBlob.deleteIfExists();
+
+        AccessCondition deleteCondition = leaseId != null
+            ? AccessCondition.generateLeaseCondition(leaseId)
+            : AccessCondition.generateEmptyCondition();
+
+        inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, deleteCondition, null, null);
         log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
     }
 
