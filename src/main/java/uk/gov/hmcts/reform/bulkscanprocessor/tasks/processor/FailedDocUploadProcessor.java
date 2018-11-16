@@ -127,7 +127,7 @@ public class FailedDocUploadProcessor extends Processor {
             processor = zipFileProcessor;
         } catch (DocSignatureFailureException ex) {
             handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, blob.getName(), ex);
-            blobManager.tryMoveFileToRejectedContainer(blob, containerName);
+            blobManager.tryMoveFileToRejectedContainer(blob, containerName, null);
         } catch (Exception ex) {
             handleEventRelatedError(Event.DOC_FAILURE, containerName, blob.getName(), ex);
         }

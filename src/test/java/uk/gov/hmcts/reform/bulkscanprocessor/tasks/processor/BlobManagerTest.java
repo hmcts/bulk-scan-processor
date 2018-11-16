@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.microsoft.azure.storage.blob.CopyStatus.FAILED;
 import static com.microsoft.azure.storage.blob.CopyStatus.PENDING;
@@ -37,6 +38,7 @@ public class BlobManagerTest {
     private static final String INPUT_CONTAINER_NAME = "container-name";
     private static final String REJECTED_CONTAINER_NAME = INPUT_CONTAINER_NAME + "-rejected";
     private static final String INPUT_FILE_NAME = "file-name-123.zip";
+    private static final String LEASE_ID = "leaseid123";
 
     @Mock
     private CloudBlobClient cloudBlobClient;
@@ -80,10 +82,11 @@ public class BlobManagerTest {
     public void acquireLease_acquires_lease_on_blob_when_not_locked() throws Exception {
         given(blobProperties.getLeaseStatus()).willReturn(LeaseStatus.UNLOCKED);
         given(inputBlob.getProperties()).willReturn(blobProperties);
+        given(inputBlob.acquireLease(any(), any())).willReturn(LEASE_ID);
 
-        boolean result = blobManager.acquireLease(inputBlob, "container-name", "zip-filename.zip");
+        Optional<String> result = blobManager.acquireLease(inputBlob, "container-name", "zip-filename.zip");
 
-        assertThat(result).isTrue();
+        assertThat(result).isEqualTo(Optional.of(LEASE_ID));
         verify(inputBlob).acquireLease(any(), any());
     }
 
@@ -91,10 +94,11 @@ public class BlobManagerTest {
     public void acquireLease_acquires_does_not_acquire_lease_on_blob_when_locked() throws Exception {
         given(blobProperties.getLeaseStatus()).willReturn(LeaseStatus.LOCKED);
         given(inputBlob.getProperties()).willReturn(blobProperties);
+        //given(inputBlob.acquireLease(any(), any())).willReturn(LEASE_ID);
 
-        boolean result = blobManager.acquireLease(inputBlob, "container-name", "zip-filename.zip");
+        Optional<String> result = blobManager.acquireLease(inputBlob, "container-name", "zip-filename.zip");
 
-        assertThat(result).isFalse();
+        assertThat(result).isEqualTo(Optional.empty());
         verify(inputBlob, never()).acquireLease(any(), any());
     }
 
@@ -132,11 +136,11 @@ public class BlobManagerTest {
         mockRejectedBlobToReturnCopyState(PENDING, SUCCESS);
 
         // when
-        blobManager.tryMoveFileToRejectedContainer(inputBlob, INPUT_CONTAINER_NAME);
+        blobManager.tryMoveFileToRejectedContainer(inputBlob, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
         verify(rejectedBlob).startCopy(inputBlob);
-        verify(inputBlob).deleteIfExists();
+        verify(inputBlob).deleteIfExists(any(), any(), any(), any());
     }
 
     @Test
@@ -145,7 +149,7 @@ public class BlobManagerTest {
         mockRejectedBlobToReturnCopyState(PENDING, PENDING, FAILED);
 
         // when
-        blobManager.tryMoveFileToRejectedContainer(inputBlob, INPUT_CONTAINER_NAME);
+        blobManager.tryMoveFileToRejectedContainer(inputBlob, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
         verify(rejectedBlob).startCopy(inputBlob);
@@ -162,7 +166,7 @@ public class BlobManagerTest {
         given(blobManagementProperties.getBlobCopyPollingDelayInMillis()).willReturn(100);
 
         // when
-        blobManager.tryMoveFileToRejectedContainer(inputBlob, INPUT_CONTAINER_NAME);
+        blobManager.tryMoveFileToRejectedContainer(inputBlob, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
         verify(rejectedBlob).startCopy(inputBlob);

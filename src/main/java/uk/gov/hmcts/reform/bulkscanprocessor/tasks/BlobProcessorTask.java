@@ -36,6 +36,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -128,16 +129,16 @@ public class BlobProcessorTask extends Processor {
             return;
         }
 
-        boolean leaseAcquired =
+        Optional<String> leaseId =
             blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
-        if (leaseAcquired) {
+        if (leaseId.isPresent()) {
             BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
                 ZipFileProcessor zipFileProcessor =
-                    processZipFileContent(zis, cloudBlockBlob, container.getName());
+                    processZipFileContent(zis, cloudBlockBlob, container.getName(), leaseId.get());
 
                 if (zipFileProcessor != null) {
                     processParsedEnvelopeDocuments(
@@ -172,7 +173,8 @@ public class BlobProcessorTask extends Processor {
     private ZipFileProcessor processZipFileContent(
         ZipInputStream zis,
         CloudBlockBlob blob,
-        String containerName
+        String containerName,
+        String leaseId
     ) {
         ZipFileProcessor processor = null;
 
@@ -200,11 +202,10 @@ public class BlobProcessorTask extends Processor {
         } catch (InvalidEnvelopeSchemaException
             | FileNameIrregularitiesException
             | NonPdfFileFoundException
-            | MetadataNotFoundException ex
-        ) {
-            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, blob, ex);
+            | MetadataNotFoundException ex) {
+            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, blob, leaseId, ex);
         } catch (DocSignatureFailureException ex) {
-            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, blob, ex);
+            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, blob, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, blob.getName(), ex);
         } catch (Exception ex) {
@@ -223,9 +224,10 @@ public class BlobProcessorTask extends Processor {
         Event fileValidationFailure,
         String containerName,
         CloudBlockBlob blob,
+        String leaseId,
         Exception cause
     ) {
         handleEventRelatedError(fileValidationFailure, containerName, blob.getName(), cause);
-        blobManager.tryMoveFileToRejectedContainer(blob, containerName);
+        blobManager.tryMoveFileToRejectedContainer(blob, containerName, leaseId);
     }
 }
