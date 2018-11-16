@@ -151,6 +151,10 @@ dependencyCheck {
 dependencyManagement {
   dependencies {
     dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.60'
+    // CVE-2018-10237 - Unbounded memory allocation
+    dependencySet(group: 'com.google.guava', version: '24.1.1-jre') {
+      entry 'guava'
+    }
   }
 }
 
@@ -166,7 +170,7 @@ repositories {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
-  reformLogging: '3.0.2',
+  reformLogging: '3.0.3',
   springBoot: springBoot.class.package.implementationVersion,
   springHystrix: '2.0.1.RELEASE',
   springfoxSwagger: '2.9.2'
