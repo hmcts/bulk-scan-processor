@@ -114,6 +114,7 @@
           "document_type": {
             "id": "#/properties/scannable_items/items/properties/document_type",
             "type": "string",
+            "pattern": "^([Cc][Hh][Ee][Rr][Ii][Ss][Hh][Ee][Dd]|[Oo][Tt][Hh][Ee][Rr])$",
             "default": "Other"
           }
         },
