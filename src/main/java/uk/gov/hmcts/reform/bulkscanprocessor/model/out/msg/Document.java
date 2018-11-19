@@ -22,19 +22,24 @@ public class Document {
     @JsonProperty("url")
     public final String url;
 
+    @JsonProperty("ocr_data")
+    public final String ocrData;
+
     // region constructor
     private Document(
         String fileName,
         String controlNumber,
         String type,
         Instant scannedAt,
-        String url
+        String url,
+        String ocrData
     ) {
         this.fileName = fileName;
         this.controlNumber = controlNumber;
         this.type = type;
         this.scannedAt = scannedAt;
         this.url = url;
+        this.ocrData = ocrData;
     }
     // endregion
 
@@ -44,7 +49,8 @@ public class Document {
             item.getDocumentControlNumber(),
             item.getDocumentType(),
             item.getScanningDate().toInstant(),
-            item.getDocumentUrl()
+            item.getDocumentUrl(),
+            item.getOcrData()
         );
     }
 }

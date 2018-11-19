@@ -153,6 +153,7 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
+        assertThat(jsonNode.get("ocr_data").asText(null)).isEqualTo(scannableItem.getOcrData());
 
         assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate().toInstant());
     }
