@@ -124,16 +124,6 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.getPayments().get(1).getPaymentInstrumentNumber()).isEqualTo("1000000001");
     }
 
-    @Test
-    public void should_parse_envelope_with_case_insensitive_document_type() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/case-insensitive-document-type.json");
-
-        assertThat(envelope.getScannableItems()).hasSize(2);
-        assertThat(envelope.getScannableItems())
-            .extracting("documentType")
-            .containsOnly(DocumentType.CHERISHED, DocumentType.OTHER);
-    }
-
     private Envelope getEnvelope(String resource) throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream(resource)) {
             return validator.parseMetafile(IOUtils.toByteArray(inputStream));
