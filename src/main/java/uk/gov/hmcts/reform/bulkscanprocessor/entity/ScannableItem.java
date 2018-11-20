@@ -46,7 +46,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
-    @Convert(converter = DocumentType.Converter.class)
+    @Convert(converter = DocumentTypeConverter.class)
     @Enumerated(EnumType.STRING)
     private DocumentType documentType = DocumentType.OTHER;
 
