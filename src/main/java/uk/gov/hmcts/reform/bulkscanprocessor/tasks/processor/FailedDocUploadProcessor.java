@@ -92,29 +92,27 @@ public class FailedDocUploadProcessor extends Processor {
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            ZipFileProcessor zipFileProcessor = processZipInputStream(
+            ZipFileProcessingResult result = processZipInputStream(
                 zis,
                 envelope.getContainer(),
                 envelope.getZipFileName()
             );
 
-            if (zipFileProcessor != null) {
+            if (result != null) {
                 processParsedEnvelopeDocuments(
                     envelope,
-                    zipFileProcessor.getPdfs(),
+                    result.getPdfs(),
                     cloudBlockBlob
                 );
             }
         }
     }
 
-    private ZipFileProcessor processZipInputStream(
+    private ZipFileProcessingResult processZipInputStream(
         ZipInputStream zis,
         String containerName,
         String zipFileName
     ) {
-        ZipFileProcessor processor = null;
-
         try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
@@ -122,15 +120,13 @@ public class FailedDocUploadProcessor extends Processor {
                     zis, publicKeyDerFilename, zipFileName, containerName
                 );
 
-            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
-
-            processor = zipFileProcessor;
+            return zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
         } catch (DocSignatureFailureException ex) {
             handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
+            return null;
         } catch (Exception ex) {
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
+            return null;
         }
-
-        return processor;
     }
 }
