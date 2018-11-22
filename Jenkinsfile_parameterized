@@ -1,7 +1,7 @@
 #!groovy
 @Library(value="Infrastructure", changelog=false) _
 
-def channel = '#rpe-build-notices'
+def channel = '#bsp-build-notices'
 
 List<LinkedHashMap<String, Object>> apiTestSecrets = [
   // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
