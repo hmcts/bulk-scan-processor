@@ -11,6 +11,8 @@ def type = "java"
 def product = "bulk-scan"
 def component = "processor"
 
+def channel = '#bsp-build-notices'
+
 withNightlyPipeline(type, product, component) {
-  enableSlackNotifications('#rpe-build-notices')
+  enableSlackNotifications(channel)
 }
