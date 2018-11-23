@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUpload
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 
@@ -132,12 +133,12 @@ public class BlobProcessorTask extends Processor {
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-                ZipFileProcessor zipFileProcessor = processZipFileContent(zis, zipFilename, container.getName());
+                ZipFileProcessingResult processingResult = processZipFileContent(zis, zipFilename, container.getName());
 
-                if (zipFileProcessor != null) {
+                if (processingResult != null) {
                     processParsedEnvelopeDocuments(
-                        zipFileProcessor.getEnvelope(),
-                        zipFileProcessor.getPdfs(),
+                        processingResult.getEnvelope(),
+                        processingResult.getPdfs(),
                         cloudBlockBlob
                     );
                 }
@@ -164,37 +165,40 @@ public class BlobProcessorTask extends Processor {
         } // Do not propagate exception as this blob has already been marked with a delete failure
     }
 
-    private ZipFileProcessor processZipFileContent(
+    private ZipFileProcessingResult processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
         String containerName
     ) {
-        ZipFileProcessor processor = null;
-
         try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
-            zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
 
-            Envelope envelope = envelopeProcessor.parseEnvelope(zipFileProcessor.getMetadata(), zipFilename);
+            ZipFileProcessingResult result = zipFileProcessor.process(
+                zipWithSignature,
+                ZipVerifiers.getPreprocessor(signatureAlg)
+            );
+
+            Envelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
             envelope.setContainer(containerName);
 
-            EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, zipFileProcessor.getPdfs());
+            EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope);
 
-            zipFileProcessor.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
+            result.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
-            processor = zipFileProcessor;
+            return result;
         } catch (DocSignatureFailureException ex) {
             handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
+            return null;
         } catch (PreviouslyFailedToUploadException ex) {
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
+            return null;
         } catch (Exception ex) {
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
+            return null;
         }
-
-        return processor;
     }
 
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
