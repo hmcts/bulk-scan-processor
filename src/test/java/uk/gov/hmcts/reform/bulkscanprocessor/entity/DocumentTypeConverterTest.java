@@ -32,7 +32,7 @@ public class DocumentTypeConverterTest {
     }
 
     @Test
-    public void should_not_fail_and_return_OTHER_for_invalid_document_type_found_in_db() {
+    public void should_not_fail_and_return_other_for_invalid_document_type_found_in_db() {
         assertThat(CONVERTER.convertToEntityAttribute("not valid")).isEqualTo(OTHER);
 
         assertThat(capture.toString()).containsSequence("Invalid document type found in DB: 'not valid'");
