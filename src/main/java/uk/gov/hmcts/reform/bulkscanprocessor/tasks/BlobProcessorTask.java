@@ -17,6 +17,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -33,6 +37,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -53,8 +58,7 @@ public class BlobProcessorTask extends Processor {
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
 
     @Value("${storage.blob_processing_delay_in_minutes}")
-    protected int blobProcessingDelayInMinutes = 0;
-
+    protected int blobProcessingDelayInMinutes;
 
     @Autowired
     public BlobProcessorTask(
@@ -126,14 +130,15 @@ public class BlobProcessorTask extends Processor {
             return;
         }
 
-        boolean leaseAcquired = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
+        Optional<String> leaseId = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
-        if (leaseAcquired) {
+        if (leaseId.isPresent()) {
             BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-                ZipFileProcessingResult processingResult = processZipFileContent(zis, zipFilename, container.getName());
+                ZipFileProcessingResult processingResult =
+                    processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
 
                 if (processingResult != null) {
                     processParsedEnvelopeDocuments(
@@ -168,7 +173,8 @@ public class BlobProcessorTask extends Processor {
     private ZipFileProcessingResult processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
-        String containerName
+        String containerName,
+        String leaseId
     ) {
         try {
             ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
@@ -189,8 +195,15 @@ public class BlobProcessorTask extends Processor {
             result.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
 
             return result;
+        } catch (InvalidEnvelopeSchemaException
+            | FileNameIrregularitiesException
+            | NonPdfFileFoundException
+            | MetadataNotFoundException ex
+        ) {
+            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            return null;
         } catch (DocSignatureFailureException ex) {
-            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, ex);
+            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
@@ -204,5 +217,16 @@ public class BlobProcessorTask extends Processor {
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
         java.util.Date cutoff = Date.from(Instant.now().minus(this.blobProcessingDelayInMinutes, ChronoUnit.MINUTES));
         return blob.getProperties().getLastModified().before(cutoff);
+    }
+
+    private void handleInvalidFileError(
+        Event fileValidationFailure,
+        String containerName,
+        String zipFilename,
+        String leaseId,
+        Exception cause
+    ) {
+        handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
 }
