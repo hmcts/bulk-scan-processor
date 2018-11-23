@@ -201,6 +201,7 @@ public class BlobProcessorTask extends Processor {
             | MetadataNotFoundException ex
         ) {
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            return null;
         } catch (DocSignatureFailureException ex) {
             handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
