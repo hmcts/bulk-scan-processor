@@ -7,10 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 
 import java.sql.Timestamp;
 import java.util.UUID;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -46,9 +43,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
-    @Convert(converter = DocumentTypeConverter.class)
-    @Enumerated(EnumType.STRING)
-    private DocumentType documentType = DocumentType.OTHER;
+    private String documentType = "Other";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
@@ -71,7 +66,7 @@ public class ScannableItem implements EnvelopeAssignable {
         @JsonProperty("ocr_data") String ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
-        @JsonProperty("document_type") DocumentType documentType
+        @JsonProperty("document_type") String documentType
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -133,7 +128,7 @@ public class ScannableItem implements EnvelopeAssignable {
         return notes;
     }
 
-    public DocumentType getDocumentType() {
+    public String getDocumentType() {
         return documentType;
     }
 

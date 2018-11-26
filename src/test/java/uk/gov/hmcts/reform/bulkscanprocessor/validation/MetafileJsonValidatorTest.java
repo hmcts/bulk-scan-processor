@@ -5,7 +5,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.getClassification()).isEqualTo(Classification.NEW_APPLICATION);
         assertThat(envelope.getScannableItems())
             .extracting("documentType")
-            .containsExactlyInAnyOrder(DocumentType.CHERISHED, DocumentType.OTHER);
+            .containsExactlyInAnyOrder("Passport", "Other");
     }
 
     @Test
