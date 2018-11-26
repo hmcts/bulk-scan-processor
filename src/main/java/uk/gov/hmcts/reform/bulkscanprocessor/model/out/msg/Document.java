@@ -42,7 +42,7 @@ public class Document {
         return new Document(
             item.getFileName(),
             item.getDocumentControlNumber(),
-            item.getDocumentType().toString(),
+            item.getDocumentType(),
             item.getScanningDate().toInstant(),
             item.getDocumentUrl()
         );

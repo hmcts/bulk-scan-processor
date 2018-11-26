@@ -74,7 +74,7 @@ public final class EnvelopeResponseMapper {
             scannableItem.getOcrData(),
             scannableItem.getFileName(),
             scannableItem.getNotes(),
-            scannableItem.getDocumentType().toString()
+            scannableItem.getDocumentType()
         );
         response.setDocumentUrl(scannableItem.getDocumentUrl());
         return response;

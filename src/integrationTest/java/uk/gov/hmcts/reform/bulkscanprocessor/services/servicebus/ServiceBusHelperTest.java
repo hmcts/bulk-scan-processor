@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
@@ -139,20 +138,20 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
         when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
-        when(scannableItem1.getDocumentType()).thenReturn(DocumentType.CHERISHED);
+        when(scannableItem1.getDocumentType()).thenReturn("doc1_type");
         when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
 
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
         when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
-        when(scannableItem2.getDocumentType()).thenReturn(DocumentType.OTHER);
+        when(scannableItem2.getDocumentType()).thenReturn("doc2_type");
         when(scannableItem2.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
     }
 
     private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
-        assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().name());
+        assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
 
         assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate().toInstant());
