@@ -1,6 +1,12 @@
 {
   "Metadata_file": [
-    { "metadata_field_name": "valid_field", "metadata_field_value": "some text" },
-    { "unknown_field1": "number_field", "unknown_field2": 123 },
+    {
+      "metadata_field_name": "valid_field",
+      "metadata_field_value": "some text"
+    },
+    {
+      "unknown_field1": "number_field",
+      "unknown_field2": 123
+    }
   ]
 }
