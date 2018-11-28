@@ -1,0 +1,8 @@
+{
+  "Metadata_file": [
+    { "metadata_field_name": "text_field", "metadata_field_value": "some text" },
+    { "metadata_field_name": "number_field", "metadata_field_value": 123 },
+    { "metadata_field_name": "boolean_field", "metadata_field_value": true },
+    { "metadata_field_name": "null_field", "metadata_field_value": null }
+  ]
+}
