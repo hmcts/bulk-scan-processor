@@ -41,7 +41,7 @@ public class OcrDataParserTest {
         );
 
         assertThat(thrown).isInstanceOf(OcrDataParseException.class);
-        assertThat(thrown.getMessage()).isEqualTo("Invalid OCR data");
+        assertThat(thrown.getMessage()).isEqualTo("Failed to parse OCR data");
     }
 
     @Test
@@ -51,7 +51,8 @@ public class OcrDataParserTest {
             "/ocr-data/missing-metadata-file-field.json",
             "/ocr-data/null-metadata-file-field.json",
             "/ocr-data/null-metadata-file-field.json",
-            "/ocr-data/invalid-metadata-file-field.json"
+            "/ocr-data/invalid-metadata-file-field.json",
+            "/ocr-data/duplicate-field-name.json"
         );
 
         for (String resourceName : incorrectOcrResourceNames) {
@@ -65,7 +66,7 @@ public class OcrDataParserTest {
         Throwable thrown = catchThrowable(() -> ocrDataParser.parseOcrData(base64data));
 
         assertThat(thrown).isInstanceOf(OcrDataParseException.class);
-        assertThat(thrown.getMessage()).isEqualTo("Invalid OCR data");
+        assertThat(thrown.getMessage()).isEqualTo("Failed to parse OCR data");
     }
 
     private String asBase64(String resourceName) throws IOException {

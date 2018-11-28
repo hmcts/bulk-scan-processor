@@ -1,0 +1,16 @@
+{
+  "Metadata_file": [
+    {
+      "metadata_field_name": "duplicate_field",
+      "metadata_field_value": "some text"
+    },
+    {
+      "metadata_field_name": "another_field",
+      "metadata_field_value": 123
+    },
+    {
+      "metadata_field_name": "duplicate_field",
+      "metadata_field_value": "a different value"
+    }
+  ]
+}

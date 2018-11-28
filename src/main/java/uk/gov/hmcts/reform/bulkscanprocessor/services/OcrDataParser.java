@@ -26,8 +26,8 @@ public class OcrDataParser {
                     field -> field.getValue().asText("")
                 )
             );
-        } catch (IllegalArgumentException | IOException ex) {
-            throw new OcrDataParseException("Invalid OCR data", ex);
+        } catch (Exception ex) {
+            throw new OcrDataParseException("Failed to parse OCR data", ex);
         }
     }
 }
