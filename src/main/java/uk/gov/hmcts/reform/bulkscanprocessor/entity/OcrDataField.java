@@ -3,19 +3,20 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 public class OcrDataField {
 
-    private String name;
+    private TextNode name;
     private ValueNode value;
 
-    public String getName() {
+    public TextNode getName() {
         return name;
     }
 
     @JsonSetter(value = "metadata_field_name", nulls = Nulls.FAIL)
-    public void setName(String name) {
+    public void setName(TextNode name) {
         this.name = name;
     }
 

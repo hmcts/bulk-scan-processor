@@ -22,7 +22,7 @@ public class OcrDataParser {
 
             return ocrData.getFields().stream().collect(
                 toMap(
-                    field -> field.getName(),
+                    field -> field.getName().textValue(),
                     field -> field.getValue().asText("")
                 )
             );
