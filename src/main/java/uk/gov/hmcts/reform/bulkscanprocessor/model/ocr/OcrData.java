@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.entity;
+package uk.gov.hmcts.reform.bulkscanprocessor.model.ocr;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;

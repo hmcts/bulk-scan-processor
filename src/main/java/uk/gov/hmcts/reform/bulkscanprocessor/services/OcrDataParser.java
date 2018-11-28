@@ -1,10 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Map;
 
