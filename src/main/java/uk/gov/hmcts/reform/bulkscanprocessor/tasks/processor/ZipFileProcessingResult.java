@@ -9,6 +9,7 @@ public class ZipFileProcessingResult {
 
     private final byte[] metadata;
     private final List<Pdf> pdfs;
+    @SuppressWarnings("squid:S1135") // todo comments
     private Envelope envelope; // TODO: make final
 
     public ZipFileProcessingResult(byte[] metadata, List<Pdf> pdfs) {
