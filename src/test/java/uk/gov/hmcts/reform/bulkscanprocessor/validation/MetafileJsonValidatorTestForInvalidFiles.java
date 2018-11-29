@@ -125,7 +125,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_wrong_enum_value_provided() throws IOException {
+    public void should_not_parse_envelope_with_wrong_enum_for_classification_provided() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/enum-boundaries-for-clasification.json");
 
@@ -143,6 +143,26 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("new_application")
             .hasMessageContaining("supplementary_evidence")
             .hasMessageContaining("instance: {\"pointer\":\"/classification\"}");
+    }
+
+    @Test
+    public void should_not_parse_envelope_with_wrong_enum_for_document_type_provided() throws IOException {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/enum-boundaries-for-document-type.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: instance value (\"CherIShed\") not found in enum"
+            )
+            .hasMessageContaining("Cherished")
+            .hasMessageContaining("Other")
+            .hasMessageContaining("instance: {\"pointer\":\"/scannable_items/0/document_type\"}");
     }
 
     @Test

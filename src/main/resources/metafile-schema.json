@@ -114,6 +114,10 @@
           "document_type": {
             "id": "#/properties/scannable_items/items/properties/document_type",
             "type": "string",
+            "enum": [
+              "Cherished",
+              "Other"
+            ],
             "default": "Other"
           }
         },
