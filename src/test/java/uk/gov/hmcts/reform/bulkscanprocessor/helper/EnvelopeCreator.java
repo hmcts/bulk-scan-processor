@@ -4,7 +4,6 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.IOUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -109,7 +108,7 @@ public final class EnvelopeCreator {
             "dGVzdA==", //Base 64 value=test
             "1111001.pdf",
             "test",
-            DocumentType.CHERISHED
+            "Cherished"
         );
         scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
@@ -124,7 +123,7 @@ public final class EnvelopeCreator {
             "dGVzdA==", //Base 64 value=test
             "1111002.pdf",
             "test",
-            DocumentType.OTHER
+            "Other"
         );
         scannableItem2.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
