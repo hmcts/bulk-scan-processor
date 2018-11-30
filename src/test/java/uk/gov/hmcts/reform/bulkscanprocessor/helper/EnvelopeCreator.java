@@ -3,18 +3,20 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.IOUtils;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbNonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbPayment;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -60,18 +62,18 @@ public final class EnvelopeCreator {
         return EnvelopeResponseMapper.toEnvelopeResponse(envelope());
     }
 
-    public static List<Envelope> envelopes() throws Exception {
+    public static List<DbEnvelope> envelopes() throws Exception {
         return ImmutableList.of(envelope());
     }
 
-    public static Envelope envelope() {
+    public static DbEnvelope envelope() {
         return envelope("SSCS", Status.PROCESSED);
     }
 
-    public static Envelope envelope(String jurisdiction, Status status) {
+    public static DbEnvelope envelope(String jurisdiction, Status status) {
         Timestamp timestamp = getTimestamp();
 
-        Envelope envelope = new Envelope(
+        DbEnvelope envelope = new DbEnvelope(
             "SSCSPO",
             jurisdiction,
             timestamp,
@@ -82,23 +84,23 @@ public final class EnvelopeCreator {
             Classification.EXCEPTION,
             scannableItems(),
             payments(),
-            nonScannableItems()
+            nonScannableItems(),
+            "SSCS"
         );
 
         envelope.setStatus(status);
-        envelope.setContainer("SSCS");
 
         return envelope;
     }
 
-    public static Envelope envelopeNotified() {
+    public static DbEnvelope envelopeNotified() {
         return envelope("SSCS", Status.NOTIFICATION_SENT);
     }
 
-    private static List<ScannableItem> scannableItems() {
+    private static List<DbScannableItem> scannableItems() {
         Timestamp timestamp = getTimestamp();
 
-        ScannableItem scannableItem1 = new ScannableItem(
+        DbScannableItem scannableItem1 = new DbScannableItem(
             "1111001",
             timestamp,
             "test",
@@ -113,7 +115,7 @@ public final class EnvelopeCreator {
         scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
 
-        ScannableItem scannableItem2 = new ScannableItem(
+        DbScannableItem scannableItem2 = new DbScannableItem(
             "1111002",
             timestamp,
             "test",
@@ -130,15 +132,23 @@ public final class EnvelopeCreator {
         return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
-    private static List<NonScannableItem> nonScannableItems() {
+    private static List<DbNonScannableItem> nonScannableItems() {
         return ImmutableList.of(
-            new NonScannableItem("1111001", "CD", "4GB USB memory stick")
+            new DbNonScannableItem("1111001", "CD", "4GB USB memory stick")
         );
     }
 
-    private static List<Payment> payments() {
+    private static List<DbPayment> payments() {
         return ImmutableList.of(
-            new Payment("1111002", "Cheque", "100.00", "GBP", "1000000000", "112233", "12345678")
+            new DbPayment(
+                "1111002",
+                "Cheque",
+                BigDecimal.valueOf(100),
+                "GBP",
+                "1000000000",
+                "112233",
+                "12345678"
+            )
         );
     }
 

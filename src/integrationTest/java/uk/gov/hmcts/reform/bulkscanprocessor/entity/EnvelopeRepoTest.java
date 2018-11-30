@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
 
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class EnvelopeRepoTest {
         );
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend(jurisdiction, maxFailCount, null);
+        List<DbEnvelope> result = repo.findEnvelopesToResend(jurisdiction, maxFailCount, null);
 
         // then
         assertThat(result).hasSize(2);
@@ -54,7 +56,7 @@ public class EnvelopeRepoTest {
         );
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend("A", 1_000, null);
+        List<DbEnvelope> result = repo.findEnvelopesToResend("A", 1_000, null);
 
         // then
         assertThat(result).hasSize(1);
@@ -65,13 +67,13 @@ public class EnvelopeRepoTest {
         repo.deleteAll();
     }
 
-    private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
-        Envelope envelope = envelope(jurisdiction, Status.UPLOAD_FAILURE);
+    private DbEnvelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
+        DbEnvelope envelope = envelope(jurisdiction, Status.UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
         return envelope;
     }
 
-    private void dbHas(Envelope... envelopes) {
+    private void dbHas(DbEnvelope... envelopes) {
         repo.saveAll(asList(envelopes));
     }
 }

@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbNonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbPayment;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
@@ -19,7 +19,7 @@ public final class EnvelopeResponseMapper {
     private EnvelopeResponseMapper() {
     }
 
-    public static List<EnvelopeResponse> toEnvelopesResponse(List<Envelope> envelopes) {
+    public static List<EnvelopeResponse> toEnvelopesResponse(List<DbEnvelope> envelopes) {
         if (envelopes == null) {
             return emptyList();
         }
@@ -28,7 +28,7 @@ public final class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
-    public static EnvelopeResponse toEnvelopeResponse(Envelope envelope) {
+    public static EnvelopeResponse toEnvelopeResponse(DbEnvelope envelope) {
         if (envelope == null) {
             return null;
         }
@@ -50,7 +50,7 @@ public final class EnvelopeResponseMapper {
         );
     }
 
-    private static List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
+    private static List<ScannableItemResponse> toScannableItemsResponse(List<DbScannableItem> scannableItems) {
         if (scannableItems == null) {
             return emptyList();
         }
@@ -60,7 +60,7 @@ public final class EnvelopeResponseMapper {
     }
 
 
-    private static ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
+    private static ScannableItemResponse toScannableItemResponse(DbScannableItem scannableItem) {
         if (scannableItem == null) {
             return null;
         }
@@ -81,7 +81,7 @@ public final class EnvelopeResponseMapper {
     }
 
     private static List<NonScannableItemResponse> toNonScannableItemsResponse(
-        List<NonScannableItem> nonScannableItems
+        List<DbNonScannableItem> nonScannableItems
     ) {
         if (nonScannableItems == null) {
             return emptyList();
@@ -91,7 +91,7 @@ public final class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
-    private static NonScannableItemResponse toNonScannableItemResponse(NonScannableItem nonScannableItem) {
+    private static NonScannableItemResponse toNonScannableItemResponse(DbNonScannableItem nonScannableItem) {
         if (nonScannableItem == null) {
             return null;
         }
@@ -102,7 +102,7 @@ public final class EnvelopeResponseMapper {
         );
     }
 
-    private static List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
+    private static List<PaymentResponse> toPaymentsResponse(List<DbPayment> payments) {
         if (payments == null) {
             return emptyList();
         }
@@ -111,7 +111,7 @@ public final class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
-    private static PaymentResponse toPaymentResponse(Payment payment) {
+    private static PaymentResponse toPaymentResponse(DbPayment payment) {
         if (payment == null) {
             return null;
         }

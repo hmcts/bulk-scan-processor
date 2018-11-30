@@ -6,9 +6,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.DataRetrievalFailureException;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
@@ -20,8 +20,8 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.PROCESSED;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeRetrieverServiceTest {
@@ -41,7 +41,7 @@ public class EnvelopeRetrieverServiceTest {
 
     @Test
     public void should_return_all_envelopes_successfully_for_a_given_jurisdiction_and_status() throws Exception {
-        List<Envelope> envelopes = EnvelopeCreator.envelopes();
+        List<DbEnvelope> envelopes = EnvelopeCreator.envelopes();
         List<EnvelopeResponse> envelopesResponse = EnvelopeResponseMapper.toEnvelopesResponse(envelopes);
 
         when(envelopeAccess.getReadJurisdictionForService("testService"))
@@ -63,7 +63,7 @@ public class EnvelopeRetrieverServiceTest {
     @Test
     public void should_return_all_envelopes_if_status_is_null() throws Exception {
         // given
-        List<Envelope> envelopes =
+        List<DbEnvelope> envelopes =
             asList(
                 envelope(),
                 envelope(),

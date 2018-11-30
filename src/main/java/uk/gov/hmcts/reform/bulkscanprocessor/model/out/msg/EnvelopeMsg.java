@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
 
 import java.time.Instant;
 import java.util.List;
@@ -42,7 +42,7 @@ public class EnvelopeMsg implements Msg {
 
     private final boolean testOnly;
 
-    public EnvelopeMsg(Envelope envelope) {
+    public EnvelopeMsg(DbEnvelope envelope) {
         this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
         this.caseNumber = envelope.getCaseNumber();
         this.classification = envelope.getClassification();
@@ -107,7 +107,7 @@ public class EnvelopeMsg implements Msg {
     public String toString() {
         return "EnvelopeMsg{"
             + "envelopeId='" + envelopeId + "'"
-            + "testOnly='" + testOnly  + "'"
+            + "testOnly='" + testOnly + "'"
             + "zipFileName='" + zipFileName + "'"
             + "}";
     }

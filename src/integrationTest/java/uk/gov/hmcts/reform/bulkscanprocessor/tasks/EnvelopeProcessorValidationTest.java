@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -29,10 +30,11 @@ public class EnvelopeProcessorValidationTest {
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
         ZipFileProcessingResult processingResult = processZip("zipcontents/fewer_pdfs_than_declared");
+        Envelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
             EnvelopeProcessor.assertEnvelopeHasPdfs(
-                processingResult.getEnvelope(),
+                envelope,
                 processingResult.getPdfs()
             )
         );
@@ -44,10 +46,11 @@ public class EnvelopeProcessorValidationTest {
     @Test
     public void should_throw_exception_when_zip_file_contains_more_pdfs() throws Exception {
         ZipFileProcessingResult processingResult = processZip("zipcontents/more_pdfs_than_declared");
+        Envelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
             EnvelopeProcessor.assertEnvelopeHasPdfs(
-                processingResult.getEnvelope(),
+                envelope,
                 processingResult.getPdfs()
             )
         );
@@ -59,10 +62,11 @@ public class EnvelopeProcessorValidationTest {
     @Test
     public void should_throw_exception_when_zip_file_has_mismatching_pdf() throws Exception {
         ZipFileProcessingResult processingResult = processZip("zipcontents/mismatching_pdfs");
+        Envelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
             EnvelopeProcessor.assertEnvelopeHasPdfs(
-                processingResult.getEnvelope(),
+                envelope,
                 processingResult.getPdfs()
             )
         );
@@ -83,10 +87,7 @@ public class EnvelopeProcessorValidationTest {
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 new ZipVerifiers.ZipStreamWithSignature(zis, null, zipFileName, container);
 
-            ZipFileProcessingResult result = processor.process(zipWithSignature, ZipVerifiers.getPreprocessor("none"));
-            result.setEnvelope(EnvelopeCreator.getEnvelopeFromMetafile(result.getMetadata()));
-
-            return result;
+            return processor.process(zipWithSignature, ZipVerifiers.getPreprocessor("none"));
         }
     }
 

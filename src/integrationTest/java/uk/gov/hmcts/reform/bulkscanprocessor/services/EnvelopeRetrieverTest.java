@@ -8,10 +8,10 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.List;
@@ -27,8 +27,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @SpringBootTest
 public class EnvelopeRetrieverTest {
 
-    @Autowired private EnvelopeRepository envelopeRepo;
-    @Mock EnvelopeAccessService accessService;
+    @Autowired
+    private EnvelopeRepository envelopeRepo;
+    @Mock
+    EnvelopeAccessService accessService;
 
     private EnvelopeRetrieverService service;
 
@@ -107,7 +109,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_retrieve_single_envelope_by_id() throws Exception {
         // given
-        Envelope envelopeIdDb = envelopeRepo.save(envelope("X", Status.PROCESSED));
+        DbEnvelope envelopeIdDb = envelopeRepo.save(envelope("X", Status.PROCESSED));
         serviceCanReadFromJurisdiction("service_X", "X");
 
         // when
@@ -133,7 +135,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_throw_an_exception_if_service_cannot_read_existing_envelope() throws Exception {
         // given
-        Envelope envelopeForServiceB = envelopeRepo.save(envelope("B", Status.PROCESSED));
+        DbEnvelope envelopeForServiceB = envelopeRepo.save(envelope("B", Status.PROCESSED));
         serviceCanReadFromJurisdiction("service_A", "A");
 
         // when
@@ -151,8 +153,8 @@ public class EnvelopeRetrieverTest {
         envelopeRepo.deleteAll();
     }
 
-    private void dbContains(Envelope... envelopes) {
-        for (Envelope env : envelopes) {
+    private void dbContains(DbEnvelope... envelopes) {
+        for (DbEnvelope env : envelopes) {
             envelopeRepo.save(env);
         }
     }

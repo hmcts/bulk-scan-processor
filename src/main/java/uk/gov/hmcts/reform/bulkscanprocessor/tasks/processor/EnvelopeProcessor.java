@@ -7,16 +7,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.UPLOAD_FAILURE;
 
 @Component
 public class EnvelopeProcessor {
@@ -64,21 +64,19 @@ public class EnvelopeProcessor {
     }
 
     /**
-     * Assert envelope did not fail to be uploaded in the past.
+     * Assert zip file did not fail to be uploaded in the past.
      * Throws exception otherwise.
-     *
-     * @param envelope details to check against.
      */
-    public void assertDidNotFailToUploadBefore(Envelope envelope) {
-        List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
-            envelope.getContainer(),
-            envelope.getZipFileName(),
+    public void assertDidNotFailToUploadBefore(String zipFileName, String containerName) {
+        List<DbEnvelope> envelopes = envelopeRepository.findRecentEnvelopes(
+            containerName,
+            zipFileName,
             UPLOAD_FAILURE,
             PageRequest.of(0, 1)
         );
 
         if (envelopes.size() == 1) {
-            Envelope failedEnvelope = envelopes.get(0);
+            DbEnvelope failedEnvelope = envelopes.get(0);
 
             throw new PreviouslyFailedToUploadException(
                 String.format(
@@ -95,7 +93,7 @@ public class EnvelopeProcessor {
      * processing is complete and an envelope has already been created as
      * blob deletion is the last processing step.
      */
-    public Envelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
+    public DbEnvelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
         return envelopeRepository.findEnvelopesByFileAndContainer(
             container,
             zipFileName,
@@ -118,9 +116,9 @@ public class EnvelopeProcessor {
      */
     public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
-            .getScannableItems()
+            .scannableItems
             .stream()
-            .map(ScannableItem::getFileName)
+            .map(item -> item.fileName)
             .collect(Collectors.toSet());
 
         Set<String> pdfFileNames = pdfs
@@ -146,8 +144,8 @@ public class EnvelopeProcessor {
         }
     }
 
-    public Envelope saveEnvelope(Envelope envelope) {
-        Envelope dbEnvelope = envelopeRepository.save(envelope);
+    public DbEnvelope saveEnvelope(DbEnvelope envelope) {
+        DbEnvelope dbEnvelope = envelopeRepository.save(envelope);
 
         log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
             envelope.getJurisdiction(),
@@ -157,7 +155,7 @@ public class EnvelopeProcessor {
         return dbEnvelope;
     }
 
-    public List<Envelope> getFailedToUploadEnvelopes(String jurisdiction) {
+    public List<DbEnvelope> getFailedToUploadEnvelopes(String jurisdiction) {
         return envelopeRepository.findEnvelopesToResend(
             jurisdiction,
             maxReuploadTriesCount,
@@ -165,7 +163,7 @@ public class EnvelopeProcessor {
         );
     }
 
-    public void handleEvent(Envelope envelope, Event event) {
+    public void handleEvent(DbEnvelope envelope, Event event) {
         processEventRepository.save(
             new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
         );

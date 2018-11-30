@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.entity;
+package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
 import java.util.Optional;
 

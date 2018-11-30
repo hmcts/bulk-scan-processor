@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.TestHelper;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import static org.assertj.core.api.Assertions.assertThatCode;

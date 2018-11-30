@@ -13,10 +13,10 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
@@ -37,12 +37,17 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class ServiceBusHelperTest {
 
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Mock private IQueueClient queueClient;
-    @Mock private Envelope envelope;
-    @Mock private ScannableItem scannableItem1;
-    @Mock private ScannableItem scannableItem2;
+    @Mock
+    private IQueueClient queueClient;
+    @Mock
+    private DbEnvelope envelope;
+    @Mock
+    private DbScannableItem scannableItem1;
+    @Mock
+    private DbScannableItem scannableItem2;
 
     private ServiceBusHelper serviceBusHelper;
 
@@ -148,7 +153,7 @@ public class ServiceBusHelperTest {
         when(scannableItem2.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
     }
 
-    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
+    private void checkScannableItem(JsonNode jsonNode, DbScannableItem scannableItem) {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());

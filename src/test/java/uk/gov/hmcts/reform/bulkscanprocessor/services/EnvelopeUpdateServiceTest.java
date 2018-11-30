@@ -6,13 +6,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.ProcessEvent;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,8 +24,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.UPLOAD_FAILURE;
 
 @SuppressWarnings({"PMD.BeanMembersShouldSerialize", "checkstyle:linelength"})
 @RunWith(MockitoJUnitRunner.class)
@@ -60,7 +60,7 @@ public class EnvelopeUpdateServiceTest {
     @Test
     public void updateStatus_should_set_appropriate_status_on_envelope_if_it_exists() throws Exception {
         //given
-        Envelope envelopeInDb = EnvelopeCreator.envelope();
+        DbEnvelope envelopeInDb = EnvelopeCreator.envelope();
 
         given(envelopeRepo.findById(any(UUID.class))).willReturn(Optional.of(envelopeInDb));
 
@@ -68,7 +68,7 @@ public class EnvelopeUpdateServiceTest {
         service.updateStatus(randomUUID(), CONSUMED, "some_service");
 
         // then status should be updated
-        ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
+        ArgumentCaptor<DbEnvelope> envelopeParam = ArgumentCaptor.forClass(DbEnvelope.class);
         verify(envelopeRepo).save(envelopeParam.capture());
         assertThat(envelopeParam.getValue().getStatus()).isEqualTo(CONSUMED);
     }

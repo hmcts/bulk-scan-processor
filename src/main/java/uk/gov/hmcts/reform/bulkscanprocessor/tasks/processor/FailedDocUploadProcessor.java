@@ -11,11 +11,11 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class FailedDocUploadProcessor extends Processor {
     public void processJurisdiction(String jurisdiction)
         throws IOException, StorageException, URISyntaxException {
 
-        List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
+        List<DbEnvelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
         if (!envelopes.isEmpty()) {
             String containerName = envelopes.get(0).getContainer();
@@ -71,19 +71,19 @@ public class FailedDocUploadProcessor extends Processor {
         }
     }
 
-    private void processEnvelopes(String containerName, List<Envelope> envelopes)
+    private void processEnvelopes(String containerName, List<DbEnvelope> envelopes)
         throws IOException, StorageException, URISyntaxException {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
         CloudBlobContainer container = blobManager.getContainer(containerName);
 
-        for (Envelope envelope : envelopes) {
+        for (DbEnvelope envelope : envelopes) {
             processEnvelope(container, envelope);
         }
     }
 
-    private void processEnvelope(CloudBlobContainer container, Envelope envelope)
+    private void processEnvelope(CloudBlobContainer container, DbEnvelope envelope)
         throws IOException, StorageException, URISyntaxException {
 
         log.info("Processing zip file {}", envelope.getZipFileName());
@@ -94,7 +94,7 @@ public class FailedDocUploadProcessor extends Processor {
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
             ZipFileProcessingResult result = processZipInputStream(
                 zis,
-                envelope.getContainer(),
+                container.getName(),
                 envelope.getZipFileName()
             );
 

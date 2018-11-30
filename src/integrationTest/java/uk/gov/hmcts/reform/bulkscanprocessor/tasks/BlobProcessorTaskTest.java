@@ -10,13 +10,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.nio.charset.Charset;
@@ -35,13 +35,13 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -84,7 +84,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        Envelope actualEnvelope = getSingleEnvelopeFromDb();
+        DbEnvelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
             getResource("zipcontents/ok/metadata.json"),
@@ -133,7 +133,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         // then
         // We expect only one envelope from the valid zip file which was uploaded
-        Envelope actualEnvelope = getSingleEnvelopeFromDb();
+        DbEnvelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
             getResource("zipcontents/ok/metadata.json"),
@@ -176,7 +176,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
 
-        Envelope envelope = getSingleEnvelopeFromDb();
+        DbEnvelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getStatus()).isEqualTo(PROCESSED);
         assertThat(envelope.isZipDeleted()).isTrue();
@@ -208,7 +208,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .timeout(2, SECONDS)
             .until(blob::exists, is(true));
 
-        Envelope envelope = getSingleEnvelopeFromDb();
+        DbEnvelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(envelope.isZipDeleted()).isFalse();
@@ -232,7 +232,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        Envelope envelope = getSingleEnvelopeFromDb();
+        DbEnvelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getUploadFailureCount()).isEqualTo(1);
         assertThat(envelope.isZipDeleted()).isFalse();
@@ -261,7 +261,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
 
-        Envelope envelope = getSingleEnvelopeFromDb();
+        DbEnvelope envelope = getSingleEnvelopeFromDb();
         assertThat(envelope.isZipDeleted()).isTrue();
     }
 
@@ -287,7 +287,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     private void dbContainsEnvelopeThatWasNotYetDeleted(String zipFileName, Status status) throws Exception {
-        Envelope existingEnvelope = EnvelopeCreator.envelope("A", status);
+        DbEnvelope existingEnvelope = EnvelopeCreator.envelope("A", status);
         existingEnvelope.setZipFileName(zipFileName);
         existingEnvelope.setContainer(testContainer.getName());
         existingEnvelope.setZipDeleted(false);

@@ -7,12 +7,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,15 +20,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class EnvelopeUpdateServiceTest {
 
-    @Autowired EnvelopeRepository envelopeRepo;
-    @Autowired ProcessEventRepository eventRepo;
+    @Autowired
+    EnvelopeRepository envelopeRepo;
+    @Autowired
+    ProcessEventRepository eventRepo;
 
-    @Autowired EnvelopeUpdateService envelopeUpdateService;
+    @Autowired
+    EnvelopeUpdateService envelopeUpdateService;
 
     @Test
     public void should_update_envelope_status_and_create_an_event() throws Exception {
         // given
-        Envelope envelope = envelopeRepo.saveAndFlush(EnvelopeCreator.envelopeNotified());
+        DbEnvelope envelope = envelopeRepo.saveAndFlush(EnvelopeCreator.envelopeNotified());
 
         // when
         envelopeUpdateService.updateStatus(

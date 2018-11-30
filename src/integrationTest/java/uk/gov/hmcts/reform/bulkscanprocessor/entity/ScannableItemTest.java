@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,11 +37,11 @@ public class ScannableItemTest {
     @Test
     public void should_update_document_url_of_scannable_item() throws IOException {
         // given
-        Envelope envelope = EnvelopeCreator.getEnvelopeFromMetafile();
+        DbEnvelope envelope = EnvelopeCreator.envelope();
         envelope.setContainer("container");
 
         // and
-        List<ScannableItem> items = envelopeRepository.save(envelope).getScannableItems();
+        List<DbScannableItem> items = envelopeRepository.save(envelope).getScannableItems();
 
         // when
         scannableItemRepository.saveAll(items.stream()
@@ -48,8 +50,8 @@ public class ScannableItemTest {
         );
 
         // then
-        List<ScannableItem> dbItems = scannableItemRepository.findAllById(
-            items.stream().map(ScannableItem::getId).collect(Collectors.toList())
+        List<DbScannableItem> dbItems = scannableItemRepository.findAllById(
+            items.stream().map(DbScannableItem::getId).collect(Collectors.toList())
         );
 
         assertThat(dbItems).hasSize(2);

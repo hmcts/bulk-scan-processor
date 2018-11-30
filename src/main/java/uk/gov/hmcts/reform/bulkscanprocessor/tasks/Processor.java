@@ -4,12 +4,12 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -17,8 +17,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 
 
 public abstract class Processor {
@@ -52,7 +52,7 @@ public abstract class Processor {
     }
 
     protected void processParsedEnvelopeDocuments(
-        Envelope envelope,
+        DbEnvelope envelope,
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
@@ -93,7 +93,7 @@ public abstract class Processor {
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
-        Envelope envelope,
+        DbEnvelope envelope,
         List<Pdf> pdfs
     ) {
         try {
@@ -107,13 +107,13 @@ public abstract class Processor {
         }
     }
 
-    private void incrementUploadFailureCount(Envelope envelope) {
+    private void incrementUploadFailureCount(DbEnvelope envelope) {
         envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
         envelopeRepository.save(envelope);
     }
 
     private Boolean deleteBlob(
-        Envelope envelope,
+        DbEnvelope envelope,
         CloudBlockBlob cloudBlockBlob
     ) {
         try {
@@ -132,7 +132,7 @@ public abstract class Processor {
         }
     }
 
-    private void handleBlobDeletionError(Envelope envelope, Exception cause) {
+    private void handleBlobDeletionError(DbEnvelope envelope, Exception cause) {
         handleEventRelatedError(
             Event.BLOB_DELETE_FAILURE,
             envelope.getContainer(),
@@ -141,15 +141,15 @@ public abstract class Processor {
         );
     }
 
-    private Boolean markAsUploaded(Envelope envelope) {
+    private Boolean markAsUploaded(DbEnvelope envelope) {
         return handleEvent(envelope, DOC_UPLOADED);
     }
 
-    private Boolean markAsProcessed(Envelope envelope) {
+    private Boolean markAsProcessed(DbEnvelope envelope) {
         return handleEvent(envelope, DOC_PROCESSED);
     }
 
-    private Boolean handleEvent(Envelope envelope, Event event) {
+    private Boolean handleEvent(DbEnvelope envelope, Event event) {
         try {
             envelopeProcessor.handleEvent(envelope, event);
             return Boolean.TRUE;
@@ -159,7 +159,7 @@ public abstract class Processor {
         }
     }
 
-    private void updateEnvelopeLastStatus(Envelope envelope, Event event) {
+    private void updateEnvelopeLastStatus(DbEnvelope envelope, Event event) {
         Status.fromEvent(event).ifPresent(status -> {
             envelope.setStatus(status);
 

@@ -9,7 +9,7 @@ import com.typesafe.config.ConfigFactory;
 import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.net.URI;

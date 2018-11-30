@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.entity;
+package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
 // TODO: separate envelope state and events.
 public enum Event {

@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.in;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
 
 public class StatusUpdate {
 

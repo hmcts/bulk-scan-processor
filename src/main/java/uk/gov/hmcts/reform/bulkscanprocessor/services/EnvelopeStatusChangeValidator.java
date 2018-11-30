@@ -2,16 +2,16 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidStatusChangeException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
 
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.NOTIFICATION_SENT;
 
 @Service
 public class EnvelopeStatusChangeValidator {

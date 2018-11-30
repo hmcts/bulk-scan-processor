@@ -10,9 +10,9 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.ProcessEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +68,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
 
         // Only one thread should be able to acquire lease and others should fail.
         // Therefore we expect only one envelope which was uploaded and others failed
-        List<Envelope> envelopes = envelopeRepository.findAll();
+        List<DbEnvelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes.size()).isEqualTo(1);
 
         // and

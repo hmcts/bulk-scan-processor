@@ -8,8 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessorTestSuite;
 
@@ -20,12 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOADED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status.UPLOAD_FAILURE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -74,7 +74,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         processor.processJurisdiction("SSCS");
 
         // then
-        List<Envelope> dbEnvelopes = envelopeRepository.findAll();
+        List<DbEnvelope> dbEnvelopes = envelopeRepository.findAll();
 
         assertThat(dbEnvelopes)
             .hasSize(1)
@@ -145,10 +145,10 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         processor.processJurisdiction("SSCS"); // another retry run
 
         // then
-        List<Envelope> envelopes = envelopeRepository.findAll();
+        List<DbEnvelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
 
-        Envelope envelope = envelopes.get(0);
+        DbEnvelope envelope = envelopes.get(0);
 
         assertThat(envelope.getUploadFailureCount()).isEqualTo(3); // one original failure + 2 retry runs
     }
