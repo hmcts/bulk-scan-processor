@@ -1,0 +1,5 @@
+{
+  "Metadata_file": [
+    { metadata_field_name: "text_field", "metadata_field_value": "some text" }
+  ]
+}
