@@ -21,14 +21,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundExceptio
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.NonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Payment;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbNonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbPayment;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -47,7 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
-import static java.util.stream.Collectors.toList;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -200,7 +194,7 @@ public class BlobProcessorTask extends Processor {
             EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
-            result.setEnvelope(envelopeProcessor.saveEnvelope(mapToDbEnvelope(envelope, containerName)));
+            result.setEnvelope(envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName)));
 
             return result;
         } catch (InvalidEnvelopeSchemaException
@@ -220,82 +214,6 @@ public class BlobProcessorTask extends Processor {
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
             return null;
         }
-    }
-
-    private DbEnvelope mapToDbEnvelope(Envelope envelope, String containerName) {
-        return new DbEnvelope(
-            envelope.poBox,
-            envelope.jurisdiction,
-            envelope.deliveryDate,
-            envelope.openingDate,
-            envelope.zipFileCreateddate,
-            envelope.zipFileName,
-            envelope.caseNumber,
-            envelope.classification,
-            mapToDbScannableItems(envelope.scannableItems),
-            mapToDbPayments(envelope.payments),
-            mapToDbNonScannableItems(envelope.nonScannableItems),
-            containerName
-        );
-    }
-
-    private List<DbScannableItem> mapToDbScannableItems(List<ScannableItem> scannableItems) {
-        if (scannableItems == null) {
-            return null;
-        } else {
-            return scannableItems.stream().map(this::mapToDbScannableItem).collect(toList());
-        }
-    }
-
-    private DbScannableItem mapToDbScannableItem(ScannableItem scannableItem) {
-        return new DbScannableItem(
-            scannableItem.documentControlNumber,
-            scannableItem.scanningDate,
-            scannableItem.ocrAccuracy,
-            scannableItem.manualIntervention,
-            scannableItem.nextAction,
-            scannableItem.nextActionDate,
-            scannableItem.ocrData,
-            scannableItem.fileName,
-            scannableItem.notes,
-            scannableItem.documentType
-        );
-    }
-
-    private List<DbPayment> mapToDbPayments(List<Payment> payments) {
-        if (payments == null) {
-            return null;
-        } else {
-            return payments.stream().map(this::mapToDbPayment).collect(toList());
-        }
-    }
-
-    private DbPayment mapToDbPayment(Payment payment) {
-        return new DbPayment(
-            payment.documentControlNumber,
-            payment.method,
-            payment.amount,
-            payment.currency,
-            payment.paymentInstrumentNumber,
-            payment.sortCode,
-            payment.accountNumber
-        );
-    }
-
-    private List<DbNonScannableItem> mapToDbNonScannableItems(List<NonScannableItem> nonScannableItems) {
-        if (nonScannableItems == null) {
-            return null;
-        } else {
-            return nonScannableItems.stream().map(this::mapToDbNonScannableItem).collect(toList());
-        }
-    }
-
-    private DbNonScannableItem mapToDbNonScannableItem(NonScannableItem nonScannableItem) {
-        return new DbNonScannableItem(
-            nonScannableItem.documentControlNumber,
-            nonScannableItem.itemType,
-            nonScannableItem.notes
-        );
     }
 
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
