@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.blob;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Strings;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 
@@ -56,11 +55,5 @@ public class Envelope {
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
-    }
-
-    //    TODO: delete?
-    public boolean isTestOnly() {
-        return !Strings.isNullOrEmpty(zipFileName)
-            && zipFileName.toLowerCase().endsWith(TEST_FILE_SUFFIX);
     }
 }
