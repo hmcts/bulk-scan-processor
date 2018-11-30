@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.model.db;
+package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.google.common.base.Strings;
 import org.hibernate.annotations.Fetch;
@@ -6,7 +6,6 @@ import org.hibernate.annotations.FetchMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
 
 import java.sql.Timestamp;
 import java.time.Instant;

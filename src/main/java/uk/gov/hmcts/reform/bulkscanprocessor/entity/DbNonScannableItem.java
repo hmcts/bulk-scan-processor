@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.model.db;
+package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import java.util.UUID;
 import javax.persistence.Entity;

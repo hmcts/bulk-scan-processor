@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbNonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbPayment;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbNonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbPayment;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;

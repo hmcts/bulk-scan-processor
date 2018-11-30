@@ -14,7 +14,7 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;

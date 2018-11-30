@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;

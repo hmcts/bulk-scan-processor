@@ -10,9 +10,9 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.ProcessEvent;
 
 import java.util.ArrayList;
 import java.util.List;

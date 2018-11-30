@@ -1,13 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbNonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbPayment;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbNonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbPayment;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
 
 import java.util.List;
 

@@ -1,4 +1,6 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
+package uk.gov.hmcts.reform.bulkscanprocessor.entity;
+
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.util.Optional;
 

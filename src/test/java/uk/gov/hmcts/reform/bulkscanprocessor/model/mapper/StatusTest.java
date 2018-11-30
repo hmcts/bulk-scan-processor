@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

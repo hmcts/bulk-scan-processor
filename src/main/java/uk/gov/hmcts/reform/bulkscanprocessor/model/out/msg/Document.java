@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.db.DbScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
 
 import java.time.Instant;
 
