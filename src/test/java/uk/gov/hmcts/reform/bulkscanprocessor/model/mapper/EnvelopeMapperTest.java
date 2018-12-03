@@ -53,46 +53,63 @@ public class EnvelopeMapperTest {
     private void assertSamePayments(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getPayments().size()).isEqualTo(zipEnvelope.payments.size());
 
-        for (int i = 0; i < dbEnvelope.getPayments().size(); i++) {
-            Payment dbPayment = dbEnvelope.getPayments().get(i);
-            InputPayment zipPayment = zipEnvelope.payments.get(i);
-
-            assertThat(dbPayment)
-                .isEqualToIgnoringGivenFields(
-                    zipPayment,
-                    new String[]{"envelope", "amountInPence", "id"}
-                );
-        }
+        assertThat(dbEnvelope.getPayments())
+            .extracting(this::convertToInputPayment)
+            .usingFieldByFieldElementComparator()
+            .containsAll(zipEnvelope.payments);
     }
 
     private void assertSameScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getScannableItems().size()).isEqualTo(zipEnvelope.scannableItems.size());
 
-        for (int i = 0; i < dbEnvelope.getScannableItems().size(); i++) {
-            ScannableItem dbScannableItem = dbEnvelope.getScannableItems().get(i);
-            InputScannableItem zipScannableItem = zipEnvelope.scannableItems.get(i);
-
-            assertThat(dbScannableItem)
-                .isEqualToIgnoringGivenFields(
-                    zipScannableItem,
-                    new String[]{"envelope", "documentUrl", "id"}
-                );
-        }
+        assertThat(dbEnvelope.getScannableItems())
+            .extracting(this::convertToInputScannableItem)
+            .usingFieldByFieldElementComparator()
+            .containsAll(zipEnvelope.scannableItems);
     }
 
     private void assertSameNonScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getNonScannableItems().size())
             .isEqualTo(zipEnvelope.nonScannableItems.size());
 
-        for (int i = 0; i < dbEnvelope.getNonScannableItems().size(); i++) {
-            NonScannableItem dbNonScannableItem = dbEnvelope.getNonScannableItems().get(i);
-            InputNonScannableItem zipNonScannableItem = zipEnvelope.nonScannableItems.get(i);
+        assertThat(dbEnvelope.getNonScannableItems())
+            .extracting(this::convertToInputNonScannableItem)
+            .usingFieldByFieldElementComparator()
+            .containsAll(zipEnvelope.nonScannableItems);
+    }
 
-            assertThat(dbNonScannableItem)
-                .isEqualToIgnoringGivenFields(
-                    zipNonScannableItem,
-                    new String[]{"envelope", "id"}
-                );
-        }
+    private InputPayment convertToInputPayment(Payment dbPayment) {
+        return new InputPayment(
+            dbPayment.getDocumentControlNumber(),
+            dbPayment.getMethod(),
+            String.format("%.2f", dbPayment.getAmount()),
+            dbPayment.getCurrency(),
+            dbPayment.getPaymentInstrumentNumber(),
+            dbPayment.getSortCode(),
+            dbPayment.getAccountNumber()
+        );
+    }
+
+    private InputScannableItem convertToInputScannableItem(ScannableItem dbScannableItem) {
+        return new InputScannableItem(
+            dbScannableItem.getDocumentControlNumber(),
+            dbScannableItem.getScanningDate(),
+            dbScannableItem.getOcrAccuracy(),
+            dbScannableItem.getManualIntervention(),
+            dbScannableItem.getNextAction(),
+            dbScannableItem.getNextActionDate(),
+            dbScannableItem.getOcrData(),
+            dbScannableItem.getFileName(),
+            dbScannableItem.getNotes(),
+            dbScannableItem.getDocumentType()
+        );
+    }
+
+    private InputNonScannableItem convertToInputNonScannableItem(NonScannableItem dbNonScannableItem) {
+        return new InputNonScannableItem(
+            dbNonScannableItem.getDocumentControlNumber(),
+            dbNonScannableItem.getItemType(),
+            dbNonScannableItem.getNotes()
+        );
     }
 }
