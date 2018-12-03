@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.ScannableItem;
 
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class EnvelopeMapper {
@@ -43,7 +44,7 @@ public class EnvelopeMapper {
                 .map(EnvelopeMapper::toDbScannableItem)
                 .collect(toList());
         } else {
-            return null;
+            return emptyList();
         }
     }
 
@@ -69,7 +70,7 @@ public class EnvelopeMapper {
                 .map(EnvelopeMapper::toDbPayment)
                 .collect(toList());
         } else {
-            return null;
+            return emptyList();
         }
     }
 
@@ -92,7 +93,7 @@ public class EnvelopeMapper {
                 .map(EnvelopeMapper::toDbNonScannableItem)
                 .collect(toList());
         } else {
-            return null;
+            return emptyList();
         }
     }
 

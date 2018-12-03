@@ -7,10 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -21,8 +17,10 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-
-import static java.util.Collections.emptyList;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "envelopes")
@@ -106,9 +104,9 @@ public class DbEnvelope {
         this.zipFileName = zipFileName;
         this.caseNumber = caseNumber;
         this.classification = classification;
-        this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
-        this.payments = payments == null ? emptyList() : payments;
-        this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
+        this.scannableItems = scannableItems;
+        this.payments = payments;
+        this.nonScannableItems = nonScannableItems;
         this.container = container;
 
         assignSelfToChildren(this.scannableItems);
