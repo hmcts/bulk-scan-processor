@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "payments")
-public class DbPayment implements EnvelopeAssignable {
+public class Payment implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
@@ -34,13 +34,13 @@ public class DbPayment implements EnvelopeAssignable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
-    private DbEnvelope envelope;
+    private Envelope envelope;
 
-    private DbPayment() {
+    private Payment() {
         // For use by hibernate.
     }
 
-    public DbPayment(
+    public Payment(
         String documentControlNumber,
         String method,
         BigDecimal amount,
@@ -63,7 +63,7 @@ public class DbPayment implements EnvelopeAssignable {
     }
 
     @Override
-    public void setEnvelope(DbEnvelope envelope) {
+    public void setEnvelope(Envelope envelope) {
         this.envelope = envelope;
     }
 

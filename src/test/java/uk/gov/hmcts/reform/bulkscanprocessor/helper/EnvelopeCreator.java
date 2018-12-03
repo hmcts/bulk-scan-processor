@@ -3,10 +3,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.IOUtils;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbNonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbPayment;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
@@ -62,18 +62,18 @@ public final class EnvelopeCreator {
         return EnvelopeResponseMapper.toEnvelopeResponse(envelope());
     }
 
-    public static List<DbEnvelope> envelopes() throws Exception {
+    public static List<Envelope> envelopes() throws Exception {
         return ImmutableList.of(envelope());
     }
 
-    public static DbEnvelope envelope() {
+    public static Envelope envelope() {
         return envelope("SSCS", Status.PROCESSED);
     }
 
-    public static DbEnvelope envelope(String jurisdiction, Status status) {
+    public static Envelope envelope(String jurisdiction, Status status) {
         Timestamp timestamp = getTimestamp();
 
-        DbEnvelope envelope = new DbEnvelope(
+        Envelope envelope = new Envelope(
             "SSCSPO",
             jurisdiction,
             timestamp,
@@ -93,14 +93,14 @@ public final class EnvelopeCreator {
         return envelope;
     }
 
-    public static DbEnvelope envelopeNotified() {
+    public static Envelope envelopeNotified() {
         return envelope("SSCS", Status.NOTIFICATION_SENT);
     }
 
-    private static List<DbScannableItem> scannableItems() {
+    private static List<ScannableItem> scannableItems() {
         Timestamp timestamp = getTimestamp();
 
-        DbScannableItem scannableItem1 = new DbScannableItem(
+        ScannableItem scannableItem1 = new ScannableItem(
             "1111001",
             timestamp,
             "test",
@@ -115,7 +115,7 @@ public final class EnvelopeCreator {
         scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
 
-        DbScannableItem scannableItem2 = new DbScannableItem(
+        ScannableItem scannableItem2 = new ScannableItem(
             "1111002",
             timestamp,
             "test",
@@ -132,15 +132,15 @@ public final class EnvelopeCreator {
         return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
-    private static List<DbNonScannableItem> nonScannableItems() {
+    private static List<NonScannableItem> nonScannableItems() {
         return ImmutableList.of(
-            new DbNonScannableItem("1111001", "CD", "4GB USB memory stick")
+            new NonScannableItem("1111001", "CD", "4GB USB memory stick")
         );
     }
 
-    private static List<DbPayment> payments() {
+    private static List<Payment> payments() {
         return ImmutableList.of(
-            new DbPayment(
+            new Payment(
                 "1111002",
                 "Cheque",
                 BigDecimal.valueOf(100),

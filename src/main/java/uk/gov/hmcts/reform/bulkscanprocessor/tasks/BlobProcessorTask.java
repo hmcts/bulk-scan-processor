@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
@@ -126,7 +126,7 @@ public class BlobProcessorTask extends Processor {
 
         log.info("Processing zip file {}", zipFilename);
 
-        DbEnvelope existingEnvelope =
+        Envelope existingEnvelope =
             envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
         if (existingEnvelope != null) {
             deleteIfProcessed(cloudBlockBlob, existingEnvelope);
@@ -154,7 +154,7 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private void deleteIfProcessed(CloudBlockBlob cloudBlockBlob, DbEnvelope envelope) {
+    private void deleteIfProcessed(CloudBlockBlob cloudBlockBlob, Envelope envelope) {
         try {
             if (cloudBlockBlob != null && envelope.getStatus().isProcessed()) {
                 boolean deleted;

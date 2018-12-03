@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
@@ -158,9 +158,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     }
 
     // TODO: add repo method to read single envelope by zip file name and jurisdiction.
-    protected DbEnvelope getSingleEnvelopeFromDb() {
+    protected Envelope getSingleEnvelopeFromDb() {
         // We expect only one envelope which was uploaded
-        List<DbEnvelope> envelopes = envelopeRepository.findAll();
+        List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
 
         return envelopes.get(0);

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
@@ -84,7 +84,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        DbEnvelope actualEnvelope = getSingleEnvelopeFromDb();
+        Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
             getResource("zipcontents/ok/metadata.json"),
@@ -133,7 +133,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         // then
         // We expect only one envelope from the valid zip file which was uploaded
-        DbEnvelope actualEnvelope = getSingleEnvelopeFromDb();
+        Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         String originalMetaFile = Resources.toString(
             getResource("zipcontents/ok/metadata.json"),
@@ -176,7 +176,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
 
-        DbEnvelope envelope = getSingleEnvelopeFromDb();
+        Envelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getStatus()).isEqualTo(PROCESSED);
         assertThat(envelope.isZipDeleted()).isTrue();
@@ -208,7 +208,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .timeout(2, SECONDS)
             .until(blob::exists, is(true));
 
-        DbEnvelope envelope = getSingleEnvelopeFromDb();
+        Envelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(envelope.isZipDeleted()).isFalse();
@@ -232,7 +232,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        DbEnvelope envelope = getSingleEnvelopeFromDb();
+        Envelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getUploadFailureCount()).isEqualTo(1);
         assertThat(envelope.isZipDeleted()).isFalse();
@@ -261,7 +261,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .atMost(2, SECONDS)
             .until(blob::exists, is(false));
 
-        DbEnvelope envelope = getSingleEnvelopeFromDb();
+        Envelope envelope = getSingleEnvelopeFromDb();
         assertThat(envelope.isZipDeleted()).isTrue();
     }
 
@@ -287,7 +287,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     private void dbContainsEnvelopeThatWasNotYetDeleted(String zipFileName, Status status) throws Exception {
-        DbEnvelope existingEnvelope = EnvelopeCreator.envelope("A", status);
+        Envelope existingEnvelope = EnvelopeCreator.envelope("A", status);
         existingEnvelope.setZipFileName(zipFileName);
         existingEnvelope.setContainer(testContainer.getName());
         existingEnvelope.setZipDeleted(false);

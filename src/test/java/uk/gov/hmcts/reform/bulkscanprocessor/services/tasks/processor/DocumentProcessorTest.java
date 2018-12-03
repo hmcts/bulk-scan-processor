@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -62,7 +62,7 @@ public class DocumentProcessorTest {
         when(documentManagementService.uploadDocuments(pdfs)).thenReturn(response);
 
         //when
-        DbScannableItem scannableItem = scannableItem("test1.pdf");
+        ScannableItem scannableItem = scannableItem("test1.pdf");
         documentProcessor.uploadPdfFiles(pdfs, ImmutableList.of(scannableItem));
 
         //then
@@ -79,7 +79,7 @@ public class DocumentProcessorTest {
     @Test
     public void should_throw_exception_when_doc_response_does_not_contain_matching_file_name_and_doc_url() {
         // given
-        List<DbScannableItem> scannableItems =
+        List<ScannableItem> scannableItems =
             asList(
                 scannableItem("a.pdf"),
                 scannableItem("b.pdf"),
@@ -102,8 +102,8 @@ public class DocumentProcessorTest {
             .hasMessageContaining("c.pdf");
     }
 
-    private DbScannableItem scannableItem(String fileName) {
-        return new DbScannableItem(
+    private ScannableItem scannableItem(String fileName) {
+        return new ScannableItem(
             "1111002",
             new Timestamp(System.currentTimeMillis()),
             null,

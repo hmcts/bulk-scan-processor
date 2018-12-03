@@ -11,7 +11,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
@@ -62,7 +62,7 @@ public class FailedDocUploadProcessor extends Processor {
     public void processJurisdiction(String jurisdiction)
         throws IOException, StorageException, URISyntaxException {
 
-        List<DbEnvelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
+        List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
         if (!envelopes.isEmpty()) {
             String containerName = envelopes.get(0).getContainer();
@@ -71,19 +71,19 @@ public class FailedDocUploadProcessor extends Processor {
         }
     }
 
-    private void processEnvelopes(String containerName, List<DbEnvelope> envelopes)
+    private void processEnvelopes(String containerName, List<Envelope> envelopes)
         throws IOException, StorageException, URISyntaxException {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 
         CloudBlobContainer container = blobManager.getContainer(containerName);
 
-        for (DbEnvelope envelope : envelopes) {
+        for (Envelope envelope : envelopes) {
             processEnvelope(container, envelope);
         }
     }
 
-    private void processEnvelope(CloudBlobContainer container, DbEnvelope envelope)
+    private void processEnvelope(CloudBlobContainer container, Envelope envelope)
         throws IOException, StorageException, URISyntaxException {
 
         log.info("Processing zip file {}", envelope.getZipFileName());

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.UUID;
 
-public interface EnvelopeRepository extends JpaRepository<DbEnvelope, UUID> {
+public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
      * Finds envelopes for a given jurisdiction and status.
@@ -16,14 +16,14 @@ public interface EnvelopeRepository extends JpaRepository<DbEnvelope, UUID> {
      * @param jurisdiction jurisdiction for which envelopes needs to be retrieved
      * @return A list of envelopes which belongs to the given jurisdiction.
      */
-    List<DbEnvelope> findByJurisdictionAndStatus(String jurisdiction, Status status);
+    List<Envelope> findByJurisdictionAndStatus(String jurisdiction, Status status);
 
     /**
      * Find all envelopes for given jurisdiction.
      */
-    List<DbEnvelope> findByJurisdiction(String jurisdiction);
+    List<Envelope> findByJurisdiction(String jurisdiction);
 
-    List<DbEnvelope> findByStatus(Status status);
+    List<Envelope> findByStatus(Status status);
 
     /**
      * Finds envelope with a blob not deleted for a given container and zip file name.
@@ -32,12 +32,12 @@ public interface EnvelopeRepository extends JpaRepository<DbEnvelope, UUID> {
      * @param zipFileName of envelope.
      * @return A list of envelopes.
      */
-    @Query("select e from DbEnvelope e"
+    @Query("select e from Envelope e"
         + " where e.container = :container"
         + "   and e.zipFileName = :zip"
         + " order by e.createdAt desc"
     )
-    List<DbEnvelope> findEnvelopesByFileAndContainer(
+    List<Envelope> findEnvelopesByFileAndContainer(
         @Param("container") String container,
         @Param("zip") String zipFileName,
         Pageable pageable
@@ -51,13 +51,13 @@ public interface EnvelopeRepository extends JpaRepository<DbEnvelope, UUID> {
      * @param status of envelope.
      * @return A list of envelopes.
      */
-    @Query("select e from DbEnvelope e"
+    @Query("select e from Envelope e"
         + " where e.container = :container"
         + "   and e.zipFileName = :zip"
         + "   and e.status = :status"
         + " order by e.createdAt desc"
     )
-    List<DbEnvelope> findRecentEnvelopes(
+    List<Envelope> findRecentEnvelopes(
         @Param("container") String container,
         @Param("zip") String zipFileName,
         @Param("status") Status status,
@@ -71,13 +71,13 @@ public interface EnvelopeRepository extends JpaRepository<DbEnvelope, UUID> {
      * @param pageable limit of data to be processed by consumer
      * @return A list of envelopes
      */
-    @Query("select e from DbEnvelope e"
+    @Query("select e from Envelope e"
         + " where e.jurisdiction = :jurisdiction"
         + "   and e.status = 'UPLOAD_FAILURE'" // todo: use a constant
         + "   and e.uploadFailureCount < :maxFailureCount"
         + " order by e.createdAt asc"
     )
-    List<DbEnvelope> findEnvelopesToResend(
+    List<Envelope> findEnvelopesToResend(
         @Param("jurisdiction") String jurisdiction,
         @Param("maxFailureCount") int maxFailureCount,
         Pageable pageable

@@ -24,9 +24,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "envelopes")
-public class DbEnvelope {
+public class Envelope {
 
-    private static final Logger log = LoggerFactory.getLogger(DbEnvelope.class);
+    private static final Logger log = LoggerFactory.getLogger(Envelope.class);
 
     public static final String TEST_FILE_SUFFIX = ".test.zip";
 
@@ -65,24 +65,24 @@ public class DbEnvelope {
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<DbScannableItem> scannableItems;
+    private List<ScannableItem> scannableItems;
 
     //We will need to retrieve all payments entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<DbPayment> payments;
+    private List<Payment> payments;
 
     //We will need to retrieve all non scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<DbNonScannableItem> nonScannableItems;
+    private List<NonScannableItem> nonScannableItems;
 
     // elevating to public access as javassist needs instantiation available when `this` proxy is passed to children
-    public DbEnvelope() {
+    public Envelope() {
         // For use by hibernate.
     }
 
-    public DbEnvelope(
+    public Envelope(
         String poBox,
         String jurisdiction,
         Timestamp deliveryDate,
@@ -91,9 +91,9 @@ public class DbEnvelope {
         String zipFileName,
         String caseNumber,
         Classification classification,
-        List<DbScannableItem> scannableItems,
-        List<DbPayment> payments,
-        List<DbNonScannableItem> nonScannableItems,
+        List<ScannableItem> scannableItems,
+        List<Payment> payments,
+        List<NonScannableItem> nonScannableItems,
         String container
     ) {
         this.poBox = poBox;
@@ -114,15 +114,15 @@ public class DbEnvelope {
         assignSelfToChildren(this.nonScannableItems);
     }
 
-    public List<DbScannableItem> getScannableItems() {
+    public List<ScannableItem> getScannableItems() {
         return scannableItems;
     }
 
-    public List<DbNonScannableItem> getNonScannableItems() {
+    public List<NonScannableItem> getNonScannableItems() {
         return nonScannableItems;
     }
 
-    public List<DbPayment> getPayments() {
+    public List<Payment> getPayments() {
         return payments;
     }
 

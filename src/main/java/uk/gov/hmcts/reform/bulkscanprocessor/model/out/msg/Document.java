@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
 import java.time.Instant;
 
@@ -38,7 +38,7 @@ public class Document {
     }
     // endregion
 
-    public static Document fromScannableItem(DbScannableItem item) {
+    public static Document fromScannableItem(ScannableItem item) {
         return new Document(
             item.getFileName(),
             item.getDocumentControlNumber(),

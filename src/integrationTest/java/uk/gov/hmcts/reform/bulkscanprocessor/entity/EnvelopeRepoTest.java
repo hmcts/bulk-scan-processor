@@ -38,7 +38,7 @@ public class EnvelopeRepoTest {
         );
 
         // when
-        List<DbEnvelope> result = repo.findEnvelopesToResend(jurisdiction, maxFailCount, null);
+        List<Envelope> result = repo.findEnvelopesToResend(jurisdiction, maxFailCount, null);
 
         // then
         assertThat(result).hasSize(2);
@@ -54,7 +54,7 @@ public class EnvelopeRepoTest {
         );
 
         // when
-        List<DbEnvelope> result = repo.findEnvelopesToResend("A", 1_000, null);
+        List<Envelope> result = repo.findEnvelopesToResend("A", 1_000, null);
 
         // then
         assertThat(result).hasSize(1);
@@ -65,13 +65,13 @@ public class EnvelopeRepoTest {
         repo.deleteAll();
     }
 
-    private DbEnvelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
-        DbEnvelope envelope = envelope(jurisdiction, Status.UPLOAD_FAILURE);
+    private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
+        Envelope envelope = envelope(jurisdiction, Status.UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
         return envelope;
     }
 
-    private void dbHas(DbEnvelope... envelopes) {
+    private void dbHas(Envelope... envelopes) {
         repo.saveAll(asList(envelopes));
     }
 }

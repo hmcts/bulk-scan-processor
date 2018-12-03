@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -58,7 +58,7 @@ public class SendNotificationTask {
             });
     }
 
-    private void createEvent(DbEnvelope envelope, Event event) {
+    private void createEvent(Envelope envelope, Event event) {
         processEventRepo.save(
             new ProcessEvent(
                 envelope.getContainer(),
@@ -68,7 +68,7 @@ public class SendNotificationTask {
         );
     }
 
-    private void updateStatus(DbEnvelope envelope) {
+    private void updateStatus(Envelope envelope) {
         envelope.setStatus(Status.NOTIFICATION_SENT);
         envelopeRepo.save(envelope);
     }

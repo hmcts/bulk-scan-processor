@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
@@ -109,7 +109,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_retrieve_single_envelope_by_id() throws Exception {
         // given
-        DbEnvelope envelopeIdDb = envelopeRepo.save(envelope("X", Status.PROCESSED));
+        Envelope envelopeIdDb = envelopeRepo.save(envelope("X", Status.PROCESSED));
         serviceCanReadFromJurisdiction("service_X", "X");
 
         // when
@@ -135,7 +135,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_throw_an_exception_if_service_cannot_read_existing_envelope() throws Exception {
         // given
-        DbEnvelope envelopeForServiceB = envelopeRepo.save(envelope("B", Status.PROCESSED));
+        Envelope envelopeForServiceB = envelopeRepo.save(envelope("B", Status.PROCESSED));
         serviceCanReadFromJurisdiction("service_A", "A");
 
         // when
@@ -153,8 +153,8 @@ public class EnvelopeRetrieverTest {
         envelopeRepo.deleteAll();
     }
 
-    private void dbContains(DbEnvelope... envelopes) {
-        for (DbEnvelope env : envelopes) {
+    private void dbContains(Envelope... envelopes) {
+        for (Envelope env : envelopes) {
             envelopeRepo.save(env);
         }
     }

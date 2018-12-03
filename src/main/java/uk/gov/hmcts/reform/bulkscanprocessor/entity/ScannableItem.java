@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "scannable_items")
-public class DbScannableItem implements EnvelopeAssignable {
+public class ScannableItem implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
@@ -42,13 +42,13 @@ public class DbScannableItem implements EnvelopeAssignable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
-    private DbEnvelope envelope;
+    private Envelope envelope;
 
-    private DbScannableItem() {
+    private ScannableItem() {
         // For use by hibernate.
     }
 
-    public DbScannableItem(
+    public ScannableItem(
         String documentControlNumber,
         Timestamp scanningDate,
         String ocrAccuracy,
@@ -125,7 +125,7 @@ public class DbScannableItem implements EnvelopeAssignable {
     }
 
     @Override
-    public void setEnvelope(DbEnvelope envelope) {
+    public void setEnvelope(Envelope envelope) {
         this.envelope = envelope;
     }
 }

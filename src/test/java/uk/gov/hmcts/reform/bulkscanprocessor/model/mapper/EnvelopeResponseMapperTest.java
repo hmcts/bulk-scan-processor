@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.ToStringComparator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EnvelopeResponseMapperTest {
 
-    private DbEnvelope envelope;
+    private Envelope envelope;
 
     @Before
     public void setUp() {

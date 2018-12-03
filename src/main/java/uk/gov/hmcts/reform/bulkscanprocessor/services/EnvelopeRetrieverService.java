@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
@@ -48,7 +48,7 @@ public class EnvelopeRetrieverService {
 
     public Optional<EnvelopeResponse> findById(String serviceName, UUID id) {
         String validJurisdiction = envelopeAccessService.getReadJurisdictionForService(serviceName);
-        Optional<DbEnvelope> envelope = envelopeRepository.findById(id);
+        Optional<Envelope> envelope = envelopeRepository.findById(id);
 
         if (envelope.isPresent() && !Objects.equals(envelope.get().getJurisdiction(), validJurisdiction)) {
             throw new ForbiddenException("Service " + serviceName + " cannot read envelope " + id);

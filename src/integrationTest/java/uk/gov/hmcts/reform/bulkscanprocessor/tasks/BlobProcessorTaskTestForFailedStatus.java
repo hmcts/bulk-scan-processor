@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -48,7 +48,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // then
-        DbEnvelope actualEnvelope = getSingleEnvelopeFromDb();
+        Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
@@ -76,7 +76,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // then
-        DbEnvelope actualEnvelope = getSingleEnvelopeFromDb();
+        Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
@@ -98,7 +98,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // then
-        DbEnvelope actualEnvelope = envelopeRepository.findAll().get(0);
+        Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
         assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
         assertThat(actualEnvelope.getScannableItems()).extracting("documentUrl").allMatch(ObjectUtils::isEmpty);
@@ -181,7 +181,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     private void envelopeWasNotCreated() {
-        List<DbEnvelope> envelopesInDb = envelopeRepository.findAll();
+        List<Envelope> envelopesInDb = envelopeRepository.findAll();
         assertThat(envelopesInDb).isEmpty();
     }
 

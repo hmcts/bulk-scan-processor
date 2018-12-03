@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -44,7 +44,7 @@ public class EnvelopeUpdateService {
 
     public void updateStatus(UUID envelopeId, Status newStatus, String serviceName) {
 
-        DbEnvelope envelope =
+        Envelope envelope =
             envelopeRepo
                 .findById(envelopeId)
                 .orElseThrow(() -> new EnvelopeNotFoundException());

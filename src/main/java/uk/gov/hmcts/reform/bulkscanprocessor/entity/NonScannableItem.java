@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "non_scannable_items")
-public class DbNonScannableItem implements EnvelopeAssignable {
+public class NonScannableItem implements EnvelopeAssignable {
 
     @Id
     @GeneratedValue
@@ -25,13 +25,13 @@ public class DbNonScannableItem implements EnvelopeAssignable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
-    private DbEnvelope envelope;
+    private Envelope envelope;
 
-    private DbNonScannableItem() {
+    private NonScannableItem() {
         // For use by hibernate.
     }
 
-    public DbNonScannableItem(
+    public NonScannableItem(
         String documentControlNumber,
         String itemType,
         String notes
@@ -54,7 +54,7 @@ public class DbNonScannableItem implements EnvelopeAssignable {
     }
 
     @Override
-    public void setEnvelope(DbEnvelope envelope) {
+    public void setEnvelope(Envelope envelope) {
         this.envelope = envelope;
     }
 }

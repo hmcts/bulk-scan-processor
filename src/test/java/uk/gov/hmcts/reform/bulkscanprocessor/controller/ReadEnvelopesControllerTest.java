@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
@@ -130,7 +130,7 @@ public class ReadEnvelopesControllerTest {
     }
 
     private List<EnvelopeResponse> envelopesInDb() throws Exception {
-        DbEnvelope envelope = EnvelopeCreator.envelope();
+        Envelope envelope = EnvelopeCreator.envelope();
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
         return singletonList(EnvelopeResponseMapper.toEnvelopeResponse(envelope));
     }

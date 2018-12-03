@@ -2,10 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbNonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbPayment;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
@@ -22,7 +22,7 @@ public class EnvelopeMapperTest {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile();
         String container = "container1";
 
-        DbEnvelope dbEnvelope = EnvelopeMapper.toDbEnvelope(
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(
             zipEnvelope,
             container
         );
@@ -51,11 +51,11 @@ public class EnvelopeMapperTest {
         assertThat(dbEnvelope.getContainer()).isEqualTo(container);
     }
 
-    private void assertSamePayments(DbEnvelope dbEnvelope, InputEnvelope zipEnvelope) {
+    private void assertSamePayments(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getPayments().size()).isEqualTo(zipEnvelope.payments.size());
 
         for (int i = 0; i < dbEnvelope.getPayments().size(); i++) {
-            DbPayment dbPayment = dbEnvelope.getPayments().get(i);
+            Payment dbPayment = dbEnvelope.getPayments().get(i);
             InputPayment zipPayment = zipEnvelope.payments.get(i);
 
             assertThat(dbPayment)
@@ -66,11 +66,11 @@ public class EnvelopeMapperTest {
         }
     }
 
-    private void assertSameScannableItems(DbEnvelope dbEnvelope, InputEnvelope zipEnvelope) {
+    private void assertSameScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getScannableItems().size()).isEqualTo(zipEnvelope.scannableItems.size());
 
         for (int i = 0; i < dbEnvelope.getScannableItems().size(); i++) {
-            DbScannableItem dbScannableItem = dbEnvelope.getScannableItems().get(i);
+            ScannableItem dbScannableItem = dbEnvelope.getScannableItems().get(i);
             InputScannableItem zipScannableItem = zipEnvelope.scannableItems.get(i);
 
             assertThat(dbScannableItem)
@@ -81,12 +81,12 @@ public class EnvelopeMapperTest {
         }
     }
 
-    private void assertSameNonScannableItems(DbEnvelope dbEnvelope, InputEnvelope zipEnvelope) {
+    private void assertSameNonScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getNonScannableItems().size())
             .isEqualTo(zipEnvelope.nonScannableItems.size());
 
         for (int i = 0; i < dbEnvelope.getNonScannableItems().size(); i++) {
-            DbNonScannableItem dbNonScannableItem = dbEnvelope.getNonScannableItems().get(i);
+            NonScannableItem dbNonScannableItem = dbEnvelope.getNonScannableItems().get(i);
             InputNonScannableItem zipNonScannableItem = zipEnvelope.nonScannableItems.get(i);
 
             assertThat(dbNonScannableItem)

@@ -13,8 +13,8 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
@@ -43,11 +43,11 @@ public class ServiceBusHelperTest {
     @Mock
     private IQueueClient queueClient;
     @Mock
-    private DbEnvelope envelope;
+    private Envelope envelope;
     @Mock
-    private DbScannableItem scannableItem1;
+    private ScannableItem scannableItem1;
     @Mock
-    private DbScannableItem scannableItem2;
+    private ScannableItem scannableItem2;
 
     private ServiceBusHelper serviceBusHelper;
 
@@ -153,7 +153,7 @@ public class ServiceBusHelperTest {
         when(scannableItem2.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
     }
 
-    private void checkScannableItem(JsonNode jsonNode, DbScannableItem scannableItem) {
+    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());

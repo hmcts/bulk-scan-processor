@@ -4,7 +4,7 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -52,7 +52,7 @@ public abstract class Processor {
     }
 
     protected void processParsedEnvelopeDocuments(
-        DbEnvelope envelope,
+        Envelope envelope,
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
@@ -93,7 +93,7 @@ public abstract class Processor {
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
-        DbEnvelope envelope,
+        Envelope envelope,
         List<Pdf> pdfs
     ) {
         try {
@@ -107,13 +107,13 @@ public abstract class Processor {
         }
     }
 
-    private void incrementUploadFailureCount(DbEnvelope envelope) {
+    private void incrementUploadFailureCount(Envelope envelope) {
         envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
         envelopeRepository.save(envelope);
     }
 
     private Boolean deleteBlob(
-        DbEnvelope envelope,
+        Envelope envelope,
         CloudBlockBlob cloudBlockBlob
     ) {
         try {
@@ -132,7 +132,7 @@ public abstract class Processor {
         }
     }
 
-    private void handleBlobDeletionError(DbEnvelope envelope, Exception cause) {
+    private void handleBlobDeletionError(Envelope envelope, Exception cause) {
         handleEventRelatedError(
             Event.BLOB_DELETE_FAILURE,
             envelope.getContainer(),
@@ -141,15 +141,15 @@ public abstract class Processor {
         );
     }
 
-    private Boolean markAsUploaded(DbEnvelope envelope) {
+    private Boolean markAsUploaded(Envelope envelope) {
         return handleEvent(envelope, DOC_UPLOADED);
     }
 
-    private Boolean markAsProcessed(DbEnvelope envelope) {
+    private Boolean markAsProcessed(Envelope envelope) {
         return handleEvent(envelope, DOC_PROCESSED);
     }
 
-    private Boolean handleEvent(DbEnvelope envelope, Event event) {
+    private Boolean handleEvent(Envelope envelope, Event event) {
         try {
             envelopeProcessor.handleEvent(envelope, event);
             return Boolean.TRUE;
@@ -159,7 +159,7 @@ public abstract class Processor {
         }
     }
 
-    private void updateEnvelopeLastStatus(DbEnvelope envelope, Event event) {
+    private void updateEnvelopeLastStatus(Envelope envelope, Event event) {
         Status.fromEvent(event).ifPresent(status -> {
             envelope.setStatus(status);
 

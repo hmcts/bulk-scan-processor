@@ -35,11 +35,11 @@ public class ScannableItemTest {
     @Test
     public void should_update_document_url_of_scannable_item() throws IOException {
         // given
-        DbEnvelope envelope = EnvelopeCreator.envelope();
+        Envelope envelope = EnvelopeCreator.envelope();
         envelope.setContainer("container");
 
         // and
-        List<DbScannableItem> items = envelopeRepository.save(envelope).getScannableItems();
+        List<ScannableItem> items = envelopeRepository.save(envelope).getScannableItems();
 
         // when
         scannableItemRepository.saveAll(items.stream()
@@ -48,8 +48,8 @@ public class ScannableItemTest {
         );
 
         // then
-        List<DbScannableItem> dbItems = scannableItemRepository.findAllById(
-            items.stream().map(DbScannableItem::getId).collect(Collectors.toList())
+        List<ScannableItem> dbItems = scannableItemRepository.findAllById(
+            items.stream().map(ScannableItem::getId).collect(Collectors.toList())
         );
 
         assertThat(dbItems).hasSize(2);

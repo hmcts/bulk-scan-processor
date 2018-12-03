@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -31,7 +31,7 @@ public class EnvelopeUpdateServiceTest {
     @Test
     public void should_update_envelope_status_and_create_an_event() throws Exception {
         // given
-        DbEnvelope envelope = envelopeRepo.saveAndFlush(EnvelopeCreator.envelopeNotified());
+        Envelope envelope = envelopeRepo.saveAndFlush(EnvelopeCreator.envelopeNotified());
 
         // when
         envelopeUpdateService.updateStatus(

@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -50,13 +50,13 @@ public class SendNotificationTaskTest {
     @Test
     public void should_update_envelope_status_and_events_after_sending_notification() {
         // given
-        DbEnvelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
+        Envelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
 
         // when
         task.run();
 
         // then
-        DbEnvelope envelopeAfterTaskRun = envelopeRepo.getOne(envelopeInDb.getId());
+        Envelope envelopeAfterTaskRun = envelopeRepo.getOne(envelopeInDb.getId());
         List<ProcessEvent> events = processEventRepo.findAll();
 
         assertThat(envelopeAfterTaskRun.getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
@@ -70,7 +70,7 @@ public class SendNotificationTaskTest {
     @Test
     public void should_not_update_envelope_and_create_an_event_if_sending_notification_failed() {
         // given
-        DbEnvelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
+        Envelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
 
         doThrow(InvalidMessageException.class)
             .when(serviceBusHelper).sendMessage(any());
@@ -79,7 +79,7 @@ public class SendNotificationTaskTest {
         task.run();
 
         // then
-        DbEnvelope envelopeAfterTaskRun = envelopeRepo.getOne(envelopeInDb.getId());
+        Envelope envelopeAfterTaskRun = envelopeRepo.getOne(envelopeInDb.getId());
         List<ProcessEvent> events = processEventRepo.findAll();
 
         assertThat(envelopeAfterTaskRun.getStatus())

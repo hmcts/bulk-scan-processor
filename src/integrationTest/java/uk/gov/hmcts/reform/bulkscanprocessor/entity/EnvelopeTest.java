@@ -36,13 +36,13 @@ public class EnvelopeTest {
     @Test
     public void should_insert_into_db_and_validate_data_correctness_when_retrieved() throws IOException {
         // given
-        DbEnvelope envelope = EnvelopeCreator.envelope();
+        Envelope envelope = EnvelopeCreator.envelope();
 
         // and
         UUID envelopeId = repository.save(envelope).getId();
 
         // when
-        DbEnvelope readEnvelope = repository.getOne(envelopeId);
+        Envelope readEnvelope = repository.getOne(envelopeId);
 
         // then
         try (InputStream stream = EnvelopeCreator.getMetaFile()) {
@@ -53,16 +53,16 @@ public class EnvelopeTest {
     @Test
     public void should_log_a_warning_when_container_is_not_set() throws IOException {
         // given
-        DbEnvelope envelope = EnvelopeCreator.envelope();
+        Envelope envelope = EnvelopeCreator.envelope();
         envelope.setContainer(null);
 
         // when
-        DbEnvelope dbEnvelope = repository.save(envelope);
+        Envelope dbEnvelope = repository.save(envelope);
 
         // then
         assertThat(capture.toString()).containsPattern(
             ".+ WARN  \\[.+\\] "
-                + DbEnvelope.class.getCanonicalName()
+                + Envelope.class.getCanonicalName()
                 + ":\\d+: Missing required container for .+\\.zip"
         );
 

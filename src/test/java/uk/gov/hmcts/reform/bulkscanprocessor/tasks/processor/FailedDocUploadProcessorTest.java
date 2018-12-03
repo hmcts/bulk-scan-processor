@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.rule.OutputCapture;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
@@ -59,9 +59,9 @@ public class FailedDocUploadProcessorTest {
     @Test
     public void should_log_how_many_envelopes_processing_for_which_container() throws Exception {
         // given
-        DbEnvelope testEnvelope = EnvelopeCreator.envelope();
+        Envelope testEnvelope = EnvelopeCreator.envelope();
         testEnvelope.setContainer("test");
-        List<DbEnvelope> envelopes = Collections.nCopies(3, testEnvelope);
+        List<Envelope> envelopes = Collections.nCopies(3, testEnvelope);
 
         // and
         given(envelopeProcessor.getFailedToUploadEnvelopes("SSCS")).willReturn(envelopes);
