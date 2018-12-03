@@ -37,13 +37,13 @@ public class EnvelopeMapper {
     }
 
     private static List<DbScannableItem> toDbScannableItems(List<ScannableItem> scannableItems) {
-        if (scannableItems == null) {
-            return null;
-        } else {
+        if (scannableItems != null) {
             return scannableItems
                 .stream()
                 .map(EnvelopeMapper::toDbScannableItem)
                 .collect(toList());
+        } else {
+            return null;
         }
     }
 
@@ -63,13 +63,13 @@ public class EnvelopeMapper {
     }
 
     private static List<DbPayment> toDbPayments(List<Payment> payments) {
-        if (payments == null) {
-            return null;
-        } else {
+        if (payments != null) {
             return payments
                 .stream()
                 .map(EnvelopeMapper::toDbPayment)
                 .collect(toList());
+        } else {
+            return null;
         }
     }
 
@@ -86,13 +86,13 @@ public class EnvelopeMapper {
     }
 
     private static List<DbNonScannableItem> toDbNonScannableItems(List<NonScannableItem> nonScannableItems) {
-        if (nonScannableItems == null) {
-            return null;
-        } else {
+        if (nonScannableItems != null) {
             return nonScannableItems
                 .stream()
                 .map(EnvelopeMapper::toDbNonScannableItem)
                 .collect(toList());
+        } else {
+            return null;
         }
     }
 
