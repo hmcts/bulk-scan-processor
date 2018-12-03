@@ -13,8 +13,6 @@ import static java.util.Collections.emptyList;
 
 public class Envelope {
 
-    public static final String TEST_FILE_SUFFIX = ".test.zip";
-
     public final String caseNumber;
     public final String poBox;
     public final String jurisdiction;
