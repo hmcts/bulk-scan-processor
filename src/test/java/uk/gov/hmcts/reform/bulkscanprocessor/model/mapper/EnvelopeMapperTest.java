@@ -27,7 +27,6 @@ public class EnvelopeMapperTest {
             container
         );
 
-
         assertThat(dbEnvelope.getCaseNumber()).isEqualTo(zipEnvelope.caseNumber);
         assertThat(dbEnvelope.getPoBox()).isEqualTo(zipEnvelope.poBox);
         assertThat(dbEnvelope.getJurisdiction()).isEqualTo(zipEnvelope.jurisdiction);
