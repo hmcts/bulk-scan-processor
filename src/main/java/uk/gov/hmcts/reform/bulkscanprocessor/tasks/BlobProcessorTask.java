@@ -21,7 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaExc
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -189,7 +189,7 @@ public class BlobProcessorTask extends Processor {
                 ZipVerifiers.getPreprocessor(signatureAlg)
             );
 
-            Envelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
+            InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
             EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);

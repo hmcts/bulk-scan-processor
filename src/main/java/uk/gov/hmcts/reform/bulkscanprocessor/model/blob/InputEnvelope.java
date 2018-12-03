@@ -11,7 +11,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
-public class Envelope {
+public class InputEnvelope {
 
     public final String caseNumber;
     public final String poBox;
@@ -21,12 +21,12 @@ public class Envelope {
     public final Timestamp zipFileCreateddate;
     public final String zipFileName;
     public final Classification classification;
-    public final List<ScannableItem> scannableItems;
-    public final List<Payment> payments;
-    public final List<NonScannableItem> nonScannableItems;
+    public final List<InputScannableItem> scannableItems;
+    public final List<InputPayment> payments;
+    public final List<InputNonScannableItem> nonScannableItems;
 
     @JsonCreator
-    public Envelope(
+    public InputEnvelope(
         @JsonProperty("po_box") String poBox,
         @JsonProperty("jurisdiction") String jurisdiction,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
@@ -38,9 +38,9 @@ public class Envelope {
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("case_number") String caseNumber,
         @JsonProperty("classification") Classification classification,
-        @JsonProperty("scannable_items") List<ScannableItem> scannableItems,
-        @JsonProperty("payments") List<Payment> payments,
-        @JsonProperty("non_scannable_items") List<NonScannableItem> nonScannableItems
+        @JsonProperty("scannable_items") List<InputScannableItem> scannableItems,
+        @JsonProperty("payments") List<InputPayment> payments,
+        @JsonProperty("non_scannable_items") List<InputNonScannableItem> nonScannableItems
     ) {
         this.poBox = poBox;
         this.jurisdiction = jurisdiction;

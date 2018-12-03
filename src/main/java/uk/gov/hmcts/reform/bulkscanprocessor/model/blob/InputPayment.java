@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
-public class Payment {
+public class InputPayment {
 
     public final String documentControlNumber;
     public final String method;
@@ -14,7 +14,7 @@ public class Payment {
     public final String sortCode;
     public final String accountNumber;
 
-    public Payment(
+    public InputPayment(
         @JsonProperty("document_control_number") String documentControlNumber,
         @JsonProperty("method") String method,
         @JsonProperty("amount") String amount,

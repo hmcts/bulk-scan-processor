@@ -4,7 +4,7 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_successfully_map_json_file_to_entities() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
         assertThat(envelope.scannableItems).hasSize(2);
@@ -39,7 +39,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_no_case_number() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/no-case-number.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/no-case-number.json");
 
         assertThat(envelope.caseNumber).isNull();
         assertThat(envelope.nonScannableItems).hasSize(1);
@@ -49,7 +49,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_no_payments_in() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/no-payment.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/no-payment.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
         assertThat(envelope.scannableItems).hasSize(2);
@@ -58,7 +58,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_no_non_scannable_items_in() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/no-non-scannables.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/no-non-scannables.json");
 
         assertThat(envelope.nonScannableItems).hasSize(0);
         assertThat(envelope.scannableItems).hasSize(2);
@@ -67,7 +67,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_no_account_details_for_postal_payment() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/postal-payment-method.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/postal-payment-method.json");
 
         assertThat(envelope.payments).hasSize(1);
         assertThat(envelope.payments.get(0).amount).isEqualTo(new BigDecimal("100.00"));
@@ -78,7 +78,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_no_payment_reference_number_for_cash_payment() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/cash-payment-method.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/cash-payment-method.json");
 
         assertThat(envelope.payments).hasSize(1);
         assertThat(envelope.payments.get(0).amount).isEqualTo(new BigDecimal("100.00"));
@@ -89,7 +89,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_account_details_for_cheque_payment() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/cheque-payment-method.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/cheque-payment-method.json");
 
         assertThat(envelope.payments).hasSize(1);
         assertThat(envelope.payments.get(0).amount).isEqualTo(new BigDecimal("100.00"));
@@ -100,7 +100,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_with_non_scannable_items() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
         assertThat(envelope.nonScannableItems.get(0).documentControlNumber).isEqualTo("1111001");
@@ -110,7 +110,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_multiple_payment_methods() throws IOException {
-        Envelope envelope = getEnvelope("/metafiles/valid/multiple-payment-methods.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/multiple-payment-methods.json");
 
         assertThat(envelope.payments).hasSize(2);
         assertThat(envelope.payments.get(0).method).isEqualTo("Cheque");
@@ -124,7 +124,7 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.payments.get(1).paymentInstrumentNumber).isEqualTo("1000000001");
     }
 
-    private Envelope getEnvelope(String resource) throws IOException {
+    private InputEnvelope getEnvelope(String resource) throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream(resource)) {
             return validator.parseMetafile(IOUtils.toByteArray(inputStream));
         }

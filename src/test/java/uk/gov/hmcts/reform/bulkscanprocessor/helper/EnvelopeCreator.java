@@ -8,7 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
@@ -44,13 +44,13 @@ public final class EnvelopeCreator {
         return EnvelopeCreator.class.getResourceAsStream("/metafiles/valid/from-spec.json");
     }
 
-    public static Envelope getEnvelopeFromMetafile() throws IOException {
+    public static InputEnvelope getEnvelopeFromMetafile() throws IOException {
         try (InputStream inputStream = getMetaFile()) {
             return validator.parseMetafile(IOUtils.toByteArray(inputStream));
         }
     }
 
-    public static Envelope getEnvelopeFromMetafile(byte[] metafile) throws IOException {
+    public static InputEnvelope getEnvelopeFromMetafile(byte[] metafile) throws IOException {
         return validator.parseMetafile(metafile);
     }
 

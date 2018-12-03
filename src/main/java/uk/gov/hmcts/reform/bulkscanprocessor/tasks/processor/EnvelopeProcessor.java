@@ -15,7 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -53,7 +53,10 @@ public class EnvelopeProcessor {
         this.maxReuploadTriesCount = maxReuploadTriesCount;
     }
 
-    public Envelope parseEnvelope(byte[] metadataStream, String zipFileName) throws IOException, ProcessingException {
+    public InputEnvelope parseEnvelope(
+        byte[] metadataStream,
+        String zipFileName
+    ) throws IOException, ProcessingException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
@@ -114,7 +117,7 @@ public class EnvelopeProcessor {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
+    public static void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
             .scannableItems
             .stream()

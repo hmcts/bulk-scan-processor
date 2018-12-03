@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 
 import java.sql.Timestamp;
 
-public class ScannableItem {
+public class InputScannableItem {
 
     public final String documentControlNumber;
     public final Timestamp scanningDate;
@@ -21,7 +21,7 @@ public class ScannableItem {
     public final String documentType;
 
     @JsonCreator
-    public ScannableItem(
+    public InputScannableItem(
         @JsonProperty("document_control_number") String documentControlNumber,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("scanning_date") Timestamp scanningDate,

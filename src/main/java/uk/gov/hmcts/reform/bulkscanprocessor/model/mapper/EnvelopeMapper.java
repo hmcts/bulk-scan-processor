@@ -4,10 +4,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.DbScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.NonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.Payment;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class EnvelopeMapper {
         // utility class
     }
 
-    public static DbEnvelope toDbEnvelope(Envelope envelope, String containerName) {
+    public static DbEnvelope toDbEnvelope(InputEnvelope envelope, String containerName) {
         return new DbEnvelope(
             envelope.poBox,
             envelope.jurisdiction,
@@ -37,7 +37,7 @@ public class EnvelopeMapper {
         );
     }
 
-    private static List<DbScannableItem> toDbScannableItems(List<ScannableItem> scannableItems) {
+    private static List<DbScannableItem> toDbScannableItems(List<InputScannableItem> scannableItems) {
         if (scannableItems != null) {
             return scannableItems
                 .stream()
@@ -48,7 +48,7 @@ public class EnvelopeMapper {
         }
     }
 
-    private static DbScannableItem toDbScannableItem(ScannableItem scannableItem) {
+    private static DbScannableItem toDbScannableItem(InputScannableItem scannableItem) {
         return new DbScannableItem(
             scannableItem.documentControlNumber,
             scannableItem.scanningDate,
@@ -63,7 +63,7 @@ public class EnvelopeMapper {
         );
     }
 
-    private static List<DbPayment> toDbPayments(List<Payment> payments) {
+    private static List<DbPayment> toDbPayments(List<InputPayment> payments) {
         if (payments != null) {
             return payments
                 .stream()
@@ -74,7 +74,7 @@ public class EnvelopeMapper {
         }
     }
 
-    private static DbPayment toDbPayment(Payment payment) {
+    private static DbPayment toDbPayment(InputPayment payment) {
         return new DbPayment(
             payment.documentControlNumber,
             payment.method,
@@ -86,7 +86,7 @@ public class EnvelopeMapper {
         );
     }
 
-    private static List<DbNonScannableItem> toDbNonScannableItems(List<NonScannableItem> nonScannableItems) {
+    private static List<DbNonScannableItem> toDbNonScannableItems(List<InputNonScannableItem> nonScannableItems) {
         if (nonScannableItems != null) {
             return nonScannableItems
                 .stream()
@@ -97,7 +97,7 @@ public class EnvelopeMapper {
         }
     }
 
-    private static DbNonScannableItem toDbNonScannableItem(NonScannableItem nonScannableItem) {
+    private static DbNonScannableItem toDbNonScannableItem(InputNonScannableItem nonScannableItem) {
         return new DbNonScannableItem(
             nonScannableItem.documentControlNumber,
             nonScannableItem.itemType,
