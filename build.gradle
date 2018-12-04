@@ -152,7 +152,7 @@ dependencyManagement {
   dependencies {
     dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.60'
     // CVE-2018-10237 - Unbounded memory allocation
-    dependencySet(group: 'com.google.guava', version: '24.1.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '27.0.1-jre') {
       entry 'guava'
     }
   }
@@ -199,7 +199,7 @@ dependencies {
   compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.3'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
   // review following dependency after integrating db structure
-  compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.3.4'
+  compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.3.5'
 
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
@@ -218,7 +218,7 @@ dependencies {
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
-  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.10.1'
+  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.10.2'
   integrationTestCompile group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestCompile sourceSets.main.runtimeClasspath
