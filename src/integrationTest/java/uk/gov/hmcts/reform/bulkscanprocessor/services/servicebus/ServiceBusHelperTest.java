@@ -37,17 +37,12 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class ServiceBusHelperTest {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-    @Mock
-    private IQueueClient queueClient;
-    @Mock
-    private Envelope envelope;
-    @Mock
-    private ScannableItem scannableItem1;
-    @Mock
-    private ScannableItem scannableItem2;
+    @Mock private IQueueClient queueClient;
+    @Mock private Envelope envelope;
+    @Mock private ScannableItem scannableItem1;
+    @Mock private ScannableItem scannableItem2;
 
     private ServiceBusHelper serviceBusHelper;
 

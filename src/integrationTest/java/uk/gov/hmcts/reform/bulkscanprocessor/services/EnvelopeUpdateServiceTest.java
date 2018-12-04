@@ -20,13 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class EnvelopeUpdateServiceTest {
 
-    @Autowired
-    EnvelopeRepository envelopeRepo;
-    @Autowired
-    ProcessEventRepository eventRepo;
+    @Autowired EnvelopeRepository envelopeRepo;
+    @Autowired ProcessEventRepository eventRepo;
 
-    @Autowired
-    EnvelopeUpdateService envelopeUpdateService;
+    @Autowired EnvelopeUpdateService envelopeUpdateService;
 
     @Test
     public void should_update_envelope_status_and_create_an_event() throws Exception {

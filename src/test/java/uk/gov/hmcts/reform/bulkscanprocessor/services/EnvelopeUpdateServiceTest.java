@@ -31,14 +31,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeUpdateServiceTest {
 
-    @Mock
-    private EnvelopeRepository envelopeRepo;
-    @Mock
-    private ProcessEventRepository eventRepo;
-    @Mock
-    private EnvelopeAccessService accessService;
-    @Mock
-    private EnvelopeStatusChangeValidator statusChangeValidator;
+    @Mock private EnvelopeRepository envelopeRepo;
+    @Mock private ProcessEventRepository eventRepo;
+    @Mock private EnvelopeAccessService accessService;
+    @Mock private EnvelopeStatusChangeValidator statusChangeValidator;
 
     private EnvelopeUpdateService service;
 

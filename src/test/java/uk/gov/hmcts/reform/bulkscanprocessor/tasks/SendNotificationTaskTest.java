@@ -23,12 +23,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @RunWith(MockitoJUnitRunner.class)
 public class SendNotificationTaskTest {
 
-    @Mock
-    private ServiceBusHelper serviceBusHelper;
-    @Mock
-    private EnvelopeRepository envelopeRepo;
-    @Mock
-    private ProcessEventRepository processEventRepo;
+    @Mock private ServiceBusHelper serviceBusHelper;
+    @Mock private EnvelopeRepository envelopeRepo;
+    @Mock private ProcessEventRepository processEventRepo;
 
     private SendNotificationTask task;
 

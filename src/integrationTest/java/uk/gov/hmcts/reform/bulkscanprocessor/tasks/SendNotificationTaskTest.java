@@ -28,13 +28,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @RunWith(SpringRunner.class)
 public class SendNotificationTaskTest {
 
-    @Autowired
-    private EnvelopeRepository envelopeRepo;
-    @Autowired
-    private ProcessEventRepository processEventRepo;
+    @Autowired private EnvelopeRepository envelopeRepo;
+    @Autowired private ProcessEventRepository processEventRepo;
 
-    @Mock
-    private ServiceBusHelper serviceBusHelper;
+    @Mock private ServiceBusHelper serviceBusHelper;
 
     private SendNotificationTask task;
 

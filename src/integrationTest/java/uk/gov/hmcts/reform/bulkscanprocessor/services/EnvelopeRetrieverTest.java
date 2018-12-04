@@ -27,10 +27,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @SpringBootTest
 public class EnvelopeRetrieverTest {
 
-    @Autowired
-    private EnvelopeRepository envelopeRepo;
-    @Mock
-    EnvelopeAccessService accessService;
+    @Autowired private EnvelopeRepository envelopeRepo;
+    @Mock EnvelopeAccessService accessService;
 
     private EnvelopeRetrieverService service;
 
