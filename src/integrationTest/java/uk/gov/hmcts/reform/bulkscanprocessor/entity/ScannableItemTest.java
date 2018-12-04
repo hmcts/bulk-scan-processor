@@ -35,7 +35,7 @@ public class ScannableItemTest {
     @Test
     public void should_update_document_url_of_scannable_item() throws IOException {
         // given
-        Envelope envelope = EnvelopeCreator.getEnvelopeFromMetafile();
+        Envelope envelope = EnvelopeCreator.envelope();
         envelope.setContainer("container");
 
         // and

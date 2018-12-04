@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
@@ -22,6 +21,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaExc
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -39,6 +40,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
+
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -186,13 +189,12 @@ public class BlobProcessorTask extends Processor {
                 ZipVerifiers.getPreprocessor(signatureAlg)
             );
 
-            Envelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
-            envelope.setContainer(containerName);
+            InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
             EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, result.getPdfs());
-            envelopeProcessor.assertDidNotFailToUploadBefore(envelope);
+            envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
-            result.setEnvelope(envelopeProcessor.saveEnvelope(envelope));
+            result.setEnvelope(envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName)));
 
             return result;
         } catch (InvalidEnvelopeSchemaException

@@ -63,7 +63,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("status") Status status,
         Pageable pageable
     );
-    
+
     /**
      * Finds first N envelopes for a given jurisdiction that should be resent.
      *

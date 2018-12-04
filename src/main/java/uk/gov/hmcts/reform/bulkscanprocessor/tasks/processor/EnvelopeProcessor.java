@@ -9,14 +9,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
@@ -53,7 +53,10 @@ public class EnvelopeProcessor {
         this.maxReuploadTriesCount = maxReuploadTriesCount;
     }
 
-    public Envelope parseEnvelope(byte[] metadataStream, String zipFileName) throws IOException, ProcessingException {
+    public InputEnvelope parseEnvelope(
+        byte[] metadataStream,
+        String zipFileName
+    ) throws IOException, ProcessingException {
         if (Objects.isNull(metadataStream)) {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
@@ -64,15 +67,13 @@ public class EnvelopeProcessor {
     }
 
     /**
-     * Assert envelope did not fail to be uploaded in the past.
+     * Assert zip file did not fail to be uploaded in the past.
      * Throws exception otherwise.
-     *
-     * @param envelope details to check against.
      */
-    public void assertDidNotFailToUploadBefore(Envelope envelope) {
+    public void assertDidNotFailToUploadBefore(String zipFileName, String containerName) {
         List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
-            envelope.getContainer(),
-            envelope.getZipFileName(),
+            containerName,
+            zipFileName,
             UPLOAD_FAILURE,
             PageRequest.of(0, 1)
         );
@@ -116,11 +117,11 @@ public class EnvelopeProcessor {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public static void assertEnvelopeHasPdfs(Envelope envelope, List<Pdf> pdfs) {
+    public static void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
-            .getScannableItems()
+            .scannableItems
             .stream()
-            .map(ScannableItem::getFileName)
+            .map(item -> item.fileName)
             .collect(Collectors.toSet());
 
         Set<String> pdfFileNames = pdfs

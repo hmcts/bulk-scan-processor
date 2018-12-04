@@ -3,18 +3,20 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.IOUtils;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -42,13 +44,13 @@ public final class EnvelopeCreator {
         return EnvelopeCreator.class.getResourceAsStream("/metafiles/valid/from-spec.json");
     }
 
-    public static Envelope getEnvelopeFromMetafile() throws IOException {
+    public static InputEnvelope getEnvelopeFromMetafile() throws IOException {
         try (InputStream inputStream = getMetaFile()) {
             return validator.parseMetafile(IOUtils.toByteArray(inputStream));
         }
     }
 
-    public static Envelope getEnvelopeFromMetafile(byte[] metafile) throws IOException {
+    public static InputEnvelope getEnvelopeFromMetafile(byte[] metafile) throws IOException {
         return validator.parseMetafile(metafile);
     }
 
@@ -82,11 +84,11 @@ public final class EnvelopeCreator {
             Classification.EXCEPTION,
             scannableItems(),
             payments(),
-            nonScannableItems()
+            nonScannableItems(),
+            "SSCS"
         );
 
         envelope.setStatus(status);
-        envelope.setContainer("SSCS");
 
         return envelope;
     }
@@ -138,7 +140,15 @@ public final class EnvelopeCreator {
 
     private static List<Payment> payments() {
         return ImmutableList.of(
-            new Payment("1111002", "Cheque", "100.00", "GBP", "1000000000", "112233", "12345678")
+            new Payment(
+                "1111002",
+                "Cheque",
+                BigDecimal.valueOf(100),
+                "GBP",
+                "1000000000",
+                "112233",
+                "12345678"
+            )
         );
     }
 

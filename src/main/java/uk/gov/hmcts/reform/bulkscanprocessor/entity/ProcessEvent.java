@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -22,10 +22,8 @@ public class ProcessEvent {
 
     private String container;
 
-    @JsonProperty("zip_file_name")
     private String zipFileName;
 
-    @JsonProperty("created_at")
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
     @Enumerated(EnumType.STRING)

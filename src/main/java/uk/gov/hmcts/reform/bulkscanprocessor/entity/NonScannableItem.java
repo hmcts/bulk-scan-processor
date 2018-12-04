@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -34,9 +32,9 @@ public class NonScannableItem implements EnvelopeAssignable {
     }
 
     public NonScannableItem(
-        @JsonProperty("document_control_number") String documentControlNumber,
-        @JsonProperty("item_type") String itemType,
-        @JsonProperty("notes") String notes
+        String documentControlNumber,
+        String itemType,
+        String notes
     ) {
         this.documentControlNumber = documentControlNumber;
         this.itemType = itemType;

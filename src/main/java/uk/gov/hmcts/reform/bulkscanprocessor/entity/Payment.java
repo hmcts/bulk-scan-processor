@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.math.BigDecimal;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,19 +41,17 @@ public class Payment implements EnvelopeAssignable {
     }
 
     public Payment(
-        @JsonProperty("document_control_number") String documentControlNumber,
-        @JsonProperty("method") String method,
-        @JsonProperty("amount") String amount,
-        @JsonProperty("currency") String currency,
-        @JsonProperty("payment_instrument_number") String paymentInstrumentNumber,
-        @JsonProperty("sort_code") String sortCode,
-        @JsonProperty("account_number") String accountNumber
+        String documentControlNumber,
+        String method,
+        BigDecimal amount,
+        String currency,
+        String paymentInstrumentNumber,
+        String sortCode,
+        String accountNumber
     ) {
-        Double amountInPence = Double.valueOf(amount) * 100;
-
         this.documentControlNumber = documentControlNumber;
         this.method = method;
-        this.amountInPence = amountInPence.intValue();
+        this.amountInPence = amount.multiply(BigDecimal.valueOf(100)).intValue();
         this.currency = currency;
         this.paymentInstrumentNumber = paymentInstrumentNumber;
         this.sortCode = sortCode;

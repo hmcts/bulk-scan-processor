@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.time.Instant;
 import java.util.List;
@@ -107,7 +107,7 @@ public class EnvelopeMsg implements Msg {
     public String toString() {
         return "EnvelopeMsg{"
             + "envelopeId='" + envelopeId + "'"
-            + "testOnly='" + testOnly  + "'"
+            + "testOnly='" + testOnly + "'"
             + "zipFileName='" + zipFileName + "'"
             + "}";
     }

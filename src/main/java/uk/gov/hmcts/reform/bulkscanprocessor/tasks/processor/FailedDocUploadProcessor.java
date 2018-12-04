@@ -13,9 +13,9 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
 import java.io.IOException;
@@ -94,7 +94,7 @@ public class FailedDocUploadProcessor extends Processor {
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
             ZipFileProcessingResult result = processZipInputStream(
                 zis,
-                envelope.getContainer(),
+                container.getName(),
                 envelope.getZipFileName()
             );
 
