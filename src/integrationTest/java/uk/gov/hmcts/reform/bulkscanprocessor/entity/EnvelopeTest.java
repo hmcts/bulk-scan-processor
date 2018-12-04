@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +33,7 @@ public class EnvelopeTest {
     }
 
     @Test
-    public void should_insert_into_db_and_validate_data_correctness_when_retrieved() throws IOException {
+    public void should_insert_into_db_and_retrieve_the_same_envelope() throws IOException {
         // given
         Envelope envelope = EnvelopeCreator.envelope();
 
@@ -45,9 +44,7 @@ public class EnvelopeTest {
         Envelope readEnvelope = repository.getOne(envelopeId);
 
         // then
-        try (InputStream stream = EnvelopeCreator.getMetaFile()) {
-            assertThat(readEnvelope).isEqualToComparingFieldByFieldRecursively(envelope);
-        }
+        assertThat(readEnvelope).isEqualToComparingFieldByFieldRecursively(envelope);
     }
 
     @Test
