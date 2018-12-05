@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import java.sql.Timestamp;
 import java.util.Map;
@@ -19,9 +18,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "scannable_items")
-@TypeDefs({
-    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-})
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class ScannableItem implements EnvelopeAssignable {
 
     @Id
