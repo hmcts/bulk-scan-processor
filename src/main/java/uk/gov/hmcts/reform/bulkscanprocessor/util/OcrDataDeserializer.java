@@ -26,23 +26,23 @@ public class OcrDataDeserializer extends StdDeserializer<Map<String, String>> {
         JsonParser jsonParser,
         DeserializationContext deserializationContext
     ) throws IOException {
-        return parseOcrData(jsonParser.getText());
-    }
-
-    private Map<String, String> parseOcrData(String base64EncodedOcrData) {
         try {
-            String ocrDataJson = new String(Base64.getDecoder().decode(base64EncodedOcrData));
-
-            OcrData ocrData = objectMapper.readValue(ocrDataJson, OcrData.class);
-
-            return ocrData.getFields().stream().collect(
-                toMap(
-                    field -> field.getName().textValue(),
-                    field -> field.getValue().asText("")
-                )
-            );
+            return parseOcrData(jsonParser.getText());
         } catch (Exception ex) {
             throw new OcrDataParseException("Failed to parse OCR data", ex);
         }
+    }
+
+    private Map<String, String> parseOcrData(String base64EncodedOcrData) throws IOException {
+        String ocrDataJson = new String(Base64.getDecoder().decode(base64EncodedOcrData));
+
+        OcrData ocrData = objectMapper.readValue(ocrDataJson, OcrData.class);
+
+        return ocrData.getFields().stream().collect(
+            toMap(
+                field -> field.getName().textValue(),
+                field -> field.getValue().asText("")
+            )
+        );
     }
 }
