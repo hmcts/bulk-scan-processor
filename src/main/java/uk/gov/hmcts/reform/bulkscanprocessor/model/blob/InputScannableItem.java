@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.OcrDataDeserializer;
 
 import java.sql.Timestamp;
+import java.util.Map;
 
 public class InputScannableItem {
 
@@ -15,7 +17,7 @@ public class InputScannableItem {
     public final String manualIntervention;
     public final String nextAction;
     public final Timestamp nextActionDate;
-    public final String ocrData;
+    public final Map<String, String> ocrData;
     public final String fileName;
     public final String notes;
     public final String documentType;
@@ -30,7 +32,8 @@ public class InputScannableItem {
         @JsonProperty("next_action") String nextAction,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("next_action_date") Timestamp nextActionDate,
-        @JsonProperty("ocr_data") String ocrData,
+        @JsonDeserialize(using = OcrDataDeserializer.class)
+        @JsonProperty("ocr_data") Map<String, String> ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
         @JsonProperty("document_type") String documentType

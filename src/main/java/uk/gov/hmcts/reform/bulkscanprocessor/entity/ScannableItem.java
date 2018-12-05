@@ -1,7 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
+
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,6 +19,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "scannable_items")
+@TypeDefs({
+    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+})
 public class ScannableItem implements EnvelopeAssignable {
 
     @Id
@@ -30,7 +40,9 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private Timestamp nextActionDate;
 
-    private String ocrData;
+    @Type(type = "jsonb")
+    @Column(name = "ocrDataJson", columnDefinition = "jsonb")
+    private Map<String, String> ocrData;
 
     private String fileName;
 
@@ -55,7 +67,7 @@ public class ScannableItem implements EnvelopeAssignable {
         String manualIntervention,
         String nextAction,
         Timestamp nextActionDate,
-        String ocrData,
+        Map<String, String> ocrData,
         String fileName,
         String notes,
         String documentType
@@ -112,7 +124,7 @@ public class ScannableItem implements EnvelopeAssignable {
         return nextActionDate;
     }
 
-    public String getOcrData() {
+    public Map<String, String> getOcrData() {
         return ocrData;
     }
 
