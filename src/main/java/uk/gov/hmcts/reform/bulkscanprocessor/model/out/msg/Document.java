@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
 import java.time.Instant;
+import java.util.Map;
 
 public class Document {
 
@@ -22,19 +23,24 @@ public class Document {
     @JsonProperty("url")
     public final String url;
 
+    @JsonProperty("ocr_data")
+    public final Map<String, String> ocrData;
+
     // region constructor
     private Document(
         String fileName,
         String controlNumber,
         String type,
         Instant scannedAt,
-        String url
+        String url,
+        Map<String, String> ocrData
     ) {
         this.fileName = fileName;
         this.controlNumber = controlNumber;
         this.type = type;
         this.scannedAt = scannedAt;
         this.url = url;
+        this.ocrData = ocrData;
     }
     // endregion
 
@@ -44,7 +50,8 @@ public class Document {
             item.getDocumentControlNumber(),
             item.getDocumentType().toString(),
             item.getScanningDate().toInstant(),
-            item.getDocumentUrl()
+            item.getDocumentUrl(),
+            item.getOcrData()
         );
     }
 }
