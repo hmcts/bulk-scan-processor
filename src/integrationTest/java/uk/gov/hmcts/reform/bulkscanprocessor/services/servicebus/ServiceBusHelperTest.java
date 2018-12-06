@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
@@ -21,12 +22,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,19 +143,27 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
         when(scannableItem1.getDocumentType()).thenReturn("Cherished");
         when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
+        when(scannableItem1.getOcrData()).thenReturn(ImmutableMap.of("key1", "value1"));
 
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
         when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
         when(scannableItem2.getDocumentType()).thenReturn("Other");
         when(scannableItem2.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
+        when(scannableItem2.getOcrData()).thenReturn(null);
     }
 
-    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
+    @SuppressWarnings("unchecked")
+    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) throws IOException {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
+
+        Map<String, String> ocrData =
+            objectMapper.readValue(jsonNode.get("ocr_data").toString(), Map.class);
+
+        assertThat(ocrData).isEqualTo(scannableItem.getOcrData());
 
         assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate().toInstant());
     }

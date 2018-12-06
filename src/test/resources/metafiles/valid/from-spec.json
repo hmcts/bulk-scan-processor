@@ -16,7 +16,8 @@
       "next_action_date": "24-02-2017 00:00:00.000010",
       "file_name": "1111001.pdf",
       "notes": "The document had ink spilled on it",
-      "document_type": "Cherished"
+      "document_type": "Cherished",
+      "ocr_data": "eyJNZXRhZGF0YV9maWxlIjogW3sgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAibmFtZTIiLCAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAidmFsdWUyIn1dfQo="
     },
     {
       "document_control_number": "1111002",
