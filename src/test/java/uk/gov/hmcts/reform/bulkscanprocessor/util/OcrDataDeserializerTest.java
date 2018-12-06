@@ -1,5 +1,7 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -10,16 +12,16 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
-public class OcrDataParserTest {
+public class OcrDataDeserializerTest {
 
-    private final OcrDataParser ocrDataParser = new OcrDataParser();
+    private final OcrDataDeserializer deserializer = new OcrDataDeserializer();
 
     @Test
     public void should_convert_all_fields_to_their_string_representation() throws Exception {
-        String base64data = asBase64("/ocr-data/valid/valid-ocr.json");
-
-        Map<String, String> result = ocrDataParser.parseOcrData(base64data);
+        Map<String, String> result = deserializeFromBase64("/ocr-data/valid/valid-ocr.json");
 
         Map<String, String> expectedResult = ImmutableMap.of(
             "text_field", "some text",
@@ -32,11 +34,12 @@ public class OcrDataParserTest {
     }
 
     @Test
-    public void should_throw_exception_when_ocr_data_is_not_base64() {
-        Throwable thrown = catchThrowable(() ->
-            // parsing data that's not base64-encoded
-            ocrDataParser.parseOcrData("/ocr-data/valid/valid-ocr.json")
-        );
+    public void should_throw_exception_when_ocr_data_is_not_base64() throws Exception {
+        Throwable thrown = catchThrowable(() -> {
+            JsonParser jsonParser = mock(JsonParser.class);
+            given(jsonParser.getText()).willReturn("this is not a Base64 encoded string");
+            deserializer.deserialize(jsonParser, mock(DeserializationContext.class));
+        });
 
         assertThat(thrown).isInstanceOf(OcrDataParseException.class);
         assertThat(thrown.getMessage()).isEqualTo("Failed to parse OCR data");
@@ -57,13 +60,22 @@ public class OcrDataParserTest {
     }
 
     private void expectOcrParsingToFail(String resourceName) throws IOException {
-        String base64data = asBase64(resourceName);
-
-        Throwable thrown = catchThrowable(() -> ocrDataParser.parseOcrData(base64data));
+        Throwable thrown = catchThrowable(() -> deserializeFromBase64(resourceName));
 
         assertThat(thrown).isNotNull();
         assertThat(thrown).isInstanceOf(OcrDataParseException.class);
         assertThat(thrown.getMessage()).isEqualTo("Failed to parse OCR data");
+    }
+
+    private Map<String, String> deserializeFromBase64(String resourceName) throws IOException {
+        JsonParser jsonParser = getJsonParser(resourceName);
+        return deserializer.deserialize(jsonParser, mock(DeserializationContext.class));
+    }
+
+    private JsonParser getJsonParser(String resourceName) throws IOException {
+        JsonParser jsonParser = mock(JsonParser.class);
+        given(jsonParser.getText()).willReturn(asBase64(resourceName));
+        return jsonParser;
     }
 
     private String asBase64(String resourceName) throws IOException {

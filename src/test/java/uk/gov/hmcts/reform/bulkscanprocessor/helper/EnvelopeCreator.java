@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
@@ -107,7 +108,7 @@ public final class EnvelopeCreator {
             "test",
             "return",
             timestamp,
-            "dGVzdA==", //Base 64 value=test
+            null,
             "1111001.pdf",
             "test",
             "Cherished"
@@ -122,7 +123,7 @@ public final class EnvelopeCreator {
             "test",
             "return",
             timestamp,
-            "dGVzdA==", //Base 64 value=test
+            ImmutableMap.of("name1", "value1"),
             "1111002.pdf",
             "test",
             "Other"

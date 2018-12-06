@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
 import java.sql.Timestamp;
+import java.util.Map;
 
 public class ScannableItemResponse {
 
@@ -32,7 +33,7 @@ public class ScannableItemResponse {
     private final Timestamp nextActionDate;
 
     @JsonProperty("ocr_data")
-    private final String ocrData;
+    private final Map<String, String> ocrData;
 
     @JsonProperty("file_name")
     private final String fileName;
@@ -56,7 +57,7 @@ public class ScannableItemResponse {
         @JsonProperty("next_action") String nextAction,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("next_action_date") Timestamp nextActionDate,
-        @JsonProperty("ocr_data") String ocrData,
+        @JsonProperty("ocr_data") Map<String, String> ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
         @JsonProperty("document_type") String documentType
@@ -109,7 +110,7 @@ public class ScannableItemResponse {
         return nextActionDate;
     }
 
-    public String getOcrData() {
+    public Map<String, String> getOcrData() {
         return ocrData;
     }
 
@@ -136,5 +137,5 @@ public class ScannableItemResponse {
             + ", documentType='" + documentType + '\''
             + '}';
     }
-    
+
 }

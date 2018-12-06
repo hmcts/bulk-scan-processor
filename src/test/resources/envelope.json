@@ -27,7 +27,7 @@
           "manual_intervention": "test",
           "next_action": "return",
           "next_action_date": "23-06-2018 00:00:00.000000",
-          "ocr_data": "dGVzdA==",
+          "ocr_data": {"name1": "value1"},
           "file_name": "1111002.pdf",
           "notes": "test",
           "document_url": "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe",
