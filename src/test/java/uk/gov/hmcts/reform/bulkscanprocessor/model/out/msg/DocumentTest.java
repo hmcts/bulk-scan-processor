@@ -14,7 +14,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Document.fromS
 public class DocumentTest {
 
     private static final String DOCUMENT_TYPE_CHERISHED = "Cherished";
+    private static final String CCD_DOCUMENT_TYPE_CHERISHED = "cherished";
+
     private static final String DOCUMENT_TYPE_OTHER = "Other";
+    private static final String CCD_DOCUMENT_TYPE_OTHER = "other";
 
     @Test
     public void fromScannableItem_maps_to_document_correctly() {
@@ -25,7 +28,7 @@ public class DocumentTest {
         assertThat(document.fileName).isEqualTo(scannableItem.getFileName());
         assertThat(document.ocrData).isEqualTo(scannableItem.getOcrData());
         assertThat(document.scannedAt).isEqualTo(scannableItem.getScanningDate().toInstant());
-        assertThat(document.type).isEqualTo(scannableItem.getDocumentType());
+        assertThat(document.type).isEqualTo(CCD_DOCUMENT_TYPE_CHERISHED);
         assertThat(document.url).isEqualTo(scannableItem.getDocumentUrl());
     }
 
@@ -35,9 +38,9 @@ public class DocumentTest {
         ScannableItem otherScannableItem = scannableItem(DOCUMENT_TYPE_OTHER);
         ScannableItem sscs1ScannableItem = scannableItem("SSCS1");
 
-        assertThat(fromScannableItem(cherishedScannableItem).type).isEqualTo(DOCUMENT_TYPE_CHERISHED);
-        assertThat(fromScannableItem(otherScannableItem).type).isEqualTo(DOCUMENT_TYPE_OTHER);
-        assertThat(fromScannableItem(sscs1ScannableItem).type).isEqualTo(DOCUMENT_TYPE_OTHER);
+        assertThat(fromScannableItem(cherishedScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_CHERISHED);
+        assertThat(fromScannableItem(otherScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_OTHER);
+        assertThat(fromScannableItem(sscs1ScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_OTHER);
     }
 
     private ScannableItem scannableItem(String documentType) {

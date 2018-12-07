@@ -68,9 +68,9 @@ public class Document {
     // takes place when putting the message on the queue.
     private static String mapDocumentType(String documentType) {
         if (DOCUMENT_TYPES.contains(documentType)) {
-            return documentType;
+            return documentType.toLowerCase();
         } else {
-            return DOCUMENT_TYPE_OTHER;
+            return DOCUMENT_TYPE_OTHER.toLowerCase();
         }
     }
 }
