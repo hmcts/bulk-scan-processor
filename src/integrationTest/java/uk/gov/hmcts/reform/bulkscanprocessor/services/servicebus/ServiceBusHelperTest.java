@@ -157,7 +157,7 @@ public class ServiceBusHelperTest {
     private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) throws IOException {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
-        assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());
+        assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toLowerCase());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
 
         Map<String, String> ocrData =
