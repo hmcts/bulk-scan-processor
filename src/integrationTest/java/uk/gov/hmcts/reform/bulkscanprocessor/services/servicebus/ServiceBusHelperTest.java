@@ -100,6 +100,7 @@ public class ServiceBusHelperTest {
         assertThat(busMessage.getLabel()).isNullOrEmpty();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void should_send_message_with_envelope_data() throws Exception {
 
@@ -125,6 +126,14 @@ public class ServiceBusHelperTest {
         assertThat(docs.size()).isEqualTo(2);
         checkScannableItem(docs.get(0), scannableItem1);
         checkScannableItem(docs.get(1), scannableItem2);
+
+        assertThat(jsonNode.hasNonNull("ocr_data")).isTrue();
+
+        Map<String, String> ocrData =
+            objectMapper.readValue(jsonNode.get("ocr_data").toString(), Map.class);
+
+        ScannableItem scannableItemWithOcrData = envelope.getScannableItems().get(0);
+        assertThat(ocrData).isEqualTo(scannableItemWithOcrData.getOcrData());
     }
 
     private void mockEnvelopeData() {
@@ -159,12 +168,6 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toLowerCase());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
-
-        Map<String, String> ocrData =
-            objectMapper.readValue(jsonNode.get("ocr_data").toString(), Map.class);
-
-        assertThat(ocrData).isEqualTo(scannableItem.getOcrData());
-
         assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate().toInstant());
     }
 

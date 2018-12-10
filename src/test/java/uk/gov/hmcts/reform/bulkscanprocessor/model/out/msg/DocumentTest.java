@@ -26,7 +26,6 @@ public class DocumentTest {
 
         assertThat(document.controlNumber).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(document.fileName).isEqualTo(scannableItem.getFileName());
-        assertThat(document.ocrData).isEqualTo(scannableItem.getOcrData());
         assertThat(document.scannedAt).isEqualTo(scannableItem.getScanningDate().toInstant());
         assertThat(document.type).isEqualTo(CCD_DOCUMENT_TYPE_CHERISHED);
         assertThat(document.url).isEqualTo(scannableItem.getDocumentUrl());
