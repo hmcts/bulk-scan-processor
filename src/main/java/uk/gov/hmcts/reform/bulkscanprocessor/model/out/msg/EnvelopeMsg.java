@@ -3,10 +3,12 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -40,6 +42,9 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("documents")
     private final List<Document> documents;
 
+    @JsonProperty("ocr_data")
+    private final Map<String, String> ocrData;
+
     private final boolean testOnly;
 
     public EnvelopeMsg(Envelope envelope) {
@@ -57,6 +62,8 @@ public class EnvelopeMsg implements Msg {
             .stream()
             .map(Document::fromScannableItem)
             .collect(Collectors.toList());
+
+        this.ocrData = getOcrData(envelope);
     }
 
     @Override
@@ -112,4 +119,13 @@ public class EnvelopeMsg implements Msg {
             + "}";
     }
 
+    private Map<String, String> getOcrData(Envelope envelope) {
+        return envelope
+            .getScannableItems()
+            .stream()
+            .filter(si -> si.getOcrData() != null)
+            .map(ScannableItem::getOcrData)
+            .findFirst()
+            .orElse(null);
+    }
 }
