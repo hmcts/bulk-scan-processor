@@ -1,13 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
-import java.util.UUID;
-
 /**
  * Message describing an error processing an envelope.
  */
 public class ErrorMsg implements Msg {
 
-    public final UUID id;
+    public final String id;
     public final String zipFileName;
     public final String poBox;
     public final String documentControlNumber;
@@ -16,13 +14,14 @@ public class ErrorMsg implements Msg {
 
     // region constructors
     public ErrorMsg(
+        String id,
         String zipFileName,
         String poBox,
         String documentControlNumber,
         ErrorCode errorCode,
         boolean isTestOnly
     ) {
-        this.id = UUID.randomUUID();
+        this.id = id;
         this.zipFileName = zipFileName;
         this.poBox = poBox;
         this.documentControlNumber = documentControlNumber;
@@ -34,7 +33,7 @@ public class ErrorMsg implements Msg {
     // region getters
     @Override
     public String getMsgId() {
-        return this.id.toString();
+        return this.id;
     }
 
     @Override
