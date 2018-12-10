@@ -11,7 +11,7 @@ public class ErrorMsg implements Msg {
     public final String documentControlNumber;
     public final ErrorCode errorCode;
     public final String errorDescription;
-    public final boolean isTestOnly;
+    public final boolean testOnly;
 
     // region constructors
     public ErrorMsg(
@@ -21,7 +21,7 @@ public class ErrorMsg implements Msg {
         String documentControlNumber,
         ErrorCode errorCode,
         String errorDescription,
-        boolean isTestOnly
+        boolean testOnly
     ) {
         this.id = id;
         this.zipFileName = zipFileName;
@@ -29,7 +29,7 @@ public class ErrorMsg implements Msg {
         this.documentControlNumber = documentControlNumber;
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
-        this.isTestOnly = isTestOnly;
+        this.testOnly = testOnly;
     }
     // endregion
 
@@ -41,7 +41,7 @@ public class ErrorMsg implements Msg {
 
     @Override
     public boolean isTestOnly() {
-        return this.isTestOnly;
+        return this.testOnly;
     }
     // endregion
 }
