@@ -10,6 +10,7 @@ public class ErrorMsg implements Msg {
     public final String poBox;
     public final String documentControlNumber;
     public final ErrorCode errorCode;
+    public final String errorDescription;
     public final boolean isTestOnly;
 
     // region constructors
@@ -19,6 +20,7 @@ public class ErrorMsg implements Msg {
         String poBox,
         String documentControlNumber,
         ErrorCode errorCode,
+        String errorDescription,
         boolean isTestOnly
     ) {
         this.id = id;
@@ -26,6 +28,7 @@ public class ErrorMsg implements Msg {
         this.poBox = poBox;
         this.documentControlNumber = documentControlNumber;
         this.errorCode = errorCode;
+        this.errorDescription = errorDescription;
         this.isTestOnly = isTestOnly;
     }
     // endregion
