@@ -21,17 +21,17 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SendNotificationTaskTest {
+public class OrchestratorNotificationTaskTest {
 
     @Mock private ServiceBusHelper serviceBusHelper;
     @Mock private EnvelopeRepository envelopeRepo;
     @Mock private ProcessEventRepository processEventRepo;
 
-    private SendNotificationTask task;
+    private OrchestratorNotificationTask task;
 
     @Before
     public void setUp() throws Exception {
-        this.task = new SendNotificationTask(
+        this.task = new OrchestratorNotificationTask(
             serviceBusHelper,
             envelopeRepo,
             processEventRepo

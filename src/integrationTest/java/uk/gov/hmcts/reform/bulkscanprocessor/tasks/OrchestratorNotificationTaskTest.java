@@ -26,18 +26,18 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class SendNotificationTaskTest {
+public class OrchestratorNotificationTaskTest {
 
     @Autowired private EnvelopeRepository envelopeRepo;
     @Autowired private ProcessEventRepository processEventRepo;
 
     @Mock private ServiceBusHelper serviceBusHelper;
 
-    private SendNotificationTask task;
+    private OrchestratorNotificationTask task;
 
     @Before
     public void setUp() throws Exception {
-        this.task = new SendNotificationTask(
+        this.task = new OrchestratorNotificationTask(
             serviceBusHelper,
             envelopeRepo,
             processEventRepo
