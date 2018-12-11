@@ -21,16 +21,16 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.notifications_to_orchestrator.enabled", matchIfMissing = true)
-public class SendNotificationTask {
+public class OrchestratorNotificationTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendNotificationTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
 
     private final ServiceBusHelper serviceBusHelper;
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
     // region constructor
-    public SendNotificationTask(
+    public OrchestratorNotificationTask(
         ServiceBusHelper serviceBusHelper,
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository processEventRepo
