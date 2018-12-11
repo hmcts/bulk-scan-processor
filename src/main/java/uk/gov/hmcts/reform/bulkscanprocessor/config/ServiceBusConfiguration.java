@@ -15,14 +15,11 @@ public class ServiceBusConfiguration {
 
     @Bean
     public QueueClient queueClient(
-        @Value("azure.servicebus.connection-string") String connectionString,
-        @Value("azure.servicebus.queue-name") String queueName
+        @Value("${azure.servicebus.connection-string}") String connectionString,
+        @Value("${azure.servicebus.queue-name}") String queueName
     ) throws InterruptedException, ServiceBusException {
         return new QueueClient(
-            new ConnectionStringBuilder(
-                connectionString,
-                queueName
-            ),
+            new ConnectionStringBuilder(connectionString, queueName),
             ReceiveMode.PEEKLOCK
         );
     }
