@@ -27,14 +27,14 @@ public class MetafileJsonValidatorTest {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
-        assertThat(envelope.scannableItems).hasSize(2);
+        assertThat(envelope.scannableItems).hasSize(3);
         assertThat(envelope.payments).hasSize(1);
         assertThat(envelope.payments.get(0).amount).isEqualTo(new BigDecimal("100.00"));
         assertThat(envelope.caseNumber).isEqualTo("1111222233334446");
         assertThat(envelope.classification).isEqualTo(Classification.NEW_APPLICATION);
         assertThat(envelope.scannableItems)
             .extracting("documentType")
-            .containsExactlyInAnyOrder("Cherished", "Other");
+            .containsExactlyInAnyOrder("Cherished", "Other", "SSCS1");
     }
 
     @Test
