@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesEx
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -200,6 +201,7 @@ public class BlobProcessorTask extends Processor {
         } catch (InvalidEnvelopeSchemaException
             | FileNameIrregularitiesException
             | NonPdfFileFoundException
+            | OcrDataParseException
             | MetadataNotFoundException ex
         ) {
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
