@@ -20,7 +20,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
  * Sends notifications to the orchestrator containing processed envelopes.
  */
 @Component
-@ConditionalOnProperty(value = "scheduling.task.send_notifications.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = "scheduling.task.notifications_to_orchestrator.enabled", matchIfMissing = true)
 public class SendNotificationTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendNotificationTask.class);
@@ -41,7 +41,7 @@ public class SendNotificationTask {
     }
     // endregion
 
-    @Scheduled(fixedDelayString = "${scheduling.task.send_notifications.delay}")
+    @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
         envelopeRepo
             .findByStatus(PROCESSED)

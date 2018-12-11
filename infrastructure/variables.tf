@@ -89,11 +89,11 @@ variable "scan_enabled" {
   default = "false"
 }
 
-variable "notifications_task_enabled" {
+variable "orchestrator_notifications_task_enabled" {
   default = "false"
 }
 
-variable "notifications_task_delay" {
+variable "orchestrator_notifications_task_delay" {
   default = "30000" # in ms
 }
 
