@@ -1,12 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
 import feign.auth.BasicAuthRequestInterceptor;
 import feign.codec.Decoder;
 import feign.jackson.JacksonDecoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+
+import java.nio.charset.StandardCharsets;
 
 public class ErrorNotificationConfiguration {
 
@@ -20,6 +21,6 @@ public class ErrorNotificationConfiguration {
         @Value("${error_notifications.username}") String username,
         @Value("${error_notifications.password}") String password
     ) {
-        return new BasicAuthRequestInterceptor(username, password, Charsets.UTF_8);
+        return new BasicAuthRequestInterceptor(username, password, StandardCharsets.UTF_8);
     }
 }
