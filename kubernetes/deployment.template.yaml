@@ -103,9 +103,7 @@ spec:
               value: "${TEST_S2S_SECRET}"
             - name: S2S_SECRET
               value: "${S2S_SECRET}"
-            - name: TEST_PRIVATE_KEY_DER
-              value: "${TEST_PRIVATE_KEY_DER}"
-            - name: QUEUE_SEND_CONN_STRING
+            - name: SERVICE_BUS_CONN_STRING
               valueFrom:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-servicebus-secret
