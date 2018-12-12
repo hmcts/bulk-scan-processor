@@ -26,6 +26,7 @@ public class UpdateStatusTest {
     private String s2sUrl;
     private String s2sName;
     private String s2sSecret;
+    private String testPrivateKeyDer;
     private CloudBlobContainer testContainer;
 
     private TestHelper testHelper = new TestHelper();
@@ -39,6 +40,7 @@ public class UpdateStatusTest {
         this.s2sUrl = conf.getString("test-s2s-url");
         this.s2sName = conf.getString("test-s2s-name");
         this.s2sSecret = conf.getString("test-s2s-secret");
+        this.testPrivateKeyDer = conf.getString("test-private-key-der");
 
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(
@@ -64,7 +66,8 @@ public class UpdateStatusTest {
             testContainer,
             Arrays.asList("1111006.pdf", "1111002.pdf"),
             "1111006_2.metadata.json",
-            destZipFilename
+            destZipFilename,
+            testPrivateKeyDer
         );
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);

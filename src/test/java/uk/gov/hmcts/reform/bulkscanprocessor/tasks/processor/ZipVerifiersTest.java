@@ -131,4 +131,26 @@ public class ZipVerifiersTest {
 
         assertThat(ZipVerifiers.verifySignature(prodPublicKey, prodZip, prodSignature)).isTrue();
     }
+
+    @Test
+    public void should_verify_signature_using_nonprod_public_key_for_file_signed_using_nonprod_private_key()
+        throws Exception {
+        byte[] nonprodZip = toByteArray(getResource("signature/nonprod_envelope.zip")); // inner zip
+        byte[] nonprodSignature = toByteArray(getResource("signature/nonprod_envelope_signature"));
+        String nonprodPublicKey =
+            Base64.getEncoder().encodeToString(toByteArray(getResource("nonprod_public_key.der")));
+
+        assertThat(ZipVerifiers.verifySignature(nonprodPublicKey, nonprodZip, nonprodSignature)).isTrue();
+    }
+
+    @Test
+    public void should_not_verify_signature_using_wrong_pub_key_for_file_signed_using_nonprod_private_key()
+        throws Exception {
+        byte[] nonprodZip = toByteArray(getResource("signature/nonprod_envelope.zip")); // inner zip
+        byte[] nonprodSignature = toByteArray(getResource("signature/nonprod_envelope_signature"));
+        String nonprodPublicKey =
+            Base64.getEncoder().encodeToString(toByteArray(getResource("nonprod_public_key.der")));
+
+        assertThat(ZipVerifiers.verifySignature(nonprodPublicKey, nonprodZip, nonprodSignature)).isTrue();
+    }
 }
