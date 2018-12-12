@@ -6,7 +6,7 @@
   "properties": {
     "case_number": {
       "id": "#/properties/case_number",
-      "type": "string",
+      "type": ["string", "null"],
       "title": "Case reference number to which the envelope belongs to"
     },
     "po_box": {
@@ -77,7 +77,7 @@
           },
           "ocr_accuracy": {
             "id": "#/properties/scannable_items/items/properties/ocr_accuracy",
-            "type": "string",
+            "type": ["string", "null"],
             "title": "To be decided, if it is possible to define something that defines the level of ocr accuracy."
           },
           "manual_intervention": {
@@ -98,7 +98,7 @@
           },
           "ocr_data": {
             "id": "#/properties/scannable_items/items/properties/ocr_data",
-            "type": "string",
+            "type": ["string", "null"],
             "pattern": "^[0-9a-zA-Z=]*$"
           },
           "file_name": {
@@ -108,7 +108,7 @@
           },
           "notes": {
             "id": "#/properties/scannable_items/items/properties/notes",
-            "type": "string",
+            "type": ["string", "null"],
             "title": "contextual information describing the scanned file."
           },
           "document_type": {
