@@ -78,6 +78,8 @@ document_management:
 
 error_notifications:
   url: false
+  username: user
+  password: password
 
 # end of clients region
 
