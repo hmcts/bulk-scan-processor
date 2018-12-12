@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -73,6 +74,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Mock
     protected DocumentManagementService documentManagementService;
 
+    @Mock
+    protected ServiceBusHelper serviceBusHelper;
+
     protected CloudBlobContainer testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
@@ -103,6 +107,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             envelopeProcessor,
             envelopeRepository,
             processEventRepository,
+            serviceBusHelper,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );
@@ -174,6 +179,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             EnvelopeProcessor envelopeProcessor,
             EnvelopeRepository envelopeRepository,
             ProcessEventRepository processEventRepository,
+            ServiceBusHelper serviceBusHelper,
             String signatureAlg,
             String publicKeyBase64
         );

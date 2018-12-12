@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class FailedDocUploadProcessor extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
+        ServiceBusHelper serviceBusHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {

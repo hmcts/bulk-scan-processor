@@ -8,6 +8,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -40,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
@@ -64,15 +69,19 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_processing_delay_in_minutes}")
     protected int blobProcessingDelayInMinutes;
 
+    private final ServiceBusHelper notificationsQueueHelper;
+
     @Autowired
     public BlobProcessorTask(
         BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository
+        ProcessEventRepository eventRepository,
+        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this.notificationsQueueHelper = notificationsQueueHelper;
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -83,10 +92,11 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
+        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository, notificationsQueueHelper);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -208,6 +218,7 @@ public class BlobProcessorTask extends Processor {
             return null;
         } catch (DocSignatureFailureException ex) {
             handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
+            notifyAboutError(zipFilename, containerName, ErrorCode.ERR_SIG_VERIFY_FAILED, ex.getMessage());
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
@@ -232,5 +243,24 @@ public class BlobProcessorTask extends Processor {
     ) {
         handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+    }
+
+    private void notifyAboutError(
+        String zipFileName,
+        String poBox,
+        ErrorCode errorCode,
+        String desc
+    ) {
+        this.notificationsQueueHelper.sendMessage(
+            new ErrorMsg(
+                UUID.randomUUID().toString(),
+                zipFileName,
+                poBox,
+                null,
+                errorCode,
+                desc,
+                false
+            )
+        );
     }
 }
