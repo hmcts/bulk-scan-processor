@@ -74,6 +74,9 @@ idam:
 document_management:
   url: http://dm-store:4460
 
+error_notifications:
+  url: false
+
 scheduling:
   pool: ${SCHEDULING_POOL:10}
   lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
