@@ -96,7 +96,14 @@ public class BlobProcessorTask extends Processor {
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository, notificationsQueueHelper);
+        this(
+            blobManager,
+            documentProcessor,
+            envelopeProcessor,
+            envelopeRepository,
+            eventRepository,
+            notificationsQueueHelper
+        );
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
