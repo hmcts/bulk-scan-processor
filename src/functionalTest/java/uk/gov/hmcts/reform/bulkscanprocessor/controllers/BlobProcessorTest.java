@@ -67,7 +67,7 @@ public class BlobProcessorTest {
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
         // valid zip file
-        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename,testPrivateKeyDer);
+        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename, testPrivateKeyDer);
 
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
