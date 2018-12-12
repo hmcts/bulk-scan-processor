@@ -17,8 +17,8 @@ public class ServiceBusConfiguration {
 
     @Bean(name = "envelopes")
     public ServiceBusHelper envelopesQueueHelper(
-        @Value("${azure.servicebus.connection-string}") String connectionString,
-        @Value("${azure.servicebus.queue-name}") String queueName,
+        @Value("${queues.envelopes.connection-string}") String connectionString,
+        @Value("${queues.envelopes.queue-name}") String queueName,
         ObjectMapper objectMapper
     ) throws InterruptedException, ServiceBusException {
         return new ServiceBusHelper(

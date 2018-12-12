@@ -103,13 +103,15 @@ spec:
               value: "${TEST_S2S_SECRET}"
             - name: S2S_SECRET
               value: "${S2S_SECRET}"
-            - name: QUEUE_SEND_CONN_STRING
+            - name: SERVICE_BUS_CONN_STRING
               valueFrom:
                 secretKeyRef:
                   name: ${SERVICE_NAME}-servicebus-secret
                   key: connectionString
             - name: QUEUE_ENVELOPE_SEND
-              value: "$(QUEUE_SEND_CONN_STRING);EntityPath=envelopes"
+              value: "$(SERVICE_BUS_CONN_STRING);EntityPath=envelopes"
+            - name: QUEUE_NOTIFICATIONS_SEND
+              value: "$(SERVICE_BUS_CONN_STRING);EntityPath=notifications"
             - name: TEST_STORAGE_ACCOUNT_NAME
               valueFrom:
                 secretKeyRef:

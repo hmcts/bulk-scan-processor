@@ -116,6 +116,7 @@ module "bulk-scan" {
     STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
 
     QUEUE_ENVELOPE_SEND = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
+    QUEUE_NOTIFICATIONS_SEND = "${data.terraform_remote_state.shared_infra.notifications_queue_primary_send_connection_string}"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
