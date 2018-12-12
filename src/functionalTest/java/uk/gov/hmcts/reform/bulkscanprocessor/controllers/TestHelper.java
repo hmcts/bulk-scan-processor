@@ -41,8 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
 
-    public static final String TEST_PRIVATE_KEY_DER = "test_private_key.der";
-
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
             "microservice", s2sName,
@@ -70,10 +68,11 @@ public class TestHelper {
         CloudBlobContainer container,
         List<String> files,
         String metadataFile,
-        final String destZipFilename
+        final String destZipFilename,
+        String testPrivateKeyDer
     ) throws Exception {
         byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
+            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
@@ -82,10 +81,11 @@ public class TestHelper {
         CloudBlobContainer container,
         List<String> files,
         String metadataFile,
-        String destZipFilename
+        String destZipFilename,
+        String testPrivateKeyDer
     ) throws Exception {
         byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
+            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
         blockBlobReference.acquireLease();
@@ -154,10 +154,10 @@ public class TestHelper {
     }
 
     public byte[] createSignedZipArchiveWithRandomName(
-        List<String> files, String metadataFile, String zipFilename, String privateKeyFilename
+        List<String> files, String metadataFile, String zipFilename, String privateKeyDer
     ) throws Exception {
         byte[] zipArchive = createZipArchiveWithRandomName(files, metadataFile, zipFilename);
-        byte[] signature = signWithSha256Rsa(zipArchive, privateKeyFilename);
+        byte[] signature = signWithSha256Rsa(zipArchive, privateKeyDer);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
             zos.putNextEntry(new ZipEntry(ZipVerifiers.DOCUMENTS_ZIP));
@@ -171,8 +171,8 @@ public class TestHelper {
     }
 
     // Create signature using SHA256/RSA.
-    public byte[] signWithSha256Rsa(byte[] input, String privateKeyFilename) throws Exception {
-        byte[] keyBytes = Resources.toByteArray(Resources.getResource(privateKeyFilename));
+    public byte[] signWithSha256Rsa(byte[] input, String privateKeyDer) throws Exception {
+        byte[] keyBytes = privateKeyDer.getBytes();
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
 

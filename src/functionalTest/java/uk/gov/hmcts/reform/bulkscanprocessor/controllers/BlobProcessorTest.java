@@ -27,6 +27,7 @@ public class BlobProcessorTest {
     private String s2sUrl;
     private String s2sName;
     private String s2sSecret;
+    private String testPrivateKeyDer;
     private CloudBlobContainer testContainer;
     private TestHelper testHelper;
 
@@ -39,6 +40,7 @@ public class BlobProcessorTest {
         this.s2sUrl = conf.getString("test-s2s-url");
         this.s2sName = conf.getString("test-s2s-name");
         this.s2sSecret = conf.getString("test-s2s-secret");
+        this.testPrivateKeyDer = conf.getString("test-private-key-der");
 
         this.testHelper = new TestHelper();
 
@@ -64,7 +66,9 @@ public class BlobProcessorTest {
         String metadataFile = "1111006_2.metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
-        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename); // valid zip file
+        // valid zip file
+        testHelper.uploadZipFile(testContainer, files, metadataFile, destZipFilename,testPrivateKeyDer);
+
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
@@ -82,5 +86,4 @@ public class BlobProcessorTest {
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.getDocumentUrl()));
     }
-
 }

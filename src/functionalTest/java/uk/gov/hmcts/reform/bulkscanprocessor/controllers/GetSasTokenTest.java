@@ -39,12 +39,15 @@ public class GetSasTokenTest {
 
     private String destZipFilename;
 
+    private String testPrivateKeyDer;
+
     private static final String zipFilename = "24-06-2018-00-00-00.test.zip";
 
     @Before
     public void setUp() {
         this.testUrl = conf.getString("test-url");
         this.blobContainerUrl = conf.getString("test-storage-account-url") + "/";
+        this.testPrivateKeyDer = conf.getString("test-private-key-der");
 
         this.testHelper = new TestHelper();
     }
@@ -129,7 +132,8 @@ public class GetSasTokenTest {
                 "1111006.pdf"
             ),
             "1111006.metadata.json",
-            destZipFilename
+            destZipFilename,
+            testPrivateKeyDer
         );
 
         assertThat(testHelper.storageHasFile(testSasContainer, destZipFilename)).isTrue();
@@ -148,8 +152,8 @@ public class GetSasTokenTest {
                 "1111006.pdf"
             ),
             "1111006.metadata.json",
-            destZipFilename
+            destZipFilename,
+            testPrivateKeyDer
         );
     }
-
 }
