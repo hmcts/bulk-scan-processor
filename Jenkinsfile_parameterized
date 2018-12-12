@@ -16,7 +16,10 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
   secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
   secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
 
-  secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY')
+  secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
+
+   // Test private key used by third party supplier to sign zip files
+   secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
 ]
 
 List<LinkedHashMap<String, Object>> commonSecrets = [
