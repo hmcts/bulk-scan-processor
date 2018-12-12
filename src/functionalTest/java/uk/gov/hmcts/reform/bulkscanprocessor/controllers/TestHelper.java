@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -177,7 +178,11 @@ public class TestHelper {
     // Create signature using SHA256/RSA.
     public byte[] signWithSha256Rsa(byte[] input, String privateKeyDer) throws Exception {
         log.info("privateKeyDer {}", privateKeyDer);
-        byte[] keyBytes = privateKeyDer.getBytes();
+
+        byte[] keyBytes = Base64.getDecoder().decode(privateKeyDer);
+
+        log.info("privateKeyDer {}", keyBytes);
+
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
 
