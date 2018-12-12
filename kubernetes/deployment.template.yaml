@@ -105,15 +105,16 @@ spec:
               value: "${S2S_SECRET}"
             - name: TEST_PRIVATE_KEY_DER
               value: "${TEST_PRIVATE_KEY_DER}"
-            - name: SERVICE_BUS_CONN_STRING
+            - name: QUEUE_ENVELOPE_SEND
               valueFrom:
                 secretKeyRef:
-                  name: ${SERVICE_NAME}-servicebus-secret
+                  name: servicebus-secret-queue-${SERVICE_NAME}-envelopes
                   key: connectionString
-            - name: QUEUE_ENVELOPE_SEND
-              value: "$(SERVICE_BUS_CONN_STRING);EntityPath=envelopes"
             - name: QUEUE_NOTIFICATIONS_SEND
-              value: "$(SERVICE_BUS_CONN_STRING);EntityPath=notifications"
+              valueFrom:
+                secretKeyRef:
+                  name: servicebus-secret-queue-${SERVICE_NAME}-notifications
+                  key: connectionString
             - name: TEST_STORAGE_ACCOUNT_NAME
               valueFrom:
                 secretKeyRef:
@@ -169,7 +170,7 @@ spec:
 
 ---
 #
-# Service Catalog Servicebus namespace instance
+# Namespace Service Catalog Servicebus namespace instance
 # https://github.com/Azure/open-service-broker-azure/blob/master/docs/modules/servicebus.md
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
@@ -185,7 +186,7 @@ spec:
     alias: servicebus-namespace-alias-${SERVICE_NAME}
 ---
 #  
-# servicebus namespace secret binding
+# namespace servicebus secret binding
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
@@ -197,7 +198,7 @@ spec:
   secretName: servicebus-secret-namespace-${SERVICE_NAME}
 ---
 #
-# Service Catalog Servicebus queue Instance
+# envelopes Service Catalog Servicebus queue Instance
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
@@ -211,16 +212,42 @@ spec:
     queueName: envelopes
 ---
 # 
-# Queue secret binding
+# envelopes Queue secret binding
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
-  name: servicebus-namespace-binding-${SERVICE_NAME}
+  name: servicebus-queue-binding-${SERVICE_NAME}-envelopes
   namespace: ${NAMESPACE}
 spec:
   instanceRef:
     name:  servicebus-queue-${SERVICE_NAME}-envelopes
   secretName: servicebus-secret-queue-${SERVICE_NAME}-envelopes
+---
+#
+# notifications Service Catalog Servicebus queue Instance
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: servicebus-queue-${SERVICE_NAME}-notifications
+  namespace: ${NAMESPACE}
+spec:
+  clusterServiceClassExternalName: azure-servicebus-queue
+  clusterServicePlanExternalName: queue
+  parameters:
+    parentAlias:  servicebus-namespace-alias-${SERVICE_NAME}
+    queueName: notifications
+---
+#
+# notifications Queue secret binding
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: servicebus-queue-binding-${SERVICE_NAME}-notifications
+  namespace: ${NAMESPACE}
+spec:
+  instanceRef:
+    name:  servicebus-queue-${SERVICE_NAME}-notifications
+  secretName: servicebus-secret-queue-${SERVICE_NAME}-notifications
 ---
 #
 # Service Catalog Storage Instance
