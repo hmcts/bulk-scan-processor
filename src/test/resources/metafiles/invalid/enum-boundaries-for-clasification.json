@@ -5,7 +5,7 @@
   "opening_date": "24-02-2017 00:00:00.010000",
   "zip_file_createddate": "24-02-2017 00:00:00.001000",
   "zip_file_name": "1_24-02-2017-00-00-00.zip",
-  "classification": "NEW_application",
+  "envelope_classification": "NEW_application",
   "scannable_items": [
     {
       "document_control_number": "1111001",

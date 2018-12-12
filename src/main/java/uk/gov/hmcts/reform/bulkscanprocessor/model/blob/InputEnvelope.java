@@ -37,7 +37,7 @@ public class InputEnvelope {
         @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("case_number") String caseNumber,
-        @JsonProperty("classification") Classification classification,
+        @JsonProperty("envelope_classification") Classification classification,
         @JsonProperty("scannable_items") List<InputScannableItem> scannableItems,
         @JsonProperty("payments") List<InputPayment> payments,
         @JsonProperty("non_scannable_items") List<InputNonScannableItem> nonScannableItems

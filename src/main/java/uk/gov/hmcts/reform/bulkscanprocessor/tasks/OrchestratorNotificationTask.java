@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,18 +21,18 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
  * Sends notifications to the orchestrator containing processed envelopes.
  */
 @Component
-@ConditionalOnProperty(value = "scheduling.task.send_notifications.enabled", matchIfMissing = true)
-public class SendNotificationTask {
+@ConditionalOnProperty(value = "scheduling.task.notifications_to_orchestrator.enabled", matchIfMissing = true)
+public class OrchestratorNotificationTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendNotificationTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
 
     private final ServiceBusHelper serviceBusHelper;
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
     // region constructor
-    public SendNotificationTask(
-        ServiceBusHelper serviceBusHelper,
+    public OrchestratorNotificationTask(
+        @Qualifier("envelopes") ServiceBusHelper serviceBusHelper,
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository processEventRepo
     ) {
@@ -41,7 +42,7 @@ public class SendNotificationTask {
     }
     // endregion
 
-    @Scheduled(fixedDelayString = "${scheduling.task.send_notifications.delay}")
+    @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
         envelopeRepo
             .findByStatus(PROCESSED)

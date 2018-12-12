@@ -53,14 +53,14 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: object has missing required properties"
             )
-            .hasMessageContaining("classification")
+            .hasMessageContaining("envelope_classification")
             .hasMessageContaining("jurisdiction")
             .hasMessageContaining("opening_date");
     }
 
     // log as per pair review request:
     // Failed validation against schema:
-    //    object has missing required properties (["classification","jurisdiction"])
+    //    object has missing required properties (["envelope_classification","jurisdiction"])
     //    object has missing required properties (["method"])
     //    object has missing required properties (["scanning_date"])
     //    object has missing required properties (["document_type","file_name"])
@@ -78,7 +78,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: object has missing required properties"
             )
-            .hasMessageContaining("classification")
+            .hasMessageContaining("envelope_classification")
             .hasMessageContaining("jurisdiction")
             .hasMessageContaining("scanning_date")
             .hasMessageContaining("document_type")
@@ -142,7 +142,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("exception")
             .hasMessageContaining("new_application")
             .hasMessageContaining("supplementary_evidence")
-            .hasMessageContaining("instance: {\"pointer\":\"/classification\"}");
+            .hasMessageContaining("instance: {\"pointer\":\"/envelope_classification\"}");
     }
 
     @Test

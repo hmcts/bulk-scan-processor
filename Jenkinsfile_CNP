@@ -71,7 +71,10 @@ withPipeline(type, product, component) {
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def storageSecret = "${aksServiceName}-storage-secret"
       def serviceBusSecret = "${aksServiceName}-servicebus-secret"
-      def queueName = "envelopes"
+      def queueNames = [
+        "envelopes",
+        "notifications"
+      ]
       def storageContainers = [testInputStorageContainerName, testRejectedStorageContainerName, "sscs"]
 
       def namespace = aksServiceName
@@ -97,8 +100,10 @@ withPipeline(type, product, component) {
 
       // create queue
       def queues = az "servicebus queue list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
-      if (!queues.contains(queueName)) {
-        az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${queueName}"
+      queueNames.each {
+        if (!queues.contains("${it}")) {
+          az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${it}"
+        }
       }
     }
   }

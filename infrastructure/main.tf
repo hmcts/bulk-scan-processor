@@ -39,7 +39,7 @@ locals {
 
   #endregion
 
-  sku_size = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
+  sku_size                    = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
   storage_account_name        = "${data.terraform_remote_state.shared_infra.storage_account_name}"
   storage_account_primary_key = "${data.terraform_remote_state.shared_infra.storage_account_primary_key}"
   storage_account_url_prod    = "https://bulkscan.platform.hmcts.net"
@@ -99,15 +99,15 @@ module "bulk-scan" {
     S2S_NAME   = "${var.s2s_name}"
     S2S_SECRET = "${data.azurerm_key_vault_secret.s2s_secret.value}"
 
-    REUPLOAD_BATCH                           = "${var.reupload_batch}"
-    REUPLOAD_DELAY                           = "${var.reupload_delay}"
-    REUPLOAD_MAX_TRIES                       = "${var.reupload_max_tries}"
-    REUPLOAD_ENABLED                         = "${var.reupload_enabled}"
-    SCAN_DELAY                               = "${var.scan_delay}"
-    SCAN_ENABLED                             = "${var.scan_enabled}"
+    REUPLOAD_BATCH     = "${var.reupload_batch}"
+    REUPLOAD_DELAY     = "${var.reupload_delay}"
+    REUPLOAD_MAX_TRIES = "${var.reupload_max_tries}"
+    REUPLOAD_ENABLED   = "${var.reupload_enabled}"
+    SCAN_DELAY         = "${var.scan_delay}"
+    SCAN_ENABLED       = "${var.scan_enabled}"
 
-    SEND_NOTIFICATIONS_TASK_ENABLED          = "${var.notifications_task_enabled}"
-    SEND_NOTIFICATIONS_TASK_DELAY            = "${var.notifications_task_delay}"
+    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED = "${var.orchestrator_notifications_task_enabled}"
+    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY   = "${var.orchestrator_notifications_task_delay}"
 
     STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES = "${var.blob_processing_delay_in_minutes}"
@@ -116,6 +116,7 @@ module "bulk-scan" {
     STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
 
     QUEUE_ENVELOPE_SEND = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
+    QUEUE_NOTIFICATIONS_SEND = "${data.terraform_remote_state.shared_infra.notifications_queue_primary_send_connection_string}"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
