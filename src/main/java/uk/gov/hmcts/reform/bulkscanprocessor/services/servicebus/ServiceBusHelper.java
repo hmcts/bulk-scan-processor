@@ -6,8 +6,6 @@ import com.google.common.base.Strings;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
@@ -16,15 +14,13 @@ import javax.annotation.PreDestroy;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel.TEST;
 
-@Component
-@Lazy
 public class ServiceBusHelper implements AutoCloseable {
 
     private final IQueueClient sendClient;
 
     private final ObjectMapper objectMapper;
 
-    ServiceBusHelper(IQueueClient queueClient, ObjectMapper objectMapper) {
+    public ServiceBusHelper(IQueueClient queueClient, ObjectMapper objectMapper) {
         this.sendClient = queueClient;
         this.objectMapper = objectMapper;
     }
