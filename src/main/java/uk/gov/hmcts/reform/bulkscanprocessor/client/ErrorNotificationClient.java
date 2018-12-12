@@ -10,7 +10,8 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @FeignClient(
     name = "error-notifications",
-    url = "${error_notifications.url}"
+    url = "${error_notifications.url}",
+    configuration = ErrorNotificationConfiguration.class
 )
 public interface ErrorNotificationClient {
 
