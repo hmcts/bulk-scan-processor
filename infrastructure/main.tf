@@ -97,6 +97,8 @@ module "bulk-scan" {
 
     // to be moved to vault
     ERROR_NOTIFICATIONS_URL = "false"
+    ERROR_NOTIFICATIONS_USERNAME = "user"
+    ERROR_NOTIFICATIONS_PASSWORD = "password"
 
     S2S_URL    = "${local.s2s_url}"
     S2S_NAME   = "${var.s2s_name}"
