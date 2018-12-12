@@ -96,7 +96,7 @@ module "bulk-scan" {
     DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"
 
     // to be moved to vault
-    ERROR_NOTIFICATIONS_URL = "false"
+    ERROR_NOTIFICATIONS_URL      = "false"
     ERROR_NOTIFICATIONS_USERNAME = "user"
     ERROR_NOTIFICATIONS_PASSWORD = "password"
 
