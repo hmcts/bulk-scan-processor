@@ -54,7 +54,6 @@ queues:
   envelopes:
     connection-string: ${QUEUE_ENVELOPE_SEND:"NO_VALUE_SUPPLIED"}
     queue-name: envelopes
-    queue-receive-mode: peeklock
   notifications:
     connection-string: ${QUEUE_NOTIFICATIONS_SEND:"NO_VALUE_SUPPLIED"}
     queue-name: notifications
