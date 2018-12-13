@@ -6,6 +6,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +18,6 @@ public class DocumentTest {
     private static final String DOCUMENT_TYPE_CHERISHED = "Cherished";
     private static final String CCD_DOCUMENT_TYPE_CHERISHED = "cherished";
 
-    private static final String DOCUMENT_TYPE_OTHER = "Other";
     private static final String CCD_DOCUMENT_TYPE_OTHER = "other";
 
     @Test
@@ -33,13 +34,23 @@ public class DocumentTest {
 
     @Test
     public void fromScannableItem_maps_document_type_correctly() {
-        ScannableItem cherishedScannableItem = scannableItem(DOCUMENT_TYPE_CHERISHED);
-        ScannableItem otherScannableItem = scannableItem(DOCUMENT_TYPE_OTHER);
-        ScannableItem sscs1ScannableItem = scannableItem("SSCS1");
+        Map<String, String> expectedTypes = new HashMap<>();
+        expectedTypes.put("Cherished", CCD_DOCUMENT_TYPE_CHERISHED);
+        expectedTypes.put("cherished", CCD_DOCUMENT_TYPE_CHERISHED);
+        expectedTypes.put("CHERISHED", CCD_DOCUMENT_TYPE_CHERISHED);
+        expectedTypes.put("Other", CCD_DOCUMENT_TYPE_OTHER);
+        expectedTypes.put("other", CCD_DOCUMENT_TYPE_OTHER);
+        expectedTypes.put("OTHER", CCD_DOCUMENT_TYPE_OTHER);
+        expectedTypes.put("SSCS1", CCD_DOCUMENT_TYPE_OTHER);
+        expectedTypes.put("sscs1", CCD_DOCUMENT_TYPE_OTHER);
+        expectedTypes.put("Sscs1", CCD_DOCUMENT_TYPE_OTHER);
 
-        assertThat(fromScannableItem(cherishedScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_CHERISHED);
-        assertThat(fromScannableItem(otherScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_OTHER);
-        assertThat(fromScannableItem(sscs1ScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_OTHER);
+        expectedTypes.forEach((inputDocumentType, expectedCcdType) -> {
+            ScannableItem scannableItem = scannableItem(inputDocumentType);
+            assertThat(Document.fromScannableItem(scannableItem).type)
+                .as(String.format("Expected CCD document type for '%s'", inputDocumentType))
+                .isEqualTo(expectedCcdType);
+        });
     }
 
     private ScannableItem scannableItem(String documentType) {
