@@ -1,0 +1,5 @@
+wiremock:
+  url: &wiremock "http://localhost:${wiremock.port}"
+
+error_notifications:
+  url: *wiremock
