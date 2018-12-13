@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
 import java.io.IOException;
@@ -45,12 +46,14 @@ public class FailedDocUploadProcessor extends Processor {
 
     // NOTE: this is needed for testing as children of this class are instantiated
     // using "new" in tests despite being spring beans (sigh!)
+    @SuppressWarnings("squid:S00107")
     public FailedDocUploadProcessor(
         BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
+        ServiceBusHelper serviceBusHelper, // NOSONAR
         String signatureAlg,
         String publicKeyDerFilename
     ) {
