@@ -21,7 +21,11 @@ class ErrorNotificationDecoder implements ErrorDecoder {
 
     private static final ErrorDecoder DELEGATE = new ErrorDecoder.Default();
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper mapper;
+
+    ErrorNotificationDecoder(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @Override
     public Exception decode(String methodKey, Response response) {
@@ -34,7 +38,7 @@ class ErrorNotificationDecoder implements ErrorDecoder {
         if (response.body() != null && statusCode.is4xxClientError()) {
             try (InputStream body = response.body().asInputStream()) {
                 rawBody = IOUtils.toByteArray(body);
-                responseBody = MAPPER.readValue(rawBody, ErrorNotificationFailingResponse.class);
+                responseBody = mapper.readValue(rawBody, ErrorNotificationFailingResponse.class);
             } catch (IOException e) {
                 log.error("Failed to process response body.", e);
                 // don't fail and let normal exception to be returned

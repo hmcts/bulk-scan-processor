@@ -12,9 +12,11 @@ import java.nio.charset.StandardCharsets;
 
 public class ErrorNotificationConfiguration {
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     @Bean
-    Decoder feignDecoder(ObjectMapper objectMapper) {
-        return new JacksonDecoder(objectMapper);
+    Decoder feignDecoder() {
+        return new JacksonDecoder(MAPPER);
     }
 
     @Bean
@@ -27,6 +29,6 @@ public class ErrorNotificationConfiguration {
 
     @Bean
     public ErrorDecoder customErrorDecoder() {
-        return new ErrorNotificationDecoder();
+        return new ErrorNotificationDecoder(MAPPER);
     }
 }
