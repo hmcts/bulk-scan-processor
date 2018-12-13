@@ -1,9 +1,9 @@
 {
   "po_box": "XXXX",
   "jurisdiction": "SSCS",
-  "delivery_date": "23-02-2017 00:00:00.100000",
-  "opening_date": "24-02-2017 00:00:00.010000",
-  "zip_file_createddate": "24-02-2017 00:00:00.001000",
+  "delivery_date": "2017-02-23T00:00:00.100Z",
+  "opening_date": "2017-02-24T00:00:00.010Z",
+  "zip_file_createddate": "2017-02-24T00:00:00.001Z",
   "zip_file_name": "1_24-02-2017-00-00-00.zip",
   "envelope_classification": "new_application",
   "payments": [

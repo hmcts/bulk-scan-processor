@@ -5,56 +5,48 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
+import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Parameterized.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CustomTimestampDeserialiserTest {
 
     private static final StdDeserializer<Timestamp> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
 
-    private final int micros;
     private static final JsonParser PARSER = mock(JsonParser.class);
     private static final DeserializationContext CONTEXT = mock(DeserializationContext.class);
 
-    @Parameterized.Parameters(name = "Check deserialisation with {0} microseconds")
-    public static Iterable<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-            { 100000 },
-            { 10000 },
-            { 1000 },
-            { 100 },
-            { 10 },
-            { 1 }
-        });
-    }
-
-    public CustomTimestampDeserialiserTest(int micros) {
-        this.micros = micros;
-    }
-
     @Test
     public void should_parse_json_field_as_timestamp() throws IOException {
-        Timestamp expected = new Timestamp(1530697192913L);
-        expected.setNanos(micros * 1000);
-        LocalDateTime localDateTime = expected.toLocalDateTime();
+        long milliseconds = 1530697192913L;
+        Timestamp expected = new Timestamp(milliseconds);
+
+        LocalDateTime localDateTime = ZonedDateTime.ofInstant(
+            expected.toInstant(),
+            ZoneId.systemDefault()
+        ).withZoneSameInstant(
+            ZoneId.from(UTC)
+        ).toLocalDateTime();
+
         String date = String.format(
-            "%02d-%02d-%d %02d:%02d:%02d.%06d",
-            localDateTime.getDayOfMonth(),
-            localDateTime.getMonthValue(),
+            "%d-%02d-%02dT%02d:%02d:%02d.%03dZ",
             localDateTime.getYear(),
+            localDateTime.getMonthValue(),
+            localDateTime.getDayOfMonth(),
             localDateTime.getHour(),
             localDateTime.getMinute(),
             localDateTime.getSecond(),
-            micros
+            milliseconds % 1000
         );
 
         when(PARSER.getText()).thenReturn(date);
