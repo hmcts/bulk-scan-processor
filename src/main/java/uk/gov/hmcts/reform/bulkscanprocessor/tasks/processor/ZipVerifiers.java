@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationExcep
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -210,10 +211,8 @@ public class ZipVerifiers {
                     if (cachedPublicKeyFile != null && publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
                         publicKeyBase64 = cachedPublicKeyFile.publicKeyBase64;
                     } else {
-                        publicKeyBase64 =
-                            Base64.getEncoder().encodeToString(
-                                Resources.toByteArray(getResource(publicKeyDerFile))
-                            );
+                        URL keyFileUrl = ZipVerifiers.class.getResource(publicKeyDerFile);
+                        publicKeyBase64 = Base64.getEncoder().encodeToString(Resources.toByteArray(keyFileUrl));
                         cachedPublicKeyFile = new PublicKeyFile(publicKeyDerFile, publicKeyBase64);
                     }
                 }
