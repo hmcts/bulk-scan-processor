@@ -9,8 +9,8 @@ import java.util.Set;
 
 public class Document {
 
-    private static final String DOCUMENT_TYPE_CHERISHED = "Cherished";
-    private static final String DOCUMENT_TYPE_OTHER = "Other";
+    private static final String DOCUMENT_TYPE_CHERISHED = "cherished";
+    private static final String DOCUMENT_TYPE_OTHER = "other";
     private static final Set<String> DOCUMENT_TYPES =
         ImmutableSet.of(DOCUMENT_TYPE_CHERISHED, DOCUMENT_TYPE_OTHER);
 
@@ -60,10 +60,10 @@ public class Document {
     // original values in the DB, so that no information is lost. That's why the mapping
     // takes place when putting the message on the queue.
     private static String mapDocumentType(String documentType) {
-        if (DOCUMENT_TYPES.contains(documentType)) {
+        if (DOCUMENT_TYPES.contains(documentType.toLowerCase())) {
             return documentType.toLowerCase();
         } else {
-            return DOCUMENT_TYPE_OTHER.toLowerCase();
+            return DOCUMENT_TYPE_OTHER;
         }
     }
 }
