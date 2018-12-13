@@ -86,7 +86,7 @@ public class BlobProcessorTask extends Processor {
 
     // NOTE: this is needed for testing as children of this class are instantiated
     // using "new" in tests despite being spring beans (sigh!)
-    @SuppressWarnings("squid:S1172")
+    @SuppressWarnings("squid:S00107")
     public BlobProcessorTask(
         BlobManager blobManager,
         DocumentProcessor documentProcessor,
