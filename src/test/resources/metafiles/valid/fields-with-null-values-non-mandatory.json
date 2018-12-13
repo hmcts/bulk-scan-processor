@@ -11,7 +11,7 @@
     {
       "document_control_number": "1111001",
       "scanning_date": "2017-02-24T00:00:00.001Z",
-      "manual_intervention": "string",
+      "manual_intervention": null,
       "next_action": "forward",
       "next_action_date": "2017-02-25T00:00:00.000Z",
       "file_name": "1111001.pdf",
