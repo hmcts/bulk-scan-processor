@@ -42,6 +42,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected static final String SIGNATURE_ALGORITHM = "none";
     protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
 
+    protected static final String CONTAINER_NAME = "bulkscan";
+
     protected T processor;
 
     @Autowired
@@ -114,7 +116,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
         processor = spy(p);
 
-        testContainer = cloudBlobClient.getContainerReference("bulkscan");
+        testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
 
         testContainer.createIfNotExists();
     }

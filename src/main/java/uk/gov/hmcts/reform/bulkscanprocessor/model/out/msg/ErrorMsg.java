@@ -15,6 +15,7 @@ public class ErrorMsg implements Msg {
     public final boolean testOnly;
 
     // region constructors
+    @SuppressWarnings("squid:S00107") // number of params
     public ErrorMsg(
         String id,
         String zipFileName,
