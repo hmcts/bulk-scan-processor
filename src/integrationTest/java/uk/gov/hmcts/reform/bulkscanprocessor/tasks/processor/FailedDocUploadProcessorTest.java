@@ -43,6 +43,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             envelopeProcessor,
             envelopeRepository,
             processEventRepository,
+            serviceBusHelper,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );

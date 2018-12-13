@@ -34,6 +34,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -88,6 +89,9 @@ public class EnvelopeControllerTest {
     @Mock
     private DocumentManagementService documentManagementService;
 
+    @Mock
+    private ServiceBusHelper serviceBusHelper;
+
     @Autowired
     private BlobManagementProperties blobManagementProperties;
 
@@ -134,6 +138,7 @@ public class EnvelopeControllerTest {
             ),
             envelopeRepository,
             processEventRepository,
+            serviceBusHelper,
             "none",
             "none"
 

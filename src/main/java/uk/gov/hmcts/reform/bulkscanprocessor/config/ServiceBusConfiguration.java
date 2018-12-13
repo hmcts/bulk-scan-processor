@@ -29,4 +29,19 @@ public class ServiceBusConfiguration {
             objectMapper
         );
     }
+
+    @Bean(name = "notifications")
+    public ServiceBusHelper notificationsQueueHelper(
+        @Value("${queues.notifications.connection-string}") String connectionString,
+        @Value("${queues.notifications.queue-name}") String queueName,
+        ObjectMapper objectMapper
+    ) throws InterruptedException, ServiceBusException {
+        return new ServiceBusHelper(
+            new QueueClient(
+                new ConnectionStringBuilder(connectionString, queueName),
+                ReceiveMode.PEEKLOCK
+            ),
+            objectMapper
+        );
+    }
 }
