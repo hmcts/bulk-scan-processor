@@ -255,7 +255,7 @@ public class BlobProcessorTask extends Processor {
 
     private void notifyAboutError(
         String zipFileName,
-        String poBox,
+        String jurisdiction,
         ErrorCode errorCode,
         String desc
     ) {
@@ -263,7 +263,8 @@ public class BlobProcessorTask extends Processor {
             new ErrorMsg(
                 UUID.randomUUID().toString(),
                 zipFileName,
-                poBox,
+                jurisdiction,
+                null,
                 null,
                 errorCode,
                 desc,
