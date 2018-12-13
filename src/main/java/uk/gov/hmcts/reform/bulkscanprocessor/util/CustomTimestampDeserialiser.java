@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidTimestampFormatEx
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.time.format.DateTimeParseException;
 
 public class CustomTimestampDeserialiser extends StdDeserializer<Timestamp> {
@@ -25,7 +24,7 @@ public class CustomTimestampDeserialiser extends StdDeserializer<Timestamp> {
 
         try {
             return DateFormatter.getTimestamp(timestampString);
-        } catch (ParseException | DateTimeParseException exception) {
+        } catch (DateTimeParseException exception) {
             throw new InvalidTimestampFormatException(DateFormatter.getPattern(), exception);
         }
     }

@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,7 +14,7 @@ final class DateFormatter {
     private static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATETIME_PATTERN);
 
-    static Timestamp getTimestamp(final String timestamp) throws ParseException {
+    static Timestamp getTimestamp(final String timestamp) {
         return Timestamp.from(LocalDateTime.parse(timestamp, formatter).toInstant(UTC));
     }
 
