@@ -48,6 +48,16 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
+    public void should_parse_envelope_data_with_null_values_for_non_mandatory_fields() throws IOException {
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/fields-with-null-values-non-mandatory.json");
+
+        assertThat(envelope.caseNumber).isNull();
+        assertThat(envelope.nonScannableItems).hasSize(1);
+        assertThat(envelope.scannableItems).hasSize(2);
+        assertThat(envelope.payments).hasSize(1);
+    }
+
+    @Test
     public void should_parse_envelope_data_with_no_payments_in() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/no-payment.json");
 

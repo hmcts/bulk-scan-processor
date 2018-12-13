@@ -4,18 +4,18 @@
       "case_number": "1111222233334446",
       "po_box": "SSCSPO",
       "jurisdiction": "SSCS",
-      "delivery_date": "23-06-2018 00:00:00.000000",
-      "opening_date": "23-06-2018 00:00:00.000000",
+      "delivery_date": "2018-06-23T00:00:00.000Z",
+      "opening_date": "2018-06-23T00:00:00.000Z",
       "zip_file_name": "7_24-06-2018-00-00-00.zip",
       "classification": "exception",
       "scannable_items": [
         {
           "document_control_number": "1111002",
-          "scanning_date": "23-06-2018 00:00:00.000000",
+          "scanning_date": "2018-06-23T00:00:00.000Z",
           "ocr_accuracy": "test",
           "manual_intervention": "test",
           "next_action": "return",
-          "next_action_date": "23-06-2018 00:00:00.000000",
+          "next_action_date": "2018-06-23T00:00:00.000Z",
           "ocr_data": {"name1": "value1"},
           "file_name": "1111002.pdf",
           "notes": "test",
@@ -38,7 +38,7 @@
       "non_scannable_items": [
       ],
       "status": "PROCESSED",
-      "zip_file_createddate": "23-06-2018 00:00:00.000000"
+      "zip_file_createddate": "2018-06-23T00:00:00.000Z"
     }
   ]
 }
