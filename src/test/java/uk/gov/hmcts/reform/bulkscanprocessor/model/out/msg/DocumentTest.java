@@ -45,16 +45,12 @@ public class DocumentTest {
         expectedTypes.put("sscs1", CCD_DOCUMENT_TYPE_OTHER);
         expectedTypes.put("Sscs1", CCD_DOCUMENT_TYPE_OTHER);
 
-
-        for (Map.Entry<String, String> entry : expectedTypes.entrySet()) {
-            String inputDocumentType = entry.getKey();
-            String expectedCcdType = entry.getValue();
-
+        expectedTypes.forEach((inputDocumentType, expectedCcdType) -> {
             ScannableItem scannableItem = scannableItem(inputDocumentType);
             assertThat(Document.fromScannableItem(scannableItem).type)
                 .as(String.format("Expected CCD document type for '%s'", inputDocumentType))
                 .isEqualTo(expectedCcdType);
-        }
+        });
     }
 
     private ScannableItem scannableItem(String documentType) {
