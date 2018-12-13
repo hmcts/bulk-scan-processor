@@ -27,12 +27,14 @@ List<LinkedHashMap<String, Object>> apiTestSecrets = [
 
   secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
-  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY')
 ]
+
 
 List<LinkedHashMap<String, Object>> commonSecrets = [
   secret('test-s2s-secret', 'TEST_S2S_SECRET'),
   secret('s2s-secret', 'S2S_SECRET'),
+  secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER'),
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {

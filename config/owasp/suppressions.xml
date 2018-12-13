@@ -26,6 +26,11 @@
   </suppress>
 
   <suppress>
+    <notes><![CDATA[ slf4j ]]></notes>
+    <cve>CVE-2018-8088</cve>
+  </suppress>
+
+  <suppress>
     <notes><![CDATA[
     This suppresses false positives on Groovy 2.4.x.
     More information can be found on https://github.com/jeremylong/DependencyCheck/issues/1004

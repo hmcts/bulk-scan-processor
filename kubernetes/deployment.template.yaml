@@ -43,7 +43,7 @@ data:
   LOGBACK_REQUIRE_ERROR_CODE: "false"
   S2S_NAME: "bulk_scan_processor"
   STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
-  STORAGE_BLOB_PUBLIC_KEY: "test_public_key.der"
+  STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
 ---
 #
 # Postgres Config
@@ -103,6 +103,8 @@ spec:
               value: "${TEST_S2S_SECRET}"
             - name: S2S_SECRET
               value: "${S2S_SECRET}"
+            - name: TEST_PRIVATE_KEY_DER
+              value: "${TEST_PRIVATE_KEY_DER}"
             - name: SERVICE_BUS_CONN_STRING
               valueFrom:
                 secretKeyRef:
@@ -164,7 +166,7 @@ spec:
             initialDelaySeconds: 45
             periodSeconds: 15
             timeoutSeconds: 3
-            
+
 ---
 #
 # Service Catalog Servicebus queue Instance
