@@ -178,7 +178,7 @@ public class EnvelopeControllerTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json;charset=UTF-8"))
-            .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
+            .andExpect(content().json(Resources.toString(getResource("envelope-response.json"), UTF_8)))
             // Envelope id is checked explicitly as it is dynamically generated.
             .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 

@@ -136,7 +136,7 @@ public class ReadEnvelopesControllerTest {
     }
 
     private String expectedEnvelopes() throws IOException {
-        URL url = getResource("envelope.json");
+        URL url = getResource("envelope-response.json");
         return Resources.toString(url, Charsets.toCharset("UTF-8"));
     }
 

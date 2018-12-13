@@ -1,0 +1,22 @@
+{
+  "case_number": "1542206852583467",
+  "envelope_classification": "supplementary_evidence",
+  "po_box": "1913",
+  "jurisdiction": "BULKSCAN",
+  "delivery_date": "2018-11-14T09:52:00.000Z",
+  "opening_date": "2018-11-15T09:30:00.000Z",
+  "zip_file_createddate": "2018-11-13T15:41:00.000Z",
+  "zip_file_name": "453_14-11-2018-15-49-36.zip",
+  "scannable_items": [
+      {
+        "document_control_number": "238",
+        "document_type": "Other",
+        "scanning_date": "2018-11-13T12:20:00.000Z",
+        "next_action": "forward",
+        "next_action_date": "2018-11-13T12:32:00.000Z",
+        "file_name": "sscs1.pdf"
+      }
+
+  ]
+
+}

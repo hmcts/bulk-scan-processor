@@ -59,7 +59,7 @@ public class EnvelopeMapper {
             scannableItem.ocrData,
             scannableItem.fileName,
             scannableItem.notes,
-            scannableItem.documentType
+            scannableItem.documentType.toLowerCase()
         );
     }
 
