@@ -29,7 +29,6 @@ public class ErrorMsg implements Msg {
         this.zipFileName = zipFileName;
         this.jurisdiction = jurisdiction;
         this.poBox = poBox;
-
         this.documentControlNumber = documentControlNumber;
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
