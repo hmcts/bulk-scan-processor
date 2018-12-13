@@ -6,8 +6,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Document.fromScannableItem;
 
@@ -33,13 +36,23 @@ public class DocumentTest {
 
     @Test
     public void fromScannableItem_maps_document_type_correctly() {
-        ScannableItem cherishedScannableItem = scannableItem(DOCUMENT_TYPE_CHERISHED);
-        ScannableItem otherScannableItem = scannableItem(DOCUMENT_TYPE_OTHER);
-        ScannableItem sscs1ScannableItem = scannableItem("SSCS1");
+        assertThat(documentsFromScannableItems("Cherished", "cherished", "CHERISHED"))
+            .extracting("type")
+            .containsOnly(CCD_DOCUMENT_TYPE_CHERISHED);
 
-        assertThat(fromScannableItem(cherishedScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_CHERISHED);
-        assertThat(fromScannableItem(otherScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_OTHER);
-        assertThat(fromScannableItem(sscs1ScannableItem).type).isEqualTo(CCD_DOCUMENT_TYPE_OTHER);
+        assertThat(documentsFromScannableItems("Other", "other", "OTHER"))
+            .extracting("type")
+            .containsOnly(CCD_DOCUMENT_TYPE_OTHER);
+
+        assertThat(documentsFromScannableItems("SSCS1", "sscs1", "Sscs1"))
+            .extracting("type")
+            .containsOnly(CCD_DOCUMENT_TYPE_OTHER);
+    }
+
+    private List<Document> documentsFromScannableItems(String... inputDocumentTypes) {
+        return Arrays.stream(inputDocumentTypes)
+            .map(type -> fromScannableItem(scannableItem(type)))
+            .collect(toList());
     }
 
     private ScannableItem scannableItem(String documentType) {
@@ -53,7 +66,8 @@ public class DocumentTest {
             ImmutableMap.of("ocr", "data1"),
             "fileName1.pdf",
             "notes 1",
-            documentType
+            documentType,
+            "sscs1"
         );
 
         scannableItem.setDocumentUrl("http://document-url.example.com");
