@@ -134,6 +134,19 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
+    public void should_record_validation_failure_when_ocr_data_parsing_fails() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/invalid_ocr_data"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventWasCreated(FILE_VALIDATION_FAILURE);
+    }
+
+    @Test
     public void should_record_validation_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/non_pdf"));

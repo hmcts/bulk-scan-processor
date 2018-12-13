@@ -29,11 +29,13 @@ public class EnvelopeDeletionTest {
     private CloudBlobContainer rejectedContainer;
     private List<String> filesToDeleteAfterTest = new ArrayList<>();
     private TestHelper testHelper;
+    private String testPrivateKeyDer;
 
     @Before
     public void setUp() throws Exception {
         Config conf = ConfigFactory.load();
         this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
+        this.testPrivateKeyDer = conf.getString("test-private-key-der");
 
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(
@@ -60,7 +62,7 @@ public class EnvelopeDeletionTest {
 
     @After
     public void tearDown() throws Exception {
-        for (String filename: filesToDeleteAfterTest) {
+        for (String filename : filesToDeleteAfterTest) {
             try {
                 inputContainer.getBlockBlobReference(filename).breakLease(0);
             } catch (StorageException e) {
@@ -78,7 +80,8 @@ public class EnvelopeDeletionTest {
         String metadataFile = "1111006.metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
-        testHelper.uploadZipFile(inputContainer, files, metadataFile, destZipFilename); // valid zip file
+        // valid zip file
+        testHelper.uploadZipFile(inputContainer, files, metadataFile, destZipFilename, testPrivateKeyDer);
         filesToDeleteAfterTest.add(destZipFilename);
 
         await("file should be deleted")
@@ -97,7 +100,8 @@ public class EnvelopeDeletionTest {
             inputContainer,
             Arrays.asList("1111006.pdf"),
             null, // missing metadata file
-            destZipFilename
+            destZipFilename,
+            testPrivateKeyDer
         );
 
         filesToDeleteAfterTest.add(destZipFilename);

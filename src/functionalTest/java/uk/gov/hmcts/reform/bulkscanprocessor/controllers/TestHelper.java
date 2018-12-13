@@ -12,6 +12,8 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -27,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
 
-    public static final String TEST_PRIVATE_KEY_DER = "test_private_key.der";
+    private static final Logger log = LoggerFactory.getLogger(TestHelper.class);
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -70,10 +73,11 @@ public class TestHelper {
         CloudBlobContainer container,
         List<String> files,
         String metadataFile,
-        final String destZipFilename
+        final String destZipFilename,
+        String testPrivateKeyDer
     ) throws Exception {
         byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
+            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
     }
@@ -82,10 +86,11 @@ public class TestHelper {
         CloudBlobContainer container,
         List<String> files,
         String metadataFile,
-        String destZipFilename
+        String destZipFilename,
+        String testPrivateKeyDer
     ) throws Exception {
         byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, TEST_PRIVATE_KEY_DER);
+            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
         blockBlobReference.acquireLease();
@@ -154,10 +159,10 @@ public class TestHelper {
     }
 
     public byte[] createSignedZipArchiveWithRandomName(
-        List<String> files, String metadataFile, String zipFilename, String privateKeyFilename
+        List<String> files, String metadataFile, String zipFilename, String privateKeyDer
     ) throws Exception {
         byte[] zipArchive = createZipArchiveWithRandomName(files, metadataFile, zipFilename);
-        byte[] signature = signWithSha256Rsa(zipArchive, privateKeyFilename);
+        byte[] signature = signWithSha256Rsa(zipArchive, privateKeyDer);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
             zos.putNextEntry(new ZipEntry(ZipVerifiers.DOCUMENTS_ZIP));
@@ -171,8 +176,9 @@ public class TestHelper {
     }
 
     // Create signature using SHA256/RSA.
-    public byte[] signWithSha256Rsa(byte[] input, String privateKeyFilename) throws Exception {
-        byte[] keyBytes = Resources.toByteArray(Resources.getResource(privateKeyFilename));
+    public byte[] signWithSha256Rsa(byte[] input, String privateKeyDer) throws Exception {
+        byte[] keyBytes = Base64.getDecoder().decode(privateKeyDer);
+
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
 

@@ -6,7 +6,7 @@
   "opening_date": "23-06-2018 00:00:00.000000",
   "zip_file_createddate": "23-06-2018 00:00:00.000000",
   "zip_file_name": "7_24-06-2018-00-00-00.zip",
-  "classification": "exception",
+  "envelope_classification": "exception",
   "scannable_items": [
       {
         "document_control_number": "1111002",
