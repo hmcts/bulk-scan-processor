@@ -82,7 +82,7 @@
           },
           "manual_intervention": {
             "id": "#/properties/scannable_items/items/properties/manual_intervention",
-            "type": "string",
+            "type": ["string", "null"],
             "title": "Description of any manual intervention that had to be done during / before the scanning."
           },
           "next_action": {
