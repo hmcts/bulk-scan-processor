@@ -25,3 +25,18 @@ data "azurerm_key_vault_secret" "test_private_key_der" {
   name      = "test-private-key-der"
   vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
+
+output "TEST_ERROR_NOTIFICATION_URL" {
+  sensitive = true
+  value     = "${data.azurerm_key_vault_secret.notifications-url.value}"
+}
+
+output "TEST_ERROR_NOTIFICATION_USERNAME" {
+  sensitive = true
+  value     = "${data.azurerm_key_vault_secret.notifications-username.value}"
+}
+
+output "TEST_ERROR_NOTIFICATION_PASSWORD" {
+  sensitive = true
+  value     = "${data.azurerm_key_vault_secret.notifications-password.value}"
+}

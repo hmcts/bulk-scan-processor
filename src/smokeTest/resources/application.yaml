@@ -2,3 +2,7 @@ test-url: ${TEST_URL:http://localhost:8581}
 test-s2s-name: ${TEST_S2S_NAME}
 test-s2s-url: ${TEST_S2S_URL}
 test-s2s-secret: ${TEST_S2S_SECRET}
+
+error_notifications.url: ${TEST_ERROR_NOTIFICATION_URL}
+error_notifications.username: ${TEST_ERROR_NOTIFICATION_USERNAME}
+error_notifications.password: ${TEST_ERROR_NOTIFICATION_PASSWORD}
