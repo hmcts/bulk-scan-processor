@@ -24,7 +24,7 @@ public class FailingTimestampDeserialiserTest {
 
     @Test
     public void should_fail_to_parse_when_there_is_no_dot_for_fraction() throws IOException {
-        when(PARSER.getText()).thenReturn("23-12-2019 03:04:05");
+        when(PARSER.getText()).thenReturn("2019-12-23T03:04:05");
 
         Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(PARSER, CONTEXT));
 

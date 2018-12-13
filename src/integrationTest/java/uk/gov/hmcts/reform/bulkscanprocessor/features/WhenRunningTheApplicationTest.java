@@ -12,12 +12,14 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest(
@@ -56,6 +58,11 @@ public class WhenRunningTheApplicationTest {
             return CloudStorageAccount
                 .parse("UseDevelopmentStorage=true")
                 .createCloudBlobClient();
+        }
+
+        @Bean(name = "notifications")
+        public ServiceBusHelper serviceBusHelper() {
+            return mock(ServiceBusHelper.class);
         }
     }
 }

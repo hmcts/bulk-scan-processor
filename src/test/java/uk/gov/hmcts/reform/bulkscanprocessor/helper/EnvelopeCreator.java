@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -154,14 +151,6 @@ public final class EnvelopeCreator {
     }
 
     private static Timestamp getTimestamp() {
-        try {
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            Date date = dateFormat.parse("23-06-2018");
-            long time = date.getTime();
-            return new Timestamp(time);
-        } catch (ParseException exc) {
-            // this will never happen...
-            throw new RuntimeException(exc);
-        }
+        return Timestamp.from(Instant.parse("2018-06-23T12:34:56.123Z"));
     }
 }

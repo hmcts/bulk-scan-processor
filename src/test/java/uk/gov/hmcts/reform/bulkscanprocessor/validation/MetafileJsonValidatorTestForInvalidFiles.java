@@ -102,10 +102,11 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
             .hasMessageContaining("2013-02-20 00:00:00.100000")
             .hasMessageContaining("instance: {\"pointer\":\"/delivery_date\"}")
-            .hasMessageContaining("24-02-2017 24:00:00.010000")
+            .hasMessageContaining("17-13-24T00:00:00.001Z")
             .hasMessageContaining("instance: {\"pointer\":\"/opening_date\"}")
-            .hasMessageContaining("24-13-2017 00:00:00.001000")
+            .hasMessageContaining("2017-02-24T23:00:00.010")
             .hasMessageContaining("instance: {\"pointer\":\"/zip_file_createddate\"}");
+
     }
 
     @Test
