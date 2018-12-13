@@ -8,7 +8,7 @@ public class NotificationClientException extends RuntimeException {
 
     private final HttpStatus status;
 
-    private final ErrorNotificationFailingResponse response;
+    private final transient ErrorNotificationFailingResponse response;
 
     NotificationClientException(HttpClientErrorException cause, ErrorNotificationFailingResponse response) {
         super(cause);
