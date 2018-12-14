@@ -69,12 +69,18 @@ public abstract class Processor {
         deleteBlob(envelope, cloudBlockBlob);
     }
 
-    protected void handleEventRelatedError(Event event, String containerName, String zipFilename, Exception exception) {
-        registerEvent(event, containerName, zipFilename, exception.getMessage());
+    protected long handleEventRelatedError(
+        Event event,
+        String containerName,
+        String zipFilename,
+        Exception exception
+    ) {
         log.error(exception.getMessage(), exception);
+
+        return registerEvent(event, containerName, zipFilename, exception.getMessage());
     }
 
-    protected void registerEvent(Event event, String container, String zipFileName, String reason) {
+    protected long registerEvent(Event event, String container, String zipFileName, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
             container,
             zipFileName,
@@ -82,7 +88,7 @@ public abstract class Processor {
         );
 
         processEvent.setReason(reason);
-        eventRepository.save(processEvent);
+        long eventId = eventRepository.save(processEvent).getId();
 
         log.info(
             "Zip {} from {} marked as {}",
@@ -90,6 +96,8 @@ public abstract class Processor {
             processEvent.getContainer(),
             processEvent.getEvent()
         );
+
+        return eventId;
     }
 
     private Boolean uploadParsedEnvelopeDocuments(

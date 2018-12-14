@@ -249,12 +249,14 @@ public class BlobProcessorTask extends Processor {
         String leaseId,
         Exception cause
     ) {
-        handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+        Long eventId = handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
         ErrorCode errorCode = ErrorMapping.getFor(cause.getClass());
+
         if (errorCode != null) {
             this.notificationsQueueHelper.sendMessage(
                 new ErrorMsg(
                     UUID.randomUUID().toString(),
+                    eventId,
                     zipFilename,
                     containerName,
                     null,
