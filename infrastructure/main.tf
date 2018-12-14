@@ -95,6 +95,11 @@ module "bulk-scan" {
 
     DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"
 
+    // to be moved to vault
+    ERROR_NOTIFICATIONS_URL      = "false"
+    ERROR_NOTIFICATIONS_USERNAME = "user"
+    ERROR_NOTIFICATIONS_PASSWORD = "password"
+
     S2S_URL    = "${local.s2s_url}"
     S2S_NAME   = "${var.s2s_name}"
     S2S_SECRET = "${data.azurerm_key_vault_secret.s2s_secret.value}"

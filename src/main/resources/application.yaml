@@ -65,6 +65,8 @@ accesstoken:
     - serviceName: bulkscan
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
+# clients region
+
 idam:
   s2s-auth:
     url: ${S2S_URL:http://localhost:4552}
@@ -73,6 +75,13 @@ idam:
 
 document_management:
   url: http://dm-store:4460
+
+error_notifications:
+  url: false
+  username: user
+  password: password
+
+# end of clients region
 
 scheduling:
   pool: ${SCHEDULING_POOL:10}
