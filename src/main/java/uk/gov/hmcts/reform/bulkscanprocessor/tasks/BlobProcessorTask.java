@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -226,7 +227,6 @@ public class BlobProcessorTask extends Processor {
             return null;
         } catch (DocSignatureFailureException ex) {
             handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
-            notifyAboutError(zipFilename, containerName, ErrorCode.ERR_SIG_VERIFY_FAILED, ex.getMessage());
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
@@ -250,26 +250,21 @@ public class BlobProcessorTask extends Processor {
         Exception cause
     ) {
         handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+        ErrorCode errorCode = ErrorMapping.getFor(cause.getClass());
+        if (errorCode != null) {
+            this.notificationsQueueHelper.sendMessage(
+                new ErrorMsg(
+                    UUID.randomUUID().toString(),
+                    zipFilename,
+                    containerName,
+                    null,
+                    null,
+                    errorCode,
+                    cause.getMessage(),
+                    false
+                )
+            );
+        }
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
-    }
-
-    private void notifyAboutError(
-        String zipFileName,
-        String jurisdiction,
-        ErrorCode errorCode,
-        String desc
-    ) {
-        this.notificationsQueueHelper.sendMessage(
-            new ErrorMsg(
-                UUID.randomUUID().toString(),
-                zipFileName,
-                jurisdiction,
-                null,
-                null,
-                errorCode,
-                desc,
-                false
-            )
-        );
     }
 }

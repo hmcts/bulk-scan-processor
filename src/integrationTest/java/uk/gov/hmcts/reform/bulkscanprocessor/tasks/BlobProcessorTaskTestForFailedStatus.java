@@ -122,6 +122,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // then
         envelopeWasNotCreated();
         eventWasCreated(FILE_VALIDATION_FAILURE);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
     }
 
     @Test
@@ -135,6 +136,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // then
         envelopeWasNotCreated();
         eventWasCreated(FILE_VALIDATION_FAILURE);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
     @Test
@@ -148,6 +150,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // then
         envelopeWasNotCreated();
         eventWasCreated(FILE_VALIDATION_FAILURE);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
     @Test
@@ -161,6 +164,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // then
         envelopeWasNotCreated();
         eventWasCreated(FILE_VALIDATION_FAILURE);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
     }
 
     @Test
