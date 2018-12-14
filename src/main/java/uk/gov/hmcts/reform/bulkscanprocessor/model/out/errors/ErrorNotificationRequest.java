@@ -5,22 +5,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ErrorNotificationRequest {
 
     @JsonProperty("zip_file_name")
-    private final String zipFileName;
+    public final String zipFileName;
 
     @JsonProperty("po_box")
-    private final String poBox;
+    public final String poBox;
 
     @JsonProperty("document_control_number")
-    private final String documentControlNumber;
+    public final String documentControlNumber;
 
     @JsonProperty("error_code")
-    private final String errorCode;
+    public final String errorCode;
 
     @JsonProperty("error_description")
-    private final String errorDescription;
+    public final String errorDescription;
 
     @JsonProperty("reference_id")
-    private final String referenceId;
+    public final String referenceId;
 
     /**
      * Full request body definition.
