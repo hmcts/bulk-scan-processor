@@ -28,7 +28,7 @@ public class ErrorNotificationService {
             message.documentControlNumber,
             message.errorCode.name(),
             message.errorDescription,
-            message.id // make sure it's a valid reference
+            message.id
         );
 
         ErrorNotificationResponse response = client.notify(request);
