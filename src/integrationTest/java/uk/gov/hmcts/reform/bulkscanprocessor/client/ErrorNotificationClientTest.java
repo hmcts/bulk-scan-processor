@@ -2,11 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +33,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.util.SocketUtils.findAvailableTcpPort;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
 
 @ActiveProfiles("wiremock")
 @AutoConfigureWireMock
@@ -49,12 +48,6 @@ public class ErrorNotificationClientTest {
     @Autowired
     private ObjectMapper mapper;
 
-    @Before
-    public void setUp() {
-        // this will go away once request body is implemented
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-    }
-
     @Test
     public void should_return_Created_when_everything_is_ok_with_request() throws JsonProcessingException {
         // given
@@ -62,7 +55,12 @@ public class ErrorNotificationClientTest {
         stubWithResponse(created().withBody(mapper.writeValueAsBytes(response)));
 
         // when
-        ErrorNotificationResponse notificationResponse = client.notify(new ErrorNotificationRequest());
+        ErrorNotificationResponse notificationResponse = client.notify(new ErrorNotificationRequest(
+            "test_zip_file_name",
+            "test_po_box",
+            ERR_METAFILE_INVALID.name(),
+            "test_error_description"
+        ));
 
         // then
         assertThat(notificationResponse).isEqualToComparingFieldByField(response);
@@ -74,7 +72,12 @@ public class ErrorNotificationClientTest {
         stubWithResponse(unauthorized());
 
         // when
-        Throwable throwable = catchThrowable(() -> client.notify(new ErrorNotificationRequest()));
+        Throwable throwable = catchThrowable(() -> client.notify(new ErrorNotificationRequest(
+            "test_zip_file_name",
+            "test_po_box",
+            ERR_METAFILE_INVALID.name(),
+            "test_error_description"
+        )));
 
         // then
         assertThat(throwable).isInstanceOf(NotificationClientException.class);
@@ -94,7 +97,50 @@ public class ErrorNotificationClientTest {
         stubWithResponse(getBadRequest(message));
 
         // when
-        Throwable throwable = catchThrowable(() -> client.notify(new ErrorNotificationRequest()));
+        Throwable throwable = catchThrowable(() -> client.notify(new ErrorNotificationRequest(
+            "test_zip_file_name",
+            null,
+            "test_error_code",
+            null
+        )));
+
+        // then
+        assertThrowingResponse(throwable, message);
+    }
+
+    @Test
+    public void should_return_NotificationClientException_with_single_missing_required_field_info()
+        throws JsonProcessingException {
+        // given
+        String message = "zip_file_name is required";
+        stubWithResponse(getBadRequest(message));
+
+        // when
+        Throwable throwable = catchThrowable(() -> client.notify(new ErrorNotificationRequest(
+            null,
+            "test_po_box",
+            "test_error_code",
+            "test_description"
+        )));
+
+        // then
+        assertThrowingResponse(throwable, message);
+    }
+
+    @Test
+    public void should_return_NotificationClientException_with_invalid_error_code_info()
+        throws JsonProcessingException {
+        // given
+        String message = "Invalid error code.";
+        stubWithResponse(getBadRequest(message));
+
+        // when
+        Throwable throwable = catchThrowable(() -> client.notify(new ErrorNotificationRequest(
+            "test_zip_file_name",
+            "test_po_box",
+            "test_error_code",
+            "test_description"
+        )));
 
         // then
         assertThrowingResponse(throwable, message);
