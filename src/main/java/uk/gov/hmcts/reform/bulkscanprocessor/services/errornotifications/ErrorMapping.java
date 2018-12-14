@@ -16,7 +16,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_ZIP_PROCESSING_FAILED;
 
 /**
- * Stores mapping between exceptions and ErrorCodes
+ * Stores mapping between exceptions and ErrorCodes.
  */
 public final class ErrorMapping {
 
