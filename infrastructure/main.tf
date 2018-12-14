@@ -1,4 +1,6 @@
-provider "azurerm" {}
+provider "azurerm" {
+  version = "1.19.0"
+}
 
 locals {
   is_preview          = "${(var.env == "preview" || var.env == "spreview")}"
