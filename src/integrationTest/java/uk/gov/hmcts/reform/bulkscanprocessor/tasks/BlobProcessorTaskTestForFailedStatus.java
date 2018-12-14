@@ -205,6 +205,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         ErrorMsg sentMsg = argument.getValue();
 
         assertThat(sentMsg.zipFileName).isEqualTo(zipFileName);
+        assertThat(sentMsg.jurisdiction).isEqualTo(CONTAINER_NAME);
         assertThat(sentMsg.errorCode).isEqualTo(code);
     }
 
