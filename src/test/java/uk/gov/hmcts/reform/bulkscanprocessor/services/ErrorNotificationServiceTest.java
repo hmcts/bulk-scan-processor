@@ -65,16 +65,12 @@ public class ErrorNotificationServiceTest {
 
         // then
         ErrorNotificationRequest request = requestCaptor.getValue();
-        assertThat(request).extracting(
-            "zipFileName", "poBox", "documentControlNumber", "errorCode", "errorDescription", "referenceId"
-        ).containsExactly(
-            serviceBusMessage.zipFileName,
-            serviceBusMessage.poBox,
-            serviceBusMessage.documentControlNumber,
-            serviceBusMessage.errorCode.name(),
-            serviceBusMessage.errorDescription,
-            serviceBusMessage.id
-        );
+        assertThat(request.zipFileName).isEqualTo(serviceBusMessage.zipFileName);
+        assertThat(request.poBox).isEqualTo(serviceBusMessage.poBox);
+        assertThat(request.documentControlNumber).isEqualTo(serviceBusMessage.documentControlNumber);
+        assertThat(request.errorCode).isEqualTo(serviceBusMessage.errorCode.name());
+        assertThat(request.errorDescription).isEqualTo(serviceBusMessage.errorDescription);
+        assertThat(request.referenceId).isEqualTo(serviceBusMessage.id);
 
         // and
         assertThat(capture.toString()).contains(
