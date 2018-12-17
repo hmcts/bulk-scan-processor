@@ -43,8 +43,8 @@ public class OcrDataDeserializer extends StdDeserializer<Map<String, String>> {
             toMap(
                 field -> field.getName().textValue(),
                 field -> field.getValue().asText(""),
-                (u, v) -> {
-                    throw new IllegalStateException(String.format("Duplicate key for value '%s'", u));
+                (value1, value2) -> {
+                    throw new IllegalStateException(String.format("Duplicate key for value '%s'", value1));
                 },
                 LinkedHashMap::new
             )
