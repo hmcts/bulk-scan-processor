@@ -13,7 +13,6 @@ public class ErrorMsg implements Msg {
     public final String documentControlNumber;
     public final ErrorCode errorCode;
     public final String errorDescription;
-    public final boolean testOnly;
 
     // region constructors
     @SuppressWarnings("squid:S00107") // number of params
@@ -25,8 +24,7 @@ public class ErrorMsg implements Msg {
         String poBox,
         String documentControlNumber,
         ErrorCode errorCode,
-        String errorDescription,
-        boolean testOnly
+        String errorDescription
     ) {
         this.id = id;
         this.eventId = eventId;
@@ -36,7 +34,6 @@ public class ErrorMsg implements Msg {
         this.documentControlNumber = documentControlNumber;
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
-        this.testOnly = testOnly;
     }
     // endregion
 
@@ -48,7 +45,7 @@ public class ErrorMsg implements Msg {
 
     @Override
     public boolean isTestOnly() {
-        return this.testOnly;
+        return false;
     }
     // endregion
 }

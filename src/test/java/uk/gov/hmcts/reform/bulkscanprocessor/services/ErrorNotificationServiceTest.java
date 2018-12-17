@@ -55,8 +55,7 @@ public class ErrorNotificationServiceTest {
             "po box",
             "document control number",
             ErrorCode.ERR_AV_FAILED,
-            "antivirus flag",
-            true
+            "antivirus flag"
         );
         ErrorNotificationResponse response = new ErrorNotificationResponse("notify id");
         given(client.notify(requestCaptor.capture())).willReturn(response);
