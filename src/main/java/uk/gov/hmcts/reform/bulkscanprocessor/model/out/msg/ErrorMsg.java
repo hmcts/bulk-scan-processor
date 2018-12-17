@@ -6,6 +6,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 public class ErrorMsg implements Msg {
 
     public final String id;
+    public final Long eventId;
     public final String zipFileName;
     public final String jurisdiction;
     public final String poBox;
@@ -18,6 +19,7 @@ public class ErrorMsg implements Msg {
     @SuppressWarnings("squid:S00107") // number of params
     public ErrorMsg(
         String id,
+        Long eventId,
         String zipFileName,
         String jurisdiction,
         String poBox,
@@ -27,6 +29,7 @@ public class ErrorMsg implements Msg {
         boolean testOnly
     ) {
         this.id = id;
+        this.eventId = eventId;
         this.zipFileName = zipFileName;
         this.jurisdiction = jurisdiction;
         this.poBox = poBox;
