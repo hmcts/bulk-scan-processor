@@ -252,18 +252,27 @@ public class BlobProcessorTask extends Processor {
         handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
         ErrorCode errorCode = ErrorMapping.getFor(cause.getClass());
         if (errorCode != null) {
-            this.notificationsQueueHelper.sendMessage(
-                new ErrorMsg(
-                    UUID.randomUUID().toString(),
-                    zipFilename,
-                    containerName,
-                    null,
-                    null,
-                    errorCode,
-                    cause.getMessage(),
-                    false
-                )
-            );
+            try {
+                this.notificationsQueueHelper.sendMessage(
+                    new ErrorMsg(
+                        UUID.randomUUID().toString(),
+                        zipFilename,
+                        containerName,
+                        null,
+                        null,
+                        errorCode,
+                        cause.getMessage(),
+                        false
+                    )
+                );
+            } catch (Exception exc) {
+                log.error(
+                    "Error sending notification to the queue."
+                        + "File name: " + zipFilename + " "
+                        + "Container: " + containerName,
+                    exc
+                );
+            }
         }
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
