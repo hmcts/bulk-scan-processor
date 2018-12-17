@@ -262,8 +262,7 @@ public class BlobProcessorTask extends Processor {
                             null,
                             null,
                             errorCode,
-                            cause.getMessage(),
-                            false
+                            cause.getMessage()
                         )
                     );
                 } catch (Exception exc) {

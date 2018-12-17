@@ -16,6 +16,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors.ErrorNotificationR
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -55,8 +59,7 @@ public class ErrorNotificationServiceTest {
             "po box",
             "document control number",
             ErrorCode.ERR_AV_FAILED,
-            "antivirus flag",
-            true
+            "antivirus flag"
         );
         ErrorNotificationResponse response = new ErrorNotificationResponse("notify id");
         given(client.notify(requestCaptor.capture())).willReturn(response);
