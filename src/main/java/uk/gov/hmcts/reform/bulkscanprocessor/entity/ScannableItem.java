@@ -47,7 +47,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
-    private String documentType = "Other";
+    private String documentType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)

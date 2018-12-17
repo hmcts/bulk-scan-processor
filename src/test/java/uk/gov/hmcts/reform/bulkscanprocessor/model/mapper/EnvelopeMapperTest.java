@@ -101,8 +101,23 @@ public class EnvelopeMapperTest {
             dbScannableItem.getOcrData(),
             dbScannableItem.getFileName(),
             dbScannableItem.getNotes(),
-            dbScannableItem.getDocumentType()
+            convertToInputDocumentType(dbScannableItem.getDocumentType())
         );
+    }
+
+    private String convertToInputDocumentType(String documentType) {
+        switch (documentType) {
+            case "cherished":
+                return "Cherished";
+            case "other":
+                return "Other";
+            case "sscs1":
+                return "SSCS1";
+            default:
+                throw new AssertionError(
+                    String.format("Expected a valid document type but got: %s", documentType)
+                );
+        }
     }
 
     private InputNonScannableItem convertToInputNonScannableItem(NonScannableItem dbNonScannableItem) {
