@@ -108,7 +108,7 @@ public final class EnvelopeCreator {
             null,
             "1111001.pdf",
             "test",
-            "Cherished"
+            "cherished"
         );
         scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
@@ -123,7 +123,7 @@ public final class EnvelopeCreator {
             ImmutableMap.of("name1", "value1"),
             "1111002.pdf",
             "test",
-            "Other"
+            "other"
         );
         scannableItem2.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
