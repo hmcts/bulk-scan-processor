@@ -60,8 +60,8 @@ public class Document {
     // original values in the DB, so that no information is lost. That's why the mapping
     // takes place when putting the message on the queue.
     private static String mapDocumentType(String documentType) {
-        if (DOCUMENT_TYPES.contains(documentType.toLowerCase())) {
-            return documentType.toLowerCase();
+        if (DOCUMENT_TYPES.contains(documentType)) {
+            return documentType;
         } else {
             return DOCUMENT_TYPE_OTHER;
         }

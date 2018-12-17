@@ -150,14 +150,14 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
         when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
-        when(scannableItem1.getDocumentType()).thenReturn("Cherished");
+        when(scannableItem1.getDocumentType()).thenReturn("cherished");
         when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
         when(scannableItem1.getOcrData()).thenReturn(ImmutableMap.of("key1", "value1"));
 
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
         when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
-        when(scannableItem2.getDocumentType()).thenReturn("Other");
+        when(scannableItem2.getDocumentType()).thenReturn("other");
         when(scannableItem2.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
         when(scannableItem2.getOcrData()).thenReturn(null);
     }
