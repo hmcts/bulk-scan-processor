@@ -1,8 +1,7 @@
 CREATE TABLE error_notifications (
   id BIGSERIAL PRIMARY KEY,
-  eventId BIGINT NOT NULL,
+  event_id BIGINT NOT NULL REFERENCES process_events(id),
   notificationId VARCHAR(50) NULL,
-  zipFileName VARCHAR(255) NOT NULL,
   documentControlNumber VARCHAR(100) NULL,
   errorCode VARCHAR(20) NOT NULL,
   errorDescription TEXT NOT NULL,
