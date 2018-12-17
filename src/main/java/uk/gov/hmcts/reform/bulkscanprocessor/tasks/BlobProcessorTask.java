@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
@@ -250,23 +249,33 @@ public class BlobProcessorTask extends Processor {
         Exception cause
     ) {
         Long eventId = handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
-        ErrorCode errorCode = ErrorMapping.getFor(cause.getClass());
+        ErrorMapping
+            .getFor(cause.getClass())
+            .ifPresent(errorCode -> {
+                try {
+                    this.notificationsQueueHelper.sendMessage(
+                        new ErrorMsg(
+                            UUID.randomUUID().toString(),
+                            eventId,
+                            zipFilename,
+                            containerName,
+                            null,
+                            null,
+                            errorCode,
+                            cause.getMessage(),
+                            false
+                        )
+                    );
+                } catch (Exception exc) {
+                    log.error(
+                        "Error sending notification to the queue."
+                            + "File name: " + zipFilename + " "
+                            + "Container: " + containerName,
+                        exc
+                    );
+                }
+            });
 
-        if (errorCode != null) {
-            this.notificationsQueueHelper.sendMessage(
-                new ErrorMsg(
-                    UUID.randomUUID().toString(),
-                    eventId,
-                    zipFilename,
-                    containerName,
-                    null,
-                    null,
-                    errorCode,
-                    cause.getMessage(),
-                    false
-                )
-            );
-        }
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
 }
