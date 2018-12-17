@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.Test;
@@ -40,6 +41,13 @@ public class OcrDataSerializationJourneyTest {
             "/metafiles/valid/envelope-with-ocr-data.json"
         );
 
+        Map<String, String> expectedResult = ImmutableMap.of(
+            "text_field", "some text",
+            "number_field", "123",
+            "boolean_field", "true",
+            "null_field", ""
+        );
+
         try (InputStream inputStream = resourceAsStream) {
             inputEnvelope = mapper.readValue(IOUtils.toByteArray(inputStream), InputEnvelope.class);
         }
@@ -65,9 +73,8 @@ public class OcrDataSerializationJourneyTest {
             new TypeReference<LinkedHashMap<String, String>>() {
             }
         );
-        AssertionsForInterfaceTypes.assertThat(actualValue.entrySet()).containsExactlyElementsOf(
-            inputEnvelope.scannableItems.get(0).ocrData.entrySet()
-        );
+        AssertionsForInterfaceTypes.assertThat(actualValue.entrySet())
+            .containsExactlyElementsOf(expectedResult.entrySet());
     }
 
 }
