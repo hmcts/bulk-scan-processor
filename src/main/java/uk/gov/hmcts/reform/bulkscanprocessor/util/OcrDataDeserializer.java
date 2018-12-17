@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -18,7 +19,7 @@ public class OcrDataDeserializer extends StdDeserializer<Map<String, String>> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public OcrDataDeserializer() {
-        super(Map.class);
+        super(LinkedHashMap.class);
     }
 
     @Override
@@ -41,7 +42,11 @@ public class OcrDataDeserializer extends StdDeserializer<Map<String, String>> {
         return ocrData.getFields().stream().collect(
             toMap(
                 field -> field.getName().textValue(),
-                field -> field.getValue().asText("")
+                field -> field.getValue().asText(""),
+                (u, v) -> {
+                    throw new IllegalStateException(String.format("Duplicate key %s", u));
+                },
+                LinkedHashMap::new
             )
         );
     }
