@@ -49,6 +49,7 @@ public class ErrorNotificationServiceTest {
         // given
         ErrorMsg serviceBusMessage = new ErrorMsg(
             "some id",
+            null,
             "zip file name",
             "jurisdiction",
             "po box",
