@@ -55,7 +55,10 @@ public class ErrorNotificationHandlerTest {
         Throwable throwable = catchThrowable(future::join);
         assertThat(throwable.getCause())
             .isInstanceOf(InvalidMessageException.class)
-            .hasMessageContaining("Unable to read error message. Message: Missing required creator property 'id'");
+            .hasMessageContaining("Unable to read error message");
+        assertThat(throwable.getCause().getCause())
+            .isInstanceOf(JsonProcessingException.class)
+            .hasMessageContaining("Missing required creator property 'id'");
 
         // and
         verify(service, never()).processServiceBusMessage(any(ErrorMsg.class));
