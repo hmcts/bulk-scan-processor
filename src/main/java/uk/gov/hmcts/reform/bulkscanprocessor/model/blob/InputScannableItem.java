@@ -20,7 +20,7 @@ public class InputScannableItem {
     public final Map<String, String> ocrData;
     public final String fileName;
     public final String notes;
-    public final String documentType;
+    public final InputDocumentType documentType;
 
     @JsonCreator
     public InputScannableItem(
@@ -36,7 +36,7 @@ public class InputScannableItem {
         @JsonProperty("ocr_data") Map<String, String> ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
-        @JsonProperty("document_type") String documentType
+        @JsonProperty("document_type") InputDocumentType documentType
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
