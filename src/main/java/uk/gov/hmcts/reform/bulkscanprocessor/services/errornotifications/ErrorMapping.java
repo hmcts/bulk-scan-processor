@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_SIG_VERIFY_FAILED;
@@ -34,7 +35,7 @@ public final class ErrorMapping {
         // util class
     }
 
-    public static ErrorCode getFor(Class<?> clazz) {
-        return mapping.get(clazz);
+    public static Optional<ErrorCode> getFor(Class<?> clazz) {
+        return Optional.ofNullable(mapping.get(clazz));
     }
 }
