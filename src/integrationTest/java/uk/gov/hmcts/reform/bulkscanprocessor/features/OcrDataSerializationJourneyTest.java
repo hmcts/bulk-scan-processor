@@ -41,7 +41,7 @@ public class OcrDataSerializationJourneyTest {
             "/metafiles/valid/envelope-with-ocr-data.json"
         );
 
-        Map<String, String> expectedResult = ImmutableMap.of(
+        final Map<String, String> expectedResult = ImmutableMap.of(
             "text_field", "some text",
             "number_field", "123",
             "boolean_field", "true",
@@ -53,13 +53,15 @@ public class OcrDataSerializationJourneyTest {
         }
 
         AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems).isNotEmpty();
-        AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems.get(0).ocrData).isInstanceOf(LinkedHashMap.class);
+        AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems.get(0).ocrData)
+            .isInstanceOf(LinkedHashMap.class);
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(inputEnvelope, "test");
         UUID envelopeId = repository.save(dbEnvelope).getId();
 
         Envelope readEnvelope = repository.getOne(envelopeId);
-        AssertionsForInterfaceTypes.assertThat(readEnvelope.getScannableItems().get(0).getOcrData()).isInstanceOf(LinkedHashMap.class);
+        AssertionsForInterfaceTypes.assertThat(readEnvelope.getScannableItems().get(0).getOcrData())
+            .isInstanceOf(LinkedHashMap.class);
 
         EnvelopeMsg envelopeMsg = new EnvelopeMsg(readEnvelope);
         AssertionsForInterfaceTypes.assertThat(envelopeMsg.getOcrData()).isInstanceOf(LinkedHashMap.class);

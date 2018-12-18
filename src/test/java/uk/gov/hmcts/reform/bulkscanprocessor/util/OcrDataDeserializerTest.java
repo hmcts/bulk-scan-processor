@@ -44,7 +44,7 @@ public class OcrDataDeserializerTest {
         assertThat(thrown).isInstanceOf(OcrDataParseException.class)
             .hasCauseExactlyInstanceOf(IllegalStateException.class);
 
-        assertThat(thrown.getCause().getMessage()).contains("Duplicate key for value 'some text'");
+        assertThat(thrown.getCause().getMessage()).contains("Ocr data contains duplicate fields");
     }
 
     @Test
