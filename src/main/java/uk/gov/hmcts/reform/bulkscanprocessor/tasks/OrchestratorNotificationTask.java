@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusConfiguration.ENVELOPE_QUEUE_PUSH;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 
 /**
@@ -32,7 +33,7 @@ public class OrchestratorNotificationTask {
 
     // region constructor
     public OrchestratorNotificationTask(
-        @Qualifier("envelopes") ServiceBusHelper serviceBusHelper,
+        @Qualifier(ENVELOPE_QUEUE_PUSH) ServiceBusHelper serviceBusHelper,
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository processEventRepo
     ) {

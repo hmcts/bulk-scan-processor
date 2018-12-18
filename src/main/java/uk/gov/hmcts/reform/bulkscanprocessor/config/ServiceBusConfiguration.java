@@ -15,7 +15,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelpe
 @Configuration
 public class ServiceBusConfiguration {
 
-    @Bean(name = "envelopes")
+    public static final String ENVELOPE_QUEUE_PUSH = "envelope-queue-push";
+    public static final String NOTIFICATION_QUEUE_PUSH = "notification-queue-push";
+
+    @Bean(name = ENVELOPE_QUEUE_PUSH)
     public ServiceBusHelper envelopesQueueHelper(
         @Value("${queues.envelopes.connection-string}") String connectionString,
         @Value("${queues.envelopes.queue-name}") String queueName,
@@ -30,7 +33,7 @@ public class ServiceBusConfiguration {
         );
     }
 
-    @Bean(name = "notifications")
+    @Bean(name = NOTIFICATION_QUEUE_PUSH)
     public ServiceBusHelper notificationsQueueHelper(
         @Value("${queues.notifications.connection-string}") String connectionString,
         @Value("${queues.notifications.queue-name}") String queueName,

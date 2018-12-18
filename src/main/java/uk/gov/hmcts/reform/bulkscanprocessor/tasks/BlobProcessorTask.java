@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusConfiguration.NOTIFICATION_QUEUE_PUSH;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
 /**
@@ -78,7 +79,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
-        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper
+        @Qualifier(NOTIFICATION_QUEUE_PUSH) ServiceBusHelper notificationsQueueHelper
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.notificationsQueueHelper = notificationsQueueHelper;
@@ -93,7 +94,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
-        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper,
+        @Qualifier(NOTIFICATION_QUEUE_PUSH) ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
