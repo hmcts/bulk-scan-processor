@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ConfigurationProperties(prefix = "queues")
-public class ServiceBusQueueProperties {
+class ServiceBusQueueProperties {
 
     private Map<ServiceBusQueues, Queue> queues;
 
@@ -20,11 +20,13 @@ public class ServiceBusQueueProperties {
     public void setQueues(List<Queue> queues) {
         this.queues = new EnumMap<>(queues
             .stream()
-            .collect(Collectors.toMap(Queue::getQueueName, Function.identity()))
+            .collect(Collectors.toMap(Queue::getQueue, Function.identity()))
         );
     }
 
     public static class Queue {
+
+        private ServiceBusQueueTypes type;
 
         private ServiceBusQueues queueName;
 
@@ -34,8 +36,20 @@ public class ServiceBusQueueProperties {
             // configuration section constructor
         }
 
-        public ServiceBusQueues getQueueName() {
+        public ServiceBusQueueTypes getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = ServiceBusQueueTypes.valueOf(type.toUpperCase());
+        }
+
+        public ServiceBusQueues getQueue() {
             return queueName;
+        }
+
+        public String getQueueName() {
+            return queueName.getQueueName();
         }
 
         public void setQueueName(String queueName) {

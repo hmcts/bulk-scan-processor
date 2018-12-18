@@ -34,7 +34,7 @@ public class ServiceBusConfiguration {
     public ServiceBusHelper envelopesQueueHelper(ObjectMapper objectMapper)
         throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
-            getQueueClient(queues.get(ServiceBusQueues.ENVELOPES)),
+            getQueueClient(queues.get(ServiceBusQueues.ENVELOPES_PUSH)),
             objectMapper
         );
     }
@@ -43,7 +43,7 @@ public class ServiceBusConfiguration {
     public ServiceBusHelper notificationsQueueHelper(ObjectMapper objectMapper)
         throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
-            getQueueClient(queues.get(ServiceBusQueues.NOTIFICATIONS)),
+            getQueueClient(queues.get(ServiceBusQueues.NOTIFICATIONS_PUSH)),
             objectMapper
         );
     }
@@ -52,7 +52,7 @@ public class ServiceBusConfiguration {
         return new QueueClient(
             new ConnectionStringBuilder(
                 queue.getConnectionString(),
-                queue.getQueueName().name().toLowerCase()
+                queue.getQueueName()
             ),
             ReceiveMode.PEEKLOCK
         );
