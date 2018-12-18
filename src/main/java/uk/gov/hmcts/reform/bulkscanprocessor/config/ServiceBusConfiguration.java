@@ -6,6 +6,7 @@ import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,25 +27,24 @@ public class ServiceBusConfiguration {
 
     private final Map<ServiceBusQueues, Queue> queues;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     public ServiceBusConfiguration(ServiceBusQueueProperties properties) {
         queues = properties.getQueues();
     }
 
     @Bean(name = ENVELOPE_QUEUE_PUSH)
-    public ServiceBusHelper envelopesQueueHelper(ObjectMapper objectMapper)
-        throws InterruptedException, ServiceBusException {
+    public ServiceBusHelper envelopesQueueHelper() throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
-            getQueueClient(queues.get(ServiceBusQueues.ENVELOPES_PUSH)),
-            objectMapper
+            getQueueClient(queues.get(ServiceBusQueues.ENVELOPES_PUSH))
         );
     }
 
     @Bean(name = NOTIFICATION_QUEUE_PUSH)
-    public ServiceBusHelper notificationsQueueHelper(ObjectMapper objectMapper)
-        throws InterruptedException, ServiceBusException {
+    public ServiceBusHelper notificationsQueueHelper() throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
-            getQueueClient(queues.get(ServiceBusQueues.NOTIFICATIONS_PUSH)),
-            objectMapper
+            getQueueClient(queues.get(ServiceBusQueues.NOTIFICATIONS_PUSH))
         );
     }
 
@@ -58,7 +58,7 @@ public class ServiceBusConfiguration {
         );
     }
 
-    private ServiceBusHelper getServiceBusHelper(IQueueClient queueClient, ObjectMapper mapper) {
+    private ServiceBusHelper getServiceBusHelper(IQueueClient queueClient) {
         return new ServiceBusHelper(queueClient, mapper);
     }
 }
