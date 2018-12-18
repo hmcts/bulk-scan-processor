@@ -13,6 +13,7 @@ public enum DocumentType {
         this.value = value;
     }
 
+    @Override
     @JsonValue
     public String toString() {
         return value;
