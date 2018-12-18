@@ -34,9 +34,9 @@ public class OcrDataDeserializerTest {
     }
 
     @Test
-    public void should_throw_illega_state_exception_when_ocr_data_contains_duplicate_keys() {
+    public void should_throw_illegal_state_exception_when_ocr_data_contains_duplicate_keys() {
         Throwable thrown = catchThrowable(() -> {
-                JsonParser jsonParser = getJsonParser("/ocr-data/invalid/invalid-ocr.json");
+                JsonParser jsonParser = getJsonParser("/ocr-data/invalid/duplicate-field-name.json");
                 deserializer.deserialize(jsonParser, mock(DeserializationContext.class));
             }
         );
