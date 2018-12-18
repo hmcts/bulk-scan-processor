@@ -51,12 +51,10 @@ storage:
   blob_copy_polling_delay_in_millis: ${BLOB_COPY_POLLING_DELAY_IN_MILLIS:500}
 
 queues:
-  envelopes:
+  - queue-name: envelopes
     connection-string: ${QUEUE_ENVELOPE_SEND:"NO_VALUE_SUPPLIED"}
-    queue-name: envelopes
-  notifications:
+  - queue-name: notifications
     connection-string: ${QUEUE_NOTIFICATIONS_SEND:"NO_VALUE_SUPPLIED"}
-    queue-name: notifications
 
 accesstoken:
   serviceConfig:

@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusConfiguration;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 import java.net.URISyntaxException;
@@ -60,7 +61,7 @@ public class WhenRunningTheApplicationTest {
                 .createCloudBlobClient();
         }
 
-        @Bean(name = "notifications")
+        @Bean(name = ServiceBusConfiguration.NOTIFICATION_QUEUE_PUSH)
         public ServiceBusHelper serviceBusHelper() {
             return mock(ServiceBusHelper.class);
         }
