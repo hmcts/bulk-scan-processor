@@ -63,7 +63,7 @@ public class EnvelopeMsg implements Msg {
             .map(Document::fromScannableItem)
             .collect(Collectors.toList());
 
-        this.ocrData = getOcrData(envelope);
+        this.ocrData = retrieveOcrData(envelope);
     }
 
     @Override
@@ -104,6 +104,10 @@ public class EnvelopeMsg implements Msg {
         return documents;
     }
 
+    public Map<String, String> getOcrData() {
+        return ocrData;
+    }
+
     @Override
     public boolean isTestOnly() {
         return testOnly;
@@ -119,7 +123,7 @@ public class EnvelopeMsg implements Msg {
             + "}";
     }
 
-    private Map<String, String> getOcrData(Envelope envelope) {
+    private Map<String, String> retrieveOcrData(Envelope envelope) {
         return envelope
             .getScannableItems()
             .stream()

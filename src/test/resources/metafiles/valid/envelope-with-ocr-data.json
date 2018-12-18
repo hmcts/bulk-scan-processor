@@ -1,0 +1,23 @@
+{
+  "case_number": "1111222233334446",
+  "po_box": "XXXX",
+  "jurisdiction": "SSCS",
+  "delivery_date": "2017-02-23T22:00:00.100Z",
+  "opening_date": "2017-03-31T00:00:00.010Z",
+  "zip_file_createddate": "2017-02-24T00:00:00.001Z",
+  "zip_file_name": "1_24-02-2017-00-00-00.zip",
+  "classification": "new_application",
+  "scannable_items": [
+    {
+      "document_control_number": "1111001",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "return",
+      "next_action_date": "2017-02-24T00:00:00.000Z",
+      "file_name": "1111001.pdf",
+      "notes": "The document had ink spilled on it",
+      "document_type": "Cherished",
+      "ocr_data": "ewogICJNZXRhZGF0YV9maWxlIjogWwogICAgewogICAgICAibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJ0ZXh0X2ZpZWxkIiwKICAgICAgIm1ldGFkYXRhX2ZpZWxkX3ZhbHVlIjogInNvbWUgdGV4dCIKICAgIH0sCiAgICB7CiAgICAgICJtZXRhZGF0YV9maWVsZF9uYW1lIjogIm51bWJlcl9maWVsZCIsCiAgICAgICJtZXRhZGF0YV9maWVsZF92YWx1ZSI6IDEyMwogICAgfSwKICAgIHsKICAgICAgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAiYm9vbGVhbl9maWVsZCIsCiAgICAgICJtZXRhZGF0YV9maWVsZF92YWx1ZSI6IHRydWUKICAgIH0sCiAgICB7CiAgICAgICJtZXRhZGF0YV9maWVsZF9uYW1lIjogIm51bGxfZmllbGQiLAogICAgICAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiBudWxsCiAgICB9CiAgXQp9Cg=="
+    }
+  ]
+}
