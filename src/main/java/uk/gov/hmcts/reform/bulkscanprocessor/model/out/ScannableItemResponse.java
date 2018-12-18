@@ -15,42 +15,42 @@ import java.util.Map;
 public class ScannableItemResponse {
 
     @JsonProperty("document_control_number")
-    private final String documentControlNumber;
+    public final String documentControlNumber;
 
     @JsonProperty("scanning_date")
     @JsonSerialize(using = CustomTimestampSerialiser.class)
-    private final Timestamp scanningDate;
+    public final Timestamp scanningDate;
 
     @JsonProperty("ocr_accuracy")
-    private final String ocrAccuracy;
+    public final String ocrAccuracy;
 
     @JsonProperty("manual_intervention")
-    private final String manualIntervention;
+    public final String manualIntervention;
 
     @JsonProperty("next_action")
-    private final String nextAction;
+    public final String nextAction;
 
     @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("next_action_date")
-    private final Timestamp nextActionDate;
+    public final Timestamp nextActionDate;
 
     @JsonProperty("ocr_data")
-    private final Map<String, String> ocrData;
+    public final Map<String, String> ocrData;
 
     @JsonProperty("file_name")
-    private final String fileName;
+    public final String fileName;
 
     @JsonProperty("notes")
-    private final String notes;
+    public final String notes;
 
     @JsonProperty("document_url")
-    private String documentUrl;
+    public final String documentUrl;
 
     @JsonProperty("document_type")
-    private final DocumentType documentType;
+    public final DocumentType documentType;
 
     @JsonProperty("document_subtype")
-    private final DocumentSubtype documentSubtype;
+    public final DocumentSubtype documentSubtype;
 
     @JsonCreator
     public ScannableItemResponse(
@@ -65,6 +65,7 @@ public class ScannableItemResponse {
         @JsonProperty("ocr_data") Map<String, String> ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
+        @JsonProperty("document_url") String documentUrl,
         @JsonProperty("document_type") DocumentType documentType,
         @JsonProperty("document_subtype") DocumentSubtype documentSubtype
     ) {
@@ -77,60 +78,9 @@ public class ScannableItemResponse {
         this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
+        this.documentUrl = documentUrl;
         this.documentType = documentType;
         this.documentSubtype = documentSubtype;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getDocumentUrl() {
-        return documentUrl;
-    }
-
-    public void setDocumentUrl(String documentUrl) {
-        this.documentUrl = documentUrl;
-    }
-
-    public String getDocumentControlNumber() {
-        return documentControlNumber;
-    }
-
-    public Timestamp getScanningDate() {
-        return scanningDate;
-    }
-
-    public String getOcrAccuracy() {
-        return ocrAccuracy;
-    }
-
-    public String getManualIntervention() {
-        return manualIntervention;
-    }
-
-    public String getNextAction() {
-        return nextAction;
-    }
-
-    public Timestamp getNextActionDate() {
-        return nextActionDate;
-    }
-
-    public Map<String, String> getOcrData() {
-        return ocrData;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public DocumentType getDocumentType() {
-        return documentType;
-    }
-
-    public DocumentSubtype getDocumentSubtype() {
-        return documentSubtype;
     }
 
     @Override

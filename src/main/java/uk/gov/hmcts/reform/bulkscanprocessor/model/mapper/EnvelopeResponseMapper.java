@@ -4,7 +4,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
@@ -65,7 +64,8 @@ public final class EnvelopeResponseMapper {
         if (scannableItem == null) {
             return null;
         }
-        ScannableItemResponse response = new ScannableItemResponse(
+
+        return new ScannableItemResponse(
             scannableItem.getDocumentControlNumber(),
             scannableItem.getScanningDate(),
             scannableItem.getOcrAccuracy(),
@@ -75,11 +75,10 @@ public final class EnvelopeResponseMapper {
             scannableItem.getOcrData(),
             scannableItem.getFileName(),
             scannableItem.getNotes(),
+            scannableItem.getDocumentUrl(),
             scannableItem.getDocumentType(),
             scannableItem.getDocumentSubtype()
         );
-        response.setDocumentUrl(scannableItem.getDocumentUrl());
-        return response;
     }
 
     private static List<NonScannableItemResponse> toNonScannableItemsResponse(

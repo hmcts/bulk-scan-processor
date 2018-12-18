@@ -84,6 +84,6 @@ public class BlobProcessorTest {
 
         assertThat(envelope.getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
         assertThat(envelope.getScannableItems()).hasSize(2);
-        assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.getDocumentUrl()));
+        assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUrl));
     }
 }
