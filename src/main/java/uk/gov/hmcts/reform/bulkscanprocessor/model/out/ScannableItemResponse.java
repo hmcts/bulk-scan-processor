@@ -146,6 +146,7 @@ public class ScannableItemResponse {
             + ", notes='" + notes + '\''
             + ", documentUrl='" + documentUrl + '\''
             + ", documentType='" + documentType + '\''
+            + ", documentSubtype='" + documentSubtype + '\''
             + '}';
     }
 
