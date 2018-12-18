@@ -7,13 +7,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
@@ -104,24 +101,18 @@ public class EnvelopeMapperTest {
             dbScannableItem.getOcrData(),
             dbScannableItem.getFileName(),
             dbScannableItem.getNotes(),
-            convertToInputDocumentType(
-                dbScannableItem.getDocumentType(),
-                dbScannableItem.getDocumentSubtype()
-            )
+            convertToInputDocumentType(dbScannableItem.getDocumentType())
         );
     }
 
-    private InputDocumentType convertToInputDocumentType(
-        DocumentType documentType,
-        DocumentSubtype documentSubtype
-    ) {
+    private String convertToInputDocumentType(String documentType) {
         switch (documentType) {
-            case CHERISHED:
-                return InputDocumentType.CHERISHED;
-            case OTHER:
-                return documentSubtype == DocumentSubtype.SSCS1
-                    ? InputDocumentType.SSCS1
-                    : InputDocumentType.OTHER;
+            case "cherished":
+                return "Cherished";
+            case "other":
+                return "Other";
+            case "sscs1":
+                return "SSCS1";
             default:
                 throw new AssertionError(
                     String.format("Expected a valid document type but got: %s", documentType)

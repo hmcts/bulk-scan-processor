@@ -113,7 +113,6 @@ public class DocumentProcessorTest {
             null,
             fileName,
             null,
-            null,
             null
         );
     }

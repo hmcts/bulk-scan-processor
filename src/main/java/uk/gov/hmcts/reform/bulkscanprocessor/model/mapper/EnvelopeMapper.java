@@ -4,13 +4,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import java.util.List;
 
@@ -62,21 +59,8 @@ public class EnvelopeMapper {
             scannableItem.ocrData,
             scannableItem.fileName,
             scannableItem.notes,
-            mapDocumentType(scannableItem.documentType),
-            extractDocumentSubtype(scannableItem.documentType)
+            scannableItem.documentType.toLowerCase()
         );
-    }
-
-    private static DocumentType mapDocumentType(InputDocumentType inputDocumentType) {
-        return inputDocumentType == InputDocumentType.CHERISHED
-            ? DocumentType.CHERISHED
-            : DocumentType.OTHER;
-    }
-
-    private static DocumentSubtype extractDocumentSubtype(InputDocumentType inputDocumentType) {
-        return inputDocumentType == InputDocumentType.SSCS1
-            ? DocumentSubtype.SSCS1
-            : null;
     }
 
     private static List<Payment> toDbPayments(List<InputPayment> payments) {

@@ -4,7 +4,6 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
@@ -35,11 +34,7 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.classification).isEqualTo(Classification.NEW_APPLICATION);
         assertThat(envelope.scannableItems)
             .extracting("documentType")
-            .containsExactlyInAnyOrder(
-                InputDocumentType.CHERISHED,
-                InputDocumentType.OTHER,
-                InputDocumentType.SSCS1
-            );
+            .containsExactlyInAnyOrder("Cherished", "Other", "SSCS1");
     }
 
     @Test
