@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -49,8 +51,10 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
+    @Enumerated(EnumType.STRING)
     private DocumentType documentType;
 
+    @Enumerated(EnumType.STRING)
     private DocumentSubtype documentSubtype;
 
     @ManyToOne(fetch = FetchType.LAZY)
