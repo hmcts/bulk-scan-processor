@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
@@ -48,6 +49,9 @@ public class ScannableItemResponse {
     @JsonProperty("document_type")
     private final DocumentType documentType;
 
+    @JsonProperty("document_subtype")
+    private final DocumentSubtype documentSubtype;
+
     @JsonCreator
     public ScannableItemResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
@@ -61,7 +65,8 @@ public class ScannableItemResponse {
         @JsonProperty("ocr_data") Map<String, String> ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
-        @JsonProperty("document_type") DocumentType documentType
+        @JsonProperty("document_type") DocumentType documentType,
+        @JsonProperty("document_subtype") DocumentSubtype documentSubtype
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -73,6 +78,7 @@ public class ScannableItemResponse {
         this.fileName = fileName;
         this.notes = notes;
         this.documentType = documentType;
+        this.documentSubtype = documentSubtype;
     }
 
     public String getFileName() {
@@ -121,6 +127,10 @@ public class ScannableItemResponse {
 
     public DocumentType getDocumentType() {
         return documentType;
+    }
+
+    public DocumentSubtype getDocumentSubtype() {
+        return documentSubtype;
     }
 
     @Override
