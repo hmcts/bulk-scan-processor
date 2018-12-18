@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import java.sql.Timestamp;
 import java.util.Map;
@@ -47,7 +49,9 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
-    private String documentType;
+    private DocumentType documentType;
+
+    private DocumentSubtype documentSubtype;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
@@ -67,7 +71,8 @@ public class ScannableItem implements EnvelopeAssignable {
         Map<String, String> ocrData,
         String fileName,
         String notes,
-        String documentType
+        DocumentType documentType,
+        DocumentSubtype documentSubtype
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -79,6 +84,7 @@ public class ScannableItem implements EnvelopeAssignable {
         this.fileName = fileName;
         this.notes = notes;
         this.documentType = documentType;
+        this.documentSubtype = documentSubtype;
     }
 
     public UUID getId() {
@@ -129,8 +135,12 @@ public class ScannableItem implements EnvelopeAssignable {
         return notes;
     }
 
-    public String getDocumentType() {
+    public DocumentType getDocumentType() {
         return documentType;
+    }
+
+    public DocumentSubtype getDocumentSubtype() {
+        return documentSubtype;
     }
 
     @Override

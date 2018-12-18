@@ -11,6 +11,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -108,7 +110,8 @@ public final class EnvelopeCreator {
             null,
             "1111001.pdf",
             "test",
-            "cherished"
+            DocumentType.CHERISHED,
+            null
         );
         scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
@@ -123,7 +126,8 @@ public final class EnvelopeCreator {
             ImmutableMap.of("name1", "value1"),
             "1111002.pdf",
             "test",
-            "other"
+            DocumentType.OTHER,
+            DocumentSubtype.SSCS1
         );
         scannableItem2.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
