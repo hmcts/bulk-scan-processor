@@ -49,8 +49,11 @@ public class ErrorNotificationRepositoryTest {
     @Test
     public void should_successfully_create_a_record() {
         // given
-        ErrorNotification errorNotification = new ErrorNotification(ERR_AV_FAILED.name(), "antivirus hit");
-        errorNotification.setEvent(em.getReference(ProcessEvent.class, eventId));
+        ErrorNotification errorNotification = new ErrorNotification(
+            em.getReference(ProcessEvent.class, eventId),
+            ERR_AV_FAILED.name(),
+            "antivirus hit"
+        );
 
         // when
         long dbId = repository.save(errorNotification).getId();
