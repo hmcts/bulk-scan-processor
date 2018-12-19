@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 @ConfigurationProperties(prefix = "queues")
 class ServiceBusQueueProperties {
 
-    private Map<ServiceBusQueues, Queue> queues;
+    private Map<ServiceBusQueues, Queue> mappings;
 
-    public Map<ServiceBusQueues, Queue> getQueues() {
-        return queues;
+    public Map<ServiceBusQueues, Queue> getMappings() {
+        return mappings;
     }
 
-    public void setQueues(List<Queue> queues) {
-        this.queues = new EnumMap<>(queues
+    public void setMappings(List<Queue> queues) {
+        this.mappings = new EnumMap<>(queues
             .stream()
             .collect(Collectors.toMap(Queue::getQueue, Function.identity()))
         );

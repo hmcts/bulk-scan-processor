@@ -6,8 +6,6 @@ import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +17,7 @@ import java.util.Map;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusQueueProperties.Queue;
 
+@Lazy
 @Configuration
 @EnableConfigurationProperties(ServiceBusQueueProperties.class)
 public class ServiceBusConfiguration {
@@ -32,17 +31,10 @@ public class ServiceBusConfiguration {
     private ObjectMapper mapper;
 
     public ServiceBusConfiguration(ServiceBusQueueProperties properties) {
-        queues = properties.getQueues();
-        // DEBUG
-        Logger logger = LoggerFactory.getLogger(getClass());
-        logger.warn("DEBUGGING");
-        queues.forEach((key, value) -> logger.warn("QUEUE: {}, DATA: {}", key.getQueueName(), value));
-        logger.warn("DONE DEBUGGING");
-        // END DEBUG
+        queues = properties.getMappings();
     }
 
     @Bean(name = ENVELOPE_QUEUE_PUSH)
-    @Lazy
     public ServiceBusHelper envelopesQueueHelper() throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
             getQueueClient(queues.get(ServiceBusQueues.ENVELOPES_PUSH))
@@ -50,7 +42,6 @@ public class ServiceBusConfiguration {
     }
 
     @Bean(name = NOTIFICATION_QUEUE_PUSH)
-    @Lazy
     public ServiceBusHelper notificationsQueueHelper() throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
             getQueueClient(queues.get(ServiceBusQueues.NOTIFICATIONS_PUSH))
