@@ -6,6 +6,8 @@ import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +34,12 @@ public class ServiceBusConfiguration {
 
     public ServiceBusConfiguration(ServiceBusQueueProperties properties) {
         queues = properties.getQueues();
+        // DEBUG
+        Logger logger = LoggerFactory.getLogger(getClass());
+        logger.warn("DEBUGGING");
+        queues.forEach((key, value) -> logger.warn("QUEUE: {}, DATA: {}", key.getQueueName(), value));
+        logger.warn("DONE DEBUGGING");
+        // END DEBUG
     }
 
     @Bean(name = ENVELOPE_QUEUE_PUSH)
