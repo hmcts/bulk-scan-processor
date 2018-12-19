@@ -53,7 +53,7 @@ class ServiceBusQueueProperties {
         }
 
         public void setQueueName(String queueName) {
-            this.queueName = ServiceBusQueues.valueOf(queueName.toUpperCase());
+            this.queueName = ServiceBusQueues.fromQueueName(queueName);
         }
 
         public String getConnectionString() {

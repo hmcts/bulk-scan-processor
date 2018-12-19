@@ -14,4 +14,14 @@ public enum ServiceBusQueues {
     public String getQueueName() {
         return queueName;
     }
+
+    static ServiceBusQueues fromQueueName(String queueName) {
+        for (ServiceBusQueues queue : values()) {
+            if (queue.getQueueName().equals(queueName)) {
+                return queue;
+            }
+        }
+
+        return null;
+    }
 }
