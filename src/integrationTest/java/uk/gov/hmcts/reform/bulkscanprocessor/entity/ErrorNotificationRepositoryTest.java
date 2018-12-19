@@ -10,9 +10,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,9 +64,6 @@ public class ErrorNotificationRepositoryTest {
         assertThat(dbItem.getErrorDescription()).isEqualTo("antivirus hit");
 
         // and
-        String iso8601DateTime = ZonedDateTime
-            .ofInstant(errorNotification.getCreatedAt().toInstant(), ZoneId.of("UTC"))
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-        assertThat(dbItem.getCreatedAt().toInstant()).isEqualTo(iso8601DateTime);
+        assertThat(dbItem.getCreatedAt()).isEqualTo(errorNotification.getCreatedAt());
     }
 }
