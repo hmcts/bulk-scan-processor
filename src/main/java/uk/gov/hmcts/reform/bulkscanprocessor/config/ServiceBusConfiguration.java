@@ -19,7 +19,6 @@ import java.util.Map;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusQueueProperties.Queue;
 
-@Lazy
 @Configuration
 @EnableConfigurationProperties(ServiceBusQueueProperties.class)
 public class ServiceBusConfiguration {
@@ -43,6 +42,7 @@ public class ServiceBusConfiguration {
     }
 
     @Bean(name = ENVELOPE_QUEUE_PUSH)
+    @Lazy
     public ServiceBusHelper envelopesQueueHelper() throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
             getQueueClient(queues.get(ServiceBusQueues.ENVELOPES_PUSH))
@@ -50,6 +50,7 @@ public class ServiceBusConfiguration {
     }
 
     @Bean(name = NOTIFICATION_QUEUE_PUSH)
+    @Lazy
     public ServiceBusHelper notificationsQueueHelper() throws InterruptedException, ServiceBusException {
         return getServiceBusHelper(
             getQueueClient(queues.get(ServiceBusQueues.NOTIFICATIONS_PUSH))
