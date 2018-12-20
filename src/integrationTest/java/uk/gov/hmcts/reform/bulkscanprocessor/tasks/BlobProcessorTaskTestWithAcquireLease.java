@@ -28,6 +28,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<BlobProcessorTask> {
+
     @Rule
     public OutputCapture outputCapture = new OutputCapture();
 
@@ -37,7 +38,8 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        super.cleanUp();
         outputCapture.flush();
     }
 

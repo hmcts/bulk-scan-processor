@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -293,11 +292,4 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         existingEnvelope.setZipDeleted(false);
         envelopeRepository.save(existingEnvelope);
     }
-
-    @After
-    public void cleanUp() {
-        envelopeRepository.deleteAll();
-        processEventRepository.deleteAll();
-    }
-
 }
