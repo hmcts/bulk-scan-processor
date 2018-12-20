@@ -25,7 +25,8 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest(
     properties = {
         "scheduling.task.scan.enabled=true",
-        "scheduling.task.reupload.enabled=true"
+        "scheduling.task.reupload.enabled=true",
+        "scheduling.task.notifications_to_orchestrator.enabled=true"
     }
 )
 @RunWith(SpringRunner.class)
@@ -39,7 +40,12 @@ public class WhenRunningTheApplicationTest {
         waitForBlobProcessor();
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
-        assertThat(configCaptor.getAllValues()).extracting("name").containsOnly("re-upload-failures");
+        assertThat(configCaptor.getAllValues())
+            .extracting("name")
+            .containsOnly(
+                "re-upload-failures",
+                "send-orchestrator-notification"
+            );
     }
 
     private void waitForBlobProcessor() {
@@ -61,7 +67,12 @@ public class WhenRunningTheApplicationTest {
         }
 
         @Bean(name = "notifications")
-        public ServiceBusHelper serviceBusHelper() {
+        public ServiceBusHelper notificationsQueueHelper() {
+            return mock(ServiceBusHelper.class);
+        }
+
+        @Bean(name = "envelopes")
+        public ServiceBusHelper envelopesQueueHelper() {
             return mock(ServiceBusHelper.class);
         }
     }
