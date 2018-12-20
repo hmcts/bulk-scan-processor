@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,11 +38,5 @@ public class DelayedFileProcessingTest extends ProcessorTestSuite<BlobProcessorT
 
         // then
         assertThat(envelopeRepository.findAll()).hasSize(1); // file processed -> envelope created
-    }
-
-    @After
-    public void cleanUp() {
-        envelopeRepository.deleteAll();
-        processEventRepository.deleteAll();
     }
 }

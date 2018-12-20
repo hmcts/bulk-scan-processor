@@ -37,7 +37,8 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        super.cleanUp();
         outputCapture.flush();
     }
 

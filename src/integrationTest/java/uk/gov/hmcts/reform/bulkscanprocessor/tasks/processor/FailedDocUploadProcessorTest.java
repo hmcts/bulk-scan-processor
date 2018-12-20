@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,12 +46,6 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
         );
-    }
-
-    @After
-    public void tearDown() {
-        envelopeRepository.deleteAll();
-        processEventRepository.deleteAll();
     }
 
     @Test
