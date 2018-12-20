@@ -28,6 +28,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<BlobProcessorTask> {
+
     @Rule
     public OutputCapture outputCapture = new OutputCapture();
 
