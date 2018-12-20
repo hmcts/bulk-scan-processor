@@ -8,6 +8,7 @@ import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -57,6 +58,7 @@ public class ServiceBusConfiguration {
     }
 
     @Bean(name = "notifications-read")
+    @ConditionalOnProperty(prefix = "queues.read-notifications", name = "enabled")
     public IQueueClient notificationsQueueReader(
         @Value("${queues.read-notifications.connection-string}") String connectionString,
         @Value("${queues.read-notifications.queue-name}") String queueName,
