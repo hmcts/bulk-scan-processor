@@ -25,7 +25,8 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest(
     properties = {
         "scheduling.task.scan.enabled=true",
-        "scheduling.task.reupload.enabled=true"
+        "scheduling.task.reupload.enabled=true",
+        "scheduling.task.notifications_to_orchestrator.enabled=true"
     }
 )
 @RunWith(SpringRunner.class)
@@ -66,7 +67,12 @@ public class WhenRunningTheApplicationTest {
         }
 
         @Bean(name = "notifications")
-        public ServiceBusHelper serviceBusHelper() {
+        public ServiceBusHelper notificationsQueueHelper() {
+            return mock(ServiceBusHelper.class);
+        }
+
+        @Bean(name = "envelopes")
+        public ServiceBusHelper envelopesQueueHelper() {
             return mock(ServiceBusHelper.class);
         }
     }
