@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Message describing an error processing an envelope.
  */
@@ -17,14 +20,14 @@ public class ErrorMsg implements Msg {
     // region constructors
     @SuppressWarnings("squid:S00107") // number of params
     public ErrorMsg(
-        String id,
-        Long eventId,
-        String zipFileName,
-        String jurisdiction,
-        String poBox,
-        String documentControlNumber,
-        ErrorCode errorCode,
-        String errorDescription
+        @JsonProperty(value = "id", required = true) String id,
+        @JsonProperty(value = "eventId", required = true) Long eventId,
+        @JsonProperty(value = "zipFileName", required = true) String zipFileName,
+        @JsonProperty("jurisdiction") String jurisdiction,
+        @JsonProperty("poBox") String poBox,
+        @JsonProperty("documentControlNumber") String documentControlNumber,
+        @JsonProperty(value = "errorCode", required = true) ErrorCode errorCode,
+        @JsonProperty(value = "errorDescription", required = true) String errorDescription
     ) {
         this.id = id;
         this.eventId = eventId;
@@ -38,11 +41,13 @@ public class ErrorMsg implements Msg {
     // endregion
 
     // region getters
+    @JsonIgnore
     @Override
     public String getMsgId() {
         return this.id;
     }
 
+    @JsonIgnore
     @Override
     public boolean isTestOnly() {
         return false;
