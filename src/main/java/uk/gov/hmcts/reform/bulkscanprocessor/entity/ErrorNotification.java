@@ -26,8 +26,6 @@ public class ErrorNotification {
 
     private String errorCode;
 
-    private String errorDescription;
-
     @SuppressWarnings("squid:S1068") // unused field
     private String referenceId;
 
@@ -43,12 +41,10 @@ public class ErrorNotification {
 
     public ErrorNotification(
         ProcessEvent event,
-        String errorCode,
-        String errorDescription
+        String errorCode
     ) {
         this.event = event;
         this.errorCode = errorCode;
-        this.errorDescription = errorDescription;
     }
 
     public long getId() {
@@ -65,10 +61,6 @@ public class ErrorNotification {
 
     public String getErrorCode() {
         return errorCode;
-    }
-
-    public String getErrorDescription() {
-        return errorDescription;
     }
 
     public Timestamp getCreatedAt() {

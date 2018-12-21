@@ -48,8 +48,7 @@ public class ErrorNotificationRepositoryTest {
         // given
         ErrorNotification errorNotification = new ErrorNotification(
             em.getReference(ProcessEvent.class, eventId),
-            ERR_AV_FAILED.name(),
-            "antivirus hit"
+            ERR_AV_FAILED.name()
         );
 
         // when
@@ -61,7 +60,6 @@ public class ErrorNotificationRepositoryTest {
         assertThat(dbItem.getProcessEvent().getId()).isEqualTo(eventId);
         assertThat(dbItem.getNotificationId()).isNullOrEmpty();
         assertThat(dbItem.getErrorCode()).isEqualTo(ERR_AV_FAILED.name());
-        assertThat(dbItem.getErrorDescription()).isEqualTo("antivirus hit");
 
         // and
         assertThat(dbItem.getCreatedAt()).isEqualTo(errorNotification.getCreatedAt());

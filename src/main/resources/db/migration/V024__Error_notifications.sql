@@ -4,7 +4,6 @@ CREATE TABLE error_notifications (
   notificationId VARCHAR(50) NULL,
   documentControlNumber VARCHAR(100) NULL,
   errorCode VARCHAR(20) NOT NULL,
-  errorDescription TEXT NOT NULL,
   referenceId VARCHAR(50) NULL,
   createdAt TIMESTAMP NOT NULL
 );
