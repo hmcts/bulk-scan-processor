@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.ExceptionPhase;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IMessageHandler;
+import com.microsoft.azure.servicebus.IQueueClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
@@ -23,6 +24,8 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     private final ObjectMapper mapper;
 
+    private final IQueueClient errorNotificationPush;
+
     private static final Executor SIMPLE_EXEC = Runnable::run;
 
     private static final Executor SERVICE_EXEC = Executors.newSingleThreadExecutor(r ->
@@ -32,10 +35,12 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     public ErrorNotificationHandler(
         ErrorNotificationService service,
-        ObjectMapper mapper
+        ObjectMapper mapper,
+        IQueueClient errorNotificationPush
     ) {
         this.service = service;
         this.mapper = mapper;
+        this.errorNotificationPush = errorNotificationPush;
     }
 
     @Override

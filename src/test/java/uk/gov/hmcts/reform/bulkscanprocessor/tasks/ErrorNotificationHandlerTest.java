@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IMessage;
+import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,11 +34,14 @@ public class ErrorNotificationHandlerTest {
     @Mock
     private ErrorNotificationService service;
 
+    @Mock
+    private IQueueClient queueClient;
+
     private ErrorNotificationHandler handler;
 
     @Before
     public void setUp() {
-        handler = new ErrorNotificationHandler(service, MAPPER);
+        handler = new ErrorNotificationHandler(service, MAPPER, queueClient);
     }
 
     @Test
