@@ -23,9 +23,9 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     private final ObjectMapper mapper;
 
-    static final Executor SIMPLE_EXEC = Runnable::run;
+    private static final Executor SIMPLE_EXEC = Runnable::run;
 
-    static final Executor SERVICE_EXEC = Executors.newSingleThreadExecutor(r ->
+    private static final Executor SERVICE_EXEC = Executors.newSingleThreadExecutor(r ->
         new Thread(r, "error-notification-service")
     );
 
