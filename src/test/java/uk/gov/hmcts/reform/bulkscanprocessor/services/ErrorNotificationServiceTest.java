@@ -11,13 +11,19 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationClient;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotification;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotificationRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.ErrorNotificationResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors.ErrorNotificationRequest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 
+import javax.persistence.EntityManager;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ErrorNotificationServiceTest {
@@ -31,12 +37,18 @@ public class ErrorNotificationServiceTest {
     @Mock
     private ErrorNotificationClient client;
 
+    @Mock
+    private ErrorNotificationRepository repository;
+
+    @Mock
+    private EntityManager entityManager;
+
     private ErrorNotificationService service;
 
     @Before
     public void setUp() {
         capture.reset();
-        service = new ErrorNotificationService(client);
+        service = new ErrorNotificationService(client, repository, entityManager);
     }
 
     @After
@@ -45,7 +57,7 @@ public class ErrorNotificationServiceTest {
     }
 
     @Test
-    public void should_send_notification_to_client_and_log_the_response() {
+    public void should_save_to_db_and_log_the_response_when_notification_sent_to_client() {
         // given
         ErrorMsg serviceBusMessage = new ErrorMsg(
             "some id",
@@ -76,5 +88,28 @@ public class ErrorNotificationServiceTest {
         assertThat(capture.toString()).contains(
             "Error notification published. ID: " + response.getNotificationId()
         );
+        verify(repository).save(any(ErrorNotification.class));
+    }
+
+    public void should_save_to_db_and_log_the_failure_when_notification_is_attempted() {
+        // given
+        ErrorMsg serviceBusMessage = new ErrorMsg(
+            "some id",
+            0L,
+            "zip file name",
+            "jurisdiction",
+            "po box",
+            "document control number",
+            ErrorCode.ERR_AV_FAILED,
+            "antivirus flag"
+        );
+        given(client.notify(any(ErrorNotificationRequest.class))).willThrow(Exception.class);
+
+        // when
+        service.processServiceBusMessage(serviceBusMessage);
+
+        // then
+        assertThat(capture.toString()).contains("Failed to publish error notification.");
+        verify(repository).save(any(ErrorNotification.class));
     }
 }

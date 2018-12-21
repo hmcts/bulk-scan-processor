@@ -33,10 +33,7 @@ public class ErrorNotification {
         // For use by hibernate.
     }
 
-    public ErrorNotification(
-        ProcessEvent event,
-        String errorCode
-    ) {
+    public ErrorNotification(ProcessEvent event, String errorCode) {
         this.event = event;
         this.errorCode = errorCode;
     }
@@ -51,6 +48,10 @@ public class ErrorNotification {
 
     public String getNotificationId() {
         return notificationId;
+    }
+
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
     }
 
     public String getErrorCode() {

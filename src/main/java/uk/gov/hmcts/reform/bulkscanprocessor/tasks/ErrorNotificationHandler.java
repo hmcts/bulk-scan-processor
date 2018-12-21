@@ -51,10 +51,7 @@ public class ErrorNotificationHandler implements IMessageHandler {
         try {
             return mapper.readValue(message, ErrorMsg.class);
         } catch (IOException exception) {
-            throw new InvalidMessageException(
-                "Unable to read error message. Message: " + exception.getMessage(),
-                exception
-            );
+            throw new InvalidMessageException("Unable to read error message", exception);
         }
     }
 
@@ -64,11 +61,6 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     @Override
     public void notifyException(Throwable exception, ExceptionPhase phase) {
-        log.error(
-            "Exception occurred in phase {}. Message: {}",
-            phase,
-            exception.getMessage(),
-            exception
-        );
+        log.error("Exception occurred in phase {}", phase, exception);
     }
 }
