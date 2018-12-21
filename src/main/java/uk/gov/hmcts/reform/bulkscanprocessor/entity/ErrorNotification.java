@@ -21,13 +21,7 @@ public class ErrorNotification {
 
     private String notificationId;
 
-    @SuppressWarnings("squid:S1068") // unused field
-    private String documentControlNumber;
-
     private String errorCode;
-
-    @SuppressWarnings("squid:S1068") // unused field
-    private String referenceId;
 
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
