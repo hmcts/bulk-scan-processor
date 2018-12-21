@@ -7,6 +7,7 @@ import com.microsoft.azure.servicebus.IMessageHandler;
 import com.microsoft.azure.servicebus.IQueueClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers.ErrorNotificationExceptionHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationService;
@@ -24,7 +25,7 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     private final ObjectMapper mapper;
 
-    private final IQueueClient errorNotificationPush;
+    private final ErrorNotificationExceptionHandler exceptionHandler;
 
     private static final Executor SIMPLE_EXEC = Runnable::run;
 
@@ -43,7 +44,7 @@ public class ErrorNotificationHandler implements IMessageHandler {
     ) {
         this.service = service;
         this.mapper = mapper;
-        this.errorNotificationPush = errorNotificationPush;
+        this.exceptionHandler = new ErrorNotificationExceptionHandler(errorNotificationPush);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class ErrorNotificationHandler implements IMessageHandler {
             .supplyAsync(message::getBody, SIMPLE_EXEC)
             .thenApplyAsync(this::getErrorMessage, SIMPLE_EXEC)
             .thenAcceptAsync(this::processMessage, SERVICE_EXEC)
-            .handleAsync((voided, throwable) -> handleThrowable(message, throwable), ERROR_EXEC)
+            .handleAsync((voided, throwable) -> exceptionHandler.handle(message, throwable), ERROR_EXEC)
             .thenApplyAsync(IMessage::getMessageId, SIMPLE_EXEC)
             .thenAcceptAsync(this::logCompletion, SIMPLE_EXEC);
     }
@@ -67,14 +68,6 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     private void processMessage(ErrorMsg message) {
         service.processServiceBusMessage(message);
-    }
-
-    private IMessage handleThrowable(IMessage message, Throwable throwable) {
-        if (throwable != null) {
-            throw (RuntimeException) throwable;
-        } else {
-            return message;
-        }
     }
 
     private void logCompletion(String messageId) {
