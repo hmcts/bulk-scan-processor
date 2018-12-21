@@ -51,12 +51,12 @@ public class ErrorNotificationHandlerTest {
 
         // when
         CompletableFuture<Void> future = handler.onMessageAsync(message);
+        Throwable throwable = catchThrowable(future::join);
 
         // then
         assertThat(future.isCompletedExceptionally()).isTrue();
 
         // and
-        Throwable throwable = catchThrowable(future::join);
         assertThat(throwable.getCause())
             .isInstanceOf(InvalidMessageException.class)
             .hasMessageContaining("Unable to read error message");

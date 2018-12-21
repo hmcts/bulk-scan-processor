@@ -32,6 +32,9 @@ public class ErrorNotificationHandler implements IMessageHandler {
         new Thread(r, "error-notification-service")
     );
 
+    private static final Executor ERROR_EXEC = Executors.newSingleThreadExecutor(r ->
+        new Thread(r, "exception-handling")
+    );
 
     public ErrorNotificationHandler(
         ErrorNotificationService service,
@@ -49,7 +52,9 @@ public class ErrorNotificationHandler implements IMessageHandler {
             .supplyAsync(message::getBody, SIMPLE_EXEC)
             .thenApplyAsync(this::getErrorMessage, SIMPLE_EXEC)
             .thenAcceptAsync(this::processMessage, SERVICE_EXEC)
-            .thenRunAsync(() -> log.debug("Error notification consumed. ID {}", message.getMessageId()), SIMPLE_EXEC);
+            .handleAsync((voided, throwable) -> handleThrowable(message, throwable), ERROR_EXEC)
+            .thenApplyAsync(IMessage::getMessageId, SIMPLE_EXEC)
+            .thenAcceptAsync(this::logCompletion, SIMPLE_EXEC);
     }
 
     private ErrorMsg getErrorMessage(byte[] message) {
@@ -62,6 +67,18 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     private void processMessage(ErrorMsg message) {
         service.processServiceBusMessage(message);
+    }
+
+    private IMessage handleThrowable(IMessage message, Throwable throwable) {
+        if (throwable != null) {
+            throw (RuntimeException) throwable;
+        } else {
+            return message;
+        }
+    }
+
+    private void logCompletion(String messageId) {
+        log.debug("Error notification consumed. ID {}", messageId);
     }
 
     @Override
