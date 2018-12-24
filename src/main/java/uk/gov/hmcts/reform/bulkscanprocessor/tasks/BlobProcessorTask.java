@@ -194,7 +194,7 @@ public class BlobProcessorTask extends Processor {
         log.info("Considering the deletion of file {} in container {}", blobName, containerName);
 
         try {
-            if (cloudBlockBlob != null && envelope.getStatus().isProcessed()) {
+            if (envelope.getStatus().isProcessed()) {
                 log.info("File {} (container {}) is processed - deleting", blobName, containerName);
 
                 boolean deleted;
