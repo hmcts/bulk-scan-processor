@@ -33,6 +33,8 @@ public class BlobManager {
 
     private static final Logger log = LoggerFactory.getLogger(BlobManager.class);
     private static final String REJECTED_CONTAINER_NAME_SUFFIX = "-rejected";
+    private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
+        "Can't acquire lease on file {} in container {} - already acquired";
 
     private final CloudBlobClient cloudBlobClient;
     private final BlobManagementProperties properties;
@@ -46,6 +48,8 @@ public class BlobManager {
     }
 
     public Optional<String> acquireLease(CloudBlockBlob cloudBlockBlob, String containerName, String zipFilename) {
+        log.info("Trying to acquire lease on file {} in container {}", zipFilename, containerName);
+
         try {
             // Note: trying to lease an already leased blob throws an exception and
             // we really do not want to fill the application logs with these. Unfortunately
@@ -54,32 +58,22 @@ public class BlobManager {
             // All considered this should still be much better than not checking lease status
             // at all.
             if (cloudBlockBlob.getProperties().getLeaseStatus() == LeaseStatus.LOCKED) {
-                log.debug("Lease already acquired for container {} and zip file {}",
-                    containerName, zipFilename);
+                log.info(LEASE_ALREADY_ACQUIRED_MESSAGE, zipFilename, containerName);
                 return Optional.empty();
             }
 
             String leaseId = cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
+            log.info("Acquired lease on file {} in container {}", zipFilename, containerName);
             return Optional.of(leaseId);
         } catch (StorageException storageException) {
             if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
-                log.error(
-                    "Lease already acquired for container {} and zip file {}",
-                    containerName,
-                    zipFilename,
-                    storageException
-                );
+                log.info(LEASE_ALREADY_ACQUIRED_MESSAGE, zipFilename, containerName, storageException);
             } else {
-                log.error(storageException.getMessage(), storageException);
+                logAcquireLeaseError(zipFilename, containerName, storageException);
             }
             return Optional.empty();
         } catch (Exception exception) {
-            log.error(
-                "Failed to acquire lease on file {} in container {}",
-                zipFilename,
-                containerName,
-                exception
-            );
+            logAcquireLeaseError(zipFilename, containerName, exception);
 
             return Optional.empty();
         }
@@ -123,7 +117,7 @@ public class BlobManager {
         String rejectedContainerName,
         String leaseId
     ) throws URISyntaxException, StorageException {
-
+        log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
         CloudBlockBlob inputBlob = getBlob(fileName, inputContainerName);
         CloudBlockBlob rejectedBlob = getBlob(fileName, rejectedContainerName);
         rejectedBlob.startCopy(inputBlob);
@@ -172,5 +166,14 @@ public class BlobManager {
 
     private String getRejectedContainerName(String inputContainerName) {
         return inputContainerName + REJECTED_CONTAINER_NAME_SUFFIX;
+    }
+
+    private void logAcquireLeaseError(String zipFilename, String containerName, Exception exception) {
+        log.error(
+            "Failed to acquire lease on file {} in container {}",
+            zipFilename,
+            containerName,
+            exception
+        );
     }
 }

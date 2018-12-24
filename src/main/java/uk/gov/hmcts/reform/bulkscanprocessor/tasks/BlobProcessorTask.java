@@ -111,9 +111,13 @@ public class BlobProcessorTask extends Processor {
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() throws IOException, StorageException, URISyntaxException {
+        log.info("Started blob processing job");
+
         for (CloudBlobContainer container : blobManager.listInputContainers()) {
             processZipFiles(container);
         }
+
+        log.info("Finished blob processing job");
     }
 
     private void processZipFiles(CloudBlobContainer container)
@@ -131,24 +135,36 @@ public class BlobProcessorTask extends Processor {
         for (String zipFilename : zipFilenames) {
             processZipFile(container, zipFilename);
         }
+
+        log.info("Finished processing blobs for container {}", container.getName());
     }
 
     private void processZipFile(CloudBlobContainer container, String zipFilename)
         throws IOException, StorageException, URISyntaxException {
-
+        log.info("Processing zip file {} from container {}", zipFilename, container.getName());
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
         cloudBlockBlob.downloadAttributes();
 
         if (!isReadyToBeProcessed(cloudBlockBlob)) {
+            log.info(
+                "Aborted processing of zip file {} from container {} - not ready yet.",
+                zipFilename,
+                container.getName()
+            );
+
             return;
         }
-
-        log.info("Processing zip file {}", zipFilename);
 
         Envelope existingEnvelope =
             envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
         if (existingEnvelope != null) {
-            deleteIfProcessed(cloudBlockBlob, existingEnvelope);
+            log.warn(
+                "Envelope for zip file {} (container {}) already exists. Aborting its processing.",
+                zipFilename,
+                container.getName()
+            );
+
+            deleteIfProcessed(cloudBlockBlob, existingEnvelope, container.getName());
             return;
         }
 
@@ -173,22 +189,32 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private void deleteIfProcessed(CloudBlockBlob cloudBlockBlob, Envelope envelope) {
+    private void deleteIfProcessed(CloudBlockBlob cloudBlockBlob, Envelope envelope, String containerName) {
+        String blobName = cloudBlockBlob.getName();
+        log.info("Considering the deletion of file {} in container {}", blobName, containerName);
+
         try {
             if (cloudBlockBlob != null && envelope.getStatus().isProcessed()) {
+                log.info("File {} (container {}) is processed - deleting", blobName, containerName);
+
                 boolean deleted;
                 if (cloudBlockBlob.exists()) {
                     deleted = cloudBlockBlob.deleteIfExists();
+                    if (deleted) {
+                        log.info("Deleted file {} from container {}", blobName, containerName);
+                    }
                 } else {
                     deleted = true;
+                    log.info("File {} (container {}) has already been deleted.", blobName, containerName);
                 }
                 if (deleted) {
                     envelope.setZipDeleted(true);
                     envelopeProcessor.saveEnvelope(envelope);
+                    log.info("Marked envelope from file {} (container {}) as deleted", blobName, containerName);
                 }
             }
         } catch (StorageException e) {
-            log.warn("Failed to delete blob [{}]", cloudBlockBlob.getName());
+            log.error("Failed to delete file [{}] in container {}", blobName, containerName, e);
         } // Do not propagate exception as this blob has already been marked with a delete failure
     }
 
