@@ -127,10 +127,7 @@ public abstract class Processor {
         try {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
-            boolean deleted = cloudBlockBlob.deleteIfExists();
-            if (!deleted) {
-                handleBlobDeletionError(envelope, null);
-            }
+            cloudBlockBlob.deleteIfExists();
             envelope.setZipDeleted(true);
             envelopeProcessor.saveEnvelope(envelope);
             return Boolean.TRUE;
