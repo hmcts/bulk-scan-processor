@@ -125,10 +125,12 @@ public class FailedDocUploadProcessor extends Processor {
 
             return zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
         } catch (DocSignatureFailureException ex) {
+            log.warn("Rejected file {} from container {} - invalid signature", zipFileName, containerName, ex);
             handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
             blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName, null);
             return null;
         } catch (Exception ex) {
+            log.error("Failed to reprocess file {} from container {}", zipFileName, containerName, ex);
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
             return null;
         }
