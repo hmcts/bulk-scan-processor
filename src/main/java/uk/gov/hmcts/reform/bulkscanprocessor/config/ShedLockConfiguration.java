@@ -4,6 +4,8 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider;
 import net.javacrumbs.shedlock.spring.ScheduledLockConfiguration;
 import net.javacrumbs.shedlock.spring.ScheduledLockConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +22,8 @@ import javax.sql.DataSource;
 @DependsOn({"flyway", "flywayInitializer"})
 public class ShedLockConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(ShedLockConfiguration.class);
+
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
         return new JdbcLockProvider(dataSource);
@@ -33,6 +37,7 @@ public class ShedLockConfiguration {
 
         scheduler.setPoolSize(poolSize);
         scheduler.setThreadNamePrefix("BSP-");
+        scheduler.setErrorHandler(error -> log.error("The execution of a scheduled job failed", error));
         scheduler.initialize();
 
         return scheduler;
