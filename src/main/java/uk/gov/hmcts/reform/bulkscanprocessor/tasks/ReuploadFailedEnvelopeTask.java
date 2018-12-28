@@ -62,7 +62,7 @@ public class ReuploadFailedEnvelopeTask {
         CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
         accessMapping
-            .parallelStream()
+            .stream()
             .map(Mapping::getJurisdiction)
             .forEach(jurisdiction -> {
                 FailedDocUploadProcessor processor = getProcessor();
