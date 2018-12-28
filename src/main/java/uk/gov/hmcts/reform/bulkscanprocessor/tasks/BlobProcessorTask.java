@@ -248,15 +248,19 @@ public class BlobProcessorTask extends Processor {
             | OcrDataParseException
             | MetadataNotFoundException ex
         ) {
+            log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (DocSignatureFailureException ex) {
+            log.warn("Rejected file {} from container {} - invalid signature", zipFilename, containerName, ex);
             handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
+            log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
             return null;
         } catch (Exception ex) {
+            log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
             return null;
         }
@@ -275,6 +279,7 @@ public class BlobProcessorTask extends Processor {
         Exception cause
     ) {
         Long eventId = handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+
         ErrorMapping
             .getFor(cause.getClass())
             .ifPresent(errorCode -> {

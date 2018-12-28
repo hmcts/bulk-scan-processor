@@ -75,8 +75,6 @@ public abstract class Processor {
         String zipFilename,
         Exception exception
     ) {
-        log.error(exception.getMessage(), exception);
-
         return registerEvent(event, containerName, zipFilename, exception.getMessage());
     }
 
@@ -108,6 +106,13 @@ public abstract class Processor {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
             return Boolean.TRUE;
         } catch (Exception ex) {
+            log.error(
+                "Failed to upload PDF files to Document Management (zip {}, container {})",
+                envelope.getZipFileName(),
+                envelope.getContainer(),
+                ex
+            );
+
             incrementUploadFailureCount(envelope);
             updateEnvelopeLastStatus(envelope, Event.DOC_UPLOAD_FAILURE);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, envelope.getContainer(), envelope.getZipFileName(), ex);
@@ -127,13 +132,39 @@ public abstract class Processor {
         try {
             // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
             cloudBlockBlob.breakLease(0);
-            cloudBlockBlob.deleteIfExists();
+            boolean deleted = cloudBlockBlob.deleteIfExists();
+            logBlobDeletionResult(envelope, deleted);
             envelope.setZipDeleted(true);
             envelopeProcessor.saveEnvelope(envelope);
+
+            log.info(
+                "Marked envelope for file {} (container {}) as deleted",
+                envelope.getZipFileName(),
+                envelope.getContainer()
+            );
+
             return Boolean.TRUE;
         } catch (Exception ex) {
+            log.error(
+                "An error occurred when deleting file {} from container {}",
+                envelope.getZipFileName(),
+                envelope.getContainer()
+            );
+
             handleBlobDeletionError(envelope, ex);
             return Boolean.FALSE;
+        }
+    }
+
+    private void logBlobDeletionResult(Envelope envelope, boolean deleted) {
+        if (deleted) {
+            log.info("Deleted file {} from container {}", envelope.getZipFileName(), envelope.getContainer());
+        } else {
+            log.warn(
+                "Failed to delete file {} from container {} - didn't exist",
+                envelope.getZipFileName(),
+                envelope.getContainer()
+            );
         }
     }
 
