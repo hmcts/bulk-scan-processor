@@ -18,6 +18,7 @@ import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.FailedDocUploadProcessor;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -81,9 +82,8 @@ public class ReuploadFailedEnvelopeTaskTest {
 
         // then
         assertThat(outputCapture.toString()).containsPattern(".+ERROR \\[.+\\] "
-            + ReuploadFailedEnvelopeTask.class.getCanonicalName()
-            + ":\\d+: "
-            + JpaObjectRetrievalFailureException.class.getCanonicalName()
+            + FailedDocUploadProcessor.class.getCanonicalName()
+            + ":\\d+: An error occurred when processing failed documents for jurisdiction SSCS\\."
         );
     }
 

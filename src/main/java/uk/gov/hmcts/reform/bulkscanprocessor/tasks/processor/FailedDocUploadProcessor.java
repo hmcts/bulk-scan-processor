@@ -64,13 +64,24 @@ public class FailedDocUploadProcessor extends Processor {
 
     public void processJurisdiction(String jurisdiction)
         throws IOException, StorageException, URISyntaxException {
+        log.info("Started processing failed documents for jurisdiction {}", jurisdiction);
 
-        List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
+        try {
+            List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
 
-        if (!envelopes.isEmpty()) {
-            String containerName = envelopes.get(0).getContainer();
+            if (!envelopes.isEmpty()) {
+                String containerName = envelopes.get(0).getContainer();
 
-            processEnvelopes(containerName, envelopes);
+                processEnvelopes(containerName, envelopes);
+            }
+
+            log.info(
+                "Finished processing failed documents for jurisdiction {}. Processed {} envelopes.",
+                jurisdiction,
+                envelopes.size()
+            );
+        } catch (Exception ex) {
+            log.error("An error occurred when processing failed documents for jurisdiction {}.", jurisdiction, ex);
         }
     }
 
@@ -82,14 +93,23 @@ public class FailedDocUploadProcessor extends Processor {
         CloudBlobContainer container = blobManager.getContainer(containerName);
 
         for (Envelope envelope : envelopes) {
-            processEnvelope(container, envelope);
+            try {
+                processEnvelope(container, envelope);
+            } catch (Exception ex) {
+                log.error(
+                    "An error occurred when processing failed document {} from container {}. Envelope ID: {}",
+                    envelope.getZipFileName(),
+                    containerName,
+                    envelope.getId()
+                );
+            }
         }
     }
 
     private void processEnvelope(CloudBlobContainer container, Envelope envelope)
         throws IOException, StorageException, URISyntaxException {
 
-        log.info("Processing zip file {}", envelope.getZipFileName());
+        log.info("Processing zip file {} from container {}", envelope.getZipFileName(), envelope.getContainer());
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
         BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
@@ -109,6 +129,8 @@ public class FailedDocUploadProcessor extends Processor {
                 );
             }
         }
+
+        log.info("Processed zip file {} from container {}", envelope.getZipFileName(), envelope.getContainer());
     }
 
     private ZipFileProcessingResult processZipInputStream(
