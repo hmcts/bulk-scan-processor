@@ -57,7 +57,7 @@ public class ReuploadFailedEnvelopeTask {
     public void processUploadFailures() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(
             accessMapping.size(),
-            r -> new Thread(r, "BSP-REUPLOAD-%d")
+            r -> new Thread(r, "BSP-REUPLOAD")
         );
         CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
