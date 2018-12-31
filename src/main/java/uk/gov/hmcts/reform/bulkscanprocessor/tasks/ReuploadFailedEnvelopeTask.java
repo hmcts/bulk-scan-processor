@@ -55,29 +55,33 @@ public class ReuploadFailedEnvelopeTask {
     @SchedulerLock(name = "re-upload-failures")
     @Scheduled(fixedDelayString = "${scheduling.task.reupload.delay}")
     public void processUploadFailures() throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(
-            accessMapping.size(),
-            r -> new Thread(r, "BSP-REUPLOAD")
-        );
-        CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
+        log.info("Started failed document processing job");
 
-        accessMapping
-            .stream()
-            .map(Mapping::getJurisdiction)
-            .forEach(jurisdiction -> {
-                FailedDocUploadProcessor processor = getProcessor();
+        try {
+            ExecutorService executorService = Executors.newFixedThreadPool(
+                accessMapping.size(),
+                r -> new Thread(r, "BSP-REUPLOAD")
+            );
+            CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
-                completionService.submit(() -> {
-                    log.info("Processing failed documents for jurisdiction {}", jurisdiction);
+            accessMapping
+                .stream()
+                .map(Mapping::getJurisdiction)
+                .forEach(jurisdiction -> {
+                    FailedDocUploadProcessor processor = getProcessor();
 
-                    processor.processJurisdiction(jurisdiction);
-
-                    return null;
+                    completionService.submit(() -> {
+                        processor.processJurisdiction(jurisdiction);
+                        return null;
+                    });
                 });
-            });
 
-        awaitCompletion(completionService);
-        executorService.shutdown();
+            awaitCompletion(completionService);
+            executorService.shutdown();
+            log.info("Finished failed document processing job");
+        } catch (Exception ex) {
+            log.error("An error occurred while processing failed documents", ex);
+        }
     }
 
     private void awaitCompletion(CompletionService<Void> completionService) throws InterruptedException {
@@ -89,7 +93,7 @@ public class ReuploadFailedEnvelopeTask {
             try {
                 future.get(); // waits if necessary
             } catch (InterruptedException | ExecutionException exception) {
-                log.error(exception.getMessage(), exception);
+                log.error("An error occurred when waiting for processing failed documents to complete", exception);
 
                 future.cancel(true);
 
