@@ -6,6 +6,7 @@ import feign.Response;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.Collections;
 
@@ -43,7 +44,7 @@ public class ErrorNotificationDecoderTest {
     }
 
     @Test
-    public void should_return_FeignException_when_response_is_5xx() {
+    public void should_return_NotificationClientException_when_response_is_5xx() {
         // given
         Response response = Response.builder()
             .status(HttpStatus.SERVICE_UNAVAILABLE.value())
@@ -55,7 +56,29 @@ public class ErrorNotificationDecoderTest {
         Exception exception = DECODER.decode(METHOD_KEY, response);
 
         // then
+        assertThat(exception).isInstanceOf(NotificationClientException.class);
+
+        // and
+        NotificationClientException clientException = (NotificationClientException) exception;
+
+        assertThat(clientException.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(clientException.getCause()).isInstanceOf(HttpServerErrorException.class);
+    }
+
+    @Test
+    public void should_return_FeignException_when_response_is_unknown() {
+        // given
+        Response response = Response.builder()
+            .status(HttpStatus.PERMANENT_REDIRECT.value())
+            .headers(Collections.emptyMap())
+            .body("Did not want to do that".getBytes())
+            .build();
+
+        // when
+        Exception exception = DECODER.decode(METHOD_KEY, response);
+
+        // then
         assertThat(exception).isInstanceOf(FeignException.class);
-        assertThat(((FeignException) exception).status()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE.value());
+        assertThat(((FeignException) exception).status()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
     }
 }
