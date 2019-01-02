@@ -54,7 +54,7 @@ class ErrorNotificationDecoder implements ErrorDecoder {
                 StandardCharsets.UTF_8
             );
 
-            return new NotificationClientException(clientException, responseBody);
+            return new ErrorNotificationException(clientException, responseBody);
         }
 
         if (statusCode.is5xxServerError()) {
@@ -65,7 +65,7 @@ class ErrorNotificationDecoder implements ErrorDecoder {
                 StandardCharsets.UTF_8
             );
 
-            return new NotificationClientException(serverException, responseBody);
+            return new ErrorNotificationException(serverException, responseBody);
         }
 
         return DELEGATE.decode(methodKey, response);

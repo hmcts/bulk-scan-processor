@@ -4,13 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.ErrorNotificationFailingResponse;
 
-public class NotificationClientException extends RuntimeException {
+public class ErrorNotificationException extends RuntimeException {
 
     private final HttpStatus status;
 
     private final transient ErrorNotificationFailingResponse response;
 
-    NotificationClientException(HttpStatusCodeException cause, ErrorNotificationFailingResponse response) {
+    ErrorNotificationException(HttpStatusCodeException cause, ErrorNotificationFailingResponse response) {
         super(cause);
 
         this.status = cause.getStatusCode();

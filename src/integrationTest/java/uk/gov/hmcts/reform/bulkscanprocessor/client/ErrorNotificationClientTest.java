@@ -80,10 +80,10 @@ public class ErrorNotificationClientTest {
         )));
 
         // then
-        assertThat(throwable).isInstanceOf(NotificationClientException.class);
+        assertThat(throwable).isInstanceOf(ErrorNotificationException.class);
 
         // and
-        NotificationClientException exception = (NotificationClientException) throwable;
+        ErrorNotificationException exception = (ErrorNotificationException) throwable;
 
         assertThat(exception.getStatus()).isEqualTo(UNAUTHORIZED);
         assertThat(exception.getResponse()).isNull();
@@ -161,10 +161,10 @@ public class ErrorNotificationClientTest {
     }
 
     private void assertThrowingResponse(Throwable throwable, String message) {
-        assertThat(throwable).isInstanceOf(NotificationClientException.class);
+        assertThat(throwable).isInstanceOf(ErrorNotificationException.class);
 
         // and
-        NotificationClientException exception = (NotificationClientException) throwable;
+        ErrorNotificationException exception = (ErrorNotificationException) throwable;
 
         assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
         assertThat(exception.getResponse().getMessage()).isEqualTo(message);
