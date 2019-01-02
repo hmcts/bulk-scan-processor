@@ -38,8 +38,11 @@ public class ErrorNotificationExceptionHandler {
 
     private IMessage handleErrorNotificationException(IMessage message, ErrorNotificationException exception) {
         if (exception.getStatus().is5xxServerError()) {
-            // instant to be decided
-            errorNotificationPushClient.scheduleMessageAsync(message, Instant.now());
+            // 10th delivery time is 6h delay
+            // Eventually it'll fail in case client is down for quite some time
+            long secondsToAdd = (long) Math.floor(Math.exp((double) message.getDeliveryCount()));
+
+            errorNotificationPushClient.scheduleMessageAsync(message, Instant.now().plusSeconds(secondsToAdd));
 
             return message;
         }
