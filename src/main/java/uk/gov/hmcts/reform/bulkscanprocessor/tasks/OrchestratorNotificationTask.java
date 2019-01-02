@@ -54,18 +54,18 @@ public class OrchestratorNotificationTask {
 
         int successCount = (int)envelopesToSend
             .stream()
-            .map(env -> {
+            .filter(env -> {
                 try {
                     serviceBusHelper.sendMessage(new EnvelopeMsg(env));
                     logEnvelopeSent(env);
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
                     updateStatus(env);
-                    return 1;
+                    return true;
                 } catch (Exception exc) {
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
                     // log error and try with another envelope.
                     log.error("Error sending envelope notification", exc);
-                    return 0;
+                    return false;
                 }
             })
             .count();
