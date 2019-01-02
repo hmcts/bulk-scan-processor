@@ -296,6 +296,8 @@ public class BlobProcessorTask extends Processor {
                             cause.getMessage()
                         )
                     );
+
+                    log.info("Sent error notification for file {} in container {}", zipFilename, containerName);
                 } catch (Exception exc) {
                     log.error(
                         "Error sending notification to the queue."

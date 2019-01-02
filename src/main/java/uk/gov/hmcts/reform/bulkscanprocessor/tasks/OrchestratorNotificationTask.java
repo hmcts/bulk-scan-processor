@@ -16,6 +16,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
+import java.util.List;
+
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 
 /**
@@ -25,7 +27,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 @ConditionalOnProperty(value = "scheduling.task.notifications_to_orchestrator.enabled", matchIfMissing = true)
 public class OrchestratorNotificationTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
+    private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
 
     private final ServiceBusHelper serviceBusHelper;
     private final EnvelopeRepository envelopeRepo;
@@ -46,19 +48,42 @@ public class OrchestratorNotificationTask {
     @SchedulerLock(name = "send-orchestrator-notification")
     @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
-        envelopeRepo
-            .findByStatus(PROCESSED)
-            .forEach(env -> {
+        log.info("Started sending notifications to orchestrator");
+
+        List<Envelope> envelopesToSend = envelopeRepo.findByStatus(PROCESSED);
+
+        int successCount = (int)envelopesToSend
+            .stream()
+            .map(env -> {
                 try {
                     serviceBusHelper.sendMessage(new EnvelopeMsg(env));
+                    logEnvelopeSent(env);
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
                     updateStatus(env);
+                    return 1;
                 } catch (Exception exc) {
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
                     // log error and try with another envelope.
-                    LOGGER.error("Error sending envelope notification", exc);
+                    log.error("Error sending envelope notification", exc);
+                    return 0;
                 }
-            });
+            })
+            .count();
+
+        log.info(
+            "Finished sending notifications to orchestrator. Successful: {}. Failures {}.",
+            successCount,
+            envelopesToSend.size() - successCount
+        );
+    }
+
+    private void logEnvelopeSent(Envelope env) {
+        log.info(
+            "Sent envelope with ID {}. File {}, container {}",
+            env.getId(),
+            env.getZipFileName(),
+            env.getContainer()
+        );
     }
 
     private void createEvent(Envelope envelope, Event event) {
