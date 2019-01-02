@@ -2,8 +2,16 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers;
 
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationException;
+
+import java.time.Instant;
+import javax.validation.constraints.NotNull;
 
 public class ErrorNotificationExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ErrorNotificationExceptionHandler.class);
 
     private final IQueueClient errorNotificationPushClient;
 
@@ -12,12 +20,30 @@ public class ErrorNotificationExceptionHandler {
     }
 
     public IMessage handle(IMessage message, Throwable throwable) {
-        if (throwable != null) {
-            // decide whether to dead-letter (throw exc) or re-schedule the message.
+        // return for logging part. and future requires something to be returned other than void
+        return throwable != null ? handleNonNullThrowable(message, throwable) : message;
+    }
+
+    private IMessage handleNonNullThrowable(IMessage message, @NotNull Throwable throwable) {
+        try {
             throw (RuntimeException) throwable;
-        } else {
+        } catch (ClassCastException exception) {
+            log.error("Unable to cast Throwable to RuntimeException", throwable);
+
+            throw exception;
+        } catch (ErrorNotificationException exception) {
+            return handleErrorNotificationException(message, exception);
+        }
+    }
+
+    private IMessage handleErrorNotificationException(IMessage message, ErrorNotificationException exception) {
+        if (exception.getStatus().is5xxServerError()) {
+            // instant to be decided
+            errorNotificationPushClient.scheduleMessageAsync(message, Instant.now());
+
             return message;
         }
-        // return for logging part. and future requires something to be returned other than void
+
+        throw exception;
     }
 }
