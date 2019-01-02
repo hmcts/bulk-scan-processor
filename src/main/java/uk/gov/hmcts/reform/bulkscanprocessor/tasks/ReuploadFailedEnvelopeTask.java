@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +58,14 @@ public class ReuploadFailedEnvelopeTask {
     public void processUploadFailures() throws InterruptedException {
         log.info("Started failed document processing job");
 
+        ExecutorService executorService = null;
+
         try {
-            ExecutorService executorService = Executors.newFixedThreadPool(
+            executorService = Executors.newFixedThreadPool(
                 accessMapping.size(),
-                r -> new Thread(r, "BSP-REUPLOAD")
+                new ThreadFactoryBuilder().setNameFormat("BSP-REUPLOAD-%d").build()
             );
+
             CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
             accessMapping
@@ -81,6 +85,10 @@ public class ReuploadFailedEnvelopeTask {
             log.info("Finished failed document processing job");
         } catch (Exception ex) {
             log.error("An error occurred while processing failed documents", ex);
+        } finally {
+            if (executorService != null) {
+                executorService.shutdown();
+            }
         }
     }
 
