@@ -28,6 +28,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.SigningHelper.signWit
 public class ZipVerifiersTest {
 
     private static final String INVALID_SIGNATURE_MESSAGE = "Zip signature failed verification";
+    private static final String INVALID_ZIP_ENTRIES_MESSAGE = "Zip entries do not match expected file names";
 
     private static String publicKeyBase64;
     private static String xyzPublicKeyBase64;
@@ -71,7 +72,8 @@ public class ZipVerifiersTest {
         Map<String, byte[]> files = new HashMap<>();
         files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
         files.put(ZipVerifiers.SIGNATURE_SIG, new byte[0]);
-        assertThat(ZipVerifiers.verifyFileNames(files)).isTrue();
+
+        assertThatCode(() -> ZipVerifiers.verifyFileNames(files)).doesNotThrowAnyException();
     }
 
     @Test
@@ -80,7 +82,10 @@ public class ZipVerifiersTest {
         files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
         files.put(ZipVerifiers.SIGNATURE_SIG, new byte[0]);
         files.put("signature2", new byte[0]);
-        assertThat(ZipVerifiers.verifyFileNames(files)).isFalse();
+
+        assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
+            .isInstanceOf(DocSignatureFailureException.class)
+            .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
     }
 
     @Test
@@ -88,7 +93,10 @@ public class ZipVerifiersTest {
         Map<String, byte[]> files = new HashMap<>();
         files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
         files.put("signature.sig", new byte[0]);
-        assertThat(ZipVerifiers.verifyFileNames(files)).isFalse();
+
+        assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
+            .isInstanceOf(DocSignatureFailureException.class)
+            .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
     }
 
     @Test
