@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.core.PathUtility;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,13 +31,37 @@ public class SasTokenControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void should_return_sas_token_when_service_configuration_is_available() throws Exception {
+    public void should_return_sas_token_for_sscs_when_service_configuration_is_available() throws Exception {
         String tokenResponse = this.mockMvc.perform(get("/token/sscs"))
             .andDo(print())
             .andExpect(status().isOk())
             .andReturn()
             .getResponse().getContentAsString();
 
+        verifySasTokenProperties(tokenResponse);
+    }
+
+    @Test
+    public void should_return_sas_token_for_probate_when_service_configuration_is_available() throws Exception {
+        String tokenResponse = this.mockMvc.perform(get("/token/probate"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse().getContentAsString();
+
+        verifySasTokenProperties(tokenResponse);
+    }
+
+    @Test
+    public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
+        MvcResult result = this.mockMvc.perform(get("/token/divorce")).andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(400);
+        assertThat(result.getResolvedException().getMessage())
+            .isEqualTo("No service configuration found for service divorce");
+    }
+
+    private void verifySasTokenProperties(String tokenResponse) throws java.io.IOException, StorageException {
         final ObjectNode node = new ObjectMapper().readValue(tokenResponse, ObjectNode.class);
 
         Map<String, String[]> queryParams = PathUtility.parseQueryString(node.get("sas_token").asText());
@@ -49,12 +74,4 @@ public class SasTokenControllerTest {
         assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
     }
 
-    @Test
-    public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/token/divorce")).andReturn();
-
-        assertThat(result.getResponse().getStatus()).isEqualTo(400);
-        assertThat(result.getResolvedException().getMessage())
-            .isEqualTo("No service configuration found for service divorce");
-    }
 }
