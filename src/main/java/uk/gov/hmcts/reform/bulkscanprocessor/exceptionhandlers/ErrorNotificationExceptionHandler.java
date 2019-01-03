@@ -32,6 +32,8 @@ public class ErrorNotificationExceptionHandler {
 
             throw exception;
         } catch (ErrorNotificationException exception) {
+            log.error("Failed to publish error notification", exception);
+
             return handleErrorNotificationException(message, exception);
         }
     }

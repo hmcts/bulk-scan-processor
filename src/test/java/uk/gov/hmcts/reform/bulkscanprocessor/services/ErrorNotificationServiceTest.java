@@ -112,7 +112,6 @@ public class ErrorNotificationServiceTest {
 
         // then
         assertThat(throwable).isInstanceOf(RuntimeException.class).hasMessage("oh no");
-        assertThat(capture.toString()).contains("Failed to publish error notification");
 
         // and
         verify(repository).save(any(ErrorNotification.class));
