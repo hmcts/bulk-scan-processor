@@ -89,7 +89,7 @@ variable "scan_enabled" {
   default = "false"
 }
 
-variable "proxy_enabled" {
+variable "storage_proxy_enabled" {
   default = "false"
 }
 

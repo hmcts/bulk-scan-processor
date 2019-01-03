@@ -2,7 +2,7 @@ token_validity = "5184000" #60 days in seconds
 vault_section = "preprod"
 reupload_enabled = true
 scan_enabled = true
-proxy_enabled = "true"
+storage_proxy_enabled = "true"
 storage_proxy_host = "proxyout.reform.hmcts.net"
 storage_proxy_port = "8080"
 

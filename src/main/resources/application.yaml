@@ -49,7 +49,7 @@ storage:
   public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY:test_public_key.der} # public key file in der format
   blob_copy_timeout_in_millis: ${BLOB_COPY_TIMEOUT_IN_MILLIS:30000}
   blob_copy_polling_delay_in_millis: ${BLOB_COPY_POLLING_DELAY_IN_MILLIS:500}
-  proxy_enabled: ${PROXY_ENABLED:false}
+  proxy_enabled: ${STORAGE_PROXY_ENABLED:false}
   proxy_host: ${STORAGE_PROXY_HOST:}
   proxy_port: ${STORAGE_PROXY_PORT:0}
 
