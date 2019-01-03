@@ -93,6 +93,9 @@ module "bulk-scan" {
     STORAGE_ACCOUNT_NAME = "${local.storage_account_name}"
     STORAGE_KEY          = "${local.storage_account_primary_key}"
     STORAGE_URL          = "${local.storage_account_url}"
+    PROXY_ENABLED        = "${var.proxy_enabled}"
+    STORAGE_PROXY_HOST   = "${var.storage_proxy_host}"
+    STORAGE_PROXY_PORT   = "${var.storage_proxy_port}"
     SAS_TOKEN_VALIDITY   = "${var.token_validity}"
 
     DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"
