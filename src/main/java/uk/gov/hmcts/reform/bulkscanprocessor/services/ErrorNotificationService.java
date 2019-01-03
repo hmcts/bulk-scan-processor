@@ -56,9 +56,10 @@ public class ErrorNotificationService {
             log.info("Error notification published. ID: {}", response.getNotificationId());
         } catch (Exception exception) {
             log.error("Failed to publish error notification", exception);
-        }
 
-        // save the entity after everything is processed
-        repository.save(entity);
+            throw exception;
+        } finally {
+            repository.save(entity);
+        }
     }
 }
