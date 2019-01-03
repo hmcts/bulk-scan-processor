@@ -92,6 +92,7 @@ public class ErrorNotificationServiceTest {
         verify(repository).save(any(ErrorNotification.class));
     }
 
+    @Test
     public void should_save_to_db_and_log_the_failure_when_notification_is_attempted() {
         // given
         ErrorMsg serviceBusMessage = new ErrorMsg(
