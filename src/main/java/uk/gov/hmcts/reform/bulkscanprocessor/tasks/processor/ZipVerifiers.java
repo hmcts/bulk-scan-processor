@@ -67,6 +67,7 @@ public class ZipVerifiers {
 
     public static final String DOCUMENTS_ZIP = "envelope.zip";
     public static final String SIGNATURE_SIG = "signature";
+    public static final String INVALID_SIGNATURE_MESSAGE = "Zip signature failed verification";
 
     private static final Logger log = LoggerFactory.getLogger(ZipVerifiers.class);
 
@@ -100,14 +101,9 @@ public class ZipVerifiers {
                 "Zip entries do not match expected file names. Actual names = " + zipEntries.keySet()
             );
         }
-        if (!verifySignature(zipWithSignature.publicKeyBase64, zipEntries)) {
-            log.warn("Signature Failure. Zip signature failed verification. "
-                + "Container = {} - File = {}",
-                zipWithSignature.container, zipWithSignature.zipFileName
-            );
 
-            throw new DocSignatureFailureException("Zip signature failed verification");
-        }
+        verifySignature(zipWithSignature.publicKeyBase64, zipEntries);
+
         return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
     }
 
@@ -125,7 +121,6 @@ public class ZipVerifiers {
         }
     }
 
-
     static boolean verifyFileNames(Map<String, byte[]> entries) {
         return
             entries.size() == 2
@@ -135,22 +130,26 @@ public class ZipVerifiers {
             .count() == 2;
     }
 
-    private static boolean verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
-        return verifySignature(
+    private static void verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
+        verifySignature(
             publicKeyBase64,
             entries.get(DOCUMENTS_ZIP),
             entries.get(SIGNATURE_SIG)
         );
     }
 
-    public static boolean verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
+    public static void verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
         PublicKey publicKey = decodePublicKey(publicKeyBase64);
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(publicKey);
             signature.update(data);
-            return signature.verify(signed);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            if (!signature.verify(signed)) {
+                throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE);
+            }
+        } catch (SignatureException e) {
+            throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE, e);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new SignatureValidationException(e);
         }
     }
