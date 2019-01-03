@@ -89,6 +89,18 @@ variable "scan_enabled" {
   default = "false"
 }
 
+variable "storage_proxy_enabled" {
+  default = "false"
+}
+
+variable "storage_proxy_host" {
+  default = ""
+}
+
+variable "storage_proxy_port" {
+  default = ""
+}
+
 variable "orchestrator_notifications_task_enabled" {
   default = "false"
 }
