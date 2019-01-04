@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.ErrorNotificationFailingResponse;
 
 import java.io.IOException;
@@ -53,7 +54,18 @@ class ErrorNotificationDecoder implements ErrorDecoder {
                 StandardCharsets.UTF_8
             );
 
-            return new NotificationClientException(clientException, responseBody);
+            return new ErrorNotificationException(clientException, responseBody);
+        }
+
+        if (statusCode.is5xxServerError()) {
+            HttpServerErrorException serverException = new HttpServerErrorException(
+                statusCode,
+                statusText,
+                rawBody,
+                StandardCharsets.UTF_8
+            );
+
+            return new ErrorNotificationException(serverException, responseBody);
         }
 
         return DELEGATE.decode(methodKey, response);

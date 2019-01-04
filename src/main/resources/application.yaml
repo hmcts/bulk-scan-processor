@@ -50,8 +50,8 @@ storage:
   blob_copy_timeout_in_millis: ${BLOB_COPY_TIMEOUT_IN_MILLIS:30000}
   blob_copy_polling_delay_in_millis: ${BLOB_COPY_POLLING_DELAY_IN_MILLIS:500}
   proxy_enabled: ${STORAGE_PROXY_ENABLED:false}
-  proxy_host: ${STORAGE_PROXY_HOST:}
-  proxy_port: ${STORAGE_PROXY_PORT:0}
+  proxy_host: proxyout.reform.hmcts.net
+  proxy_port: 8080
 
 queues:
   envelopes:

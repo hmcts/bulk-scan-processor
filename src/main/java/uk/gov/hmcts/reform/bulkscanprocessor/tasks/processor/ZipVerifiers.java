@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
@@ -67,8 +65,7 @@ public class ZipVerifiers {
 
     public static final String DOCUMENTS_ZIP = "envelope.zip";
     public static final String SIGNATURE_SIG = "signature";
-
-    private static final Logger log = LoggerFactory.getLogger(ZipVerifiers.class);
+    public static final String INVALID_SIGNATURE_MESSAGE = "Zip signature failed verification";
 
     private ZipVerifiers() {
     }
@@ -91,23 +88,10 @@ public class ZipVerifiers {
     static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature)
         throws DocSignatureFailureException {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
-        if (!verifyFileNames(zipEntries)) {
-            log.warn("Signature Failure. Zip entries do not match expected file names. "
-                + "Container = {} - File = {} - Actual names = {}",
-                zipWithSignature.container, zipWithSignature.zipFileName, zipEntries.keySet()
-            );
-            throw new DocSignatureFailureException(
-                "Zip entries do not match expected file names. Actual names = " + zipEntries.keySet()
-            );
-        }
-        if (!verifySignature(zipWithSignature.publicKeyBase64, zipEntries)) {
-            log.warn("Signature Failure. Zip signature failed verification. "
-                + "Container = {} - File = {}",
-                zipWithSignature.container, zipWithSignature.zipFileName
-            );
 
-            throw new DocSignatureFailureException("Zip signature failed verification");
-        }
+        verifyFileNames(zipEntries);
+        verifySignature(zipWithSignature.publicKeyBase64, zipEntries);
+
         return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
     }
 
@@ -125,32 +109,41 @@ public class ZipVerifiers {
         }
     }
 
-
-    static boolean verifyFileNames(Map<String, byte[]> entries) {
-        return
+    static void verifyFileNames(Map<String, byte[]> entries) {
+        boolean verifiedPositively =
             entries.size() == 2
             &&
             entries.keySet().stream()
             .filter(n -> DOCUMENTS_ZIP.equalsIgnoreCase(n) || SIGNATURE_SIG.equalsIgnoreCase(n))
             .count() == 2;
+
+        if (!verifiedPositively) {
+            throw new DocSignatureFailureException(
+                "Zip entries do not match expected file names. Actual names = " + entries.keySet()
+            );
+        }
     }
 
-    private static boolean verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
-        return verifySignature(
+    private static void verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
+        verifySignature(
             publicKeyBase64,
             entries.get(DOCUMENTS_ZIP),
             entries.get(SIGNATURE_SIG)
         );
     }
 
-    public static boolean verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
+    public static void verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
         PublicKey publicKey = decodePublicKey(publicKeyBase64);
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(publicKey);
             signature.update(data);
-            return signature.verify(signed);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            if (!signature.verify(signed)) {
+                throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE);
+            }
+        } catch (SignatureException e) {
+            throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE, e);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new SignatureValidationException(e);
         }
     }
