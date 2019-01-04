@@ -18,6 +18,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -89,7 +90,7 @@ public class ZipVerifiers {
         throws DocSignatureFailureException {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 
-        verifyFileNames(zipEntries);
+        verifyFileNames(zipEntries.keySet());
         verifySignature(zipWithSignature.publicKeyBase64, zipEntries);
 
         return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
@@ -109,17 +110,13 @@ public class ZipVerifiers {
         }
     }
 
-    static void verifyFileNames(Map<String, byte[]> entries) {
-        boolean verifiedPositively =
-            entries.size() == 2
-            &&
-            entries.keySet().stream()
-            .filter(n -> DOCUMENTS_ZIP.equalsIgnoreCase(n) || SIGNATURE_SIG.equalsIgnoreCase(n))
-            .count() == 2;
+    static void verifyFileNames(Set<String> fileNames) {
+        boolean documentsPresent = fileNames.stream().anyMatch(DOCUMENTS_ZIP::equalsIgnoreCase);
+        boolean signaturePresent = fileNames.stream().anyMatch(SIGNATURE_SIG::equalsIgnoreCase);
 
-        if (!verifiedPositively) {
+        if (!(fileNames.size() == 2 && documentsPresent && signaturePresent)) {
             throw new DocSignatureFailureException(
-                "Zip entries do not match expected file names. Actual names = " + entries.keySet()
+                "Zip entries do not match expected file names. Actual names = " + fileNames
             );
         }
     }

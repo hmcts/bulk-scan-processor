@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,8 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.SignatureException;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.Resources.getResource;
@@ -69,19 +69,21 @@ public class ZipVerifiersTest {
 
     @Test
     public void should_verify_2_valid_filenames_successfully() throws Exception {
-        Map<String, byte[]> files = new HashMap<>();
-        files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
-        files.put(ZipVerifiers.SIGNATURE_SIG, new byte[0]);
+        Set<String> files = ImmutableSet.of(
+            ZipVerifiers.DOCUMENTS_ZIP,
+            ZipVerifiers.SIGNATURE_SIG
+        );
 
         assertThatCode(() -> ZipVerifiers.verifyFileNames(files)).doesNotThrowAnyException();
     }
 
     @Test
     public void should_not_verify_more_than_2_files_successfully() throws Exception {
-        Map<String, byte[]> files = new HashMap<>();
-        files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
-        files.put(ZipVerifiers.SIGNATURE_SIG, new byte[0]);
-        files.put("signature2", new byte[0]);
+        Set<String> files = ImmutableSet.of(
+            ZipVerifiers.DOCUMENTS_ZIP,
+            ZipVerifiers.SIGNATURE_SIG,
+            "signature2"
+        );
 
         assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
             .isInstanceOf(DocSignatureFailureException.class)
@@ -90,9 +92,10 @@ public class ZipVerifiersTest {
 
     @Test
     public void should_not_verify_invalid_filenames_successfully() throws Exception {
-        Map<String, byte[]> files = new HashMap<>();
-        files.put(ZipVerifiers.DOCUMENTS_ZIP, new byte[0]);
-        files.put("signature.sig", new byte[0]);
+        Set<String> files = ImmutableSet.of(
+            ZipVerifiers.DOCUMENTS_ZIP,
+            "signature.sig"
+        );
 
         assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
             .isInstanceOf(DocSignatureFailureException.class)
