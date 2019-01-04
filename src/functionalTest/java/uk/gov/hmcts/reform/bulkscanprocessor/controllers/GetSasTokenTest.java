@@ -80,7 +80,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    public void should_return_sas_token_when_service_configuration_is_available() throws Exception {
+    public void should_return_sas_token_for_sscs_when_service_configuration_is_available() throws Exception {
         Response tokenResponse = RestAssured
             .given()
             .relaxedHTTPSValidation()
@@ -90,16 +90,21 @@ public class GetSasTokenTest {
             .when().get("/token/sscs")
             .andReturn();
 
-        assertThat(tokenResponse.getStatusCode()).isEqualTo(200);
+        verifySasTokenProperties(tokenResponse);
+    }
 
-        final ObjectNode node = new ObjectMapper().readValue(tokenResponse.getBody().asString(), ObjectNode.class);
-        Map<String, String[]> queryParams = PathUtility.parseQueryString(node.get("sas_token").asText());
+    @Test
+    public void should_return_sas_token_for_probate_when_service_configuration_is_available() throws Exception {
+        Response tokenResponse = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(this.testUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+            .when().get("/token/probate")
+            .andReturn();
 
-        Date tokenExpiry = DateUtil.parseDatetime(queryParams.get("se")[0]);
-        assertThat(tokenExpiry).isNotNull();
-        assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
-        assertThat(queryParams.get("sv")).contains("2018-03-28"); //azure api version is latest
-        assertThat(queryParams.get("sp")).contains("wl"); //access permissions(write-w,list-l)
+        verifySasTokenProperties(tokenResponse);
     }
 
     @Test
@@ -155,5 +160,18 @@ public class GetSasTokenTest {
             destZipFilename,
             testPrivateKeyDer
         );
+    }
+
+    private void verifySasTokenProperties(Response tokenResponse) throws java.io.IOException, StorageException {
+        assertThat(tokenResponse.getStatusCode()).isEqualTo(200);
+
+        final ObjectNode node = new ObjectMapper().readValue(tokenResponse.getBody().asString(), ObjectNode.class);
+        Map<String, String[]> queryParams = PathUtility.parseQueryString(node.get("sas_token").asText());
+
+        Date tokenExpiry = DateUtil.parseDatetime(queryParams.get("se")[0]);
+        assertThat(tokenExpiry).isNotNull();
+        assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
+        assertThat(queryParams.get("sv")).contains("2018-03-28"); //azure api version is latest
+        assertThat(queryParams.get("sp")).contains("wl"); //access permissions(write-w,list-l)
     }
 }
