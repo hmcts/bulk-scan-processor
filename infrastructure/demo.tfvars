@@ -3,8 +3,6 @@ vault_section = "preprod"
 reupload_enabled = true
 scan_enabled = true
 storage_proxy_enabled = "true"
-storage_proxy_host = "proxyout.reform.hmcts.net"
-storage_proxy_port = "8080"
 
 orchestrator_notifications_task_enabled = "true"
 orchestrator_notifications_task_delay = "3000"
