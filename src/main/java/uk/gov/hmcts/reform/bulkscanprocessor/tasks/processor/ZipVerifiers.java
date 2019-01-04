@@ -25,6 +25,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 import static com.google.common.io.Resources.getResource;
+import static java.util.Arrays.asList;
 
 /**
  * Signed zip archive verification utilities. Currently 2 modes are supported:
@@ -111,10 +112,7 @@ public class ZipVerifiers {
     }
 
     static void verifyFileNames(Set<String> fileNames) {
-        boolean documentsPresent = fileNames.stream().anyMatch(DOCUMENTS_ZIP::equalsIgnoreCase);
-        boolean signaturePresent = fileNames.stream().anyMatch(SIGNATURE_SIG::equalsIgnoreCase);
-
-        if (!(fileNames.size() == 2 && documentsPresent && signaturePresent)) {
+        if (!(fileNames.size() == 2 && fileNames.containsAll(asList(DOCUMENTS_ZIP, SIGNATURE_SIG)))) {
             throw new DocSignatureFailureException(
                 "Zip entries do not match expected file names. Actual names = " + fileNames
             );
