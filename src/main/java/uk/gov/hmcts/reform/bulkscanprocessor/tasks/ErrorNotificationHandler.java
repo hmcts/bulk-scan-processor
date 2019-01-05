@@ -3,7 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.ExceptionPhase;
 import com.microsoft.azure.servicebus.IMessage;
-import com.microsoft.azure.servicebus.IMessageHandler;
+import com.microsoft.azure.servicebus.IMessageSession;
+import com.microsoft.azure.servicebus.ISessionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
@@ -15,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class ErrorNotificationHandler implements IMessageHandler {
+public class ErrorNotificationHandler implements ISessionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ErrorNotificationHandler.class);
 
@@ -39,12 +40,23 @@ public class ErrorNotificationHandler implements IMessageHandler {
     }
 
     @Override
-    public CompletableFuture<Void> onMessageAsync(IMessage message) {
+    public CompletableFuture<Void> onMessageAsync(IMessageSession session, IMessage message) {
         return CompletableFuture
             .supplyAsync(message::getBody, SIMPLE_EXEC)
             .thenApplyAsync(this::getErrorMessage, SIMPLE_EXEC)
             .thenAcceptAsync(this::processMessage, SERVICE_EXEC)
             .thenRunAsync(() -> log.debug("Error notification consumed. ID {}", message.getMessageId()), SIMPLE_EXEC);
+    }
+
+    @Override
+    public CompletableFuture<Void> OnCloseSessionAsync(IMessageSession session) {
+        // nothing to oo
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public void notifyException(Throwable exception, ExceptionPhase phase) {
+        log.error("Exception occurred in phase {}", phase, exception);
     }
 
     private ErrorMsg getErrorMessage(byte[] message) {
@@ -57,10 +69,5 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     private void processMessage(ErrorMsg message) {
         service.processServiceBusMessage(message);
-    }
-
-    @Override
-    public void notifyException(Throwable exception, ExceptionPhase phase) {
-        log.error("Exception occurred in phase {}", phase, exception);
     }
 }

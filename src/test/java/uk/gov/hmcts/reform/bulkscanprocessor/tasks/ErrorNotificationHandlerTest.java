@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IMessage;
+import com.microsoft.azure.servicebus.IMessageSession;
 import com.microsoft.azure.servicebus.Message;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,9 @@ public class ErrorNotificationHandlerTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Mock
+    private IMessageSession messageSession;
+
+    @Mock
     private ErrorNotificationService service;
 
     private ErrorNotificationHandler handler;
@@ -46,7 +50,7 @@ public class ErrorNotificationHandlerTest {
         IMessage message = getSampleMessage("{}".getBytes());
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(message);
+        CompletableFuture<Void> future = handler.onMessageAsync(messageSession, message);
 
         // then
         assertThat(future.isCompletedExceptionally()).isTrue();
@@ -72,7 +76,7 @@ public class ErrorNotificationHandlerTest {
         willThrow(new RuntimeException("oh no")).given(service).processServiceBusMessage(any(ErrorMsg.class));
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(message);
+        CompletableFuture<Void> future = handler.onMessageAsync(messageSession, message);
         Throwable throwable = catchThrowable(future::join);
 
         // then
@@ -93,7 +97,7 @@ public class ErrorNotificationHandlerTest {
         doNothing().when(service).processServiceBusMessage(any(ErrorMsg.class));
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(message);
+        CompletableFuture<Void> future = handler.onMessageAsync(messageSession, message);
         future.join();
 
         // then
