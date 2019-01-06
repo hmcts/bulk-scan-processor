@@ -22,7 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.doNothing;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.willThrow;
 
@@ -93,8 +95,12 @@ public class ErrorNotificationHandlerTest {
     public void should_complete_task_successfully() throws JsonProcessingException {
         // given
         ErrorMsg msg = getSampleErrorMessage();
-        IMessage message = getSampleMessage(MAPPER.writeValueAsBytes(msg));
+        IMessage message = spy(getSampleMessage(MAPPER.writeValueAsBytes(msg)));
+        CompletableFuture<Void> completed = CompletableFuture.completedFuture(null);
         doNothing().when(service).processServiceBusMessage(any(ErrorMsg.class));
+        UUID lockToken = UUID.randomUUID();
+        given(message.getLockToken()).willReturn(lockToken);
+        given(messageSession.completeAsync(lockToken)).willReturn(completed);
 
         // when
         CompletableFuture<Void> future = handler.onMessageAsync(messageSession, message);

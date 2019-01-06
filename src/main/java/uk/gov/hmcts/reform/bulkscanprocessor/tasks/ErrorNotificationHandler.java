@@ -30,6 +30,10 @@ public class ErrorNotificationHandler implements ISessionHandler {
         new Thread(r, "error-notification-service")
     );
 
+    private static final Executor SERVICEBUS_EXEC = Executors.newSingleThreadExecutor(r ->
+        new Thread(r, "error-notification-servicebus")
+    );
+
 
     public ErrorNotificationHandler(
         ErrorNotificationService service,
@@ -45,7 +49,10 @@ public class ErrorNotificationHandler implements ISessionHandler {
             .supplyAsync(message::getBody, SIMPLE_EXEC)
             .thenApplyAsync(this::getErrorMessage, SIMPLE_EXEC)
             .thenAcceptAsync(this::processMessage, SERVICE_EXEC)
-            .thenRunAsync(() -> log.debug("Error notification consumed. ID {}", message.getMessageId()), SIMPLE_EXEC);
+            .thenComposeAsync(
+                aVoid -> acknowledgeMessage(session, message),
+                SERVICEBUS_EXEC
+            );
     }
 
     @Override
@@ -69,5 +76,11 @@ public class ErrorNotificationHandler implements ISessionHandler {
 
     private void processMessage(ErrorMsg message) {
         service.processServiceBusMessage(message);
+    }
+
+    private CompletableFuture<Void> acknowledgeMessage(IMessageSession session, IMessage message) {
+        log.debug("Error notification consumed. ID {}", message.getMessageId());
+
+        return session.completeAsync(message.getLockToken());
     }
 }
