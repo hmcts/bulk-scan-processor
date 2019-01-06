@@ -26,6 +26,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.verifyNoMoreInteractions;
 import static org.mockito.BDDMockito.willThrow;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -111,6 +112,13 @@ public class ErrorNotificationHandlerTest {
 
         // and
         verify(service).processServiceBusMessage(any(ErrorMsg.class));
+    }
+
+    @Test
+    public void should_do_nothing_OnCloseSession_call() {
+        handler.OnCloseSessionAsync(messageSession);
+
+        verifyNoMoreInteractions(messageSession);
     }
 
     private ErrorMsg getSampleErrorMessage() {
