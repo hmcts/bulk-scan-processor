@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 
 public class EnvelopeMapper {
 
-    // Maps metadata file document type, to target subtype.
+    // Maps metadata file document type to target ccd subtype.
     private static final Map<InputDocumentType, DocumentSubtype> subtypeMapping =
         ImmutableMap.of(
             InputDocumentType.SSCS1, DocumentSubtype.SSCS1,
