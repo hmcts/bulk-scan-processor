@@ -119,9 +119,18 @@ public class EnvelopeMapperTest {
             case CHERISHED:
                 return InputDocumentType.CHERISHED;
             case OTHER:
-                return documentSubtype == DocumentSubtype.SSCS1
-                    ? InputDocumentType.SSCS1
-                    : InputDocumentType.OTHER;
+                if (documentSubtype == null) {
+                    return InputDocumentType.OTHER;
+                } else {
+                    switch (documentSubtype) {
+                        case SSCS1:
+                            return InputDocumentType.SSCS1;
+                        case WILL:
+                            return InputDocumentType.WILL;
+                        default:
+                            return InputDocumentType.OTHER;
+                    }
+                }
             default:
                 throw new AssertionError(
                     String.format("Expected a valid document type but got: %s", documentType)
