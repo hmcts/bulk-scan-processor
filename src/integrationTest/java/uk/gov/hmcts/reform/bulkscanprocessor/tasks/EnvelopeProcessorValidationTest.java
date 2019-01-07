@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -74,6 +75,19 @@ public class EnvelopeProcessorValidationTest {
         assertThat(throwable).isInstanceOf(FileNameIrregularitiesException.class)
             .hasMessageContaining("Not declared PDFs: 1111002.pdf")
             .hasMessageContaining("Missing PDFs: 1111001.pdf");
+    }
+
+    @Test
+    public void should_throw_exception_when_ocr_data_is_missing_in_the_zip_file() throws Exception {
+        ZipFileProcessingResult processingResult = processZip("zipcontents/missing_ocr_data");
+        InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
+
+        Throwable throwable = catchThrowable(() ->
+            EnvelopeProcessor.assertEnvelopeContainsOcrDataForNewApplication(envelope)
+        );
+
+        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessageContaining("No scannable items found with ocr data and document type SSCS1");
     }
 
     private ZipFileProcessingResult processZip(String zipContentDirectory)

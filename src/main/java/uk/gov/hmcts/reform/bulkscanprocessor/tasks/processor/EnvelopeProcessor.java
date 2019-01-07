@@ -14,8 +14,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -144,6 +147,28 @@ public class EnvelopeProcessor {
 
         if (!problems.isEmpty()) {
             throw new FileNameIrregularitiesException(String.join(". ", problems));
+        }
+    }
+
+    /**
+     * Assert envelope contains at least one scannable item
+     * with valid document type and ocr data for new application.
+     * Throws exception otherwise.
+     *
+     * @param envelope to assert against
+     */
+    public static void assertEnvelopeContainsOcrDataForNewApplication(InputEnvelope envelope) {
+
+        if (Classification.NEW_APPLICATION.equals(envelope.classification)) {
+
+            boolean isValidScannableItems = envelope.scannableItems
+                .stream()
+                .anyMatch(item -> item.documentType.equals(InputDocumentType.SSCS1) && item.ocrData.isEmpty());
+
+            if (!isValidScannableItems) {
+                throw new OcrDataNotFoundException("No scannable items found with ocr data and document type "
+                    + InputDocumentType.SSCS1);
+            }
         }
     }
 
