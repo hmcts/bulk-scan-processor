@@ -10,7 +10,7 @@ public class ErrorNotificationException extends RuntimeException {
 
     private final transient ErrorNotificationFailingResponse response;
 
-    ErrorNotificationException(HttpStatusCodeException cause, ErrorNotificationFailingResponse response) {
+    public ErrorNotificationException(HttpStatusCodeException cause, ErrorNotificationFailingResponse response) {
         super(cause);
 
         this.status = cause.getStatusCode();
