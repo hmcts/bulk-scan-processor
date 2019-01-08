@@ -41,7 +41,7 @@ public final class EnvelopeCreator {
     }
 
     public static InputStream getMetaFile() {
-        return EnvelopeCreator.class.getResourceAsStream("/metafiles/valid/from-spec.json");
+        return EnvelopeCreator.class.getResourceAsStream("/metafiles/valid/sscs-from-spec.json");
     }
 
     public static InputEnvelope getEnvelopeFromMetafile() throws IOException {

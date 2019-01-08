@@ -1,0 +1,60 @@
+{
+  "case_number": "1111222233334459",
+  "po_box": "XXXX",
+  "jurisdiction": "Probate",
+  "delivery_date": "2017-02-23T22:00:00.100Z",
+  "opening_date": "2017-03-31T00:00:00.010Z",
+  "zip_file_createddate": "2017-02-24T00:00:00.001Z",
+  "zip_file_name": "1_24-02-2017-00-00-00.zip",
+  "envelope_classification": "supplementary_evidence",
+  "scannable_items": [
+    {
+      "document_control_number": "1111001",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "return",
+      "next_action_date": "2017-02-24T00:00:00.000Z",
+      "file_name": "1111001.pdf",
+      "notes": "The document had ink spilled on it",
+      "document_type": "Cherished"
+    },
+    {
+      "document_control_number": "1111002",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111002.pdf",
+      "notes": "Cheque will be forwarded to court to bank it",
+      "document_type": "Other"
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "Will"
+    }
+  ],
+  "payments": [
+    {
+      "document_control_number": "1111002",
+      "method": "Cheque",
+      "amount": "100.00",
+      "currency": "GBP",
+      "payment_instrument_number": "1000000000",
+      "sort_code": "112233",
+      "account_number": "12345678"
+    }
+  ],
+  "non_scannable_items": [
+    {
+      "document_control_number": "1111001",
+      "item_type": "CD",
+      "notes": "4GB USB memory stick"
+    }
+  ]
+}

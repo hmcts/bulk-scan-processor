@@ -24,8 +24,8 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
-    public void should_successfully_map_json_file_to_entities() throws IOException {
-        InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
+    public void should_successfully_map_sscs_json_file_to_entities() throws IOException {
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/sscs-from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
         assertThat(envelope.scannableItems).hasSize(3);
@@ -41,6 +41,26 @@ public class MetafileJsonValidatorTest {
                 InputDocumentType.SSCS1
             );
     }
+
+    @Test
+    public void should_successfully_map_probate_json_file_to_entities() throws IOException {
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/probate-from-spec.json");
+
+        assertThat(envelope.nonScannableItems).hasSize(1);
+        assertThat(envelope.scannableItems).hasSize(3);
+        assertThat(envelope.payments).hasSize(1);
+        assertThat(envelope.payments.get(0).amount).isEqualTo(new BigDecimal("100.00"));
+        assertThat(envelope.caseNumber).isEqualTo("1111222233334459");
+        assertThat(envelope.classification).isEqualTo(Classification.SUPPLEMENTARY_EVIDENCE);
+        assertThat(envelope.scannableItems)
+            .extracting("documentType")
+            .containsExactlyInAnyOrder(
+                InputDocumentType.CHERISHED,
+                InputDocumentType.OTHER,
+                InputDocumentType.WILL
+            );
+    }
+
 
     @Test
     public void should_parse_envelope_data_with_no_case_number() throws IOException {
@@ -115,7 +135,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_with_non_scannable_items() throws IOException {
-        InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/sscs-from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
         assertThat(envelope.nonScannableItems.get(0).documentControlNumber).isEqualTo("1111001");
