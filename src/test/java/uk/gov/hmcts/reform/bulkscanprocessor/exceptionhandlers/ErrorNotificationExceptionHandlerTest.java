@@ -27,7 +27,7 @@ public class ErrorNotificationExceptionHandlerTest {
     }
 
     @Test
-    public void should_mark_for_deadletter_when_exception_is_not_runtime_exception() {
+    public void should_mark_for_deadletter_when_exception_is_not_ErrorNotificationException() {
         ErrorNotificationMessageWrapper wrapper = HANDLER.handle(MESSAGE, new IOException("oh no"));
 
         assertThat(wrapper.isAssignedForDeadLettering()).isTrue();

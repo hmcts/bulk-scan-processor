@@ -24,14 +24,10 @@ public class ErrorNotificationExceptionHandler {
     }
 
     private ErrorNotificationMessageWrapper handleNonNullThrowable(IMessage message, @NotNull Throwable throwable) {
-        try {
-            throw (RuntimeException) throwable;
-        } catch (ClassCastException exception) {
-            log.error("Unable to cast Throwable to RuntimeException", throwable);
-
+        if (throwable instanceof ErrorNotificationException) {
+            return handleErrorNotificationException(message, (ErrorNotificationException) throwable);
+        } else {
             return ErrorNotificationMessageWrapper.forDeadLettering(message);
-        } catch (ErrorNotificationException exception) {
-            return handleErrorNotificationException(message, exception);
         }
     }
 
