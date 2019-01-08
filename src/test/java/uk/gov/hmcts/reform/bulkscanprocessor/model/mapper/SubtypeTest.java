@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -13,6 +15,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.input
 
 public class SubtypeTest {
 
+    @Rule
+    public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
+    
     @Test
     public void should_map_scannable_item_document_types_correctly() {
         asList(
