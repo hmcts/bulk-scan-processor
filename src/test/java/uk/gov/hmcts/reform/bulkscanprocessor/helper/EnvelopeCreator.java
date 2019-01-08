@@ -98,15 +98,15 @@ public final class EnvelopeCreator {
 
     public static InputScannableItem inputScannableItem(InputDocumentType docType) {
         return new InputScannableItem(
-            "x",
+            "control number",
             getTimestamp(),
-            "x",
-            "x",
-            "x",
+            "ocr accuracy",
+            "manual intervention",
+            "next action",
             getTimestamp(),
             Collections.emptyMap(),
             "file.pdf",
-            "x",
+            "notes",
             docType
         );
     }
