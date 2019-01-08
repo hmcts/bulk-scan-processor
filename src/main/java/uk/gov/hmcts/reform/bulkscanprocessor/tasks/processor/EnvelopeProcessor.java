@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.Sets;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -159,11 +160,12 @@ public class EnvelopeProcessor {
      */
     public static void assertEnvelopeContainsOcrDataForNewApplication(InputEnvelope envelope) {
 
-        if (Classification.NEW_APPLICATION.equals(envelope.classification)) {
+        if (envelope.jurisdiction.equalsIgnoreCase("SSCS")
+            && Classification.NEW_APPLICATION.equals(envelope.classification)) {
 
             boolean isValidScannableItems = envelope.scannableItems
                 .stream()
-                .anyMatch(item -> item.documentType.equals(InputDocumentType.SSCS1) && item.ocrData.isEmpty());
+                .anyMatch(item -> item.documentType.equals(InputDocumentType.SSCS1) && !MapUtils.isEmpty(item.ocrData));
 
             if (!isValidScannableItems) {
                 throw new OcrDataNotFoundException("No scannable items found with ocr data and document type "

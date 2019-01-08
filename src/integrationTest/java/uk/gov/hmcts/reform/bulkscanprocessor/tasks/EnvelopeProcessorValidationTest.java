@@ -78,7 +78,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_ocr_data_is_missing_in_the_zip_file() throws Exception {
+    public void should_throw_exception_when_ocr_data_is_missing_for_sscs_new_application() throws Exception {
         ZipFileProcessingResult processingResult = processZip("zipcontents/missing_ocr_data");
         InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
@@ -88,6 +88,18 @@ public class EnvelopeProcessorValidationTest {
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
             .hasMessageContaining("No scannable items found with ocr data and document type SSCS1");
+    }
+
+    @Test
+    public void should_not_throw_exception_when_ocr_data_is_missing_for_bulkscan_jurisdiction() throws Exception {
+        ZipFileProcessingResult processingResult = processZip("zipcontents/missing_ocr_data_valid");
+        InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
+
+        Throwable throwable = catchThrowable(() ->
+            EnvelopeProcessor.assertEnvelopeContainsOcrDataForNewApplication(envelope)
+        );
+
+        assertThat(throwable).isNull();
     }
 
     private ZipFileProcessingResult processZip(String zipContentDirectory)

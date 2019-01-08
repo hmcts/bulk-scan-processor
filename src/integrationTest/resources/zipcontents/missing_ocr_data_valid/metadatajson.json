@@ -1,6 +1,6 @@
 {
   "po_box": "SSCSPO",
-  "jurisdiction": "SSCS",
+  "jurisdiction": "BULKSCAN",
   "delivery_date": "2018-06-23T00:00:00.000Z",
   "opening_date": "2018-06-24T00:00:00.000Z",
   "zip_file_createddate": "2018-02-24T00:00:00.000Z",
@@ -15,7 +15,7 @@
         "next_action_date": "2018-06-24T00:00:00.000Z",
         "file_name": "test1.pdf",
         "notes": "",
-        "document_type": "SSCS1"
+        "document_type": "Cherished"
       }
   ]
 }
