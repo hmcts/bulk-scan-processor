@@ -9,7 +9,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
@@ -22,6 +24,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,6 +94,21 @@ public final class EnvelopeCreator {
         envelope.setStatus(status);
 
         return envelope;
+    }
+
+    public static InputScannableItem inputScannableItem(InputDocumentType docType) {
+        return new InputScannableItem(
+            "control number",
+            getTimestamp(),
+            "ocr accuracy",
+            "manual intervention",
+            "next action",
+            getTimestamp(),
+            Collections.emptyMap(),
+            "file.pdf",
+            "notes",
+            docType
+        );
     }
 
     public static Envelope envelopeNotified() {
