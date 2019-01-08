@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum DocumentSubtype {
     WILL("will"),
     SSCS1("sscs1");
@@ -11,6 +13,7 @@ public enum DocumentSubtype {
     }
 
     @Override
+    @JsonValue
     public String toString() {
         return value;
     }

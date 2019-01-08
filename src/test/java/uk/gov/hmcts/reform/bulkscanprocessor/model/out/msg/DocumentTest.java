@@ -23,6 +23,7 @@ public class DocumentTest {
         assertThat(document.controlNumber).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(document.fileName).isEqualTo(scannableItem.getFileName());
         assertThat(document.scannedAt).isEqualTo(scannableItem.getScanningDate().toInstant());
+        assertThat(document.subtype).isEqualTo(scannableItem.getDocumentSubtype());
         assertThat(document.type).isEqualTo(scannableItem.getDocumentType());
         assertThat(document.url).isEqualTo(scannableItem.getDocumentUrl());
     }
