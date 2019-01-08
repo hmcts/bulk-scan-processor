@@ -4,8 +4,6 @@ import com.microsoft.azure.servicebus.IMessage;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ErrorNotificationMessageWrapper;
 
-import javax.validation.constraints.NotNull;
-
 public class ErrorNotificationExceptionHandler {
 
     public ErrorNotificationExceptionHandler() {
@@ -19,7 +17,7 @@ public class ErrorNotificationExceptionHandler {
             : ErrorNotificationMessageWrapper.forAcknowledgement(message);
     }
 
-    private ErrorNotificationMessageWrapper handleNonNullThrowable(IMessage message, @NotNull Throwable throwable) {
+    private ErrorNotificationMessageWrapper handleNonNullThrowable(IMessage message, Throwable throwable) {
         if (throwable instanceof ErrorNotificationException) {
             return handleErrorNotificationException(message, (ErrorNotificationException) throwable);
         } else {
