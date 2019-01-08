@@ -1,16 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers;
 
 import com.microsoft.azure.servicebus.IMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ErrorNotificationMessageWrapper;
 
 import javax.validation.constraints.NotNull;
 
 public class ErrorNotificationExceptionHandler {
-
-    private static final Logger log = LoggerFactory.getLogger(ErrorNotificationExceptionHandler.class);
 
     public ErrorNotificationExceptionHandler() {
         // empty construct
