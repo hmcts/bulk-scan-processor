@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
 public enum DocumentSubtype {
+    WILL("will"),
     SSCS1("sscs1");
 
     private final String value;

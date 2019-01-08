@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
+import com.google.common.collect.ImmutableMap;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -13,11 +14,19 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public class EnvelopeMapper {
+
+    // Maps metadata file document type to target ccd subtype.
+    private static final Map<InputDocumentType, DocumentSubtype> subtypeMapping =
+        ImmutableMap.of(
+            InputDocumentType.SSCS1, DocumentSubtype.SSCS1,
+            InputDocumentType.WILL, DocumentSubtype.WILL
+        );
 
     private EnvelopeMapper() {
         // utility class
@@ -74,9 +83,7 @@ public class EnvelopeMapper {
     }
 
     private static DocumentSubtype extractDocumentSubtype(InputDocumentType inputDocumentType) {
-        return inputDocumentType == InputDocumentType.SSCS1
-            ? DocumentSubtype.SSCS1
-            : null;
+        return subtypeMapping.get(inputDocumentType);
     }
 
     private static List<Payment> toDbPayments(List<InputPayment> payments) {
