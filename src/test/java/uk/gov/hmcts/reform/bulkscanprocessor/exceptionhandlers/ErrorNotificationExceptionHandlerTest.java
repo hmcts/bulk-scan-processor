@@ -28,7 +28,7 @@ public class ErrorNotificationExceptionHandlerTest {
 
     private ErrorNotificationExceptionHandler handler;
 
-    private static final UUID LOCKE_TOKEN = UUID.randomUUID();
+    private static final UUID LOCK_TOKEN = UUID.randomUUID();
 
     private static final CompletableFuture<Void> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
 
@@ -41,7 +41,7 @@ public class ErrorNotificationExceptionHandlerTest {
     public void should_mark_for_acknowledgement_when_no_exception_sent_to_handle() {
         given(client.completeAsync(any(UUID.class))).willReturn(COMPLETED_FUTURE);
 
-        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, null);
+        CompletableFuture<Void> handled = handler.handle(LOCK_TOKEN, null);
 
         assertThat(handled.join()).isNull();
     }
@@ -50,7 +50,7 @@ public class ErrorNotificationExceptionHandlerTest {
     public void should_mark_for_deadletter_when_exception_is_not_ErrorNotificationException() {
         given(client.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
-        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, new IOException("oh no"));
+        CompletableFuture<Void> handled = handler.handle(LOCK_TOKEN, new IOException("oh no"));
 
         assertThat(handled.join()).isNull();
     }
@@ -63,7 +63,7 @@ public class ErrorNotificationExceptionHandlerTest {
             new HttpStatusCodeException(HttpStatus.BAD_REQUEST) {},
             null
         );
-        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, exception);
+        CompletableFuture<Void> handled = handler.handle(LOCK_TOKEN, exception);
 
         assertThat(handled.join()).isNull();
     }
@@ -76,7 +76,7 @@ public class ErrorNotificationExceptionHandlerTest {
             new HttpStatusCodeException(HttpStatus.INTERNAL_SERVER_ERROR) {},
             null
         );
-        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, exception);
+        CompletableFuture<Void> handled = handler.handle(LOCK_TOKEN, exception);
 
         assertThat(handled.join()).isNull();
     }
