@@ -60,7 +60,7 @@ public class EnvelopeMapper {
         }
     }
 
-    private static ScannableItem toDbScannableItem(InputScannableItem scannableItem) {
+    public static ScannableItem toDbScannableItem(InputScannableItem scannableItem) {
         return new ScannableItem(
             scannableItem.documentControlNumber,
             scannableItem.scanningDate,

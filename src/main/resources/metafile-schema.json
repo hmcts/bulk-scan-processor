@@ -117,7 +117,8 @@
             "enum": [
               "Cherished",
               "Other",
-              "SSCS1"
+              "SSCS1",
+              "Will"
             ],
             "default": "Other"
           }
