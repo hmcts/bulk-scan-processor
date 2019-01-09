@@ -121,7 +121,7 @@ public class EnvelopeProcessor {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public static void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
+    public void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
         Set<String> scannedFileNames = envelope
             .scannableItems
             .stream()
@@ -152,22 +152,25 @@ public class EnvelopeProcessor {
     }
 
     /**
-     * Assert envelope contains at least one scannable item
-     * with valid document type and ocr data for new application.
+     * Assert scannable item contains ocr data
+     * when envelope classification is NEW_APPLICATION
+     * and jurisdiction is SSCS
+     * and document type of the scannable item is SSCS1.
      * Throws exception otherwise.
      *
      * @param envelope to assert against
      */
-    public static void assertEnvelopeContainsOcrDataForNewApplication(InputEnvelope envelope) {
+    public void assertEnvelopeContainsOcrDataIfRequired(InputEnvelope envelope) {
 
         if (envelope.jurisdiction.equalsIgnoreCase("SSCS")
             && Classification.NEW_APPLICATION.equals(envelope.classification)) {
 
-            boolean isValidScannableItems = envelope.scannableItems
+            boolean ocrDataExists = envelope.scannableItems
                 .stream()
-                .anyMatch(item -> item.documentType.equals(InputDocumentType.SSCS1) && !MapUtils.isEmpty(item.ocrData));
+                .filter(item -> item.documentType.equals(InputDocumentType.SSCS1))
+                .noneMatch(item -> MapUtils.isEmpty(item.ocrData));
 
-            if (!isValidScannableItems) {
+            if (!ocrDataExists) {
                 throw new OcrDataNotFoundException("No scannable items found with ocr data and document type "
                     + InputDocumentType.SSCS1);
             }
