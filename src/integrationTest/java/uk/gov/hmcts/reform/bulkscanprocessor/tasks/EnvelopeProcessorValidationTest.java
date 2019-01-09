@@ -1,21 +1,16 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,35 +28,13 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 @RunWith(SpringRunner.class)
 public class EnvelopeProcessorValidationTest {
 
-    @Mock
-    MetafileJsonValidator schemaValidator;
-
-    @Mock
-    EnvelopeRepository envelopeRepository;
-
-    @Mock
-    ProcessEventRepository processEventRepository;
-
-    EnvelopeProcessor envelopeProcessor;
-
-    @Before
-    public void setup() {
-        envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            envelopeRepository,
-            processEventRepository,
-            10,
-            10
-        );
-    }
-
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
         ZipFileProcessingResult processingResult = processZip("zipcontents/fewer_pdfs_than_declared");
         InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeValidator.assertEnvelopeHasPdfs(
                 envelope,
                 processingResult.getPdfs()
             )
@@ -77,7 +50,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeValidator.assertEnvelopeHasPdfs(
                 envelope,
                 processingResult.getPdfs()
             )
@@ -93,7 +66,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeHasPdfs(
+            EnvelopeValidator.assertEnvelopeHasPdfs(
                 envelope,
                 processingResult.getPdfs()
             )
@@ -110,7 +83,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
@@ -123,7 +96,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isNull();
@@ -135,7 +108,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = EnvelopeCreator.getEnvelopeFromMetafile(processingResult.getMetadata());
 
         Throwable throwable = catchThrowable(() ->
-            envelopeProcessor.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isNull();
