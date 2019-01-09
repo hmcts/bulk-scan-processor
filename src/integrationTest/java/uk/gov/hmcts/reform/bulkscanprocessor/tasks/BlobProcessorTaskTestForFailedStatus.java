@@ -154,6 +154,20 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
+    public void should_record_validation_failure_when_zip_does_not_contain_ocr_data() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_ocr_data"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventWasCreated(FILE_VALIDATION_FAILURE);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
+    @Test
     public void should_record_validation_failure_when_zip_contains_documents_not_in_pdf_format() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/non_pdf"));
