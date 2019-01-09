@@ -154,7 +154,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_record_validation_failure_when_zip_does_not_contain_ocr_data() throws Exception {
+    public void should_record_validation_failure_when_ocr_data_is_missing_for_form_scannable_item() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_ocr_data"));
 
