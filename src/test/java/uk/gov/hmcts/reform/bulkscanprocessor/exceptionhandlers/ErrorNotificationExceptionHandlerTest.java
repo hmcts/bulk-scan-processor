@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers;
 
-import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IMessageReceiver;
-import com.microsoft.azure.servicebus.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.spy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ErrorNotificationExceptionHandlerTest {
@@ -31,22 +28,20 @@ public class ErrorNotificationExceptionHandlerTest {
 
     private ErrorNotificationExceptionHandler handler;
 
-    private static final IMessage MESSAGE = spy(new Message("content"));
+    private static final UUID LOCKE_TOKEN = UUID.randomUUID();
 
     private static final CompletableFuture<Void> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
 
     @Before
     public void setUp() {
         handler = new ErrorNotificationExceptionHandler(new MessageAutoCompletor(receiver));
-
-        given(MESSAGE.getLockToken()).willReturn(UUID.randomUUID());
     }
 
     @Test
     public void should_mark_for_acknowledgement_when_no_exception_sent_to_handle() {
         given(receiver.completeAsync(any(UUID.class))).willReturn(COMPLETED_FUTURE);
 
-        CompletableFuture<Void> handled = handler.handle(MESSAGE, null);
+        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, null);
 
         assertThat(handled.join()).isNull();
     }
@@ -55,7 +50,7 @@ public class ErrorNotificationExceptionHandlerTest {
     public void should_mark_for_deadletter_when_exception_is_not_ErrorNotificationException() {
         given(receiver.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
-        CompletableFuture<Void> handled = handler.handle(MESSAGE, new IOException("oh no"));
+        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, new IOException("oh no"));
 
         assertThat(handled.join()).isNull();
     }
@@ -68,7 +63,7 @@ public class ErrorNotificationExceptionHandlerTest {
             new HttpStatusCodeException(HttpStatus.BAD_REQUEST) {},
             null
         );
-        CompletableFuture<Void> handled = handler.handle(MESSAGE, exception);
+        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, exception);
 
         assertThat(handled.join()).isNull();
     }
@@ -81,7 +76,7 @@ public class ErrorNotificationExceptionHandlerTest {
             new HttpStatusCodeException(HttpStatus.INTERNAL_SERVER_ERROR) {},
             null
         );
-        CompletableFuture<Void> handled = handler.handle(MESSAGE, exception);
+        CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, exception);
 
         assertThat(handled.join()).isNull();
     }
