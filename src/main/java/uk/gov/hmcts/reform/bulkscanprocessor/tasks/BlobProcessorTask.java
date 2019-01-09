@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesEx
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -236,13 +237,15 @@ public class BlobProcessorTask extends Processor {
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
-            EnvelopeProcessor.assertEnvelopeHasPdfs(envelope, result.getPdfs());
+            envelopeProcessor.assertEnvelopeContainsOcrDataIfRequired(envelope);
+            envelopeProcessor.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
             result.setEnvelope(envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName)));
 
             return result;
         } catch (InvalidEnvelopeSchemaException
+            | OcrDataNotFoundException
             | FileNameIrregularitiesException
             | NonPdfFileFoundException
             | OcrDataParseException

@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesEx
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
@@ -26,6 +27,7 @@ public final class ErrorMapping {
             .put(DocSignatureFailureException.class, ERR_SIG_VERIFY_FAILED)
             .put(InvalidEnvelopeSchemaException.class, ERR_METAFILE_INVALID)
             .put(FileNameIrregularitiesException.class, ERR_METAFILE_INVALID)
+            .put(OcrDataNotFoundException.class, ERR_METAFILE_INVALID)
             .put(NonPdfFileFoundException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(OcrDataParseException.class, ERR_METAFILE_INVALID)
             .put(MetadataNotFoundException.class, ERR_ZIP_PROCESSING_FAILED)
