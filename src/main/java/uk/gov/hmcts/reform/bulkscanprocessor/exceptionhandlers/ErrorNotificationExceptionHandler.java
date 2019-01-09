@@ -6,8 +6,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoComp
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor.DeadLetterReason;
-
 public class ErrorNotificationExceptionHandler {
 
     private final MessageAutoCompletor autoCompletor;
@@ -27,10 +25,7 @@ public class ErrorNotificationExceptionHandler {
         if (throwable instanceof ErrorNotificationException) {
             return handleErrorNotificationException(lockToken, (ErrorNotificationException) throwable);
         } else {
-            return autoCompletor.deadLetterAsync(
-                lockToken,
-                new DeadLetterReason("Unknown exception", throwable.getMessage())
-            );
+            return autoCompletor.deadLetterAsync(lockToken, "Unknown exception", throwable.getMessage());
         }
     }
 
@@ -41,10 +36,7 @@ public class ErrorNotificationExceptionHandler {
         if (exception.getStatus().is5xxServerError()) {
             return autoCompletor.abandonAsync(lockToken);
         } else {
-            return autoCompletor.deadLetterAsync(
-                lockToken,
-                new DeadLetterReason("Client error", exception.getMessage())
-            );
+            return autoCompletor.deadLetterAsync(lockToken, "Client error", exception.getMessage());
         }
     }
 }

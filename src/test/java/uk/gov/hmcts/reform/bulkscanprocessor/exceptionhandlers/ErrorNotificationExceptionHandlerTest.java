@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers;
 
-import com.microsoft.azure.servicebus.IMessageReceiver;
+import com.microsoft.azure.servicebus.IQueueClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ import static org.mockito.BDDMockito.given;
 public class ErrorNotificationExceptionHandlerTest {
 
     @Mock
-    private IMessageReceiver receiver;
+    private IQueueClient client;
 
     private ErrorNotificationExceptionHandler handler;
 
@@ -34,12 +34,12 @@ public class ErrorNotificationExceptionHandlerTest {
 
     @Before
     public void setUp() {
-        handler = new ErrorNotificationExceptionHandler(new MessageAutoCompletor(receiver));
+        handler = new ErrorNotificationExceptionHandler(new MessageAutoCompletor(client));
     }
 
     @Test
     public void should_mark_for_acknowledgement_when_no_exception_sent_to_handle() {
-        given(receiver.completeAsync(any(UUID.class))).willReturn(COMPLETED_FUTURE);
+        given(client.completeAsync(any(UUID.class))).willReturn(COMPLETED_FUTURE);
 
         CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, null);
 
@@ -48,7 +48,7 @@ public class ErrorNotificationExceptionHandlerTest {
 
     @Test
     public void should_mark_for_deadletter_when_exception_is_not_ErrorNotificationException() {
-        given(receiver.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
+        given(client.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
         CompletableFuture<Void> handled = handler.handle(LOCKE_TOKEN, new IOException("oh no"));
 
@@ -57,7 +57,7 @@ public class ErrorNotificationExceptionHandlerTest {
 
     @Test
     public void should_mark_for_deadletter_when_exception_is_4xx_of_notification_exception() {
-        given(receiver.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
+        given(client.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
         ErrorNotificationException exception = new ErrorNotificationException(
             new HttpStatusCodeException(HttpStatus.BAD_REQUEST) {},
@@ -70,7 +70,7 @@ public class ErrorNotificationExceptionHandlerTest {
 
     @Test
     public void should_mark_for_abandonment_when_exception_is_5xx_of_notification_exception() {
-        given(receiver.abandonAsync(any(UUID.class), any())).willReturn(COMPLETED_FUTURE);
+        given(client.abandonAsync(any(UUID.class), any())).willReturn(COMPLETED_FUTURE);
 
         ErrorNotificationException exception = new ErrorNotificationException(
             new HttpStatusCodeException(HttpStatus.INTERNAL_SERVER_ERROR) {},

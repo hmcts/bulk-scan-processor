@@ -1,50 +1,22 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
-import com.microsoft.azure.servicebus.IMessageReceiver;
+import com.microsoft.azure.servicebus.IQueueClient;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class MessageAutoCompletor {
 
-    public static class DeadLetterReason {
+    private final IQueueClient queueClient;
 
-        String reason;
-
-        String description;
-
-        public DeadLetterReason(String reason, String description) {
-            this.reason = reason;
-            this.description = description;
-        }
-
-        public DeadLetterReason(String reason) {
-            this(reason, null);
-        }
-    }
-
-    private final BiFunction<UUID, Map<String, Object>, CompletableFuture<Void>> abandonAsyncDelegate;
-
-    private final Function<UUID, CompletableFuture<Void>> completeAsyncDelegate;
-
-    private final BiFunction<UUID, DeadLetterReason, CompletableFuture<Void>> deadLetterAsyncDelegate;
-
-    public MessageAutoCompletor(IMessageReceiver receiver) {
-        abandonAsyncDelegate = receiver::abandonAsync;
-        completeAsyncDelegate = receiver::completeAsync;
-        deadLetterAsyncDelegate = (uuid, deadLetterReason) -> receiver.deadLetterAsync(
-            uuid,
-            deadLetterReason.reason,
-            deadLetterReason.description
-        );
+    public MessageAutoCompletor(IQueueClient queueClient) {
+        this.queueClient = queueClient;
     }
 
     public CompletableFuture<Void> abandonAsync(UUID lockToken, Map<String, Object> propertiesToUpdate) {
-        return abandonAsyncDelegate.apply(lockToken, propertiesToUpdate);
+        return queueClient.abandonAsync(lockToken, propertiesToUpdate);
     }
 
     public CompletableFuture<Void> abandonAsync(UUID lockToken) {
@@ -52,14 +24,10 @@ public class MessageAutoCompletor {
     }
 
     public CompletableFuture<Void> completeAsync(UUID lockToken) {
-        return completeAsyncDelegate.apply(lockToken);
+        return queueClient.completeAsync(lockToken);
     }
 
-    public CompletableFuture<Void> deadLetterAsync(UUID lockToken, DeadLetterReason deadLetterReason) {
-        return deadLetterAsyncDelegate.apply(lockToken, deadLetterReason);
-    }
-
-    public CompletableFuture<Void> deadLetterAsync(UUID lockToken) {
-        return deadLetterAsync(lockToken, new DeadLetterReason(null, null));
+    public CompletableFuture<Void> deadLetterAsync(UUID lockToken, String reason, String description) {
+        return queueClient.deadLetterAsync(lockToken, reason, description);
     }
 }
