@@ -35,6 +35,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -237,8 +238,8 @@ public class BlobProcessorTask extends Processor {
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
-            envelopeProcessor.assertEnvelopeContainsOcrDataIfRequired(envelope);
-            envelopeProcessor.assertEnvelopeHasPdfs(envelope, result.getPdfs());
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
+            EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
             result.setEnvelope(envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName)));
