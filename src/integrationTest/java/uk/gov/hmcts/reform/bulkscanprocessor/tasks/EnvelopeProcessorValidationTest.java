@@ -32,6 +32,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
  * TODO: Refactor and move to unit tests. Tested method takes Envelope object and list of PDF objects.
  * Zip files are not needed.
  */
+@SuppressWarnings("checkstyle:LineLength")
 @RunWith(SpringRunner.class)
 public class EnvelopeProcessorValidationTest {
 
