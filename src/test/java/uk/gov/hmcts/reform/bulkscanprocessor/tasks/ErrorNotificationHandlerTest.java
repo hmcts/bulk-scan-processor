@@ -3,25 +3,29 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IMessage;
+import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.doNothing;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.willThrow;
 
@@ -30,35 +34,36 @@ public class ErrorNotificationHandlerTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private static final UUID LOCK_TOKEN = UUID.randomUUID();
+
+    private static final CompletableFuture<Void> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
+
     @Mock
     private ErrorNotificationService service;
+
+    @Mock
+    private IQueueClient queueClient;
 
     private ErrorNotificationHandler handler;
 
     @Before
     public void setUp() {
-        handler = new ErrorNotificationHandler(service, MAPPER);
+        handler = new ErrorNotificationHandler(service, MAPPER, new MessageAutoCompletor(queueClient));
     }
 
     @Test
     public void should_fail_exceptionally_when_trying_parse_the_message_body() {
         // given
-        IMessage message = getSampleMessage("{}".getBytes());
+        IMessage message = spy(getSampleMessage("{}".getBytes()));
+        given(message.getLockToken()).willReturn(LOCK_TOKEN);
+        given(queueClient.deadLetterAsync(eq(LOCK_TOKEN), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
         // when
         CompletableFuture<Void> future = handler.onMessageAsync(message);
+        future.join();
 
         // then
-        assertThat(future.isCompletedExceptionally()).isTrue();
-
-        // and
-        Throwable throwable = catchThrowable(future::join);
-        assertThat(throwable.getCause())
-            .isInstanceOf(InvalidMessageException.class)
-            .hasMessageContaining("Unable to read error message");
-        assertThat(throwable.getCause().getCause())
-            .isInstanceOf(JsonProcessingException.class)
-            .hasMessageContaining("Missing required creator property 'id'");
+        assertThat(future.isCompletedExceptionally()).isFalse();
 
         // and
         verify(service, never()).processServiceBusMessage(any(ErrorMsg.class));
@@ -68,18 +73,17 @@ public class ErrorNotificationHandlerTest {
     public void should_fail_exceptionally_when_service_throws_an_error() throws JsonProcessingException {
         // given
         ErrorMsg msg = getSampleErrorMessage();
-        IMessage message = getSampleMessage(MAPPER.writeValueAsBytes(msg));
+        IMessage message = spy(getSampleMessage(MAPPER.writeValueAsBytes(msg)));
         willThrow(new RuntimeException("oh no")).given(service).processServiceBusMessage(any(ErrorMsg.class));
+        given(message.getLockToken()).willReturn(LOCK_TOKEN);
+        given(queueClient.deadLetterAsync(eq(LOCK_TOKEN), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
         // when
         CompletableFuture<Void> future = handler.onMessageAsync(message);
-        Throwable throwable = catchThrowable(future::join);
+        future.join();
 
         // then
-        assertThat(future.isCompletedExceptionally()).isTrue();
-        assertThat(throwable.getCause())
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("oh no");
+        assertThat(future.isCompletedExceptionally()).isFalse();
 
         // and
         verify(service).processServiceBusMessage(any(ErrorMsg.class));
@@ -89,8 +93,10 @@ public class ErrorNotificationHandlerTest {
     public void should_complete_task_successfully() throws JsonProcessingException {
         // given
         ErrorMsg msg = getSampleErrorMessage();
-        IMessage message = getSampleMessage(MAPPER.writeValueAsBytes(msg));
+        IMessage message = spy(getSampleMessage(MAPPER.writeValueAsBytes(msg)));
         doNothing().when(service).processServiceBusMessage(any(ErrorMsg.class));
+        given(message.getLockToken()).willReturn(LOCK_TOKEN);
+        given(queueClient.completeAsync(LOCK_TOKEN)).willReturn(COMPLETED_FUTURE);
 
         // when
         CompletableFuture<Void> future = handler.onMessageAsync(message);
