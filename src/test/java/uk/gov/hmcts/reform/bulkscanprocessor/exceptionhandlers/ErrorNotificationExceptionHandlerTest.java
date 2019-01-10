@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ErrorNotificationExceptionHandlerTest {
@@ -69,9 +70,7 @@ public class ErrorNotificationExceptionHandlerTest {
     }
 
     @Test
-    public void should_mark_for_abandonment_when_exception_is_5xx_of_notification_exception() {
-        given(client.abandonAsync(any(UUID.class), any())).willReturn(COMPLETED_FUTURE);
-
+    public void should_do_nothing_when_exception_is_5xx_of_notification_exception() {
         ErrorNotificationException exception = new ErrorNotificationException(
             new HttpStatusCodeException(HttpStatus.INTERNAL_SERVER_ERROR) {},
             null
@@ -79,5 +78,6 @@ public class ErrorNotificationExceptionHandlerTest {
         CompletableFuture<Void> handled = handler.handle(LOCK_TOKEN, exception);
 
         assertThat(handled.join()).isNull();
+        verifyNoMoreInteractions(client);
     }
 }

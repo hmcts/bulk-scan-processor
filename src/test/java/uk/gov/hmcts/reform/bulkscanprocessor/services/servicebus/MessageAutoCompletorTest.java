@@ -7,8 +7,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.BDDMockito.verify;
@@ -27,23 +25,6 @@ public class MessageAutoCompletorTest {
     @Before
     public void setUp() {
         completor = new MessageAutoCompletor(client);
-    }
-
-    @Test
-    public void should_abandon_the_message_when_properties_are_provided() {
-        Map<String, Object> propertiesToUpdate = Collections.singletonMap("some key", "some value");
-        completor.abandonAsync(LOCK_TOKEN, propertiesToUpdate);
-
-        verify(client).abandonAsync(LOCK_TOKEN, propertiesToUpdate);
-        verifyNoMoreInteractions(client);
-    }
-
-    @Test
-    public void should_abandon_the_message_when_properties_are_not_provided() {
-        completor.abandonAsync(LOCK_TOKEN);
-
-        verify(client).abandonAsync(LOCK_TOKEN, Collections.emptyMap());
-        verifyNoMoreInteractions(client);
     }
 
     @Test

@@ -34,7 +34,8 @@ public class ErrorNotificationExceptionHandler {
         ErrorNotificationException exception
     ) {
         if (exception.getStatus().is5xxServerError()) {
-            return autoCompletor.abandonAsync(lockToken);
+            // do nothing. wait for lock to expire
+            return CompletableFuture.completedFuture(null);
         } else {
             return autoCompletor.deadLetterAsync(lockToken, "Client error", exception.getMessage());
         }
