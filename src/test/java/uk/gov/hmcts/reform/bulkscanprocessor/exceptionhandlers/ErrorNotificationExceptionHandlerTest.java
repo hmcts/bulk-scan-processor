@@ -18,10 +18,11 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.spy;
+import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,6 +33,8 @@ public class ErrorNotificationExceptionHandlerTest {
 
     private ErrorNotificationExceptionHandler handler;
 
+    private static final UUID LOCK_TOKEN = UUID.randomUUID();
+
     private static final IMessage MESSAGE = spy(new Message("content"));
 
     private static final CompletableFuture<Void> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
@@ -40,30 +43,36 @@ public class ErrorNotificationExceptionHandlerTest {
     public void setUp() {
         handler = new ErrorNotificationExceptionHandler(new MessageAutoCompletor(client));
 
-        given(MESSAGE.getLockToken()).willReturn(UUID.randomUUID());
+        given(MESSAGE.getLockToken()).willReturn(LOCK_TOKEN);
     }
 
     @Test
     public void should_mark_for_acknowledgement_when_no_exception_sent_to_handle() {
-        given(client.completeAsync(any(UUID.class))).willReturn(COMPLETED_FUTURE);
+        given(client.completeAsync(LOCK_TOKEN)).willReturn(COMPLETED_FUTURE);
 
         CompletableFuture<Void> handled = handler.handle(MESSAGE, null);
 
         assertThat(handled.join()).isNull();
+
+        verify(client).completeAsync(LOCK_TOKEN);
+        verifyNoMoreInteractions(client);
     }
 
     @Test
     public void should_mark_for_deadletter_when_exception_is_not_ErrorNotificationException() {
-        given(client.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
+        given(client.deadLetterAsync(eq(LOCK_TOKEN), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
         CompletableFuture<Void> handled = handler.handle(MESSAGE, new IOException("oh no"));
 
         assertThat(handled.join()).isNull();
+
+        verify(client).deadLetterAsync(LOCK_TOKEN, "Unknown exception", "oh no");
+        verifyNoMoreInteractions(client);
     }
 
     @Test
     public void should_mark_for_deadletter_when_exception_is_4xx_of_notification_exception() {
-        given(client.deadLetterAsync(any(UUID.class), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
+        given(client.deadLetterAsync(eq(LOCK_TOKEN), anyString(), anyString())).willReturn(COMPLETED_FUTURE);
 
         ErrorNotificationException exception = new ErrorNotificationException(
             new HttpStatusCodeException(HttpStatus.BAD_REQUEST) {},
@@ -72,6 +81,9 @@ public class ErrorNotificationExceptionHandlerTest {
         CompletableFuture<Void> handled = handler.handle(MESSAGE, exception);
 
         assertThat(handled.join()).isNull();
+
+        verify(client).deadLetterAsync(LOCK_TOKEN, "Client error", exception.getMessage());
+        verifyNoMoreInteractions(client);
     }
 
     @Test
