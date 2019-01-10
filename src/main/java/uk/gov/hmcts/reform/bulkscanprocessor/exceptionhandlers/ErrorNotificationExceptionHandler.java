@@ -23,15 +23,29 @@ public class ErrorNotificationExceptionHandler {
         UUID lockToken = message.getLockToken();
         // return for message session completion step
         return throwable != null
-            ? handleNonNullThrowable(lockToken, message.getMessageId(), throwable)
+            ? handleNonNullThrowable(lockToken, message.getMessageId(), message.getDeliveryCount(), throwable)
             : autoCompletor.completeAsync(lockToken);
     }
 
-    private CompletableFuture<Void> handleNonNullThrowable(UUID lockToken, String messageId, Throwable throwable) {
+    private CompletableFuture<Void> handleNonNullThrowable(
+        UUID lockToken,
+        String messageId,
+        long deliveryCount,
+        Throwable throwable
+    ) {
         if (throwable instanceof ErrorNotificationException) {
-            return handleErrorNotificationException(lockToken, messageId, (ErrorNotificationException) throwable);
+            return handleErrorNotificationException(
+                lockToken,
+                messageId,
+                deliveryCount,
+                (ErrorNotificationException) throwable
+            );
         } else {
-            log.error("Unknown exception. Message ID: {}", messageId, throwable);
+            log.error(
+                "Unknown exception. Dead lettering message (ID: {})",
+                messageId,
+                throwable
+            );
 
             return autoCompletor.deadLetterAsync(lockToken, "Unknown exception", throwable.getMessage());
         }
@@ -40,14 +54,24 @@ public class ErrorNotificationExceptionHandler {
     private CompletableFuture<Void> handleErrorNotificationException(
         UUID lockToken,
         String messageId,
+        long deliveryCount,
         ErrorNotificationException exception
     ) {
         if (exception.getStatus().is5xxServerError()) {
-            log.warn("Received server error from notification client. Message ID: {}", messageId, exception);
+            log.warn(
+                "Received server error from notification client. Voiding message (ID: {}) after {} delivery attempt",
+                messageId,
+                deliveryCount + 1, // starts from 0
+                exception
+            );
             // do nothing. wait for lock to expire
             return CompletableFuture.completedFuture(null);
         } else {
-            log.error("Client error. Message ID: {}", messageId, exception);
+            log.error(
+                "Client error. Dead lettering message (ID: {})",
+                messageId,
+                exception
+            );
 
             return autoCompletor.deadLetterAsync(lockToken, "Client error", exception.getMessage());
         }
