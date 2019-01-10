@@ -44,6 +44,12 @@ public final class EnvelopeValidator {
 
             InputDocumentType typeThatShouldHaveOcrData = ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction);
 
+            if (typeThatShouldHaveOcrData == null) {
+                throw new OcrDataNotFoundException(
+                    "OCR document type for jurisdiction " + envelope.jurisdiction + " not configured"
+                );
+            }
+
             List<InputScannableItem> docsThatShouldHaveOcr = envelope
                 .scannableItems
                 .stream()
