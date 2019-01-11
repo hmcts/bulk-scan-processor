@@ -6,7 +6,7 @@
   "opening_date": "2018-06-24T00:00:00.000Z",
   "zip_file_createddate": "2018-02-24T00:00:00.000Z",
   "zip_file_name": "$$zip_file_name$$",
-  "envelope_classification": "new_application",
+  "envelope_classification": "exception",
   "scannable_items": [
       {
         "document_control_number": "1111006",
