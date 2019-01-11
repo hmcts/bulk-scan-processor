@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -8,42 +9,61 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesEx
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 public final class EnvelopeValidator {
+
+    public static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
+        ImmutableMap.of(
+            "SSCS", InputDocumentType.SSCS1
+        );
 
     private EnvelopeValidator() {
         // util class
     }
 
     /**
-     * Assert scannable item contains ocr data
+     * Assert scannable items contain ocr data
      * when envelope classification is NEW_APPLICATION
-     * and jurisdiction is SSCS
-     * and document type of the scannable item is SSCS1.
      * Throws exception otherwise.
      *
      * @param envelope to assert against
      */
     public static void assertEnvelopeContainsOcrDataIfRequired(InputEnvelope envelope) {
 
-        if (envelope.jurisdiction.equalsIgnoreCase("SSCS")
-            && Classification.NEW_APPLICATION.equals(envelope.classification)) {
+        if (Classification.NEW_APPLICATION.equals(envelope.classification)) {
 
-            boolean ocrDataExists = envelope.scannableItems
+            InputDocumentType typeThatShouldHaveOcrData = ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction);
+
+            if (typeThatShouldHaveOcrData == null) {
+                throw new OcrDataNotFoundException(
+                    "OCR document type for jurisdiction " + envelope.jurisdiction + " not configured"
+                );
+            }
+
+            List<InputScannableItem> docsThatShouldHaveOcr = envelope
+                .scannableItems
                 .stream()
-                .filter(item -> item.documentType.equals(InputDocumentType.SSCS1))
-                .noneMatch(item -> MapUtils.isEmpty(item.ocrData));
+                .filter(doc -> Objects.equals(doc.documentType, typeThatShouldHaveOcrData))
+                .collect(toList());
 
-            if (!ocrDataExists) {
-                throw new OcrDataNotFoundException("No scannable items found with ocr data and document type "
-                    + InputDocumentType.SSCS1);
+            if (docsThatShouldHaveOcr.isEmpty()) {
+                throw new OcrDataNotFoundException("No documents of type " + typeThatShouldHaveOcrData + " found");
+            }
+
+            if (docsThatShouldHaveOcr.stream().allMatch(doc -> MapUtils.isEmpty(doc.ocrData))) {
+                throw new OcrDataNotFoundException("Missing OCR data");
             }
         }
     }
