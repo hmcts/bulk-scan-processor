@@ -52,7 +52,7 @@ public class ErrorNotificationHandlerTest {
     }
 
     @Test
-    public void should_fail_exceptionally_when_trying_parse_the_message_body() {
+    public void should_handle_invalid_message_when_trying_parse_the_body() {
         // given
         IMessage message = spy(getSampleMessage("{}".getBytes()));
         given(message.getLockToken()).willReturn(LOCK_TOKEN);
@@ -70,7 +70,7 @@ public class ErrorNotificationHandlerTest {
     }
 
     @Test
-    public void should_fail_exceptionally_when_service_throws_an_error() throws JsonProcessingException {
+    public void should_handle_error_when_service_throws_one() throws JsonProcessingException {
         // given
         ErrorMsg msg = getSampleErrorMessage();
         IMessage message = spy(getSampleMessage(MAPPER.writeValueAsBytes(msg)));
