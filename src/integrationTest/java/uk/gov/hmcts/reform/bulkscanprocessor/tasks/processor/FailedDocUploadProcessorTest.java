@@ -32,6 +32,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
     private BlobProcessorTask blobProcessorTask;
 
+    private static final String JURISDICTION = "BULKSCAN";
+
     @Before
     public void setUp() throws Exception {
         super.setUp(FailedDocUploadProcessor::new);
@@ -65,7 +67,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction("SSCS");
+        processor.processJurisdiction(JURISDICTION);
 
         // then
         List<Envelope> dbEnvelopes = envelopeRepository.findAll();
@@ -103,7 +105,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction("SSCS");
+        processor.processJurisdiction(JURISDICTION);
 
         // then
         assertThat(envelopeRepository.findAll())
@@ -135,8 +137,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs(); // original run
 
         // when
-        processor.processJurisdiction("SSCS"); // retry run
-        processor.processJurisdiction("SSCS"); // another retry run
+        processor.processJurisdiction(JURISDICTION); // retry run
+        processor.processJurisdiction(JURISDICTION); // another retry run
 
         // then
         List<Envelope> envelopes = envelopeRepository.findAll();

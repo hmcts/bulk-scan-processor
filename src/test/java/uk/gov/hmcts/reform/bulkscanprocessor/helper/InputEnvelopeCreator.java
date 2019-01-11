@@ -16,6 +16,10 @@ public final class InputEnvelopeCreator {
         // util class
     }
 
+    public static InputEnvelope inputEnvelope(String jurisdiction) {
+        return inputEnvelope(jurisdiction, Classification.EXCEPTION, emptyList());
+    }
+
     public static InputEnvelope inputEnvelope(
         String jurisdiction,
         Classification classification,

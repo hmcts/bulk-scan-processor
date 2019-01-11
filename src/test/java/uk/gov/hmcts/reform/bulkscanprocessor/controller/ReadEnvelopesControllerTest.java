@@ -130,7 +130,7 @@ public class ReadEnvelopesControllerTest {
     }
 
     private List<EnvelopeResponse> envelopesInDb() throws Exception {
-        Envelope envelope = EnvelopeCreator.envelope();
+        Envelope envelope = EnvelopeCreator.envelope("BULKSCAN", Status.PROCESSED);
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
         return singletonList(EnvelopeResponseMapper.toEnvelopeResponse(envelope));
     }

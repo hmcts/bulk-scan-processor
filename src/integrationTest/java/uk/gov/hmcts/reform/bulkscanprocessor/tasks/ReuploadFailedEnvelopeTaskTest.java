@@ -83,7 +83,7 @@ public class ReuploadFailedEnvelopeTaskTest {
         // then
         assertThat(outputCapture.toString()).containsPattern(".+ERROR \\[.+\\] "
             + FailedDocUploadProcessor.class.getCanonicalName()
-            + ":\\d+: An error occurred when processing failed documents for jurisdiction SSCS\\."
+            + ":\\d+: An error occurred when processing failed documents for jurisdiction BULKSCAN\\."
         );
     }
 

@@ -28,7 +28,7 @@ public class EnvelopeUpdateServiceTest {
     @Test
     public void should_update_envelope_status_and_create_an_event() throws Exception {
         // given
-        Envelope envelope = envelopeRepo.saveAndFlush(EnvelopeCreator.envelopeNotified());
+        Envelope envelope = envelopeRepo.saveAndFlush(EnvelopeCreator.envelope("BULKSCAN", Status.NOTIFICATION_SENT));
 
         // when
         envelopeUpdateService.updateStatus(

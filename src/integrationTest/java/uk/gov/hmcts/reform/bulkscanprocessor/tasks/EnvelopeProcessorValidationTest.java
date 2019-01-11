@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
@@ -178,6 +179,35 @@ public class EnvelopeProcessorValidationTest {
         );
 
         assertThat(throwable).isNull();
+    }
+
+    @Test
+    public void should_throw_an_exception_when_jurisdiction_and_container_dont_match() {
+        // given
+        InputEnvelope envelope = inputEnvelope("test_jurisdiction");
+        String container = "container_not_matching_jurisdiction";
+
+        // when
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdiction(envelope, container));
+
+        // then
+        assertThat(err)
+            .isInstanceOf(ContainerJurisdictionMismatchException.class)
+            .hasMessageContaining(envelope.jurisdiction)
+            .hasMessageContaining(container);
+    }
+
+    @Test
+    public void should_not_throw_an_exception_when_jurisdiction_and_container_match() {
+        // given
+        InputEnvelope envelope = inputEnvelope("Aaa");
+        String container = "AaA";
+
+        // when
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdiction(envelope, container));
+
+        // then
+        assertThat(err).isNull();
     }
 
     private ZipFileProcessingResult processZip(String zipContentDirectory)
