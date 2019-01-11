@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 public final class InputEnvelopeCreator {
 
@@ -40,7 +41,19 @@ public final class InputEnvelopeCreator {
         );
     }
 
+    public static InputScannableItem scannableItem(String fileName) {
+        return scannableItem(fileName, InputDocumentType.OTHER, emptyMap());
+    }
+
     public static InputScannableItem scannableItem(InputDocumentType documentType, Map<String, String> ocrData) {
+        return scannableItem("file.pdf", documentType, ocrData);
+    }
+
+    public static InputScannableItem scannableItem(
+        String fileName,
+        InputDocumentType documentType,
+        Map<String, String> ocrData
+    ) {
         return new InputScannableItem(
             "control_number",
             null,
@@ -49,7 +62,7 @@ public final class InputEnvelopeCreator {
             "next_action",
             null,
             ocrData,
-            "file.pdf",
+            fileName,
             "notes",
             documentType
         );
