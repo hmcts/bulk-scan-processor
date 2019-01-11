@@ -32,7 +32,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
     private BlobProcessorTask blobProcessorTask;
 
-    private static final String JURISDICTION = "bulkscan";
+    private static final String JURISDICTION = "BULKSCAN";
 
     @Before
     public void setUp() throws Exception {
