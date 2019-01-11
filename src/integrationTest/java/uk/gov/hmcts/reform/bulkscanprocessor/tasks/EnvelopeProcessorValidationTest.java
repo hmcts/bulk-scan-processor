@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMis
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
