@@ -60,6 +60,9 @@ queues:
   notifications:
     connection-string: ${QUEUE_NOTIFICATIONS_SEND:"NO_VALUE_SUPPLIED"}
     queue-name: notifications
+  read-notifications:
+    connection-string: ${QUEUE_NOTIFICATIONS_READ:"NO_VALUE_SUPPLIED"}
+    queue-name: notifications
 
 accesstoken:
   serviceConfig:
