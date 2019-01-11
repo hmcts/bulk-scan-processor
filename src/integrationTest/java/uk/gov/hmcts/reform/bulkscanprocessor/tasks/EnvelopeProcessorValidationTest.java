@@ -184,8 +184,8 @@ public class EnvelopeProcessorValidationTest {
     @Test
     public void should_throw_an_exception_when_jurisdiction_and_container_dont_match() {
         // given
-        InputEnvelope envelope = inputEnvelope("A");
-        String container = "B";
+        InputEnvelope envelope = inputEnvelope("test_jurisdiction");
+        String container = "container_not_matching_jurisdiction";
 
         // when
         Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdiction(envelope, container));
