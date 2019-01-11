@@ -29,6 +29,7 @@ public class EnvelopeDeletionTest {
     private CloudBlobContainer rejectedContainer;
     private List<String> filesToDeleteAfterTest = new ArrayList<>();
     private TestHelper testHelper;
+    private DbHelper dbHelper;
     private String testPrivateKeyDer;
 
     @Before
@@ -58,6 +59,7 @@ public class EnvelopeDeletionTest {
         rejectedContainer = cloudBlobClient.getContainerReference(rejectedContainerName);
 
         testHelper = new TestHelper();
+        dbHelper = new DbHelper(conf.getConfig("test-db"));
     }
 
     @After
@@ -110,6 +112,11 @@ public class EnvelopeDeletionTest {
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
+
+        await("no notifications present - feature not yet plugged in")
+            .atMost(30, TimeUnit.SECONDS)
+            .pollInterval(2, TimeUnit.SECONDS)
+            .until(() -> dbHelper.getErrorNotifications().size(), is(0));
 
         assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isTrue();
     }
