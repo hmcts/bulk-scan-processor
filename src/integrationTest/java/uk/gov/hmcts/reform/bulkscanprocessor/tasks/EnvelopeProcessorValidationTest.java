@@ -185,7 +185,7 @@ public class EnvelopeProcessorValidationTest {
     @Test
     public void should_throw_an_exception_when_jurisdiction_and_container_dont_match() {
         // given
-        InputEnvelope envelope = InputEnvelopeCreator.forJurisdiction("A");
+        InputEnvelope envelope = inputEnvelope("A");
         String container = "B";
 
         // when
@@ -201,7 +201,7 @@ public class EnvelopeProcessorValidationTest {
     @Test
     public void should_not_throw_an_exception_when_jurisdiction_and_container_match() {
         // given
-        InputEnvelope envelope = InputEnvelopeCreator.forJurisdiction("Aaa");
+        InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
 
         // when
