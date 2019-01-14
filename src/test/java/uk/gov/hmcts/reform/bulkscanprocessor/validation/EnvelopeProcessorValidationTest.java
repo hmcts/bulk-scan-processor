@@ -28,7 +28,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
  * Zip files are not needed.
  */
 @SuppressWarnings("checkstyle:LineLength")
-@RunWith(SpringRunner.class)
 public class EnvelopeProcessorValidationTest {
 
     @Test
