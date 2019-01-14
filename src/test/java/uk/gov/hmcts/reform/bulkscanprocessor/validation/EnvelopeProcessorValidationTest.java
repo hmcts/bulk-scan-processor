@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
@@ -22,11 +20,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
 
-/**
- * This is unit test. Falls under integration to make use of existing zip file resources.
- * TODO: Refactor and move to unit tests. Tested method takes Envelope object and list of PDF objects.
- * Zip files are not needed.
- */
 @SuppressWarnings("checkstyle:LineLength")
 public class EnvelopeProcessorValidationTest {
 
