@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
+package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 
 import java.util.List;
 
