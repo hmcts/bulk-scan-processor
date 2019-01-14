@@ -57,6 +57,14 @@ withPipeline(type, product, component) {
       env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
       env.TEST_SCAN_DELAY = '4000'
       env.RESOURCE_GROUP = 'bulk-scan-aks'
+
+      env.TEST_DB_HOST = 'localhost'
+      env.TEST_DB_PORT = 5432
+      env.TEST_DB_USERNAME = 'bulkscanner'
+      env.TEST_DB_PASSWORD = 'bsppassword'
+      env.TEST_DB_NAME = 'bulk_scan'
+      env.TEST_DB_CONN_OPTIONS = ''
+
       def testInputStorageContainerName = 'bulkscan'
       def testRejectedStorageContainerName = 'bulkscan-rejected'
       env.TEST_STORAGE_CONTAINER_NAME = testInputStorageContainerName
