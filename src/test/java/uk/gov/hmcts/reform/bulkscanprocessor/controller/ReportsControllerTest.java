@@ -39,8 +39,8 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.received").value("100"))
-            .andExpect(jsonPath("$.rejected").value("11"));
+            .andExpect(jsonPath("$.received").value(received))
+            .andExpect(jsonPath("$.rejected").value(rejected));
     }
 
     @Test
