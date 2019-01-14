@@ -93,6 +93,10 @@ variable "storage_proxy_enabled" {
   default = "false"
 }
 
+variable "error_notifications_enabled" {
+  default = "true"
+}
+
 variable "orchestrator_notifications_task_enabled" {
   default = "false"
 }
