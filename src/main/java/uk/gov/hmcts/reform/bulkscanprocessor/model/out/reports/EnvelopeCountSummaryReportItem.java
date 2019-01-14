@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
-public class EnvelopeCountSummaryReportResponse {
+public class EnvelopeCountSummaryReportItem {
 
     @JsonProperty("received")
     public final int received;
@@ -19,7 +19,7 @@ public class EnvelopeCountSummaryReportResponse {
     public final LocalDate date;
 
     // region constructor
-    public EnvelopeCountSummaryReportResponse(int received, int rejected, String jurisdiction, LocalDate date) {
+    public EnvelopeCountSummaryReportItem(int received, int rejected, String jurisdiction, LocalDate date) {
         this.received = received;
         this.rejected = rejected;
         this.jurisdiction = jurisdiction;

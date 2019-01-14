@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
@@ -37,7 +37,7 @@ public class ReportsController {
         return new EnvelopeCountSummaryReportListResponse(
             result
                 .stream()
-                .map(item -> new EnvelopeCountSummaryReportResponse(
+                .map(item -> new EnvelopeCountSummaryReportItem(
                     item.received,
                     item.rejected,
                     item.jurisdiction,

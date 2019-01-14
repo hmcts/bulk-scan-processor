@@ -7,9 +7,9 @@ import java.util.List;
 public class EnvelopeCountSummaryReportListResponse {
 
     @JsonProperty("data")
-    public final List<EnvelopeCountSummaryReportResponse> items;
+    public final List<EnvelopeCountSummaryReportItem> items;
 
-    public EnvelopeCountSummaryReportListResponse(List<EnvelopeCountSummaryReportResponse> items) {
+    public EnvelopeCountSummaryReportListResponse(List<EnvelopeCountSummaryReportItem> items) {
         this.items = items;
     }
 }
