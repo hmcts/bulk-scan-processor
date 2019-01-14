@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 
