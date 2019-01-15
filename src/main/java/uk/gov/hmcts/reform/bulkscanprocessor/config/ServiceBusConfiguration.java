@@ -10,7 +10,6 @@ import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -19,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoComp
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 
+import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +33,18 @@ public class ServiceBusConfiguration {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ErrorNotificationService errorNotificationService;
+
+    @Value("${queues.read-notifications.enabled}")
+    private boolean readNotificationsEnabled;
+
+    @Value("${queues.read-notifications.connection-string}")
+    private String connectionString;
+
+    @Value("${queues.read-notifications.queue-name}")
+    private String queueName;
 
     @Bean(name = "envelopes")
     public ServiceBusHelper envelopesQueueHelper(
@@ -62,30 +74,25 @@ public class ServiceBusConfiguration {
         );
     }
 
-    @Bean(name = "notifications-read")
-    @ConditionalOnProperty(prefix = "queues.read-notifications", name = "enabled")
-    public IQueueClient notificationsQueueReader(
-        @Value("${queues.read-notifications.connection-string}") String connectionString,
-        @Value("${queues.read-notifications.queue-name}") String queueName,
-        ErrorNotificationService service
-    ) throws InterruptedException, ServiceBusException {
-        IQueueClient client = new QueueClient(
-            new ConnectionStringBuilder(connectionString, queueName),
-            ReceiveMode.PEEKLOCK
-        );
+    @PostConstruct
+    public void notificationsQueueReader() throws InterruptedException, ServiceBusException {
+        if (readNotificationsEnabled) {
+            IQueueClient client = new QueueClient(
+                new ConnectionStringBuilder(connectionString, queueName),
+                ReceiveMode.PEEKLOCK
+            );
 
-        IMessageHandler messageHandler = new ErrorNotificationHandler(
-            service,
-            objectMapper,
-            new MessageAutoCompletor(client)
-        );
+            IMessageHandler messageHandler = new ErrorNotificationHandler(
+                errorNotificationService,
+                objectMapper,
+                new MessageAutoCompletor(client)
+            );
 
-        client.registerMessageHandler(
-            messageHandler,
-            new MessageHandlerOptions(1, false, Duration.ofMinutes(5)),
-            QUEUE_READ_EXEC
-        );
-
-        return client;
+            client.registerMessageHandler(
+                messageHandler,
+                new MessageHandlerOptions(1, false, Duration.ofMinutes(5)),
+                QUEUE_READ_EXEC
+            );
+        }
     }
 }
