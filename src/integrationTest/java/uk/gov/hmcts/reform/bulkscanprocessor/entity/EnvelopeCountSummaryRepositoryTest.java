@@ -74,8 +74,9 @@ public class EnvelopeCountSummaryRepositoryTest {
             );
 
         assertThat(envelopes)
+            .extracting(Envelope::getStatus)
             .as("All envelope statuses should be checked in this test")
-            .hasSize(Status.values().length);
+            .containsExactlyInAnyOrder(Status.values());
 
         envelopesRepo.saveAll(envelopes);
 
