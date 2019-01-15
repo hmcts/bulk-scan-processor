@@ -18,10 +18,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoComp
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 
-import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.annotation.PostConstruct;
 
 @Lazy
 @Configuration
