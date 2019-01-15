@@ -13,14 +13,14 @@ public interface EnvelopeCountSummaryRepository extends JpaRepository<Envelope, 
 
     @Query(
         nativeQuery = true,
-        value = "SELECT " +
-            "  date(createdat) AS date, " +
-            "  jurisdiction, " +
-            "  count(*) AS received, " +
-            "  SUM(CASE WHEN status in ('METADATA_FAILURE', 'SIGNATURE_FAILURE') THEN 1 ELSE 0 END) AS rejected " +
-            "FROM envelopes " +
-            "GROUP BY date(createdat), jurisdiction " +
-            "HAVING date(createdat) = :date"
+        value = "SELECT "
+            + "  date(createdat) AS date, "
+            + "  jurisdiction, "
+            + "  count(*) AS received, "
+            + "  SUM(CASE WHEN status in ('METADATA_FAILURE', 'SIGNATURE_FAILURE') THEN 1 ELSE 0 END) AS rejected "
+            + "FROM envelopes "
+            + "GROUP BY date(createdat), jurisdiction "
+            + "HAVING date(createdat) = :date"
     )
     List<EnvelopeCountSummaryItem> getReportFor(@Param("date") LocalDate date);
 }
