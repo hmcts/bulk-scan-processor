@@ -24,8 +24,8 @@ public class ReportsServiceTest {
     public void should_map_repo_result_properly() {
         given(repo.getReportFor(now()))
             .willReturn(asList(
-                new Item(now(), "A", 100, 1),
-                new Item(now(), "B", 200, 9)
+                new Item(now().plusDays(1), "A", 100, 1),
+                new Item(now().minusDays(1), "B", 200, 9)
             ));
 
         ReportsService service = new ReportsService(repo);
@@ -36,9 +36,9 @@ public class ReportsServiceTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(
-                new EnvelopeCountSummary(100, 1, "A", now()),
-                new EnvelopeCountSummary(200, 9, "B", now())
+            .containsExactly(
+                new EnvelopeCountSummary(100, 1, "A", now().plusDays(1)),
+                new EnvelopeCountSummary(200, 9, "B", now().minusDays(1))
             );
     }
 }
