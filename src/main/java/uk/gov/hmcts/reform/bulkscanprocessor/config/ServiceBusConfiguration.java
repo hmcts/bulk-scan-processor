@@ -8,6 +8,7 @@ import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -30,11 +31,13 @@ public class ServiceBusConfiguration {
         new Thread(r, "notifications-queue-read")
     );
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Bean(name = "envelopes")
     public ServiceBusHelper envelopesQueueHelper(
         @Value("${queues.envelopes.connection-string}") String connectionString,
-        @Value("${queues.envelopes.queue-name}") String queueName,
-        ObjectMapper objectMapper
+        @Value("${queues.envelopes.queue-name}") String queueName
     ) throws InterruptedException, ServiceBusException {
         return new ServiceBusHelper(
             new QueueClient(
@@ -48,8 +51,7 @@ public class ServiceBusConfiguration {
     @Bean(name = "notifications")
     public ServiceBusHelper notificationsQueueHelper(
         @Value("${queues.notifications.connection-string}") String connectionString,
-        @Value("${queues.notifications.queue-name}") String queueName,
-        ObjectMapper objectMapper
+        @Value("${queues.notifications.queue-name}") String queueName
     ) throws InterruptedException, ServiceBusException {
         return new ServiceBusHelper(
             new QueueClient(
@@ -65,8 +67,7 @@ public class ServiceBusConfiguration {
     public IQueueClient notificationsQueueReader(
         @Value("${queues.read-notifications.connection-string}") String connectionString,
         @Value("${queues.read-notifications.queue-name}") String queueName,
-        ErrorNotificationService service,
-        ObjectMapper objectMapper
+        ErrorNotificationService service
     ) throws InterruptedException, ServiceBusException {
         IQueueClient client = new QueueClient(
             new ConnectionStringBuilder(connectionString, queueName),
