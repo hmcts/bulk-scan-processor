@@ -41,10 +41,10 @@ public class ServiceBusConfiguration {
     private boolean readNotificationsEnabled;
 
     @Value("${queues.read-notifications.connection-string}")
-    private String connectionString;
+    private String readNotificationConnectionString;
 
     @Value("${queues.read-notifications.queue-name}")
-    private String queueName;
+    private String readNotificationQueueName;
 
     @Bean(name = "envelopes")
     public ServiceBusHelper envelopesQueueHelper(
@@ -78,7 +78,7 @@ public class ServiceBusConfiguration {
     public void notificationsQueueReader() throws InterruptedException, ServiceBusException {
         if (readNotificationsEnabled) {
             IQueueClient client = new QueueClient(
-                new ConnectionStringBuilder(connectionString, queueName),
+                new ConnectionStringBuilder(readNotificationConnectionString, readNotificationQueueName),
                 ReceiveMode.PEEKLOCK
             );
 
