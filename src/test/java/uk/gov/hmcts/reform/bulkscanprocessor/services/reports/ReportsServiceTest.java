@@ -14,20 +14,24 @@ import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService.TEST_JURISDICTION;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportsServiceTest {
 
-    @Mock
-    private EnvelopeCountSummaryRepository repo;
+    @Mock private EnvelopeCountSummaryRepository repo;
+    @Mock private ZeroRowFiller zeroRowFiller;
 
     private ReportsService service;
 
     @Before
     public void setUp() throws Exception {
-        this.service = new ReportsService(this.repo);
+        this.service = new ReportsService(this.repo, zeroRowFiller);
+        when(this.zeroRowFiller.fill(any(), any()))
+            .thenAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
     }
 
     @Test
