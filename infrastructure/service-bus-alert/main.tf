@@ -3,7 +3,7 @@ provider "azurerm" {
 }
 
 data "template_file" "metricalerttemplate" {
-  template = "${file("${path.module}/templates/ServiceBusAlert.json")}"
+  template = "${file("${path.cwd}/service-bus-alert/template/ServiceBusAlert.json")}"
 }
 
 resource "azurerm_template_deployment" "custom_alert" {
