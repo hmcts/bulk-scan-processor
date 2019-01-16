@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-03-01/Microsoft.Insights.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+    {
+      "name": "DLQ size is too high",
+      "apiVersion": "2018-03-01",
+      "type": "microsoft.insights/metricAlerts",
+      "location": "global",
+      "tags": {},
+      "properties": {
+        "description": "TMP TEST AUTO DLQ ALERT",
+        "severity": "2",
+        "enabled": "false",
+        "scopes": [
+          "[concat('/subscriptions/', parameters('subscriptionId'), '/resourceGroups/', parameters('resourceGroup'), '/providers/Microsoft.ServiceBus/namespaces/', parameters('namespace'))]"
+        ],
+        "evaluationFrequency": "PT30M",
+        "windowSize": "PT1H",
+        "criteria": {
+          "properties": [
+            {
+              "name": "Count of DLQ [1]",
+              "metricName": "Count of DLQ [2]",
+              "metricNamespace": "[parameters('namespace')]",
+              "operator": "greater()",
+              "timeAggregation": "average()",
+              "threshold": 30,
+              "dimensions": [
+                {
+                  "name": "Count of DLQ [3]",
+                  "operator": "envelopes",
+                  "values": "count()"
+                }
+              ]
+            }
+          ],
+          "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+        },
+        "actions": [
+          {
+            "actionGroupId": "Send Letter is DOWN Alert - aat",
+            "webHookProperties": {}
+          }
+        ]
+      }
+    }
+  ]
+}
