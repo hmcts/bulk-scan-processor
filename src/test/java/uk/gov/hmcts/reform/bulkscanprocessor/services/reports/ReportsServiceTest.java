@@ -13,6 +13,7 @@ import java.util.List;
 
 import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -52,7 +53,7 @@ public class ReportsServiceTest {
     @Test
     public void should_map_empty_list_from_repo() {
         given(repo.getReportFor(now()))
-            .willReturn(Collections.emptyList());
+            .willReturn(emptyList());
 
         // when
         List<EnvelopeCountSummary> result = service.getCountFor(now());
