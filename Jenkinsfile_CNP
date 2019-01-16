@@ -111,8 +111,11 @@ withPipeline(type, product, component) {
   enableDbMigration()
   enableSlackNotifications(channel)
   enableApiGatewayTest()
-  enableDockerBuild()
-  enableDeployToAKS()
+
+  if (env.CHANGE_TITLE && !env.CHANGE_TITLE.contains('[PREVIEW]')) {
+    enableDockerBuild()
+    enableDeployToAKS()
+  }
 
   onPR() {
     loadVaultSecrets(commonSecrets)
