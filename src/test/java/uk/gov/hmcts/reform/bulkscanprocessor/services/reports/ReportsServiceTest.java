@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -7,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.time.LocalDate.now;
@@ -18,7 +20,14 @@ import static org.mockito.BDDMockito.given;
 public class ReportsServiceTest {
 
     @Mock
-    EnvelopeCountSummaryRepository repo;
+    private EnvelopeCountSummaryRepository repo;
+
+    private ReportsService service;
+
+    @Before
+    public void setUp() throws Exception {
+        this.service = new ReportsService(this.repo);
+    }
 
     @Test
     public void should_map_repo_result_properly() {
@@ -27,8 +36,6 @@ public class ReportsServiceTest {
                 new Item(now().plusDays(1), "A", 100, 1),
                 new Item(now().minusDays(1), "B", 200, 9)
             ));
-
-        ReportsService service = new ReportsService(repo);
 
         // when
         List<EnvelopeCountSummary> result = service.getCountFor(now());
@@ -40,5 +47,17 @@ public class ReportsServiceTest {
                 new EnvelopeCountSummary(100, 1, "A", now().plusDays(1)),
                 new EnvelopeCountSummary(200, 9, "B", now().minusDays(1))
             );
+    }
+
+    @Test
+    public void should_map_empty_list_from_repo() {
+        given(repo.getReportFor(now()))
+            .willReturn(Collections.emptyList());
+
+        // when
+        List<EnvelopeCountSummary> result = service.getCountFor(now());
+
+        // then
+        assertThat(result).isEmpty();
     }
 }
