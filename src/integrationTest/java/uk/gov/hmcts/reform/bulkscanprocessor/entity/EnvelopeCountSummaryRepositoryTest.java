@@ -8,8 +8,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static java.time.LocalDate.now;
@@ -116,40 +116,4 @@ public class EnvelopeCountSummaryRepositoryTest {
     private void dbHas(Envelope... envelopes) {
         envelopesRepo.saveAll(asList(envelopes));
     }
-
-    // region helper model
-    class Item implements EnvelopeCountSummaryItem {
-        private final LocalDate date;
-        private final String jurisdiction;
-        private final int received;
-        private final int rejected;
-
-        public Item(LocalDate date, String jurisdiction, int received, int rejected) {
-            this.date = date;
-            this.jurisdiction = jurisdiction;
-            this.received = received;
-            this.rejected = rejected;
-        }
-
-        @Override
-        public LocalDate getDate() {
-            return date;
-        }
-
-        @Override
-        public String getJurisdiction() {
-            return jurisdiction;
-        }
-
-        @Override
-        public int getReceived() {
-            return received;
-        }
-
-        @Override
-        public int getRejected() {
-            return rejected;
-        }
-    }
-    // endregion
 }
