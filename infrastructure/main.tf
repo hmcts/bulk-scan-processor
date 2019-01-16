@@ -116,6 +116,8 @@ module "bulk-scan" {
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED = "${var.orchestrator_notifications_task_enabled}"
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY   = "${var.orchestrator_notifications_task_delay}"
 
+    ERROR_NOTIFICATIONS_ENABLED = "${var.error_notifications_enabled}"
+
     STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES = "${var.blob_processing_delay_in_minutes}"
 
@@ -124,6 +126,7 @@ module "bulk-scan" {
 
     QUEUE_ENVELOPE_SEND = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
     QUEUE_NOTIFICATIONS_SEND = "${data.terraform_remote_state.shared_infra.notifications_queue_primary_send_connection_string}"
+    QUEUE_NOTIFICATIONS_READ = "${data.terraform_remote_state.shared_infra.notifications_queue_primary_listen_connection_string}"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
