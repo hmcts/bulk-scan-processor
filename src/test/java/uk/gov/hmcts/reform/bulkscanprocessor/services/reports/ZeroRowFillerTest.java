@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-
 import org.junit.Test;
 
 import java.util.List;
