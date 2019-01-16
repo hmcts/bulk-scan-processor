@@ -15,6 +15,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService.TEST_JURISDICTION;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportsServiceTest {
@@ -38,7 +39,7 @@ public class ReportsServiceTest {
             ));
 
         // when
-        List<EnvelopeCountSummary> result = service.getCountFor(now());
+        List<EnvelopeCountSummary> result = service.getCountFor(now(), false);
 
         // then
         assertThat(result)
@@ -50,12 +51,29 @@ public class ReportsServiceTest {
     }
 
     @Test
+    public void should_filter_out_test_jurisdiction_when_requested() {
+        given(repo.getReportFor(now()))
+            .willReturn(asList(
+                new Item(now(), TEST_JURISDICTION, 100, 1),
+                new Item(now(), "SOME_OTHER_JURISDICTION", 10, 0)
+            ));
+
+        // when
+        List<EnvelopeCountSummary> resultWithoutTestJurisdiction = service.getCountFor(now(), false);
+        List<EnvelopeCountSummary> resultWithTestJurisdiction = service.getCountFor(now(), true);
+
+        // then
+        assertThat(resultWithoutTestJurisdiction).hasSize(1);
+        assertThat(resultWithTestJurisdiction).hasSize(2);
+    }
+
+    @Test
     public void should_map_empty_list_from_repo() {
         given(repo.getReportFor(now()))
             .willReturn(emptyList());
 
         // when
-        List<EnvelopeCountSummary> result = service.getCountFor(now());
+        List<EnvelopeCountSummary> result = service.getCountFor(now(), false);
 
         // then
         assertThat(result).isEmpty();

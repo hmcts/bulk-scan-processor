@@ -31,9 +31,10 @@ public class ReportsController {
     @GetMapping(path = "/count-summary")
     @ApiOperation("Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getCountSummary(
-        @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
+        @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+        @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestJurisdiction
     ) {
-        List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date);
+        List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestJurisdiction);
         return new EnvelopeCountSummaryReportListResponse(
             result
                 .stream()
