@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.time.LocalDate;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,17 +31,21 @@ public class ReportsControllerTest {
 
     @Test
     public void should_return_result_generated_by_the_service() throws Exception {
-        final int received = 100;
-        final int rejected = 11;
+        final EnvelopeCountSummary countSummary = new EnvelopeCountSummary(
+            100, 11, "hello", LocalDate.of(2019, 1, 14)
+        );
 
-        given(reportsService.getCountFor(LocalDate.of(2019, 1, 14)))
-            .willReturn(new EnvelopeCountSummary(received, rejected));
+        given(reportsService.getCountFor(countSummary.date))
+            .willReturn(singletonList(countSummary));
 
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.received").value(received))
-            .andExpect(jsonPath("$.rejected").value(rejected));
+            .andExpect(jsonPath("$.data.length()").value(1))
+            .andExpect(jsonPath("$.data[0].received").value(countSummary.received))
+            .andExpect(jsonPath("$.data[0].rejected").value(countSummary.rejected))
+            .andExpect(jsonPath("$.data[0].jurisdiction").value(countSummary.jurisdiction))
+            .andExpect(jsonPath("$.data[0].date").value(countSummary.date.toString()));
     }
 
     @Test
