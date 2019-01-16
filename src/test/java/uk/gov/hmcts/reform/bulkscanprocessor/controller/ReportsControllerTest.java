@@ -15,6 +15,7 @@ import java.time.LocalDate;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,7 +36,7 @@ public class ReportsControllerTest {
             100, 11, "hello", LocalDate.of(2019, 1, 14)
         );
 
-        given(reportsService.getCountFor(countSummary.date))
+        given(reportsService.getCountFor(countSummary.date, false))
             .willReturn(singletonList(countSummary));
 
         mockMvc
@@ -46,6 +47,27 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].rejected").value(countSummary.rejected))
             .andExpect(jsonPath("$.data[0].jurisdiction").value(countSummary.jurisdiction))
             .andExpect(jsonPath("$.data[0].date").value(countSummary.date.toString()));
+    }
+
+    @Test
+    public void should_not_include_test_jurisdiction_by_default() throws Exception {
+        mockMvc.perform(get("/reports/count-summary?date=2019-01-14"));
+
+        verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
+    }
+
+    @Test
+    public void should_include_test_jurisdiction_if_requested_by_the_client() throws Exception {
+        mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=true"));
+
+        verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), true);
+    }
+
+    @Test
+    public void should_not_include_test_jurisdiction_if_exlicitly_not_requested_by_the_client() throws Exception {
+        mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=false"));
+
+        verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
     @Test
