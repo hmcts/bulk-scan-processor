@@ -64,6 +64,13 @@ public class ReportsControllerTest {
     }
 
     @Test
+    public void should_not_include_test_jurisdiction_if_exlicitly_not_requested_by_the_client() throws Exception {
+        mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=false"));
+
+        verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
+    }
+
+    @Test
     public void should_return_400_if_date_is_invalid() throws Exception {
         final String invalidDate = "2019-14-14";
 

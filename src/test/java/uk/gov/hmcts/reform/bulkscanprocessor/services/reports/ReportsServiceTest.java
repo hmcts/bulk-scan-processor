@@ -64,6 +64,8 @@ public class ReportsServiceTest {
 
         // then
         assertThat(resultWithoutTestJurisdiction).hasSize(1);
+        assertThat(resultWithoutTestJurisdiction.get(0).jurisdiction).isEqualTo("SOME_OTHER_JURISDICTION");
+
         assertThat(resultWithTestJurisdiction).hasSize(2);
     }
 
