@@ -24,9 +24,14 @@ public class ZeroRowFiller {
     public List<EnvelopeCountSummary> fill(List<EnvelopeCountSummary> listToFill, LocalDate date) {
         return Stream.concat(
             listToFill.stream(),
-            Sets.difference(jurisdictions, listToFill.stream().map(res -> res.jurisdiction).collect(toSet()))
-                .stream()
-                .map(jur -> new EnvelopeCountSummary(0, 0, jur, date))
+            missingJurisdictions(listToFill).stream().map(jur -> new EnvelopeCountSummary(0, 0, jur, date))
         ).collect(toList());
+    }
+
+    private Set<String> missingJurisdictions(List<EnvelopeCountSummary> listToFill) {
+        return Sets.difference(
+            this.jurisdictions,
+            listToFill.stream().map(res -> res.jurisdiction).collect(toSet())
+        );
     }
 }
