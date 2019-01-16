@@ -8,7 +8,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 
-import java.util.Collections;
 import java.util.List;
 
 import static java.time.LocalDate.now;
