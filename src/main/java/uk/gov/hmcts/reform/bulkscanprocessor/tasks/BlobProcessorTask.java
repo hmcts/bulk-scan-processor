@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
@@ -290,20 +291,7 @@ public class BlobProcessorTask extends Processor {
             .getFor(cause.getClass())
             .ifPresent(errorCode -> {
                 try {
-                    this.notificationsQueueHelper.sendMessage(
-                        new ErrorMsg(
-                            UUID.randomUUID().toString(),
-                            eventId,
-                            zipFilename,
-                            containerName,
-                            null,
-                            null,
-                            errorCode,
-                            cause.getMessage()
-                        )
-                    );
-
-                    log.info("Sent error notification for file {} in container {}", zipFilename, containerName);
+                    sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
                 } catch (Exception exc) {
                     log.error(
                         "Error sending notification to the queue."
@@ -315,5 +303,35 @@ public class BlobProcessorTask extends Processor {
             });
 
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+    }
+
+    private void sendErrorMessageToQueue(
+        String zipFilename,
+        String containerName,
+        Long eventId,
+        ErrorCode errorCode,
+        Exception cause
+    ) {
+        String messageId = UUID.randomUUID().toString();
+
+        this.notificationsQueueHelper.sendMessage(
+            new ErrorMsg(
+                messageId,
+                eventId,
+                zipFilename,
+                containerName,
+                null,
+                null,
+                errorCode,
+                cause.getMessage()
+            )
+        );
+
+        log.info(
+            "Sent error notification for file {} in container {}. Message ID: {}",
+            zipFilename,
+            containerName,
+            messageId
+        );
     }
 }
