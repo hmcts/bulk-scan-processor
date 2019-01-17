@@ -1,9 +1,9 @@
 vault_section = "prod"
 capacity = "2"
 reupload_delay = "10000"
-reupload_enabled = true
+reupload_enabled = "true"
 scan_delay = "10000"
-scan_enabled = true
+scan_enabled = "true"
 
 orchestrator_notifications_task_enabled = "true"
 
