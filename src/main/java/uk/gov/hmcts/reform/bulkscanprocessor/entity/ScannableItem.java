@@ -42,7 +42,7 @@ public class ScannableItem implements EnvelopeAssignable {
     private Timestamp nextActionDate;
 
     @Type(type = "jsonb")
-    @Column(name = "ocrDataJson", columnDefinition = "jsonb")
+    @Column(name = "ocrData", columnDefinition = "jsonb")
     private Map<String, String> ocrData;
 
     private String fileName;
