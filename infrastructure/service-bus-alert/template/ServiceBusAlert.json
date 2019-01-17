@@ -1,6 +1,17 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-03-01/Microsoft.Insights.json#",
   "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subscriptionId": {
+      "type": "string"
+    },
+    "resourceGroup": {
+      "type": "string"
+    },
+    "namespace": {
+      "type": "string"
+    }
+  },
   "resources": [
     {
       "name": "DLQ size is too high",

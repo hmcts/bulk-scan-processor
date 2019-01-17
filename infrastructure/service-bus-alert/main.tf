@@ -8,12 +8,13 @@ data "template_file" "metricalerttemplate" {
 
 resource "azurerm_template_deployment" "custom_alert" {
   template_body       = "${data.template_file.metricalerttemplate.rendered}"
-  name                = "NAME?"
-  resourceGroup = "${var.resource_group_name}"
+  name                = "__NAME__"
   deployment_mode     = "Incremental"
-  subscriptionId = "${var.subscription_id}"
-  namespace = "${var.namespace}"
+  resource_group_name = "${var.resourcegroup_name}"
 
   parameters = {
+    subscriptionId = "${var.subscription_id}"
+    resourceGroup = "${var.resourcegroup_name}"
+    namespace = "${var.namespace}"
   }
 }
