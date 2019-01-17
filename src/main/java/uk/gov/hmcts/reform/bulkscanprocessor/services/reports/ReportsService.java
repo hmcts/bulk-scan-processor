@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 
 import java.time.LocalDate;
@@ -15,22 +16,32 @@ public class ReportsService {
     public static final String TEST_JURISDICTION = "BULKSCAN";
 
     private final EnvelopeCountSummaryRepository repo;
+    private final ZeroRowFiller zeroRowFiller;
 
-    public ReportsService(EnvelopeCountSummaryRepository repo) {
+    // region constructor
+    public ReportsService(
+        EnvelopeCountSummaryRepository repo,
+        ZeroRowFiller zeroRowFiller
+    ) {
         this.repo = repo;
+        this.zeroRowFiller = zeroRowFiller;
     }
+    // endregion
 
     public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestJurisdiction) {
-        return repo
-            .getReportFor(date)
+        return zeroRowFiller
+            .fill(repo.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
             .stream()
-            .filter(it -> includeTestJurisdiction || !Objects.equals(it.getJurisdiction(), TEST_JURISDICTION))
-            .map(it -> new EnvelopeCountSummary(
-                it.getReceived(),
-                it.getRejected(),
-                it.getJurisdiction(),
-                it.getDate()
-            ))
+            .filter(it -> includeTestJurisdiction || !Objects.equals(it.jurisdiction, TEST_JURISDICTION))
             .collect(toList());
+    }
+
+    EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
+        return new EnvelopeCountSummary(
+            dbItem.getReceived(),
+            dbItem.getRejected(),
+            dbItem.getJurisdiction(),
+            dbItem.getDate()
+        );
     }
 }
