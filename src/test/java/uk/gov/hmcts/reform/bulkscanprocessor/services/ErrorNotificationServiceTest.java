@@ -86,7 +86,7 @@ public class ErrorNotificationServiceTest {
 
         // and
         assertThat(capture.toString()).contains(
-            "Error notification published. ID: " + response.getNotificationId()
+            "Error notification for " + request.zipFileName + " published. ID: " + response.getNotificationId()
         );
         verify(repository).save(any(ErrorNotification.class));
     }
