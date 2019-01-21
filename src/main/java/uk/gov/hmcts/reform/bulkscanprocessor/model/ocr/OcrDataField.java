@@ -1,31 +1,32 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.ocr;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 public class OcrDataField {
 
-    private TextNode name;
-    private ValueNode value;
+    @JsonProperty(value = "metadata_field_name", required = true)
+    private TextNode metadataFieldName;
+    private ValueNode metadataFieldValue;
 
-    public TextNode getName() {
-        return name;
+    public TextNode getMetadataFieldName() {
+        return metadataFieldName;
     }
 
     @JsonSetter(value = "metadata_field_name", nulls = Nulls.FAIL)
-    public void setName(TextNode name) {
-        this.name = name;
+    public void setMetadataFieldName(TextNode metadataFieldName) {
+        this.metadataFieldName = metadataFieldName;
     }
 
-    public JsonNode getValue() {
-        return value;
+    public ValueNode getMetadataFieldValue() {
+        return metadataFieldValue;
     }
 
     @JsonSetter(value = "metadata_field_value")
-    public void setValue(ValueNode value) {
-        this.value = value;
+    public void setMetadataFieldValue(ValueNode metadataFieldValue) {
+        this.metadataFieldValue = metadataFieldValue;
     }
 }

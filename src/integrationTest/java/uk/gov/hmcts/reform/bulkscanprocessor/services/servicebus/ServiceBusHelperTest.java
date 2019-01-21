@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
@@ -19,6 +19,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
@@ -30,7 +32,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,12 +42,17 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class ServiceBusHelperTest {
 
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Mock private IQueueClient queueClient;
-    @Mock private Envelope envelope;
-    @Mock private ScannableItem scannableItem1;
-    @Mock private ScannableItem scannableItem2;
+    @Mock
+    private IQueueClient queueClient;
+    @Mock
+    private Envelope envelope;
+    @Mock
+    private ScannableItem scannableItem1;
+    @Mock
+    private ScannableItem scannableItem2;
 
     private ServiceBusHelper serviceBusHelper;
 
@@ -130,11 +136,11 @@ public class ServiceBusHelperTest {
 
         assertThat(jsonNode.hasNonNull("ocr_data")).isTrue();
 
-        Map<String, String> ocrData =
-            objectMapper.readValue(jsonNode.get("ocr_data").toString(), Map.class);
+        OcrData ocrData =
+            objectMapper.readValue(jsonNode.get("ocr_data").toString(), OcrData.class);
 
         ScannableItem scannableItemWithOcrData = envelope.getScannableItems().get(0);
-        assertThat(ocrData).isEqualTo(scannableItemWithOcrData.getOcrData());
+        assertThat(ocrData).isEqualToComparingFieldByFieldRecursively(scannableItemWithOcrData.getOcrData());
     }
 
     private void mockEnvelopeData() {
@@ -153,7 +159,14 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
         when(scannableItem1.getDocumentType()).thenReturn(DocumentType.CHERISHED);
         when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
-        when(scannableItem1.getOcrData()).thenReturn(ImmutableMap.of("key1", "value1"));
+
+        OcrData ocrData = new OcrData();
+        OcrDataField field = new OcrDataField();
+        field.setMetadataFieldName(new TextNode("key1"));
+        field.setMetadataFieldValue(new TextNode("value1"));
+        ocrData.setFields(Arrays.asList(field));
+
+        when(scannableItem1.getOcrData()).thenReturn(ocrData);
 
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");

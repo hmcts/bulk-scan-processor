@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
 import java.sql.Timestamp;
-import java.util.Map;
 
 public class ScannableItemResponse {
 
@@ -35,7 +35,7 @@ public class ScannableItemResponse {
     public final Timestamp nextActionDate;
 
     @JsonProperty("ocr_data")
-    public final Map<String, String> ocrData;
+    public final OcrData ocrData;
 
     @JsonProperty("file_name")
     public final String fileName;
@@ -62,7 +62,7 @@ public class ScannableItemResponse {
         @JsonProperty("next_action") String nextAction,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("next_action_date") Timestamp nextActionDate,
-        @JsonProperty("ocr_data") Map<String, String> ocrData,
+        @JsonProperty("ocr_data") OcrData ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
         @JsonProperty("document_url") String documentUrl,

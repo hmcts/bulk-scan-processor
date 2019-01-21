@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -29,6 +31,11 @@ public class DocumentTest {
     }
 
     private ScannableItem scannableItem(DocumentType documentType) {
+        OcrData ocrData = new OcrData();
+        OcrDataField field = new OcrDataField();
+        field.setMetadataFieldName(new TextNode("ocr"));
+        field.setMetadataFieldValue(new TextNode("data1"));
+
         ScannableItem scannableItem = new ScannableItem(
             "1111001",
             Timestamp.from(Instant.now()),
@@ -36,7 +43,7 @@ public class DocumentTest {
             "manualIntervention1",
             "nextAction1",
             Timestamp.from(Instant.now().plus(1, DAYS)),
-            ImmutableMap.of("ocr", "data1"),
+            ocrData,
             "fileName1.pdf",
             "notes 1",
             documentType,

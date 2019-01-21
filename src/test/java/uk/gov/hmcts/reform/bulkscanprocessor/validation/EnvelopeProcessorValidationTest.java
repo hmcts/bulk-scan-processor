@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
@@ -8,12 +8,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -105,8 +106,8 @@ public class EnvelopeProcessorValidationTest {
             "SSCS",
             Classification.NEW_APPLICATION,
             asList(
-                scannableItem(InputDocumentType.OTHER, emptyMap()), // no 'SSCS1' documents
-                scannableItem(InputDocumentType.CHERISHED, emptyMap())
+                scannableItem(InputDocumentType.OTHER, new OcrData()), // no 'SSCS1' documents
+                scannableItem(InputDocumentType.CHERISHED, new OcrData())
             )
         );
 
@@ -126,8 +127,8 @@ public class EnvelopeProcessorValidationTest {
             invalidJurisdictionForNewApplications,
             Classification.NEW_APPLICATION,
             asList(
-                scannableItem(InputDocumentType.OTHER, emptyMap()),
-                scannableItem(InputDocumentType.CHERISHED, emptyMap())
+                scannableItem(InputDocumentType.OTHER, new OcrData()),
+                scannableItem(InputDocumentType.CHERISHED, new OcrData())
             )
         );
 
@@ -146,8 +147,8 @@ public class EnvelopeProcessorValidationTest {
             "SSCS",
             Classification.NEW_APPLICATION,
             asList(
-                scannableItem(InputDocumentType.SSCS1, emptyMap()),
-                scannableItem(InputDocumentType.SSCS1, emptyMap())
+                scannableItem(InputDocumentType.SSCS1, new OcrData()),
+                scannableItem(InputDocumentType.SSCS1, new OcrData())
             )
         );
 
@@ -165,8 +166,8 @@ public class EnvelopeProcessorValidationTest {
             "SSCS",
             Classification.EXCEPTION, // not NEW_APPLICATION
             asList(
-                scannableItem(InputDocumentType.OTHER, emptyMap()), // on OCR data
-                scannableItem(InputDocumentType.CHERISHED, emptyMap())
+                scannableItem(InputDocumentType.OTHER, new OcrData()), // on OCR data
+                scannableItem(InputDocumentType.CHERISHED, new OcrData())
             )
         );
 
@@ -179,11 +180,17 @@ public class EnvelopeProcessorValidationTest {
 
     @Test
     public void should_not_throw_exception_when_ocr_data_is_not_missing() throws Exception {
+        OcrData ocrData = new OcrData();
+        OcrDataField field = new OcrDataField();
+        field.setMetadataFieldName(new TextNode("name1"));
+        field.setMetadataFieldValue(new TextNode("value1"));
+        ocrData.setFields(singletonList(field));
+
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
             Classification.NEW_APPLICATION,
             asList(
-                scannableItem(InputDocumentType.SSCS1, ImmutableMap.of("key", "value"))
+                scannableItem(InputDocumentType.SSCS1, ocrData)
             )
         );
 
