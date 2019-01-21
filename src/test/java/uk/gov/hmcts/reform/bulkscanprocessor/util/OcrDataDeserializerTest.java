@@ -95,8 +95,8 @@ public class OcrDataDeserializerTest {
 
     private OcrDataField createOcrDataField(TextNode fieldName, ValueNode fieldValue) {
         OcrDataField ocrDataField = new OcrDataField();
-        ocrDataField.setMetadataFieldName(fieldName);
-        ocrDataField.setMetadataFieldValue(fieldValue);
+        ocrDataField.setName(fieldName);
+        ocrDataField.setValue(fieldValue);
         return ocrDataField;
     }
 }

@@ -33,8 +33,8 @@ public class DocumentTest {
     private ScannableItem scannableItem(DocumentType documentType) {
         OcrData ocrData = new OcrData();
         OcrDataField field = new OcrDataField();
-        field.setMetadataFieldName(new TextNode("ocr"));
-        field.setMetadataFieldValue(new TextNode("data1"));
+        field.setName(new TextNode("ocr"));
+        field.setValue(new TextNode("data1"));
 
         ScannableItem scannableItem = new ScannableItem(
             "1111001",

@@ -36,7 +36,7 @@ public class OcrDataDeserializer extends StdDeserializer<OcrData> {
         OcrData ocrData = objectMapper.readValue(ocrDataJson, OcrData.class);
         ocrData.getFields().forEach(
             ocrDataField -> {
-                if (ocrDataField.getMetadataFieldName().isNull()) {
+                if (ocrDataField.getName().isNull()) {
                     throw new IllegalStateException("Ocr data field name must be provided.");
                 }
             }

@@ -162,8 +162,8 @@ public final class EnvelopeCreator {
             .map(
                 e -> {
                     OcrDataField field = new OcrDataField();
-                    field.setMetadataFieldName(new TextNode("name1"));
-                    field.setMetadataFieldValue(new TextNode("value1"));
+                    field.setName(new TextNode(e.getKey()));
+                    field.setValue(new TextNode(e.getValue()));
                     return field;
                 }
             )

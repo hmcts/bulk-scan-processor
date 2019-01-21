@@ -162,8 +162,8 @@ public class ServiceBusHelperTest {
 
         OcrData ocrData = new OcrData();
         OcrDataField field = new OcrDataField();
-        field.setMetadataFieldName(new TextNode("key1"));
-        field.setMetadataFieldValue(new TextNode("value1"));
+        field.setName(new TextNode("key1"));
+        field.setValue(new TextNode("value1"));
         ocrData.setFields(Arrays.asList(field));
 
         when(scannableItem1.getOcrData()).thenReturn(ocrData);
