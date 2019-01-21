@@ -30,7 +30,7 @@ public class ProcessEvent {
     private Event event;
     private String reason;
 
-    private ProcessEvent() {
+    public ProcessEvent() {
         // For use by hibernate.
     }
 
