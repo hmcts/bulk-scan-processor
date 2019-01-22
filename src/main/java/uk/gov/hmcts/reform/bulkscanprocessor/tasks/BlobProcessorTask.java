@@ -263,7 +263,7 @@ public class BlobProcessorTask extends Processor {
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
-            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
+            registerEvent(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
             return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
