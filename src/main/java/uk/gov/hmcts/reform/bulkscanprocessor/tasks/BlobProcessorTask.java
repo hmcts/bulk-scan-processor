@@ -267,7 +267,7 @@ public class BlobProcessorTask extends Processor {
             return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
+            handleInvalidFileError(Event.DOC_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         }
     }
@@ -284,7 +284,7 @@ public class BlobProcessorTask extends Processor {
         String leaseId,
         Exception cause
     ) {
-        Long eventId = handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+        Long eventId = registerEvent(fileValidationFailure, containerName, zipFilename, cause.getMessage());
 
         ErrorMapping
             .getFor(cause.getClass())
