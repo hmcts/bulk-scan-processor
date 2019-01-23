@@ -52,6 +52,10 @@ public class ProcessEvent {
         return createdAt;
     }
 
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public long getId() {
         return id;
     }
