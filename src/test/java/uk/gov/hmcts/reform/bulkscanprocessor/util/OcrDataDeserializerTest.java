@@ -62,6 +62,7 @@ public class OcrDataDeserializerTest {
         expectOcrParsingToFail("/ocr-data/invalid/missing-metadata-file-field.json");
         expectOcrParsingToFail("/ocr-data/invalid/null-metadata-file-field.json");
         expectOcrParsingToFail("/ocr-data/invalid/missing-field-name.json");
+        expectOcrParsingToFail("/ocr-data/invalid/empty-field-name.json");
         expectOcrParsingToFail("/ocr-data/invalid/null-field-name.json");
         expectOcrParsingToFail("/ocr-data/invalid/field-name-not-being-text.json");
         expectOcrParsingToFail("/ocr-data/invalid/field-value-as-array.json");

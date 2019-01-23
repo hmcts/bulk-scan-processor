@@ -15,8 +15,8 @@ public class OcrDataField {
     }
 
     @JsonSetter(value = "metadata_field_name", nulls = Nulls.FAIL)
-    public void setName(TextNode metadataFieldName) {
-        this.name = metadataFieldName;
+    public void setName(TextNode name) {
+        this.name = name;
     }
 
     public ValueNode getValue() {
