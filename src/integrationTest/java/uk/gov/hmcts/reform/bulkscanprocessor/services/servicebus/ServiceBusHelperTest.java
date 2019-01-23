@@ -34,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.UUID;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -161,10 +162,8 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
 
         OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField();
-        field.setName(new TextNode("key1"));
-        field.setValue(new TextNode("value1"));
-        ocrData.setFields(Arrays.asList(field));
+        OcrDataField field = new OcrDataField(new TextNode("key1"), new TextNode("value1"));
+        ocrData.setFields(singletonList(field));
 
         when(scannableItem1.getOcrData()).thenReturn(ocrData);
 

@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Document.fromScannableItem;
 
@@ -32,9 +33,8 @@ public class DocumentTest {
 
     private ScannableItem scannableItem(DocumentType documentType) {
         OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField();
-        field.setName(new TextNode("ocr"));
-        field.setValue(new TextNode("data1"));
+        OcrDataField field = new OcrDataField(new TextNode("ocr"), new TextNode("data1"));
+        ocrData.setFields(singletonList(field));
 
         ScannableItem scannableItem = new ScannableItem(
             "1111001",

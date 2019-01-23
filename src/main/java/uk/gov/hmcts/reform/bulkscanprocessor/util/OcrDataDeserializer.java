@@ -10,8 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import java.io.IOException;
 import java.util.Base64;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 public class OcrDataDeserializer extends StdDeserializer<OcrData> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -34,15 +32,6 @@ public class OcrDataDeserializer extends StdDeserializer<OcrData> {
 
     private OcrData parseOcrData(String base64EncodedOcrData) throws IOException {
         String ocrDataJson = new String(Base64.getDecoder().decode(base64EncodedOcrData));
-
-        OcrData ocrData = objectMapper.readValue(ocrDataJson, OcrData.class);
-        ocrData.getFields().forEach(
-            ocrDataField -> {
-                if (ocrDataField.getName() == null || isEmpty(ocrDataField.getName().textValue())) {
-                    throw new IllegalStateException("Ocr data field name must be provided.");
-                }
-            }
-        );
-        return ocrData;
+        return objectMapper.readValue(ocrDataJson, OcrData.class);
     }
 }

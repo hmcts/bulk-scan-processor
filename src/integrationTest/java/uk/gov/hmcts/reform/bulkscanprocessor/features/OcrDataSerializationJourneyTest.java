@@ -86,9 +86,6 @@ public class OcrDataSerializationJourneyTest {
     }
 
     private OcrDataField createOcrDataField(TextNode fieldName, ValueNode fieldValue) {
-        OcrDataField ocrDataField = new OcrDataField();
-        ocrDataField.setName(fieldName);
-        ocrDataField.setValue(fieldValue);
-        return ocrDataField;
+        return new OcrDataField(fieldName, fieldValue);
     }
 }

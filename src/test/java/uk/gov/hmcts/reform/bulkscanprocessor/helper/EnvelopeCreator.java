@@ -161,10 +161,7 @@ public final class EnvelopeCreator {
             .stream()
             .map(
                 e -> {
-                    OcrDataField field = new OcrDataField();
-                    field.setName(new TextNode(e.getKey()));
-                    field.setValue(new TextNode(e.getValue()));
-                    return field;
+                    return new OcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()));
                 }
             )
             .collect(Collectors.toList());

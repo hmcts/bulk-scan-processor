@@ -181,9 +181,7 @@ public class EnvelopeProcessorValidationTest {
     @Test
     public void should_not_throw_exception_when_ocr_data_is_not_missing() throws Exception {
         OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField();
-        field.setName(new TextNode("name1"));
-        field.setValue(new TextNode("value1"));
+        OcrDataField field = new OcrDataField(new TextNode("name1"), new TextNode("value1"));
         ocrData.setFields(singletonList(field));
 
         InputEnvelope envelope = inputEnvelope(
