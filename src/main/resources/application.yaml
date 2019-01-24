@@ -73,6 +73,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: probate
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: divorce
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 # clients region
 
