@@ -124,16 +124,16 @@ public class EnvelopeCountSummaryRepositoryTest {
         eventRepo.saveAll(asList(events));
     }
 
-    private ProcessEvent event(String jurisdiction, Event type) {
-        return event(jurisdiction, UUID.randomUUID().toString(), type);
+    private ProcessEvent event(String container, Event type) {
+        return event(container, UUID.randomUUID().toString(), type);
     }
 
-    private ProcessEvent event(String jurisdiction, String zipFileName, Event type) {
-        return event(jurisdiction, zipFileName, Instant.now(), type);
+    private ProcessEvent event(String container, String zipFileName, Event type) {
+        return event(container, zipFileName, Instant.now(), type);
     }
 
-    private ProcessEvent event(String jurisdiction, String zipFileName, Instant createdAt, Event type) {
-        ProcessEvent event = new ProcessEvent(jurisdiction, zipFileName, type);
+    private ProcessEvent event(String container, String zipFileName, Instant createdAt, Event type) {
+        ProcessEvent event = new ProcessEvent(container, zipFileName, type);
         event.setCreatedAt(Timestamp.from(createdAt));
 
         return  event;
