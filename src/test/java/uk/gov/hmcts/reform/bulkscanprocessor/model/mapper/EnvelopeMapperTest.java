@@ -127,6 +127,8 @@ public class EnvelopeMapperTest {
                             return InputDocumentType.SSCS1;
                         case WILL:
                             return InputDocumentType.WILL;
+                        case COVERSHEET:
+                            return InputDocumentType.COVERSHEET;
                         default:
                             return InputDocumentType.OTHER;
                     }

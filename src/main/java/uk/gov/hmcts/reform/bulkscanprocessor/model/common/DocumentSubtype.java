@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DocumentSubtype {
     WILL("will"),
-    SSCS1("sscs1");
+    SSCS1("sscs1"),
+    COVERSHEET("coversheet");
 
     private final String value;
 
