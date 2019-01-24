@@ -23,8 +23,12 @@ public class SubtypeTest {
         asList(
             new TestCase(inputScannableItem(InputDocumentType.SSCS1), DocumentType.OTHER, DocumentSubtype.SSCS1),
             new TestCase(inputScannableItem(InputDocumentType.WILL), DocumentType.OTHER, DocumentSubtype.WILL),
-            new TestCase(inputScannableItem(InputDocumentType.COVERSHEET), DocumentType.OTHER, DocumentSubtype.COVERSHEET),
-            new TestCase(inputScannableItem(InputDocumentType.CHERISHED), DocumentType.CHERISHED, null),
+            new TestCase(inputScannableItem(InputDocumentType.COVERSHEET),
+                DocumentType.OTHER,
+                DocumentSubtype.COVERSHEET
+            ),
+            new TestCase(inputScannableItem(InputDocumentType.CHERISHED),
+                DocumentType.CHERISHED, null),
             new TestCase(inputScannableItem(InputDocumentType.OTHER), DocumentType.OTHER, null)
         ).forEach(testCase -> {
             // given
