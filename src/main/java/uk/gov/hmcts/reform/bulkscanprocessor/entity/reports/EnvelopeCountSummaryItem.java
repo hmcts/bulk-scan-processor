@@ -6,7 +6,7 @@ public interface EnvelopeCountSummaryItem {
 
     LocalDate getDate();
 
-    String getJurisdiction();
+    String getContainer();
 
     int getReceived();
 
