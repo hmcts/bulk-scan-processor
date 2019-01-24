@@ -17,12 +17,13 @@ public class SubtypeTest {
 
     @Rule
     public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
-    
+
     @Test
     public void should_map_scannable_item_document_types_correctly() {
         asList(
             new TestCase(inputScannableItem(InputDocumentType.SSCS1), DocumentType.OTHER, DocumentSubtype.SSCS1),
             new TestCase(inputScannableItem(InputDocumentType.WILL), DocumentType.OTHER, DocumentSubtype.WILL),
+            new TestCase(inputScannableItem(InputDocumentType.COVERSHEET), DocumentType.OTHER, DocumentSubtype.COVERSHEET),
             new TestCase(inputScannableItem(InputDocumentType.CHERISHED), DocumentType.CHERISHED, null),
             new TestCase(inputScannableItem(InputDocumentType.OTHER), DocumentType.OTHER, null)
         ).forEach(testCase -> {
