@@ -39,6 +39,16 @@
       "notes": "sscs1 doc",
       "document_type": "SSCS1",
       "ocr_data": "eyJNZXRhZGF0YV9maWxlIjogW3sgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAibmFtZTIiLCAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAidmFsdWUyIn1dfQo="
+    },
+    {
+      "document_control_number": "1111004",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": null,
+      "next_action": null,
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111004.pdf",
+      "notes": null,
+      "document_type": "Coversheet"
     }
   ],
   "payments": [

@@ -28,7 +28,7 @@ public class MetafileJsonValidatorTest {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
-        assertThat(envelope.scannableItems).hasSize(3);
+        assertThat(envelope.scannableItems).hasSize(4);
         assertThat(envelope.payments).hasSize(1);
         assertThat(envelope.payments.get(0).amount).isEqualTo(new BigDecimal("100.00"));
         assertThat(envelope.caseNumber).isEqualTo("1111222233334446");
@@ -38,7 +38,8 @@ public class MetafileJsonValidatorTest {
             .containsExactlyInAnyOrder(
                 InputDocumentType.CHERISHED,
                 InputDocumentType.OTHER,
-                InputDocumentType.SSCS1
+                InputDocumentType.SSCS1,
+                InputDocumentType.COVERSHEET
             );
     }
 
