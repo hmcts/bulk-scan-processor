@@ -4,7 +4,8 @@ public enum InputDocumentType {
     CHERISHED("Cherished"),
     OTHER("Other"),
     WILL("Will"),
-    SSCS1("SSCS1");
+    SSCS1("SSCS1"),
+    COVERSHEET("Coversheet");
 
     private final String value;
 
