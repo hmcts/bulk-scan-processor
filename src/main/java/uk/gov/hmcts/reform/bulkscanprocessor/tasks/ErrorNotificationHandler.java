@@ -61,7 +61,11 @@ public class ErrorNotificationHandler implements IMessageHandler {
 
     private ErrorMsg getErrorMessage(byte[] message) {
         try {
-            return mapper.readValue(message, ErrorMsg.class);
+            ErrorMsg msg = mapper.readValue(message, ErrorMsg.class);
+
+            log.info("Processing error notification for {}", msg.zipFileName);
+
+            return msg;
         } catch (IOException exception) {
             throw new InvalidMessageException("Unable to read error message", exception);
         }

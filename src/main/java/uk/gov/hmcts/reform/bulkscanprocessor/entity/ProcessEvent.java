@@ -30,7 +30,7 @@ public class ProcessEvent {
     private Event event;
     private String reason;
 
-    private ProcessEvent() {
+    public ProcessEvent() {
         // For use by hibernate.
     }
 
@@ -50,6 +50,10 @@ public class ProcessEvent {
 
     public Timestamp getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     public long getId() {

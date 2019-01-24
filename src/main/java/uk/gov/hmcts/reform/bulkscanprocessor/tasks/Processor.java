@@ -190,7 +190,13 @@ public abstract class Processor {
             envelopeProcessor.handleEvent(envelope, event);
             return Boolean.TRUE;
         } catch (Exception exception) {
-            log.error(exception.getMessage(), exception);
+            log.error(
+                "Failed to update database for the event: {} zip file: {} jurisdiction: {}",
+                event.name(),
+                envelope.getZipFileName(),
+                envelope.getJurisdiction(),
+                exception
+            );
             return Boolean.FALSE;
         }
     }
