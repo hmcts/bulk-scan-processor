@@ -54,11 +54,11 @@ public class SasTokenControllerTest {
 
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/token/divorce")).andReturn();
+        MvcResult result = this.mockMvc.perform(get("/token/nonexistingservice")).andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
         assertThat(result.getResolvedException().getMessage())
-            .isEqualTo("No service configuration found for service divorce");
+            .isEqualTo("No service configuration found for service nonexistingservice");
     }
 
     private void verifySasTokenProperties(String tokenResponse) throws java.io.IOException, StorageException {
