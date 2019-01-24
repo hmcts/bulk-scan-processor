@@ -15,7 +15,7 @@ public interface EnvelopeCountSummaryRepository extends JpaRepository<Envelope, 
     @Query(
         nativeQuery = true,
         value = "SELECT\n"
-            + "  container as jurisdiction,\n"
+            + "  container,\n"
             + "  date,\n"
             + "  count(*) AS received,\n"
             + "  SUM(CASE WHEN event IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE') THEN 1 ELSE 0 END) AS rejected\n"

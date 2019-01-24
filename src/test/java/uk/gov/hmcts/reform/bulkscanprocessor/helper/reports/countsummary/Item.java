@@ -7,13 +7,13 @@ import java.time.LocalDate;
 public class Item implements EnvelopeCountSummaryItem {
 
     private final LocalDate date;
-    private final String jurisdiction;
+    private final String container;
     private final int received;
     private final int rejected;
 
-    public Item(LocalDate date, String jurisdiction, int received, int rejected) {
+    public Item(LocalDate date, String container, int received, int rejected) {
         this.date = date;
-        this.jurisdiction = jurisdiction;
+        this.container = container;
         this.received = received;
         this.rejected = rejected;
     }
@@ -24,8 +24,8 @@ public class Item implements EnvelopeCountSummaryItem {
     }
 
     @Override
-    public String getJurisdiction() {
-        return jurisdiction;
+    public String getContainer() {
+        return container;
     }
 
     @Override

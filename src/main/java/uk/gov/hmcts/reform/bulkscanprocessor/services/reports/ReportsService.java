@@ -40,8 +40,13 @@ public class ReportsService {
         return new EnvelopeCountSummary(
             dbItem.getReceived(),
             dbItem.getRejected(),
-            dbItem.getJurisdiction(),
+            toJurisdiction(dbItem.getContainer()),
             dbItem.getDate()
         );
+    }
+
+    private String toJurisdiction(String container) {
+        // this is the current implicit convention. It may require more 'sophisticated' mapping in the future...
+        return container.toUpperCase();
     }
 }
