@@ -58,7 +58,10 @@
     <cve>CVE-2018-5968</cve>
     <cve>CVE-2018-7489</cve>
     <cve>CVE-2018-10237</cve><!-- shaded guava dependency v20.0 -->
-    <cve>CVE-2018-1000873</cve><!-- shaded jackson-databind dependency v2.9.8 -->
+  </suppress>
+
+  <suppress>
+    <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
     <cpe>cpe:/a:fasterxml:jackson-databind</cpe>
   </suppress>
 
