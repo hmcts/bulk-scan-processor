@@ -2,13 +2,21 @@ package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -21,30 +29,19 @@ public class OcrDataDeserializerTest {
 
     @Test
     public void should_convert_all_fields_to_their_string_representation() throws Exception {
-        Map<String, String> result = deserializeFromBase64("/ocr-data/valid/valid-ocr.json");
+        OcrData resultOcrData = deserializeFromBase64("/ocr-data/valid/valid-ocr.json");
 
-        Map<String, String> expectedResult = ImmutableMap.of(
-            "text_field", "some text",
-            "number_field", "123",
-            "boolean_field", "true",
-            "null_field", ""
+        OcrData expectedOcrData = new OcrData();
+        List<OcrDataField> ocrDataFields = Arrays.asList(
+            createOcrDataField(new TextNode("text_field"), new TextNode("some text")),
+            createOcrDataField(new TextNode("number_field"), new IntNode(123)),
+            createOcrDataField(new TextNode("boolean_field"), BooleanNode.TRUE),
+            createOcrDataField(new TextNode("null_field"), NullNode.instance)
         );
 
-        assertThat(result).isEqualTo(expectedResult);
-    }
+        expectedOcrData.setFields(ocrDataFields);
 
-    @Test
-    public void should_throw_illegal_state_exception_when_ocr_data_contains_duplicate_keys() {
-        Throwable thrown = catchThrowable(() -> {
-                JsonParser jsonParser = getJsonParser("/ocr-data/invalid/duplicate-field-name.json");
-                deserializer.deserialize(jsonParser, mock(DeserializationContext.class));
-            }
-        );
-
-        assertThat(thrown).isInstanceOf(OcrDataParseException.class)
-            .hasCauseExactlyInstanceOf(IllegalStateException.class);
-
-        assertThat(thrown.getCause().getMessage()).contains("Ocr data contains duplicate fields");
+        Assertions.assertThat(resultOcrData).isEqualToComparingFieldByFieldRecursively(expectedOcrData);
     }
 
     @Test
@@ -61,19 +58,18 @@ public class OcrDataDeserializerTest {
 
     @Test
     public void should_throw_exception_when_base64_decoded_ocr_data_is_invalid() throws Exception {
-        expectOcrParsingToFail("/ocr-data/invalid/not-a-valid-json.txt");
+        expectOcrParsingToFail("/ocr-data/invalid/missing-quotes-of-field-name.txt");
         expectOcrParsingToFail("/ocr-data/invalid/missing-metadata-file-field.json");
         expectOcrParsingToFail("/ocr-data/invalid/null-metadata-file-field.json");
         expectOcrParsingToFail("/ocr-data/invalid/missing-field-name.json");
         expectOcrParsingToFail("/ocr-data/invalid/null-field-name.json");
-        expectOcrParsingToFail("/ocr-data/invalid/duplicate-field-name.json");
         expectOcrParsingToFail("/ocr-data/invalid/field-name-not-being-text.json");
         expectOcrParsingToFail("/ocr-data/invalid/field-value-as-array.json");
         expectOcrParsingToFail("/ocr-data/invalid/field-value-as-object.json");
         expectOcrParsingToFail("/ocr-data/invalid/invalid-metadata-file-field.json");
     }
 
-    private void expectOcrParsingToFail(String resourceName) throws IOException {
+    private void expectOcrParsingToFail(String resourceName) {
         Throwable thrown = catchThrowable(() -> deserializeFromBase64(resourceName));
 
         assertThat(thrown).isNotNull();
@@ -81,7 +77,7 @@ public class OcrDataDeserializerTest {
         assertThat(thrown.getMessage()).isEqualTo("Failed to parse OCR data");
     }
 
-    private Map<String, String> deserializeFromBase64(String resourceName) throws IOException {
+    private OcrData deserializeFromBase64(String resourceName) throws IOException {
         JsonParser jsonParser = getJsonParser(resourceName);
         return deserializer.deserialize(jsonParser, mock(DeserializationContext.class));
     }
@@ -95,5 +91,9 @@ public class OcrDataDeserializerTest {
     private String asBase64(String resourceName) throws IOException {
         byte[] fileAsBytes = IOUtils.toByteArray(getClass().getResource(resourceName));
         return java.util.Base64.getEncoder().encodeToString(fileAsBytes);
+    }
+
+    private OcrDataField createOcrDataField(TextNode fieldName, ValueNode fieldValue) {
+        return new OcrDataField(fieldName, fieldValue);
     }
 }

@@ -16,7 +16,7 @@
           "manual_intervention": "test",
           "next_action": "return",
           "next_action_date": "2018-06-23T00:00:00.000Z",
-          "ocr_data": {"name1": "value1"},
+          "ocr_data": {"Metadata_file":[{"metadata_field_name": "name1", "metadata_field_value": "value1"}]},
           "file_name": "1111002.pdf",
           "notes": "test",
           "document_url": "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe",

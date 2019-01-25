@@ -9,24 +9,20 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
 import java.io.IOException;
 import java.util.Base64;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-import static java.util.stream.Collectors.toMap;
-
-public class OcrDataDeserializer extends StdDeserializer<Map<String, String>> {
+public class OcrDataDeserializer extends StdDeserializer<OcrData> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public OcrDataDeserializer() {
-        super(LinkedHashMap.class);
+        super(OcrData.class);
     }
 
     @Override
-    public Map<String, String> deserialize(
+    public OcrData deserialize(
         JsonParser jsonParser,
         DeserializationContext deserializationContext
-    ) throws IOException {
+    ) {
         try {
             return parseOcrData(jsonParser.getText());
         } catch (Exception ex) {
@@ -34,20 +30,8 @@ public class OcrDataDeserializer extends StdDeserializer<Map<String, String>> {
         }
     }
 
-    private Map<String, String> parseOcrData(String base64EncodedOcrData) throws IOException {
+    private OcrData parseOcrData(String base64EncodedOcrData) throws IOException {
         String ocrDataJson = new String(Base64.getDecoder().decode(base64EncodedOcrData));
-
-        OcrData ocrData = objectMapper.readValue(ocrDataJson, OcrData.class);
-
-        return ocrData.getFields().stream().collect(
-            toMap(
-                field -> field.getName().textValue(),
-                field -> field.getValue().asText(""),
-                (value1, value2) -> {
-                    throw new IllegalStateException("Ocr data contains duplicate fields");
-                },
-                LinkedHashMap::new
-            )
-        );
+        return objectMapper.readValue(ocrDataJson, OcrData.class);
     }
 }
