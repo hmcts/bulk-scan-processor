@@ -3,11 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.features;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.Test;
@@ -22,12 +17,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
@@ -38,6 +31,7 @@ public class OcrDataSerializationJourneyTest {
     @Autowired
     private EnvelopeRepository repository;
 
+    @SuppressWarnings("unchecked")
     @Test
     public void should_deserialize_all_ocr_fields_in_insertion_order() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
@@ -45,15 +39,6 @@ public class OcrDataSerializationJourneyTest {
         InputStream resourceAsStream = EnvelopeCreator.class.getResourceAsStream(
             "/metafiles/valid/envelope-with-ocr-data.json"
         );
-
-        OcrData expectedResult = new OcrData();
-        List<OcrDataField> ocrDataFields = Arrays.asList(
-            createOcrDataField(new TextNode("text_field"), new TextNode("some text")),
-            createOcrDataField(new TextNode("number_field"), new IntNode(123)),
-            createOcrDataField(new TextNode("boolean_field"), BooleanNode.TRUE),
-            createOcrDataField(new TextNode("null_field"), NullNode.instance)
-        );
-        expectedResult.setFields(ocrDataFields);
 
         try (InputStream inputStream = resourceAsStream) {
             inputEnvelope = mapper.readValue(IOUtils.toByteArray(inputStream), InputEnvelope.class);
@@ -71,21 +56,23 @@ public class OcrDataSerializationJourneyTest {
             .isInstanceOf(OcrData.class);
 
         EnvelopeMsg envelopeMsg = new EnvelopeMsg(readEnvelope);
-        AssertionsForInterfaceTypes.assertThat(envelopeMsg.getOcrData()).isInstanceOf(OcrData.class);
 
         byte[] bytes = mapper.writeValueAsBytes(envelopeMsg);
         JsonNode jsonNode = mapper.readTree(bytes);
 
         JsonNode ocrData = jsonNode.get("ocr_data");
-        OcrData actualValue = mapper.convertValue(
-            ocrData,
-            OcrData.class
-        );
-        AssertionsForInterfaceTypes.assertThat(actualValue)
-            .isEqualToComparingFieldByFieldRecursively(expectedResult);
-    }
 
-    private OcrDataField createOcrDataField(TextNode fieldName, ValueNode fieldValue) {
-        return new OcrDataField(fieldName, fieldValue);
+        OcrField[] expecteOcrFields = {
+            new OcrField("text_field", "some text"),
+            new OcrField("number_field", "123"),
+            new OcrField("boolean_field", "true"),
+            new OcrField("null_field", "")
+        };
+
+        OcrField[] actualOcrFields = mapper.convertValue(ocrData, OcrField[].class);
+
+        AssertionsForInterfaceTypes.assertThat(actualOcrFields)
+            .usingFieldByFieldElementComparator()
+            .isEqualTo(expecteOcrFields);
     }
 }
