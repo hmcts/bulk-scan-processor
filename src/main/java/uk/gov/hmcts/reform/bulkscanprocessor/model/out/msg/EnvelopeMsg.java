@@ -3,15 +3,15 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
 
 public class EnvelopeMsg implements Msg {
 
@@ -43,7 +43,7 @@ public class EnvelopeMsg implements Msg {
     private final List<Document> documents;
 
     @JsonProperty("ocr_data")
-    private final OcrData ocrData;
+    private final List<OcrField> ocrData;
 
     private final boolean testOnly;
 
@@ -61,7 +61,7 @@ public class EnvelopeMsg implements Msg {
             .getScannableItems()
             .stream()
             .map(Document::fromScannableItem)
-            .collect(Collectors.toList());
+            .collect(toList());
 
         this.ocrData = retrieveOcrData(envelope);
     }
@@ -104,7 +104,7 @@ public class EnvelopeMsg implements Msg {
         return documents;
     }
 
-    public OcrData getOcrData() {
+    public List<OcrField> getOcrData() {
         return ocrData;
     }
 
@@ -123,13 +123,29 @@ public class EnvelopeMsg implements Msg {
             + "}";
     }
 
-    private OcrData retrieveOcrData(Envelope envelope) {
+    private List<OcrField> retrieveOcrData(Envelope envelope) {
         return envelope
             .getScannableItems()
             .stream()
             .filter(si -> si.getOcrData() != null)
-            .map(ScannableItem::getOcrData)
+            .map(item -> convertFromInputOcrData(item.getOcrData()))
             .findFirst()
             .orElse(null);
+    }
+
+    private List<OcrField> convertFromInputOcrData(OcrData inputOcrData) {
+        return inputOcrData
+            .getFields()
+            .stream()
+            .map(this::convertFromInputOcrDataField)
+            .collect(toList());
+    }
+
+    private OcrField convertFromInputOcrDataField(OcrDataField inputField) {
+        String value = inputField.value != null
+            ? inputField.value.asText("")
+            : "";
+
+        return new OcrField(inputField.name.textValue(), value);
     }
 }
