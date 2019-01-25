@@ -5,9 +5,9 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
 import java.sql.Timestamp;
-import java.util.Map;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,8 +42,8 @@ public class ScannableItem implements EnvelopeAssignable {
     private Timestamp nextActionDate;
 
     @Type(type = "jsonb")
-    @Column(name = "ocrDataJson", columnDefinition = "jsonb")
-    private Map<String, String> ocrData;
+    @Column(name = "ocrData", columnDefinition = "jsonb")
+    private OcrData ocrData;
 
     private String fileName;
 
@@ -72,7 +72,7 @@ public class ScannableItem implements EnvelopeAssignable {
         String manualIntervention,
         String nextAction,
         Timestamp nextActionDate,
-        Map<String, String> ocrData,
+        OcrData ocrData,
         String fileName,
         String notes,
         DocumentType documentType,
@@ -131,7 +131,7 @@ public class ScannableItem implements EnvelopeAssignable {
         return nextActionDate;
     }
 
-    public Map<String, String> getOcrData() {
+    public OcrData getOcrData() {
         return ocrData;
     }
 
