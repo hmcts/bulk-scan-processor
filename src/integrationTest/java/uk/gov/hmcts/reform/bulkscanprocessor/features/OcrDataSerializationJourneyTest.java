@@ -31,7 +31,6 @@ public class OcrDataSerializationJourneyTest {
     @Autowired
     private EnvelopeRepository repository;
 
-    @SuppressWarnings("unchecked")
     @Test
     public void should_deserialize_all_ocr_fields_in_insertion_order() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
