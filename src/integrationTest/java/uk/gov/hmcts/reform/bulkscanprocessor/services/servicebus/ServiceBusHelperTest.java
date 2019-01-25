@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -137,11 +138,16 @@ public class ServiceBusHelperTest {
 
         assertThat(jsonNode.hasNonNull("ocr_data")).isTrue();
 
-        OcrData ocrData =
-            objectMapper.readValue(jsonNode.get("ocr_data").toString(), OcrData.class);
+        OcrField[] actualOcrData =
+            objectMapper.readValue(jsonNode.get("ocr_data").toString(), OcrField[].class);
 
-        ScannableItem scannableItemWithOcrData = envelope.getScannableItems().get(0);
-        assertThat(ocrData).isEqualToComparingFieldByFieldRecursively(scannableItemWithOcrData.getOcrData());
+        OcrField[] expectedOcrData = {
+            new OcrField("key1", "value1")
+        };
+
+        assertThat(actualOcrData)
+            .usingFieldByFieldElementComparator()
+            .isEqualTo(expectedOcrData);
     }
 
     private void mockEnvelopeData() {
