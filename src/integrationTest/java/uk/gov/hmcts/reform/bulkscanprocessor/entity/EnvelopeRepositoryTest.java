@@ -23,6 +23,11 @@ public class EnvelopeRepositoryTest {
     @Autowired
     private EnvelopeRepository repo;
 
+    @After
+    public void cleanUp() {
+        repo.deleteAll();
+    }
+
     @Test
     public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times() throws Exception {
         // given
@@ -76,11 +81,6 @@ public class EnvelopeRepositoryTest {
         // then
         assertThat(resultForA).hasSize(2);
         assertThat(resultForX).hasSize(0);
-    }
-
-    @After
-    public void cleanUp() {
-        repo.deleteAll();
     }
 
     private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
