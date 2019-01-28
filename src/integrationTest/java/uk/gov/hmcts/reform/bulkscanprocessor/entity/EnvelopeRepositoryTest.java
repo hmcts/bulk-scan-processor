@@ -18,7 +18,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class EnvelopeRepoTest {
+public class EnvelopeRepositoryTest {
 
     @Autowired
     private EnvelopeRepository repo;
