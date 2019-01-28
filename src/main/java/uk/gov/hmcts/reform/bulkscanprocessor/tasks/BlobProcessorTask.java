@@ -17,12 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -248,13 +243,7 @@ public class BlobProcessorTask extends Processor {
             result.setEnvelope(envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName)));
 
             return result;
-        } catch (InvalidEnvelopeSchemaException
-            | OcrDataNotFoundException
-            | FileNameIrregularitiesException
-            | NonPdfFileFoundException
-            | OcrDataParseException
-            | MetadataNotFoundException ex
-        ) {
+        } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;

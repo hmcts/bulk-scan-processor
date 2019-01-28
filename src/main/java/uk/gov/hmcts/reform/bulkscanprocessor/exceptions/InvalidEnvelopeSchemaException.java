@@ -6,7 +6,7 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class InvalidEnvelopeSchemaException extends RuntimeException {
+public class InvalidEnvelopeSchemaException extends InvalidEnvelopeException {
 
     public InvalidEnvelopeSchemaException(ProcessingReport report, String zipFileName) {
         super(
