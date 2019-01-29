@@ -140,7 +140,7 @@ public class BlobProcessorTask extends Processor {
         try {
             processZipFileIfEligible(container, zipFilename);
         } catch (Exception ex) {
-            log.error("Failed to process file {} from container {}", ex);
+            log.error("Failed to process file {} from container {}", zipFilename, container.getName(), ex);
         }
     }
 
