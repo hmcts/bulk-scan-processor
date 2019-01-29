@@ -108,7 +108,7 @@ public class BlobProcessorTask extends Processor {
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
-    public void processBlobs() throws IOException, StorageException, URISyntaxException {
+    public void processBlobs() {
         log.info("Started blob processing job");
 
         for (CloudBlobContainer container : blobManager.listInputContainers()) {
@@ -118,8 +118,7 @@ public class BlobProcessorTask extends Processor {
         log.info("Finished blob processing job");
     }
 
-    private void processZipFiles(CloudBlobContainer container)
-        throws IOException, StorageException, URISyntaxException {
+    private void processZipFiles(CloudBlobContainer container) {
         log.info("Processing blobs for container {}", container.getName());
 
         // Randomise iteration order to minimise lease acquire contention
@@ -131,41 +130,50 @@ public class BlobProcessorTask extends Processor {
         );
         Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
-            processZipFile(container, zipFilename);
+            tryProcessZipFile(container, zipFilename);
         }
 
         log.info("Finished processing blobs for container {}", container.getName());
     }
 
-    private void processZipFile(CloudBlobContainer container, String zipFilename)
+    private void tryProcessZipFile(CloudBlobContainer container, String zipFilename) {
+        try {
+            processZipFileIfEligible(container, zipFilename);
+        } catch (Exception ex) {
+            log.error("Failed to process file {} from container {}", zipFilename, container.getName(), ex);
+        }
+    }
+
+    private void processZipFileIfEligible(CloudBlobContainer container, String zipFilename)
         throws IOException, StorageException, URISyntaxException {
         log.info("Processing zip file {} from container {}", zipFilename, container.getName());
+
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
-        cloudBlockBlob.downloadAttributes();
-
-        if (!isReadyToBeProcessed(cloudBlockBlob)) {
-            log.info(
-                "Aborted processing of zip file {} from container {} - not ready yet.",
-                zipFilename,
-                container.getName()
-            );
-
-            return;
-        }
 
         Envelope existingEnvelope =
             envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
+
         if (existingEnvelope != null) {
-            log.warn(
-                "Envelope for zip file {} (container {}) already exists. Aborting its processing.",
-                zipFilename,
-                container.getName()
-            );
-
+            logAbortedProcessingFilePresentInDb(zipFilename, container.getName());
             deleteIfProcessed(cloudBlockBlob, existingEnvelope, container.getName());
-            return;
-        }
+        } else if (!cloudBlockBlob.exists()) {
+            logAbortedProcessingNonExistingFile(zipFilename, container.getName());
+        } else {
+            cloudBlockBlob.downloadAttributes();
 
+            if (!isReadyToBeProcessed(cloudBlockBlob)) {
+                logAbortedProcessingNotReadyFile(zipFilename, container.getName());
+            } else {
+                processZipFile(container, cloudBlockBlob, zipFilename);
+            }
+        }
+    }
+
+    private void processZipFile(
+        CloudBlobContainer container,
+        CloudBlockBlob cloudBlockBlob,
+        String zipFilename
+    ) throws StorageException, IOException {
         Optional<String> leaseId = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
         if (leaseId.isPresent()) {
@@ -321,6 +329,30 @@ public class BlobProcessorTask extends Processor {
             zipFilename,
             containerName,
             messageId
+        );
+    }
+
+    private void logAbortedProcessingNotReadyFile(String zipFilename, String containerName) {
+        log.info(
+            "Aborted processing of zip file {} from container {} - not ready yet.",
+            zipFilename,
+            containerName
+        );
+    }
+
+    private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {
+        log.info(
+            "Aborted processing of zip file {} from container {} - doesn't exist anymore.",
+            zipFilename,
+            containerName
+        );
+    }
+
+    private void logAbortedProcessingFilePresentInDb(String containerName, String zipFilename) {
+        log.warn(
+            "Envelope for zip file {} (container {}) already exists. Aborting its processing.",
+            zipFilename,
+            containerName
         );
     }
 }
