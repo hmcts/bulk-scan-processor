@@ -102,7 +102,7 @@ public class EnvelopeProcessor {
     }
 
     public Envelope saveEnvelope(Envelope envelope) {
-        Envelope dbEnvelope = envelopeRepository.save(envelope);
+        Envelope dbEnvelope = envelopeRepository.saveAndFlush(envelope);
 
         log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
             envelope.getJurisdiction(),
@@ -121,13 +121,13 @@ public class EnvelopeProcessor {
     }
 
     public void handleEvent(Envelope envelope, Event event) {
-        processEventRepository.save(
+        processEventRepository.saveAndFlush(
             new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
         );
 
         Status.fromEvent(event).ifPresent(status -> {
             envelope.setStatus(status);
-            envelopeRepository.save(envelope);
+            envelopeRepository.saveAndFlush(envelope);
         });
     }
 

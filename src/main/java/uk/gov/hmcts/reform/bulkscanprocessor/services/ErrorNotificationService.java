@@ -55,7 +55,7 @@ public class ErrorNotificationService {
 
             log.info("Error notification for {} published. ID: {}", message.zipFileName, response.getNotificationId());
         } finally {
-            repository.save(entity);
+            repository.saveAndFlush(entity);
         }
     }
 }

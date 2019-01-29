@@ -87,7 +87,7 @@ public class OrchestratorNotificationTask {
     }
 
     private void createEvent(Envelope envelope, Event event) {
-        processEventRepo.save(
+        processEventRepo.saveAndFlush(
             new ProcessEvent(
                 envelope.getContainer(),
                 envelope.getZipFileName(),
@@ -98,6 +98,6 @@ public class OrchestratorNotificationTask {
 
     private void updateStatus(Envelope envelope) {
         envelope.setStatus(Status.NOTIFICATION_SENT);
-        envelopeRepo.save(envelope);
+        envelopeRepo.saveAndFlush(envelope);
     }
 }

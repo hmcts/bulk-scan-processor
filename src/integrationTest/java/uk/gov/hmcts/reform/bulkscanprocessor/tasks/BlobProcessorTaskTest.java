@@ -290,6 +290,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         existingEnvelope.setZipFileName(zipFileName);
         existingEnvelope.setContainer(testContainer.getName());
         existingEnvelope.setZipDeleted(false);
-        envelopeRepository.save(existingEnvelope);
+        envelopeRepository.saveAndFlush(existingEnvelope);
     }
 }

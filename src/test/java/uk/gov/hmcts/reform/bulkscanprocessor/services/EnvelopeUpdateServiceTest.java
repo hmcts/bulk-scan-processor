@@ -69,7 +69,7 @@ public class EnvelopeUpdateServiceTest {
 
         // then status should be updated
         ArgumentCaptor<Envelope> envelopeParam = ArgumentCaptor.forClass(Envelope.class);
-        verify(envelopeRepo).save(envelopeParam.capture());
+        verify(envelopeRepo).saveAndFlush(envelopeParam.capture());
         assertThat(envelopeParam.getValue().getStatus()).isEqualTo(CONSUMED);
     }
 
@@ -83,7 +83,7 @@ public class EnvelopeUpdateServiceTest {
 
         // then
         ArgumentCaptor<ProcessEvent> eventParam = ArgumentCaptor.forClass(ProcessEvent.class);
-        verify(eventRepo).save(eventParam.capture());
+        verify(eventRepo).saveAndFlush(eventParam.capture());
         assertThat(eventParam.getValue().getEvent()).isEqualTo(Event.DOC_CONSUMED);
     }
 
@@ -96,6 +96,6 @@ public class EnvelopeUpdateServiceTest {
         service.updateStatus(randomUUID(), UPLOAD_FAILURE, "some_service");
 
         // then
-        verify(eventRepo, never()).save(any());
+        verify(eventRepo, never()).saveAndFlush(any());
     }
 }

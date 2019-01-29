@@ -53,12 +53,12 @@ public class EnvelopeUpdateService {
         statusChangeValidator.assertCanUpdate(envelope.getStatus(), newStatus);
 
         envelope.setStatus(newStatus);
-        envelopeRepo.save(envelope);
+        envelopeRepo.saveAndFlush(envelope);
         log.info("Updated envelope {} status from {} to {}.", envelope.getId(), envelope.getStatus(), newStatus);
 
         Event event = eventForStatusChange.get(newStatus);
         if (event != null) {
-            eventRepo.save(new ProcessEvent(
+            eventRepo.saveAndFlush(new ProcessEvent(
                 envelope.getContainer(),
                 envelope.getZipFileName(),
                 event

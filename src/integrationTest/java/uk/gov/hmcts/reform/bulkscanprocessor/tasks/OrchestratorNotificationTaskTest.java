@@ -47,7 +47,7 @@ public class OrchestratorNotificationTaskTest {
     @Test
     public void should_update_envelope_status_and_events_after_sending_notification() {
         // given
-        Envelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
+        Envelope envelopeInDb = envelopeRepo.saveAndFlush(envelope("some_jurisdiction", Status.PROCESSED));
 
         // when
         task.run();
@@ -67,7 +67,7 @@ public class OrchestratorNotificationTaskTest {
     @Test
     public void should_not_update_envelope_and_create_an_event_if_sending_notification_failed() {
         // given
-        Envelope envelopeInDb = envelopeRepo.save(envelope("some_jurisdiction", Status.PROCESSED));
+        Envelope envelopeInDb = envelopeRepo.saveAndFlush(envelope("some_jurisdiction", Status.PROCESSED));
 
         doThrow(InvalidMessageException.class)
             .when(serviceBusHelper).sendMessage(any());
