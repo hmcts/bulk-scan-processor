@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -55,9 +57,14 @@ public class EnvelopeProcessor {
             throw new MetadataNotFoundException("No metadata file found in the zip file");
         }
 
-        schemaValidator.validate(metadataStream, zipFileName);
+        try {
+            schemaValidator.validate(metadataStream, zipFileName);
 
-        return schemaValidator.parseMetafile(metadataStream);
+            return schemaValidator.parseMetafile(metadataStream);
+        } catch (JsonParseException exception) {
+            // invalid json files should also be reported to provider
+            throw new InvalidEnvelopeSchemaException("Error occurred while parsing metafile", exception);
+        }
     }
 
     /**
