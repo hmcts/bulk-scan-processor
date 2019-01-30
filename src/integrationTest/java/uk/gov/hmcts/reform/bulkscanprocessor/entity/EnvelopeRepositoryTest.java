@@ -72,38 +72,38 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void setEnvelopeStatus_should_set_the_right_status_in_given_envelope() {
+    public void updateEnvelopeStatus_should_set_the_right_status_in_given_envelope() {
         Envelope envelope = envelope("BULKSCAN", Status.CREATED);
 
         UUID envelopeId = repo.saveAndFlush(envelope).getId();
 
         assertEnvelopeHasStatus(envelopeId, Status.CREATED);
 
-        repo.setEnvelopeStatus(envelopeId, Status.CONSUMED);
+        repo.updateEnvelopeStatus(envelopeId, Status.CONSUMED);
         assertEnvelopeHasStatus(envelopeId, Status.CONSUMED);
 
-        repo.setEnvelopeStatus(envelopeId, Status.PROCESSED);
+        repo.updateEnvelopeStatus(envelopeId, Status.PROCESSED);
         assertEnvelopeHasStatus(envelopeId, Status.PROCESSED);
     }
 
     @Test
-    public void setEnvelopeStatus_should_not_update_status_of_any_other_envelope() {
+    public void updateEnvelopeStatus_should_not_update_status_of_any_other_envelope() {
         UUID envelope1Id = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
         UUID envelope2Id = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
 
-        repo.setEnvelopeStatus(envelope1Id, Status.NOTIFICATION_SENT);
+        repo.updateEnvelopeStatus(envelope1Id, Status.NOTIFICATION_SENT);
         assertEnvelopeHasStatus(envelope1Id, Status.NOTIFICATION_SENT);
 
         assertEnvelopeHasStatus(envelope2Id, Status.CREATED);
     }
 
     @Test
-    public void setEnvelopeStatus_should_return_result_indicating_whether_update_took_place() {
+    public void updateEnvelopeStatus_should_return_the_number_of_updated_envelopes() {
         UUID existingEnvelopeId = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
         UUID nonExistingEnvelopeId = UUID.randomUUID();
 
-        assertThat(repo.setEnvelopeStatus(existingEnvelopeId, Status.CONSUMED)).isOne();
-        assertThat(repo.setEnvelopeStatus(nonExistingEnvelopeId, Status.CONSUMED)).isZero();
+        assertThat(repo.updateEnvelopeStatus(existingEnvelopeId, Status.CONSUMED)).isOne();
+        assertThat(repo.updateEnvelopeStatus(nonExistingEnvelopeId, Status.CONSUMED)).isZero();
     }
 
     @Test

@@ -91,7 +91,10 @@ public class ScannableItemRepositoryTest {
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
-        assertThat(scannableItemRepository.clearOcrData(envelopeId)).isEqualTo(numberOfScannableItems);
+        int result = scannableItemRepository.clearOcrData(envelopeId);
+
+        // then
+        assertThat(result).isEqualTo(numberOfScannableItems);
     }
 
     private void assertAllScannableItemsHaveOcrData(UUID envelopeId) {
