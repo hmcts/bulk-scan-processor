@@ -87,7 +87,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     );
 
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("update Envelope set status = :status where id = :id")
     int setEnvelopeStatus(
         @Param("id") UUID id,

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.UUID;
 
 public interface ScannableItemRepository extends JpaRepository<ScannableItem, UUID> {
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("update ScannableItem set ocrData = null, ocrDataJson = null where envelope_id = :envelopeId")
     int clearOcrData(@Param("envelopeId") UUID envelopeId);
 }

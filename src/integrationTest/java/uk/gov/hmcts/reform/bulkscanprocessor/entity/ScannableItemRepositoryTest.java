@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import javax.persistence.EntityManager;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class ScannableItemRepositoryTest {
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -105,6 +109,9 @@ public class ScannableItemRepositoryTest {
     }
 
     private void assertAllScannableItemsMeetCriteria(UUID envelopeId, Predicate<ScannableItem> criteria) {
+        // make sure there's no outdated cache
+        entityManager.clear();
+
         Optional<Envelope> envelope = envelopeRepository.findById(envelopeId);
 
         assertThat(envelope).isPresent();

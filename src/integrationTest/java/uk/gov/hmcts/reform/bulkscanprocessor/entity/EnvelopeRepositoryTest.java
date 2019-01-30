@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.persistence.EntityManager;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,6 +25,9 @@ public class EnvelopeRepositoryTest {
 
     @Autowired
     private EnvelopeRepository repo;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @After
     public void cleanUp() {
@@ -71,7 +75,7 @@ public class EnvelopeRepositoryTest {
     public void setEnvelopeStatus_should_set_the_right_status_in_given_envelope() {
         Envelope envelope = envelope("BULKSCAN", Status.CREATED);
 
-        UUID envelopeId = repo.save(envelope).getId();
+        UUID envelopeId = repo.saveAndFlush(envelope).getId();
 
         assertEnvelopeHasStatus(envelopeId, Status.CREATED);
 
@@ -84,8 +88,8 @@ public class EnvelopeRepositoryTest {
 
     @Test
     public void setEnvelopeStatus_should_not_update_status_of_any_other_envelope() {
-        UUID envelope1Id = repo.save(envelope("BULKSCAN", Status.CREATED)).getId();
-        UUID envelope2Id = repo.save(envelope("BULKSCAN", Status.CREATED)).getId();
+        UUID envelope1Id = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
+        UUID envelope2Id = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
 
         repo.setEnvelopeStatus(envelope1Id, Status.NOTIFICATION_SENT);
         assertEnvelopeHasStatus(envelope1Id, Status.NOTIFICATION_SENT);
@@ -95,7 +99,7 @@ public class EnvelopeRepositoryTest {
 
     @Test
     public void setEnvelopeStatus_should_return_result_indicating_whether_update_took_place() {
-        UUID existingEnvelopeId = repo.save(envelope("BULKSCAN", Status.CREATED)).getId();
+        UUID existingEnvelopeId = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
         UUID nonExistingEnvelopeId = UUID.randomUUID();
 
         assertThat(repo.setEnvelopeStatus(existingEnvelopeId, Status.CONSUMED)).isOne();
@@ -131,6 +135,9 @@ public class EnvelopeRepositoryTest {
     }
 
     private void assertEnvelopeHasStatus(UUID envelopeId, Status status) {
+        // make sure there's no outdated cache
+        entityManager.clear();
+
         Optional<Envelope> envelope = repo.findById(envelopeId);
         assertThat(envelope).isPresent();
         assertThat(envelope.get().getStatus()).isEqualTo(status);
