@@ -19,4 +19,8 @@ public class InvalidEnvelopeSchemaException extends InvalidEnvelopeException {
             )
         );
     }
+
+    public InvalidEnvelopeSchemaException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

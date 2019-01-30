@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoComp
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 public class ErrorNotificationExceptionHandler {
 
@@ -33,22 +34,33 @@ public class ErrorNotificationExceptionHandler {
         long deliveryCount,
         Throwable throwable
     ) {
-        if (throwable instanceof ErrorNotificationException) {
+        Throwable processedThrowable = processThrowable(throwable);
+
+        if (processedThrowable instanceof ErrorNotificationException) {
             return handleErrorNotificationException(
                 lockToken,
                 messageId,
                 deliveryCount,
-                (ErrorNotificationException) throwable
+                (ErrorNotificationException) processedThrowable
             );
         } else {
             log.error(
                 "Unknown exception. Dead lettering message (ID: {})",
                 messageId,
-                throwable
+                processedThrowable
             );
 
-            return autoCompletor.deadLetterAsync(lockToken, "Unknown exception", throwable.getMessage());
+            return autoCompletor.deadLetterAsync(lockToken, "Unknown exception", processedThrowable.getMessage());
         }
+    }
+
+    /**
+     * {@link CompletableFuture} wraps all exceptions with {@link CompletionException}. We are interested in the cause
+     * @param throwable A {@link CompletionException} instance
+     * @return Cause of {@link Throwable} or itself
+     */
+    private Throwable processThrowable(Throwable throwable) {
+        return throwable instanceof CompletionException ? throwable.getCause() : throwable;
     }
 
     private CompletableFuture<Void> handleErrorNotificationException(
