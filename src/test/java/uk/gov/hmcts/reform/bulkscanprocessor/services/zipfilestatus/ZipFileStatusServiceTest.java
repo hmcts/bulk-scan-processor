@@ -42,15 +42,15 @@ public class ZipFileStatusServiceTest {
     @Test
     public void should_return_envelopes_and_events_from_db() {
         // given
-        List<Envelope> envelopes = asList(
-            envelope(UUID.randomUUID(), "A", Status.PROCESSED),
-            envelope(UUID.randomUUID(), "B", Status.PROCESSED)
-        );
-
         List<ProcessEvent> events = asList(
             event(Event.DOC_UPLOADED, "A", Timestamp.from(now())),
             event(Event.DOC_PROCESSED, "A", Timestamp.from(now().minusSeconds(1))),
             event(Event.DOC_FAILURE, "B", Timestamp.from(now().minusSeconds(2)))
+        );
+        
+        List<Envelope> envelopes = asList(
+            envelope(UUID.randomUUID(), "A", Status.PROCESSED),
+            envelope(UUID.randomUUID(), "B", Status.PROCESSED)
         );
 
         given(envelopeRepo.findByZipFileName("hello.zip")).willReturn(envelopes);
