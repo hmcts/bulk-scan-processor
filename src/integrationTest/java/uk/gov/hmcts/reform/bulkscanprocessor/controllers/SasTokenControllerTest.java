@@ -31,34 +31,29 @@ public class SasTokenControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void should_return_sas_token_for_sscs_when_service_configuration_is_available() throws Exception {
-        String tokenResponse = this.mockMvc.perform(get("/token/sscs"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andReturn()
-            .getResponse().getContentAsString();
-
-        verifySasTokenProperties(tokenResponse);
-    }
-
-    @Test
-    public void should_return_sas_token_for_probate_when_service_configuration_is_available() throws Exception {
-        String tokenResponse = this.mockMvc.perform(get("/token/probate"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andReturn()
-            .getResponse().getContentAsString();
-
-        verifySasTokenProperties(tokenResponse);
+    public void should_return_sas_token_when_requested_service_is_configured() throws Exception {
+        assertCanRetrieveSasTokenForService("divorce");
+        assertCanRetrieveSasTokenForService("probate");
+        assertCanRetrieveSasTokenForService("sscs");
     }
 
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/token/divorce")).andReturn();
+        MvcResult result = this.mockMvc.perform(get("/token/nonexistingservice")).andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
         assertThat(result.getResolvedException().getMessage())
-            .isEqualTo("No service configuration found for service divorce");
+            .isEqualTo("No service configuration found for service nonexistingservice");
+    }
+
+    private void assertCanRetrieveSasTokenForService(String serviceName) throws Exception {
+        String tokenResponse = this.mockMvc.perform(get("/token/" + serviceName))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse().getContentAsString();
+
+        verifySasTokenProperties(tokenResponse);
     }
 
     private void verifySasTokenProperties(String tokenResponse) throws java.io.IOException, StorageException {
@@ -73,5 +68,4 @@ public class SasTokenControllerTest {
         assertThat(queryParams.get("sv")).contains("2018-03-28");//azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
     }
-
 }

@@ -1,10 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.features;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.Test;
@@ -18,11 +16,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
 
 import java.io.InputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
@@ -41,42 +39,39 @@ public class OcrDataSerializationJourneyTest {
             "/metafiles/valid/envelope-with-ocr-data.json"
         );
 
-        final Map<String, String> expectedResult = ImmutableMap.of(
-            "text_field", "some text",
-            "number_field", "123",
-            "boolean_field", "true",
-            "null_field", ""
-        );
-
         try (InputStream inputStream = resourceAsStream) {
             inputEnvelope = mapper.readValue(IOUtils.toByteArray(inputStream), InputEnvelope.class);
         }
 
         AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems).isNotEmpty();
         AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems.get(0).ocrData)
-            .isInstanceOf(LinkedHashMap.class);
+            .isInstanceOf(OcrData.class);
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(inputEnvelope, "test");
         UUID envelopeId = repository.save(dbEnvelope).getId();
 
         Envelope readEnvelope = repository.getOne(envelopeId);
         AssertionsForInterfaceTypes.assertThat(readEnvelope.getScannableItems().get(0).getOcrData())
-            .isInstanceOf(LinkedHashMap.class);
+            .isInstanceOf(OcrData.class);
 
         EnvelopeMsg envelopeMsg = new EnvelopeMsg(readEnvelope);
-        AssertionsForInterfaceTypes.assertThat(envelopeMsg.getOcrData()).isInstanceOf(LinkedHashMap.class);
 
         byte[] bytes = mapper.writeValueAsBytes(envelopeMsg);
         JsonNode jsonNode = mapper.readTree(bytes);
 
         JsonNode ocrData = jsonNode.get("ocr_data");
-        Map<String, String> actualValue = mapper.convertValue(
-            ocrData,
-            new TypeReference<LinkedHashMap<String, String>>() {
-            }
-        );
-        AssertionsForInterfaceTypes.assertThat(actualValue.entrySet())
-            .containsExactlyElementsOf(expectedResult.entrySet());
-    }
 
+        OcrField[] expecteOcrFields = {
+            new OcrField("text_field", "some text"),
+            new OcrField("number_field", "123"),
+            new OcrField("boolean_field", "true"),
+            new OcrField("null_field", "")
+        };
+
+        OcrField[] actualOcrFields = mapper.convertValue(ocrData, OcrField[].class);
+
+        AssertionsForInterfaceTypes.assertThat(actualOcrFields)
+            .usingFieldByFieldElementComparator()
+            .isEqualTo(expecteOcrFields);
+    }
 }

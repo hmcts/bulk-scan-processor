@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
@@ -20,11 +19,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 public final class EnvelopeValidator {
 
-    public static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
+    static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
         ImmutableMap.of(
             "SSCS", InputDocumentType.SSCS1
         );
@@ -62,7 +63,12 @@ public final class EnvelopeValidator {
                 throw new OcrDataNotFoundException("No documents of type " + typeThatShouldHaveOcrData + " found");
             }
 
-            if (docsThatShouldHaveOcr.stream().allMatch(doc -> MapUtils.isEmpty(doc.ocrData))) {
+            if (docsThatShouldHaveOcr
+                .stream()
+                .allMatch(
+                    doc -> isNull(doc.ocrData) || isEmpty(doc.ocrData.getFields())
+                )
+            ) {
                 throw new OcrDataNotFoundException("Missing OCR data");
             }
         }

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -16,6 +17,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
@@ -24,9 +27,10 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public final class EnvelopeCreator {
 
@@ -104,7 +108,7 @@ public final class EnvelopeCreator {
             "manual intervention",
             "next action",
             getTimestamp(),
-            Collections.emptyMap(),
+            new OcrData(),
             "file.pdf",
             "notes",
             docType
@@ -133,7 +137,6 @@ public final class EnvelopeCreator {
         );
         scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
-
         ScannableItem scannableItem2 = new ScannableItem(
             "1111002",
             timestamp,
@@ -141,7 +144,7 @@ public final class EnvelopeCreator {
             "test",
             "return",
             timestamp,
-            ImmutableMap.of("name1", "value1"),
+            ocrData(ImmutableMap.of("name1", "value1")),
             "1111002.pdf",
             "test",
             DocumentType.OTHER,
@@ -150,6 +153,20 @@ public final class EnvelopeCreator {
         scannableItem2.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
         return ImmutableList.of(scannableItem1, scannableItem2);
+    }
+
+    private static OcrData ocrData(Map<String, String> data) {
+        OcrData ocrData = new OcrData();
+        List<OcrDataField> ocrDataFields = data.entrySet()
+            .stream()
+            .map(
+                e -> new OcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
+            )
+            .collect(Collectors.toList());
+
+        ocrData.setFields(ocrDataFields);
+
+        return ocrData;
     }
 
     private static List<NonScannableItem> nonScannableItems() {

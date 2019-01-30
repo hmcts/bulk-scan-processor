@@ -4,12 +4,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 
 public final class InputEnvelopeCreator {
 
@@ -42,17 +41,17 @@ public final class InputEnvelopeCreator {
     }
 
     public static InputScannableItem scannableItem(String fileName) {
-        return scannableItem(fileName, InputDocumentType.OTHER, emptyMap());
+        return scannableItem(fileName, InputDocumentType.OTHER, new OcrData());
     }
 
-    public static InputScannableItem scannableItem(InputDocumentType documentType, Map<String, String> ocrData) {
+    public static InputScannableItem scannableItem(InputDocumentType documentType, OcrData ocrData) {
         return scannableItem("file.pdf", documentType, ocrData);
     }
 
     public static InputScannableItem scannableItem(
         String fileName,
         InputDocumentType documentType,
-        Map<String, String> ocrData
+        OcrData ocrData
     ) {
         return new InputScannableItem(
             "control_number",
