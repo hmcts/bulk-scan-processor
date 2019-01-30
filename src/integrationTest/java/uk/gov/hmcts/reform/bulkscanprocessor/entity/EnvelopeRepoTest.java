@@ -12,6 +12,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @SuppressWarnings("checkstyle:LineLength")
@@ -58,6 +59,24 @@ public class EnvelopeRepoTest {
 
         // then
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    public void findByZipFileName_should_find_envelops_in_db() {
+        // given
+        dbHas(
+            envelope("A.zip", "X", Status.PROCESSED),
+            envelope("A.zip", "Y", Status.UPLOAD_FAILURE),
+            envelope("B.zip", "Z", Status.UPLOAD_FAILURE)
+        );
+
+        // when
+        List<Envelope> resultForA = repo.findByZipFileName("A.zip");
+        List<Envelope> resultForX = repo.findByZipFileName("X.zip");
+
+        // then
+        assertThat(resultForA).hasSize(2);
+        assertThat(resultForX).hasSize(0);
     }
 
     @After
