@@ -86,7 +86,7 @@ public abstract class Processor {
         );
 
         processEvent.setReason(reason);
-        long eventId = eventRepository.save(processEvent).getId();
+        long eventId = eventRepository.saveAndFlush(processEvent).getId();
 
         log.info(
             "Zip {} from {} marked as {}",
@@ -122,7 +122,7 @@ public abstract class Processor {
 
     private void incrementUploadFailureCount(Envelope envelope) {
         envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
-        envelopeRepository.save(envelope);
+        envelopeRepository.saveAndFlush(envelope);
     }
 
     private Boolean deleteBlob(
@@ -205,7 +205,7 @@ public abstract class Processor {
         Status.fromEvent(event).ifPresent(status -> {
             envelope.setStatus(status);
 
-            envelopeRepository.save(envelope);
+            envelopeRepository.saveAndFlush(envelope);
 
             log.info(
                 "Change envelope {} from {} and {} status to {}",

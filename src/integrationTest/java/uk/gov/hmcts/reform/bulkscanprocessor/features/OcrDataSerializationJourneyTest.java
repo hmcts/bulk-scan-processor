@@ -48,7 +48,7 @@ public class OcrDataSerializationJourneyTest {
             .isInstanceOf(OcrData.class);
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(inputEnvelope, "test");
-        UUID envelopeId = repository.save(dbEnvelope).getId();
+        UUID envelopeId = repository.saveAndFlush(dbEnvelope).getId();
 
         Envelope readEnvelope = repository.getOne(envelopeId);
         AssertionsForInterfaceTypes.assertThat(readEnvelope.getScannableItems().get(0).getOcrData())

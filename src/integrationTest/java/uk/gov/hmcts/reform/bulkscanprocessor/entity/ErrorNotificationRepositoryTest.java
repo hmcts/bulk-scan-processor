@@ -33,7 +33,7 @@ public class ErrorNotificationRepositoryTest {
 
     @Before
     public void setUp() {
-        eventId = eventRepository.save(
+        eventId = eventRepository.saveAndFlush(
             new ProcessEvent("container", "zip_file_name", Event.DOC_FAILURE)
         ).getId();
     }
@@ -52,7 +52,7 @@ public class ErrorNotificationRepositoryTest {
         );
 
         // when
-        long dbId = repository.save(errorNotification).getId();
+        long dbId = repository.saveAndFlush(errorNotification).getId();
 
         // then
         ErrorNotification dbItem = repository.getOne(dbId);
