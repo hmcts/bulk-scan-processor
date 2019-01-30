@@ -107,7 +107,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_retrieve_single_envelope_by_id() throws Exception {
         // given
-        Envelope envelopeIdDb = envelopeRepo.save(envelope("X", Status.PROCESSED));
+        Envelope envelopeIdDb = envelopeRepo.saveAndFlush(envelope("X", Status.PROCESSED));
         serviceCanReadFromJurisdiction("service_X", "X");
 
         // when
@@ -120,7 +120,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_return_empty_optional_if_envelope_is_not_found() throws Exception {
         // given
-        envelopeRepo.save(envelope("X", Status.PROCESSED));
+        envelopeRepo.saveAndFlush(envelope("X", Status.PROCESSED));
         serviceCanReadFromJurisdiction("service_X", "X");
 
         // when
@@ -133,7 +133,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_throw_an_exception_if_service_cannot_read_existing_envelope() throws Exception {
         // given
-        Envelope envelopeForServiceB = envelopeRepo.save(envelope("B", Status.PROCESSED));
+        Envelope envelopeForServiceB = envelopeRepo.saveAndFlush(envelope("B", Status.PROCESSED));
         serviceCanReadFromJurisdiction("service_A", "A");
 
         // when
@@ -153,7 +153,7 @@ public class EnvelopeRetrieverTest {
 
     private void dbContains(Envelope... envelopes) {
         for (Envelope env : envelopes) {
-            envelopeRepo.save(env);
+            envelopeRepo.saveAndFlush(env);
         }
     }
 

@@ -88,7 +88,7 @@ public class ErrorNotificationServiceTest {
         assertThat(capture.toString()).contains(
             "Error notification for " + request.zipFileName + " published. ID: " + response.getNotificationId()
         );
-        verify(repository).save(any(ErrorNotification.class));
+        verify(repository).saveAndFlush(any(ErrorNotification.class));
     }
 
     public void should_save_to_db_and_log_the_failure_when_notification_is_attempted() {
@@ -110,6 +110,6 @@ public class ErrorNotificationServiceTest {
 
         // then
         assertThat(capture.toString()).contains("Failed to publish error notification.");
-        verify(repository).save(any(ErrorNotification.class));
+        verify(repository).saveAndFlush(any(ErrorNotification.class));
     }
 }
