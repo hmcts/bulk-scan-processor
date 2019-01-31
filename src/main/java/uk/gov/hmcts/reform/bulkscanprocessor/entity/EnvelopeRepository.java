@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,7 +31,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     /**
      * Finds envelope with a blob not deleted for a given container and zip file name.
      *
-     * @param container from where container originated.
+     * @param container   from where container originated.
      * @param zipFileName of envelope.
      * @return A list of envelopes.
      */
@@ -48,9 +49,9 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     /**
      * Finds envelope for a given container, zip file name and status.
      *
-     * @param container from where container originated.
+     * @param container   from where container originated.
      * @param zipFileName of envelope.
-     * @param status of envelope.
+     * @param status      of envelope.
      * @return A list of envelopes.
      */
     @Query("select e from Envelope e"
@@ -70,7 +71,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
      * Finds first N envelopes for a given jurisdiction that should be resent.
      *
      * @param jurisdiction to filter upon
-     * @param pageable limit of data to be processed by consumer
+     * @param pageable     limit of data to be processed by consumer
      * @return A list of envelopes
      */
     @Query("select e from Envelope e"
@@ -83,5 +84,13 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("jurisdiction") String jurisdiction,
         @Param("maxFailureCount") int maxFailureCount,
         Pageable pageable
+    );
+
+
+    @Modifying
+    @Query("update Envelope set status = :status where id = :id")
+    int updateEnvelopeStatus(
+        @Param("id") UUID id,
+        @Param("status") Status status
     );
 }

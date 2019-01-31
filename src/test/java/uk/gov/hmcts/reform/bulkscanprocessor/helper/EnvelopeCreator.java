@@ -81,7 +81,20 @@ public final class EnvelopeCreator {
         return envelope(UUID.randomUUID() + ".zip", jurisdiction, status);
     }
 
+    public static Envelope envelope(String jurisdiction, Status status, List<ScannableItem> scannableItems) {
+        return envelope(UUID.randomUUID() + ".zip", jurisdiction, status, scannableItems);
+    }
+
     public static Envelope envelope(String zipFileName, String jurisdiction, Status status) {
+        return envelope(zipFileName, jurisdiction, status, scannableItems());
+    }
+
+    public static Envelope envelope(
+        String zipFileName,
+        String jurisdiction,
+        Status status,
+        List<ScannableItem> scannableItems
+    ) {
         Timestamp timestamp = getTimestamp();
 
         Envelope envelope = new Envelope(
@@ -93,7 +106,7 @@ public final class EnvelopeCreator {
             zipFileName,
             "1111222233334446",
             Classification.EXCEPTION,
-            scannableItems(),
+            scannableItems,
             payments(),
             nonScannableItems(),
             "SSCS"

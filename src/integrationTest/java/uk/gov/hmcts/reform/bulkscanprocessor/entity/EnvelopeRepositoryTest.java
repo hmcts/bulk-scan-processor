@@ -9,6 +9,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import javax.persistence.EntityManager;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,10 +21,18 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class EnvelopeRepoTest {
+public class EnvelopeRepositoryTest {
 
     @Autowired
     private EnvelopeRepository repo;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @After
+    public void cleanUp() {
+        repo.deleteAll();
+    }
 
     @Test
     public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times() throws Exception {
@@ -61,6 +72,41 @@ public class EnvelopeRepoTest {
     }
 
     @Test
+    public void updateEnvelopeStatus_should_set_the_right_status_in_given_envelope() {
+        Envelope envelope = envelope("BULKSCAN", Status.CREATED);
+
+        UUID envelopeId = repo.saveAndFlush(envelope).getId();
+
+        assertEnvelopeHasStatus(envelopeId, Status.CREATED);
+
+        repo.updateEnvelopeStatus(envelopeId, Status.CONSUMED);
+        assertEnvelopeHasStatus(envelopeId, Status.CONSUMED);
+
+        repo.updateEnvelopeStatus(envelopeId, Status.PROCESSED);
+        assertEnvelopeHasStatus(envelopeId, Status.PROCESSED);
+    }
+
+    @Test
+    public void updateEnvelopeStatus_should_not_update_status_of_any_other_envelope() {
+        UUID envelope1Id = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
+        UUID envelope2Id = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
+
+        repo.updateEnvelopeStatus(envelope1Id, Status.NOTIFICATION_SENT);
+        assertEnvelopeHasStatus(envelope1Id, Status.NOTIFICATION_SENT);
+
+        assertEnvelopeHasStatus(envelope2Id, Status.CREATED);
+    }
+
+    @Test
+    public void updateEnvelopeStatus_should_return_the_number_of_updated_envelopes() {
+        UUID existingEnvelopeId = repo.saveAndFlush(envelope("BULKSCAN", Status.CREATED)).getId();
+        UUID nonExistingEnvelopeId = UUID.randomUUID();
+
+        assertThat(repo.updateEnvelopeStatus(existingEnvelopeId, Status.CONSUMED)).isOne();
+        assertThat(repo.updateEnvelopeStatus(nonExistingEnvelopeId, Status.CONSUMED)).isZero();
+    }
+
+    @Test
     public void findByZipFileName_should_find_envelops_in_db() {
         // given
         dbHas(
@@ -78,11 +124,6 @@ public class EnvelopeRepoTest {
         assertThat(resultForX).hasSize(0);
     }
 
-    @After
-    public void cleanUp() {
-        repo.deleteAll();
-    }
-
     private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
         Envelope envelope = envelope(jurisdiction, Status.UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
@@ -91,5 +132,14 @@ public class EnvelopeRepoTest {
 
     private void dbHas(Envelope... envelopes) {
         repo.saveAll(asList(envelopes));
+    }
+
+    private void assertEnvelopeHasStatus(UUID envelopeId, Status status) {
+        // make sure there's no outdated cache
+        entityManager.clear();
+
+        Optional<Envelope> envelope = repo.findById(envelopeId);
+        assertThat(envelope).isPresent();
+        assertThat(envelope.get().getStatus()).isEqualTo(status);
     }
 }
