@@ -6,26 +6,32 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidTimestampFormatException;
 
 import java.io.IOException;
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class CustomTimestampDeserialiser extends StdDeserializer<Timestamp> {
+import static java.time.ZoneOffset.UTC;
 
-    public static final StdDeserializer<Timestamp> INSTANCE = new CustomTimestampDeserialiser();
+public class CustomTimestampDeserialiser extends StdDeserializer<Instant> {
+
+    public static final StdDeserializer<Instant> INSTANCE = new CustomTimestampDeserialiser();
+
+    private static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     private CustomTimestampDeserialiser() {
-        super(Timestamp.class);
+        super(Instant.class);
     }
 
     @Override
-    public Timestamp deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Instant deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
         String timestampString = p.getText();
 
         try {
-            return DateFormatter.getTimestamp(timestampString);
+            return LocalDateTime.parse(timestampString, DateTimeFormatter.ofPattern(DATETIME_PATTERN)).toInstant(UTC);
         } catch (DateTimeParseException exception) {
-            throw new InvalidTimestampFormatException(DateFormatter.getPattern(), exception);
+            throw new InvalidTimestampFormatException(DATETIME_PATTERN, exception);
         }
     }
 }

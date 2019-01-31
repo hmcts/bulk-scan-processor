@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +94,7 @@ public final class EnvelopeCreator {
         Status status,
         List<ScannableItem> scannableItems
     ) {
-        Timestamp timestamp = getTimestamp();
+        Instant timestamp = getTimestamp();
 
         Envelope envelope = new Envelope(
             "SSCSPO",
@@ -137,7 +136,7 @@ public final class EnvelopeCreator {
     }
 
     private static List<ScannableItem> scannableItems() {
-        Timestamp timestamp = getTimestamp();
+        Instant timestamp = getTimestamp();
 
         ScannableItem scannableItem1 = new ScannableItem(
             "1111001",
@@ -206,7 +205,7 @@ public final class EnvelopeCreator {
         );
     }
 
-    private static Timestamp getTimestamp() {
-        return Timestamp.from(Instant.parse("2018-06-23T12:34:56.123Z"));
+    private static Instant getTimestamp() {
+        return Instant.parse("2018-06-23T12:34:56.123Z");
     }
 }

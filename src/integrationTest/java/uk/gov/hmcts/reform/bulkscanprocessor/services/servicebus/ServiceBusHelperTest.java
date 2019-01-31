@@ -26,8 +26,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
 
-import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -157,15 +155,15 @@ public class ServiceBusHelperTest {
         when(envelope.getJurisdiction()).thenReturn("SSCS");
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
         when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
-        when(envelope.getDeliveryDate()).thenReturn(Timestamp.from(Instant.now()));
-        when(envelope.getOpeningDate()).thenReturn(Timestamp.from(Instant.now()));
+        when(envelope.getDeliveryDate()).thenReturn(Instant.now());
+        when(envelope.getOpeningDate()).thenReturn(Instant.now());
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
 
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
         when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
         when(scannableItem1.getDocumentType()).thenReturn(DocumentType.CHERISHED);
-        when(scannableItem1.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
+        when(scannableItem1.getScanningDate()).thenReturn(Instant.now());
 
         OcrData ocrData = new OcrData();
         OcrDataField field = new OcrDataField(new TextNode("key1"), new TextNode("value1"));
@@ -177,17 +175,17 @@ public class ServiceBusHelperTest {
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
         when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
         when(scannableItem2.getDocumentType()).thenReturn(DocumentType.OTHER);
-        when(scannableItem2.getScanningDate()).thenReturn(Timestamp.from(Instant.now()));
+        when(scannableItem2.getScanningDate()).thenReturn(Instant.now());
         when(scannableItem2.getOcrData()).thenReturn(null);
     }
 
     @SuppressWarnings("unchecked")
-    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) throws IOException {
+    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
-        assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate().toInstant());
+        assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate());
     }
 
     private void assertDateField(JsonNode jsonNode, String field, Instant expectedDate) {

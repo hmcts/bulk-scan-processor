@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,7 +31,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentControlNumber;
 
-    private Timestamp scanningDate;
+    private Instant scanningDate;
 
     private String ocrAccuracy;
 
@@ -39,7 +39,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String nextAction;
 
-    private Timestamp nextActionDate;
+    private Instant nextActionDate;
 
     @Type(type = "jsonb")
     @Column(name = "ocrData", columnDefinition = "jsonb")
@@ -67,11 +67,11 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public ScannableItem(
         String documentControlNumber,
-        Timestamp scanningDate,
+        Instant scanningDate,
         String ocrAccuracy,
         String manualIntervention,
         String nextAction,
-        Timestamp nextActionDate,
+        Instant nextActionDate,
         OcrData ocrData,
         String fileName,
         String notes,
@@ -111,7 +111,7 @@ public class ScannableItem implements EnvelopeAssignable {
         return documentControlNumber;
     }
 
-    public Timestamp getScanningDate() {
+    public Instant getScanningDate() {
         return scanningDate;
     }
 
@@ -127,7 +127,7 @@ public class ScannableItem implements EnvelopeAssignable {
         return nextAction;
     }
 
-    public Timestamp getNextActionDate() {
+    public Instant getNextActionDate() {
         return nextActionDate;
     }
 

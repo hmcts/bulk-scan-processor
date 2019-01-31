@@ -7,7 +7,7 @@ import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidTimestampFormatException;
 
 import java.io.IOException;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 public class FailingTimestampDeserialiserTest {
 
-    private static final StdDeserializer<Timestamp> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
+    private static final StdDeserializer<Instant> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
 
     private static final JsonParser PARSER = mock(JsonParser.class);
 

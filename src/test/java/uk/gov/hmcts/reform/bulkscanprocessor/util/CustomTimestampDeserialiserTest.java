@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -21,18 +21,18 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CustomTimestampDeserialiserTest {
 
-    private static final StdDeserializer<Timestamp> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
+    private static final StdDeserializer<Instant> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
 
     private static final JsonParser PARSER = mock(JsonParser.class);
     private static final DeserializationContext CONTEXT = mock(DeserializationContext.class);
 
     @Test
-    public void should_parse_json_field_as_timestamp() throws IOException {
+    public void should_parse_json_date_field_as_instant() throws IOException {
         long milliseconds = 1530697192913L;
-        Timestamp expected = new Timestamp(milliseconds);
+        Instant expected = Instant.ofEpochMilli(milliseconds);
 
         LocalDateTime localDateTime = ZonedDateTime.ofInstant(
-            expected.toInstant(),
+            expected,
             ZoneId.systemDefault()
         ).withZoneSameInstant(
             ZoneId.from(UTC)
@@ -51,6 +51,6 @@ public class CustomTimestampDeserialiserTest {
 
         when(PARSER.getText()).thenReturn(date);
 
-        assertThat(DESERIALIZER.deserialize(PARSER, CONTEXT)).hasSameTimeAs(expected);
+        assertThat(DESERIALIZER.deserialize(PARSER, CONTEXT)).isEqualTo(expected);
     }
 }

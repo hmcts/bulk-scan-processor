@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -123,7 +122,7 @@ public class ScannableItemRepositoryTest {
 
     private List<ScannableItem> createScannableItemsWithOcrData(int count) {
         return Stream.generate(() -> {
-            Timestamp timestamp = Timestamp.from(Instant.parse("2018-06-23T12:34:56.123Z"));
+            Instant timestamp = Instant.parse("2018-06-23T12:34:56.123Z");
 
             ScannableItem scannableItem = new ScannableItem(
                 "1111001",

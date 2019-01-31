@@ -53,8 +53,8 @@ public class EnvelopeMsg implements Msg {
         this.classification = envelope.getClassification();
         this.poBox = envelope.getPoBox();
         this.jurisdiction = envelope.getJurisdiction();
-        this.deliveryDate = envelope.getDeliveryDate().toInstant();
-        this.openingDate = envelope.getOpeningDate().toInstant();
+        this.deliveryDate = envelope.getDeliveryDate();
+        this.openingDate = envelope.getOpeningDate();
         this.zipFileName = envelope.getZipFileName();
         this.testOnly = envelope.isTestOnly();
         this.documents = envelope

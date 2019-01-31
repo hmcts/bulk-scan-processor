@@ -4,18 +4,18 @@
       "case_number": "1111222233334446",
       "po_box": "SSCSPO",
       "jurisdiction": "BULKSCAN",
-      "delivery_date": "2018-06-23T00:00:00.000Z",
-      "opening_date": "2018-06-23T00:00:00.000Z",
+      "delivery_date": "2018-06-23T02:10:30.123Z",
+      "opening_date": "2018-06-23T02:10:30.123Z",
       "zip_file_name": "7_24-06-2018-00-00-00.zip",
       "classification": "exception",
       "scannable_items": [
         {
           "document_control_number": "1111002",
-          "scanning_date": "2018-06-23T00:00:00.000Z",
+          "scanning_date": "2018-06-23T02:10:30.123Z",
           "ocr_accuracy": "test",
           "manual_intervention": "test",
           "next_action": "return",
-          "next_action_date": "2018-06-23T00:00:00.000Z",
+          "next_action_date": "2018-06-24T00:00:00Z",
           "ocr_data": {"Metadata_file":[{"metadata_field_name": "name1", "metadata_field_value": "value1"}]},
           "file_name": "1111002.pdf",
           "notes": "test",
@@ -38,7 +38,7 @@
       "non_scannable_items": [
       ],
       "status": "PROCESSED",
-      "zip_file_createddate": "2018-06-23T00:00:00.000Z"
+      "zip_file_createddate": "2018-06-23T02:10:30.123Z"
     }
   ]
 }

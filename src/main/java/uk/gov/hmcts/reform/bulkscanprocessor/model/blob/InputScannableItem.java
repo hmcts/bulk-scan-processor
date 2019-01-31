@@ -7,16 +7,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.OcrDataDeserializer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 public class InputScannableItem {
 
     public final String documentControlNumber;
-    public final Timestamp scanningDate;
+    public final Instant scanningDate;
     public final String ocrAccuracy;
     public final String manualIntervention;
     public final String nextAction;
-    public final Timestamp nextActionDate;
+    public final Instant nextActionDate;
     public final OcrData ocrData;
     public final String fileName;
     public final String notes;
@@ -26,12 +26,12 @@ public class InputScannableItem {
     public InputScannableItem(
         @JsonProperty("document_control_number") String documentControlNumber,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
-        @JsonProperty("scanning_date") Timestamp scanningDate,
+        @JsonProperty("scanning_date") Instant scanningDate,
         @JsonProperty("ocr_accuracy") String ocrAccuracy,
         @JsonProperty("manual_intervention") String manualIntervention,
         @JsonProperty("next_action") String nextAction,
         @JsonDeserialize(using = CustomTimestampDeserialiser.class)
-        @JsonProperty("next_action_date") Timestamp nextActionDate,
+        @JsonProperty("next_action_date") Instant nextActionDate,
         @JsonDeserialize(using = OcrDataDeserializer.class)
         @JsonProperty("ocr_data") OcrData ocrData,
         @JsonProperty("file_name") String fileName,
