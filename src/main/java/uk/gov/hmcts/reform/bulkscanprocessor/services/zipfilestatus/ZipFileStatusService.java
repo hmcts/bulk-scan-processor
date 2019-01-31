@@ -1,11 +1,15 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus;
 
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
+
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -25,30 +29,28 @@ public class ZipFileStatusService {
     // endregion
 
     public ZipFileStatus getStatusFor(String zipFileName) {
-        return new ZipFileStatus(
-            envelopeRepo
-                .findByZipFileName(zipFileName)
-                .stream()
-                .map(envelope ->
-                    new ZipFileEnvelope(
-                        envelope.getId().toString(),
-                        envelope.getContainer(),
-                        envelope.getStatus().name()
-                    )
-                )
-                .collect(toList()),
-            eventRepo
-                .findByZipFileName(zipFileName)
-                .stream()
-                .map(event ->
-                    new ZipFileEvent(
-                        event.getEvent().name(),
-                        event.getContainer(),
-                        event.getCreatedAt()
-                    )
-                )
-                .collect(toList())
+        List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
+        List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
 
+        return new ZipFileStatus(
+            envelopes.stream().map(this::mapEnvelope).collect(toList()),
+            events.stream().map(this::mapEvent).collect(toList())
+        );
+    }
+
+    private ZipFileEnvelope mapEnvelope(Envelope envelope) {
+        return new ZipFileEnvelope(
+            envelope.getId().toString(),
+            envelope.getContainer(),
+            envelope.getStatus().name()
+        );
+    }
+
+    private ZipFileEvent mapEvent(ProcessEvent event) {
+        return new ZipFileEvent(
+            event.getEvent().name(),
+            event.getContainer(),
+            event.getCreatedAt()
         );
     }
 }
