@@ -39,7 +39,7 @@ public class ScannableItemTest {
         envelope.setContainer("container");
 
         // and
-        List<ScannableItem> items = envelopeRepository.save(envelope).getScannableItems();
+        List<ScannableItem> items = envelopeRepository.saveAndFlush(envelope).getScannableItems();
 
         // when
         scannableItemRepository.saveAll(items.stream()

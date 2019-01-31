@@ -38,7 +38,7 @@ public class EnvelopeTest {
         Envelope envelope = EnvelopeCreator.envelope();
 
         // and
-        UUID envelopeId = repository.save(envelope).getId();
+        UUID envelopeId = repository.saveAndFlush(envelope).getId();
 
         // when
         Envelope readEnvelope = repository.getOne(envelopeId);
@@ -54,7 +54,7 @@ public class EnvelopeTest {
         envelope.setContainer(null);
 
         // when
-        Envelope dbEnvelope = repository.save(envelope);
+        Envelope dbEnvelope = repository.saveAndFlush(envelope);
 
         // then
         assertThat(capture.toString()).containsPattern(
