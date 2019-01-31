@@ -68,7 +68,9 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))
             .andExpect(jsonPath("$.events[0].created_at").value(toIso(events.get(0).createdAt)))
             .andExpect(jsonPath("$.events[1].type").value(events.get(1).eventType))
-            .andExpect(jsonPath("$.events[1].container").value(events.get(1).container));
+            .andExpect(jsonPath("$.events[1].container").value(events.get(1).container))
+            .andExpect(jsonPath("$.events[1].created_at").value(toIso(events.get(1).createdAt)));
+
     }
 
     @Test
