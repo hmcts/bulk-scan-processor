@@ -12,9 +12,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnve
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.DateFormatter;
 
 import java.sql.Timestamp;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.time.Instant.now;
@@ -85,6 +85,6 @@ public class ZipStatusControllerTest {
     }
 
     private String toIso(Timestamp timestamp) {
-        return DateTimeFormatter.ISO_INSTANT.format(timestamp.toInstant());
+        return DateFormatter.getSimpleDateTime(timestamp.toInstant());
     }
 }
