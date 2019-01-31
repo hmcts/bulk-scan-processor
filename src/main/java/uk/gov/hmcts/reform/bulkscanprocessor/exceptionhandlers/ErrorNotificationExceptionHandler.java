@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers;
 import com.microsoft.azure.servicebus.IMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 
@@ -69,6 +70,8 @@ public class ErrorNotificationExceptionHandler {
         long deliveryCount,
         ErrorNotificationException exception
     ) {
+        logExtraInformationAboutResponse(exception);
+
         if (exception.getStatus().is5xxServerError()) {
             log.warn(
                 "Received server error from notification client. Voiding message (ID: {}) after {} delivery attempt",
@@ -86,6 +89,35 @@ public class ErrorNotificationExceptionHandler {
             );
 
             return autoCompletor.deadLetterAsync(lockToken, "Client error", exception.getMessage());
+        }
+    }
+
+    /**
+     * Perform additional log about response received from notification client.
+     * Feign clients do not provide feature of Response interceptors so it has to be dealt manually.
+     * @param exception Decoded notification exception
+     * @see uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationDecoder
+     */
+    private void logExtraInformationAboutResponse(ErrorNotificationException exception) {
+        StringBuilder builder = new StringBuilder("Error occurred when posting notification");
+        boolean toLog = false;
+
+        if (exception.getResponse() != null) {
+            toLog = true;
+            builder
+                .append(". Parsed response: ")
+                .append(exception.getResponse().getMessage());
+        }
+
+        if (!StringUtils.isEmpty(exception.getResponseRawBody())) {
+            toLog = true;
+            builder
+                .append(". Raw response: ")
+                .append(exception.getResponseRawBody());
+        }
+
+        if (toLog) {
+            log.info(builder.toString());
         }
     }
 }

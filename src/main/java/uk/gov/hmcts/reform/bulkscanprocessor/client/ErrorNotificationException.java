@@ -24,4 +24,8 @@ public class ErrorNotificationException extends RuntimeException {
     public ErrorNotificationFailingResponse getResponse() {
         return response;
     }
+
+    public String getResponseRawBody() {
+        return ((HttpStatusCodeException) getCause()).getResponseBodyAsString();
+    }
 }
