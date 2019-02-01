@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.util;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidTimestampFormatException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidDateFormatException;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -31,7 +31,7 @@ public class CustomTimestampDeserialiser extends StdDeserializer<Instant> {
         try {
             return LocalDateTime.parse(timestampString, DateTimeFormatter.ofPattern(DATETIME_PATTERN)).toInstant(UTC);
         } catch (DateTimeParseException exception) {
-            throw new InvalidTimestampFormatException(DATETIME_PATTERN, exception);
+            throw new InvalidDateFormatException(DATETIME_PATTERN, exception);
         }
     }
 }
