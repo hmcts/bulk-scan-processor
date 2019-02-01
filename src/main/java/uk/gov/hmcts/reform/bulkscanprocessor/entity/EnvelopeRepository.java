@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -84,13 +83,5 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("jurisdiction") String jurisdiction,
         @Param("maxFailureCount") int maxFailureCount,
         Pageable pageable
-    );
-
-
-    @Modifying
-    @Query("update Envelope set status = :status where id = :id")
-    int updateEnvelopeStatus(
-        @Param("id") UUID id,
-        @Param("status") Status status
     );
 }
