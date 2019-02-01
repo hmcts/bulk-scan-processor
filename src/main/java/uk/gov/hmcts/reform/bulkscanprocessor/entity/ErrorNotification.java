@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,7 +22,7 @@ public class ErrorNotification {
 
     private String errorCode;
 
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private Instant createdAt = Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
@@ -58,7 +57,7 @@ public class ErrorNotification {
         return errorCode;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 }

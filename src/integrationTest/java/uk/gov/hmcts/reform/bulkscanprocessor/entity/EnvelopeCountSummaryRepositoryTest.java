@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -134,8 +133,8 @@ public class EnvelopeCountSummaryRepositoryTest {
 
     private ProcessEvent event(String container, String zipFileName, Instant createdAt, Event type) {
         ProcessEvent event = new ProcessEvent(container, zipFileName, type);
-        event.setCreatedAt(Timestamp.from(createdAt));
+        event.setCreatedAt(createdAt);
 
-        return  event;
+        return event;
     }
 }
