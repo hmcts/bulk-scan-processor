@@ -219,7 +219,7 @@ public class ErrorNotificationClientTest {
     private void assertRequestLogs(ErrorNotificationRequest request) {
         List<String> logs = Arrays.asList(capture.toString().split("\n"));
         Pattern pattern = Pattern.compile(
-            "INFO.+\\[main\\] "
+            "INFO.+\\[.+\\] "
                 + ErrorNotificationClient.class.getCanonicalName()
                 + ":\\d+: Error notification body:"
         );
