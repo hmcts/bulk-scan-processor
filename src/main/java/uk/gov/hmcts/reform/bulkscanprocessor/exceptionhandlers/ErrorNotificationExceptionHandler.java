@@ -107,9 +107,7 @@ public class ErrorNotificationExceptionHandler {
             builder
                 .append(". Parsed response: ")
                 .append(exception.getResponse().getMessage());
-        }
-
-        if (!StringUtils.isEmpty(exception.getResponseRawBody())) {
+        } else if (!StringUtils.isEmpty(exception.getResponseRawBody())) {
             toLog = true;
             builder
                 .append(". Raw response: ")
@@ -117,7 +115,9 @@ public class ErrorNotificationExceptionHandler {
         }
 
         if (toLog) {
-            log.info(builder.toString());
+            // trying to please sonar
+            String message = builder.toString();
+            log.info(message);
         }
     }
 }

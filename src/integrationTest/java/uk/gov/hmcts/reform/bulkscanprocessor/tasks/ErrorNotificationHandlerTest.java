@@ -193,8 +193,7 @@ public class ErrorNotificationHandlerTest {
         assertThat(output).containsPattern("INFO  \\[error-notification-handler\\] "
             + ErrorNotificationExceptionHandler.class.getCanonicalName()
             + ":\\d+: Error occurred when posting notification. "
-            + "Parsed response: doh. "
-            + "Raw response: some body"
+            + "Parsed response: doh"
         );
         assertThat(output).containsPattern("Caused by: "
             + ErrorNotificationException.class.getCanonicalName()
