@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -108,7 +109,7 @@ public class ErrorNotificationHandlerTest {
         given(notificationClient.notify(any(ErrorNotificationRequest.class)))
             .willThrow(new ErrorNotificationException(
                 new HttpServerErrorException(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR.getReasonPhrase()),
-                new ErrorNotificationFailingResponse("doh")
+                null
             ));
 
         // when
@@ -132,6 +133,14 @@ public class ErrorNotificationHandlerTest {
             + MESSAGE_ID
             + "\\) after 1 delivery attempt\n"
         );
+        assertThat(output).doesNotContainPattern("INFO  \\[error-notification-handler\\] "
+            + ErrorNotificationExceptionHandler.class.getCanonicalName()
+            + ":\\d+: Error occurred when posting notification. Parsed response:"
+        );
+        assertThat(output).doesNotContainPattern("INFO  \\[error-notification-handler\\] "
+            + ErrorNotificationExceptionHandler.class.getCanonicalName()
+            + ":\\d+: Error occurred when posting notification. Raw response:"
+        );
         assertThat(output).containsPattern("Caused by: "
             + ErrorNotificationException.class.getCanonicalName()
             + ": "
@@ -149,7 +158,12 @@ public class ErrorNotificationHandlerTest {
         // and
         given(notificationClient.notify(any(ErrorNotificationRequest.class)))
             .willThrow(new ErrorNotificationException(
-                new HttpClientErrorException(BAD_REQUEST, BAD_REQUEST.getReasonPhrase()),
+                new HttpClientErrorException(
+                    BAD_REQUEST,
+                    BAD_REQUEST.getReasonPhrase(),
+                    "some body".getBytes(),
+                    StandardCharsets.UTF_8
+                ),
                 new ErrorNotificationFailingResponse("doh")
             ));
         given(queueClient.deadLetterAsync(any(UUID.class), eq("Client error"), anyString()))
@@ -175,6 +189,11 @@ public class ErrorNotificationHandlerTest {
             + ":\\d+: Client error. Dead lettering message \\(ID: "
             + MESSAGE_ID
             + "\\)\n"
+        );
+        assertThat(output).containsPattern("INFO  \\[error-notification-handler\\] "
+            + ErrorNotificationExceptionHandler.class.getCanonicalName()
+            + ":\\d+: Error occurred when posting notification. "
+            + "Parsed response: doh"
         );
         assertThat(output).containsPattern("Caused by: "
             + ErrorNotificationException.class.getCanonicalName()
