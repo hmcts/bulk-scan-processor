@@ -81,6 +81,7 @@ public class ZipStatusControllerTest {
             .perform(get("/zip-files").param("name", "hello.zip"))
             .andDo(print())
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.file_name").value("hello.zip"))
             .andExpect(jsonPath("$.envelopes").isEmpty())
             .andExpect(jsonPath("$.events").isEmpty());
     }
