@@ -50,12 +50,13 @@ public class ZipStatusControllerTest {
             new ZipFileEvent("type1", "container1", Timestamp.from(now().minusSeconds(15)))
         );
 
-        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus(envelopes, events));
+        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip", envelopes, events));
 
         mockMvc
             .perform(get("/zip-files").param("name", "hello.zip"))
             .andDo(print())
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.file_name").value("hello.zip"))
             .andExpect(jsonPath("$.envelopes", hasSize(2)))
             .andExpect(jsonPath("$.envelopes[0].id").value(envelopes.get(0).id))
             .andExpect(jsonPath("$.envelopes[0].container").value(envelopes.get(0).container))
@@ -75,11 +76,12 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
-        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus(emptyList(), emptyList()));
+        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip", emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files").param("name", "hello.zip"))
             .andDo(print())
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.file_name").value("hello.zip"))
             .andExpect(jsonPath("$.envelopes").isEmpty())
             .andExpect(jsonPath("$.events").isEmpty());
     }
