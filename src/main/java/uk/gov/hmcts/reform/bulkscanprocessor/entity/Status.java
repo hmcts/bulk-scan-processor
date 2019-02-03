@@ -6,14 +6,15 @@ import java.util.Optional;
 
 public enum Status {
 
-    CONSUMED, // client service handled the documents
+    CONSUMED,           // client service handled the documents
     CREATED,
-    METADATA_FAILURE, // when we are aware of envelope, but there are inconsistency among files and metadata info
-    SIGNATURE_FAILURE, // the zip archive failed signature verification
-    PROCESSED, // after storing all docs in DM
+    METADATA_FAILURE,   // when we are aware of envelope, but there are inconsistency among files and metadata info
+    SIGNATURE_FAILURE,  // the zip archive failed signature verification
+    PROCESSED,          // after storing all docs in DM
     UPLOADED,
     UPLOAD_FAILURE,
-    NOTIFICATION_SENT; // after notifying that processing is complete
+    NOTIFICATION_SENT,  // after notifying about a new envelope
+    COMPLETED;          // final state - the envelope has been successfully processed by the service
 
     public static Optional<Status> fromEvent(Event event) {
         switch (event) {

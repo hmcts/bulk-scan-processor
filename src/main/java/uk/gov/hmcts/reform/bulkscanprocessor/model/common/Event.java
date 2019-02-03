@@ -13,4 +13,5 @@ public enum Event {
     BLOB_DELETE_FAILURE, // when blob is not successfully deleted after processing is complete
     DOC_PROCESSED_NOTIFICATION_SENT, // when document processed notification is posted (to servicebus queue)
     DOC_PROCESSED_NOTIFICATION_FAILURE, // when document processed notification fails
+    COMPLETED, // the processing of the envelope completed successfully
 }

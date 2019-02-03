@@ -135,6 +135,10 @@ public class ScannableItem implements EnvelopeAssignable {
         return ocrData;
     }
 
+    public void setOcrData(OcrData ocrData) {
+        this.ocrData = ocrData;
+    }
+
     public String getNotes() {
         return notes;
     }
