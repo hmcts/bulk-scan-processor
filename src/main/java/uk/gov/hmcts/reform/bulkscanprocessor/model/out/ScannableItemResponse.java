@@ -2,9 +2,13 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
 
 import java.time.Instant;
 
@@ -14,7 +18,8 @@ public class ScannableItemResponse {
     public final String documentControlNumber;
 
     @JsonProperty("scanning_date")
-    public final Instant scanningDate;
+    @JsonSerialize(using = CustomTimestampSerialiser.class)
+    private final Instant scanningDate;
 
     @JsonProperty("ocr_accuracy")
     public final String ocrAccuracy;
@@ -25,6 +30,7 @@ public class ScannableItemResponse {
     @JsonProperty("next_action")
     public final String nextAction;
 
+    @JsonSerialize(using = CustomTimestampSerialiser.class)
     @JsonProperty("next_action_date")
     public final Instant nextActionDate;
 
@@ -49,10 +55,12 @@ public class ScannableItemResponse {
     @JsonCreator
     public ScannableItemResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
+        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("scanning_date") Instant scanningDate,
         @JsonProperty("ocr_accuracy") String ocrAccuracy,
         @JsonProperty("manual_intervention") String manualIntervention,
         @JsonProperty("next_action") String nextAction,
+        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
         @JsonProperty("next_action_date") Instant nextActionDate,
         @JsonProperty("ocr_data") OcrData ocrData,
         @JsonProperty("file_name") String fileName,

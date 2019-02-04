@@ -12,7 +12,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnve
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.DateFormatter;
 
+import java.time.Instant;
 import java.util.List;
 
 import static java.time.Instant.now;
@@ -64,10 +66,10 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.events", hasSize(2)))
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
             .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))
-            .andExpect(jsonPath("$.events[0].created_at").value(events.get(0).createdAt.toString()))
+            .andExpect(jsonPath("$.events[0].created_at").value(toIso(events.get(0).createdAt)))
             .andExpect(jsonPath("$.events[1].type").value(events.get(1).eventType))
             .andExpect(jsonPath("$.events[1].container").value(events.get(1).container))
-            .andExpect(jsonPath("$.events[1].created_at").value(events.get(1).createdAt.toString()));
+            .andExpect(jsonPath("$.events[1].created_at").value(toIso(events.get(1).createdAt)));
 
     }
 
@@ -82,4 +84,7 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.events").isEmpty());
     }
 
+    private String toIso(Instant timestamp) {
+        return DateFormatter.getSimpleDateTime(timestamp);
+    }
 }
