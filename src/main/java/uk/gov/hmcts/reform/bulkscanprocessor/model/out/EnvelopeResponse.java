@@ -2,8 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
 import java.time.Instant;
@@ -66,8 +68,11 @@ public class EnvelopeResponse {
         @JsonProperty("container") String container,
         @JsonProperty("po_box") String poBox,
         @JsonProperty("jurisdiction") String jurisdiction,
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("delivery_date") Instant deliveryDate,
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("opening_date") Instant openingDate,
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("zip_file_createddate") Instant zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("status") Status status,
