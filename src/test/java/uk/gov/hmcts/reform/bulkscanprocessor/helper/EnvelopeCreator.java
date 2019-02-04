@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public final class EnvelopeCreator {
 
     private static final MetafileJsonValidator validator;
@@ -187,13 +189,13 @@ public final class EnvelopeCreator {
     }
 
     private static List<NonScannableItem> nonScannableItems() {
-        return ImmutableList.of(
+        return newArrayList(
             new NonScannableItem("1111001", "CD", "4GB USB memory stick")
         );
     }
 
     private static List<Payment> payments() {
-        return ImmutableList.of(
+        return newArrayList(
             new Payment(
                 "1111002",
                 "Cheque",

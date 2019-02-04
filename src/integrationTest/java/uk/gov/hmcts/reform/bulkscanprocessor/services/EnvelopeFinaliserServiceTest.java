@@ -1,12 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
@@ -21,6 +23,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -31,19 +34,17 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@DataJpaTest
 public class EnvelopeFinaliserServiceTest {
 
-    @Mock
+    @Autowired
     private EnvelopeRepository envelopeRepository;
 
-    @Mock
+    @Autowired
     private ProcessEventRepository processEventRepository;
 
     private EnvelopeFinaliserService envelopeFinaliserService;
@@ -56,52 +57,48 @@ public class EnvelopeFinaliserServiceTest {
         );
     }
 
-    @Test
-    public void finaliseEnvelope_should_update_envelope_status_clear_all_ocr_data() {
-        // given
-        UUID envelopeId = UUID.randomUUID();
+    @After
+    public void tearDown() {
+        envelopeRepository.deleteAll();
+        processEventRepository.deleteAll();
+    }
 
+    @Test
+    public void finaliseEnvelope_should_update_envelope_status_and_clear_all_ocr_data() {
+        // given
         Envelope envelope = envelope(
             "JURISDICTION1",
             Status.NOTIFICATION_SENT,
             createScannableItemsWithOcrData(3)
         );
 
-        given(envelopeRepository.findById(envelopeId)).willReturn(Optional.of(envelope));
+        UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
         envelopeFinaliserService.finaliseEnvelope(envelopeId);
 
         // then
-        verify(envelopeRepository).findById(envelopeId);
-        ArgumentCaptor<Envelope> envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
-        verify(envelopeRepository).save(envelopeCaptor.capture());
-        verifyNoMoreInteractions(envelopeRepository);
+        Optional<Envelope> finalisedEnvelope = envelopeRepository.findById(envelopeId);
 
-        Envelope savedEnvelope = envelopeCaptor.getValue();
-        assertThat(savedEnvelope.getStatus()).isEqualTo(Status.COMPLETED);
-
-        assertThat(savedEnvelope.getScannableItems())
-            .extracting("ocrData")
-            .containsOnlyNulls();
+        assertThat(finalisedEnvelope).isPresent();
+        assertThat(finalisedEnvelope.get().getStatus()).isEqualTo(Status.COMPLETED);
+        assertThat(finalisedEnvelope.get().getScannableItems()).allMatch(item -> item.getOcrData() == null);
     }
 
     @Test
     public void finaliseEnvelope_should_create_event_of_type_completed() {
         // given
         Envelope envelope = envelope("JURISDICTION1", Status.NOTIFICATION_SENT, emptyList());
-
-        given(envelopeRepository.findById(any())).willReturn(Optional.of(envelope));
+        UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
-        envelopeFinaliserService.finaliseEnvelope(UUID.randomUUID());
+        envelopeFinaliserService.finaliseEnvelope(envelopeId);
 
         // then
-        ArgumentCaptor<ProcessEvent> processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
-        verify(processEventRepository).save(processEventCaptor.capture());
-        verifyNoMoreInteractions(processEventRepository);
+        List<ProcessEvent> savedEvents = processEventRepository.findByZipFileName(envelope.getZipFileName());
+        assertThat(savedEvents.size()).isOne();
 
-        ProcessEvent savedEvent = processEventCaptor.getValue();
+        ProcessEvent savedEvent = savedEvents.get(0);
         assertThat(savedEvent.getContainer()).isEqualTo(envelope.getContainer());
         assertThat(savedEvent.getEvent()).isEqualTo(Event.COMPLETED);
         assertThat(savedEvent.getZipFileName()).isEqualTo(envelope.getZipFileName());
@@ -109,19 +106,17 @@ public class EnvelopeFinaliserServiceTest {
 
     @Test
     public void finaliseEnvelope_should_throw_exception_when_envelope_is_not_found() {
-        given(envelopeRepository.findById(any())).willReturn(Optional.empty());
+        UUID nonExistingId = UUID.fromString("ef2565fd-74f5-418e-9d8c-7bf847edde80");
 
         assertThatThrownBy(() ->
-            envelopeFinaliserService.finaliseEnvelope(
-                UUID.fromString("ef2565fd-74f5-418e-9d8c-7bf847edde80")
-            )
+            envelopeFinaliserService.finaliseEnvelope(nonExistingId)
         )
             .isInstanceOf(EnvelopeNotFoundException.class)
-            .hasMessage("Envelope with ID ef2565fd-74f5-418e-9d8c-7bf847edde80 couldn't be found");
+            .hasMessage(String.format("Envelope with ID %s couldn't be found", nonExistingId));
     }
 
     private List<ScannableItem> createScannableItemsWithOcrData(int count) {
-        return Stream.generate(() -> {
+        return new ArrayList<>(Stream.generate(() -> {
             Timestamp timestamp = Timestamp.from(Instant.parse("2018-06-23T12:34:56.123Z"));
 
             ScannableItem scannableItem = new ScannableItem(
@@ -142,7 +137,7 @@ public class EnvelopeFinaliserServiceTest {
             return scannableItem;
         })
             .limit(count)
-            .collect(toList());
+            .collect(toList()));
     }
 
     private OcrData createOcrData() {
