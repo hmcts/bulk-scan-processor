@@ -76,7 +76,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents)
-            .extracting("event")
+            .extracting(event -> event.getEvent())
             .containsExactlyInAnyOrder(
                 Event.DOC_UPLOADED, Event.DOC_PROCESSED
             );

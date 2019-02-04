@@ -74,10 +74,10 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
         assertThat(dbEnvelopes)
             .hasSize(1)
-            .extracting("status")
+            .extracting(envelope -> envelope.getStatus())
             .containsOnlyOnce(PROCESSED);
         assertThat(dbEnvelopes.get(0).getScannableItems())
-            .extracting("documentUrl")
+            .extracting(item -> item.getDocumentUrl())
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
 
         // and
@@ -110,7 +110,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         // then
         assertThat(envelopeRepository.findAll())
             .hasSize(1)
-            .extracting("status")
+            .extracting(envelope -> envelope.getStatus())
             .containsOnlyOnce(UPLOAD_FAILURE);
 
         // and
