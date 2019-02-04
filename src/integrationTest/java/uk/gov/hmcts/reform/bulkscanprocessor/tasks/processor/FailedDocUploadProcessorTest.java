@@ -84,7 +84,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         String failureReason = "Error retrieving urls for uploaded files: 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
-            .extracting("container", "zipFileName", "event", "reason")
+            .extracting(e -> tuple(e.getContainer(), e.getZipFileName(), e.getEvent(), e.getReason()))
             .containsOnly(
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOADED, null),
@@ -118,7 +118,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
         assertThat(processEventRepository.findAll())
             .hasSize(2)
-            .extracting("container", "zipFileName", "event", "reason")
+            .extracting(e -> tuple(e.getContainer(), e.getZipFileName(), e.getEvent(), e.getReason()))
             .containsOnly(
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, "oh no")
