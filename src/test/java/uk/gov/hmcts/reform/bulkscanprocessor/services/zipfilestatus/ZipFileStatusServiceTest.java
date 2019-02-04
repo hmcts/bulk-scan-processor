@@ -60,6 +60,8 @@ public class ZipFileStatusServiceTest {
         ZipFileStatus result = service.getStatusFor("hello.zip");
 
         // then
+        assertThat(result.fileName).isEqualTo("hello.zip");
+
         assertThat(result.envelopes)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(

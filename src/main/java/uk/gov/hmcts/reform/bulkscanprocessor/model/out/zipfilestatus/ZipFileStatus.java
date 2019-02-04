@@ -6,6 +6,9 @@ import java.util.List;
 
 public class ZipFileStatus {
 
+    @JsonProperty("file_name")
+    public final String fileName;
+
     @JsonProperty("envelopes")
     public final List<ZipFileEnvelope> envelopes;
 
@@ -13,7 +16,8 @@ public class ZipFileStatus {
     public final List<ZipFileEvent> events;
 
     // region constructor
-    public ZipFileStatus(List<ZipFileEnvelope> envelopes, List<ZipFileEvent> events) {
+    public ZipFileStatus(String fileName, List<ZipFileEnvelope> envelopes, List<ZipFileEvent> events) {
+        this.fileName = fileName;
         this.envelopes = envelopes;
         this.events = events;
     }

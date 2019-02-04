@@ -33,6 +33,7 @@ public class ZipFileStatusService {
         List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
 
         return new ZipFileStatus(
+            zipFileName,
             envelopes.stream().map(this::mapEnvelope).collect(toList()),
             events.stream().map(this::mapEvent).collect(toList())
         );
