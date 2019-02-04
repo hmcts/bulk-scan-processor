@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
-public class CustomTimestampDeserialiser extends StdDeserializer<Instant> {
+public class InstantDeserializer extends StdDeserializer<Instant> {
 
-    public static final StdDeserializer<Instant> INSTANCE = new CustomTimestampDeserialiser();
+    public static final StdDeserializer<Instant> INSTANCE = new InstantDeserializer();
 
-    private CustomTimestampDeserialiser() {
+    private InstantDeserializer() {
         super(Instant.class);
     }
 

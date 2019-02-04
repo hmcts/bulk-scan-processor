@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
 import java.time.Instant;
 
@@ -18,7 +18,7 @@ public class ScannableItemResponse {
     public final String documentControlNumber;
 
     @JsonProperty("scanning_date")
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
+    @JsonSerialize(using = InstantSerializer.class)
     private final Instant scanningDate;
 
     @JsonProperty("ocr_accuracy")
@@ -30,7 +30,7 @@ public class ScannableItemResponse {
     @JsonProperty("next_action")
     public final String nextAction;
 
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
+    @JsonSerialize(using = InstantSerializer.class)
     @JsonProperty("next_action_date")
     public final Instant nextActionDate;
 
@@ -55,12 +55,12 @@ public class ScannableItemResponse {
     @JsonCreator
     public ScannableItemResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("scanning_date") Instant scanningDate,
         @JsonProperty("ocr_accuracy") String ocrAccuracy,
         @JsonProperty("manual_intervention") String manualIntervention,
         @JsonProperty("next_action") String nextAction,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("next_action_date") Instant nextActionDate,
         @JsonProperty("ocr_data") OcrData ocrData,
         @JsonProperty("file_name") String fileName,

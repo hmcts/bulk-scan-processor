@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.time.Instant;
 
-public class CustomTimestampSerialiser extends StdSerializer<Instant> {
+public class InstantSerializer extends StdSerializer<Instant> {
 
-    private CustomTimestampSerialiser() {
+    private InstantSerializer() {
         super(Instant.class);
     }
 

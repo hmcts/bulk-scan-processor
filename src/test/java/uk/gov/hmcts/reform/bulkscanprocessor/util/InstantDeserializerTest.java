@@ -19,9 +19,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CustomTimestampDeserialiserTest {
+public class InstantDeserializerTest {
 
-    private static final StdDeserializer<Instant> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
+    private static final StdDeserializer<Instant> DESERIALIZER = InstantDeserializer.INSTANCE;
 
     private static final JsonParser PARSER = mock(JsonParser.class);
     private static final DeserializationContext CONTEXT = mock(DeserializationContext.class);

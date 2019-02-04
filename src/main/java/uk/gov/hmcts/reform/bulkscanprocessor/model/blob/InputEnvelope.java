@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,11 +29,11 @@ public class InputEnvelope {
     public InputEnvelope(
         @JsonProperty("po_box") String poBox,
         @JsonProperty("jurisdiction") String jurisdiction,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("delivery_date") Instant deliveryDate,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("opening_date") Instant openingDate,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
+        @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("zip_file_createddate") Instant zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("case_number") String caseNumber,

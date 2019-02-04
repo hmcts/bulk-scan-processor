@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
 import java.time.Instant;
 
@@ -15,7 +15,7 @@ public class ZipFileEvent {
     public final String container;
 
     @JsonProperty("created_at")
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
+    @JsonSerialize(using = InstantSerializer.class)
     public final Instant createdAt;
 
     // region constructor

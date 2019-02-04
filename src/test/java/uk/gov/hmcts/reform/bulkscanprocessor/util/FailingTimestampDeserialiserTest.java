@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 public class FailingTimestampDeserialiserTest {
 
-    private static final StdDeserializer<Instant> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
+    private static final StdDeserializer<Instant> DESERIALIZER = InstantDeserializer.INSTANCE;
 
     private static final JsonParser PARSER = mock(JsonParser.class);
 
