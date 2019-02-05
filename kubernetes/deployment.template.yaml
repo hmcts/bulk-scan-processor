@@ -180,7 +180,7 @@ spec:
   #
   # Get the value of this from 'svcat get classes'
   #
-  clusterServiceClassExternalName: azure-servicebus
+  clusterServiceClassExternalName: azure-servicebus-namespace
 
   #
   # The 'SKU'. Get the value of this from 'svc describe class <class name>'
@@ -226,7 +226,7 @@ spec:
   #
   # Get the value of this from 'svcat get classes'
   #
-  clusterServiceClassExternalName: azure-storage
+  clusterServiceClassExternalName: blob-storage-account-and-container
 
   #
   # The 'SKU'. Get the value of this from 'svcat describe class <class name>'
