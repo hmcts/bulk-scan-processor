@@ -196,6 +196,7 @@ spec:
   parameters:
     location: uksouth
     resourceGroup: bulk-scan-aks
+    alias: ${SERVICE_NAME}-servicebus-namespace-2
 ---
 #
 # The binding.  This will return the secret with connection details, etc.
