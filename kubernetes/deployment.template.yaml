@@ -226,12 +226,12 @@ spec:
   #
   # Get the value of this from 'svcat get classes'
   #
-  clusterServiceClassExternalName: azure-storage
+  clusterServiceClassExternalName: azure-storage-blob-storage-account-and-container
 
   #
   # The 'SKU'. Get the value of this from 'svcat describe class <class name>'
   #
-  clusterServicePlanExternalName: azure-storage-blob-storage-account-and-container
+  clusterServicePlanExternalName: all-in-one
 
   #
   # Parameters.
