@@ -51,7 +51,7 @@ public class Document {
             item.getDocumentControlNumber(),
             item.getDocumentType(),
             item.getDocumentSubtype(),
-            item.getScanningDate().toInstant(),
+            item.getScanningDate(),
             item.getDocumentUrl()
         );
     }

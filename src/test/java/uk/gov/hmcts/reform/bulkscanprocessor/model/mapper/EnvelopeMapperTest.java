@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
@@ -14,6 +13,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+
+import java.time.Instant;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
@@ -48,8 +49,8 @@ public class EnvelopeMapperTest {
         assertThat(dbEnvelope.getStatus()).isEqualTo(Status.CREATED);
         assertThat(dbEnvelope.getUploadFailureCount()).isEqualTo(0);
         assertThat(dbEnvelope.isZipDeleted()).isFalse();
-        assertThat(dbEnvelope.getCreatedAt()).isBefore(DateTime.now().plusMillis(1).toDate());
-        assertThat(dbEnvelope.getCreatedAt()).isAfter(DateTime.now().minusSeconds(1).toDate());
+        assertThat(dbEnvelope.getCreatedAt()).isBefore(Instant.now().plusMillis(1));
+        assertThat(dbEnvelope.getCreatedAt()).isAfter(Instant.now().minusSeconds(1));
         assertThat(dbEnvelope.getContainer()).isEqualTo(container);
     }
 

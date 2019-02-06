@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampDeserialiser;
-import uk.gov.hmcts.reform.bulkscanprocessor.util.CustomTimestampSerialiser;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,17 +31,17 @@ public class EnvelopeResponse {
     @JsonProperty("jurisdiction")
     private final String jurisdiction;
 
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
+    @JsonSerialize(using = InstantSerializer.class)
     @JsonProperty("delivery_date")
-    private final Timestamp deliveryDate;
+    private final Instant deliveryDate;
 
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
+    @JsonSerialize(using = InstantSerializer.class)
     @JsonProperty("opening_date")
-    private final Timestamp openingDate;
+    private final Instant openingDate;
 
-    @JsonSerialize(using = CustomTimestampSerialiser.class)
+    @JsonSerialize(using = InstantSerializer.class)
     @JsonProperty("zip_file_createddate")
-    private final Timestamp zipFileCreateddate;
+    private final Instant zipFileCreateddate;
 
     @JsonProperty("zip_file_name")
     private final String zipFileName;
@@ -68,12 +68,12 @@ public class EnvelopeResponse {
         @JsonProperty("container") String container,
         @JsonProperty("po_box") String poBox,
         @JsonProperty("jurisdiction") String jurisdiction,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
-        @JsonProperty("delivery_date") Timestamp deliveryDate,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
-        @JsonProperty("opening_date") Timestamp openingDate,
-        @JsonDeserialize(using = CustomTimestampDeserialiser.class)
-        @JsonProperty("zip_file_createddate") Timestamp zipFileCreateddate,
+        @JsonDeserialize(using = InstantDeserializer.class)
+        @JsonProperty("delivery_date") Instant deliveryDate,
+        @JsonDeserialize(using = InstantDeserializer.class)
+        @JsonProperty("opening_date") Instant openingDate,
+        @JsonDeserialize(using = InstantDeserializer.class)
+        @JsonProperty("zip_file_createddate") Instant zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("status") Status status,
         @JsonProperty("classification") String classification,
@@ -125,15 +125,15 @@ public class EnvelopeResponse {
         return jurisdiction;
     }
 
-    public Timestamp getDeliveryDate() {
+    public Instant getDeliveryDate() {
         return deliveryDate;
     }
 
-    public Timestamp getOpeningDate() {
+    public Instant getOpeningDate() {
         return openingDate;
     }
 
-    public Timestamp getZipFileCreateddate() {
+    public Instant getZipFileCreateddate() {
         return zipFileCreateddate;
     }
 

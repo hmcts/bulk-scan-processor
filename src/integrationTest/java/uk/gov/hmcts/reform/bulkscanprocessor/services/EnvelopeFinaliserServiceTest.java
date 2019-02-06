@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,15 +116,15 @@ public class EnvelopeFinaliserServiceTest {
 
     private List<ScannableItem> createScannableItemsWithOcrData(int count) {
         return new ArrayList<>(Stream.generate(() -> {
-            Timestamp timestamp = Timestamp.from(Instant.parse("2018-06-23T12:34:56.123Z"));
+            Instant instant = Instant.parse("2018-06-23T12:34:56.123Z");
 
             ScannableItem scannableItem = new ScannableItem(
                 "1111001",
-                timestamp,
+                instant,
                 "test",
                 "test",
                 "return",
-                timestamp,
+                instant,
                 createOcrData(),
                 "1111001.pdf",
                 "test",

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidTimestampFormatException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidDateFormatException;
 
 import java.io.IOException;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 public class FailingTimestampDeserialiserTest {
 
-    private static final StdDeserializer<Timestamp> DESERIALIZER = CustomTimestampDeserialiser.INSTANCE;
+    private static final StdDeserializer<Instant> DESERIALIZER = InstantDeserializer.INSTANCE;
 
     private static final JsonParser PARSER = mock(JsonParser.class);
 
@@ -28,7 +28,7 @@ public class FailingTimestampDeserialiserTest {
 
         Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(PARSER, CONTEXT));
 
-        assertThat(exception).isInstanceOf(InvalidTimestampFormatException.class);
+        assertThat(exception).isInstanceOf(InvalidDateFormatException.class);
     }
 
     @Test
@@ -37,6 +37,6 @@ public class FailingTimestampDeserialiserTest {
 
         Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(PARSER, CONTEXT));
 
-        assertThat(exception).isInstanceOf(InvalidTimestampFormatException.class);
+        assertThat(exception).isInstanceOf(InvalidDateFormatException.class);
     }
 }

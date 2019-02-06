@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -42,18 +41,18 @@ public class Envelope {
 
     private String jurisdiction;
 
-    private Timestamp deliveryDate;
+    private Instant deliveryDate;
 
-    private Timestamp openingDate;
+    private Instant openingDate;
 
-    private Timestamp zipFileCreateddate;
+    private Instant zipFileCreateddate;
 
     private String zipFileName;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.CREATED;
 
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private final Instant createdAt = Instant.now();
 
     @Enumerated(EnumType.STRING)
     private Classification classification = Classification.EXCEPTION;
@@ -85,9 +84,9 @@ public class Envelope {
     public Envelope(
         String poBox,
         String jurisdiction,
-        Timestamp deliveryDate,
-        Timestamp openingDate,
-        Timestamp zipFileCreateddate,
+        Instant deliveryDate,
+        Instant openingDate,
+        Instant zipFileCreateddate,
         String zipFileName,
         String caseNumber,
         Classification classification,
@@ -162,7 +161,7 @@ public class Envelope {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
@@ -170,15 +169,15 @@ public class Envelope {
         return poBox;
     }
 
-    public Timestamp getDeliveryDate() {
+    public Instant getDeliveryDate() {
         return deliveryDate;
     }
 
-    public Timestamp getOpeningDate() {
+    public Instant getOpeningDate() {
         return openingDate;
     }
 
-    public Timestamp getZipFileCreateddate() {
+    public Instant getZipFileCreateddate() {
         return zipFileCreateddate;
     }
 

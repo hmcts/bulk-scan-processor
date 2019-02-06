@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,7 +23,7 @@ public class ProcessEvent {
 
     private String zipFileName;
 
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private Instant createdAt = Instant.now();
 
     @Enumerated(EnumType.STRING)
     private Event event;
@@ -48,11 +47,11 @@ public class ProcessEvent {
         return zipFileName;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 

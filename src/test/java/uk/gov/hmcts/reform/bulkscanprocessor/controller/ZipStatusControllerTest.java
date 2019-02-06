@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStat
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.DateFormatter;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 import static java.time.Instant.now;
@@ -46,8 +46,8 @@ public class ZipStatusControllerTest {
         );
 
         List<ZipFileEvent> events = asList(
-            new ZipFileEvent("type0", "container0", Timestamp.from(now().minusSeconds(10))),
-            new ZipFileEvent("type1", "container1", Timestamp.from(now().minusSeconds(15)))
+            new ZipFileEvent("type0", "container0", now().minusSeconds(10)),
+            new ZipFileEvent("type1", "container1", now().minusSeconds(15))
         );
 
         given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip", envelopes, events));
@@ -86,7 +86,7 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.events").isEmpty());
     }
 
-    private String toIso(Timestamp timestamp) {
-        return DateFormatter.getSimpleDateTime(timestamp.toInstant());
+    private String toIso(Instant timestamp) {
+        return DateFormatter.getSimpleDateTime(timestamp);
     }
 }

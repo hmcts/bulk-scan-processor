@@ -15,7 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnve
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,11 +43,11 @@ public class ZipFileStatusServiceTest {
     public void should_return_envelopes_and_events_from_db() {
         // given
         List<ProcessEvent> events = asList(
-            event(Event.DOC_UPLOADED, "A", Timestamp.from(now())),
-            event(Event.DOC_PROCESSED, "A", Timestamp.from(now().minusSeconds(1))),
-            event(Event.DOC_FAILURE, "B", Timestamp.from(now().minusSeconds(2)))
+            event(Event.DOC_UPLOADED, "A", now()),
+            event(Event.DOC_PROCESSED, "A", now().minusSeconds(1)),
+            event(Event.DOC_FAILURE, "B", now().minusSeconds(2))
         );
-        
+
         List<Envelope> envelopes = asList(
             envelope(UUID.randomUUID(), "A", Status.PROCESSED),
             envelope(UUID.randomUUID(), "B", Status.PROCESSED)
@@ -121,7 +121,7 @@ public class ZipFileStatusServiceTest {
         return envelope;
     }
 
-    private ProcessEvent event(Event eventType, String container, Timestamp createdAt) {
+    private ProcessEvent event(Event eventType, String container, Instant createdAt) {
         ProcessEvent event = mock(ProcessEvent.class);
         given(event.getEvent()).willReturn(eventType);
         given(event.getContainer()).willReturn(container);

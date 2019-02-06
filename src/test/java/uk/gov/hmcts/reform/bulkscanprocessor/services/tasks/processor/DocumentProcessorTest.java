@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagemen
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -105,11 +105,11 @@ public class DocumentProcessorTest {
     private ScannableItem scannableItem(String fileName) {
         return new ScannableItem(
             "1111002",
-            new Timestamp(System.currentTimeMillis()),
+            Instant.now(),
             null,
             null,
             null,
-            new Timestamp(System.currentTimeMillis()),
+            Instant.now(),
             null,
             fileName,
             null,

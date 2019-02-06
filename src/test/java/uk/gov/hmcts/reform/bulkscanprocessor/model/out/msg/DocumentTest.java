@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -25,7 +24,7 @@ public class DocumentTest {
 
         assertThat(document.controlNumber).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(document.fileName).isEqualTo(scannableItem.getFileName());
-        assertThat(document.scannedAt).isEqualTo(scannableItem.getScanningDate().toInstant());
+        assertThat(document.scannedAt).isEqualTo(scannableItem.getScanningDate());
         assertThat(document.subtype).isEqualTo(scannableItem.getDocumentSubtype());
         assertThat(document.type).isEqualTo(scannableItem.getDocumentType());
         assertThat(document.url).isEqualTo(scannableItem.getDocumentUrl());
@@ -38,11 +37,11 @@ public class DocumentTest {
 
         ScannableItem scannableItem = new ScannableItem(
             "1111001",
-            Timestamp.from(Instant.now()),
+            Instant.now(),
             "ocrAccuracy1",
             "manualIntervention1",
             "nextAction1",
-            Timestamp.from(Instant.now().plus(1, DAYS)),
+            Instant.now().plus(1, DAYS),
             ocrData,
             "fileName1.pdf",
             "notes 1",
