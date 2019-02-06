@@ -14,9 +14,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Handler of messages form processed envelopes queue.
+ *
+ * <p>
+ *   Its purpose is to bring envelopes referenced by those messages to their final state.
+ *   This involves removing sensitive information, status change and creation of an appropriate event.
+ * </p>
+ */
 public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessedEnvelopeNotificationHandler.class);
@@ -126,13 +133,11 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         }
     }
 
-    private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
+    private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws Exception {
         try {
             return objectMapper.readValue(message.getBody(), ProcessedEnvelope.class);
         } catch (JsonParseException | JsonMappingException e) {
             throw new InvalidMessageException("Failed to parse 'processed envelope' message", e);
-        } catch (IOException e) {
-            throw e;
         }
     }
 
