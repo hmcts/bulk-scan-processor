@@ -34,7 +34,7 @@ public class MetafileJsonValidatorTest {
         assertThat(envelope.caseNumber).isEqualTo("1111222233334446");
         assertThat(envelope.classification).isEqualTo(Classification.NEW_APPLICATION);
         assertThat(envelope.scannableItems)
-            .extracting("documentType")
+            .extracting(item -> item.documentType)
             .containsExactlyInAnyOrder(
                 InputDocumentType.CHERISHED,
                 InputDocumentType.OTHER,
