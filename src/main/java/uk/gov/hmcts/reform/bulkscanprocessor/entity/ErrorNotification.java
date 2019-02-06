@@ -22,7 +22,7 @@ public class ErrorNotification {
 
     private String errorCode;
 
-    private Instant createdAt = Instant.now();
+    private final Instant createdAt = Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)

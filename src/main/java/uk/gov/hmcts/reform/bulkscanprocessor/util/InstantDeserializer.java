@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
-public class InstantDeserializer extends StdDeserializer<Instant> {
+public final class InstantDeserializer extends StdDeserializer<Instant> {
 
     public static final StdDeserializer<Instant> INSTANCE = new InstantDeserializer();
 
@@ -18,9 +18,9 @@ public class InstantDeserializer extends StdDeserializer<Instant> {
     }
 
     @Override
-    public Instant deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Instant deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 
-        String timestampString = p.getText();
+        String timestampString = parser.getText();
 
         try {
             return DateFormatter.getInstant(timestampString);

@@ -52,7 +52,7 @@ public class Envelope {
     @Enumerated(EnumType.STRING)
     private Status status = Status.CREATED;
 
-    private Instant createdAt = Instant.now();
+    private final Instant createdAt = Instant.now();
 
     @Enumerated(EnumType.STRING)
     private Classification classification = Classification.EXCEPTION;
