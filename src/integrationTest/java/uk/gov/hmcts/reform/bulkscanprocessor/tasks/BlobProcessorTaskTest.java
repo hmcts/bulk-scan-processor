@@ -96,7 +96,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         );
         assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
         assertThat(actualEnvelope.getScannableItems())
-            .extracting("documentUrl")
+            .extracting(item -> item.getDocumentUrl())
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
         assertThat(actualEnvelope.isZipDeleted()).isTrue();
 

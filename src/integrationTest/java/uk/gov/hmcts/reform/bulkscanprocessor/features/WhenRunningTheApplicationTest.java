@@ -41,7 +41,7 @@ public class WhenRunningTheApplicationTest {
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
         assertThat(configCaptor.getAllValues())
-            .extracting("name")
+            .extracting(lc -> lc.getName())
             .containsOnly(
                 "re-upload-failures",
                 "send-orchestrator-notification"
