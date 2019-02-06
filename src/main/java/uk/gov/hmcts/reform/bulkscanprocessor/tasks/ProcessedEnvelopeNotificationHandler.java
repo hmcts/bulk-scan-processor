@@ -29,11 +29,11 @@ import java.util.concurrent.Executors;
 public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessedEnvelopeNotificationHandler.class);
+    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final EnvelopeFinaliserService envelopeFinaliserService;
     private final ObjectMapper objectMapper;
     private final MessageAutoCompletor messageCompletor;
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
 
     public ProcessedEnvelopeNotificationHandler(
         EnvelopeFinaliserService envelopeFinaliserService,
@@ -48,9 +48,11 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
     @Override
     public CompletableFuture<Void> onMessageAsync(IMessage message) {
         return CompletableFuture
-            .supplyAsync(() -> tryProcessMessage(message), executor)
-            .thenComposeAsync(processingResult -> tryFinaliseMessageAync(message, processingResult), executor)
+            .supplyAsync(() -> tryProcessMessage(message), EXECUTOR)
+            .thenComposeAsync(processingResult -> tryFinaliseMessageAync(message, processingResult), EXECUTOR)
             .handleAsync((v, error) -> {
+                // Individual steps are supposed to handle their exceptions themselves.
+                // This code is here to make sure errors are logged even when they fail to do that.
                 if (error != null) {
                     log.error(
                         "An error occurred when trying to handle 'processed envelope' message with ID {}",
@@ -90,17 +92,21 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
     private CompletableFuture<Void> finaliseMessageAsync(IMessage message, MessageProcessingResult processingResult) {
         switch (processingResult.resultType) {
             case SUCCESS:
-                return messageCompletor.completeAsync(message.getLockToken()).thenRun(() ->
-                    log.info("Completed 'processed-envelope' message with ID {}", message.getMessageId())
-                );
+                return messageCompletor
+                    .completeAsync(message.getLockToken())
+                    .thenRun(() ->
+                        log.info("Completed 'processed-envelope' message with ID {}", message.getMessageId())
+                    );
             case UNRECOVERABLE_FAILURE:
-                return messageCompletor.deadLetterAsync(
-                    message.getLockToken(),
-                    "Message processing error",
-                    processingResult.exception.getMessage()
-                ).thenRun(() ->
-                    log.info("Dead-lettered 'processed-envelope' message with ID {}", message.getMessageId())
-                );
+                return messageCompletor
+                    .deadLetterAsync(
+                        message.getLockToken(),
+                        "Message processing error",
+                        processingResult.exception.getMessage()
+                    )
+                    .thenRun(() ->
+                        log.info("Dead-lettered 'processed-envelope' message with ID {}", message.getMessageId())
+                    );
             default:
                 log.info(
                     "Letting 'processed envelope' message with ID {} return to the queue. Delivery attempt {}.",
