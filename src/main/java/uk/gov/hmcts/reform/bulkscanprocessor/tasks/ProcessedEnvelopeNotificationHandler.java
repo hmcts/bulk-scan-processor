@@ -16,13 +16,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoComp
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Handler of messages form processed envelopes queue.
- *
  * <p>
- *   Its purpose is to bring envelopes referenced by those messages to their final state.
- *   This involves removing sensitive information, status change and creation of an appropriate event.
+ * Its purpose is to bring envelopes referenced by those messages to their final state.
+ * This involves removing sensitive information, status change and creation of an appropriate event.
  * </p>
  */
 public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
@@ -32,6 +33,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
     private final EnvelopeFinaliserService envelopeFinaliserService;
     private final ObjectMapper objectMapper;
     private final MessageAutoCompletor messageCompletor;
+    private ExecutorService executor = Executors.newFixedThreadPool(4);
 
     public ProcessedEnvelopeNotificationHandler(
         EnvelopeFinaliserService envelopeFinaliserService,
@@ -46,8 +48,8 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
     @Override
     public CompletableFuture<Void> onMessageAsync(IMessage message) {
         return CompletableFuture
-            .supplyAsync(() -> tryProcessMessage(message))
-            .thenAcceptAsync(processingResult -> tryFinaliseMessage(message, processingResult))
+            .supplyAsync(() -> tryProcessMessage(message), executor)
+            .thenComposeAsync(processingResult -> tryFinaliseMessageAync(message, processingResult), executor)
             .handleAsync((v, error) -> {
                 if (error != null) {
                     log.error(
@@ -69,39 +71,44 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         );
     }
 
-    private void tryFinaliseMessage(IMessage message, MessageProcessingResult processingResult) {
-        try {
-            finaliseMessage(message, processingResult);
-        } catch (Exception e) {
-            log.error(
-                "An error occurred when trying to finalise 'processed envelope' message with ID {}",
-                message.getMessageId(),
-                e
-            );
-        }
+    private CompletableFuture<Void> tryFinaliseMessageAync(
+        IMessage message,
+        MessageProcessingResult processingResult
+    ) {
+        return finaliseMessageAsync(message, processingResult)
+            .exceptionally(error -> {
+                log.error(
+                    "An error occurred when trying to finalise 'processed envelope' message with ID {}",
+                    message.getMessageId(),
+                    error
+                );
+
+                return null;
+            });
     }
 
-    private void finaliseMessage(IMessage message, MessageProcessingResult processingResult) {
+    private CompletableFuture<Void> finaliseMessageAsync(IMessage message, MessageProcessingResult processingResult) {
         switch (processingResult.resultType) {
             case SUCCESS:
-                messageCompletor.completeAsync(message.getLockToken()).join();
-                log.info("Completed 'processed-envelope' message with ID {}", message.getMessageId());
-                break;
+                return messageCompletor.completeAsync(message.getLockToken()).thenRun(() ->
+                    log.info("Completed 'processed-envelope' message with ID {}", message.getMessageId())
+                );
             case UNRECOVERABLE_FAILURE:
-                messageCompletor.deadLetterAsync(
+                return messageCompletor.deadLetterAsync(
                     message.getLockToken(),
                     "Message processing error",
                     processingResult.exception.getMessage()
-                ).join();
-
-                log.info("Dead-lettered 'processed-envelope' message with ID {}", message.getMessageId());
-                break;
+                ).thenRun(() ->
+                    log.info("Dead-lettered 'processed-envelope' message with ID {}", message.getMessageId())
+                );
             default:
                 log.info(
                     "Letting 'processed envelope' message with ID {} return to the queue. Delivery attempt {}.",
                     message.getMessageId(),
                     message.getDeliveryCount() + 1
                 );
+
+                return CompletableFuture.completedFuture(null);
         }
     }
 
