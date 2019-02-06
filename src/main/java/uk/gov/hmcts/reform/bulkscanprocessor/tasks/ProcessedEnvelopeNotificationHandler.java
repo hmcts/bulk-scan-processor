@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -133,7 +134,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         }
     }
 
-    private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws Exception {
+    private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
         try {
             return objectMapper.readValue(message.getBody(), ProcessedEnvelope.class);
         } catch (JsonParseException | JsonMappingException e) {
