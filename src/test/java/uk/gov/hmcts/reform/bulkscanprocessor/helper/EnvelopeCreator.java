@@ -96,7 +96,7 @@ public final class EnvelopeCreator {
         Status status,
         List<ScannableItem> scannableItems
     ) {
-        Instant timestamp = getTimestamp();
+        Instant timestamp = getInstant();
 
         Envelope envelope = new Envelope(
             "SSCSPO",
@@ -121,11 +121,11 @@ public final class EnvelopeCreator {
     public static InputScannableItem inputScannableItem(InputDocumentType docType) {
         return new InputScannableItem(
             "control number",
-            getTimestamp(),
+            getInstant(),
             "ocr accuracy",
             "manual intervention",
             "next action",
-            getTimestamp(),
+            getInstant(),
             new OcrData(),
             "file.pdf",
             "notes",
@@ -138,7 +138,7 @@ public final class EnvelopeCreator {
     }
 
     private static List<ScannableItem> scannableItems() {
-        Instant timestamp = getTimestamp();
+        Instant timestamp = getInstant();
 
         ScannableItem scannableItem1 = new ScannableItem(
             "1111001",
@@ -207,7 +207,7 @@ public final class EnvelopeCreator {
         );
     }
 
-    private static Instant getTimestamp() {
+    private static Instant getInstant() {
         return Instant.parse("2018-06-23T12:34:56.123Z");
     }
 }
