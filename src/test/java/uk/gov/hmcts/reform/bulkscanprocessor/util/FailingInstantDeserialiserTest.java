@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FailingTimestampDeserialiserTest {
+public class FailingInstantDeserialiserTest {
 
     private static final StdDeserializer<Instant> DESERIALIZER = InstantDeserializer.INSTANCE;
 
