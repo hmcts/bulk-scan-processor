@@ -8,10 +8,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummary;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
@@ -77,5 +80,45 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/count-summary?date=" + invalidDate))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_return_400_if_date_is_invalid_for_zipfiles_sumamry_endpoint() throws Exception {
+        final String invalidDate = "2019-14-14";
+
+        mockMvc
+            .perform(get("/reports/zip-files-summary?date=" + invalidDate))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_return_zipfiles_summary_result_generated_by_the_service() throws Exception {
+        LocalDate localDate = LocalDate.of(2019, 1, 14);
+        LocalTime localTime = LocalTime.now();
+
+        ZipFileSummary zipFileSummary = new ZipFileSummary(
+            "test.zip",
+            localDate,
+            localTime,
+            localDate,
+            localTime.plusHours(1),
+            "BULKSCAN",
+            Status.CONSUMED.toString()
+        );
+
+        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+            .willReturn(singletonList(zipFileSummary));
+
+        mockMvc
+            .perform(get("/reports/zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.length()").value(1))
+            .andExpect(jsonPath("$.data[0].file_name").value("test.zip"))
+            .andExpect(jsonPath("$.data[0].date_received").value(localDate.toString()))
+            .andExpect(jsonPath("$.data[0].time_received").value(localTime.toString()))
+            .andExpect(jsonPath("$.data[0].date_processed").value(localDate.toString()))
+            .andExpect(jsonPath("$.data[0].time_processed").value(localTime.plusHours(1).toString()))
+            .andExpect(jsonPath("$.data[0].jurisdiction").value("BULKSCAN"))
+            .andExpect(jsonPath("$.data[0].status").value("CONSUMED"));
     }
 }

@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummary;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,6 +46,29 @@ public class ReportsController {
                     item.rejected,
                     item.jurisdiction,
                     item.date
+                ))
+                .collect(toList())
+        );
+    }
+
+    @GetMapping(path = "/zip-files-summary")
+    @ApiOperation("Retrieves zip files summary report for the given date and jurisdiction")
+    public ZipFilesSummaryReportListResponse getZipFilesSummary(
+        @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+        @RequestParam(name = "jurisdiction", required = false) String jurisdiction
+    ) {
+        List<ZipFileSummary> result = this.reportsService.getZipFilesSummary(date, jurisdiction);
+        return new ZipFilesSummaryReportListResponse(
+            result
+                .stream()
+                .map(item -> new ZipFilesSummaryReportItem(
+                    item.fileName,
+                    item.dateReceived,
+                    item.timeReceived,
+                    item.dateProcessed,
+                    item.timeProcessed,
+                    item.jurisdiction,
+                    item.status
                 ))
                 .collect(toList())
         );
