@@ -4,6 +4,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import joptsimple.internal.Strings;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,8 +126,16 @@ public class BlobProcessorTask extends Processor {
         // For this purpose it's more efficient to have a collection that
         // implements RandomAccess (e.g. ArrayList)
         List<String> zipFilenames = new ArrayList<>();
-        container.listBlobs().forEach(
-            b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
+        container
+            .listBlobs()
+            .forEach(b -> {
+                String fileName = FilenameUtils.getName(b.getUri().toString());
+                if (Strings.isNullOrEmpty(fileName)) {
+                    log.warn("Cannot extract filename from list blob item. URI: " + b.getUri().toString());
+                } else {
+                    zipFilenames.add(fileName);
+                }
+            }
         );
         Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
