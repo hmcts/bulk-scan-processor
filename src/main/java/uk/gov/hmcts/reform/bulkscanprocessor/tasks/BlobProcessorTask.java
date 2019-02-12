@@ -131,7 +131,7 @@ public class BlobProcessorTask extends Processor {
             .forEach(b -> {
                 String fileName = FilenameUtils.getName(b.getUri().toString());
                 if (Strings.isNullOrEmpty(fileName)) {
-                    log.warn("Cannot extract filename from list blob item. URI: " + b.getUri().toString());
+                    log.error("Cannot extract filename from list blob item. URI: {}", b.getUri());
                 } else {
                     zipFilenames.add(fileName);
                 }
