@@ -24,7 +24,7 @@ public class MessageHandlerConfig {
         );
 
     @Autowired(required = false)
-    @Qualifier("read-notifications")
+    @Qualifier("read-notifications-client")
     private IQueueClient readNotificationsQueueClient;
 
     @Autowired(required = false)

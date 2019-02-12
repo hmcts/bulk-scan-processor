@@ -25,14 +25,14 @@ public class ServiceBusConfiguration {
 
     @Bean(name = "envelopes-helper")
     public ServiceBusHelper envelopesQueueHelper(
-        @Qualifier("envelopes") IQueueClient queueClient
+        @Qualifier("envelopes-client") IQueueClient queueClient
     ) {
         return new ServiceBusHelper(queueClient, objectMapper);
     }
 
     @Bean(name = "notifications-helper")
     public ServiceBusHelper notificationsQueueHelper(
-        @Qualifier("notifications") IQueueClient queueClient
+        @Qualifier("notifications-client") IQueueClient queueClient
     ) {
         return new ServiceBusHelper(queueClient, objectMapper);
     }
@@ -40,7 +40,7 @@ public class ServiceBusConfiguration {
     @Bean(name = "read-notifications-completor")
     @ConditionalOnProperty(name = "queues.read-notifications.enabled", havingValue = "true")
     public MessageAutoCompletor readNotificationsMessageCompletor(
-        @Qualifier("read-notifications") IQueueClient queueClient
+        @Qualifier("read-notifications-client") IQueueClient queueClient
     ) {
         return new MessageAutoCompletor(queueClient);
     }

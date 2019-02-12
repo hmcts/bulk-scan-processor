@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
 @Profile("!nosb") // no servicebus queue handler registration
 public class QueueClientConfig {
 
-    @Bean("envelopes")
+    @Bean("envelopes-client")
     public IQueueClient envelopesQueueClient(
         @Value("${queues.envelopes.connection-string}") String connectionString,
         @Value("${queues.envelopes.queue-name}") String queueName
@@ -23,7 +23,7 @@ public class QueueClientConfig {
         return createQueueClient(connectionString, queueName);
     }
 
-    @Bean("notifications")
+    @Bean("notifications-client")
     public IQueueClient notificationsQueueClient(
         @Value("${queues.notifications.connection-string}") String connectionString,
         @Value("${queues.notifications.queue-name}") String queueName
@@ -31,7 +31,7 @@ public class QueueClientConfig {
         return createQueueClient(connectionString, queueName);
     }
 
-    @Bean("read-notifications")
+    @Bean("read-notifications-client")
     @ConditionalOnProperty(name = "queues.read-notifications.enabled", havingValue = "true")
     public IQueueClient readNotificationsQueueClient(
         @Value("${queues.read-notifications.connection-string}") String connectionString,
