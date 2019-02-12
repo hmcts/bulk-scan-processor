@@ -15,7 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelpe
 @Configuration
 @AutoConfigureAfter(QueueClientConfig.class)
 @Profile("!nosb") // no servicebus queue handler registration
-public class ServiceBusConfiguration {
+public class ServiceBusHelpersConfiguration {
 
     @Autowired
     private ObjectMapper objectMapper;
