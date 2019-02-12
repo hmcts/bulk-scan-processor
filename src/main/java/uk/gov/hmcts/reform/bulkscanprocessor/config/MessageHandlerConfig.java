@@ -5,8 +5,6 @@ import com.microsoft.azure.servicebus.MessageHandlerOptions;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 
 import java.time.Duration;
@@ -14,8 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 
-@Configuration
-@Profile("!nosb") // no servicebus queue handler registration
+@ServiceBusConfiguration
 public class MessageHandlerConfig {
 
     private static final ExecutorService NOTIFICATIONS_READ_EXEC =
