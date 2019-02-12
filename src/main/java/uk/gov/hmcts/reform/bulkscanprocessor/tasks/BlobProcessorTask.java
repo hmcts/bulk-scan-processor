@@ -135,8 +135,7 @@ public class BlobProcessorTask extends Processor {
                 } else {
                     zipFilenames.add(fileName);
                 }
-            }
-        );
+            });
         Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
