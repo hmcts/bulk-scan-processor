@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
@@ -34,6 +35,10 @@ public class ReportsService {
             .stream()
             .filter(it -> includeTestJurisdiction || !Objects.equals(it.jurisdiction, TEST_JURISDICTION))
             .collect(toList());
+    }
+
+    public List<ZipFileSummary> getZipFilesSummary(LocalDate date, String jurisdiction) {
+        throw new NotImplementedException("Not yet implemented");
     }
 
     EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
