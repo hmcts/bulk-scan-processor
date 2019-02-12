@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.google.common.base.Strings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import joptsimple.internal.Strings;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
