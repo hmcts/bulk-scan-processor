@@ -83,7 +83,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_400_if_date_is_invalid_for_zipfiles_sumamry_endpoint() throws Exception {
+    public void should_return_400_if_date_is_invalid_for_zipfiles_summary_endpoint() throws Exception {
         final String invalidDate = "2019-14-14";
 
         mockMvc
