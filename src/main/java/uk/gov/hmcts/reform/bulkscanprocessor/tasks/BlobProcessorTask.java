@@ -77,7 +77,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
-        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper
+        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.notificationsQueueHelper = notificationsQueueHelper;
@@ -92,7 +92,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
-        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper,
+        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {

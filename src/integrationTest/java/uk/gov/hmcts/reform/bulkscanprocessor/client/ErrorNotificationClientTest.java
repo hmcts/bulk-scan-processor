@@ -35,7 +35,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
 
-@ActiveProfiles("wiremock")
+@ActiveProfiles({"wiremock", "nosb"}) // no real Service Bus communication
 @AutoConfigureWireMock
 @ContextConfiguration(initializers = ErrorNotificationClientTest.ClientContextInitialiser.class)
 @RunWith(SpringRunner.class)
