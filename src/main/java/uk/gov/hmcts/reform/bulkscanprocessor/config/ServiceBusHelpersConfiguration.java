@@ -39,4 +39,11 @@ public class ServiceBusHelpersConfiguration {
     ) {
         return new MessageAutoCompletor(queueClient);
     }
+
+    @Bean(name = "processed-envelopes-completor")
+    public MessageAutoCompletor processedEnvelopesMessageCompletor(
+        @Qualifier("processed-envelopes-client") IQueueClient queueClient
+    ) {
+        return new MessageAutoCompletor(queueClient);
+    }
 }

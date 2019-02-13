@@ -57,6 +57,9 @@ queues:
   envelopes:
     connection-string: ${QUEUE_ENVELOPE_SEND:"NO_VALUE_SUPPLIED"}
     queue-name: envelopes
+  processed-envelopes:
+    connection-string: ${QUEUE_PROCESSED_ENVELOPES_READ:"NO_VALUE_SUPPLIED"}
+    queue-name: processed-envelopes
   notifications:
     connection-string: ${QUEUE_NOTIFICATIONS_SEND:"NO_VALUE_SUPPLIED"}
     queue-name: notifications
