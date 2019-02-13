@@ -96,6 +96,8 @@ withPipeline(type, product, component) {
       //Regex: Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*
       def serviceBusNamespace = serviceBusConnectionStr.substring(14).split("\\.")[0]
 
+      env.PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING = "${serviceBusConnectionStr};EntityPath=processed-envelopes"
+
       // create queue
       def queues = az "servicebus queue list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
       queueNames.each {
