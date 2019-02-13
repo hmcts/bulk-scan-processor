@@ -16,6 +16,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummary;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -58,15 +60,16 @@ public class ReportsController {
         @RequestParam(name = "jurisdiction", required = false) String jurisdiction
     ) {
         List<ZipFileSummary> result = this.reportsService.getZipFilesSummary(date, jurisdiction);
+        //TODO: the response model will be removed in the next PR
         return new ZipFilesSummaryReportListResponse(
             result
                 .stream()
                 .map(item -> new ZipFilesSummaryReportItem(
-                    item.fileName,
-                    item.dateReceived,
-                    item.timeReceived,
-                    item.dateProcessed,
-                    item.timeProcessed,
+                    item.zipFileName,
+                    LocalDateTime.ofInstant(item.createdDate, ZoneOffset.UTC).toLocalDate(),
+                    LocalDateTime.ofInstant(item.createdDate, ZoneOffset.UTC).toLocalTime(),
+                    LocalDateTime.ofInstant(item.completedDate, ZoneOffset.UTC).toLocalDate(),
+                    LocalDateTime.ofInstant(item.completedDate, ZoneOffset.UTC).toLocalTime(),
                     item.jurisdiction,
                     item.status
                 ))

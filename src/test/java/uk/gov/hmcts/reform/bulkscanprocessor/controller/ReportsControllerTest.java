@@ -13,8 +13,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSumma
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummary;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
@@ -93,20 +94,17 @@ public class ReportsControllerTest {
 
     @Test
     public void should_return_zipfiles_summary_result_generated_by_the_service() throws Exception {
-        LocalDate localDate = LocalDate.of(2019, 1, 14);
-        LocalTime localTime = LocalTime.of(12, 30, 10, 0);
+        Instant instant = Instant.parse("2019-01-14T12:30:10.123Z");
 
         ZipFileSummary zipFileSummary = new ZipFileSummary(
             "test.zip",
-            localDate,
-            localTime,
-            localDate,
-            localTime.plusHours(1),
+            instant,
+            instant.plus(1, ChronoUnit.HOURS),
             "BULKSCAN",
             Status.CONSUMED.toString()
         );
 
-        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+        given(reportsService.getZipFilesSummary(LocalDate.of(2019, 1, 14), "BULKSCAN"))
             .willReturn(singletonList(zipFileSummary));
 
         mockMvc
@@ -114,10 +112,10 @@ public class ReportsControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.length()").value(1))
             .andExpect(jsonPath("$.data[0].file_name").value("test.zip"))
-            .andExpect(jsonPath("$.data[0].date_received").value(localDate.toString()))
-            .andExpect(jsonPath("$.data[0].time_received").value("12:30:10.000"))
-            .andExpect(jsonPath("$.data[0].date_processed").value(localDate.toString()))
-            .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10.000"))
+            .andExpect(jsonPath("$.data[0].date_received").value("2019-01-14"))
+            .andExpect(jsonPath("$.data[0].time_received").value("12:30:10.123"))
+            .andExpect(jsonPath("$.data[0].date_processed").value("2019-01-14"))
+            .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10.123"))
             .andExpect(jsonPath("$.data[0].jurisdiction").value("BULKSCAN"))
             .andExpect(jsonPath("$.data[0].status").value("CONSUMED"));
     }
