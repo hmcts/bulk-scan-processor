@@ -63,7 +63,6 @@ public class ZipFilesSummaryRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new Item("test1.zip", envelope1.getCreatedAt(), completedAt, "BULKSCAN", COMPLETED.toString()),
-                new Item("test1.zip", envelope1.getCreatedAt(), completedAt, "BULKSCAN", COMPLETED.toString()),
                 new Item("test2.zip", envelope2.getCreatedAt(), null, "BULKSCAN", CONSUMED.toString()),
                 new Item("test3.zip", envelope3.getCreatedAt(), null, "BULKSCAN", PROCESSED.toString())
             );
