@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.google.common.base.Strings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -76,7 +77,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
-        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper
+        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.notificationsQueueHelper = notificationsQueueHelper;
@@ -91,7 +92,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
-        @Qualifier("notifications") ServiceBusHelper notificationsQueueHelper,
+        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
         String publicKeyDerFilename
     ) {
@@ -125,9 +126,16 @@ public class BlobProcessorTask extends Processor {
         // For this purpose it's more efficient to have a collection that
         // implements RandomAccess (e.g. ArrayList)
         List<String> zipFilenames = new ArrayList<>();
-        container.listBlobs().forEach(
-            b -> zipFilenames.add(FilenameUtils.getName(b.getUri().toString()))
-        );
+        container
+            .listBlobs()
+            .forEach(b -> {
+                String fileName = FilenameUtils.getName(b.getUri().toString());
+                if (Strings.isNullOrEmpty(fileName)) {
+                    log.error("Cannot extract filename from list blob item. URI: {}", b.getUri());
+                } else {
+                    zipFilenames.add(fileName);
+                }
+            });
         Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);

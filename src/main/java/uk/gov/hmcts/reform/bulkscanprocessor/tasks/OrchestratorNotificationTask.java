@@ -35,7 +35,7 @@ public class OrchestratorNotificationTask {
 
     // region constructor
     public OrchestratorNotificationTask(
-        @Qualifier("envelopes") ServiceBusHelper serviceBusHelper,
+        @Qualifier("envelopes-helper") ServiceBusHelper serviceBusHelper,
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository processEventRepo
     ) {

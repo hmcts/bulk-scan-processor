@@ -7,6 +7,9 @@ import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers.ErrorNotificationExceptionHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
@@ -18,6 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+@Service
+@ConditionalOnProperty(name = "queues.read-notifications.enabled", havingValue = "true")
 public class ErrorNotificationHandler implements IMessageHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ErrorNotificationHandler.class);
@@ -41,7 +46,7 @@ public class ErrorNotificationHandler implements IMessageHandler {
     public ErrorNotificationHandler(
         ErrorNotificationService service,
         ObjectMapper mapper,
-        MessageAutoCompletor autoCompletor
+        @Qualifier("read-notifications-completor") MessageAutoCompletor autoCompletor
     ) {
         this.service = service;
         this.mapper = mapper;
