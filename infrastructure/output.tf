@@ -39,6 +39,10 @@ output "TEST_STORAGE_ACCOUNT_URL" {
   value = "${local.storage_account_url}"
 }
 
+output "PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING" {
+  value = "${data.terraform_remote_state.shared_infra.processed_envelopes_queue_primary_send_connection_string}"
+}
+
 output "api_gateway_url" {
   value = "https://core-api-mgmt-${var.env}.azure-api.net/${local.api_base_path}"
 }
