@@ -1,18 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.StorageUri;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,42 +14,13 @@ import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class EnvelopeDeletionTest {
+public class EnvelopeDeletionTest extends BaseFunctionalTest {
 
-    private long scanDelay;
-    private CloudBlobContainer inputContainer;
-    private CloudBlobContainer rejectedContainer;
     private List<String> filesToDeleteAfterTest = new ArrayList<>();
-    private TestHelper testHelper;
-    private String testPrivateKeyDer;
 
     @Before
     public void setUp() throws Exception {
-        Config conf = ConfigFactory.load();
-        this.scanDelay = Long.parseLong(conf.getString("test-scan-delay"));
-        this.testPrivateKeyDer = conf.getString("test-private-key-der");
-
-        StorageCredentialsAccountAndKey storageCredentials =
-            new StorageCredentialsAccountAndKey(
-                conf.getString("test-storage-account-name"),
-                conf.getString("test-storage-account-key")
-            );
-
-        CloudBlobClient cloudBlobClient = new CloudStorageAccount(
-            storageCredentials,
-            new StorageUri(new URI(conf.getString("test-storage-account-url")), null),
-            null,
-            null
-        )
-            .createCloudBlobClient();
-
-        String inputContainerName = conf.getString("test-storage-container-name");
-        String rejectedContainerName = inputContainerName + "-rejected";
-
-        inputContainer = cloudBlobClient.getContainerReference(inputContainerName);
-        rejectedContainer = cloudBlobClient.getContainerReference(rejectedContainerName);
-
-        testHelper = new TestHelper();
+        super.setUp();
     }
 
     @After
