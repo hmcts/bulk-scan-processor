@@ -1,25 +1,32 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class ZipFileSummary {
 
-    public final String zipFileName;
-    public final Instant createdDate;
-    public final Instant completedDate;
+    public final String fileName;
+    public final LocalDate dateReceived;
+    public final LocalTime timeReceived;
+    public final LocalDate dateProcessed;
+    public final LocalTime timeProcessed;
     public final String jurisdiction;
     public final String status;
 
     // region constructor
-    public ZipFileSummary(String zipFileName,
-                          Instant createdDate,
-                          Instant completedDate,
+    public ZipFileSummary(String fileName,
+                          LocalDate dateReceived,
+                          LocalTime timeReceived,
+                          LocalDate dateProcessed,
+                          LocalTime timeProcessed,
                           String jurisdiction,
                           String status
     ) {
-        this.zipFileName = zipFileName;
-        this.createdDate = createdDate;
-        this.completedDate = completedDate;
+        this.fileName = fileName;
+        this.dateReceived = dateReceived;
+        this.timeReceived = timeReceived;
+        this.dateProcessed = dateProcessed;
+        this.timeProcessed = timeProcessed;
         this.jurisdiction = jurisdiction;
         this.status = status;
     }
