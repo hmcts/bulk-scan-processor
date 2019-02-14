@@ -232,16 +232,37 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SIG_VERIFY_FAILED);
     }
 
+    @Test
+    public void should_record_zipfile_processing_event_when_processing_zipfile_fails() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_metadata"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+
+        assertThat(processEventRepository.findAll())
+            .hasOnlyOneElementSatisfying(e -> {
+                assertThat(e.getContainer()).isEqualTo(testContainer.getName());
+                assertThat(e.getEvent()).isEqualTo(Event.ZIPFILE_PROCESSING_STARTED);
+                assertThat(e.getId()).isNotNull();
+                assertThat(e.getReason()).isNull();
+            });
+    }
+
     private void eventWasCreated(Event event) {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(1);
+        assertThat(processEvents).hasSize(2);
 
-        ProcessEvent processEvent = processEvents.get(0);
-
-        assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getEvent()).isEqualTo(event);
-        assertThat(processEvent.getId()).isNotNull();
-        assertThat(processEvent.getReason()).isNotBlank();
+        assertThat(processEvents)
+            .hasOnlyOneElementSatisfying(e -> {
+                assertThat(e.getContainer()).isEqualTo(testContainer.getName());
+                assertThat(e.getEvent()).isEqualTo(event);
+                assertThat(e.getId()).isNotNull();
+                assertThat(e.getReason()).isNotBlank();
+            });
     }
 
     private void errorWasSent(String zipFileName, ErrorCode code) {

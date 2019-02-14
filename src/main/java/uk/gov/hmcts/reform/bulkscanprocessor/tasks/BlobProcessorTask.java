@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
 /**
@@ -172,6 +173,7 @@ public class BlobProcessorTask extends Processor {
             if (!isReadyToBeProcessed(cloudBlockBlob)) {
                 logAbortedProcessingNotReadyFile(zipFilename, container.getName());
             } else {
+                registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
                 processZipFile(container, cloudBlockBlob, zipFilename);
             }
         }

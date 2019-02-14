@@ -41,6 +41,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -107,6 +108,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
             .containsExactlyInAnyOrder(
+                ZIPFILE_PROCESSING_STARTED,
                 DOC_UPLOADED,
                 DOC_PROCESSED
             );
@@ -147,6 +149,13 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         //This verifies only pdf included in the zip with metadata was processed
         verify(documentManagementService).uploadDocuments(ImmutableList.of(okPdf));
 
+        // Verify if event registered for zipfile processing event
+        List<ProcessEvent> processEvents = processEventRepository.findAll();
+        assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
+            .contains(
+                ZIPFILE_PROCESSING_STARTED
+            );
+
         //Verify first pdf file was never processed
         byte[] pdfFromBadZip = toByteArray(getResource("zipcontents/missing_metadata/1111001.pdf"));
 
@@ -185,7 +194,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .map(ProcessEvent::getEvent)
             .collect(toList());
 
-        assertThat(actualEvents).containsOnly(DOC_UPLOADED, DOC_PROCESSED);
+        assertThat(actualEvents).containsOnly(ZIPFILE_PROCESSING_STARTED, DOC_UPLOADED, DOC_PROCESSED);
     }
 
     @Test
@@ -216,7 +225,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             .map(ProcessEvent::getEvent)
             .collect(toList());
 
-        assertThat(actualEvents).containsOnly(DOC_UPLOAD_FAILURE);
+        assertThat(actualEvents).containsOnly(ZIPFILE_PROCESSING_STARTED, DOC_UPLOAD_FAILURE);
     }
 
     @Test
