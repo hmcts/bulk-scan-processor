@@ -66,12 +66,12 @@ public class WhenRunningTheApplicationTest {
                 .createCloudBlobClient();
         }
 
-        @Bean(name = "notifications")
+        @Bean(name = "notifications-helper")
         public ServiceBusHelper notificationsQueueHelper() {
             return mock(ServiceBusHelper.class);
         }
 
-        @Bean(name = "envelopes")
+        @Bean(name = "envelopes-helper")
         public ServiceBusHelper envelopesQueueHelper() {
             return mock(ServiceBusHelper.class);
         }
