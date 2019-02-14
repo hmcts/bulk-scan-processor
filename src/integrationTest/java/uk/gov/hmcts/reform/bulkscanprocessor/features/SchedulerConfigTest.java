@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
     }
 )
 @RunWith(SpringRunner.class)
-public class WhenRunningTheApplicationTest {
+public class SchedulerConfigTest {
 
     @SpyBean
     private LockProvider lockProvider;
