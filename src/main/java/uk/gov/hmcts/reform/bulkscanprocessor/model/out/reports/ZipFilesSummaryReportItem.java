@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
@@ -14,12 +15,14 @@ public class ZipFilesSummaryReportItem {
     public final LocalDate dateReceived;
 
     @JsonProperty("time_received")
+    @JsonFormat(pattern = "HH:mm:ss.SSS")
     public final LocalTime timeReceived;
 
     @JsonProperty("date_processed")
     public final LocalDate dateProcessed;
 
     @JsonProperty("time_processed")
+    @JsonFormat(pattern = "HH:mm:ss.SSS")
     public final LocalTime timeProcessed;
 
     @JsonProperty("jurisdiction")
