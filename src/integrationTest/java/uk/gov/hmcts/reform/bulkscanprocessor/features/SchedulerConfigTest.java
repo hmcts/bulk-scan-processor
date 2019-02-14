@@ -37,7 +37,6 @@ public class SchedulerConfigTest {
 
     @Test
     public void should_integrate_with_shedlock() {
-        waitForBlobProcessor();
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
         assertThat(configCaptor.getAllValues())
@@ -46,14 +45,6 @@ public class SchedulerConfigTest {
                 "re-upload-failures",
                 "send-orchestrator-notification"
             );
-    }
-
-    private void waitForBlobProcessor() {
-        try {
-            Thread.sleep(2);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @TestConfiguration
