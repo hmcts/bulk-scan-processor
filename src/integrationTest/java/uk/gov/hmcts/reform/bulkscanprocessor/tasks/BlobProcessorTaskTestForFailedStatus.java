@@ -30,6 +30,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAn
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -256,7 +257,18 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents).hasSize(2);
 
+        // Verify that Zip file processing event is created
         assertThat(processEvents)
+            .filteredOn(e -> e.getEvent().equals(ZIPFILE_PROCESSING_STARTED))
+            .hasOnlyOneElementSatisfying(e -> {
+                assertThat(e.getContainer()).isEqualTo(testContainer.getName());
+                assertThat(e.getEvent()).isEqualTo(event);
+                assertThat(e.getId()).isNotNull();
+                assertThat(e.getReason()).isNull();
+            });
+
+        assertThat(processEvents)
+            .filteredOn(e -> e.getEvent().equals(event))
             .hasOnlyOneElementSatisfying(e -> {
                 assertThat(e.getContainer()).isEqualTo(testContainer.getName());
                 assertThat(e.getEvent()).isEqualTo(event);
