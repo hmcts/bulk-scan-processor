@@ -149,13 +149,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         //This verifies only pdf included in the zip with metadata was processed
         verify(documentManagementService).uploadDocuments(ImmutableList.of(okPdf));
 
-        // Verify if event registered for zipfile processing event
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
-            .contains(
-                ZIPFILE_PROCESSING_STARTED
-            );
-
         //Verify first pdf file was never processed
         byte[] pdfFromBadZip = toByteArray(getResource("zipcontents/missing_metadata/1111001.pdf"));
 
