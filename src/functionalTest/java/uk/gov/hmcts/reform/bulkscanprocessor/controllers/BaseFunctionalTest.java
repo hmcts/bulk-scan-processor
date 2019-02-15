@@ -7,8 +7,12 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
+
+import static com.jayway.awaitility.Awaitility.await;
 
 public abstract class BaseFunctionalTest {
 
@@ -51,5 +55,17 @@ public abstract class BaseFunctionalTest {
 
         inputContainer = cloudBlobClient.getContainerReference(inputContainerName);
         rejectedContainer = cloudBlobClient.getContainerReference(rejectedContainerName);
+    }
+
+    protected void waitForFileToBeProcessed(String fileName) {
+        String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
+
+        await("processing of file " + fileName + "should end")
+            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .pollInterval(500, TimeUnit.MILLISECONDS)
+            .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
+                .filter(env -> env.getStatus() == Status.NOTIFICATION_SENT)
+                .isPresent()
+            );
     }
 }
