@@ -30,14 +30,13 @@ import static org.mockito.Mockito.verify;
     }
 )
 @RunWith(SpringRunner.class)
-public class WhenRunningTheApplicationTest {
+public class SchedulerConfigTest {
 
     @SpyBean
     private LockProvider lockProvider;
 
     @Test
     public void should_integrate_with_shedlock() {
-        waitForBlobProcessor();
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
         assertThat(configCaptor.getAllValues())
@@ -46,14 +45,6 @@ public class WhenRunningTheApplicationTest {
                 "re-upload-failures",
                 "send-orchestrator-notification"
             );
-    }
-
-    private void waitForBlobProcessor() {
-        try {
-            Thread.sleep(2);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @TestConfiguration
