@@ -59,7 +59,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
 
         // and
-        eventWasCreated(DOC_UPLOAD_FAILURE);
+        eventsCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> ObjectUtils.isEmpty(item.getDocumentUrl()));
 
         // and
-        eventWasCreated(DOC_UPLOAD_FAILURE);
+        eventsCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(e -> ObjectUtils.isEmpty(e.getDocumentUrl()));
 
         // and
-        eventWasCreated(DOC_UPLOAD_FAILURE);
+        eventsCreated(DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsCreated(FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
     }
 
@@ -136,7 +136,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsCreated(FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -150,7 +150,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsCreated(FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -164,7 +164,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsCreated(FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -178,7 +178,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsCreated(FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -192,7 +192,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsCreated(FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
     }
 
@@ -206,7 +206,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsCreated(FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -229,51 +229,30 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(Event.DOC_SIGNATURE_FAILURE);
+        eventsCreated(Event.DOC_SIGNATURE_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SIG_VERIFY_FAILED);
     }
 
-    @Test
-    public void should_record_zipfile_processing_event_when_processing_zipfile_fails() throws Exception {
-        // given
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_metadata"));
-
-        // when
-        processor.processBlobs();
-
-        // then
-        envelopeWasNotCreated();
-
-        assertThat(processEventRepository.findAll())
-            .hasOnlyOneElementSatisfying(e -> {
-                assertThat(e.getContainer()).isEqualTo(testContainer.getName());
-                assertThat(e.getEvent()).isEqualTo(Event.ZIPFILE_PROCESSING_STARTED);
-                assertThat(e.getId()).isNotNull();
-                assertThat(e.getReason()).isNull();
-            });
-    }
-
-    private void eventWasCreated(Event event) {
+    private void eventsCreated(Event event) {
         List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(2);
 
         // Verify that Zip file processing event is created
         assertThat(processEvents)
-            .filteredOn(e -> e.getEvent().equals(ZIPFILE_PROCESSING_STARTED))
-            .hasOnlyOneElementSatisfying(e -> {
-                assertThat(e.getContainer()).isEqualTo(testContainer.getName());
-                assertThat(e.getEvent()).isEqualTo(event);
-                assertThat(e.getId()).isNotNull();
-                assertThat(e.getReason()).isNull();
+            .filteredOn(processEvent -> processEvent.getEvent().equals(Event.ZIPFILE_PROCESSING_STARTED))
+            .hasOnlyOneElementSatisfying(processEvent -> {
+                assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
+                assertThat(processEvent.getEvent()).isEqualTo(ZIPFILE_PROCESSING_STARTED);
+                assertThat(processEvent.getId()).isNotNull();
+                assertThat(processEvent.getReason()).isNull();
             });
 
         assertThat(processEvents)
-            .filteredOn(e -> e.getEvent().equals(event))
-            .hasOnlyOneElementSatisfying(e -> {
-                assertThat(e.getContainer()).isEqualTo(testContainer.getName());
-                assertThat(e.getEvent()).isEqualTo(event);
-                assertThat(e.getId()).isNotNull();
-                assertThat(e.getReason()).isNotBlank();
+            .filteredOn(processEvent -> processEvent.getEvent().equals(event))
+            .hasOnlyOneElementSatisfying(processEvent -> {
+                assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
+                assertThat(processEvent.getEvent()).isEqualTo(event);
+                assertThat(processEvent.getId()).isNotNull();
+                assertThat(processEvent.getReason()).isNotBlank();
             });
     }
 

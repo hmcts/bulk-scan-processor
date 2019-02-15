@@ -173,7 +173,6 @@ public class BlobProcessorTask extends Processor {
             if (!isReadyToBeProcessed(cloudBlockBlob)) {
                 logAbortedProcessingNotReadyFile(zipFilename, container.getName());
             } else {
-                registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
                 processZipFile(container, cloudBlockBlob, zipFilename);
             }
         }
@@ -191,6 +190,8 @@ public class BlobProcessorTask extends Processor {
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+                registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
+
                 ZipFileProcessingResult processingResult =
                     processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
 
