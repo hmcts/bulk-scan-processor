@@ -10,6 +10,8 @@ public interface ZipFileSummaryItem {
 
     Instant getCompletedDate();
 
+    String getContainer();
+
     String getJurisdiction();
 
     String getStatus();

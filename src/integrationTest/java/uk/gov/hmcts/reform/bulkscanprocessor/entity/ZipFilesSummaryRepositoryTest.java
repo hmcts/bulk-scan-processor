@@ -14,9 +14,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
@@ -24,6 +26,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -49,10 +52,13 @@ public class ZipFilesSummaryRepositoryTest {
         Instant completedAt = envelope1.getCreatedAt().plus(2, HOURS);
 
         dbHasEvents(
+            event("c1", "test1.zip", envelope1.getCreatedAt().minus(30, MINUTES), ZIPFILE_PROCESSING_STARTED),
             event("c1", "test1.zip", envelope1.getCreatedAt().plus(1, HOURS), DOC_PROCESSED_NOTIFICATION_SENT),
             event("c1", "test1.zip", completedAt, Event.COMPLETED),
-            event("c2", "test2.zip", envelope2.getCreatedAt().plus(5, HOURS), DOC_PROCESSED_NOTIFICATION_SENT),
-            event("c4", "test4.zip", envelope2.getCreatedAt().plus(3, HOURS), FILE_VALIDATION_FAILURE)
+            event("c2", "test2.zip", envelope2.getCreatedAt().minus(1, MINUTES), ZIPFILE_PROCESSING_STARTED),
+            event("c2", "test2.zip", envelope2.getCreatedAt().plus(10, MINUTES), DOC_PROCESSED_NOTIFICATION_SENT),
+            event("c4", "test4.zip", envelope3.getCreatedAt().plus(1, HOURS), ZIPFILE_PROCESSING_STARTED),
+            event("c4", "test4.zip", envelope3.getCreatedAt().plus(65, MINUTES), FILE_VALIDATION_FAILURE)
         );
 
         // when
@@ -62,19 +68,26 @@ public class ZipFilesSummaryRepositoryTest {
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Item("test1.zip", envelope1.getCreatedAt(), completedAt, "BULKSCAN", COMPLETED.toString()),
-                new Item("test2.zip", envelope2.getCreatedAt(), null, "BULKSCAN", CONSUMED.toString()),
-                new Item("test3.zip", envelope3.getCreatedAt(), null, "BULKSCAN", PROCESSED.toString())
+                new Item(
+                    "test1.zip", envelope1.getCreatedAt().minus(30, MINUTES),
+                    completedAt, "c1", "BULKSCAN", COMPLETED.toString()
+                ),
+                new Item("test2.zip", envelope2.getCreatedAt().minus(1, MINUTES),
+                    null, "c2", "BULKSCAN", CONSUMED.toString()
+                ),
+                new Item("test4.zip", envelope3.getCreatedAt(), null, "c4", null, null)
             );
     }
 
     @Test
-    public void should_return_all_envelopes_when_no_events_are_registered() {
+    public void should_return_all_zipfiles_summary_from_events_when_envelopes_are_not_created() {
         // given
-        Envelope envelope1 = envelope("c1", EnvelopeCreator.envelope("test1.zip", "BULKSCAN", CONSUMED));
-        Envelope envelope2 = envelope("c2", EnvelopeCreator.envelope("test2.zip", "BULKSCAN", CONSUMED));
-
-        dbHasEnvelopes(envelope1, envelope2);
+        Instant createdAt = Instant.now();
+        dbHasEvents(
+            event("c1", "test1.zip", createdAt, Event.ZIPFILE_PROCESSING_STARTED),
+            event("c1", "test1.zip", createdAt.plus(1, ChronoUnit.MINUTES), Event.FILE_VALIDATION_FAILURE),
+            event("c1", "test2.zip", createdAt.plus(1, HOURS), Event.ZIPFILE_PROCESSING_STARTED)
+        );
 
         // when
         List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.now());
@@ -83,8 +96,12 @@ public class ZipFilesSummaryRepositoryTest {
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Item("test1.zip", envelope1.getCreatedAt(), null, "BULKSCAN", CONSUMED.toString()),
-                new Item("test2.zip", envelope2.getCreatedAt(), null, "BULKSCAN", CONSUMED.toString())
+                new Item(
+                    "test1.zip", createdAt, null, "c1", null, ZIPFILE_PROCESSING_STARTED.toString()
+                ),
+                new Item(
+                    "test2.zip", createdAt.plus(1, HOURS), null, "c1", null, ZIPFILE_PROCESSING_STARTED.toString()
+                )
             );
     }
 

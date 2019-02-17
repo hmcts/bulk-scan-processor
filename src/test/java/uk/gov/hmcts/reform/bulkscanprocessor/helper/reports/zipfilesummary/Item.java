@@ -9,18 +9,21 @@ public class Item implements ZipFileSummaryItem {
     private final String zipFileName;
     private final Instant createdDate;
     private final Instant completedDate;
+    private final String container;
     private final String jurisdiction;
     private final String status;
 
     public Item(String zipFileName,
                 Instant createdDate,
                 Instant completedDate,
+                String container,
                 String jurisdiction,
                 String status
     ) {
         this.zipFileName = zipFileName;
         this.createdDate = createdDate;
         this.completedDate = completedDate;
+        this.container = container;
         this.jurisdiction = jurisdiction;
         this.status = status;
     }
@@ -38,6 +41,11 @@ public class Item implements ZipFileSummaryItem {
     @Override
     public Instant getCompletedDate() {
         return completedDate;
+    }
+
+    @Override
+    public String getContainer() {
+        return container;
     }
 
     @Override
