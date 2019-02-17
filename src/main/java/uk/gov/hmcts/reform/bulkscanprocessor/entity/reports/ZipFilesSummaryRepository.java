@@ -22,7 +22,7 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
             + "LEFT OUTER JOIN \n"
             + "(SELECT container, zipfilename, MAX(createdat) AS completedDate "
             + "FROM process_events \n"
-            + "WHERE event = 'DOC_PROCESSED'  \n"
+            + "WHERE event = 'COMPLETED'  \n"
             + "GROUP BY container, zipfilename) e2 \n"
             + "ON e1.container = e2.container AND e1.zipfilename = e2.zipfilename\n"
             + "LEFT OUTER JOIN envelopes env \n"
