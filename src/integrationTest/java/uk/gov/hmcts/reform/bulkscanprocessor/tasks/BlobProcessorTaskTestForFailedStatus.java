@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -21,6 +20,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -28,8 +28,10 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_SIGNATURE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -58,7 +60,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
 
         // and
-        eventWasCreated(DOC_UPLOAD_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -86,7 +88,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> ObjectUtils.isEmpty(item.getDocumentUrl()));
 
         // and
-        eventWasCreated(DOC_UPLOAD_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -108,7 +110,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         assertThat(actualEnvelope.getScannableItems()).allMatch(e -> ObjectUtils.isEmpty(e.getDocumentUrl()));
 
         // and
-        eventWasCreated(DOC_UPLOAD_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -121,7 +123,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
     }
 
@@ -135,7 +137,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -149,7 +151,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -163,7 +165,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -177,7 +179,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -191,7 +193,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
     }
 
@@ -205,7 +207,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
@@ -228,20 +230,18 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // then
         envelopeWasNotCreated();
-        eventWasCreated(Event.DOC_SIGNATURE_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_SIGNATURE_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SIG_VERIFY_FAILED);
     }
 
-    private void eventWasCreated(Event event) {
-        List<ProcessEvent> processEvents = processEventRepository.findAll();
-        assertThat(processEvents).hasSize(1);
-
-        ProcessEvent processEvent = processEvents.get(0);
-
-        assertThat(processEvent.getContainer()).isEqualTo(testContainer.getName());
-        assertThat(processEvent.getEvent()).isEqualTo(event);
-        assertThat(processEvent.getId()).isNotNull();
-        assertThat(processEvent.getReason()).isNotBlank();
+    private void eventsWereCreated(Event event1, Event event2) {
+        assertThat(processEventRepository.findAll())
+            .hasSize(2)
+            .extracting(e -> tuple(e.getContainer(), e.getEvent()))
+            .containsExactlyInAnyOrder(
+                tuple(testContainer.getName(), event1),
+                tuple(testContainer.getName(), event2)
+            );
     }
 
     private void errorWasSent(String zipFileName, ErrorCode code) {

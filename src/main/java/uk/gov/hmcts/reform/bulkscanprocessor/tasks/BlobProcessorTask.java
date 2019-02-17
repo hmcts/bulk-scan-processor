@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
 /**
@@ -189,6 +190,8 @@ public class BlobProcessorTask extends Processor {
 
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+                registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
+
                 ZipFileProcessingResult processingResult =
                     processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
 
