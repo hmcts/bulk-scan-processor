@@ -41,8 +41,8 @@ public class ZipFilesSummaryRepositoryTest {
     @Test
     public void should_join_envelopes_and_events_and_return_summary_by_date() {
         // given
-        Instant createdDate = Instant.now();
-        Instant completedDate = createdDate.plus(10, MINUTES);
+        Instant createdDate = Instant.parse("2019-02-15T14:15:23.456Z");
+        Instant completedDate = Instant.parse("2019-02-15T14:20:33.656Z");
 
         Envelope envelope1 = envelope("c1", EnvelopeCreator.envelope("test1.zip", "BULKSCAN", COMPLETED));
         Envelope envelope2 = envelope("c2", EnvelopeCreator.envelope("test2.zip", "BULKSCAN", CONSUMED));
@@ -59,7 +59,7 @@ public class ZipFilesSummaryRepositoryTest {
         );
 
         // when
-        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.now());
+        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
 
         // then
         assertThat(result)
@@ -78,26 +78,54 @@ public class ZipFilesSummaryRepositoryTest {
     @Test
     public void should_return_all_zipfiles_summary_from_events_when_envelopes_are_not_created() {
         // given
-        Instant createdAt = Instant.now();
+        Instant createdAt = Instant.parse("2019-02-15T14:15:23.456Z");
 
         dbHasEvents(
-            event("c1", "test1.zip", createdAt.minus(1, MINUTES), Event.ZIPFILE_PROCESSING_STARTED),
+            event("c1", "test1.zip", createdAt, Event.ZIPFILE_PROCESSING_STARTED),
             event("c1", "test1.zip", createdAt.minus(2, MINUTES), Event.FILE_VALIDATION_FAILURE),
             event("c1", "test2.zip", createdAt.minus(10, MINUTES), Event.ZIPFILE_PROCESSING_STARTED)
         );
 
         // when
-        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.now());
+        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
 
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new Item(
-                    "test1.zip", createdAt.minus(1, MINUTES), null, "c1", null, ZIPFILE_PROCESSING_STARTED.toString()
+                    "test1.zip", createdAt, null, "c1", null, ZIPFILE_PROCESSING_STARTED.toString()
                 ),
                 new Item(
                     "test2.zip", createdAt.minus(10, MINUTES), null, "c1", null, ZIPFILE_PROCESSING_STARTED.toString()
+                )
+            );
+    }
+
+    @Test
+    public void should_return_zipfilesummary_for_the_requested_date_when_completed_date_is_not_same_as_createdDate() {
+        // given
+        Instant createdAt = Instant.parse("2019-02-15T23:59:23.456Z");
+        Instant nextDay = Instant.parse("2019-02-16T00:00:23.456Z");
+
+        Envelope envelope1 = envelope("c1", EnvelopeCreator.envelope("test1.zip", "BULKSCAN", COMPLETED));
+        Envelope envelope2 = envelope("c2", EnvelopeCreator.envelope("test2.zip", "BULKSCAN", CONSUMED));
+
+        dbHasEvents(
+            event("c1", "test1.zip", createdAt, Event.ZIPFILE_PROCESSING_STARTED),
+            event("c1", "test1.zip", nextDay, Event.COMPLETED),
+            event("c1", "test2.zip", nextDay, Event.ZIPFILE_PROCESSING_STARTED)
+        );
+
+        // when
+        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
+                new Item(
+                    "test1.zip", createdAt, nextDay, "c1", null, ZIPFILE_PROCESSING_STARTED.toString()
                 )
             );
     }
