@@ -71,7 +71,7 @@ withPipeline(type, product, component) {
       def queueNames = [
         "envelopes",
         "notifications",
-        "processed"
+        "processed1"
       ]
       def storageContainers = [testInputStorageContainerName, testRejectedStorageContainerName, "sscs"]
 
@@ -100,7 +100,7 @@ withPipeline(type, product, component) {
       def queues = az "servicebus queue list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
       queueNames.each {
         if (!queues.contains("${it}")) {
-          az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${it}"
+          az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name '${it}'"
         }
       }
     }
