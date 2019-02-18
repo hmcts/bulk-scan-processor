@@ -70,7 +70,8 @@ withPipeline(type, product, component) {
       def serviceBusSecret = "${aksServiceName}-servicebus-secret"
       def queueNames = [
         "envelopes",
-        "notifications"
+        "notifications",
+        "processed-envelopes"
       ]
       def storageContainers = [testInputStorageContainerName, testRejectedStorageContainerName, "sscs"]
 
