@@ -122,7 +122,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     }
 
     private List<ListBlobItem> searchByName(CloudBlobContainer container, String fileName) {
-        Iterable<ListBlobItem> blobs = container.listBlobs(null, false, EnumSet.of(SNAPSHOTS), null, null);
+        Iterable<ListBlobItem> blobs = container.listBlobs(null, true, EnumSet.of(SNAPSHOTS), null, null);
 
         return stream(blobs.spliterator(), false)
             .filter(b -> b.getUri().getPath().contains(fileName))
