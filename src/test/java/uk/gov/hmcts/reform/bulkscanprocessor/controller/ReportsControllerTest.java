@@ -94,7 +94,7 @@ public class ReportsControllerTest {
     @Test
     public void should_return_zipfiles_summary_result_generated_by_the_service() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
-        LocalTime localTime = LocalTime.now();
+        LocalTime localTime = LocalTime.of(12, 30, 10, 0);
 
         ZipFileSummary zipFileSummary = new ZipFileSummary(
             "test.zip",
@@ -115,9 +115,9 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data.length()").value(1))
             .andExpect(jsonPath("$.data[0].file_name").value("test.zip"))
             .andExpect(jsonPath("$.data[0].date_received").value(localDate.toString()))
-            .andExpect(jsonPath("$.data[0].time_received").value(localTime.toString()))
+            .andExpect(jsonPath("$.data[0].time_received").value("12:30:10.000"))
             .andExpect(jsonPath("$.data[0].date_processed").value(localDate.toString()))
-            .andExpect(jsonPath("$.data[0].time_processed").value(localTime.plusHours(1).toString()))
+            .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10.000"))
             .andExpect(jsonPath("$.data[0].jurisdiction").value("BULKSCAN"))
             .andExpect(jsonPath("$.data[0].status").value("CONSUMED"));
     }
