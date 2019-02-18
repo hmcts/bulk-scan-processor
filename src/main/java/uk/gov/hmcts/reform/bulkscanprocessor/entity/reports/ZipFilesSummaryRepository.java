@@ -13,21 +13,19 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
 
     @Query(
         nativeQuery = true,
-        value = "SELECT env.jurisdiction, env.status, "
-            + "e1.container, e1.zipfilename, e1.createdDate, e2.completedDate "
-            + "FROM \n"
+        value = "SELECT env.jurisdiction, env.status, e1.container, "
+            + "e1.zipfilename, e1.createdDate, e2.completedDate FROM \n"
             + "(SELECT container, zipfilename, MIN(createdat) AS createdDate "
-            + "FROM process_events   \n"
+            + "FROM process_events  \n"
+            + "WHERE CAST(createdat AS DATE) = :date\n"
             + "GROUP BY container, zipfilename) e1\n"
-            + "LEFT OUTER JOIN \n"
-            + "(SELECT container, zipfilename, MAX(createdat) AS completedDate "
-            + "FROM process_events \n"
-            + "WHERE event = 'COMPLETED'  \n"
-            + "GROUP BY container, zipfilename) e2 \n"
-            + "ON e1.container = e2.container AND e1.zipfilename = e2.zipfilename\n"
-            + "LEFT OUTER JOIN envelopes env \n"
+            + "LEFT JOIN \n"
+            + "(SELECT container, zipfilename, event, MAX(createdat) AS completedDate FROM process_events \n"
+            + "GROUP BY container, zipfilename, event) e2 \n"
+            + "ON e1.container = e2.container AND e1.zipfilename = e2.zipfilename AND e2.event = 'COMPLETED'\n"
+            + "LEFT JOIN envelopes env \n"
             + "ON e1.container = env.container AND e1.zipfilename = env.zipfilename \n"
-            + "WHERE CAST(e1.createdDate AS DATE) = :date"
+            + "ORDER BY e1.createdDate ASC"
     )
     List<ZipFileSummaryItem> getZipFileSummaryReportFor(@Param("date") LocalDate date);
 
