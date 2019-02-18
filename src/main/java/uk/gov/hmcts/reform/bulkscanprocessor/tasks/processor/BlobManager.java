@@ -120,6 +120,10 @@ public class BlobManager {
         log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
         CloudBlockBlob inputBlob = getBlob(fileName, inputContainerName);
         CloudBlockBlob rejectedBlob = getBlob(fileName, rejectedContainerName);
+        if (rejectedBlob.exists()) {
+            // next steps will overwrite the file, crete a snapshot of current version
+            rejectedBlob.createSnapshot();
+        }
         rejectedBlob.startCopy(inputBlob);
 
         waitUntilBlobIsCopied(rejectedBlob);
