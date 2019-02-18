@@ -121,7 +121,7 @@ public class BlobManager {
         CloudBlockBlob inputBlob = getBlob(fileName, inputContainerName);
         CloudBlockBlob rejectedBlob = getBlob(fileName, rejectedContainerName);
         if (rejectedBlob.exists()) {
-            // next steps will overwrite the file, crete a snapshot of current version
+            // next steps will overwrite the file, create a snapshot of current version
             rejectedBlob.createSnapshot();
         }
         rejectedBlob.startCopy(inputBlob);
