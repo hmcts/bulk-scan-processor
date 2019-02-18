@@ -17,7 +17,7 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
             + "e1.zipfilename, e1.createdDate, e2.completedDate FROM \n"
             + "(SELECT container, zipfilename, MIN(createdat) AS createdDate "
             + "FROM process_events  \n"
-            + "WHERE CAST(createdat AS DATE) = :date\n"
+            + "WHERE date(createdat) = :date\n"
             + "GROUP BY container, zipfilename) e1\n"
             + "LEFT JOIN \n"
             + "(SELECT container, zipfilename, event, MAX(createdat) AS completedDate FROM process_events \n"

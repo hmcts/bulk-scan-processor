@@ -125,7 +125,7 @@ public class ZipFilesSummaryRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new Item(
-                    "test1.zip", createdAt, nextDay, "c1", null, ZIPFILE_PROCESSING_STARTED.toString()
+                    "test1.zip", createdAt, nextDay, "c1", "BULKSCAN", ZIPFILE_PROCESSING_STARTED.toString()
                 )
             );
     }
