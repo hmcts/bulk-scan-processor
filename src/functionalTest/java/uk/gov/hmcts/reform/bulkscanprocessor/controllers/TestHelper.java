@@ -71,11 +71,15 @@ public class TestHelper {
         String metadataFile,
         final String destZipFilename,
         String testPrivateKeyDer
-    ) throws Exception {
-        byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
-        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+    ) {
+        try {
+            byte[] zipFile =
+                createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
+            CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
+            blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+        } catch (Exception exc) {
+            throw new RuntimeException(exc);
+        }
     }
 
     public CloudBlockBlob uploadAndLeaseZipFile(
