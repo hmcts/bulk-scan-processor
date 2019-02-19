@@ -114,6 +114,8 @@ spec:
               value: "$(SERVICE_BUS_CONN_STRING);EntityPath=envelopes"
             - name: QUEUE_NOTIFICATIONS_SEND
               value: "$(SERVICE_BUS_CONN_STRING);EntityPath=notifications"
+            - name: QUEUE_PROCESSED_ENVELOPES_READ
+              value: "$(SERVICE_BUS_CONN_STRING);EntityPath=processed-envelopes"
             - name: TEST_STORAGE_ACCOUNT_NAME
               valueFrom:
                 secretKeyRef:
