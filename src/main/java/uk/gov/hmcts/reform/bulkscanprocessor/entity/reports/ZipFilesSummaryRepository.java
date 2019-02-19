@@ -13,19 +13,22 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
 
     @Query(
         nativeQuery = true,
-        value = "SELECT env.jurisdiction, env.status, e1.container, "
-            + "e1.zipfilename, e1.createdDate, e2.completedDate FROM \n"
-            + "(SELECT container, zipfilename, MIN(createdat) AS createdDate "
-            + "FROM process_events  \n"
-            + "WHERE date(createdat) = :date\n"
-            + "GROUP BY container, zipfilename) e1\n"
-            + "LEFT JOIN \n"
-            + "(SELECT container, zipfilename, event, MAX(createdat) AS completedDate FROM process_events \n"
-            + "GROUP BY container, zipfilename, event) e2 \n"
-            + "ON e1.container = e2.container AND e1.zipfilename = e2.zipfilename AND e2.event = 'COMPLETED'\n"
-            + "LEFT JOIN envelopes env \n"
-            + "ON e1.container = env.container AND e1.zipfilename = env.zipfilename \n"
-            + "ORDER BY e1.createdDate ASC"
+        value = "SELECT e1.container, e1.zipfilename, e1.createdDate, e3.event, \n"
+            + "  (CASE WHEN e3.event = 'COMPLETED' THEN e2.lastEventDate ELSE null END) AS completedDate FROM \n"
+            + "  (SELECT container, zipfilename, MIN(createdat) AS createdDate FROM process_events  \n"
+            + "    WHERE date(createdat) = :date AND event='ZIPFILE_PROCESSING_STARTED'\n"
+            + "    GROUP BY container, zipfilename) e1\n"
+            + "  LEFT JOIN \n"
+            + "  (SELECT container, zipfilename, max(createdat) AS lastEventDate FROM process_events \n"
+            + "   GROUP BY container, zipfilename) e2 \n"
+            + "  ON e1.container = e2.container \n"
+            + "  AND e1.zipfilename = e2.zipfilename\n"
+            + "  LEFT JOIN \n"
+            + "  (SELECT container, zipfilename, createdat, event FROM process_events) e3 \n"
+            + "  ON e2.container = e3.container \n"
+            + "  AND e2.zipfilename = e3.zipfilename\n"
+            + "  AND e2.lastEventDate = e3.createdat\n"
+            + "ORDER BY e1.createdDate ASC\n"
     )
     List<ZipFileSummaryItem> getZipFileSummaryReportFor(@Param("date") LocalDate date);
 

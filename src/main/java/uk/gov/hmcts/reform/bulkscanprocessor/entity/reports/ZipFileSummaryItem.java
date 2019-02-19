@@ -12,7 +12,5 @@ public interface ZipFileSummaryItem {
 
     String getContainer();
 
-    String getJurisdiction();
-
     String getStatus();
 }
