@@ -3,10 +3,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.MessageHandlerOptions;
-import com.microsoft.azure.servicebus.primitives.MessagingEntityNotFoundException;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
@@ -32,6 +32,9 @@ public class MessageHandlerConfig {
     private static final MessageHandlerOptions messageHandlerOptions =
         new MessageHandlerOptions(1, false, Duration.ofMinutes(5));
 
+    @Value("${WAIT_FOR_QUEUE_CREATION:false}")
+    private boolean waitForQueueCreation;
+
     @Autowired(required = false)
     @Qualifier("read-notifications-client")
     private IQueueClient readNotificationsQueueClient;
@@ -46,34 +49,45 @@ public class MessageHandlerConfig {
     @Autowired
     private ProcessedEnvelopeNotificationHandler processedEnvelopeNotificationHandler;
 
-    @PostConstruct
-    public void registerMessageHandlers() throws ServiceBusException, InterruptedException {
-        if (readNotificationsQueueClient != null) {
-            readNotificationsQueueClient.registerMessageHandler(
-                errorNotificationHandler,
-                messageHandlerOptions,
-                notificationsReadExecutor
-            );
+    @PostConstruct()
+    public void registerMessageHandlers() {
+        if (waitForQueueCreation) {
+            new Thread(() -> {
+                Uninterruptibles.sleepUninterruptibly(60L, TimeUnit.SECONDS);
+                registerHandlers();
+            }).start();
+        } else {
+            registerHandlers();
         }
-
-        registerProcessedEnvelopeNotificationHandler();
     }
 
-    private void registerProcessedEnvelopeNotificationHandler() throws ServiceBusException, InterruptedException {
+    private void registerHandlers() {
         try {
+            if (readNotificationsQueueClient != null) {
+                readNotificationsQueueClient.registerMessageHandler(
+                    errorNotificationHandler,
+                    messageHandlerOptions,
+                    notificationsReadExecutor
+                );
+            }
+
             processedEnvelopesQueueClient.registerMessageHandler(
                 processedEnvelopeNotificationHandler,
                 messageHandlerOptions,
                 processedEnvelopesReadExecutor
             );
-        } catch (MessagingEntityNotFoundException e) {
-            // This is when the queue doesn't exist, yet (can be a temporary situation in AKS)
-            // Can't recover from this, as the client sets handler registered flag at the beginning of the process
-            // and won't allow for another registration attempt.
-            // Let the app work for a bit, so that its health endpoint can respond -
-            // otherwise the (AKS) pipeline will never create the queue that is needed for the app to run.
-            Uninterruptibles.sleepUninterruptibly(60L, TimeUnit.SECONDS);
-            throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throwRegisterMessageHandlerRegistrationException(e);
+        } catch (ServiceBusException e) {
+            throwRegisterMessageHandlerRegistrationException(e);
         }
+    }
+
+    private void throwRegisterMessageHandlerRegistrationException(Exception cause) {
+        throw new FailedToRegisterMessageHandlersExcepiton(
+            "An error occurred when trying to register message handlers",
+            cause
+        );
     }
 }
