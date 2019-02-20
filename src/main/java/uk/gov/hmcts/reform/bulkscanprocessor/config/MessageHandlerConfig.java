@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.MessageHandlerOptions;
+import com.microsoft.azure.servicebus.primitives.MessagingEntityNotFoundException;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
@@ -11,10 +15,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotification
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 @ServiceBusConfiguration
 public class MessageHandlerConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(MessageHandlerConfig.class);
+    private static final int MAX_REGISTRATION_ATTEMPTS = 5;
 
     private static final ExecutorService notificationsReadExecutor =
         Executors.newSingleThreadExecutor(r ->
@@ -53,10 +61,29 @@ public class MessageHandlerConfig {
             );
         }
 
-        processedEnvelopesQueueClient.registerMessageHandler(
-            processedEnvelopeNotificationHandler,
-            messageHandlerOptions,
-            processedEnvelopesReadExecutor
-        );
+        registerProcessedEnvelopeNotificationHandler();
+    }
+
+    private void registerProcessedEnvelopeNotificationHandler() throws ServiceBusException, InterruptedException {
+        boolean registered = false;
+
+        for (int attemptNumber = 1; attemptNumber <= MAX_REGISTRATION_ATTEMPTS && !registered; attemptNumber++) {
+            try {
+                processedEnvelopesQueueClient.registerMessageHandler(
+                    processedEnvelopeNotificationHandler,
+                    messageHandlerOptions,
+                    processedEnvelopesReadExecutor
+                );
+
+                registered = true;
+            } catch (MessagingEntityNotFoundException e) {
+                if (attemptNumber < MAX_REGISTRATION_ATTEMPTS) {
+                    log.warn("Failed to register processed envelopes queue handler. Attempt {}", attemptNumber, e);
+                    Uninterruptibles.sleepUninterruptibly(10L * attemptNumber, TimeUnit.SECONDS);
+                } else {
+                    throw e;
+                }
+            }
+        }
     }
 }
