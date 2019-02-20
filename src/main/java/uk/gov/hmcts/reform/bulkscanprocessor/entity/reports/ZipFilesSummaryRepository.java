@@ -13,7 +13,7 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
 
     @Query(
         nativeQuery = true,
-        value = "SELECT e1.container, e1.zipfilename, e1.createdDate, e3.event, \n"
+        value = "SELECT e1.container, e1.zipfilename, e1.createdDate, e3.event AS status, \n"
             + "  (CASE WHEN e3.event = 'COMPLETED' THEN e2.lastEventDate ELSE null END) AS completedDate FROM \n"
             + "  (SELECT container, zipfilename, MIN(createdat) AS createdDate FROM process_events  \n"
             + "    WHERE date(createdat) = :date AND event='ZIPFILE_PROCESSING_STARTED'\n"

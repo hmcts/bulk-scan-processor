@@ -18,8 +18,9 @@ import java.util.List;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
@@ -43,7 +44,7 @@ public class ZipFilesSummaryRepositoryTest {
 
         dbHasEvents(
             event("c1", "test1.zip", createdDate, ZIPFILE_PROCESSING_STARTED),
-            event("c1", "test1.zip", completedDate, Event.COMPLETED),
+            event("c1", "test1.zip", completedDate, COMPLETED),
             event("c2", "test2.zip", createdDate.minus(1, MINUTES), ZIPFILE_PROCESSING_STARTED),
             event("c4", "test4.zip", createdDate.minus(1, HOURS), ZIPFILE_PROCESSING_STARTED),
             event("c4", "test4.zip", createdDate.minus(30, MINUTES), FILE_VALIDATION_FAILURE)
@@ -55,14 +56,14 @@ public class ZipFilesSummaryRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(
-                new Item(
-                    "test1.zip", createdDate, completedDate, "c1", COMPLETED.toString()
-                ),
-                new Item(
-                    "test2.zip", createdDate.minus(1, MINUTES), null, "c2", ZIPFILE_PROCESSING_STARTED.toString()
-                ),
-                new Item("test4.zip", createdDate.minus(1, HOURS), null, "c4", FILE_VALIDATION_FAILURE.toString())
+            .containsExactlyElementsOf(
+                asList(
+                    new Item("test1.zip", createdDate, completedDate, "c1", COMPLETED.toString()),
+                    new Item(
+                        "test2.zip", createdDate.minus(1, MINUTES), null, "c2", ZIPFILE_PROCESSING_STARTED.toString()
+                    ),
+                    new Item("test4.zip", createdDate.minus(1, HOURS), null, "c4", FILE_VALIDATION_FAILURE.toString())
+                )
             );
     }
 
@@ -72,10 +73,10 @@ public class ZipFilesSummaryRepositoryTest {
         Instant createdAt = Instant.parse("2019-02-09T14:15:23.456Z");
 
         dbHasEvents(
-            event("c1", "test1.zip", createdAt, Event.ZIPFILE_PROCESSING_STARTED),
-            event("c1", "test1.zip", createdAt.minus(2, MINUTES), Event.FILE_VALIDATION_FAILURE),
-            event("c2", "test2.zip", Instant.parse("2019-02-09T14:15:23.456Z"), Event.ZIPFILE_PROCESSING_STARTED),
-            event("c2", "test2.zip", Instant.parse("2019-02-10T14:15:23.456Z"), Event.COMPLETED)
+            event("c1", "test1.zip", createdAt, ZIPFILE_PROCESSING_STARTED),
+            event("c1", "test1.zip", createdAt.minus(2, MINUTES), FILE_VALIDATION_FAILURE),
+            event("c2", "test2.zip", Instant.parse("2019-02-09T14:15:23.456Z"), ZIPFILE_PROCESSING_STARTED),
+            event("c2", "test2.zip", Instant.parse("2019-02-10T14:15:23.456Z"), COMPLETED)
         );
 
         // when
@@ -92,9 +93,9 @@ public class ZipFilesSummaryRepositoryTest {
         Instant nextDay = Instant.parse("2019-02-16T00:00:23.456Z");
 
         dbHasEvents(
-            event("c1", "test1.zip", createdAt, Event.ZIPFILE_PROCESSING_STARTED),
-            event("c1", "test1.zip", nextDay, Event.COMPLETED),
-            event("c1", "test2.zip", nextDay, Event.ZIPFILE_PROCESSING_STARTED)
+            event("c1", "test1.zip", createdAt, ZIPFILE_PROCESSING_STARTED),
+            event("c1", "test1.zip", nextDay, COMPLETED),
+            event("c1", "test2.zip", nextDay, ZIPFILE_PROCESSING_STARTED)
         );
 
         // when
@@ -103,9 +104,9 @@ public class ZipFilesSummaryRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(
-                new Item(
-                    "test1.zip", createdAt, nextDay, "c1", ZIPFILE_PROCESSING_STARTED.toString()
+            .containsExactlyElementsOf(
+                singletonList(
+                    new Item("test1.zip", createdAt, nextDay, "c1", COMPLETED.toString())
                 )
             );
     }
