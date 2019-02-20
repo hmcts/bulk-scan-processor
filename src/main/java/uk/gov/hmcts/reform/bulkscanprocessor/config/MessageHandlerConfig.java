@@ -5,8 +5,6 @@ import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.MessageHandlerOptions;
 import com.microsoft.azure.servicebus.primitives.MessagingEntityNotFoundException;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
@@ -20,9 +18,6 @@ import javax.annotation.PostConstruct;
 
 @ServiceBusConfiguration
 public class MessageHandlerConfig {
-
-    private static final Logger log = LoggerFactory.getLogger(MessageHandlerConfig.class);
-    private static final int MAX_REGISTRATION_ATTEMPTS = 5;
 
     private static final ExecutorService notificationsReadExecutor =
         Executors.newSingleThreadExecutor(r ->
@@ -65,25 +60,20 @@ public class MessageHandlerConfig {
     }
 
     private void registerProcessedEnvelopeNotificationHandler() throws ServiceBusException, InterruptedException {
-        boolean registered = false;
-
-        for (int attemptNumber = 1; attemptNumber <= MAX_REGISTRATION_ATTEMPTS && !registered; attemptNumber++) {
-            try {
-                processedEnvelopesQueueClient.registerMessageHandler(
-                    processedEnvelopeNotificationHandler,
-                    messageHandlerOptions,
-                    processedEnvelopesReadExecutor
-                );
-
-                registered = true;
-            } catch (MessagingEntityNotFoundException e) {
-                if (attemptNumber < MAX_REGISTRATION_ATTEMPTS) {
-                    log.warn("Failed to register processed envelopes queue handler. Attempt {}", attemptNumber, e);
-                    Uninterruptibles.sleepUninterruptibly(10L * attemptNumber, TimeUnit.SECONDS);
-                } else {
-                    throw e;
-                }
-            }
+        try {
+            processedEnvelopesQueueClient.registerMessageHandler(
+                processedEnvelopeNotificationHandler,
+                messageHandlerOptions,
+                processedEnvelopesReadExecutor
+            );
+        } catch (MessagingEntityNotFoundException e) {
+            // This is when the queue doesn't exist, yet (can be a temporary situation in AKS)
+            // Can't recover from this, as the client sets handler registered flag at the beginning of the process
+            // and won't allow for another registration attempt.
+            // Let the app work for a bit, so that its health endpoint can respond -
+            // otherwise the (AKS) pipeline will never create the queue that is needed for the app to run.
+            Uninterruptibles.sleepUninterruptibly(60L, TimeUnit.SECONDS);
+            throw e;
         }
     }
 }
