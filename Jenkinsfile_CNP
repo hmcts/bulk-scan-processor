@@ -70,7 +70,8 @@ withPipeline(type, product, component) {
       def serviceBusSecret = "${aksServiceName}-servicebus-secret"
       def queueNames = [
         "envelopes",
-        "notifications"
+        "notifications",
+        "processed-envelopes"
       ]
       def storageContainers = [testInputStorageContainerName, testRejectedStorageContainerName, "sscs"]
 
@@ -102,6 +103,8 @@ withPipeline(type, product, component) {
           az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${it}"
         }
       }
+
+      env.PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING = "${serviceBusConnectionStr};EntityPath=processed-envelopes"
     }
   }
 

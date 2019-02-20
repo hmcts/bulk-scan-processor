@@ -25,6 +25,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -85,7 +86,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
         assertThat(processEventRepository.findAll())
             .extracting(e -> tuple(e.getContainer(), e.getZipFileName(), e.getEvent(), e.getReason()))
-            .containsOnly(
+            .containsExactlyInAnyOrder(
+                tuple(testContainer.getName(), zipFileName, ZIPFILE_PROCESSING_STARTED, null),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOADED, null),
                 tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null)
@@ -117,9 +119,10 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         String failureReason = "Error retrieving urls for uploaded files: 1111002.pdf";
 
         assertThat(processEventRepository.findAll())
-            .hasSize(2)
+            .hasSize(3)
             .extracting(e -> tuple(e.getContainer(), e.getZipFileName(), e.getEvent(), e.getReason()))
             .containsOnly(
+                tuple(testContainer.getName(), zipFileName, ZIPFILE_PROCESSING_STARTED, null),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
                 tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, "oh no")
             );
