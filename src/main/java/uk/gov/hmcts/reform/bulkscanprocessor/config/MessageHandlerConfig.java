@@ -3,18 +3,23 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.MessageHandlerOptions;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 
 @ServiceBusConfiguration
 public class MessageHandlerConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(MessageHandlerConfig.class);
 
     private static final ExecutorService notificationsReadExecutor =
         Executors.newSingleThreadExecutor(r ->
@@ -53,10 +58,19 @@ public class MessageHandlerConfig {
             );
         }
 
-        processedEnvelopesQueueClient.registerMessageHandler(
-            processedEnvelopeNotificationHandler,
-            messageHandlerOptions,
-            processedEnvelopesReadExecutor
+        CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(60000);
+
+                    processedEnvelopesQueueClient.registerMessageHandler(
+                        processedEnvelopeNotificationHandler,
+                        messageHandlerOptions,
+                        processedEnvelopesReadExecutor
+                    );
+                } catch (Exception e) {
+                    log.error("Failed to register processed envelopes handler", e);
+                }
+            }
         );
     }
 }
