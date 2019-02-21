@@ -43,6 +43,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
 
     protected static final String CONTAINER_NAME = "bulkscan";
+    protected static final String REJECTED_CONTAINER_NAME = "bulkscan-rejected";
 
     protected T processor;
 
@@ -80,6 +81,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected ServiceBusHelper serviceBusHelper;
 
     protected CloudBlobContainer testContainer;
+    protected CloudBlobContainer rejectedContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
 
@@ -117,13 +119,16 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         processor = spy(p);
 
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
-
         testContainer.createIfNotExists();
+
+        rejectedContainer = cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME);
+        rejectedContainer.createIfNotExists();
     }
 
     @After
     public void cleanUp() throws Exception {
         testContainer.deleteIfExists();
+        rejectedContainer.deleteIfExists();
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
     }
