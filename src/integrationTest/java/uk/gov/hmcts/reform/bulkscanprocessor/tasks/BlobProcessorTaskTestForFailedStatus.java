@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -240,6 +242,24 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_SIGNATURE_FAILURE);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SIG_VERIFY_FAILED);
+    }
+
+    @Test
+    public void should_reject_file_that_is_not_a_valid_zip_archive() throws Exception {
+        // given
+        byte[] zipBytes = zipDir("zipcontents/ok");
+        byte[] corruptedBytes = Arrays.copyOfRange(zipBytes, 1, zipBytes.length - 1);
+
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, corruptedBytes);
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
     }
 
     private void eventsWereCreated(Event event1, Event event2) {
