@@ -12,8 +12,6 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -43,8 +41,6 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
-
-    private static final Logger log = LoggerFactory.getLogger(TestHelper.class);
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -264,13 +260,4 @@ public class TestHelper {
             .as("Should get success response on update")
             .isEqualTo(204);
     }
-
-    public static boolean isMasterBranch() {
-        String branch = System.getenv("BRANCH_NAME");
-        if (Strings.isNullOrEmpty(branch)) {
-            branch = System.getenv("CHANGE_BRANCH");
-        }
-        return "master".equalsIgnoreCase(branch);
-    }
-
 }
