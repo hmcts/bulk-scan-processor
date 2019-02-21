@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.MessageHandlerOptions;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
@@ -13,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotification
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 @ServiceBusConfiguration
@@ -52,10 +50,9 @@ public class MessageHandlerConfig {
     @PostConstruct()
     public void registerMessageHandlers() {
         if (waitForQueueCreation) {
-            new Thread(() -> {
-                Uninterruptibles.sleepUninterruptibly(60L, TimeUnit.SECONDS);
-                registerHandlers();
-            }).start();
+            new Thread(() ->
+                throwRegisterMessageHandlerRegistrationException(null)
+            ).start();
         } else {
             registerHandlers();
         }
