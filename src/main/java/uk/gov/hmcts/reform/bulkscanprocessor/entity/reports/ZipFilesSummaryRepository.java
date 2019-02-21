@@ -23,14 +23,14 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
             + "  WHERE date(createdat) = :date AND event='ZIPFILE_PROCESSING_STARTED'\n"
             + "  GROUP BY container, zipfilename\n"
             + ") createdEvent \n" /* zipfile processing started date */
-            + "LEFT JOIN (\n"
+            + "JOIN (\n"
             + "  SELECT container, zipfilename, MAX(createdat) AS eventDate\n"
             + "  FROM process_events \n"
             + "  GROUP BY container, zipfilename\n"
             + ") lastEvent \n" /* zipfile process completion date */
             + "  ON createdEvent.container = lastEvent.container \n"
             + "  AND createdEvent.zipfilename = lastEvent.zipfilename\n"
-            + "LEFT JOIN (\n"
+            + "JOIN (\n"
             + "  SELECT container, zipfilename, createdat, event\n"
             + "  FROM process_events\n"
             + ") lastEventName \n" /* latest event of the zipfile */
