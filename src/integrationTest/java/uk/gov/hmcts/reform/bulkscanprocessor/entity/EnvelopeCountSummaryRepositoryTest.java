@@ -49,11 +49,11 @@ public class EnvelopeCountSummaryRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(
+            .containsExactlyElementsOf(asList(
                 new Item(now(), "A", 3, 0),
                 new Item(now(), "B", 2, 0),
                 new Item(now(), "C", 1, 0)
-            );
+            ));
     }
 
     @Test
@@ -112,11 +112,11 @@ public class EnvelopeCountSummaryRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(
+            .containsExactlyElementsOf(asList(
                 new Item(now(), "service_A", 1, 0),
                 new Item(now(), "service_B", 1, 1),
                 new Item(now(), "service_C", 2, 0)
-            );
+            ));
     }
 
     private void dbHas(ProcessEvent... events) {
