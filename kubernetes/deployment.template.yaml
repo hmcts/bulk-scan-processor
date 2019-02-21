@@ -116,8 +116,11 @@ spec:
               value: "$(SERVICE_BUS_CONN_STRING);EntityPath=notifications"
             - name: QUEUE_PROCESSED_ENVELOPES_READ
               value: "$(SERVICE_BUS_CONN_STRING);EntityPath=processed-envelopes"
-            - name: WAIT_FOR_QUEUE_CREATION
-              value: "true"
+              # The application can't fail on message handler registration error,
+              # because the queues are created after the app has started (and showed that it's healthy).
+              # The problem will be addressed in BPS-445
+            - name: FAIL_ON_MESSAGE_HANDLER_REGISTRATION_ERROR
+              value: "false"
             - name: TEST_STORAGE_ACCOUNT_NAME
               valueFrom:
                 secretKeyRef:
