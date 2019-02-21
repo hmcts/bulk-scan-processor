@@ -85,6 +85,26 @@ public class EnvelopeFinaliserServiceTest {
     }
 
     @Test
+    public void finaliseEnvelope_should_not_update_other_envelopes() {
+        // given
+        Envelope envelope1 = envelope("JURISDICTION1", Status.NOTIFICATION_SENT, createScannableItemsWithOcrData(3));
+        Envelope envelope2 = envelope("JURISDICTION1", Status.NOTIFICATION_SENT, createScannableItemsWithOcrData(3));
+
+        UUID envelope1Id = envelopeRepository.saveAndFlush(envelope1).getId();
+        UUID envelope2Id = envelopeRepository.saveAndFlush(envelope2).getId();
+
+        // when
+        envelopeFinaliserService.finaliseEnvelope(envelope1Id);
+
+        // then
+        Optional<Envelope> unaffectedEnvelope = envelopeRepository.findById(envelope2Id);
+
+        assertThat(unaffectedEnvelope).isPresent();
+        assertThat(unaffectedEnvelope.get().getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
+        assertThat(unaffectedEnvelope.get().getScannableItems()).allMatch(item -> item.getOcrData() != null);
+    }
+
+    @Test
     public void finaliseEnvelope_should_create_event_of_type_completed() {
         // given
         Envelope envelope = envelope("JURISDICTION1", Status.NOTIFICATION_SENT, emptyList());
