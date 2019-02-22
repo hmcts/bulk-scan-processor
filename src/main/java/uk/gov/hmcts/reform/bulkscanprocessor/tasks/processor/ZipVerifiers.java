@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
@@ -107,7 +108,7 @@ public class ZipVerifiers {
 
             return zipEntries;
         } catch (IOException ioe) {
-            throw new SignatureValidationException(ioe);
+            throw new InvalidZipArchiveException("Error extracting zip entries", ioe);
         }
     }
 
