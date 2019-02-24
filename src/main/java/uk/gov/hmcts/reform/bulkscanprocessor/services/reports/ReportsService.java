@@ -1,15 +1,20 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import static java.time.LocalDateTime.ofInstant;
+import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Service
 public class ReportsService {
@@ -19,13 +24,17 @@ public class ReportsService {
     private final EnvelopeCountSummaryRepository repo;
     private final ZeroRowFiller zeroRowFiller;
 
+    private final ZipFilesSummaryRepository zipFilesSummaryRepository;
+
     // region constructor
     public ReportsService(
         EnvelopeCountSummaryRepository repo,
-        ZeroRowFiller zeroRowFiller
+        ZeroRowFiller zeroRowFiller,
+        ZipFilesSummaryRepository zipFilesSummaryRepository
     ) {
         this.repo = repo;
         this.zeroRowFiller = zeroRowFiller;
+        this.zipFilesSummaryRepository = zipFilesSummaryRepository;
     }
     // endregion
 
@@ -37,8 +46,24 @@ public class ReportsService {
             .collect(toList());
     }
 
-    public List<ZipFileSummary> getZipFilesSummary(LocalDate date, String jurisdiction) {
-        throw new NotImplementedException("Not yet implemented");
+    public List<ZipFileSummaryResponse> getZipFilesSummary(LocalDate date, String jurisdiction) {
+        return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
+            .stream()
+            .map(this::fromDbZipfileSummary)
+            .filter(summary -> isNotEmpty(jurisdiction) ? summary.jurisdiction.equalsIgnoreCase(jurisdiction) : true)
+            .collect(Collectors.toList());
+    }
+
+    ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
+        return new ZipFileSummaryResponse(
+            dbItem.getZipFileName(),
+            ofInstant(dbItem.getCreatedDate(), UTC).toLocalDate(),
+            ofInstant(dbItem.getCreatedDate(), UTC).toLocalTime(),
+            dbItem.getCompletedDate() != null ? ofInstant(dbItem.getCompletedDate(), UTC).toLocalDate() : null,
+            dbItem.getCompletedDate() != null ? ofInstant(dbItem.getCompletedDate(), UTC).toLocalTime() : null,
+            toJurisdiction(dbItem.getContainer()),
+            dbItem.getStatus()
+        );
     }
 
     EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
