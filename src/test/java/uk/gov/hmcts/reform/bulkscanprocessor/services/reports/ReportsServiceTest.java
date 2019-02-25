@@ -36,15 +36,11 @@ public class ReportsServiceTest {
 
     private ReportsService service;
 
-    private ZipFilesSummaryReportService zipFilesSummaryReportService;
-
     @Before
     public void setUp() throws Exception {
         this.service = new ReportsService(this.repo, zeroRowFiller, zipFilesSummaryRepo);
         when(this.zeroRowFiller.fill(any(), any()))
             .thenAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
-
-        this.zipFilesSummaryReportService = new ZipFilesSummaryReportService(zipFilesSummaryRepo);
     }
 
     @Test
@@ -104,7 +100,7 @@ public class ReportsServiceTest {
             .willReturn(emptyList());
 
         // when
-        List<ZipFileSummaryResponse> result = zipFilesSummaryReportService.getZipFilesSummary(now(), null);
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null);
 
         // then
         assertThat(result).isEmpty();
@@ -124,7 +120,7 @@ public class ReportsServiceTest {
             ));
 
         // when
-        List<ZipFileSummaryResponse> result = zipFilesSummaryReportService.getZipFilesSummary(now(), null);
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null);
 
         // then
         assertThat(result)
@@ -165,7 +161,7 @@ public class ReportsServiceTest {
             ));
 
         // when
-        List<ZipFileSummaryResponse> result = zipFilesSummaryReportService.getZipFilesSummary(now(), "J2");
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), "J2");
 
         // then
         assertThat(result).hasSize(1);

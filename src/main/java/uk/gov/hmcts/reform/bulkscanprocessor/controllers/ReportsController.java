@@ -63,16 +63,22 @@ public class ReportsController {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Retrieves zip files summary in csv format.", response = byte[].class),
     })
-    public ResponseEntity downloadZipFilesSummary(
+    public ResponseEntity getZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "jurisdiction", required = false) String jurisdiction
     ) throws IOException {
-        String fileName = String.format("Zipfiles-report-%s.csv", date.toString());
+
+        String fileName = String.format("Zipfiles-report-%s", date.toString());
         File csvFile = File.createTempFile(fileName, ".csv");
 
         CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(
-            "Zip File Name", "Date Received", "Time Received", "Date Completed", "Time Completed",
-            "Jurisdiction", "Status"
+            "Zip File Name",
+            "Date Received",
+            "Time Received",
+            "Date Completed",
+            "Time Completed",
+            "Jurisdiction",
+            "Status"
         );
 
         List<ZipFileSummaryResponse> result = this.reportsService.getZipFilesSummary(date, jurisdiction);

@@ -6,7 +6,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,13 +57,13 @@ public class ReportsService {
             .collect(Collectors.toList());
     }
 
-    ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
+    private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
             ofInstant(dbItem.getCreatedDate(), UTC).toLocalDate(),
             ofInstant(dbItem.getCreatedDate(), UTC).toLocalTime(),
-            dbItem.getCompletedDate() != null ? ofInstant(dbItem.getCompletedDate(), UTC).toLocalDate() : null,
-            dbItem.getCompletedDate() != null ? ofInstant(dbItem.getCompletedDate(), UTC).toLocalTime() : null,
+            toLocalDate(dbItem.getCompletedDate()),
+            toLocalTime(dbItem.getCompletedDate()),
             toJurisdiction(dbItem.getContainer()),
             dbItem.getStatus()
         );
@@ -78,5 +81,19 @@ public class ReportsService {
     private String toJurisdiction(String container) {
         // this is the current implicit convention. It may require more 'sophisticated' mapping in the future...
         return container.toUpperCase();
+    }
+
+    private LocalDate toLocalDate(Instant instant) {
+        if (instant != null) {
+            return LocalDateTime.ofInstant(instant, UTC).toLocalDate();
+        }
+        return null;
+    }
+
+    private LocalTime toLocalTime(Instant instant) {
+        if (instant != null) {
+            return LocalDateTime.ofInstant(instant, UTC).toLocalTime();
+        }
+        return null;
     }
 }
