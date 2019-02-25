@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary;
 
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummaryItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 
 import java.time.Instant;
 
-public class Item implements ZipFileSummaryItem {
+public class ZipFileSummaryItem implements ZipFileSummary {
 
     private final String zipFileName;
     private final Instant createdDate;
@@ -12,11 +12,12 @@ public class Item implements ZipFileSummaryItem {
     private final String container;
     private final String status;
 
-    public Item(String zipFileName,
-                Instant createdDate,
-                Instant completedDate,
-                String container,
-                String status
+    public ZipFileSummaryItem(
+        String zipFileName,
+        Instant createdDate,
+        Instant completedDate,
+        String container,
+        String status
     ) {
         this.zipFileName = zipFileName;
         this.createdDate = createdDate;
