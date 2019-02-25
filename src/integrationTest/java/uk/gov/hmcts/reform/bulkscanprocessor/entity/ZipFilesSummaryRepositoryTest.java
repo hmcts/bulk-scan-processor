@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummaryItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary.Item;
+import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary.ZipFileSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
@@ -51,18 +51,20 @@ public class ZipFilesSummaryRepositoryTest {
         );
 
         // when
-        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
+        List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
 
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new Item("test1.zip", createdDate, completedDate, "c1", COMPLETED.toString()),
-                    new Item(
+                    new ZipFileSummaryItem("test1.zip", createdDate, completedDate, "c1", COMPLETED.toString()),
+                    new ZipFileSummaryItem(
                         "test2.zip", createdDate.minus(1, MINUTES), null, "c2", ZIPFILE_PROCESSING_STARTED.toString()
                     ),
-                    new Item("test4.zip", createdDate.minus(1, HOURS), null, "c4", FILE_VALIDATION_FAILURE.toString())
+                    new ZipFileSummaryItem(
+                        "test4.zip", createdDate.minus(1, HOURS), null, "c4", FILE_VALIDATION_FAILURE.toString()
+                    )
                 )
             );
     }
@@ -80,7 +82,7 @@ public class ZipFilesSummaryRepositoryTest {
         );
 
         // when
-        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 10));
+        List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 10));
 
         // then
         assertThat(result).isEmpty();
@@ -99,14 +101,14 @@ public class ZipFilesSummaryRepositoryTest {
         );
 
         // when
-        List<ZipFileSummaryItem> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
+        List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
 
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new Item("test1.zip", createdAt, nextDay, "c1", COMPLETED.toString())
+                    new ZipFileSummaryItem("test1.zip", createdAt, nextDay, "c1", COMPLETED.toString())
                 )
             );
     }
