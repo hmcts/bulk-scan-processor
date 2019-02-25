@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static java.time.LocalDateTime.ofInstant;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Service
 public class ReportsService {
@@ -53,7 +53,7 @@ public class ReportsService {
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
             .stream()
             .map(this::fromDbZipfileSummary)
-            .filter(summary -> isNotEmpty(jurisdiction) ? summary.jurisdiction.equalsIgnoreCase(jurisdiction) : true)
+            .filter(summary -> isEmpty(jurisdiction) || summary.jurisdiction.equalsIgnoreCase(jurisdiction))
             .collect(Collectors.toList());
     }
 

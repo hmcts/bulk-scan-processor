@@ -127,7 +127,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_empty_zipfiles_summary_when_no_data_returned() throws Exception {
+    public void should_return_empty_zipfiles_summary_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
         given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
