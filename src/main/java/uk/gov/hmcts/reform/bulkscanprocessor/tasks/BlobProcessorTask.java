@@ -359,7 +359,7 @@ public class BlobProcessorTask extends Processor {
         );
     }
 
-    private void logAbortedProcessingFilePresentInDb(String containerName, String zipFilename) {
+    private void logAbortedProcessingFilePresentInDb(String zipFilename, String containerName) {
         log.warn(
             "Envelope for zip file {} (container {}) already exists. Aborting its processing.",
             zipFilename,
