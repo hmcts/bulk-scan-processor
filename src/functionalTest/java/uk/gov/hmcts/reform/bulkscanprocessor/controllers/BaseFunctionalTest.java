@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.google.common.collect.ImmutableList;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageUri;
@@ -64,7 +65,10 @@ public abstract class BaseFunctionalTest {
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
-                .filter(env -> env.getStatus() == Status.NOTIFICATION_SENT)
+                .filter(env ->
+                    ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
+                        .contains(env.getStatus())
+                )
                 .isPresent()
             );
     }
