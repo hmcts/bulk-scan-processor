@@ -113,7 +113,7 @@ public class ReportsControllerTest {
             .willReturn(singletonList(zipFileSummaryResponse));
 
         String expectedContent = String.format(
-            "Zip File Name,Date Received,Time Received,Date Completed,Time Completed,Jurisdiction,Status\r\n"
+            "Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Jurisdiction,Status\r\n"
                 + "test.zip,%s,%s,%s,%s,BULKSCAN,CONSUMED\r\n",
             localDate.toString(), localTime.toString(),
             localDate.toString(), localTime.plusHours(1).toString()
@@ -138,7 +138,7 @@ public class ReportsControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(content().string(
-                "Zip File Name,Date Received,Time Received,Date Completed,Time Completed,Jurisdiction,Status\r\n"
+                "Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Jurisdiction,Status\r\n"
             ));
     }
 

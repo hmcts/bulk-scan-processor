@@ -75,8 +75,8 @@ public class ReportsController {
             "Zip File Name",
             "Date Received",
             "Time Received",
-            "Date Completed",
-            "Time Completed",
+            "Date Processed",
+            "Time Processed",
             "Jurisdiction",
             "Status"
         );
