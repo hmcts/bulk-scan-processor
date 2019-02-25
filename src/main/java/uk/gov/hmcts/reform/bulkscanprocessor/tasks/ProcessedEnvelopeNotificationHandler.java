@@ -8,6 +8,9 @@ import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
@@ -26,6 +29,8 @@ import java.util.concurrent.Executors;
  * This involves removing sensitive information, status change and creation of an appropriate event.
  * </p>
  */
+@Service
+@Profile("!nosb") // only active when interaction with Service Bus isn't disabled
 public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessedEnvelopeNotificationHandler.class);
@@ -38,7 +43,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
     public ProcessedEnvelopeNotificationHandler(
         EnvelopeFinaliserService envelopeFinaliserService,
         ObjectMapper objectMapper,
-        MessageAutoCompletor messageCompletor
+        @Qualifier("processed-envelopes-completor") MessageAutoCompletor messageCompletor
     ) {
         this.envelopeFinaliserService = envelopeFinaliserService;
         this.objectMapper = objectMapper;
