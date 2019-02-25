@@ -12,11 +12,12 @@ public class ZipFileSummaryItem implements ZipFileSummary {
     private final String container;
     private final String status;
 
-    public ZipFileSummaryItem(String zipFileName,
-                              Instant createdDate,
-                              Instant completedDate,
-                              String container,
-                              String status
+    public ZipFileSummaryItem(
+        String zipFileName,
+        Instant createdDate,
+        Instant completedDate,
+        String container,
+        String status
     ) {
         this.zipFileName = zipFileName;
         this.createdDate = createdDate;

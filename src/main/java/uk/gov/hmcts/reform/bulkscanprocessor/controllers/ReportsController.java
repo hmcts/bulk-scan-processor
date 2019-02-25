@@ -1,27 +1,20 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -58,51 +51,26 @@ public class ReportsController {
         );
     }
 
-    @GetMapping(path = "/zip-files-summary", produces = "application/csv")
+    @GetMapping(path = "/zip-files-summary")
     @ApiOperation("Retrieves zip files summary report for the given date and jurisdiction")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Retrieves zip files summary in csv format.", response = byte[].class),
-    })
-    public ResponseEntity getZipFilesSummary(
+    public ZipFilesSummaryReportListResponse getZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "jurisdiction", required = false) String jurisdiction
-    ) throws IOException {
-
-        String fileName = String.format("Zipfiles-report-%s", date.toString());
-        File csvFile = File.createTempFile(fileName, ".csv");
-
-        CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(
-            "Zip File Name",
-            "Date Received",
-            "Time Received",
-            "Date Processed",
-            "Time Processed",
-            "Jurisdiction",
-            "Status"
-        );
-
+    ) {
         List<ZipFileSummaryResponse> result = this.reportsService.getZipFilesSummary(date, jurisdiction);
-
-        FileWriter fileWriter = new FileWriter(csvFile);
-        try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
-            for (ZipFileSummaryResponse summary : result) {
-                printer.printRecord(
-                    summary.fileName,
-                    summary.dateReceived,
-                    summary.timeReceived,
-                    summary.dateProcessed,
-                    summary.timeProcessed,
-                    summary.jurisdiction,
-                    summary.status
-                );
-            }
-        }
-
-        return ResponseEntity
-            .ok()
-            .contentLength(csvFile.length())
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .body(Files.readAllBytes(csvFile.toPath()));
+        return new ZipFilesSummaryReportListResponse(
+            result
+                .stream()
+                .map(item -> new ZipFilesSummaryReportItem(
+                    item.fileName,
+                    item.dateReceived,
+                    item.timeReceived,
+                    item.dateProcessed,
+                    item.timeProcessed,
+                    item.jurisdiction,
+                    item.status
+                ))
+                .collect(toList())
+        );
     }
-
 }

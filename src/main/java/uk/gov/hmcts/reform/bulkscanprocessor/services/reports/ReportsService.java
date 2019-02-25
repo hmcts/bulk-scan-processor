@@ -49,6 +49,13 @@ public class ReportsService {
             .collect(toList());
     }
 
+    /**
+     * Get zip files summary for the given date and jurisdiction.
+     *
+     * @param date         zip file received date
+     * @param jurisdiction to filter the zip files when jurisdiction value is provided
+     * @return list of zip files summary
+     */
     public List<ZipFileSummaryResponse> getZipFilesSummary(LocalDate date, String jurisdiction) {
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
             .stream()
