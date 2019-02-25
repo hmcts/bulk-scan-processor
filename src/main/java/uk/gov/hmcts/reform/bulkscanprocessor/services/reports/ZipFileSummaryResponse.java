@@ -14,13 +14,14 @@ public class ZipFileSummaryResponse {
     public final String status;
 
     // region constructor
-    public ZipFileSummaryResponse(String fileName,
-                                  LocalDate dateReceived,
-                                  LocalTime timeReceived,
-                                  LocalDate dateProcessed,
-                                  LocalTime timeProcessed,
-                                  String jurisdiction,
-                                  String status
+    public ZipFileSummaryResponse(
+        String fileName,
+        LocalDate dateReceived,
+        LocalTime timeReceived,
+        LocalDate dateProcessed,
+        LocalTime timeProcessed,
+        String jurisdiction,
+        String status
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
