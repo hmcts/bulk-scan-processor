@@ -123,7 +123,7 @@ sonarqube {
     property "sonar.projectName", "Reform :: Bulk Scan Processor"
     property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
     property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/integration.exec"
-    property "sonar.exclusions", "**/model/out/*"
+    property "sonar.exclusions", "**/model/out/*,**/config/**"
   }
 }
 
