@@ -32,9 +32,9 @@ public class EnvelopeFinaliserService {
 
         envelope.getScannableItems().forEach(item -> item.setOcrData(null));
         envelope.setStatus(Status.COMPLETED);
-        envelopeRepository.save(envelope);
+        envelopeRepository.saveAndFlush(envelope);
 
-        processEventRepository.save(
+        processEventRepository.saveAndFlush(
             new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.COMPLETED)
         );
     }
