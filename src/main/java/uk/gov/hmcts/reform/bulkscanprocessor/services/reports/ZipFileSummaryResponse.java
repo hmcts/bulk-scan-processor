@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class ZipFileSummary {
+public class ZipFileSummaryResponse {
 
     public final String fileName;
     public final LocalDate dateReceived;
@@ -14,13 +14,14 @@ public class ZipFileSummary {
     public final String status;
 
     // region constructor
-    public ZipFileSummary(String fileName,
-                          LocalDate dateReceived,
-                          LocalTime timeReceived,
-                          LocalDate dateProcessed,
-                          LocalTime timeProcessed,
-                          String jurisdiction,
-                          String status
+    public ZipFileSummaryResponse(
+        String fileName,
+        LocalDate dateReceived,
+        LocalTime timeReceived,
+        LocalDate dateProcessed,
+        LocalTime timeProcessed,
+        String jurisdiction,
+        String status
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
