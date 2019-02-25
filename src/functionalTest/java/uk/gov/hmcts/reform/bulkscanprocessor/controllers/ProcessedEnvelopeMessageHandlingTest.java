@@ -22,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private static final long MAX_MESSAGE_PROCESSING_TIME_MILLIS = 40_000;
+    private static final long MAX_ENVELOPE_FINALISATION_TIME_MILLIS = 10_000;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String s2sToken;
     private QueueClient queueClient;
@@ -57,7 +59,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
         // then
         await("Envelope should change status to 'COMPLETED'")
-            .atMost(5000, TimeUnit.MILLISECONDS)
+            .atMost(MAX_ENVELOPE_FINALISATION_TIME_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
 
