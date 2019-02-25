@@ -39,6 +39,6 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
             + "  AND lastEvent.eventDate = lastEventName.createdat\n"
             + "ORDER BY createdEvent.createdDate ASC"
     )
-    List<ZipFileSummaryItem> getZipFileSummaryReportFor(@Param("date") LocalDate date);
+    List<ZipFileSummary> getZipFileSummaryReportFor(@Param("date") LocalDate date);
 
 }

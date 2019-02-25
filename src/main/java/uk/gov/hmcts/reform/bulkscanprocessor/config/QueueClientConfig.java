@@ -20,6 +20,14 @@ public class QueueClientConfig {
         return createQueueClient(connectionString, queueName);
     }
 
+    @Bean("processed-envelopes-client")
+    public IQueueClient processedEnvelopesQueueClient(
+        @Value("${queues.processed-envelopes.connection-string}") String connectionString,
+        @Value("${queues.processed-envelopes.queue-name}") String queueName
+    ) throws InterruptedException, ServiceBusException {
+        return createQueueClient(connectionString, queueName);
+    }
+
     @Bean("notifications-client")
     public IQueueClient notificationsQueueClient(
         @Value("${queues.notifications.connection-string}") String connectionString,
