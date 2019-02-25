@@ -41,7 +41,7 @@ public class ReportsService {
         throw new NotImplementedException("Not yet implemented");
     }
 
-    EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
+    private EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
         return new EnvelopeCountSummary(
             dbItem.getReceived(),
             dbItem.getRejected(),
