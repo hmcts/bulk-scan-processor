@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryRe
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,7 +57,7 @@ public class ReportsController {
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "jurisdiction", required = false) String jurisdiction
     ) {
-        List<ZipFileSummary> result = this.reportsService.getZipFilesSummary(date, jurisdiction);
+        List<ZipFileSummaryResponse> result = this.reportsService.getZipFilesSummary(date, jurisdiction);
         return new ZipFilesSummaryReportListResponse(
             result
                 .stream()

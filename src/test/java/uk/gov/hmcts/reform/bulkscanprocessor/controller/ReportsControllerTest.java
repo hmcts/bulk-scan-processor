@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -96,7 +96,7 @@ public class ReportsControllerTest {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
 
-        ZipFileSummary zipFileSummary = new ZipFileSummary(
+        ZipFileSummaryResponse zipFileSummary = new ZipFileSummaryResponse(
             "test.zip",
             localDate,
             localTime,
