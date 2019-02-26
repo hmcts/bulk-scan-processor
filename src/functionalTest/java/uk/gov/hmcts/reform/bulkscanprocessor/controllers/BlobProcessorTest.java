@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.google.common.collect.ImmutableList;
 import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
 
         EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, destZipFilename).get();
 
-        assertThat(envelope.getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
+        assertThat(ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)).contains(envelope.getStatus());
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUrl));
     }
