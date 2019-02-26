@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import java.util.Arrays;
 import java.util.Objects;
 
+@SuppressWarnings("PMD.ShortClassName")
 public class Pdf {
     public static final String CONTENT_TYPE = MediaType.APPLICATION_PDF_VALUE;
 
