@@ -21,16 +21,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCE
 
 public class CsvWriterTest {
 
-    private static final String[] CSV_HEADER = {
-        "Zip File Name",
-        "Date Received",
-        "Time Received",
-        "Date Processed",
-        "Time Processed",
-        "Jurisdiction",
-        "Status"
-    };
-
     @Test
     public void should_return_csv_file_with_headers_and_csv_records() throws IOException {
         LocalDate date = LocalDate.now();
@@ -47,7 +37,7 @@ public class CsvWriterTest {
         );
 
         //when
-        File summaryToCsv = CsvWriter.writeZipFilesSumamryToCsv("zipfilesummary.csv", CSV_HEADER, csvData);
+        File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv("zipfilesummary.csv", csvData);
 
         //then
         List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
@@ -90,21 +80,9 @@ public class CsvWriterTest {
     }
 
     @Test
-    public void should_return_empty_csv_file_when_the_csv_header_and_the_data_are_null() throws IOException {
-        //when
-        File summaryToCsv = CsvWriter.writeZipFilesSumamryToCsv("zipfilesummary.csv", null, null);
-
-        //then
-        List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
-
-        assertThat(csvRecordList).isEmpty();
-
-    }
-
-    @Test
     public void should_return_csv_file_with_only_headers_when_the_data_is_null() throws IOException {
         //when
-        File summaryToCsv = CsvWriter.writeZipFilesSumamryToCsv("zipfilesummary.csv", CSV_HEADER, null);
+        File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv("zipfilesummary.csv", null);
 
         //then
         List<CSVRecord> csvRecordList = readCsv(summaryToCsv);

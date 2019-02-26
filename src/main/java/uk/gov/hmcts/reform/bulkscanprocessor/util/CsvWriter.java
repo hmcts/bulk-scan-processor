@@ -12,18 +12,21 @@ import java.util.List;
 
 public final class CsvWriter {
 
+    private static final String[] ZIP_FILES_SUMMARY_CSV_HEADERS = {
+        "Zip File Name", "Date Received", "Time Received", "Date Processed", "Time Processed", "Jurisdiction", "Status"
+    };
+
     private CsvWriter() {
         // utility class constructor
     }
 
-    public static File writeZipFilesSumamryToCsv(
+    public static File writeZipFilesSummaryToCsv(
         String fileName,
-        String[] csvHeader,
         List<ZipFileSummaryResponse> data
     ) throws IOException {
         File csvFile = File.createTempFile(fileName, ".csv");
 
-        CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(csvHeader);
+        CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(ZIP_FILES_SUMMARY_CSV_HEADERS);
         FileWriter fileWriter = new FileWriter(csvFile);
 
         try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {

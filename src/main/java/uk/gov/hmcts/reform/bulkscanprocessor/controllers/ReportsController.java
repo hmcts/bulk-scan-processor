@@ -32,10 +32,6 @@ public class ReportsController {
 
     private final ReportsService reportsService;
 
-    private static final String[] ZIP_FILES_SUMMARY_CSV_HEADERS = {
-        "Zip File Name", "Date Received", "Time Received", "Date Processed", "Time Processed", "Jurisdiction", "Status"
-    };
-
     public ReportsController(ReportsService reportsService) {
         this.reportsService = reportsService;
     }
@@ -74,7 +70,7 @@ public class ReportsController {
 
         List<ZipFileSummaryResponse> result = this.reportsService.getZipFilesSummary(date, jurisdiction);
 
-        File csvFile = CsvWriter.writeZipFilesSumamryToCsv(fileName, ZIP_FILES_SUMMARY_CSV_HEADERS, result);
+        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(fileName, result);
 
         return ResponseEntity
             .ok()
