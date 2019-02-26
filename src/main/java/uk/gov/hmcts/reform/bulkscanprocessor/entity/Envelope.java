@@ -21,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
+@SuppressWarnings("PMD.TooManyFields") // entity class
 @Entity
 @Table(name = "envelopes")
 public class Envelope {
@@ -63,17 +64,17 @@ public class Envelope {
 
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(FetchMode.SUBSELECT)
     private List<ScannableItem> scannableItems;
 
     //We will need to retrieve all payments entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(FetchMode.SUBSELECT)
     private List<Payment> payments;
 
     //We will need to retrieve all non scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
-    @Fetch(value = FetchMode.SUBSELECT)
+    @Fetch(FetchMode.SUBSELECT)
     private List<NonScannableItem> nonScannableItems;
 
     // elevating to public access as javassist needs instantiation available when `this` proxy is passed to children

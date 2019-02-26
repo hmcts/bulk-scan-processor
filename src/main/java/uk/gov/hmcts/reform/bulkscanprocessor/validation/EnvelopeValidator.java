@@ -25,7 +25,7 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 public final class EnvelopeValidator {
 
-    static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
+    private static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
         ImmutableMap.of(
             "SSCS", InputDocumentType.SSCS1
         );
@@ -43,7 +43,7 @@ public final class EnvelopeValidator {
      */
     public static void assertEnvelopeContainsOcrDataIfRequired(InputEnvelope envelope) {
 
-        if (Classification.NEW_APPLICATION.equals(envelope.classification)) {
+        if (envelope.classification == Classification.NEW_APPLICATION) {
 
             InputDocumentType typeThatShouldHaveOcrData = ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction);
 

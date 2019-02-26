@@ -76,15 +76,13 @@ public class MessageHandlerConfig {
     }
 
     private <T extends Exception> void handleMessageHandlerRegistrationError(T cause) throws T {
-        final String errorMessage = "An error occurred when trying to register message handlers";
-
         if (failOnMessageHandlerRegistrationError) {
             throw cause;
         } else {
             // The application has to keep working on Preview - otherwise the pipeline
             // wouldn't create queues which it relies on.
             // The problem will be addresses in BPS-445
-            log.error(errorMessage, cause);
+            log.error("An error occurred when trying to register message handlers", cause);
         }
     }
 }

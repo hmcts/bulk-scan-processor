@@ -39,14 +39,17 @@ public class AuthServiceConfig {
     @ConditionalOnProperty(name = "idam.s2s-auth.url", havingValue = "false")
     public AuthTokenValidator tokenValidatorStub() {
         return new AuthTokenValidator() {
+            @Override
             public void validate(String token) {
                 throw new NotImplementedException();
             }
 
+            @Override
             public void validate(String token, List<String> roles) {
                 throw new NotImplementedException();
             }
 
+            @Override
             public String getServiceName(String token) {
                 return "some_service_name";
             }

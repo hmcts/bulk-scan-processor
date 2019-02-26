@@ -76,7 +76,7 @@ public class ReportsService {
         );
     }
 
-    EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
+    private EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
         return new EnvelopeCountSummary(
             dbItem.getReceived(),
             dbItem.getRejected(),

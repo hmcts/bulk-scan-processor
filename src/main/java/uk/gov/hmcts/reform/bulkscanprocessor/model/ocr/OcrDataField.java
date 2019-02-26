@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 
 public class OcrDataField {
 
-    @JsonProperty(value = "metadata_field_name")
+    @JsonProperty("metadata_field_name")
     public final TextNode name;
 
-    @JsonProperty(value = "metadata_field_value")
+    @JsonProperty("metadata_field_value")
     public final ValueNode value;
 
     @JsonCreator
