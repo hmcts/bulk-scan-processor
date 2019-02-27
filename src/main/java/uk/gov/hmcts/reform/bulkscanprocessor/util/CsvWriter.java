@@ -13,7 +13,7 @@ import java.util.List;
 public final class CsvWriter {
 
     private static final String[] ZIP_FILES_SUMMARY_CSV_HEADERS = {
-        "Zip File Name", "Date Received", "Time Received", "Date Processed", "Time Processed", "Jurisdiction", "Status"
+        "Jurisdiction", "Zip File Name", "Date Received", "Time Received", "Date Processed", "Time Processed", "Status"
     };
 
     private CsvWriter() {
@@ -32,12 +32,12 @@ public final class CsvWriter {
         try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
             for (ZipFileSummaryResponse summary : CollectionUtils.emptyIfNull(data)) {
                 printer.printRecord(
+                    summary.jurisdiction,
                     summary.fileName,
                     summary.dateReceived,
                     summary.timeReceived,
                     summary.dateProcessed,
                     summary.timeProcessed,
-                    summary.jurisdiction,
                     summary.status
                 );
             }
