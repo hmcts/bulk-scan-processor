@@ -79,7 +79,7 @@ public class ReportsController {
         );
     }
 
-    @GetMapping(path = "/download-zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(path = "/zip-files-summary-csv", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ApiOperation("Retrieves zip files summary report in csv format for the given date and jurisdiction")
     public ResponseEntity downloadZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
