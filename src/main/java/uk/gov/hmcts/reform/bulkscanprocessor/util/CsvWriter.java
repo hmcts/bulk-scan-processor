@@ -5,8 +5,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,16 +18,12 @@ public final class CsvWriter {
         // utility class constructor
     }
 
-    public static File writeZipFilesSummaryToCsv(
-        String fileName,
-        List<ZipFileSummaryResponse> data
-    ) throws IOException {
-        File csvFile = File.createTempFile(fileName, ".csv");
+    public static String writeZipFilesSummaryToCsv(List<ZipFileSummaryResponse> data) throws IOException {
 
         CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(ZIP_FILES_SUMMARY_CSV_HEADERS);
-        FileWriter fileWriter = new FileWriter(csvFile);
+        StringBuilder stringBuilder = new StringBuilder();
 
-        try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
+        try (CSVPrinter printer = new CSVPrinter(stringBuilder, csvFileHeader)) {
             for (ZipFileSummaryResponse summary : CollectionUtils.emptyIfNull(data)) {
                 printer.printRecord(
                     summary.fileName,
@@ -42,6 +36,6 @@ public final class CsvWriter {
                 );
             }
         }
-        return csvFile;
+        return stringBuilder.toString();
     }
 }

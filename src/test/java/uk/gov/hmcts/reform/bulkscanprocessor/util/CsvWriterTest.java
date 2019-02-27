@@ -1,15 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
@@ -37,10 +34,10 @@ public class CsvWriterTest {
         );
 
         //when
-        File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv("zipfilesummary.csv", csvData);
+        String csv = CsvWriter.writeZipFilesSummaryToCsv(csvData);
 
         //then
-        List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
+        List<CSVRecord> csvRecordList = readCsv(csv);
 
         assertThat(csvRecordList)
             .isNotEmpty()
@@ -82,10 +79,10 @@ public class CsvWriterTest {
     @Test
     public void should_return_csv_file_with_only_headers_when_the_data_is_null() throws IOException {
         //when
-        File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv("zipfilesummary.csv", null);
+        String csv = CsvWriter.writeZipFilesSummaryToCsv(null);
 
         //then
-        List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
+        List<CSVRecord> csvRecordList = readCsv(csv);
 
         assertThat(csvRecordList)
             .isNotEmpty()
@@ -106,10 +103,7 @@ public class CsvWriterTest {
             );
     }
 
-    private List<CSVRecord> readCsv(File summaryToCsv) throws IOException {
-        Reader fileReader = new FileReader(summaryToCsv);
-        CSVParser csvParser = CSVFormat.DEFAULT.parse(fileReader);
-
-        return csvParser.getRecords();
+    private List<CSVRecord> readCsv(String csv) throws IOException {
+        return CSVFormat.DEFAULT.parse(new StringReader(csv)).getRecords();
     }
 }

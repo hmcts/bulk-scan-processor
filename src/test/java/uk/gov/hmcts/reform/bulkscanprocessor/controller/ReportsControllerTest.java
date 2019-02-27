@@ -121,9 +121,12 @@ public class ReportsControllerTest {
         );
 
         mockMvc
-            .perform(get("/reports/zip-files-summary-csv?date=2019-01-14&jurisdiction=BULKSCAN"))
+            .perform(
+                get("/reports/zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN")
+                    .accept("text/csv")
+            )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andExpect(content().contentType("text/csv;charset=UTF-8"))
             .andExpect(content().string(expectedContent));
     }
 
@@ -135,9 +138,12 @@ public class ReportsControllerTest {
             .willReturn(emptyList());
 
         mockMvc
-            .perform(get("/reports/zip-files-summary-csv?date=2019-01-14"))
+            .perform(
+                get("/reports/zip-files-summary?date=2019-01-14")
+                    .accept("text/csv")
+            )
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andExpect(content().contentType("text/csv;charset=UTF-8"))
             .andExpect(content().string(
                 "Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Jurisdiction,Status\r\n"
             ));

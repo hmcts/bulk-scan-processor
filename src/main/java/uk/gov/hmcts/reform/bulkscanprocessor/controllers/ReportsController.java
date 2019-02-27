@@ -17,9 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -79,7 +77,7 @@ public class ReportsController {
         );
     }
 
-    @GetMapping(path = "/zip-files-summary-csv", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(path = "/zip-files-summary", produces = "text/csv")
     @ApiOperation("Retrieves zip files summary report in csv format for the given date and jurisdiction")
     public ResponseEntity downloadZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
@@ -87,13 +85,11 @@ public class ReportsController {
     ) throws IOException {
         List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
 
-        String fileName = String.format("Zipfiles-summary-%s", date.toString());
-        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(fileName, summary);
+        String csv = CsvWriter.writeZipFilesSummaryToCsv(summary);
 
         return ResponseEntity
             .ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .body(Files.readAllBytes(csvFile.toPath()));
+            .body(csv);
     }
 
 }
