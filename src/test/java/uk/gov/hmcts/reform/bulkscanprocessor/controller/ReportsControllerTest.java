@@ -94,8 +94,9 @@ public class ReportsControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+
     @Test
-    public void should_return_zipfiles_summary_result_generated_by_the_service() throws Exception {
+    public void should_return_zipfiles_summary_result_in_csv_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
 
@@ -120,14 +121,62 @@ public class ReportsControllerTest {
         );
 
         mockMvc
-            .perform(get("/reports/zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN"))
+            .perform(get("/reports/download-zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(content().string(expectedContent));
     }
 
     @Test
-    public void should_return_empty_zipfiles_summary_when_no_data_exists() throws Exception {
+    public void should_return_empty_zipfiles_summary_in_csv_format_when_no_data_exists() throws Exception {
+        LocalDate localDate = LocalDate.of(2019, 1, 14);
+
+        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+            .willReturn(emptyList());
+
+        mockMvc
+            .perform(get("/reports/download-zip-files-summary?date=2019-01-14"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andExpect(content().string(
+                "Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Jurisdiction,Status\r\n"
+            ));
+    }
+
+    @Test
+    public void should_return_zipfiles_summary_result_in_json_format() throws Exception {
+        LocalDate localDate = LocalDate.of(2019, 1, 14);
+        LocalTime localTime = LocalTime.of(12, 30, 10, 0);
+
+        ZipFileSummaryResponse response = new ZipFileSummaryResponse(
+            "test.zip",
+            localDate,
+            localTime,
+            localDate,
+            localTime.plusHours(1),
+            "BULKSCAN",
+            CONSUMED.toString()
+        );
+
+        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+            .willReturn(singletonList(response));
+
+        mockMvc
+            .perform(get("/reports/zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.data.length()").value(1))
+            .andExpect(jsonPath("$.data[0].file_name").value(response.fileName))
+            .andExpect(jsonPath("$.data[0].date_received").value("2019-01-14"))
+            .andExpect(jsonPath("$.data[0].time_received").value("12:30:10.000"))
+            .andExpect(jsonPath("$.data[0].date_processed").value("2019-01-14"))
+            .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10.000"))
+            .andExpect(jsonPath("$.data[0].jurisdiction").value(response.jurisdiction))
+            .andExpect(jsonPath("$.data[0].status").value(response.status));
+    }
+
+    @Test
+    public void should_return_empty_zipfiles_summary_in_json_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
         given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
@@ -136,10 +185,8 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-            .andExpect(content().string(
-                "Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Jurisdiction,Status\r\n"
-            ));
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.data.length()").value(0));
     }
 
 }

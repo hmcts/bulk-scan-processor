@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 @RestController
-@RequestMapping(path = "/reports", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/reports")
 public class ReportsController {
 
     private final ReportsService reportsService;
@@ -36,7 +36,7 @@ public class ReportsController {
         this.reportsService = reportsService;
     }
 
-    @GetMapping(path = "/count-summary")
+    @GetMapping(path = "/count-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getCountSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
@@ -56,21 +56,39 @@ public class ReportsController {
         );
     }
 
-    @GetMapping(path = "/zip-files-summary", produces = "application/csv")
-    @ApiOperation("Retrieves zip files summary report for the given date and jurisdiction")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Retrieves zip files summary in csv format.", response = byte[].class),
-    })
-    public ResponseEntity getZipFilesSummary(
+    @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Retrieves zip files summary report in json format for the given date and jurisdiction")
+    public ZipFilesSummaryReportListResponse getZipFilesSummary(
+        @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+        @RequestParam(name = "jurisdiction", required = false) String jurisdiction
+    ) {
+        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
+        return new ZipFilesSummaryReportListResponse(
+            summary
+                .stream()
+                .map(item -> new ZipFilesSummaryReportItem(
+                    item.fileName,
+                    item.dateReceived,
+                    item.timeReceived,
+                    item.dateProcessed,
+                    item.timeProcessed,
+                    item.jurisdiction,
+                    item.status
+                ))
+                .collect(toList())
+        );
+    }
+
+    @GetMapping(path = "/download-zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @ApiOperation("Retrieves zip files summary report in csv format for the given date and jurisdiction")
+    public ResponseEntity downloadZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "jurisdiction", required = false) String jurisdiction
     ) throws IOException {
+        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
 
-        String fileName = String.format("Zipfiles-report-%s", date.toString());
-
-        List<ZipFileSummaryResponse> result = this.reportsService.getZipFilesSummary(date, jurisdiction);
-
-        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(fileName, result);
+        String fileName = String.format("Zipfiles-summary-%s", date.toString());
+        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(fileName, summary);
 
         return ResponseEntity
             .ok()
