@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.QueueClient;
@@ -47,10 +48,10 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         // given
         String zipFilename = uploadEnvelopeContainingOcrData();
 
-        await("Envelope should be created in the service")
+        await("Envelope should be created in the service and notification should be put on the queue")
             .atMost(scanDelay + MAX_MESSAGE_PROCESSING_TIME_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, zipFilename).isPresent());
+            .until(() -> hasNotificationBeenSent(zipFilename));
 
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
@@ -66,6 +67,18 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
+    }
+
+    private Boolean hasNotificationBeenSent(String zipFilename) {
+        return testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, zipFilename)
+            .map(envelope ->
+                // Ideally, we'd like to wait until the envelope is in NOTIFICATION_SENT status,
+                // but there's a risk of it becoming completed if there's an orchestrator working
+                // in the same environment.
+                ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
+                    .contains(envelope.getStatus())
+            )
+            .orElse(false);
     }
 
     private String uploadEnvelopeContainingOcrData() throws Exception {
