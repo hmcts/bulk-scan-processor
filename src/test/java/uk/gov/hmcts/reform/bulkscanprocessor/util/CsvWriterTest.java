@@ -50,30 +50,30 @@ public class CsvWriterTest {
             )
             .containsExactly(
                 tuple(
+                    "Jurisdiction",
                     "Zip File Name",
                     "Date Received",
                     "Time Received",
                     "Date Processed",
                     "Time Processed",
-                    "Jurisdiction",
                     "Status"
                 ),
                 tuple(
+                    "BULKSCAN",
                     "test1.zip",
                     date.toString(),
                     time.toString(),
                     date.toString(),
                     time.toString(),
-                    "BULKSCAN",
                     DOC_PROCESSED.toString()
                 ),
                 tuple(
+                    "BULKSCAN",
                     "test2.zip",
                     date.toString(),
                     time.toString(),
                     date.toString(),
                     time.toString(),
-                    "BULKSCAN",
                     DOC_PROCESSED.toString()
                 )
             );
@@ -95,12 +95,12 @@ public class CsvWriterTest {
             )
             .containsExactly(
                 tuple(
+                    "Jurisdiction",
                     "Zip File Name",
                     "Date Received",
                     "Time Received",
                     "Date Processed",
                     "Time Processed",
-                    "Jurisdiction",
                     "Status"
                 )
             );
