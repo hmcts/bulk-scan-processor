@@ -66,7 +66,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
-        assertThat(updatedEnvelope.getStatus()).isEqualTo(Status.COMPLETED);
     }
 
     private String uploadEnvelopeContainingOcrData() throws Exception {
