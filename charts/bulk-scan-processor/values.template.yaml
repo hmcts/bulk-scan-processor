@@ -13,7 +13,7 @@ java:
       secretRef: storage-secret-${SERVICE_NAME}
       key: accessKey
     TEST_STORAGE_CONTAINER_NAME:
-      secretRef: storage-secret-${SERVICE_NAME}-bulkscan
+      secretRef: container-secret-${SERVICE_NAME}-bulkscan
       key: containerName
     STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-${SERVICE_NAME}
