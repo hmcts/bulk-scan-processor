@@ -5,6 +5,7 @@
 import uk.gov.hmcts.contino.GradleBuilder
 import uk.gov.hmcts.contino.Kubectl
 import uk.gov.hmcts.contino.DockerImage
+import uk.gov.hmcts.contino.TeamNames
 
 def type = "java"
 def product = "bulk-scan"
@@ -57,25 +58,15 @@ withPipeline(type, product, component) {
       env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
       env.TEST_SCAN_DELAY = '4000'
       env.RESOURCE_GROUP = 'bulk-scan-aks'
-      def testInputStorageContainerName = 'bulkscan'
-      def testRejectedStorageContainerName = 'bulkscan-rejected'
-      env.TEST_STORAGE_CONTAINER_NAME = testInputStorageContainerName
-
-      def az = { cmd -> return sh(script: "env AZURE_CONFIG_DIR=/opt/jenkins/.azure-${env.SUBSCRIPTION_NAME} az $cmd", returnStdout: true).trim() }
+      env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
 
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
       def subscription = env.SUBSCRIPTION_NAME
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
-      def storageSecret = "${aksServiceName}-storage-secret"
-      def serviceBusSecret = "${aksServiceName}-servicebus-secret"
-      def queueNames = [
-        "envelopes",
-        "notifications",
-        "processed-envelopes"
-      ]
-      def storageContainers = [testInputStorageContainerName, testRejectedStorageContainerName, "sscs"]
+      def storageSecret = "storage-secret-${aksServiceName}"
+      def serviceBusSecret = "servicebus-secret-namespace-${aksServiceName}"
 
-      def namespace = aksServiceName
+      def namespace = new TeamNames().getNameNormalizedOrThrow(product)
       def kubectl = new Kubectl(this, subscription, namespace)
       kubectl.login()
 
@@ -83,28 +74,11 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecret, namespace, "{.data.storageAccountName}")
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
-      // Check storage containers exist and create if they don't
-      def containers = az "storage container list --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --query '[].name'"
-      storageContainers.each {
-        if (!containers.contains("${it}")) {
-          az "storage container create --account-name ${env.TEST_STORAGE_ACCOUNT_NAME} --account-key ${env.TEST_STORAGE_ACCOUNT_KEY} --name ${it}"
-        }
-      }
 
-      // Get service bus connection string and parse to get namespace
-      def serviceBusConnectionStr = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
-      //Regex: Endpoint=sb:\/\/([-a-zA-Z0-9]+)\.servicebus\.windows\.net.*
-      def serviceBusNamespace = serviceBusConnectionStr.substring(14).split("\\.")[0]
+      // Get envelopes queue connection string
+      def sbConnectionStr = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
+      env.PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING = "${sbConnectionStr};EntityPath=processed-envelopes"
 
-      // create queue
-      def queues = az "servicebus queue list --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --query '[].name'"
-      queueNames.each {
-        if (!queues.contains("${it}")) {
-          az "servicebus queue create --resource-group ${env.RESOURCE_GROUP} --namespace-name ${serviceBusNamespace} --name ${it}"
-        }
-      }
-
-      env.PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING = "${serviceBusConnectionStr};EntityPath=processed-envelopes"
     }
   }
 
@@ -115,7 +89,7 @@ withPipeline(type, product, component) {
   enableSlackNotifications(channel)
   enableApiGatewayTest()
   enableDockerBuild()
-  enableDeployToAKS()
+  installCharts()
 
   onPR() {
     loadVaultSecrets(commonSecrets)
