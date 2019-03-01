@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,7 +80,7 @@ public class ReportsController {
         );
     }
 
-    @GetMapping(path = "/zip-files-summary-csv", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ApiOperation("Retrieves zip files summary report in csv format for the given date and jurisdiction")
     public ResponseEntity downloadZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
@@ -87,12 +88,10 @@ public class ReportsController {
     ) throws IOException {
         List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
 
-        String fileName = String.format("Zipfiles-summary-%s", date.toString());
-        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(fileName, summary);
-
+        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(summary);
         return ResponseEntity
             .ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv")
             .body(Files.readAllBytes(csvFile.toPath()));
     }
 

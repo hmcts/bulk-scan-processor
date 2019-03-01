@@ -21,10 +21,9 @@ public final class CsvWriter {
     }
 
     public static File writeZipFilesSummaryToCsv(
-        String fileName,
         List<ZipFileSummaryResponse> data
     ) throws IOException {
-        File csvFile = File.createTempFile(fileName, ".csv");
+        File csvFile = File.createTempFile("Zipfiles-summary-", ".csv");
 
         CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(ZIP_FILES_SUMMARY_CSV_HEADERS);
         FileWriter fileWriter = new FileWriter(csvFile);

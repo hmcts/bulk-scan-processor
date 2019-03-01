@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +23,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
@@ -121,8 +123,10 @@ public class ReportsControllerTest {
         );
 
         mockMvc
-            .perform(get("/reports/zip-files-summary-csv?date=2019-01-14&jurisdiction=BULKSCAN"))
+            .perform(get("/reports/zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN")
+                .accept(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
+            .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(content().string(expectedContent));
     }
@@ -135,8 +139,10 @@ public class ReportsControllerTest {
             .willReturn(emptyList());
 
         mockMvc
-            .perform(get("/reports/zip-files-summary-csv?date=2019-01-14"))
+            .perform(get("/reports/zip-files-summary?date=2019-01-14")
+                .accept(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
+            .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(content().string(
                 "Jurisdiction,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
