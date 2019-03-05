@@ -1,0 +1,8 @@
+spring:
+  cloud:
+    propertiesvolume:
+      enabled: true
+      prefixed: true
+      paths: /mnt/secrets/s2s
+      aliases:
+        s2s.microservicekey-bulk-scan-processor: S2S_SECRET

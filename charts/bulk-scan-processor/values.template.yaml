@@ -1,7 +1,5 @@
 java:
   applicationPort: 8581
-  readinessPath: '/health'
-  livenessPath: '/health'
   secrets:
     SB_CONN_STRING:
       secretRef: servicebus-secret-namespace-${SERVICE_NAME}
@@ -45,6 +43,11 @@ java:
     QUEUE_ENVELOPE_SEND: "$(SB_CONN_STRING);EntityPath=envelopes"
     QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
+  keyVaults:
+    "s2s":
+      resourceGroup: rpe-service-auth-provider
+      secrets:
+        - microservicekey-bulk-scan-processor
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
