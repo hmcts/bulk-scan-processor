@@ -23,8 +23,6 @@ java:
       key: accessKey
   environment:
     S2S_SECRET: "${S2S_SECRET}"
-    TEST_S2S_SECRET: "${TEST_S2S_SECRET}"
-    TEST_PRIVATE_KEY_DER: "${TEST_PRIVATE_KEY_DER}"
     FAIL_ON_MESSAGE_HANDLER_REGISTRATION_ERROR: "false"
     POSTGRES_USER: bulkscanner
     POSTGRES_PASSWORD: bsppassword
