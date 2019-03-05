@@ -1,0 +1,80 @@
+java:
+  applicationPort: 8581
+  secrets:
+    SB_CONN_STRING:
+      secretRef: servicebus-secret-namespace-${SERVICE_NAME}
+      key: connectionString
+    TEST_STORAGE_ACCOUNT_NAME:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: storageAccountName
+    TEST_STORAGE_ACCOUNT_KEY:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: accessKey
+    TEST_STORAGE_CONTAINER_NAME:
+      secretRef: container-secret-${SERVICE_NAME}-bulkscan
+      key: containerName
+    STORAGE_ACCOUNT_NAME:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: storageAccountName
+    STORAGE_KEY:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: accessKey
+  environment:
+    FAIL_ON_MESSAGE_HANDLER_REGISTRATION_ERROR: "false"
+    POSTGRES_USER: bulkscanner
+    POSTGRES_PASSWORD: bsppassword
+    POSTGRES_DB: bulk_scan
+    BULK_SCANNING_DB_USER_NAME: bulkscanner
+    BULK_SCANNING_DB_PASSWORD: bsppassword
+    BULK_SCANNING_DB_NAME: bulk_scan
+    BULK_SCANNING_DB_HOST: ${SERVICE_NAME}-postgresql
+    BULK_SCANNING_DB_PORT: "5432"
+    FLYWAY_URL: "jdbc:postgresql://${SERVICE_NAME}-postgresql:5432/bulk_scan"
+    FLYWAY_USER: bulkscanner
+    FLYWAY_PASSWORD: bsppassword
+    FLYWAY_NOOP_STRATEGY: "false"
+    LOGBACK_REQUIRE_ALERT_LEVEL: "false"
+    LOGBACK_REQUIRE_ERROR_CODE: "false"
+    S2S_NAME: "bulk_scan_processor"
+    STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
+    STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
+    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
+    QUEUE_ENVELOPE_SEND: "$(SB_CONN_STRING);EntityPath=envelopes"
+    QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
+    QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
+  keyVaults:
+    "s2s":
+      resourceGroup: rpe-service-auth-provider
+      secrets:
+        - microservicekey-bulk-scan-processor
+  # Don't modify below here
+  image: ${IMAGE_NAME}
+  ingressHost: ${SERVICE_FQDN}
+
+postgresql:
+  postgresqlUsername: bulkscanner
+  postgresqlPassword: bsppassword
+  postgresqlDatabase: bulk_scan
+  service:
+    port: 5432
+
+servicebus:
+  resourceGroup: bulk-scan-aks
+  teamName: "Software Engineering"
+  location: uksouth
+  serviceplan: basic
+  setup:
+    queues:
+      - name: envelopes
+      - name: notifications
+      - name: processed-envelopes
+
+blobstorage:
+  resourceGroup: bulk-scan-aks
+  teamName: "Software Engineering"
+  location: uksouth
+  setup:
+    containers:
+      - bulkscan
+      - bulkscan-rejected
+      - sscs
