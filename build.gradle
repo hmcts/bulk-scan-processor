@@ -182,6 +182,11 @@ dependencies {
     exclude group: 'net.minidev', module: 'json-smart'
   }
 
+  // exclude spring-cloud-context as it is already included in spring-cloud-starter-netflix-hystrix
+  def withoutSpringCloudContext = {
+    exclude group: 'org.springframework.cloud', module: 'spring-cloud-context'
+  }
+
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '2.2.1'
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '2.2.1'
 
@@ -194,7 +199,7 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
   compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version:'0.0.3'
-  compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4'
+  compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4', withoutSpringCloudContext
 
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.10'
 
