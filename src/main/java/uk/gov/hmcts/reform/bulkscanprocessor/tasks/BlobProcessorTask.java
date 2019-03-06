@@ -155,6 +155,7 @@ public class BlobProcessorTask extends Processor {
 
     private void processZipFileIfEligible(CloudBlobContainer container, String zipFilename)
         throws IOException, StorageException, URISyntaxException {
+        // this log entry is used in alerting. Ticket: BPS-541
         log.info("Processing zip file {} from container {}", zipFilename, container.getName());
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
