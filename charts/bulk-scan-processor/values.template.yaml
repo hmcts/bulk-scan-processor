@@ -20,7 +20,7 @@ java:
       secretRef: storage-secret-${SERVICE_NAME}
       key: accessKey
   environment:
-    FAIL_ON_MESSAGE_HANDLER_REGISTRATION_ERROR: "false"
+    DELAY_MESSAGE_HANDLER_REGISTRATION: "true"
     POSTGRES_USER: bulkscanner
     POSTGRES_PASSWORD: bsppassword
     POSTGRES_DB: bulk_scan

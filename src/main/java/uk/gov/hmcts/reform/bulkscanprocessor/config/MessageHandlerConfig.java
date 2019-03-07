@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.servicebus.ClientFactory;
+import com.microsoft.azure.servicebus.IMessageReceiver;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.MessageHandlerOptions;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
@@ -9,14 +12,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 @ServiceBusConfiguration
@@ -37,9 +43,6 @@ public class MessageHandlerConfig {
     private static final MessageHandlerOptions messageHandlerOptions =
         new MessageHandlerOptions(1, false, Duration.ofMinutes(5));
 
-    @Value("${FAIL_ON_MESSAGE_HANDLER_REGISTRATION_ERROR:true}")
-    private boolean failOnMessageHandlerRegistrationError;
-
     @Autowired(required = false)
     @Qualifier("read-notifications-client")
     private IQueueClient readNotificationsQueueClient;
@@ -57,8 +60,86 @@ public class MessageHandlerConfig {
     @Value("${queues.processed-envelopes.connection-string}")
     private String processedEnvelopesConnectionString;
 
+    @Value("${queues.read-notifications.connection-string}")
+    private String readNotificationsConnectionString;
+
     @PostConstruct()
+    @ConditionalOnProperty(value = "DELAY_MESSAGE_HANDLER_REGISTRATION", havingValue = "false", matchIfMissing = true)
     public void registerMessageHandlers() throws InterruptedException, ServiceBusException {
+        log.info("Started registering message handlers (at application startup)");
+        registerHandlers();
+        log.info("Completed registering message handlers (at application startup)");
+    }
+
+    // In preview environment the service has to be alive before queues can be created. However,
+    // the service itself needs to connect to those queues in order to register a message handler.
+    // Because of this two-way dependency, message handlers can only be registered when the service
+    // is already running (i.e. context has been loaded). There's no guarantee that queues will exists
+    // from the very start, so the service has to wait for them.
+    @EventListener
+    @ConditionalOnProperty(value = "DELAY_MESSAGE_HANDLER_REGISTRATION")
+    public void onApplicationContextRefreshed(
+        ContextRefreshedEvent event
+    ) throws ServiceBusException, InterruptedException {
+
+        log.info("Started registering message handlers (after application startup)");
+
+        waitForQueuesToExist();
+        registerHandlers();
+
+        log.info("Completed registering message handlers (after application startup)");
+    }
+
+    private void waitForQueuesToExist() throws ServiceBusException {
+        final List<String> queueConnectionStrings = ImmutableList.of(
+            processedEnvelopesConnectionString,
+            readNotificationsConnectionString
+        );
+
+        log.info("Started waiting for queues to exist");
+
+        for (String connectionString : queueConnectionStrings) {
+            waitForQueueToExist(connectionString);
+        }
+
+        log.info("Finished waiting for queues to exist");
+    }
+
+    /**
+     * Waits for a given queue to be present.
+     * 
+     * <p>
+     * Queue clients don't support message handler registration retries,
+     * so the presence of the queue needs to be checked before the attempt is made.
+     * </p>
+     */
+    private void waitForQueueToExist(String queueConnectionString) throws ServiceBusException {
+        int attemptsLeft = 180;
+
+        while (attemptsLeft-- > 0) {
+            IMessageReceiver receiver = null;
+
+            try {
+                receiver = ClientFactory.createMessageReceiverFromConnectionString(queueConnectionString);
+                attemptsLeft = 0;
+            } catch (Exception e) {
+                if (attemptsLeft == 0) {
+                    throw new FailedToRegisterMessageHandlersException(
+                        "Timed out trying to connect to Service Bus queue",
+                        e
+                    );
+                } else {
+                    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+                }
+            } finally {
+                if (receiver != null) {
+                    receiver.close();
+                }
+            }
+        }
+    }
+
+    private void registerHandlers() throws ServiceBusException, InterruptedException {
         try {
             if (readNotificationsQueueClient != null) {
                 readNotificationsQueueClient.registerMessageHandler(
@@ -67,82 +148,24 @@ public class MessageHandlerConfig {
                     notificationsReadExecutor
                 );
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            handleMessageHandlerRegistrationError(e);
-        } catch (ServiceBusException e) {
-            handleMessageHandlerRegistrationError(e);
-        }
-    }
 
-    @EventListener
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        log.info("Application context loaded - registering the message handler");
-
-        boolean queueExists = waitForQueue();
-
-        if (queueExists) {
-            try {
-                processedEnvelopesQueueClient.registerMessageHandler(
-                    processedEnvelopeNotificationHandler,
-                    messageHandlerOptions,
-                    processedEnvelopesReadExecutor
-                );
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error("Failed to register message handler");
-            } catch (ServiceBusException e) {
-                log.error("Failed to register message handler");
-            }
-        }
-    }
-
-    private boolean waitForQueue() {
-        int attemptsLeft = 100;
-        boolean queueExists = false;
-
-        while (!queueExists && attemptsLeft-- > 0) {
-            try {
-                ClientFactory.createMessageReceiverFromConnectionString(
-                    processedEnvelopesConnectionString
-                ).peek();
-
-                queueExists = true;
-                log.info("Queue exists");
-            } catch (Exception e) {
-                log.info("Queue still doesn't exist");
-            }
-        }
-
-        if (!queueExists) {
-            log.error("Queue wasn't created within time limit");
-        }
-
-        return queueExists;
-    }
-
-    private void registerProcessedEnvelopeMessageHandler() {
-        try {
             processedEnvelopesQueueClient.registerMessageHandler(
                 processedEnvelopeNotificationHandler,
                 messageHandlerOptions,
                 processedEnvelopesReadExecutor
             );
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            throwHandlerRegisrtationException(e);
         } catch (ServiceBusException e) {
-            e.printStackTrace();
+            throwHandlerRegisrtationException(e);
         }
     }
 
-    private <T extends Exception> void handleMessageHandlerRegistrationError(T cause) throws T {
-        if (failOnMessageHandlerRegistrationError) {
-            throw cause;
-        } else {
-            // The application has to keep working on Preview - otherwise the pipeline
-            // wouldn't create queues which it relies on.
-            // The problem will be addresses in BPS-445
-            log.error("An error occurred when trying to register message handlers", cause);
-        }
+    private void throwHandlerRegisrtationException(Exception cause) {
+        throw new FailedToRegisterMessageHandlersException(
+            "An error occurred when trying to register message handlers",
+            cause
+        );
     }
 }
