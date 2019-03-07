@@ -92,6 +92,9 @@ containers:
     - container: divorce
       jurisdiction: DIVORCE
       poBox: 12706
+    - container: bulkscan
+      jurisdiction: BULKSCAN
+      poBox: BULKSCANPO
 
 # clients region
 
