@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -70,6 +71,9 @@ public class EnvelopeControllerTest {
 
     @Autowired
     private MetafileJsonValidator schemaValidator;
+
+    @Autowired
+    private ContainerProperties containerProperties;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -131,6 +135,7 @@ public class EnvelopeControllerTest {
             ),
             new EnvelopeProcessor(
                 schemaValidator,
+                containerProperties,
                 envelopeRepository,
                 processEventRepository,
                 reUploadBatchSize,

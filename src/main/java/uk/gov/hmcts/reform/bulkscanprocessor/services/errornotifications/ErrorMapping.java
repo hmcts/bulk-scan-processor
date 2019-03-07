@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications;
 
 import com.google.common.collect.ImmutableMap;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMismatchException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
@@ -32,7 +32,7 @@ public final class ErrorMapping {
             .put(NonPdfFileFoundException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(OcrDataParseException.class, ERR_METAFILE_INVALID)
             .put(MetadataNotFoundException.class, ERR_ZIP_PROCESSING_FAILED)
-            .put(ContainerJurisdictionMismatchException.class, ERR_METAFILE_INVALID)
+            .put(ContainerJurisdictionPoBoxMismatchException.class, ERR_METAFILE_INVALID)
             .build();
 
     private ErrorMapping() {

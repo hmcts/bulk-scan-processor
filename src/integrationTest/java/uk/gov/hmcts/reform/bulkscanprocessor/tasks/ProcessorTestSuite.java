@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -49,6 +50,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     @Autowired
     private MetafileJsonValidator schemaValidator;
+
+    @Autowired
+    private ContainerProperties containerProperties;
 
     @Autowired
     protected EnvelopeRepository envelopeRepository;
@@ -99,6 +103,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
         envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,
+            containerProperties,
             envelopeRepository,
             processEventRepository,
             reUploadBatchSize,

@@ -254,7 +254,7 @@ public class BlobProcessorTask extends Processor {
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
-            EnvelopeValidator.assertContainerMatchesJurisdiction(envelope, containerName);
+            envelopeProcessor.assertContainerMatchesJurisdictionAndPoBox(envelope.jurisdiction, envelope.poBox, containerName);
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
 

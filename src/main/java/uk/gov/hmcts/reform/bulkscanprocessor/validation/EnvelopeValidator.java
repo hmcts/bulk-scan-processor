@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -109,18 +107,6 @@ public final class EnvelopeValidator {
 
         if (!problems.isEmpty()) {
             throw new FileNameIrregularitiesException(String.join(". ", problems));
-        }
-    }
-
-    public static void assertContainerMatchesJurisdiction(InputEnvelope envelope, String containerName) {
-        if (!StringUtils.equalsIgnoreCase(envelope.jurisdiction, containerName)) {
-            throw new ContainerJurisdictionMismatchException(
-                String.format(
-                    "Container and jurisdiction mismatch. Jurisdiction: %s, container: %s",
-                    envelope.jurisdiction,
-                    containerName
-                )
-            );
         }
     }
 }
