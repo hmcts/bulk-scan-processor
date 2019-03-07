@@ -5,16 +5,13 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -29,12 +26,10 @@ import java.util.Objects;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @Component
-@EnableConfigurationProperties(ContainerProperties.class)
 public class EnvelopeProcessor {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeProcessor.class);
 
     private final MetafileJsonValidator schemaValidator;
-    private final ContainerProperties containerProperties;
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final int reUploadBatchSize;
@@ -42,14 +37,12 @@ public class EnvelopeProcessor {
 
     public EnvelopeProcessor(
         MetafileJsonValidator schemaValidator,
-        ContainerProperties containerProperties,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
         @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize,
         @Value("${scheduling.task.reupload.max_tries}") int maxReuploadTriesCount
     ) {
         this.schemaValidator = schemaValidator;
-        this.containerProperties = containerProperties;
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
         this.reUploadBatchSize = reUploadBatchSize;
@@ -97,27 +90,6 @@ public class EnvelopeProcessor {
                 )
             );
         }
-    }
-
-    /**
-     * Assert container is configured for the jurisdiction and po box.
-     * Throws exception otherwise.
-     */
-    public void assertContainerMatchesJurisdictionAndPoBox(String jurisdiction, String poBox, String containerName) {
-        containerProperties.getMappings()
-            .stream()
-            .filter(properties -> (properties.getContainer().equalsIgnoreCase(containerName)
-                && properties.getJurisdiction().equalsIgnoreCase(jurisdiction)
-                && properties.getPoBox().equalsIgnoreCase(poBox)))
-            .findFirst()
-            .orElseThrow(() -> new ContainerJurisdictionPoBoxMismatchException(
-                String.format(
-                    "Container, PO Box and jurisdiction mismatch. Jurisdiction: %s, PO Box: %s, container: %s",
-                    jurisdiction,
-                    poBox,
-                    containerName
-                )
-            ));
     }
 
     /**

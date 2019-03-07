@@ -11,6 +11,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -39,7 +40,8 @@ public class FailedDocUploadProcessor extends Processor {
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository
+        ProcessEventRepository eventRepository,
+        ContainerMappings containerMappings
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
     }
@@ -53,11 +55,12 @@ public class FailedDocUploadProcessor extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
+        ContainerMappings containerMappings,
         ServiceBusHelper serviceBusHelper, // NOSONAR
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository, containerMappings);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }

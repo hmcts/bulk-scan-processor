@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "containers")
-public class ContainerProperties {
+public class ContainerMappings {
     private List<Mapping> mappings;
 
     // region getters and setters

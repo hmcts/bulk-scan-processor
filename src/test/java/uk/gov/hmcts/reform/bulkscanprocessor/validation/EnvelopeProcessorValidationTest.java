@@ -1,14 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
@@ -18,7 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
@@ -35,31 +31,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeProcessorValidationTest {
 
-    private EnvelopeProcessor envelopeProcessor;
-
     @Mock
-    private MetafileJsonValidator schemaValidator;
-
-    @Mock
-    private EnvelopeRepository envelopeRepository;
-
-    @Mock
-    private ProcessEventRepository processEventRepository;
-
-    @Mock
-    private ContainerProperties containerProperties;
-
-    @Before
-    public void setUp() {
-        envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            containerProperties,
-            envelopeRepository,
-            processEventRepository,
-            10,
-            10
-        );
-    }
+    private ContainerMappings containerMappings;
 
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
@@ -250,12 +223,12 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("test_jurisdiction");
         String container = "container_not_matching_jurisdiction";
 
-        when(containerProperties.getMappings()).thenReturn(emptyList());
+        when(containerMappings.getMappings()).thenReturn(emptyList());
 
         // when
-        Throwable err = catchThrowable(() -> envelopeProcessor.assertContainerMatchesJurisdictionAndPoBox(
-            envelope.jurisdiction,
-            envelope.poBox,
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            containerMappings.getMappings(),
+            envelope,
             container
         ));
 
@@ -269,15 +242,15 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "abc";
 
-        when(containerProperties.getMappings())
+        when(containerMappings.getMappings())
             .thenReturn(singletonList(
-                new ContainerProperties.Mapping(container, "ABC", "123")
+                new ContainerMappings.Mapping(container, "ABC", "123")
             ));
 
         // when
-        Throwable err = catchThrowable(() -> envelopeProcessor.assertContainerMatchesJurisdictionAndPoBox(
-            envelope.jurisdiction,
-            envelope.poBox,
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            containerMappings.getMappings(),
+            envelope,
             container
         ));
 
@@ -291,15 +264,15 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "test";
 
-        when(containerProperties.getMappings())
+        when(containerMappings.getMappings())
             .thenReturn(singletonList(
-                new ContainerProperties.Mapping(container, "test_jurisdiction", "test_poBox")
+                new ContainerMappings.Mapping(container, "test_jurisdiction", "test_poBox")
             ));
 
         // when
-        Throwable err = catchThrowable(() -> envelopeProcessor.assertContainerMatchesJurisdictionAndPoBox(
-            envelope.jurisdiction,
-            envelope.poBox,
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            containerMappings.getMappings(),
+            envelope,
             container
         ));
 
@@ -313,16 +286,17 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
 
-        when(containerProperties.getMappings())
+        when(containerMappings.getMappings())
             .thenReturn(singletonList(
-                new ContainerProperties.Mapping(container, envelope.jurisdiction, envelope.poBox)
+                new ContainerMappings.Mapping(container, envelope.jurisdiction, envelope.poBox)
             ));
 
         // when
-        Throwable err = catchThrowable(() -> envelopeProcessor.assertContainerMatchesJurisdictionAndPoBox(
-            envelope.jurisdiction,
-            envelope.poBox,
-            container));
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            containerMappings.getMappings(),
+            envelope,
+            container
+        ));
 
         // then
         assertThat(err).isNull();

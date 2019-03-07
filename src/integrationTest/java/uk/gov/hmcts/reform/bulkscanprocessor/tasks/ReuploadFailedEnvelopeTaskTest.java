@@ -14,9 +14,11 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.DockerComposeContainer;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.FailedDocUploadProcessor;
 
@@ -32,6 +34,7 @@ import static org.mockito.BDDMockito.given;
     "scheduling.task.reupload.enabled=true"
 })
 @RunWith(SpringRunner.class)
+@Import(ContainerMappings.class)
 public class ReuploadFailedEnvelopeTaskTest {
 
     private static DockerComposeContainer dockerComposeContainer;

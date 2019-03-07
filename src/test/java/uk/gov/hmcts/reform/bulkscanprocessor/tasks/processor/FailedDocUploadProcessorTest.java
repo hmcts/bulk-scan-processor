@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.rule.OutputCapture;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -38,6 +39,9 @@ public class FailedDocUploadProcessorTest {
     @Mock
     private ProcessEventRepository processEventRepository;
 
+    @Mock
+    private ContainerMappings containerMappings;
+
     private FailedDocUploadProcessor processor;
 
     @Before
@@ -47,7 +51,8 @@ public class FailedDocUploadProcessorTest {
             documentProcessor,
             envelopeProcessor,
             envelopeRepository,
-            processEventRepository
+            processEventRepository,
+            containerMappings
         );
     }
 

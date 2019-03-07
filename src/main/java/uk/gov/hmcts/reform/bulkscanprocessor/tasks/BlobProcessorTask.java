@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -61,6 +63,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.
  * </ol>
  */
 @Component
+@EnableConfigurationProperties(ContainerMappings.class)
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class BlobProcessorTask extends Processor {
 
@@ -71,6 +74,8 @@ public class BlobProcessorTask extends Processor {
 
     private final ServiceBusHelper notificationsQueueHelper;
 
+    protected final ContainerMappings containerMappings;
+
     @Autowired
     public BlobProcessorTask(
         BlobManager blobManager,
@@ -78,10 +83,12 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
+        ContainerMappings containerMappings,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.notificationsQueueHelper = notificationsQueueHelper;
+        this.containerMappings = containerMappings;
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -93,6 +100,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
+        ContainerMappings containerMappings,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
         String publicKeyDerFilename
@@ -103,6 +111,7 @@ public class BlobProcessorTask extends Processor {
             envelopeProcessor,
             envelopeRepository,
             eventRepository,
+            containerMappings,
             notificationsQueueHelper
         );
         this.signatureAlg = signatureAlg;
@@ -254,7 +263,9 @@ public class BlobProcessorTask extends Processor {
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
-            envelopeProcessor.assertContainerMatchesJurisdictionAndPoBox(envelope.jurisdiction, envelope.poBox, containerName);
+            EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                containerMappings.getMappings(), envelope, containerName
+            );
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
 

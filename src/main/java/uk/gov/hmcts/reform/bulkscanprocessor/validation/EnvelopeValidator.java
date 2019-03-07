@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -108,5 +110,34 @@ public final class EnvelopeValidator {
         if (!problems.isEmpty()) {
             throw new FileNameIrregularitiesException(String.join(". ", problems));
         }
+    }
+
+
+    /**
+     * Assert container is configured for the jurisdiction and po box.
+     * Throws exception otherwise.
+     *
+     * @param mappings container mappings with jurisdiction and PoBox
+     * @param envelope to assert against
+     * @param containerName container from which envelope was retrieved
+     */
+    public static void assertContainerMatchesJurisdictionAndPoBox(
+        List<ContainerMappings.Mapping> mappings,
+        InputEnvelope envelope,
+        String containerName
+    ) {
+        mappings.stream()
+            .filter(mapping -> (mapping.getContainer().equalsIgnoreCase(containerName)
+                && mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
+                && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)))
+            .findFirst()
+            .orElseThrow(() -> new ContainerJurisdictionPoBoxMismatchException(
+                String.format(
+                    "Container, PO Box and jurisdiction mismatch. Jurisdiction: %s, PO Box: %s, container: %s",
+                    envelope.jurisdiction,
+                    envelope.poBox,
+                    containerName
+                )
+            ));
     }
 }

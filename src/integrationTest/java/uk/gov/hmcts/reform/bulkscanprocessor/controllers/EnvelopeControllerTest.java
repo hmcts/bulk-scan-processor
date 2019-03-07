@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -25,7 +26,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
@@ -62,6 +63,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(ContainerMappings.class)
 public class EnvelopeControllerTest {
 
     @Autowired
@@ -73,7 +75,7 @@ public class EnvelopeControllerTest {
     private MetafileJsonValidator schemaValidator;
 
     @Autowired
-    private ContainerProperties containerProperties;
+    private ContainerMappings containerMappings;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -135,7 +137,6 @@ public class EnvelopeControllerTest {
             ),
             new EnvelopeProcessor(
                 schemaValidator,
-                containerProperties,
                 envelopeRepository,
                 processEventRepository,
                 reUploadBatchSize,
@@ -143,6 +144,7 @@ public class EnvelopeControllerTest {
             ),
             envelopeRepository,
             processEventRepository,
+            containerMappings,
             serviceBusHelper,
             "none",
             "none"
