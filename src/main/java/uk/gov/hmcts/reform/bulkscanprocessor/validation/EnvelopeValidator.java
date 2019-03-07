@@ -117,8 +117,8 @@ public final class EnvelopeValidator {
      * Assert container is configured for the jurisdiction and po box.
      * Throws exception otherwise.
      *
-     * @param mappings container mappings with jurisdiction and PoBox
-     * @param envelope to assert against
+     * @param mappings      container mappings with jurisdiction and PoBox
+     * @param envelope      to assert against
      * @param containerName container from which envelope was retrieved
      */
     public static void assertContainerMatchesJurisdictionAndPoBox(
@@ -126,18 +126,20 @@ public final class EnvelopeValidator {
         InputEnvelope envelope,
         String containerName
     ) {
-        mappings.stream()
-            .filter(mapping -> (mapping.getContainer().equalsIgnoreCase(containerName)
+        boolean isMatched = mappings.stream()
+            .anyMatch(mapping -> (mapping.getContainer().equalsIgnoreCase(containerName)
                 && mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
-                && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)))
-            .findFirst()
-            .orElseThrow(() -> new ContainerJurisdictionPoBoxMismatchException(
+                && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)));
+
+        if (!isMatched) {
+            throw new ContainerJurisdictionPoBoxMismatchException(
                 String.format(
                     "Container, PO Box and jurisdiction mismatch. Jurisdiction: %s, PO Box: %s, container: %s",
                     envelope.jurisdiction,
                     envelope.poBox,
                     containerName
                 )
-            ));
+            );
+        }
     }
 }
