@@ -68,6 +68,9 @@ queues:
     queue-name: notifications
     enabled: ${ERROR_NOTIFICATIONS_ENABLED:false}
 
+message-handlers:
+  delay-registration: ${DELAY_MESSAGE_HANDLER_REGISTRATION:false}
+
 accesstoken:
   serviceConfig:
     - serviceName: sscs

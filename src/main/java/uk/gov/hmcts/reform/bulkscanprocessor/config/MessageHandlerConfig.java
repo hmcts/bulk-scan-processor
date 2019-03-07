@@ -64,7 +64,7 @@ public class MessageHandlerConfig {
     private String readNotificationsConnectionString;
 
     @PostConstruct()
-    @ConditionalOnProperty(value = "delay.message.handler.registration", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnProperty(value = "message-handlers.delay-registration", havingValue = "false", matchIfMissing = true)
     public void registerMessageHandlers() throws InterruptedException, ServiceBusException {
         log.info("Started registering message handlers (at application startup)");
         registerHandlers();
@@ -77,7 +77,7 @@ public class MessageHandlerConfig {
     // is already running (i.e. context has been loaded). There's no guarantee that queues will exists
     // from the very start, so the service has to wait for them.
     @EventListener
-    @ConditionalOnProperty(value = "delay.message.handler.registration")
+    @ConditionalOnProperty(value = "message-handlers.delay-registration")
     public void onApplicationContextRefreshed(
         ContextRefreshedEvent event
     ) throws ServiceBusException, InterruptedException {
