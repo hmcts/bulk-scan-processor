@@ -85,12 +85,17 @@ public class MessageHandlerConfig {
     public void onApplicationContextRefreshed(
         ContextRefreshedEvent event
     ) throws ServiceBusException, InterruptedException {
-        log.info("Started registering message handlers (after application startup)");
-
-        waitForQueuesToExist();
-        registerHandlers();
-
-        log.info("Completed registering message handlers (after application startup)");
+        new Thread(() -> {
+            log.info("Started registering message handlers (after application startup)");
+            // TODO: remove try-catch
+            try {
+                waitForQueuesToExist();
+                registerHandlers();
+            } catch (Exception e) {
+                log.error("Failed to register message handlers", e);
+            }
+            log.info("Completed registering message handlers (after application startup)");
+        }).run();
     }
 
     private void waitForQueuesToExist() {
@@ -117,7 +122,7 @@ public class MessageHandlerConfig {
      * </p>
      */
     private void waitForQueueToExist(String queueConnectionString) {
-        int attemptsLeft = 30;
+        int attemptsLeft = 60;
 
         while (attemptsLeft-- > 0) {
             IMessageReceiver receiver = null;
@@ -128,12 +133,14 @@ public class MessageHandlerConfig {
                 // TODO: replaced with a more concrete exception
             } catch (Exception e) {
                 if (attemptsLeft == 0) {
-                    throw new FailedToRegisterMessageHandlersException(
-                        "Timed out trying to connect to Service Bus queue",
-                        e
-                    );
+                    log.error("Timed out trying to connect to Service Bus queue", e);
+                    // throw new FailedToRegisterMessageHandlersException(
+                    //    "Timed out trying to connect to Service Bus queue",
+                    //    e
+                    //);
                 } else {
-                    Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+                    log.info("Cannot connect the the queue - waiting... ({} attempts left)", attemptsLeft);
+                    Uninterruptibles.sleepUninterruptibly(5, TimeUnit.SECONDS);
                 }
             } finally {
                 if (receiver != null) {
