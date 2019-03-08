@@ -5,7 +5,7 @@ reupload_delay = "600000"
 reupload_enabled = "true"
 
 scan_delay = "300000"
-scan_enabled = "true"
+scan_enabled = "false"
 
 orchestrator_notifications_task_enabled = "true"
 
