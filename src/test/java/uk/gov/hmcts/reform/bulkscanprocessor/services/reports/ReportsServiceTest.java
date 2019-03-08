@@ -11,6 +11,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary.ZipFileSummaryItem;
 
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.time.LocalDate.now;
@@ -129,7 +131,7 @@ public class ReportsServiceTest {
                 new ZipFileSummaryResponse(
                     "t1.zip",
                     ofInstant(instant.minus(1, MINUTES), UTC).toLocalDate(),
-                    ofInstant(instant.minus(1, MINUTES), UTC).toLocalTime(),
+                    toLocalTime(instant.minus(1, MINUTES)),
                     null,
                     null,
                     "J1",
@@ -138,9 +140,9 @@ public class ReportsServiceTest {
                 new ZipFileSummaryResponse(
                     "t2.zip",
                     ofInstant(instant.minus(10, MINUTES), UTC).toLocalDate(),
-                    ofInstant(instant.minus(10, MINUTES), UTC).toLocalTime(),
+                    toLocalTime(instant.minus(10, MINUTES)),
                     ofInstant(instant.minus(20, MINUTES), UTC).toLocalDate(),
-                    ofInstant(instant.minus(20, MINUTES), UTC).toLocalTime(),
+                    toLocalTime(instant.minus(20, MINUTES)),
                     "J2",
                     COMPLETED.toString()
                 )
@@ -169,4 +171,9 @@ public class ReportsServiceTest {
 
         assertThat(result.get(0).fileName).isEqualTo("t2.zip");
     }
+
+    private LocalTime toLocalTime(Instant instant) {
+        return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss").format(instant.atZone(UTC)));
+    }
+
 }

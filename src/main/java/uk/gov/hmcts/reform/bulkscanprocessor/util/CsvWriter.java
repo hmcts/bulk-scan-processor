@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.util;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -21,7 +21,7 @@ public final class CsvWriter {
     }
 
     public static File writeZipFilesSummaryToCsv(
-        List<ZipFilesSummaryReportItem> data
+        List<ZipFileSummaryResponse> data
     ) throws IOException {
         File csvFile = File.createTempFile("Zipfiles-summary-", ".csv");
 
@@ -29,7 +29,7 @@ public final class CsvWriter {
         FileWriter fileWriter = new FileWriter(csvFile);
 
         try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
-            for (ZipFilesSummaryReportItem summary : CollectionUtils.emptyIfNull(data)) {
+            for (ZipFileSummaryResponse summary : CollectionUtils.emptyIfNull(data)) {
                 printer.printRecord(
                     summary.jurisdiction,
                     summary.fileName,
