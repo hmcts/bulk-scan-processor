@@ -130,6 +130,29 @@ public class BlobManagerTest {
     }
 
     @Test
+    public void listRejectedContainers_retrieves_rejected_containers_only() {
+        // given
+        List<CloudBlobContainer> allContainers = Arrays.asList(
+            mockContainer("test1"),
+            mockContainer("test1-rejected"),
+            mockContainer("test2"),
+            mockContainer("test2-rejected")
+        );
+        given(cloudBlobClient.listContainers()).willReturn(allContainers);
+
+        // when
+        List<CloudBlobContainer> rejectedContainers = blobManager.listRejectedContainers();
+
+        // then
+        assertThat(rejectedContainers)
+            .extracting(c -> c.getName())
+            .hasSameElementsAs(Arrays.asList(
+                "test1-rejected",
+                "test2-rejected"
+            ));
+    }
+
+    @Test
     public void tryMoveFileToRejectedContainer_copies_and_deletes_original_blob() throws Exception {
         // given
         mockRejectedBlobToReturnCopyState(PENDING, SUCCESS);
