@@ -61,7 +61,6 @@ public class CleanUpRejectedFilesTaskTest {
     public void should_delete_old_files() throws Exception {
         // given
         Duration deleteDelay = Duration.ZERO; // delete immediately
-        CleanUpRejectedFilesTask sut = new CleanUpRejectedFilesTask(blobManager, deleteDelay);
 
         upload("foo.zip");
         upload("bar.zip");
@@ -75,7 +74,7 @@ public class CleanUpRejectedFilesTaskTest {
             .createSnapshot();
 
         // when
-        sut.run();
+        new CleanUpRejectedFilesTask(blobManager, deleteDelay).run();
 
         // then
         assertThat(rejectedContainer.listBlobs()).isEmpty();

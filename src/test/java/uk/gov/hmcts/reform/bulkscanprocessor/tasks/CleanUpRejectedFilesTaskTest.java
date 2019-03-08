@@ -31,8 +31,8 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class CleanUpRejectedFilesTaskTest {
 
-    @Mock BlobManager blobManager;
-    @Mock CloudBlobContainer container;
+    @Mock private BlobManager blobManager;
+    @Mock private CloudBlobContainer container;
 
     @Before
     public void setUp() throws Exception {
