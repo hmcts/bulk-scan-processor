@@ -118,8 +118,8 @@ public class ReportsControllerTest {
         String expectedContent = String.format(
             "Jurisdiction,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
                 + "BULKSCAN,test.zip,%s,%s,%s,%s,CONSUMED\r\n",
-            localDate.toString(), localTime.toString(),
-            localDate.toString(), localTime.plusHours(1).toString()
+            localDate.toString(), "12:30:10",
+            localDate.toString(), "13:30:10"
         );
 
         mockMvc

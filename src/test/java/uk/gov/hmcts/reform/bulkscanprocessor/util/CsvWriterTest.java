@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.util;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 
 import java.io.File;
 import java.io.FileReader;
@@ -25,11 +25,11 @@ public class CsvWriterTest {
         LocalTime time = LocalTime.now();
 
         //given
-        List<ZipFileSummaryResponse> csvData = Arrays.asList(
-            new ZipFileSummaryResponse(
+        List<ZipFilesSummaryReportItem> csvData = Arrays.asList(
+            new ZipFilesSummaryReportItem(
                 "test1.zip", date, time, date, time, "BULKSCAN", DOC_PROCESSED.toString()
             ),
-            new ZipFileSummaryResponse(
+            new ZipFilesSummaryReportItem(
                 "test2.zip", date, time, date, time, "BULKSCAN", DOC_PROCESSED.toString()
             )
         );

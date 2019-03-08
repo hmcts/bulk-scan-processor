@@ -64,20 +64,7 @@ public class ReportsController {
         @RequestParam(name = "jurisdiction", required = false) String jurisdiction
     ) {
         List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
-        return new ZipFilesSummaryReportListResponse(
-            summary
-                .stream()
-                .map(item -> new ZipFilesSummaryReportItem(
-                    item.fileName,
-                    item.dateReceived,
-                    item.timeReceived,
-                    item.dateProcessed,
-                    item.timeProcessed,
-                    item.jurisdiction,
-                    item.status
-                ))
-                .collect(toList())
-        );
+        return new ZipFilesSummaryReportListResponse(toZipFileSummaryResponse(summary));
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -88,11 +75,26 @@ public class ReportsController {
     ) throws IOException {
         List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
 
-        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(summary);
+        File csvFile = CsvWriter.writeZipFilesSummaryToCsv(toZipFileSummaryResponse(summary));
         return ResponseEntity
             .ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv")
             .body(Files.readAllBytes(csvFile.toPath()));
+    }
+
+    private List<ZipFilesSummaryReportItem> toZipFileSummaryResponse(List<ZipFileSummaryResponse> summary) {
+        return summary
+            .stream()
+            .map(item -> new ZipFilesSummaryReportItem(
+                item.fileName,
+                item.dateReceived,
+                item.timeReceived,
+                item.dateProcessed,
+                item.timeProcessed,
+                item.jurisdiction,
+                item.status
+            ))
+            .collect(toList());
     }
 
 }
