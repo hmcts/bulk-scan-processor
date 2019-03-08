@@ -63,12 +63,16 @@ public class MessageHandlerConfig {
     @Value("${queues.read-notifications.connection-string}")
     private String readNotificationsConnectionString;
 
+    @Value("${DELAY_MESSAGE_HANDLER_REGISTRATION:false}")
+    private boolean delayMessageHandlerRegistration;
+
     @PostConstruct()
-    @ConditionalOnProperty(value = "message-handlers.delay-registration", havingValue = "false", matchIfMissing = true)
     public void registerMessageHandlers() throws InterruptedException, ServiceBusException {
-        log.info("Started registering message handlers (at application startup)");
-        registerHandlers();
-        log.info("Completed registering message handlers (at application startup)");
+        if (!delayMessageHandlerRegistration) {
+            log.info("Started registering message handlers (at application startup)");
+            registerHandlers();
+            log.info("Completed registering message handlers (at application startup)");
+        }
     }
 
     // In preview environment the service has to be alive before queues can be created. However,
@@ -77,11 +81,10 @@ public class MessageHandlerConfig {
     // is already running (i.e. context has been loaded). There's no guarantee that queues will exists
     // from the very start, so the service has to wait for them.
     @EventListener
-    @ConditionalOnProperty(value = "message-handlers.delay-registration")
+    @ConditionalOnProperty(value = "DELAY_MESSAGE_HANDLER_REGISTRATION")
     public void onApplicationContextRefreshed(
         ContextRefreshedEvent event
     ) throws ServiceBusException, InterruptedException {
-
         log.info("Started registering message handlers (after application startup)");
 
         waitForQueuesToExist();
@@ -90,7 +93,7 @@ public class MessageHandlerConfig {
         log.info("Completed registering message handlers (after application startup)");
     }
 
-    private void waitForQueuesToExist() throws ServiceBusException {
+    private void waitForQueuesToExist() {
         final List<String> queueConnectionStrings = ImmutableList.of(
             processedEnvelopesConnectionString,
             readNotificationsConnectionString
@@ -113,8 +116,8 @@ public class MessageHandlerConfig {
      * so the presence of the queue needs to be checked before the attempt is made.
      * </p>
      */
-    private void waitForQueueToExist(String queueConnectionString) throws ServiceBusException {
-        int attemptsLeft = 180;
+    private void waitForQueueToExist(String queueConnectionString) {
+        int attemptsLeft = 30;
 
         while (attemptsLeft-- > 0) {
             IMessageReceiver receiver = null;
@@ -122,6 +125,7 @@ public class MessageHandlerConfig {
             try {
                 receiver = ClientFactory.createMessageReceiverFromConnectionString(queueConnectionString);
                 attemptsLeft = 0;
+                // TODO: replaced with a more concrete exception
             } catch (Exception e) {
                 if (attemptsLeft == 0) {
                     throw new FailedToRegisterMessageHandlersException(
@@ -129,11 +133,15 @@ public class MessageHandlerConfig {
                         e
                     );
                 } else {
-                    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+                    Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
                 }
             } finally {
                 if (receiver != null) {
-                    receiver.close();
+                    try {
+                        receiver.close();
+                    } catch (ServiceBusException e) {
+                        log.warn("Failed to close message receiver,", e);
+                    }
                 }
             }
         }
