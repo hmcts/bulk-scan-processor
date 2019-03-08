@@ -127,9 +127,11 @@ public final class EnvelopeValidator {
         String containerName
     ) {
         boolean isMatched = mappings.stream()
-            .anyMatch(mapping -> (mapping.getContainer().equalsIgnoreCase(containerName)
-                && mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
-                && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)));
+            .anyMatch(mapping ->
+                mapping.getContainer().equalsIgnoreCase(containerName)
+                    && mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
+                    && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
+            );
 
         if (!isMatched) {
             throw new ContainerJurisdictionPoBoxMismatchException(
