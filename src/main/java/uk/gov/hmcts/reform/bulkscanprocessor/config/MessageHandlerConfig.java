@@ -63,12 +63,16 @@ public class MessageHandlerConfig {
     @Value("${queues.read-notifications.connection-string}")
     private String readNotificationsConnectionString;
 
+    @Value("${DELAY_MESSAGE_HANDLER_REGISTRATION:false}")
+    private boolean delayMessageHandlerRegistration;
+
     @PostConstruct()
-    @ConditionalOnProperty(value = "message-handlers.delay-registration", havingValue = "false", matchIfMissing = true)
     public void registerMessageHandlers() throws InterruptedException, ServiceBusException {
-        log.info("Started registering message handlers (at application startup)");
-        registerHandlers();
-        log.info("Completed registering message handlers (at application startup)");
+        if (!delayMessageHandlerRegistration) {
+            log.info("Started registering message handlers (at application startup)");
+            registerHandlers();
+            log.info("Completed registering message handlers (at application startup)");
+        }
     }
 
     // In preview environment the service has to be alive before queues can be created. However,
@@ -77,11 +81,10 @@ public class MessageHandlerConfig {
     // is already running (i.e. context has been loaded). There's no guarantee that queues will exists
     // from the very start, so the service has to wait for them.
     @EventListener
-    @ConditionalOnProperty(value = "message-handlers.delay-registration")
+    @ConditionalOnProperty(value = "DELAY_MESSAGE_HANDLER_REGISTRATION")
     public void onApplicationContextRefreshed(
         ContextRefreshedEvent event
     ) throws ServiceBusException, InterruptedException {
-
         log.info("Started registering message handlers (after application startup)");
 
         waitForQueuesToExist();
