@@ -17,16 +17,21 @@ public final class InputEnvelopeCreator {
     }
 
     public static InputEnvelope inputEnvelope(String jurisdiction) {
-        return inputEnvelope(jurisdiction, Classification.EXCEPTION, emptyList());
+        return inputEnvelope(jurisdiction, "poBox", Classification.EXCEPTION, emptyList());
+    }
+
+    public static InputEnvelope inputEnvelope(String jurisdiction, String poBox) {
+        return inputEnvelope(jurisdiction, poBox, Classification.EXCEPTION, emptyList());
     }
 
     public static InputEnvelope inputEnvelope(
         String jurisdiction,
+        String poBox,
         Classification classification,
         List<InputScannableItem> scannableItems
     ) {
         return new InputEnvelope(
-            "poBox",
+            poBox,
             jurisdiction,
             null,
             null,

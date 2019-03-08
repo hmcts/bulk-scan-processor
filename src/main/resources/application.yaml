@@ -81,6 +81,21 @@ accesstoken:
     - serviceName: finrem
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
+containers:
+  mappings:
+    - container: sscs
+      jurisdiction: SSCS
+      poBox: 12626
+    - container: probate
+      jurisdiction: PROBATE
+      poBox: 12625
+    - container: divorce
+      jurisdiction: DIVORCE
+      poBox: 12706
+    - container: bulkscan
+      jurisdiction: BULKSCAN
+      poBox: BULKSCANPO
+
 # clients region
 
 idam:

@@ -15,14 +15,14 @@ public class ZipFilesSummaryReportItem {
     public final LocalDate dateReceived;
 
     @JsonProperty("time_received")
-    @JsonFormat(pattern = "HH:mm:ss.SSS")
+    @JsonFormat(pattern = "HH:mm:ss")
     public final LocalTime timeReceived;
 
     @JsonProperty("date_processed")
     public final LocalDate dateProcessed;
 
     @JsonProperty("time_processed")
-    @JsonFormat(pattern = "HH:mm:ss.SSS")
+    @JsonFormat(pattern = "HH:mm:ss")
     public final LocalTime timeProcessed;
 
     @JsonProperty("jurisdiction")

@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -68,7 +69,7 @@ public class ReportsService {
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
             ofInstant(dbItem.getCreatedDate(), UTC).toLocalDate(),
-            ofInstant(dbItem.getCreatedDate(), UTC).toLocalTime(),
+            toLocalTime(dbItem.getCreatedDate()),
             toLocalDate(dbItem.getCompletedDate()),
             toLocalTime(dbItem.getCompletedDate()),
             toJurisdiction(dbItem.getContainer()),
@@ -99,7 +100,7 @@ public class ReportsService {
 
     private LocalTime toLocalTime(Instant instant) {
         if (instant != null) {
-            return LocalDateTime.ofInstant(instant, UTC).toLocalTime();
+            return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss").format(instant.atZone(UTC)));
         }
         return null;
     }

@@ -2,7 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionMismatchException;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -15,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -29,6 +31,7 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
+            "poBox",
             Classification.EXCEPTION,
             asList(
                 scannableItem("hello.pdf"),
@@ -51,6 +54,7 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
+            "poBox",
             Classification.EXCEPTION,
             asList(
                 scannableItem("aaa.pdf"),
@@ -77,6 +81,7 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
+            "poBox",
             Classification.EXCEPTION,
             asList(
                 scannableItem("xxx.pdf"),
@@ -104,6 +109,7 @@ public class EnvelopeProcessorValidationTest {
     public void should_throw_exception_when_required_documents_are_missing() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
+            "poBox",
             Classification.NEW_APPLICATION,
             asList(
                 scannableItem(InputDocumentType.OTHER, new OcrData()), // no 'SSCS1' documents
@@ -125,6 +131,7 @@ public class EnvelopeProcessorValidationTest {
 
         InputEnvelope envelope = inputEnvelope(
             invalidJurisdictionForNewApplications,
+            "poBox",
             Classification.NEW_APPLICATION,
             asList(
                 scannableItem(InputDocumentType.OTHER, new OcrData()),
@@ -145,6 +152,7 @@ public class EnvelopeProcessorValidationTest {
     public void should_throw_exception_when_required_documents_dont_have_ocr() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
+            "poBox",
             Classification.NEW_APPLICATION,
             asList(
                 scannableItem(InputDocumentType.SSCS1, new OcrData()),
@@ -164,6 +172,7 @@ public class EnvelopeProcessorValidationTest {
     public void should_not_throw_exception_when_ocr_data_is_not_required() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
+            "poBox",
             Classification.EXCEPTION, // not NEW_APPLICATION
             asList(
                 scannableItem(InputDocumentType.OTHER, new OcrData()), // on OCR data
@@ -186,6 +195,7 @@ public class EnvelopeProcessorValidationTest {
 
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
+            "poBox",
             Classification.NEW_APPLICATION,
             asList(
                 scannableItem(InputDocumentType.SSCS1, ocrData)
@@ -200,32 +210,79 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_jurisdiction_and_container_dont_match() {
+    public void should_throw_an_exception_when_jurisdiction_poBox_and_container_dont_match() {
         // given
         InputEnvelope envelope = inputEnvelope("test_jurisdiction");
         String container = "container_not_matching_jurisdiction";
 
         // when
-        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdiction(envelope, container));
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            emptyList(),
+            envelope,
+            container
+        ));
 
         // then
-        assertThat(err)
-            .isInstanceOf(ContainerJurisdictionMismatchException.class)
-            .hasMessageContaining(envelope.jurisdiction)
-            .hasMessageContaining(container);
+        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
     }
 
     @Test
-    public void should_not_throw_an_exception_when_jurisdiction_and_container_match() {
+    public void should_throw_an_exception_when_poBox_doesnt_match_with_jurisdiction_and_container() {
+        // given
+        InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
+        String container = "abc";
+
+        // when
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            singletonList(new ContainerMappings.Mapping(container, "ABC", "123")),
+            envelope,
+            container
+        ));
+
+        // then
+        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+    }
+
+    @Test
+    public void should_throw_an_exception_when_jurisdiction_doesnt_match_with_poBox_and_container() {
+        // given
+        InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
+        String container = "test";
+
+        // when
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            singletonList(new ContainerMappings.Mapping(container, "test_jurisdiction", "test_poBox")),
+            envelope,
+            container
+        ));
+
+        // then
+        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+    }
+
+    @Test
+    public void should_not_throw_an_exception_when_jurisdiction_poBox_and_container_match() {
         // given
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
 
         // when
-        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdiction(envelope, container));
+        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            singletonList(new ContainerMappings.Mapping(container, envelope.jurisdiction, envelope.poBox)),
+            envelope,
+            container
+        ));
 
         // then
         assertThat(err).isNull();
+    }
+
+    private void verifyExceptionIsThrown(InputEnvelope envelope, String container, String poBox, Throwable err) {
+        assertThat(err)
+            .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
+            .hasMessageContaining(envelope.jurisdiction)
+            .hasMessageContaining(envelope.poBox)
+            .hasMessageContaining(container);
     }
 
 }

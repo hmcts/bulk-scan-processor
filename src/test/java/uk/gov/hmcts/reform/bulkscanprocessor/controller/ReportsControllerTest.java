@@ -118,8 +118,8 @@ public class ReportsControllerTest {
         String expectedContent = String.format(
             "Jurisdiction,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
                 + "BULKSCAN,test.zip,%s,%s,%s,%s,CONSUMED\r\n",
-            localDate.toString(), localTime.toString(),
-            localDate.toString(), localTime.plusHours(1).toString()
+            localDate.toString(), "12:30:10",
+            localDate.toString(), "13:30:10"
         );
 
         mockMvc
@@ -174,9 +174,9 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data.length()").value(1))
             .andExpect(jsonPath("$.data[0].file_name").value(response.fileName))
             .andExpect(jsonPath("$.data[0].date_received").value("2019-01-14"))
-            .andExpect(jsonPath("$.data[0].time_received").value("12:30:10.000"))
+            .andExpect(jsonPath("$.data[0].time_received").value("12:30:10"))
             .andExpect(jsonPath("$.data[0].date_processed").value("2019-01-14"))
-            .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10.000"))
+            .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10"))
             .andExpect(jsonPath("$.data[0].jurisdiction").value(response.jurisdiction))
             .andExpect(jsonPath("$.data[0].status").value(response.status));
     }
