@@ -60,13 +60,13 @@ public class CleanUpRejectedFilesTaskTest {
     @Test
     public void should_delete_old_files() throws Exception {
         // given
-        upload("foo.zip");
-        upload("bar.zip");
+        // there are two files in rejected container
+        rejectedContainer.getBlockBlobReference("foo.zip").uploadText("some content");
+        rejectedContainer.getBlockBlobReference("bar.zip").uploadText("some content");
 
-        // sanity check
-        assertThat(rejectedContainer.listBlobs()).hasSize(2);
+        assertThat(rejectedContainer.listBlobs()).hasSize(2); // sanity check
 
-        // add snapshot to one of the files
+        // one of them has a snapshot
         rejectedContainer
             .getBlockBlobReference("bar.zip")
             .createSnapshot();
@@ -76,11 +76,5 @@ public class CleanUpRejectedFilesTaskTest {
 
         // then
         assertThat(rejectedContainer.listBlobs()).isEmpty();
-    }
-
-    private void upload(String fileName) throws Exception {
-        rejectedContainer
-            .getBlockBlobReference(fileName)
-            .uploadText("some content");
     }
 }
