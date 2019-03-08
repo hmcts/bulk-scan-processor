@@ -24,6 +24,7 @@ public class ContainerMappings {
         private String jurisdiction;
         private String poBox;
 
+        // region constructor, getters and setters
         public Mapping(String container, String jurisdiction, String poBox) {
             this.container = container;
             this.jurisdiction = jurisdiction;
