@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
@@ -70,6 +70,7 @@ public class MessageHandlerConfig {
     public void registerMessageHandlers() throws InterruptedException, ServiceBusException {
         if (!delayMessageHandlerRegistration) {
             log.info("Started registering message handlers (at application startup)");
+            waitForQueuesToExist();
             registerHandlers();
             log.info("Completed registering message handlers (at application startup)");
         }
@@ -80,11 +81,9 @@ public class MessageHandlerConfig {
     // Because of this two-way dependency, message handlers can only be registered when the service
     // is already running (i.e. context has been loaded). There's no guarantee that queues will exists
     // from the very start, so the service has to wait for them.
-    @EventListener
+    @EventListener(ApplicationReadyEvent.class)
     @ConditionalOnProperty(value = "DELAY_MESSAGE_HANDLER_REGISTRATION")
-    public void onApplicationContextRefreshed(
-        ContextRefreshedEvent event
-    ) throws ServiceBusException, InterruptedException {
+    public void onApplicationReady() throws ServiceBusException, InterruptedException {
         new Thread(() -> {
             log.info("Started registering message handlers (after application startup)");
             // TODO: remove try-catch
@@ -107,6 +106,8 @@ public class MessageHandlerConfig {
         log.info("Started waiting for queues to exist");
 
         for (String connectionString : queueConnectionStrings) {
+            // TODO: remove
+            log.info("Waiting for queue. Connection string: {}", connectionString);
             waitForQueueToExist(connectionString);
         }
 
@@ -139,7 +140,7 @@ public class MessageHandlerConfig {
                     //    e
                     //);
                 } else {
-                    log.info("Cannot connect the the queue - waiting... ({} attempts left)", attemptsLeft);
+                    log.info("Cannot connect the the queue - waiting... ({} attempts left)", attemptsLeft, e);
                     Uninterruptibles.sleepUninterruptibly(5, TimeUnit.SECONDS);
                 }
             } finally {
