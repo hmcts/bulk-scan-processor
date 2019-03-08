@@ -90,6 +90,13 @@ public class BlobManager {
             .collect(toList());
     }
 
+    public List<CloudBlobContainer> listRejectedContainers() {
+        return StreamSupport
+            .stream(cloudBlobClient.listContainers().spliterator(), false)
+            .filter(c -> c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
+            .collect(toList());
+    }
+
     public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName, String leaseId) {
         String rejectedContainerName = getRejectedContainerName(inputContainerName);
 
