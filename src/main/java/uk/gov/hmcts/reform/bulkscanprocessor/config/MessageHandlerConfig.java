@@ -88,7 +88,7 @@ public class MessageHandlerConfig {
             log.info("Started registering message handlers (after application startup)");
             // TODO: remove try-catch
             try {
-                waitForQueuesToExist();
+                // waitForQueuesToExist();
                 registerHandlers();
             } catch (Exception e) {
                 log.error("Failed to register message handlers", e);
