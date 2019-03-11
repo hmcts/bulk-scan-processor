@@ -129,6 +129,10 @@ scheduling:
       delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
       enabled: ${REUPLOAD_ENABLED:false}
       max_tries: ${REUPLOAD_MAX_TRIES:5}
+    delete-rejected-files:
+      enabled: ${DELETE_REJECTED_FILES_ENABLED:false}
+      cron: ${DELETE_REJECTED_FILES_CRON}
+      delay: ${DELETE_REJECTED_FILES_DELAY}
 
 envelope-access:
   mappings:

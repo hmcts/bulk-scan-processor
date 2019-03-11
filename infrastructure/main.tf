@@ -116,6 +116,10 @@ module "bulk-scan" {
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED = "${var.orchestrator_notifications_task_enabled}"
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY   = "${var.orchestrator_notifications_task_delay}"
 
+    DELETE_REJECTED_FILES_ENABLED = "${var.delete_rejected_files_enabled}"
+    DELETE_REJECTED_FILES_CRON    = "${var.delete_rejected_files_cron}"
+    DELETE_REJECTED_FILES_DELAY   = "${var.delete_rejected_files_delay}"
+
     ERROR_NOTIFICATIONS_ENABLED = "${var.error_notifications_enabled}"
 
     STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
