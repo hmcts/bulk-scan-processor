@@ -26,15 +26,15 @@ public class CleanUpRejectedFilesTask {
     private static final Logger log = LoggerFactory.getLogger(CleanUpRejectedFilesTask.class);
 
     private final BlobManager blobManager;
-    private final Duration deleteDelay;
+    private final Duration ttl;
 
     // region constructor
     public CleanUpRejectedFilesTask(
         BlobManager blobManager,
-        @Value("${scheduling.task.delete-rejected-files.delay}") Duration deleteDelay
+        @Value("${scheduling.task.delete-rejected-files.delay}") Duration ttl
     ) {
         this.blobManager = blobManager;
-        this.deleteDelay = deleteDelay;
+        this.ttl = ttl;
     }
     // endregion
 
@@ -74,7 +74,7 @@ public class CleanUpRejectedFilesTask {
         blob.downloadAttributes();
 
         Date createdTime = blob.getProperties().getLastModified();
-        Date cutoff = Date.from(Instant.now().minus(this.deleteDelay));
+        Date cutoff = Date.from(Instant.now().minus(this.ttl));
 
         return createdTime.before(cutoff);
     }
