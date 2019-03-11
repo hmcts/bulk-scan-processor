@@ -132,7 +132,7 @@ scheduling:
     delete-rejected-files:
       enabled: ${DELETE_REJECTED_FILES_ENABLED:false}
       cron: ${DELETE_REJECTED_FILES_CRON}
-      delay: ${DELETE_REJECTED_FILES_DELAY}
+      ttl: ${DELETE_REJECTED_FILES_TTL}
 
 envelope-access:
   mappings:

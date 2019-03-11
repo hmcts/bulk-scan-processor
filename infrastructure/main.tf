@@ -118,7 +118,7 @@ module "bulk-scan" {
 
     DELETE_REJECTED_FILES_ENABLED = "${var.delete_rejected_files_enabled}"
     DELETE_REJECTED_FILES_CRON    = "${var.delete_rejected_files_cron}"
-    DELETE_REJECTED_FILES_DELAY   = "${var.delete_rejected_files_delay}"
+    DELETE_REJECTED_FILES_TTL     = "${var.delete_rejected_files_ttl}"
 
     ERROR_NOTIFICATIONS_ENABLED = "${var.error_notifications_enabled}"
 

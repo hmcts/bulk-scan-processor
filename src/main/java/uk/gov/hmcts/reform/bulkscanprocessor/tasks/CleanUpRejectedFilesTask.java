@@ -31,7 +31,7 @@ public class CleanUpRejectedFilesTask {
     // region constructor
     public CleanUpRejectedFilesTask(
         BlobManager blobManager,
-        @Value("${scheduling.task.delete-rejected-files.delay}") Duration ttl
+        @Value("${scheduling.task.delete-rejected-files.ttl}") Duration ttl
     ) {
         this.blobManager = blobManager;
         this.ttl = ttl;

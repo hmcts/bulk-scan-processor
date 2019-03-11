@@ -114,7 +114,7 @@ variable "delete_rejected_files_cron" {
   default = "0 0 7 * * *"
 }
 
-variable "delete_rejected_files_delay" {
+variable "delete_rejected_files_ttl" {
   default = "72h"
 }
 # endregion
