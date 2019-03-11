@@ -42,10 +42,10 @@ public class CleanUpRejectedFilesTaskTest {
     @Test
     public void should_remove_only_old_files() throws Exception {
         // given
-        Duration deleteDelay = Duration.ofHours(1);
+        Duration ttl = Duration.ofHours(1);
 
         MockBlob newFile = mockBlob("new.zip", now());
-        MockBlob oldFile = mockBlob("old.zip", now().minus(deleteDelay.plusMinutes(1)));
+        MockBlob oldFile = mockBlob("old.zip", now().minus(ttl.plusMinutes(1)));
 
         given(container.listBlobs(null, true, EnumSet.of(SNAPSHOTS), null, null))
             .willReturn(asList(
@@ -53,7 +53,7 @@ public class CleanUpRejectedFilesTaskTest {
                 oldFile.listItem
             ));
 
-        CleanUpRejectedFilesTask task = new CleanUpRejectedFilesTask(blobManager, deleteDelay);
+        CleanUpRejectedFilesTask task = new CleanUpRejectedFilesTask(blobManager, ttl);
 
         // when
         task.run();
