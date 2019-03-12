@@ -105,6 +105,20 @@ variable "orchestrator_notifications_task_delay" {
   default = "30000" # in ms
 }
 
+# region delete rejected files
+variable "delete_rejected_files_enabled" {
+  default = "false"
+}
+
+variable "delete_rejected_files_cron" {
+  default = "0 0 7 * * *"
+}
+
+variable "delete_rejected_files_ttl" {
+  default = "72h"
+}
+# endregion
+
 # list of SSL client certificate thumbprints that are accepted by the API (gateway)
 # (excludes certificates used by API tests)
 variable "allowed_client_certificate_thumbprints" {

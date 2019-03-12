@@ -2,9 +2,13 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.net.URISyntaxException;
@@ -16,6 +20,7 @@ import java.util.EnumSet;
 import static com.microsoft.azure.storage.blob.BlobListingDetails.SNAPSHOTS;
 import static com.microsoft.azure.storage.blob.DeleteSnapshotsOption.INCLUDE_SNAPSHOTS;
 
+@ConditionalOnProperty(value = "scheduling.task.delete-rejected-files.enabled")
 public class CleanUpRejectedFilesTask {
 
     private static final Logger log = LoggerFactory.getLogger(CleanUpRejectedFilesTask.class);
@@ -26,18 +31,21 @@ public class CleanUpRejectedFilesTask {
     // region constructor
     public CleanUpRejectedFilesTask(
         BlobManager blobManager,
-        Duration ttl
+        @Value("${scheduling.task.delete-rejected-files.ttl}") Duration ttl
     ) {
         this.blobManager = blobManager;
         this.ttl = ttl;
     }
     // endregion
 
+    @SchedulerLock(name = "delete-rejected-files")
+    @Scheduled(cron = "${scheduling.task.delete-rejected-files.cron}")
     public void run() {
+        log.info("Scanning for old rejected files");
         blobManager
             .listRejectedContainers()
             .forEach(container -> {
-                log.info("Deleting old rejected files from container {}", container.getName());
+                log.info("Scanning for old rejected files in container {}", container.getName());
                 container
                     .listBlobs(null, true, EnumSet.of(SNAPSHOTS), null, null)
                     .forEach(listItem -> {
