@@ -55,16 +55,16 @@ storage:
 
 queues:
   envelopes:
-    connection-string: ${QUEUE_ENVELOPE_SEND:"NO_VALUE_SUPPLIED"}
+    connection-string: ${QUEUE_ENVELOPE_SEND}
     queue-name: envelopes
   processed-envelopes:
-    connection-string: ${QUEUE_PROCESSED_ENVELOPES_READ:"NO_VALUE_SUPPLIED"}
+    connection-string: ${QUEUE_PROCESSED_ENVELOPES_READ}
     queue-name: processed-envelopes
   notifications:
-    connection-string: ${QUEUE_NOTIFICATIONS_SEND:"NO_VALUE_SUPPLIED"}
+    connection-string: ${QUEUE_NOTIFICATIONS_SEND}
     queue-name: notifications
   read-notifications:
-    connection-string: ${QUEUE_NOTIFICATIONS_READ:"NO_VALUE_SUPPLIED"}
+    connection-string: ${QUEUE_NOTIFICATIONS_READ}
     queue-name: notifications
     enabled: ${ERROR_NOTIFICATIONS_ENABLED:false}
 
