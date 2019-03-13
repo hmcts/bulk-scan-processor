@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -35,7 +36,12 @@ public class ReportSender {
     ) {
         this.mailSender = mailSender;
         this.reportsService = reportsService;
-        this.recipients = recipients;
+
+        if (recipients == null) {
+            this.recipients = new String[0];
+        } else {
+            this.recipients = Arrays.copyOf(recipients, recipients.length);
+        }
 
         if (recipients.length == 0) {
             log.warn("No recipients configured for reports");

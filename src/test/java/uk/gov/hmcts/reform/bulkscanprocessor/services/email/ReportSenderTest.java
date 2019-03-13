@@ -58,6 +58,7 @@ public class ReportSenderTest {
         verify(reportsService).getZipFilesSummary(now(), null);
     }
 
+    @SuppressWarnings("PMD.LawOfDemeter")
     private JavaMailSender getMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("localhost");
