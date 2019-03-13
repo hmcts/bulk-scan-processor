@@ -187,7 +187,7 @@ dependencies {
     exclude group: 'org.springframework.cloud', module: 'spring-cloud-context'
   }
 
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '2.2.1'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '2.4.0'
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '2.2.1'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.1.0'
