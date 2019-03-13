@@ -8,16 +8,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.util.Properties;
 import javax.mail.Address;
+import javax.mail.internet.MimeMessage;
 
 import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -56,6 +62,28 @@ public class ReportSenderTest {
         assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + now());
 
         verify(reportsService).getZipFilesSummary(now(), null);
+    }
+
+    @Test
+    public void should_handle_mail_exception() throws Exception {
+        // given
+        ReportsService reportsService = mock(ReportsService.class);
+        JavaMailSender mailSender = mock(JavaMailSender.class);
+
+        given(mailSender.createMimeMessage())
+            .willReturn(new JavaMailSenderImpl().createMimeMessage());
+
+        willThrow(MailSendException.class)
+            .given(mailSender)
+            .send(any(MimeMessage.class));
+
+        ReportSender reportSender = new ReportSender(mailSender, reportsService, new String[0]);
+
+        // when
+        Throwable exc = catchThrowable(reportSender::send);
+
+        // then
+        assertThat(exc).isNull();
     }
 
     @SuppressWarnings("PMD.LawOfDemeter")

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 public class ReportSender {
@@ -61,10 +60,8 @@ public class ReportSender {
 
             mailSender.send(msg);
 
-        } catch (MessagingException exc) {
-            log.error("Unable to send report email", exc);
-        } catch (IOException exc) {
-            log.error("Error converting report to CSV", exc);
+        } catch (Exception exc) {
+            log.error("Error sending report", exc);
         }
     }
 
