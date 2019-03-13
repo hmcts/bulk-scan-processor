@@ -43,7 +43,7 @@ public class ReportSender {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
         }
 
-        if (recipients.length == 0) {
+        if (this.recipients.length == 0) {
             log.warn("No recipients configured for reports");
         }
     }
