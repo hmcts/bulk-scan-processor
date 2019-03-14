@@ -198,6 +198,8 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: versions.springBoot
+
   compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version:'0.0.3'
   compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4', withoutSpringCloudContext
 
@@ -224,6 +226,8 @@ dependencies {
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
+  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.9'
+  testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
