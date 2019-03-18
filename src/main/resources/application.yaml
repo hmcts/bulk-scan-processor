@@ -143,9 +143,6 @@ envelope-access:
        readService: bulk_scan_processor_tests
        updateService: bulk_scan_processor_tests
 
-reports:
-  containers: bulkscan, sscs, probate, divorce
-
 flyway:
   noop:
     strategy: "false"

@@ -114,10 +114,10 @@ public class ReportsServiceTest {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
-                    "t1.zip", instant.minus(1, MINUTES), null, "j1", ZIPFILE_PROCESSING_STARTED.toString()
+                    "t1.zip", instant.minus(1, MINUTES), null, "c1", ZIPFILE_PROCESSING_STARTED.toString()
                 ),
                 new ZipFileSummaryItem(
-                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "j2", COMPLETED.toString()
+                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "c2", COMPLETED.toString()
                 )
             ));
 
@@ -134,7 +134,7 @@ public class ReportsServiceTest {
                     toLocalTime(instant.minus(1, MINUTES)),
                     null,
                     null,
-                    "j1",
+                    "c1",
                     ZIPFILE_PROCESSING_STARTED.toString()
                 ),
                 new ZipFileSummaryResponse(
@@ -143,7 +143,7 @@ public class ReportsServiceTest {
                     toLocalTime(instant.minus(10, MINUTES)),
                     ofInstant(instant.minus(20, MINUTES), UTC).toLocalDate(),
                     toLocalTime(instant.minus(20, MINUTES)),
-                    "j2",
+                    "c2",
                     COMPLETED.toString()
                 )
             );
@@ -155,19 +155,19 @@ public class ReportsServiceTest {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
-                    "t1.zip", instant.minus(1, MINUTES), null, "j1", ZIPFILE_PROCESSING_STARTED.toString()
+                    "t1.zip", instant.minus(1, MINUTES), null, "c1", ZIPFILE_PROCESSING_STARTED.toString()
                 ),
                 new ZipFileSummaryItem(
-                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "j2", COMPLETED.toString()
+                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "c2", COMPLETED.toString()
                 )
             ));
 
         // when
-        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), "j2");
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), "c2");
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).container).isEqualTo("j2");
+        assertThat(result.get(0).container).isEqualTo("c2");
 
         assertThat(result.get(0).fileName).isEqualTo("t2.zip");
     }
