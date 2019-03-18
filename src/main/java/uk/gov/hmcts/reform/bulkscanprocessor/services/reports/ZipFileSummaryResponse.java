@@ -10,7 +10,7 @@ public class ZipFileSummaryResponse {
     public final LocalTime timeReceived;
     public final LocalDate dateProcessed;
     public final LocalTime timeProcessed;
-    public final String jurisdiction;
+    public final String container;
     public final String status;
 
     // region constructor
@@ -20,7 +20,7 @@ public class ZipFileSummaryResponse {
         LocalTime timeReceived,
         LocalDate dateProcessed,
         LocalTime timeProcessed,
-        String jurisdiction,
+        String container,
         String status
     ) {
         this.fileName = fileName;
@@ -28,7 +28,7 @@ public class ZipFileSummaryResponse {
         this.timeReceived = timeReceived;
         this.dateProcessed = dateProcessed;
         this.timeProcessed = timeProcessed;
-        this.jurisdiction = jurisdiction;
+        this.container = container;
         this.status = status;
     }
     // endregion

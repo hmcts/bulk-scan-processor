@@ -15,23 +15,23 @@ import static java.util.stream.Collectors.toSet;
 @Component
 public class ZeroRowFiller {
 
-    private final String[] jurisdictions;
+    private final String[] containers;
 
-    public ZeroRowFiller(@Value("${reports.jurisdictions}") String[] jurisdictions) {
-        this.jurisdictions = jurisdictions;
+    public ZeroRowFiller(@Value("${reports.containers}") String[] containers) {
+        this.containers = containers;
     }
 
     public List<EnvelopeCountSummary> fill(List<EnvelopeCountSummary> listToFill, LocalDate date) {
         return Stream.concat(
             listToFill.stream(),
-            missingJurisdictions(listToFill).stream().map(jur -> new EnvelopeCountSummary(0, 0, jur, date))
+            missingContainers(listToFill).stream().map(container -> new EnvelopeCountSummary(0, 0, container, date))
         ).collect(toList());
     }
 
-    private Set<String> missingJurisdictions(List<EnvelopeCountSummary> listToFill) {
+    private Set<String> missingContainers(List<EnvelopeCountSummary> listToFill) {
         return Sets.difference(
-            Sets.newHashSet(this.jurisdictions),
-            listToFill.stream().map(res -> res.jurisdiction).collect(toSet())
+            Sets.newHashSet(this.containers),
+            listToFill.stream().map(res -> res.container).collect(toSet())
         );
     }
 }

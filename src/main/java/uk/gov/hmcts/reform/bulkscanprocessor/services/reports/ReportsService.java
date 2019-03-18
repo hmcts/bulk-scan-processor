@@ -23,7 +23,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Service
 public class ReportsService {
 
-    public static final String TEST_JURISDICTION = "BULKSCAN";
+    public static final String TEST_CONTAINER = "bulkscan";
 
     private final EnvelopeCountSummaryRepository repo;
     private final ZeroRowFiller zeroRowFiller;
@@ -42,26 +42,26 @@ public class ReportsService {
     }
     // endregion
 
-    public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestJurisdiction) {
+    public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
         return zeroRowFiller
             .fill(repo.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
             .stream()
-            .filter(it -> includeTestJurisdiction || !Objects.equals(it.jurisdiction, TEST_JURISDICTION))
+            .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
             .collect(toList());
     }
 
     /**
-     * Get zip files summary for the given date and jurisdiction.
+     * Get zip files summary for the given date and container.
      *
-     * @param date         zip file received date
-     * @param jurisdiction to filter the zip files when jurisdiction value is provided
+     * @param date      zip file received date
+     * @param container to filter the zip files when container value is provided
      * @return list of zip files summary
      */
-    public List<ZipFileSummaryResponse> getZipFilesSummary(LocalDate date, String jurisdiction) {
+    public List<ZipFileSummaryResponse> getZipFilesSummary(LocalDate date, String container) {
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
             .stream()
             .map(this::fromDbZipfileSummary)
-            .filter(summary -> isEmpty(jurisdiction) || summary.jurisdiction.equalsIgnoreCase(jurisdiction))
+            .filter(summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container))
             .collect(Collectors.toList());
     }
 
@@ -72,7 +72,7 @@ public class ReportsService {
             toLocalTime(dbItem.getCreatedDate()),
             toLocalDate(dbItem.getCompletedDate()),
             toLocalTime(dbItem.getCompletedDate()),
-            toJurisdiction(dbItem.getContainer()),
+            dbItem.getContainer(),
             dbItem.getStatus()
         );
     }
@@ -81,14 +81,9 @@ public class ReportsService {
         return new EnvelopeCountSummary(
             dbItem.getReceived(),
             dbItem.getRejected(),
-            toJurisdiction(dbItem.getContainer()),
+            dbItem.getContainer(),
             dbItem.getDate()
         );
-    }
-
-    private String toJurisdiction(String container) {
-        // this is the current implicit convention. It may require more 'sophisticated' mapping in the future...
-        return container.toUpperCase();
     }
 
     private LocalDate toLocalDate(Instant instant) {

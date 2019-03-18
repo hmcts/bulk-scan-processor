@@ -32,7 +32,7 @@ public class EnvelopeCountSummaryRepositoryTest {
     @Autowired private ProcessEventRepository eventRepo;
 
     @Test
-    public void should_group_by_jurisdiction() {
+    public void should_group_by_container() {
         // given
         dbHas(
             event("A", DOC_PROCESSED_NOTIFICATION_SENT),

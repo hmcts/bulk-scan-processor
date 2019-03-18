@@ -144,7 +144,7 @@ envelope-access:
        updateService: bulk_scan_processor_tests
 
 reports:
-  jurisdictions: BULKSCAN, SSCS, PROBATE, DIVORCE
+  containers: bulkscan, sscs, probate, divorce
 
 flyway:
   noop:
