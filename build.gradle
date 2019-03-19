@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.7.RELEASE'
-  id 'org.flywaydb.flyway' version '5.1.4'
+  id 'org.flywaydb.flyway' version '5.2.4'
   id 'org.springframework.boot' version '2.0.9.RELEASE'
   id 'org.owasp.dependencycheck' version '4.0.2'
   id 'com.github.ben-manes.versions' version '0.21.0'
@@ -171,6 +171,7 @@ repositories {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
+  flyway: '5.2.4', // plugin doesn't hold information about implemented version. need to manually update this value
   springBoot: springBoot.class.package.implementationVersion,
   springHystrix: '2.0.3.RELEASE',
   springfoxSwagger: '2.9.2'
@@ -207,7 +208,7 @@ dependencies {
 
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.10', withoutJavaxMailApi
 
-  compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
+  compile group: 'org.flywaydb', name: 'flyway-core', version: versions.flyway
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
   // review following dependency after integrating db structure
   compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.4.3'
