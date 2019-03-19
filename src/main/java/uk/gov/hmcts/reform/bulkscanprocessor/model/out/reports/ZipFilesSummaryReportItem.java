@@ -25,7 +25,7 @@ public class ZipFilesSummaryReportItem {
     @JsonFormat(pattern = "HH:mm:ss")
     public final LocalTime timeProcessed;
 
-    @JsonProperty("jurisdiction")
+    @JsonProperty("container")
     public final String jurisdiction;
 
     @JsonProperty("status")
@@ -37,7 +37,7 @@ public class ZipFilesSummaryReportItem {
                                      LocalTime timeReceived,
                                      LocalDate dateProcessed,
                                      LocalTime timeProcessed,
-                                     String jurisdiction,
+                                     String container,
                                      String status
     ) {
         this.fileName = fileName;
@@ -45,7 +45,7 @@ public class ZipFilesSummaryReportItem {
         this.timeReceived = timeReceived;
         this.dateProcessed = dateProcessed;
         this.timeProcessed = timeProcessed;
-        this.jurisdiction = jurisdiction;
+        this.jurisdiction = container;
         this.status = status;
     }
     // endregion
