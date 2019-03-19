@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
@@ -34,9 +33,6 @@ public class MessageHandlerConfig {
     private static final MessageHandlerOptions messageHandlerOptions =
         new MessageHandlerOptions(1, false, Duration.ofMinutes(5));
 
-    @Value("${FAIL_ON_MESSAGE_HANDLER_REGISTRATION_ERROR:true}")
-    private boolean failOnMessageHandlerRegistrationError;
-
     @Autowired(required = false)
     @Qualifier("read-notifications-client")
     private IQueueClient readNotificationsQueueClient;
@@ -53,36 +49,18 @@ public class MessageHandlerConfig {
 
     @PostConstruct()
     public void registerMessageHandlers() throws InterruptedException, ServiceBusException {
-        try {
-            if (readNotificationsQueueClient != null) {
-                readNotificationsQueueClient.registerMessageHandler(
-                    errorNotificationHandler,
-                    messageHandlerOptions,
-                    notificationsReadExecutor
-                );
-            }
-
-            processedEnvelopesQueueClient.registerMessageHandler(
-                processedEnvelopeNotificationHandler,
+        if (readNotificationsQueueClient != null) {
+            readNotificationsQueueClient.registerMessageHandler(
+                errorNotificationHandler,
                 messageHandlerOptions,
-                processedEnvelopesReadExecutor
+                notificationsReadExecutor
             );
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            handleMessageHandlerRegistrationError(e);
-        } catch (ServiceBusException e) {
-            handleMessageHandlerRegistrationError(e);
         }
-    }
 
-    private <T extends Exception> void handleMessageHandlerRegistrationError(T cause) throws T {
-        if (failOnMessageHandlerRegistrationError) {
-            throw cause;
-        } else {
-            // The application has to keep working on Preview - otherwise the pipeline
-            // wouldn't create queues which it relies on.
-            // The problem will be addresses in BPS-445
-            log.error("An error occurred when trying to register message handlers", cause);
-        }
+        processedEnvelopesQueueClient.registerMessageHandler(
+            processedEnvelopeNotificationHandler,
+            messageHandlerOptions,
+            processedEnvelopesReadExecutor
+        );
     }
 }
