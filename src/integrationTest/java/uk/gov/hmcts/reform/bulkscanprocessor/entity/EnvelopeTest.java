@@ -58,9 +58,9 @@ public class EnvelopeTest {
 
         // then
         assertThat(capture.toString()).containsPattern(
-            ".+ WARN  \\[.+\\] "
-                + Envelope.class.getCanonicalName()
-                + ":\\d+: Missing required container for .+\\.zip"
+            ".+ WARN  \\[.+\\] .+"
+                + Envelope.class.getSimpleName()
+                + " Missing required container for .+\\.zip"
         );
 
         // and

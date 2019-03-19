@@ -123,27 +123,28 @@ public class ErrorNotificationHandlerTest {
         String output = outputCapture.toString();
 
         assertThat(output).containsPattern("INFO.+"
-            + ErrorNotificationHandler.class.getCanonicalName()
-            + ":\\d+: Processing error notification for "
+            + ErrorNotificationHandler.class.getSimpleName()
+            + " Processing error notification for "
             + ZIP_FILE_NAME
         );
         assertThat(output).containsPattern("WARN  \\[error-notification-handler\\] "
-            + ErrorNotificationExceptionHandler.class.getCanonicalName()
-            + ":\\d+: Received server error from notification client. Voiding message \\(ID: "
-            + MESSAGE_ID
-            + "\\) after 1 delivery attempt\n"
+            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
+            + ErrorNotificationException.class.getCanonicalName() + ".+"
+        );
+        assertThat(output).containsPattern(
+            "Received server error from notification client. Voiding message \\(ID: "
+                + MESSAGE_ID
+                + "\\) after 1 delivery attempt\n"
         );
         assertThat(output).doesNotContainPattern("INFO  \\[error-notification-handler\\] "
-            + ErrorNotificationExceptionHandler.class.getCanonicalName()
-            + ":\\d+: Error occurred when posting notification. Parsed response:"
+            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
+            + " Error occurred when posting notification. Parsed response:"
         );
         assertThat(output).doesNotContainPattern("INFO  \\[error-notification-handler\\] "
-            + ErrorNotificationExceptionHandler.class.getCanonicalName()
-            + ":\\d+: Error occurred when posting notification. Raw response:"
+            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
+            + " Error occurred when posting notification. Raw response:"
         );
         assertThat(output).containsPattern("Caused by: "
-            + ErrorNotificationException.class.getCanonicalName()
-            + ": "
             + HttpServerErrorException.class.getCanonicalName()
             + ": 500 Internal Server Error\n"
         );
@@ -180,26 +181,23 @@ public class ErrorNotificationHandlerTest {
         String output = outputCapture.toString();
 
         assertThat(output).containsPattern("INFO.+"
-            + ErrorNotificationHandler.class.getCanonicalName()
-            + ":\\d+: Processing error notification for "
+            + ErrorNotificationHandler.class.getSimpleName()
+            + " Processing error notification for "
             + ZIP_FILE_NAME
         );
         assertThat(output).containsPattern("ERROR \\[error-notification-handler\\] "
-            + ErrorNotificationExceptionHandler.class.getCanonicalName()
-            + ":\\d+: Client error. Dead lettering message \\(ID: "
-            + MESSAGE_ID
-            + "\\)\n"
+            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
+            + ErrorNotificationException.class.getCanonicalName() + ".+"
+        );
+        assertThat(output).containsPattern(
+            "Client error. Dead lettering message \\(ID: "
+                + MESSAGE_ID
+                + "\\)\n"
         );
         assertThat(output).containsPattern("INFO  \\[error-notification-handler\\] "
-            + ErrorNotificationExceptionHandler.class.getCanonicalName()
-            + ":\\d+: Error occurred when posting notification. "
+            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
+            + " Error occurred when posting notification. "
             + "Parsed response: doh"
-        );
-        assertThat(output).containsPattern("Caused by: "
-            + ErrorNotificationException.class.getCanonicalName()
-            + ": "
-            + HttpClientErrorException.class.getCanonicalName()
-            + ": 400 Bad Request\n"
         );
     }
 
@@ -225,13 +223,13 @@ public class ErrorNotificationHandlerTest {
         String output = outputCapture.toString();
 
         assertThat(output).containsPattern("INFO.+"
-            + ErrorNotificationHandler.class.getCanonicalName()
-            + ":\\d+: Processing error notification for "
+            + ErrorNotificationHandler.class.getSimpleName()
+            + " Processing error notification for "
             + ZIP_FILE_NAME
         );
         assertThat(output).containsPattern("INFO  \\[error-notification-service\\] "
-            + ErrorNotificationService.class.getCanonicalName()
-            + ":\\d+: Error notification for "
+            + ".+" + ErrorNotificationService.class.getSimpleName()
+            + " Error notification for "
             + ZIP_FILE_NAME
             + " published. ID: "
             + NOTIFICATION_ID
