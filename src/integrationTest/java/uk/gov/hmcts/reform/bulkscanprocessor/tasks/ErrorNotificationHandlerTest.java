@@ -7,14 +7,12 @@ import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
@@ -24,7 +22,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotificationRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers.ErrorNotificationExceptionHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.ErrorNotificationFailingResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.ErrorNotificationResponse;
@@ -61,9 +58,6 @@ public class ErrorNotificationHandlerTest {
 
     private static final CompletableFuture<Void> EMPTY_FUTURE = CompletableFuture.completedFuture(null);
 
-    @Rule
-    public OutputCapture outputCapture = new OutputCapture();
-
     @Autowired
     private ErrorNotificationRepository notificationRepository;
 
@@ -88,15 +82,12 @@ public class ErrorNotificationHandlerTest {
             OBJECT_MAPPER,
             new MessageAutoCompletor(queueClient)
         );
-
-        outputCapture.reset();
     }
 
     @After
     public void tearDown() {
         notificationRepository.deleteAll();
         eventRepository.deleteAll();
-        outputCapture.flush();
     }
 
     @Test
@@ -118,36 +109,6 @@ public class ErrorNotificationHandlerTest {
 
         // then
         assertThat(future.isCompletedExceptionally()).isFalse();
-
-        // and
-        String output = outputCapture.toString();
-
-        assertThat(output).containsPattern("INFO.+"
-            + ErrorNotificationHandler.class.getSimpleName()
-            + " Processing error notification for "
-            + ZIP_FILE_NAME
-        );
-        assertThat(output).containsPattern("WARN  \\[error-notification-handler\\] "
-            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
-            + ErrorNotificationException.class.getCanonicalName() + ".+"
-        );
-        assertThat(output).containsPattern(
-            "Received server error from notification client. Voiding message \\(ID: "
-                + MESSAGE_ID
-                + "\\) after 1 delivery attempt\n"
-        );
-        assertThat(output).doesNotContainPattern("INFO  \\[error-notification-handler\\] "
-            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
-            + " Error occurred when posting notification. Parsed response:"
-        );
-        assertThat(output).doesNotContainPattern("INFO  \\[error-notification-handler\\] "
-            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
-            + " Error occurred when posting notification. Raw response:"
-        );
-        assertThat(output).containsPattern("Caused by: "
-            + HttpServerErrorException.class.getCanonicalName()
-            + ": 500 Internal Server Error\n"
-        );
     }
 
     @Test
@@ -176,29 +137,6 @@ public class ErrorNotificationHandlerTest {
 
         // then
         assertThat(future.isCompletedExceptionally()).isFalse();
-
-        // and
-        String output = outputCapture.toString();
-
-        assertThat(output).containsPattern("INFO.+"
-            + ErrorNotificationHandler.class.getSimpleName()
-            + " Processing error notification for "
-            + ZIP_FILE_NAME
-        );
-        assertThat(output).containsPattern("ERROR \\[error-notification-handler\\] "
-            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
-            + ErrorNotificationException.class.getCanonicalName() + ".+"
-        );
-        assertThat(output).containsPattern(
-            "Client error. Dead lettering message \\(ID: "
-                + MESSAGE_ID
-                + "\\)\n"
-        );
-        assertThat(output).containsPattern("INFO  \\[error-notification-handler\\] "
-            + ".+" + ErrorNotificationExceptionHandler.class.getSimpleName()
-            + " Error occurred when posting notification. "
-            + "Parsed response: doh"
-        );
     }
 
     @Test
@@ -218,22 +156,6 @@ public class ErrorNotificationHandlerTest {
 
         // then
         assertThat(future.isCompletedExceptionally()).isFalse();
-
-        // and
-        String output = outputCapture.toString();
-
-        assertThat(output).containsPattern("INFO.+"
-            + ErrorNotificationHandler.class.getSimpleName()
-            + " Processing error notification for "
-            + ZIP_FILE_NAME
-        );
-        assertThat(output).containsPattern("INFO  \\[error-notification-service\\] "
-            + ".+" + ErrorNotificationService.class.getSimpleName()
-            + " Error notification for "
-            + ZIP_FILE_NAME
-            + " published. ID: "
-            + NOTIFICATION_ID
-        );
     }
 
     private IMessage getServiceBusMessage() throws JsonProcessingException {

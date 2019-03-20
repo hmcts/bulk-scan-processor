@@ -1,15 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotificationRepository;
@@ -29,9 +26,6 @@ import static org.mockito.BDDMockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class ErrorNotificationServiceTest {
 
-    @Rule
-    public OutputCapture capture = new OutputCapture();
-
     @Captor
     public ArgumentCaptor<ErrorNotificationRequest> requestCaptor;
 
@@ -48,13 +42,7 @@ public class ErrorNotificationServiceTest {
 
     @Before
     public void setUp() {
-        capture.reset();
         service = new ErrorNotificationService(client, repository, entityManager);
-    }
-
-    @After
-    public void tearDown() {
-        capture.flush();
     }
 
     @Test
@@ -86,9 +74,6 @@ public class ErrorNotificationServiceTest {
         assertThat(request.referenceId).isEqualTo(serviceBusMessage.id);
 
         // and
-        assertThat(capture.toString()).contains(
-            "Error notification for " + request.zipFileName + " published. ID: " + response.getNotificationId()
-        );
         verify(repository).saveAndFlush(any(ErrorNotification.class));
     }
 
