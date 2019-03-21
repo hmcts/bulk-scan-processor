@@ -58,9 +58,7 @@ public abstract class BaseFunctionalTest {
         rejectedContainer = cloudBlobClient.getContainerReference(rejectedContainerName);
     }
 
-    protected void waitForFileToBeProcessed(String fileName) {
-        String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
-
+    protected void waitForFileToBeProcessed(String fileName, String s2sToken) {
         await("processing of file " + fileName + "should end")
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)

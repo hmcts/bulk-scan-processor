@@ -29,10 +29,9 @@ public class UpdateStatusTest extends BaseFunctionalTest {
             testPrivateKeyDer
         );
 
-        waitForFileToBeProcessed(destZipFilename);
-
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
+        waitForFileToBeProcessed(destZipFilename, s2sToken);
 
         // find our envelope
         UUID envelopeId =
