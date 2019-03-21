@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.net.URISyntaxException;
@@ -22,7 +21,6 @@ import static com.microsoft.azure.storage.blob.BlobListingDetails.SNAPSHOTS;
 import static com.microsoft.azure.storage.blob.DeleteSnapshotsOption.INCLUDE_SNAPSHOTS;
 
 @ConditionalOnProperty(value = "scheduling.task.delete-rejected-files.enabled")
-@Component
 public class CleanUpRejectedFilesTask {
 
     private static final Logger log = LoggerFactory.getLogger(CleanUpRejectedFilesTask.class);
