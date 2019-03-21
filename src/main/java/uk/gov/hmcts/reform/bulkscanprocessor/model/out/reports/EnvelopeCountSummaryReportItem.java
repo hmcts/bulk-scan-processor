@@ -12,17 +12,17 @@ public class EnvelopeCountSummaryReportItem {
     @JsonProperty("rejected")
     public final int rejected;
 
-    @JsonProperty("jurisdiction")
-    public final String jurisdiction;
+    @JsonProperty("container")
+    public final String container;
 
     @JsonProperty("date")
     public final LocalDate date;
 
     // region constructor
-    public EnvelopeCountSummaryReportItem(int received, int rejected, String jurisdiction, LocalDate date) {
+    public EnvelopeCountSummaryReportItem(int received, int rejected, String container, LocalDate date) {
         this.received = received;
         this.rejected = rejected;
-        this.jurisdiction = jurisdiction;
+        this.container = container;
         this.date = date;
     }
     // endregion

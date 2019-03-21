@@ -11,7 +11,6 @@ import org.junit.BeforeClass;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Import;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -32,7 +31,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 
-@Import(ContainerMappings.class)
 public abstract class ProcessorTestSuite<T extends Processor> {
 
     protected static final String SAMPLE_ZIP_FILE_NAME = "hello_24-06-2018-00-00-00.zip";

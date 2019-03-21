@@ -53,26 +53,26 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data.length()").value(1))
             .andExpect(jsonPath("$.data[0].received").value(countSummary.received))
             .andExpect(jsonPath("$.data[0].rejected").value(countSummary.rejected))
-            .andExpect(jsonPath("$.data[0].jurisdiction").value(countSummary.jurisdiction))
+            .andExpect(jsonPath("$.data[0].container").value(countSummary.container))
             .andExpect(jsonPath("$.data[0].date").value(countSummary.date.toString()));
     }
 
     @Test
-    public void should_not_include_test_jurisdiction_by_default() throws Exception {
+    public void should_not_include_test_container_by_default() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14"));
 
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
     @Test
-    public void should_include_test_jurisdiction_if_requested_by_the_client() throws Exception {
+    public void should_include_test_container_if_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=true"));
 
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), true);
     }
 
     @Test
-    public void should_not_include_test_jurisdiction_if_exlicitly_not_requested_by_the_client() throws Exception {
+    public void should_not_include_test_container_if_exlicitly_not_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=false"));
 
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
@@ -108,22 +108,22 @@ public class ReportsControllerTest {
             localTime,
             localDate,
             localTime.plusHours(1),
-            "BULKSCAN",
+            "bulkscan",
             CONSUMED.toString()
         );
 
-        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
             .willReturn(singletonList(zipFileSummaryResponse));
 
         String expectedContent = String.format(
-            "Jurisdiction,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
-                + "BULKSCAN,test.zip,%s,%s,%s,%s,CONSUMED\r\n",
+            "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
+                + "bulkscan,test.zip,%s,%s,%s,%s,CONSUMED\r\n",
             localDate.toString(), "12:30:10",
             localDate.toString(), "13:30:10"
         );
 
         mockMvc
-            .perform(get("/reports/zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN")
+            .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan")
                 .accept(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
@@ -135,7 +135,7 @@ public class ReportsControllerTest {
     public void should_return_empty_zipfiles_summary_in_csv_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
-        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
             .willReturn(emptyList());
 
         mockMvc
@@ -145,7 +145,7 @@ public class ReportsControllerTest {
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
             .andExpect(content().string(
-                "Jurisdiction,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
+                "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
             ));
     }
 
@@ -160,15 +160,15 @@ public class ReportsControllerTest {
             localTime,
             localDate,
             localTime.plusHours(1),
-            "BULKSCAN",
+            "bulkscan",
             CONSUMED.toString()
         );
 
-        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
             .willReturn(singletonList(response));
 
         mockMvc
-            .perform(get("/reports/zip-files-summary?date=2019-01-14&jurisdiction=BULKSCAN"))
+            .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.data.length()").value(1))
@@ -177,7 +177,7 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].time_received").value("12:30:10"))
             .andExpect(jsonPath("$.data[0].date_processed").value("2019-01-14"))
             .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10"))
-            .andExpect(jsonPath("$.data[0].jurisdiction").value(response.jurisdiction))
+            .andExpect(jsonPath("$.data[0].container").value(response.container))
             .andExpect(jsonPath("$.data[0].status").value(response.status));
     }
 
@@ -185,7 +185,7 @@ public class ReportsControllerTest {
     public void should_return_empty_zipfiles_summary_in_json_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
-        given(reportsService.getZipFilesSummary(localDate, "BULKSCAN"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
             .willReturn(emptyList());
 
         mockMvc

@@ -153,7 +153,7 @@ dependencyManagement {
   dependencies {
     dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.61'
     // CVE-2018-10237 - Unbounded memory allocation
-    dependencySet(group: 'com.google.guava', version: '27.0.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '27.1-jre') {
       entry 'guava'
     }
   }
@@ -218,7 +218,7 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: versions.reformLogging
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
 
-  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '1.0.4'
+  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '2.0.1'
   compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '4.0.2'
 
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
@@ -233,7 +233,7 @@ dependencies {
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
   integrationTestCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.1.1.RELEASE'
-  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.10.6'
+  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.10.7'
   integrationTestCompile group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestCompile sourceSets.main.runtimeClasspath

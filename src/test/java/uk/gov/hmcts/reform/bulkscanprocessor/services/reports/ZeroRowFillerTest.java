@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
 import org.junit.Test;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 
 import java.util.List;
 
@@ -13,11 +14,18 @@ public class ZeroRowFillerTest {
     @Test
     public void should_add_missing_zero_row_when_needed() {
         // given
-        ZeroRowFiller filler = new ZeroRowFiller(new String[] {"A", "B", "C"});
+        ContainerMappings containerMappings = new ContainerMappings();
+        containerMappings.setMappings(asList(
+            new ContainerMappings.Mapping("c1", "j1", "123"),
+            new ContainerMappings.Mapping("c2", "j2", "124"),
+            new ContainerMappings.Mapping("c3", "j3", "125")
+        ));
+
+        ZeroRowFiller filler = new ZeroRowFiller(containerMappings);
 
         List<EnvelopeCountSummary> listToFill = asList(
-            new EnvelopeCountSummary(100, 101, "A", now()),
-            new EnvelopeCountSummary(200, 201, "B", now())
+            new EnvelopeCountSummary(100, 101, "c1", now()),
+            new EnvelopeCountSummary(200, 201, "c2", now())
         );
 
         // when
@@ -27,20 +35,26 @@ public class ZeroRowFillerTest {
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactly(
-                new EnvelopeCountSummary(100, 101, "A", now()),
-                new EnvelopeCountSummary(200, 201, "B", now()),
-                new EnvelopeCountSummary(0, 0, "C", now())
+                new EnvelopeCountSummary(100, 101, "c1", now()),
+                new EnvelopeCountSummary(200, 201, "c2", now()),
+                new EnvelopeCountSummary(0, 0, "c3", now())
             );
     }
 
     @Test
     public void should_not_change_input_list_if_all_jurisdictions_are_present() {
         // given
-        ZeroRowFiller filler = new ZeroRowFiller(new String[] {"A", "B"});
+        ContainerMappings containerMappings = new ContainerMappings();
+        containerMappings.setMappings(asList(
+            new ContainerMappings.Mapping("c1", "j1", "123"),
+            new ContainerMappings.Mapping("c2", "j2", "124")
+        ));
+
+        ZeroRowFiller filler = new ZeroRowFiller(containerMappings);
 
         List<EnvelopeCountSummary> listToFill = asList(
-            new EnvelopeCountSummary(100, 101, "A", now()),
-            new EnvelopeCountSummary(200, 201, "B", now())
+            new EnvelopeCountSummary(100, 101, "c1", now()),
+            new EnvelopeCountSummary(200, 201, "c2", now())
         );
 
         // when

@@ -27,10 +27,10 @@ public class CsvWriterTest {
         //given
         List<ZipFileSummaryResponse> csvData = Arrays.asList(
             new ZipFileSummaryResponse(
-                "test1.zip", date, time, date, time, "BULKSCAN", DOC_PROCESSED.toString()
+                "test1.zip", date, time, date, time, "bulkscan", DOC_PROCESSED.toString()
             ),
             new ZipFileSummaryResponse(
-                "test2.zip", date, time, date, time, "BULKSCAN", DOC_PROCESSED.toString()
+                "test2.zip", date, time, date, time, "bulkscan", DOC_PROCESSED.toString()
             )
         );
 
@@ -48,7 +48,7 @@ public class CsvWriterTest {
             )
             .containsExactly(
                 tuple(
-                    "Jurisdiction",
+                    "Container",
                     "Zip File Name",
                     "Date Received",
                     "Time Received",
@@ -57,7 +57,7 @@ public class CsvWriterTest {
                     "Status"
                 ),
                 tuple(
-                    "BULKSCAN",
+                    "bulkscan",
                     "test1.zip",
                     date.toString(),
                     time.toString(),
@@ -66,7 +66,7 @@ public class CsvWriterTest {
                     DOC_PROCESSED.toString()
                 ),
                 tuple(
-                    "BULKSCAN",
+                    "bulkscan",
                     "test2.zip",
                     date.toString(),
                     time.toString(),
@@ -93,7 +93,7 @@ public class CsvWriterTest {
             )
             .containsExactly(
                 tuple(
-                    "Jurisdiction",
+                    "Container",
                     "Zip File Name",
                     "Date Received",
                     "Time Received",

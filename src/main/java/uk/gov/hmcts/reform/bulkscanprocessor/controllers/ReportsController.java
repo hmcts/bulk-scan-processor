@@ -41,16 +41,16 @@ public class ReportsController {
     @ApiOperation("Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getCountSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-        @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestJurisdiction
+        @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
     ) {
-        List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestJurisdiction);
+        List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestContainer);
         return new EnvelopeCountSummaryReportListResponse(
             result
                 .stream()
                 .map(item -> new EnvelopeCountSummaryReportItem(
                     item.received,
                     item.rejected,
-                    item.jurisdiction,
+                    item.container,
                     item.date
                 ))
                 .collect(toList())
@@ -58,12 +58,12 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves zip files summary report in json format for the given date and jurisdiction")
+    @ApiOperation("Retrieves zip files summary report in json format for the given date and container")
     public ZipFilesSummaryReportListResponse getZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-        @RequestParam(name = "jurisdiction", required = false) String jurisdiction
+        @RequestParam(name = "container", required = false) String container
     ) {
-        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
+        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, container);
         return new ZipFilesSummaryReportListResponse(
             summary
                 .stream()
@@ -73,7 +73,7 @@ public class ReportsController {
                     item.timeReceived,
                     item.dateProcessed,
                     item.timeProcessed,
-                    item.jurisdiction,
+                    item.container,
                     item.status
                 ))
                 .collect(toList())
@@ -81,12 +81,12 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @ApiOperation("Retrieves zip files summary report in csv format for the given date and jurisdiction")
+    @ApiOperation("Retrieves zip files summary report in csv format for the given date and container")
     public ResponseEntity downloadZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-        @RequestParam(name = "jurisdiction", required = false) String jurisdiction
+        @RequestParam(name = "container", required = false) String container
     ) throws IOException {
-        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, jurisdiction);
+        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, container);
 
         File csvFile = CsvWriter.writeZipFilesSummaryToCsv(summary);
         return ResponseEntity
