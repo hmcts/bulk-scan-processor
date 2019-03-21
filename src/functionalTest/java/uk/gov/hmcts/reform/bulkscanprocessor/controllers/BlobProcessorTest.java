@@ -28,9 +28,9 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         // valid zip file
         testHelper.uploadZipFile(inputContainer, files, metadataFile, destZipFilename, testPrivateKeyDer);
 
-        waitForFileToBeProcessed(destZipFilename);
-
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
+
+        waitForFileToBeProcessed(destZipFilename, s2sToken);
 
         EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, destZipFilename).get();
 
