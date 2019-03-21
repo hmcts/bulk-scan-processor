@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeUpdateService;
 
 import java.io.IOException;
 import java.net.URL;
@@ -48,9 +47,6 @@ public class ReadEnvelopesControllerTest {
 
     @MockBean
     private EnvelopeRetrieverService envelopeRetrieverService;
-
-    @MockBean
-    private EnvelopeUpdateService envelopeUpdateService; //NOPMD
 
     @MockBean
     private AuthService authService;
