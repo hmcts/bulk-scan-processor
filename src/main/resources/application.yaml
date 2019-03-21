@@ -142,6 +142,12 @@ envelope-access:
      - jurisdiction: BULKSCAN
        readService: bulk_scan_processor_tests
        updateService: bulk_scan_processor_tests
+     - jurisdiction: PROBATE
+       readService: TBD
+       updateService: TBD
+     - jurisdiction: DIVORCE
+       readService: TBD
+       updateService: TBD
 
 flyway:
   noop:
