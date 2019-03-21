@@ -74,7 +74,7 @@ variable "reupload_delay" {
 }
 
 variable "reupload_max_tries" {
-  default = "5"
+  default = "15"
 }
 
 variable "reupload_enabled" {
