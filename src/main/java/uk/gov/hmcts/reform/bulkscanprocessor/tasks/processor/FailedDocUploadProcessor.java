@@ -103,7 +103,8 @@ public class FailedDocUploadProcessor extends Processor {
                     "An error occurred when processing failed document {} from container {}. Envelope ID: {}",
                     envelope.getZipFileName(),
                     containerName,
-                    envelope.getId()
+                    envelope.getId(),
+                    ex
                 );
             }
         }
