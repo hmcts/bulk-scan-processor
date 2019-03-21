@@ -237,27 +237,4 @@ public class TestHelper {
 
         return response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
     }
-
-    public void updateEnvelopeStatus(
-        String baseUrl,
-        String s2sToken,
-        UUID envelopeId,
-        Status status
-    ) {
-        Response resp =
-            RestAssured
-                .given()
-                .relaxedHTTPSValidation()
-                .baseUri(baseUrl)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header("ServiceAuthorization", "Bearer " + s2sToken)
-                .body("{\"status\": \"" + status + "\"}")
-                .when()
-                .put("/envelopes/" + envelopeId + "/status")
-                .andReturn();
-
-        assertThat(resp.statusCode())
-            .as("Should get success response on update")
-            .isEqualTo(204);
-    }
 }
