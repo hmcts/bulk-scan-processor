@@ -31,10 +31,10 @@ public class CleanUpRejectedFilesTask {
     // region constructor
     public CleanUpRejectedFilesTask(
         BlobManager blobManager,
-        @Value("${scheduling.task.delete-rejected-files.ttl}") Duration ttl
+        @Value("${scheduling.task.delete-rejected-files.ttl}") String ttl // ISO-8601 duration string
     ) {
         this.blobManager = blobManager;
-        this.ttl = ttl;
+        this.ttl = Duration.parse(ttl);
     }
     // endregion
 

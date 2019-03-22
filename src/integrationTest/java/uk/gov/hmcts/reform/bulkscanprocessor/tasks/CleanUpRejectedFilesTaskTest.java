@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.io.File;
-import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,7 +71,7 @@ public class CleanUpRejectedFilesTaskTest {
             .createSnapshot();
 
         // when
-        new CleanUpRejectedFilesTask(blobManager, Duration.ZERO).run();
+        new CleanUpRejectedFilesTask(blobManager, "PT0H").run();
 
         // then
         assertThat(rejectedContainer.listBlobs()).isEmpty();
