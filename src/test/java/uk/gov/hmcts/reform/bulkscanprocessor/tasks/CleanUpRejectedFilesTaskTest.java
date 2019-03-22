@@ -42,7 +42,8 @@ public class CleanUpRejectedFilesTaskTest {
     @Test
     public void should_remove_only_old_files() throws Exception {
         // given
-        Duration ttl = Duration.ofHours(1);
+        String ttlString = "PT1H";
+        Duration ttl = Duration.parse(ttlString);
 
         MockBlob newFile = mockBlob("new.zip", now());
         MockBlob oldFile = mockBlob("old.zip", now().minus(ttl.plusMinutes(1)));
@@ -53,7 +54,7 @@ public class CleanUpRejectedFilesTaskTest {
                 oldFile.listItem
             ));
 
-        CleanUpRejectedFilesTask task = new CleanUpRejectedFilesTask(blobManager, ttl);
+        CleanUpRejectedFilesTask task = new CleanUpRejectedFilesTask(blobManager, ttlString);
 
         // when
         task.run();
