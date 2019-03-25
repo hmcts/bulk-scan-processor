@@ -229,13 +229,13 @@ dependencies {
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.9'
+  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.10'
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
   integrationTestCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.1.1.RELEASE'
-  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.10.7'
+  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.11.1'
   integrationTestCompile group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestCompile sourceSets.main.runtimeClasspath
