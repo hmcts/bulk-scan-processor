@@ -60,7 +60,7 @@ withPipeline(type, product, component) {
       env.RESOURCE_GROUP = 'bulk-scan-aks'
       env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
 
-      def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME)
+      def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT)
       def subscription = env.SUBSCRIPTION_NAME
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def storageSecret = "storage-secret-${aksServiceName}"
