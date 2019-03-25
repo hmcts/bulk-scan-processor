@@ -1,9 +1,9 @@
 vault_section = "preprod"
 capacity = "2"
 reupload_delay = "4000"
-reupload_enabled = true
+reupload_enabled = "true"
 scan_delay = "4000"
-scan_enabled = true
+scan_enabled = "true"
 
 orchestrator_notifications_task_enabled = "true"
 orchestrator_notifications_task_delay = "3000"

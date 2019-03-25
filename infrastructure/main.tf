@@ -69,7 +69,7 @@ module "bulk-scan" {
   env                             = "${var.env}"
   ilbIp                           = "${var.ilbIp}"
   subscription                    = "${var.subscription}"
-  is_frontend                     = false
+  is_frontend                     = "false"
   capacity                        = "${var.capacity}"
   common_tags                     = "${var.common_tags}"
   appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
