@@ -3,8 +3,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
@@ -15,6 +17,8 @@ import java.time.LocalDate;
 import java.util.List;
 import javax.mail.internet.MimeMessage;
 
+@Component
+@ConditionalOnBean(JavaMailSender.class)
 public class ReportSender {
 
     private static final Logger log = LoggerFactory.getLogger(ReportSender.class);
