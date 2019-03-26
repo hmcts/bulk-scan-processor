@@ -44,7 +44,6 @@ spring:
           auth: true
           starttls:
             enable: true
-    test-connection: true
     username: username
 
 reports:
