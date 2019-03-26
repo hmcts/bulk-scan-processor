@@ -178,21 +178,23 @@ def versions = [
 ]
 
 dependencies {
-  // exclude old version of json-smart as it prevents the application from starting
-  def withoutJsonSmart = {
-    exclude group: 'net.minidev', module: 'json-smart'
-  }
-
   // exclude spring-cloud-context as it is already included in spring-cloud-starter-netflix-hystrix
   def withoutSpringCloudContext = {
     exclude group: 'org.springframework.cloud', module: 'spring-cloud-context'
+  }
+
+  def withoutJavaxMailApi = {
+    exclude group: 'javax.mail', module: 'mailapi'
   }
 
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '2.2.1'
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '2.2.1'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.1.0'
-  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.8', withoutJsonSmart
+  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.8', {
+    exclude group: 'javax.mail', module: 'mail'
+    exclude group: 'net.minidev', module: 'json-smart'
+  }
 
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: versions.springBoot
@@ -204,7 +206,7 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version:'0.0.3'
   compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4', withoutSpringCloudContext
 
-  compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.10'
+  compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.10', withoutJavaxMailApi
 
   compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
