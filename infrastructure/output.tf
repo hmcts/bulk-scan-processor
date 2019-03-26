@@ -31,7 +31,7 @@ output "TEST_S2S_URL" {
 }
 
 output "TEST_S2S_NAME" {
-  sensitive = true
+  sensitive = "true"
   value     = "${var.test_s2s_name}"
 }
 
