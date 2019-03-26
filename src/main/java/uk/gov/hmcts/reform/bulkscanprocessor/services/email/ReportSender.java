@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import java.util.List;
 import javax.mail.internet.MimeMessage;
 
 @Component
-@ConditionalOnClass(JavaMailSender.class)
+@ConditionalOnProperty(prefix = "spring.mail", name = "host")
 public class ReportSender {
 
     private static final Logger log = LoggerFactory.getLogger(ReportSender.class);
