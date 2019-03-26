@@ -3,27 +3,23 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import org.apache.commons.mail.util.MimeMessageParser;
-import org.assertj.core.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.mail.Address;
-import javax.mail.internet.MimeMessage;
 
 import static java.time.LocalDate.now;
-import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -39,15 +35,12 @@ public class ReportSenderTest {
     @Test
     public void should_send_email_to_all_recipients() throws Exception {
         // given
-        String[] recipients = Arrays.array(
-            "foo@hmcts.net",
-            "bar@hmcts.net"
-        );
+        String reportRecipients = "Foo <foo@hmcts.net>, bar@hmcts.net";
 
         ReportsService reportsService = mock(ReportsService.class);
 
         greenMail.setUser(TEST_LOGIN, TEST_PASSWORD);
-        ReportSender reportSender = new ReportSender(getMailSender(), reportsService, recipients);
+        ReportSender reportSender = new ReportSender(getMailSender(), reportsService, reportRecipients);
 
         // when
         reportSender.send();
@@ -55,7 +48,14 @@ public class ReportSenderTest {
         // then
         MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
 
-        assertThat(msg.getTo()).extracting(Address::toString).containsExactlyElementsOf(asList(recipients));
+        assertThat(msg.getTo())
+            .extracting(Address::toString)
+            .hasSize(2)
+            .containsExactlyElementsOf(
+                stream(reportRecipients.split(","))
+                    .map(String::trim)
+                    .collect(Collectors.toList())
+            );
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
         assertThat(msg.getAttachmentList()).hasSize(1);
@@ -65,7 +65,7 @@ public class ReportSenderTest {
     }
 
     @Test
-    public void should_handle_mail_exception() throws Exception {
+    public void should_handle_mail_exception() {
         // given
         ReportsService reportsService = mock(ReportsService.class);
         JavaMailSender mailSender = mock(JavaMailSender.class);
@@ -73,11 +73,7 @@ public class ReportSenderTest {
         given(mailSender.createMimeMessage())
             .willReturn(new JavaMailSenderImpl().createMimeMessage());
 
-        willThrow(MailSendException.class)
-            .given(mailSender)
-            .send(any(MimeMessage.class));
-
-        ReportSender reportSender = new ReportSender(mailSender, reportsService, new String[0]);
+        ReportSender reportSender = new ReportSender(mailSender, reportsService, "");
 
         // when
         Throwable exc = catchThrowable(reportSender::send);

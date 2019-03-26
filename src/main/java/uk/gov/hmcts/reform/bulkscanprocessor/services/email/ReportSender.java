@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
@@ -11,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import javax.mail.internet.MimeMessage;
 
@@ -31,16 +31,11 @@ public class ReportSender {
     public ReportSender(
         JavaMailSender mailSender,
         ReportsService reportsService,
-        String[] recipients
+        @Value("${reports.recipients:}") String reportRecipients
     ) {
         this.mailSender = mailSender;
         this.reportsService = reportsService;
-
-        if (recipients == null) {
-            this.recipients = new String[0];
-        } else {
-            this.recipients = Arrays.copyOf(recipients, recipients.length);
-        }
+        this.recipients = reportRecipients.split(",");
 
         if (this.recipients.length == 0) {
             log.warn("No recipients configured for reports");
