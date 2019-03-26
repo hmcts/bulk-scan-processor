@@ -35,7 +35,7 @@ public class ReportSender {
     public ReportSender(
         JavaMailSender mailSender,
         ReportsService reportsService,
-        @Value("${reports.recipients:}") String reportRecipients
+        @Value("${reports.recipients}") String reportRecipients
     ) {
         this.mailSender = mailSender;
         this.reportsService = reportsService;

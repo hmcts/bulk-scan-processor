@@ -47,6 +47,9 @@ spring:
     test-connection: true
     username: username
 
+reports:
+  recipients:
+
 info:
   app:
     name: Bulk Scanning
