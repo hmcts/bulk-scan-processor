@@ -36,8 +36,8 @@ spring:
             non_contextual_creation: true
   mail:
     host: ${SMTP_HOST:false}
-    username: username
-    password: password
+    username: ${SMTP_USERNAME:username}
+    password: ${SMTP_PASSWORD:password}
     port: 587
     properties:
       mail:
