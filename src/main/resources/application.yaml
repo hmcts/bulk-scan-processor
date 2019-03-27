@@ -35,7 +35,7 @@ spring:
             # silence the 'wall-of-text' - unnecessary exception throw about blob types
             non_contextual_creation: true
   mail:
-    host: false #smtp.office365.com
+    host: ${SMTP_HOST:false}
     password: password
     port: 587
     properties:

@@ -13,12 +13,7 @@ import javax.mail.internet.MimeMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(
-    properties = {
-        "spring.mail.host=smtp.server.com", // once present in config can be deleted
-        "reports.recipients=integration@test"
-    }
-)
+@SpringBootTest
 @RunWith(SpringRunner.class)
 public class ReportSenderTest {
 
