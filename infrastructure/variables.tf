@@ -117,6 +117,20 @@ variable "delete_rejected_files_cron" {
 variable "delete_rejected_files_ttl" {
   default = "PT72H"
 }
+
+# endregion
+
+# region reports
+variable "smtp_host" {
+  type        = "string"
+  default     = "false"
+  description = "SMTP host for sending out reports via JavaMailSender"
+}
+
+variable "reports_cron" {
+  default = "0 0 18 * * *"
+}
+
 # endregion
 
 # list of SSL client certificate thumbprints that are accepted by the API (gateway)
