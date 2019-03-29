@@ -7,6 +7,12 @@
     <cve>CVE-2018-10237</cve>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[No fix is available]]></notes>
+    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.0\.7\.RELEASE$</gav>
+    <cve>CVE-2018-1258</cve>
+  </suppress>
+
   <!-- not used by server -->
 
   <suppress>
