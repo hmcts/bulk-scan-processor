@@ -36,6 +36,7 @@ spring:
             non_contextual_creation: true
   mail:
     host: ${SMTP_HOST:false}
+    username: username
     password: password
     port: 587
     properties:
@@ -44,7 +45,6 @@ spring:
           auth: true
           starttls:
             enable: true
-    username: username
 
 reports:
   recipients:
