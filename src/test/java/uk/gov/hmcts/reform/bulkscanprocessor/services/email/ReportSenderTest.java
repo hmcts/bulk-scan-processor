@@ -7,17 +7,21 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.util.Properties;
 import javax.mail.Address;
+import javax.mail.internet.MimeMessage;
 
 import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -75,7 +79,11 @@ public class ReportSenderTest {
         given(mailSender.createMimeMessage())
             .willReturn(new JavaMailSenderImpl().createMimeMessage());
 
-        ReportSender reportSender = new ReportSender(mailSender, reportsService, new String[] {});
+        willThrow(MailSendException.class)
+            .given(mailSender)
+            .send(any(MimeMessage.class));
+
+        ReportSender reportSender = new ReportSender(mailSender, reportsService, null);
 
         // when
         Throwable exc = catchThrowable(reportSender::send);
