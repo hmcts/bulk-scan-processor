@@ -27,6 +27,9 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("jurisdiction")
     private final String jurisdiction;
 
+    @JsonProperty("container")
+    private final String container;
+
     @JsonProperty("classification")
     private final Classification classification;
 
@@ -53,6 +56,7 @@ public class EnvelopeMsg implements Msg {
         this.classification = envelope.getClassification();
         this.poBox = envelope.getPoBox();
         this.jurisdiction = envelope.getJurisdiction();
+        this.container = envelope.getContainer();
         this.deliveryDate = envelope.getDeliveryDate();
         this.openingDate = envelope.getOpeningDate();
         this.zipFileName = envelope.getZipFileName();
@@ -106,6 +110,10 @@ public class EnvelopeMsg implements Msg {
 
     public List<OcrField> getOcrData() {
         return ocrData;
+    }
+
+    public String getContainer() {
+        return container;
     }
 
     @Override

@@ -122,6 +122,7 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("case_ref").textValue()).isEqualTo(message.getCaseNumber());
         assertThat(jsonNode.get("po_box").textValue()).isEqualTo(message.getPoBox());
         assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
+        assertThat(jsonNode.get("container").textValue()).isEqualTo(message.getContainer());
         assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo(message.getZipFileName());
         assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
 
@@ -153,6 +154,7 @@ public class ServiceBusHelperTest {
         when(envelope.getCaseNumber()).thenReturn("1111222233334446");
         when(envelope.getPoBox()).thenReturn("SSCS PO BOX");
         when(envelope.getJurisdiction()).thenReturn("SSCS");
+        when(envelope.getContainer()).thenReturn("sscs");
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
         when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
         when(envelope.getDeliveryDate()).thenReturn(Instant.now());
