@@ -35,11 +35,11 @@ public class ReportSender {
     public ReportSender(
         JavaMailSender mailSender,
         ReportsService reportsService,
-        @Value("${reports.recipients}") String reportRecipientsCsv
+        @Value("${reports.recipients}") String[] reportRecipients
     ) {
         this.mailSender = mailSender;
         this.reportsService = reportsService;
-        this.recipients = reportRecipientsCsv.split(",");
+        this.recipients = reportRecipients;
 
         if (this.recipients.length == 0) {
             log.warn("No recipients configured for reports");

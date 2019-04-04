@@ -12,11 +12,9 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.util.Properties;
-import java.util.stream.Collectors;
 import javax.mail.Address;
 
 import static java.time.LocalDate.now;
-import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
@@ -35,12 +33,17 @@ public class ReportSenderTest {
     @Test
     public void should_send_email_to_all_recipients() throws Exception {
         // given
-        String reportRecipients = "Foo <foo@hmcts.net>, bar@hmcts.net";
+        String reportRecipient1 = "Foo <foo@hmcts.net>";
+        String reportRecipient2 = "bar@hmcts.net";
 
         ReportsService reportsService = mock(ReportsService.class);
 
         greenMail.setUser(TEST_LOGIN, TEST_PASSWORD);
-        ReportSender reportSender = new ReportSender(getMailSender(), reportsService, reportRecipients);
+        ReportSender reportSender = new ReportSender(
+            getMailSender(),
+            reportsService,
+            new String[] { reportRecipient1, reportRecipient2}
+        );
 
         // when
         reportSender.send();
@@ -51,10 +54,9 @@ public class ReportSenderTest {
         assertThat(msg.getTo())
             .extracting(Address::toString)
             .hasSize(2)
-            .containsExactlyElementsOf(
-                stream(reportRecipients.split(","))
-                    .map(String::trim)
-                    .collect(Collectors.toList())
+            .containsExactly(
+                reportRecipient1,
+                reportRecipient2
             );
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
@@ -73,7 +75,7 @@ public class ReportSenderTest {
         given(mailSender.createMimeMessage())
             .willReturn(new JavaMailSenderImpl().createMimeMessage());
 
-        ReportSender reportSender = new ReportSender(mailSender, reportsService, "");
+        ReportSender reportSender = new ReportSender(mailSender, reportsService, new String[] {});
 
         // when
         Throwable exc = catchThrowable(reportSender::send);
