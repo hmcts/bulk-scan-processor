@@ -5,6 +5,7 @@ java:
     DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
     SCAN_ENABLED: "true"
     SCAN_DELAY: "4000"
+    REPORTS_CRON: "0 0 0 1 1 ?"
     REUPLOAD_ENABLED: "true"
     REUPLOAD_DELAY: "4000"
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED: "true"

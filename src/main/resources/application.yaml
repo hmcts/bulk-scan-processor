@@ -46,9 +46,6 @@ spring:
           starttls:
             enable: true
 
-reports:
-  recipients:
-
 info:
   app:
     name: Bulk Scanning
