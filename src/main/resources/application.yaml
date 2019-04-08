@@ -46,6 +46,11 @@ spring:
           starttls:
             enable: true
 
+# setting env vars + defaults as env vars will be overridden otherwise
+reports:
+  cron: ${REPORTS_CRON:0 0 18 * * *}
+  recipients: ${REPORTS_RECIPIENTS:}
+
 info:
   app:
     name: Bulk Scanning
