@@ -133,6 +133,12 @@ module "bulk-scan" {
     QUEUE_NOTIFICATIONS_READ = "${data.terraform_remote_state.shared_infra.notifications_queue_primary_listen_connection_string}"
     QUEUE_PROCESSED_ENVELOPES_READ = "${data.terraform_remote_state.shared_infra.processed_envelopes_queue_primary_listen_connection_string}"
 
+    SMTP_HOST          = "${var.smtp_host}"
+    SMTP_USERNAME      = "${data.azurerm_key_vault_secret.smtp_username.value}"
+    SMTP_PASSWORD      = "${data.azurerm_key_vault_secret.smtp_password.value}"
+    REPORTS_CRON       = "${var.reports_cron}"
+    REPORTS_RECIPIENTS = "${data.azurerm_key_vault_secret.reports_recipients.value}"
+
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
@@ -177,6 +183,21 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 data "azurerm_key_vault_secret" "s2s_secret" {
   name      = "microservicekey-bulk-scan-processor"
   vault_uri = "${local.s2s_vault_url}"
+}
+
+data "azurerm_key_vault_secret" "reports_recipients" {
+  name      = "reports-recipients"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "smtp_username" {
+  name      = "reports-email-username"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "smtp_password" {
+  name      = "reports-email-password"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 # region API (gateway)
