@@ -54,8 +54,7 @@ public class ScannableItem implements EnvelopeAssignable {
     @Enumerated(EnumType.STRING)
     private DocumentType documentType;
 
-    @Enumerated(EnumType.STRING)
-    private DocumentSubtype documentSubtype;
+    private String documentSubtype;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)
@@ -76,7 +75,7 @@ public class ScannableItem implements EnvelopeAssignable {
         String fileName,
         String notes,
         DocumentType documentType,
-        DocumentSubtype documentSubtype
+        String documentSubtype
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -147,7 +146,7 @@ public class ScannableItem implements EnvelopeAssignable {
         return documentType;
     }
 
-    public DocumentSubtype getDocumentSubtype() {
+    public String getDocumentSubtype() {
         return documentSubtype;
     }
 

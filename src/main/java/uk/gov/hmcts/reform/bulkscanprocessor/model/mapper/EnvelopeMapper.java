@@ -22,7 +22,7 @@ import static java.util.stream.Collectors.toList;
 public class EnvelopeMapper {
 
     // Maps metadata file document type to target ccd subtype.
-    private static final Map<InputDocumentType, DocumentSubtype> subtypeMapping =
+    private static final Map<InputDocumentType, String> subtypeMapping =
         ImmutableMap.of(
             InputDocumentType.SSCS1, DocumentSubtype.SSCS1,
             InputDocumentType.WILL, DocumentSubtype.WILL,
@@ -83,7 +83,7 @@ public class EnvelopeMapper {
             : DocumentType.OTHER;
     }
 
-    private static DocumentSubtype extractDocumentSubtype(InputDocumentType inputDocumentType) {
+    private static String extractDocumentSubtype(InputDocumentType inputDocumentType) {
         return subtypeMapping.get(inputDocumentType);
     }
 

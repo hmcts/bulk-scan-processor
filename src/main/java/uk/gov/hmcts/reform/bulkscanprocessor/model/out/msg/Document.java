@@ -19,7 +19,7 @@ public class Document {
     public final DocumentType type;
 
     @JsonProperty("subtype")
-    public final DocumentSubtype subtype;
+    public final String subtype;
 
     @JsonProperty("scanned_at")
     public final Instant scannedAt;
@@ -32,7 +32,7 @@ public class Document {
         String fileName,
         String controlNumber,
         DocumentType type,
-        DocumentSubtype subtype,
+        String subtype,
         Instant scannedAt,
         String url
     ) {

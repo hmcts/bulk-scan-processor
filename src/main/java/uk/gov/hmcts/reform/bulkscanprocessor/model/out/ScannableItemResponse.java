@@ -50,7 +50,7 @@ public class ScannableItemResponse {
     public final DocumentType documentType;
 
     @JsonProperty("document_subtype")
-    public final DocumentSubtype documentSubtype;
+    public final String documentSubtype;
 
     @JsonCreator
     public ScannableItemResponse(
@@ -67,7 +67,7 @@ public class ScannableItemResponse {
         @JsonProperty("notes") String notes,
         @JsonProperty("document_url") String documentUrl,
         @JsonProperty("document_type") DocumentType documentType,
-        @JsonProperty("document_subtype") DocumentSubtype documentSubtype
+        @JsonProperty("document_subtype") String documentSubtype
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;

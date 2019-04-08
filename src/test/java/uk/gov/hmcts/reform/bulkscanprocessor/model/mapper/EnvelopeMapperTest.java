@@ -18,6 +18,9 @@ import java.time.Instant;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.COVERSHEET;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.SSCS1;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.WILL;
 
 public class EnvelopeMapperTest {
 
@@ -114,7 +117,7 @@ public class EnvelopeMapperTest {
 
     private InputDocumentType convertToInputDocumentType(
         DocumentType documentType,
-        DocumentSubtype documentSubtype
+        String documentSubtype
     ) {
         switch (documentType) {
             case CHERISHED:
