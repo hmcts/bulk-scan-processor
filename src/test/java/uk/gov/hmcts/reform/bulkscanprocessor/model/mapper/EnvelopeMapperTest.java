@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import java.time.Instant;
