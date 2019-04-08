@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
