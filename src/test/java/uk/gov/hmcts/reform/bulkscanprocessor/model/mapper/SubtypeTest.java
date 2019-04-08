@@ -46,10 +46,10 @@ public class SubtypeTest {
     private class TestCase {
         InputScannableItem input;
         DocumentType expectedDocType;
-        DocumentSubtype expectedDocSubtype;
+        String expectedDocSubtype;
 
         // region constructor
-        TestCase(InputScannableItem input, DocumentType expectedDocType, DocumentSubtype expectedDocSubtype) {
+        TestCase(InputScannableItem input, DocumentType expectedDocType, String expectedDocSubtype) {
             this.input = input;
             this.expectedDocType = expectedDocType;
             this.expectedDocSubtype = expectedDocSubtype;

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
@@ -50,7 +49,7 @@ public class ScannableItemResponse {
     public final DocumentType documentType;
 
     @JsonProperty("document_subtype")
-    public final DocumentSubtype documentSubtype;
+    public final String documentSubtype;
 
     @JsonCreator
     public ScannableItemResponse(
@@ -67,7 +66,7 @@ public class ScannableItemResponse {
         @JsonProperty("notes") String notes,
         @JsonProperty("document_url") String documentUrl,
         @JsonProperty("document_type") DocumentType documentType,
-        @JsonProperty("document_subtype") DocumentSubtype documentSubtype
+        @JsonProperty("document_subtype") String documentSubtype
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
