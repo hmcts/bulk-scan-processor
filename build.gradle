@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.7.RELEASE'
   id 'org.flywaydb.flyway' version '5.1.4'
-  id 'org.springframework.boot' version '2.0.4.RELEASE'
+  id 'org.springframework.boot' version '2.0.9.RELEASE'
   id 'org.owasp.dependencycheck' version '4.0.2'
   id 'com.github.ben-manes.versions' version '0.21.0'
   id 'org.sonarqube' version '2.6.2'
@@ -171,9 +171,8 @@ repositories {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
-  reformLogging: '3.0.4',
   springBoot: springBoot.class.package.implementationVersion,
-  springHystrix: '2.0.1.RELEASE',
+  springHystrix: '2.0.3.RELEASE',
   springfoxSwagger: '2.9.2'
 ]
 
@@ -216,8 +215,9 @@ dependencies {
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
 
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: versions.reformLogging
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: versions.reformLogging
+  // jump to v4 is breaking change. all tests with output capture become untrustworthy
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '3.0.4'
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: '5.0.1'
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
 
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '2.0.1'

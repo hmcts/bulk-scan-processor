@@ -71,7 +71,8 @@ public class ServiceBusHelperTest {
         ArgumentCaptor<IMessage> argument = ArgumentCaptor.forClass(IMessage.class);
         verify(queueClient).sendAsync(argument.capture());
         assertThat(argument.getValue())
-            .extracting(IMessage::getMessageId).containsExactly(msg.getMsgId());
+            .extracting(IMessage::getMessageId)
+            .contains(msg.getMsgId());
     }
 
     @Test
@@ -82,7 +83,8 @@ public class ServiceBusHelperTest {
         ArgumentCaptor<IMessage> argument = ArgumentCaptor.forClass(IMessage.class);
         verify(queueClient).send(argument.capture());
         assertThat(argument.getValue())
-            .extracting(IMessage::getMessageId).containsExactly(msg.getMsgId());
+            .extracting(IMessage::getMessageId)
+            .contains(msg.getMsgId());
     }
 
     @Test(expected = InvalidMessageException.class)
