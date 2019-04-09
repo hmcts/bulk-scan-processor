@@ -42,8 +42,7 @@ public class SubtypeTest {
             new TestCase(new Given(CHERISHED, SOME_SUBTYPE), new Then(DocumentType.CHERISHED, SOME_SUBTYPE)),
             new TestCase(new Given(OTHER, SOME_SUBTYPE), new Then(DocumentType.OTHER, SOME_SUBTYPE)),
             new TestCase(new Given(FORM, SOME_SUBTYPE), new Then(DocumentType.FORM, SOME_SUBTYPE))
-
-            ).forEach(tc -> {
+        ).forEach(tc -> {
             // given
             InputScannableItem item = inputScannableItem(tc.input.documentType, tc.input.docSubtype);
 
