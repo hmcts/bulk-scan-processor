@@ -3,13 +3,14 @@
 
   <suppress>
     <notes><![CDATA[Shadowed dependency from AppInsights]]></notes>
-    <gav regex="true">^com.google.guava:guava:20\.0$</gav>
-    <cve>CVE-2018-10237</cve>
+    <gav regex="true">^io\.netty:netty-tcnative-boringssl-static:2\.0\.17\.Final$</gav>
+    <cve>CVE-2014-3488</cve>
+    <cve>CVE-2015-2156</cve>
   </suppress>
 
   <suppress>
     <notes><![CDATA[No fix is available]]></notes>
-    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.0\.7\.RELEASE$</gav>
+    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.0\.12\.RELEASE$</gav>
     <cve>CVE-2018-1258</cve>
   </suppress>
 
@@ -21,34 +22,12 @@
   </suppress>
 
   <suppress>
-    <notes><![CDATA[No version resolving the issue is available yet.]]></notes>
-    <cve>CVE-2016-7048</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[Used only for testing not used in prod]]></notes>
-    <gav regex="true">^org\.testcontainers:postgresql:.*$</gav>
-    <cpe>cpe:/a:postgresql:postgresql</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[ slf4j ]]></notes>
-    <cve>CVE-2018-8088</cve>
-  </suppress>
-
-  <suppress>
     <notes><![CDATA[
-    This suppresses false positives on Groovy 2.4.x.
+    This suppresses false positives on Groovy 2.5.x.
     More information can be found on https://github.com/jeremylong/DependencyCheck/issues/1004
     ]]></notes>
-    <cpe>cpe:/a:apache:groovy:2.4.15</cpe>
+    <cpe>cpe:/a:apache:groovy:2.5.6</cpe>
     <cve>CVE-2016-6497</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[ Only referenced from tests]]></notes>
-    <gav regex="true">^dom4j:dom4j:.*$</gav>
-    <cve>CVE-2018-1000632</cve>
   </suppress>
 
   <suppress>
@@ -58,6 +37,7 @@
    ]]></notes>
     <filePath regex="true">.*wiremock-standalone-.*\.jar.*</filePath>
     <cpe>cpe:/a:eclipse:jetty</cpe>
+    <cpe>cpe:/a:google:guava:20.0</cpe>
   </suppress>
 
   <suppress>
@@ -66,7 +46,7 @@
   </suppress>
 
   <suppress>
-    <notes><![CDATA[ file name: spring-security-rsa-1.0.5.RELEASE.jar ]]></notes>
+    <notes><![CDATA[ file name: spring-security-rsa-1.0.7.RELEASE.jar ]]></notes>
     <gav regex="true">^org\.springframework\.security:spring-security-rsa:.*$</gav>
     <cpe>cpe:/a:pivotal_software:spring_security</cpe>
     <cpe>cpe:/a:pivotal:spring_security_oauth</cpe>
