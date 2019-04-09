@@ -18,6 +18,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.WILL;
 
+@SuppressWarnings("checkstyle:LineLength")
 public class SubtypeTest {
 
     public static String SOME_SUBTYPE = "foo";
