@@ -9,9 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
+import java.nio.charset.Charset;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
 
 public class ErrorNotificationDecoderTest {
 
@@ -20,10 +22,11 @@ public class ErrorNotificationDecoderTest {
     private static final String METHOD_KEY = "key";
 
     private static final Request REQUEST = Request.create(
-        Request.HttpMethod.GET,
+        GET.name(),
         "/",
         Collections.emptyMap(),
-        null
+        null,
+        Charset.defaultCharset()
     );
 
     @Test
