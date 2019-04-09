@@ -46,6 +46,7 @@ public class ReportSenderTest {
         ReportSender reportSender = new ReportSender(
             getMailSender(),
             reportsService,
+            TEST_LOGIN,
             new String[] { reportRecipient1, reportRecipient2}
         );
 
@@ -83,7 +84,7 @@ public class ReportSenderTest {
             .given(mailSender)
             .send(any(MimeMessage.class));
 
-        ReportSender reportSender = new ReportSender(mailSender, reportsService, null);
+        ReportSender reportSender = new ReportSender(mailSender, reportsService, TEST_LOGIN, null);
 
         // when
         Throwable exc = catchThrowable(reportSender::send);
