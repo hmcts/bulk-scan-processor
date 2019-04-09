@@ -73,18 +73,31 @@ public class EnvelopeMapper {
             scannableItem.fileName,
             scannableItem.notes,
             mapDocumentType(scannableItem.documentType),
-            extractDocumentSubtype(scannableItem.documentType)
+            extractDocumentSubtype(scannableItem.documentType, scannableItem.documentSubtype)
         );
     }
 
     private static DocumentType mapDocumentType(InputDocumentType inputDocumentType) {
-        return inputDocumentType == InputDocumentType.CHERISHED
-            ? DocumentType.CHERISHED
-            : DocumentType.OTHER;
+        switch (inputDocumentType) {
+            case CHERISHED:
+                return DocumentType.CHERISHED;
+            case COVERSHEET:
+                return DocumentType.COVERSHEET;
+            case FORM:
+                return DocumentType.FORM;
+            default:
+                return DocumentType.OTHER;
+        }
     }
 
-    private static String extractDocumentSubtype(InputDocumentType inputDocumentType) {
-        return subtypeMapping.get(inputDocumentType);
+    private static String extractDocumentSubtype(InputDocumentType inputDocumentType, String inputDocumentSubtype) {
+        switch (inputDocumentType) {
+            case WILL:
+            case SSCS1:
+                return subtypeMapping.get(inputDocumentType);
+            default:
+                return inputDocumentSubtype;
+        }
     }
 
     private static List<Payment> toDbPayments(List<InputPayment> payments) {

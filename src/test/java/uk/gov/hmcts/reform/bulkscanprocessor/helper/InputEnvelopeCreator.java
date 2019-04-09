@@ -68,7 +68,8 @@ public final class InputEnvelopeCreator {
             ocrData,
             fileName,
             "notes",
-            documentType
+            documentType,
+            null
         );
     }
 

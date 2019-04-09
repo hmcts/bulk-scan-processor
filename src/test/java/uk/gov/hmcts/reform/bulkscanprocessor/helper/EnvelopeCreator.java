@@ -119,6 +119,10 @@ public final class EnvelopeCreator {
     }
 
     public static InputScannableItem inputScannableItem(InputDocumentType docType) {
+        return inputScannableItem(docType, null);
+    }
+
+    public static InputScannableItem inputScannableItem(InputDocumentType docType, String docSubtype) {
         return new InputScannableItem(
             "control number",
             getInstant(),
@@ -129,7 +133,8 @@ public final class EnvelopeCreator {
             new OcrData(),
             "file.pdf",
             "notes",
-            docType
+            docType,
+            docSubtype
         );
     }
 

@@ -110,7 +110,8 @@ public class EnvelopeMapperTest {
             convertToInputDocumentType(
                 dbScannableItem.getDocumentType(),
                 dbScannableItem.getDocumentSubtype()
-            )
+            ),
+            null
         );
     }
 
@@ -136,6 +137,10 @@ public class EnvelopeMapperTest {
                             return InputDocumentType.OTHER;
                     }
                 }
+            case COVERSHEET:
+                return InputDocumentType.COVERSHEET;
+            case FORM:
+                return InputDocumentType.FORM;
             default:
                 throw new AssertionError(
                     String.format("Expected a valid document type but got: %s", documentType)

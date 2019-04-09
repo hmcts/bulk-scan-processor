@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum DocumentType {
 
     CHERISHED("cherished"),
-    OTHER("other");
+    OTHER("other"),
+    COVERSHEET("Coversheet"),
+    FORM("Form");
 
     private final String value;
 
