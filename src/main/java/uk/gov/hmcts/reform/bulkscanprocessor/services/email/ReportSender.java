@@ -32,16 +32,19 @@ public class ReportSender {
 
     private final JavaMailSender mailSender;
     private final ReportsService reportsService;
+    private final String from;
     private final String[] recipients;
 
     // region constructor
     public ReportSender(
         JavaMailSender mailSender,
         ReportsService reportsService,
+        @Value("${spring.mail.username}") String from,
         @Value("${reports.recipients}") String[] recipients
     ) {
         this.mailSender = mailSender;
         this.reportsService = reportsService;
+        this.from = from;
 
         if (recipients == null) {
             this.recipients = new String[0];
@@ -62,6 +65,7 @@ public class ReportSender {
             MimeMessage msg = mailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+            helper.setFrom(from);
             helper.setTo(this.recipients);
             helper.setSubject(EMAIL_SUBJECT);
             helper.setText(EMAIL_BODY);
