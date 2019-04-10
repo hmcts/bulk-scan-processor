@@ -2,6 +2,9 @@ server:
   port: 8581
 
 management:
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       base-path: /
@@ -45,6 +48,8 @@ spring:
           auth: true
           starttls:
             enable: true
+  main:
+    allow-bean-definition-overriding: true
 
 # setting env vars + defaults as env vars will be overridden otherwise
 reports:
