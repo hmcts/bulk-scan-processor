@@ -203,7 +203,7 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: versions.springBoot
 
-  compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version:'0.0.3'
+  compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version:'0.0.4'
   compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4', withoutSpringCloudContext
 
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.10', withoutJavaxMailApi
