@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
@@ -91,6 +92,7 @@ public class ErrorNotificationServiceTest {
         verify(repository).saveAndFlush(any(ErrorNotification.class));
     }
 
+    @Test
     public void should_save_to_db_and_log_the_failure_when_notification_is_attempted() {
         // given
         ErrorMsg serviceBusMessage = new ErrorMsg(
@@ -103,13 +105,15 @@ public class ErrorNotificationServiceTest {
             ErrorCode.ERR_AV_FAILED,
             "antivirus flag"
         );
-        given(client.notify(any(ErrorNotificationRequest.class))).willThrow(Exception.class);
+        given(client.notify(any(ErrorNotificationRequest.class))).willThrow(new RuntimeException("oh no"));
 
         // when
-        service.processServiceBusMessage(serviceBusMessage);
+        assertThatCode(() -> service.processServiceBusMessage(serviceBusMessage))
+            // then
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("oh no");
 
-        // then
-        assertThat(capture.toString()).contains("Failed to publish error notification.");
+        // and
         verify(repository).saveAndFlush(any(ErrorNotification.class));
     }
 }
