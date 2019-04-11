@@ -2,6 +2,9 @@ server:
   port: 8581
 
 management:
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       base-path: /
