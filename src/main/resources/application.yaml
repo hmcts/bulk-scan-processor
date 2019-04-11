@@ -48,8 +48,6 @@ spring:
           auth: true
           starttls:
             enable: true
-  main:
-    allow-bean-definition-overriding: true
 
 # setting env vars + defaults as env vars will be overridden otherwise
 reports:
