@@ -8,6 +8,9 @@ management:
   endpoints:
     web:
       base-path: /
+  health:
+    mail:
+      enabled: false
 
 spring:
   application:
