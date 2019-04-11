@@ -2,6 +2,9 @@ server:
   port: 8581
 
 management:
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       base-path: /
@@ -34,6 +37,22 @@ spring:
           lob:
             # silence the 'wall-of-text' - unnecessary exception throw about blob types
             non_contextual_creation: true
+  mail:
+    host: ${SMTP_HOST}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# setting env vars + defaults as env vars will be overridden otherwise
+reports:
+  cron: ${REPORTS_CRON:0 0 18 * * *}
+  recipients: ${REPORTS_RECIPIENTS:}
 
 info:
   app:

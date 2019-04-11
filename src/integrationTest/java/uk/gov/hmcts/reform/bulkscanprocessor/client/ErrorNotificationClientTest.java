@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -170,6 +172,7 @@ public class ErrorNotificationClientTest {
         assertThat(exception.getResponse().getMessage()).isEqualTo(message);
     }
 
+    @TestConfiguration
     static class ClientContextInitialiser implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
         @Override
@@ -179,7 +182,7 @@ public class ErrorNotificationClientTest {
 
         @Bean
         public Options options(@Value("${wiremock.port}") int port) {
-            return WireMockConfiguration.options().port(port);
+            return WireMockConfiguration.options().port(port).notifier(new Slf4jNotifier(false));
         }
     }
 }
