@@ -142,6 +142,9 @@ module "bulk-scan" {
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
+
+    // Will be removed in next PR
+    FORCE_UPDATE_APP_SETTINGS = "true"
   }
 }
 
