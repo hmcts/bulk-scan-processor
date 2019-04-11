@@ -51,6 +51,7 @@ spring:
           auth: true
           starttls:
             enable: true
+    test-connection: true
 
 # setting env vars + defaults as env vars will be overridden otherwise
 reports:
