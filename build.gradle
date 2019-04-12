@@ -215,7 +215,7 @@ dependencies {
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
 
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '3.0.4'
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '5.0.1'
   compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: '5.0.1'
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: versions.springHystrix
 
