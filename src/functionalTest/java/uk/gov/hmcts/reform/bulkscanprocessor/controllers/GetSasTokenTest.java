@@ -94,6 +94,20 @@ public class GetSasTokenTest {
     }
 
     @Test
+    public void should_return_sas_token_for_finrem_when_service_configuration_is_available() throws Exception {
+        Response tokenResponse = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(this.testUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+            .when().get("/token/finrem")
+            .andReturn();
+
+        verifySasTokenProperties(tokenResponse);
+    }
+
+    @Test
     public void should_return_sas_token_for_probate_when_service_configuration_is_available() throws Exception {
         Response tokenResponse = RestAssured
             .given()
