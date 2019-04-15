@@ -69,7 +69,7 @@ public class ReportSender {
             helper.setTo(this.recipients);
             helper.setSubject(EMAIL_SUBJECT);
             helper.setText(EMAIL_BODY);
-            helper.addAttachment(ATTACHMENT_PREFIX + LocalDate.now(), getCsvReport());
+            helper.addAttachment(ATTACHMENT_PREFIX + LocalDate.now() + ".csv", getCsvReport());
 
             mailSender.send(msg);
 
