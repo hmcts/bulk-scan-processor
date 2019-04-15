@@ -7,6 +7,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 
@@ -16,6 +17,7 @@ import java.security.InvalidKeyException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore
 public class AzuriteTest {
 
     private CloudBlobContainer root;

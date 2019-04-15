@@ -7,8 +7,8 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -43,8 +43,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOA
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
+@IntegrationTest
 @RunWith(SpringRunner.class)
-@SpringBootTest
 public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask> {
 
     @Before

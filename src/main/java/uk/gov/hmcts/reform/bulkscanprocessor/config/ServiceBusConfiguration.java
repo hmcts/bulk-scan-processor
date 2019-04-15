@@ -11,11 +11,11 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Configuration classes with this annotation are only applied
- * when interactions with Service Bus are enabled (i.e. active profile is not "nosb")
+ * when interactions with Service Bus are enabled
  * </p>
  */
 @Configuration
-@Profile("!nosb")
+@Profile(Profiles.NOT_SERVICE_BUS_STUB)
 @Target(ElementType.TYPE)
-public @interface ServiceBusConfiguration {
+@interface ServiceBusConfiguration {
 }
