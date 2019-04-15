@@ -3,20 +3,23 @@
 
   <suppress>
     <notes><![CDATA[Shadowed dependency from AppInsights]]></notes>
-    <gav regex="true">^com.google.guava:guava:20\.0$</gav>
-    <cve>CVE-2018-10237</cve>
+    <gav regex="true">^io\.netty:netty-tcnative-boringssl-static:2\.0\.17\.Final$</gav>
+    <cve>CVE-2014-3488</cve>
+    <cve>CVE-2015-2156</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[No fix is available]]></notes>
+    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.1\.5\.RELEASE$</gav>
+    <cve>CVE-2018-1258</cve>
   </suppress>
 
   <!-- not used by server -->
 
   <suppress>
     <notes><![CDATA[Pulled in by azure-servicebus. No newer version available]]></notes>
+    <gav regex="true">^com\.microsoft\.azure:adal4j:1\.3\.0$</gav>
     <cve>CVE-2011-1068</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[No version resolving the issue is available yet.]]></notes>
-    <cve>CVE-2016-7048</cve>
   </suppress>
 
   <suppress>
@@ -26,23 +29,9 @@
   </suppress>
 
   <suppress>
-    <notes><![CDATA[ slf4j ]]></notes>
-    <cve>CVE-2018-8088</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    This suppresses false positives on Groovy 2.4.x.
-    More information can be found on https://github.com/jeremylong/DependencyCheck/issues/1004
-    ]]></notes>
-    <cpe>cpe:/a:apache:groovy:2.4.15</cpe>
+    <notes><![CDATA[ no fix available ]]></notes>
+    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.6$</gav>
     <cve>CVE-2016-6497</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[ Only referenced from tests]]></notes>
-    <gav regex="true">^dom4j:dom4j:.*$</gav>
-    <cve>CVE-2018-1000632</cve>
   </suppress>
 
   <suppress>
@@ -52,17 +41,16 @@
    ]]></notes>
     <filePath regex="true">.*wiremock-standalone-.*\.jar.*</filePath>
     <cpe>cpe:/a:eclipse:jetty</cpe>
-  </suppress>
-
-  <suppress>
-    <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+    <cpe>cpe:/a:fasterxml:jackson</cpe>
     <cpe>cpe:/a:fasterxml:jackson-databind</cpe>
+    <cpe>cpe:/a:google:guava</cpe>
   </suppress>
 
   <suppress>
-    <notes><![CDATA[ file name: spring-security-rsa-1.0.5.RELEASE.jar ]]></notes>
-    <gav regex="true">^org\.springframework\.security:spring-security-rsa:.*$</gav>
+    <notes><![CDATA[ no fix available ]]></notes>
+    <gav regex="true">^org\.springframework\.security:spring-security-rsa:1\.0\.7\.RELEASE$</gav>
     <cpe>cpe:/a:pivotal_software:spring_security</cpe>
+    <cpe>cpe:/a:pivotal_software:spring_security_oauth</cpe>
     <cpe>cpe:/a:pivotal:spring_security_oauth</cpe>
     <cpe>cpe:/a:vmware:springsource_spring_security</cpe>
   </suppress>

@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import java.time.Instant;
@@ -19,7 +18,7 @@ public class Document {
     public final DocumentType type;
 
     @JsonProperty("subtype")
-    public final DocumentSubtype subtype;
+    public final String subtype;
 
     @JsonProperty("scanned_at")
     public final Instant scannedAt;
@@ -32,7 +31,7 @@ public class Document {
         String fileName,
         String controlNumber,
         DocumentType type,
-        DocumentSubtype subtype,
+        String subtype,
         Instant scannedAt,
         String url
     ) {

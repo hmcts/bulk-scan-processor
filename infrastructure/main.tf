@@ -133,9 +133,18 @@ module "bulk-scan" {
     QUEUE_NOTIFICATIONS_READ = "${data.azurerm_key_vault_secret.notifications_queue_listen_conn_str.value}"
     QUEUE_PROCESSED_ENVELOPES_READ = "${data.azurerm_key_vault_secret.processed_envelopes_queue_listen_conn_str.value}"
 
+    SMTP_HOST          = "${var.smtp_host}"
+    SMTP_USERNAME      = "${data.azurerm_key_vault_secret.smtp_username.value}"
+    SMTP_PASSWORD      = "${data.azurerm_key_vault_secret.smtp_password.value}"
+    REPORTS_CRON       = "${var.reports_cron}"
+    REPORTS_RECIPIENTS = "${data.azurerm_key_vault_secret.reports_recipients.value}"
+
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
+
+    // Will be removed in next PR
+    FORCE_UPDATE_APP_SETTINGS = "true"
   }
 }
 
@@ -211,6 +220,21 @@ data "azurerm_key_vault_secret" "processed_envelopes_queue_listen_conn_str" {
 
 data "azurerm_key_vault_secret" "processed_envelopes_queue_send_conn_str" {
   name      = "processed-envelopes-queue-send-connection-string"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "reports_recipients" {
+  name      = "reports-recipients"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "smtp_username" {
+  name      = "reports-email-username"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "smtp_password" {
+  name      = "reports-email-password"
   vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 

@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import org.apache.commons.mail.util.MimeMessageParser;
-import org.assertj.core.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +17,6 @@ import javax.mail.Address;
 import javax.mail.internet.MimeMessage;
 
 import static java.time.LocalDate.now;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,15 +37,18 @@ public class ReportSenderTest {
     @Test
     public void should_send_email_to_all_recipients() throws Exception {
         // given
-        String[] recipients = Arrays.array(
-            "foo@hmcts.net",
-            "bar@hmcts.net"
-        );
+        String reportRecipient1 = "Foo <foo@hmcts.net>";
+        String reportRecipient2 = "bar@hmcts.net";
 
         ReportsService reportsService = mock(ReportsService.class);
 
         greenMail.setUser(TEST_LOGIN, TEST_PASSWORD);
-        ReportSender reportSender = new ReportSender(getMailSender(), reportsService, recipients);
+        ReportSender reportSender = new ReportSender(
+            getMailSender(),
+            reportsService,
+            TEST_LOGIN,
+            new String[] { reportRecipient1, reportRecipient2}
+        );
 
         // when
         reportSender.send();
@@ -55,7 +56,13 @@ public class ReportSenderTest {
         // then
         MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
 
-        assertThat(msg.getTo()).extracting(Address::toString).containsExactlyElementsOf(asList(recipients));
+        assertThat(msg.getTo())
+            .extracting(Address::toString)
+            .hasSize(2)
+            .containsExactly(
+                reportRecipient1,
+                reportRecipient2
+            );
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
         assertThat(msg.getAttachmentList()).hasSize(1);
@@ -65,7 +72,7 @@ public class ReportSenderTest {
     }
 
     @Test
-    public void should_handle_mail_exception() throws Exception {
+    public void should_handle_mail_exception() {
         // given
         ReportsService reportsService = mock(ReportsService.class);
         JavaMailSender mailSender = mock(JavaMailSender.class);
@@ -77,7 +84,7 @@ public class ReportSenderTest {
             .given(mailSender)
             .send(any(MimeMessage.class));
 
-        ReportSender reportSender = new ReportSender(mailSender, reportsService, new String[0]);
+        ReportSender reportSender = new ReportSender(mailSender, reportsService, TEST_LOGIN, null);
 
         // when
         Throwable exc = catchThrowable(reportSender::send);
