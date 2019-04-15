@@ -21,7 +21,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType
 @SuppressWarnings("checkstyle:LineLength")
 public class SubtypeTest {
 
-    public static String SOME_SUBTYPE = "foo";
+    private static final String SOME_SUBTYPE = "foo";
 
     @Rule
     public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
@@ -63,8 +63,8 @@ public class SubtypeTest {
 
     // region helper/dsl classes
     private class TestCase {
-        Given input;
-        Then output;
+        public Given input;
+        public Then output;
 
         // region constructor
         public TestCase(Given input, Then output) {
@@ -75,8 +75,8 @@ public class SubtypeTest {
     }
 
     private class Given {
-        InputDocumentType documentType;
-        String docSubtype;
+        public InputDocumentType documentType;
+        public String docSubtype;
 
         public Given(InputDocumentType documentType, String docSubtype) {
             this.documentType = documentType;
@@ -85,8 +85,8 @@ public class SubtypeTest {
     }
 
     private class Then {
-        DocumentType documentType;
-        String docSubtype;
+        public DocumentType documentType;
+        public String docSubtype;
 
         public Then(DocumentType documentType, String docSubtype) {
             this.documentType = documentType;
