@@ -6,8 +6,8 @@ public enum DocumentType {
 
     CHERISHED("cherished"),
     OTHER("other"),
-    COVERSHEET("Coversheet"),
-    FORM("Form");
+    COVERSHEET("coversheet"),
+    FORM("form");
 
     private final String value;
 
