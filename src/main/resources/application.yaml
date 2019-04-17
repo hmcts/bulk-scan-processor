@@ -113,7 +113,7 @@ containers:
       poBox: 12706
     - container: finrem
       jurisdiction: DIVORCE
-      poBox: 12706 #TODO change po box for FR
+      poBox: 12746
     - container: bulkscan
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
