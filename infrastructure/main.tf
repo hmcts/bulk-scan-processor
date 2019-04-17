@@ -76,6 +76,7 @@ module "bulk-scan" {
   instance_size                   = "${local.sku_size}"
   asp_name                        = "${var.product}-${var.env}"
   asp_rg                          = "${var.product}-${var.env}"
+  java_container_version          = "9.0"
 
   app_settings = {
     // db
