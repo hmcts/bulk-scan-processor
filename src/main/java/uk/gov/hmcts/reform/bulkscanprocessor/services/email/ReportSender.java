@@ -73,6 +73,7 @@ public class ReportSender {
 
             mailSender.send(msg);
 
+            log.info("Report '{}' sent to {} recipients", EMAIL_SUBJECT, recipients.length);
         } catch (Exception exc) {
             log.error("Error sending report", exc);
         }
