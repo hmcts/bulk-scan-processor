@@ -110,10 +110,10 @@ containers:
       poBox: 12625
     - container: divorce
       jurisdiction: DIVORCE
-      poBox: 12746
+      poBox: 12706
     - container: finrem
       jurisdiction: DIVORCE
-      poBox: 12706
+      poBox: 12746
     - container: bulkscan
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
