@@ -16,7 +16,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
-@SuppressWarnings("checkstyle:LineLength")
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
@@ -34,7 +33,8 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times() throws Exception {
+    public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times()
+        throws Exception {
         // given
         final String jurisdiction = "X";
         final int maxFailCount = 5;
