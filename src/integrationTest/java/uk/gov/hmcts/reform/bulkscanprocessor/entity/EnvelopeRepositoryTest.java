@@ -95,14 +95,17 @@ public class EnvelopeRepositoryTest {
         // given
         dbHas(
             envelope("A.zip", "X", Status.PROCESSED),
-            envelope("B.zip", "Y", Status.COMPLETED),
-            envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
-            envelope("D.zip", "Z", Status.COMPLETED)
+            envelope("B.zip", "Y", Status.NOTIFICATION_SENT),
+            envelope("C.zip", "Y", Status.COMPLETED),
+            envelope("D.zip", "Z", Status.UPLOAD_FAILURE),
+            envelope("E.zip", "Z", Status.COMPLETED)
         );
 
         // and update createAt to yesterday
         entityManager.createNativeQuery(
-            "UPDATE envelopes SET createdat = '" + now().minusDays(1) + "' WHERE zipfilename IN ('A.zip', 'B.zip')"
+            "UPDATE envelopes SET createdat = '"
+                + now().minusDays(1)
+                + "' WHERE zipfilename IN ('A.zip', 'B.zip', 'C.zip')"
         ).executeUpdate();
 
         // then
