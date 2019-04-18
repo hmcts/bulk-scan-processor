@@ -86,14 +86,11 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         Pageable pageable
     );
 
-    // `notification sent` should be the final state for `metadata failure` and `signature failure`.
-    // including all as notification itself can fail too
     @Query(
         nativeQuery = true,
         value = "SELECT COUNT(1) AS incomplete\n"
             + "FROM envelopes\n"
-            + "WHERE DATE(createdat) < :date\n"
-            + "  AND status NOT IN ('METADATA_FAILURE', 'SIGNATURE_FAILURE', 'NOTIFICATION_SENT', 'COMPLETED')"
+            + "WHERE DATE(createdat) < :date AND status != 'COMPLETED'"
     )
     int getIncompleteEnvelopesCountBefore(@Param("date") LocalDate date);
 }
