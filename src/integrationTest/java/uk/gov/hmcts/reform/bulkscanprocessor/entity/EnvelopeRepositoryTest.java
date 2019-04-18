@@ -9,8 +9,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import javax.persistence.EntityManager;
 
 import static java.time.LocalDateTime.now;
@@ -125,14 +123,5 @@ public class EnvelopeRepositoryTest {
 
     private void dbHas(Envelope... envelopes) {
         repo.saveAll(asList(envelopes));
-    }
-
-    private void assertEnvelopeHasStatus(UUID envelopeId, Status status) {
-        // make sure there's no outdated cache
-        entityManager.clear();
-
-        Optional<Envelope> envelope = repo.findById(envelopeId);
-        assertThat(envelope).isPresent();
-        assertThat(envelope.get().getStatus()).isEqualTo(status);
     }
 }
