@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.persistence.EntityManager;
 
+import static java.time.LocalDateTime.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
@@ -87,6 +88,25 @@ public class EnvelopeRepositoryTest {
         // then
         assertThat(resultForA).hasSize(2);
         assertThat(resultForX).hasSize(0);
+    }
+
+    @Test
+    public void should_get_1_incomplete_envelope_from_yesterday() {
+        // given
+        dbHas(
+            envelope("A.zip", "X", Status.PROCESSED),
+            envelope("B.zip", "Y", Status.COMPLETED),
+            envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
+            envelope("D.zip", "Z", Status.COMPLETED)
+        );
+
+        // and update createAt to yesterday
+        entityManager.createNativeQuery(
+            "UPDATE envelopes SET createdat = '" + now().minusDays(1) + "' WHERE zipfilename IN ('A.zip', 'B.zip')"
+        ).executeUpdate();
+
+        // then
+        assertThat(repo.getIncompleteEnvelopesCountBefore(now().toLocalDate())).isEqualTo(1);
     }
 
     private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
