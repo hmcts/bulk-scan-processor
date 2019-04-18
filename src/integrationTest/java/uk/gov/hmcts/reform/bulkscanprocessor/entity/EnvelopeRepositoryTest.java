@@ -91,6 +91,11 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
+    public void should_get_0_when_no_incomplete_envelopes_are_there_from_yesterday_backwards() {
+        assertThat(repo.getIncompleteEnvelopesCountBefore(now().toLocalDate())).isEqualTo(0);
+    }
+
+    @Test
     public void should_get_1_incomplete_envelope_from_yesterday() {
         // given
         dbHas(
