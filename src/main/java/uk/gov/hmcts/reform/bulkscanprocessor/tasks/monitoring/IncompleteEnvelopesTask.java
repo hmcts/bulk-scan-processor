@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+
+import java.time.LocalDate;
 
 @Component
 @ConditionalOnProperty(prefix = "monitoring.incomplete-envelopes", name = "enabled")
@@ -13,11 +16,12 @@ public class IncompleteEnvelopesTask {
 
     private static final Logger log = LoggerFactory.getLogger(IncompleteEnvelopesTask.class);
 
-    @SuppressWarnings("all") // tmp until implemented
+    private final EnvelopeRepository envelopeRepository;
+
     public IncompleteEnvelopesTask(
-        // autowire repository
+        EnvelopeRepository envelopeRepository
     ) {
-        // empty constructor
+        this.envelopeRepository = envelopeRepository;
     }
 
     @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}")
@@ -25,7 +29,15 @@ public class IncompleteEnvelopesTask {
     public void run() {
         log.info("Checking for incomplete envelopes");
 
-        // get data and log here
+        LocalDate now = LocalDate.now();
+        int incompleteEnvelopes = envelopeRepository.getIncompleteEnvelopesCountBefore(now);
+
+        if (incompleteEnvelopes > 0) {
+            // warning as to not mix up with existing alerting on all exception
+            // which suppose to be unknown or unhandled ones. and it is not really application error
+            // **this log line is used in alerting**. be aware before making any changes
+            log.warn("There are {} incomplete envelopes as of {}", incompleteEnvelopes, now);
+        }
 
         log.debug("Finished checking for incomplete envelopes");
     }
