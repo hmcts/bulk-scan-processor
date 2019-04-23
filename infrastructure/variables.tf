@@ -134,6 +134,20 @@ variable "reports_cron" {
 
 # endregion
 
+# region incomplete envelopes monitoring
+
+variable "incomplete_envelopes_cron" {
+  default     = "0 0 7 ? * MON-FRI"
+  description = "Cron signature for job to log amount of incomplete envelopes currently present in service"
+}
+
+variable "incomplete_envelopes_enabled" {
+  default     = "false"
+  description = "Task is trivial and no need to run. Will be enabled in production only though"
+}
+
+# endregion
+
 # list of SSL client certificate thumbprints that are accepted by the API (gateway)
 # (excludes certificates used by API tests)
 variable "allowed_client_certificate_thumbprints" {
