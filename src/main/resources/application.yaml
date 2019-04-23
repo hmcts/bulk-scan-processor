@@ -49,6 +49,11 @@ spring:
           starttls:
             enable: true
 
+monitoring:
+  incomplete-envelopes:
+    cron: 0 0 7 ? * MON-FRI # can be discussed later
+    enabled: false
+
 # setting env vars + defaults as env vars will be overridden otherwise
 reports:
   cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
