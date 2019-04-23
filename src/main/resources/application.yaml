@@ -99,6 +99,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: finrem
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: cmc
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 containers:
   mappings:
@@ -114,6 +116,9 @@ containers:
     - container: finrem
       jurisdiction: DIVORCE
       poBox: 12746
+    - container: cmc
+      jurisdiction: CMC
+      poBox: TBD #TODO: update
     - container: bulkscan
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
