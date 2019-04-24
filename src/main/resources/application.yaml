@@ -14,7 +14,7 @@ management:
 
 spring:
   application:
-    name: Bulk Scanning
+    name: Bulk Scan Processor
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5435}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
@@ -53,12 +53,12 @@ spring:
             enable: true
     test-connection: true
 
+# setting env vars + defaults as env vars will be overridden otherwise
 monitoring:
   incomplete-envelopes:
-    cron: 0 0 7 ? * MON-FRI # can be discussed later
-    enabled: false
+    cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 0 9 ? * MON-FRI} # can be discussed later
+    enabled: ${INCOMPLETE_ENVELOPES_TASK_ENABLED:false}
 
-# setting env vars + defaults as env vars will be overridden otherwise
 reports:
   cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
   recipients: ${REPORTS_RECIPIENTS:}

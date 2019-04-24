@@ -17,3 +17,5 @@ allowed_client_certificate_thumbprints = ["919F8A770C2A2F06933BA11551001ED0581B8
 blob_processing_delay_in_minutes = "30"
 
 smtp_host = "smtp.office365.com"
+
+incomplete_envelopes_enabled = "true"
