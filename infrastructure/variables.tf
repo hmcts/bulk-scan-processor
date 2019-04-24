@@ -128,8 +128,8 @@ variable "smtp_host" {
 }
 
 variable "reports_cron" {
-  default     = "0 0 18 * * *"
-  description = "Cron signature for job to send out reports to be executed. Default value is 6PM everyday"
+  default     = "0 0 18 ? * MON-FRI"
+  description = "Cron signature for job to send out reports to be executed. Default value is 6PM (server time) every workday"
 }
 
 # endregion

@@ -3,24 +3,17 @@ package uk.gov.hmcts.reform.bulkscanprocessor.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationContextInitializer;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.ErrorNotificationFailingResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.ErrorNotificationResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors.ErrorNotificationRequest;
@@ -34,14 +27,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.util.SocketUtils.findAvailableTcpPort;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
 
-@ActiveProfiles({"wiremock", "nosb"}) // no real Service Bus communication
+@ActiveProfiles({
+    IntegrationContextInitializer.PROFILE_WIREMOCK,
+    Profiles.SERVICE_BUS_STUB,
+    Profiles.STORAGE_STUB
+})
 @AutoConfigureWireMock
-@ContextConfiguration(initializers = ErrorNotificationClientTest.ClientContextInitialiser.class)
+@IntegrationTest
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ErrorNotificationClientTest {
 
     @Autowired
@@ -170,19 +165,5 @@ public class ErrorNotificationClientTest {
 
         assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
         assertThat(exception.getResponse().getMessage()).isEqualTo(message);
-    }
-
-    @TestConfiguration
-    static class ClientContextInitialiser implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-        @Override
-        public void initialize(ConfigurableApplicationContext applicationContext) {
-            System.setProperty("wiremock.port", Integer.toString(findAvailableTcpPort()));
-        }
-
-        @Bean
-        public Options options(@Value("${wiremock.port}") int port) {
-            return WireMockConfiguration.options().port(port).notifier(new Slf4jNotifier(false));
-        }
     }
 }

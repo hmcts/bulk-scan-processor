@@ -66,7 +66,7 @@ public class ReportSenderTest {
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
         assertThat(msg.getAttachmentList()).hasSize(1);
-        assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + now());
+        assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + now() + ".csv");
 
         verify(reportsService).getZipFilesSummary(now(), null);
     }

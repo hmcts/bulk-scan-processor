@@ -53,9 +53,14 @@ spring:
             enable: true
     test-connection: true
 
+monitoring:
+  incomplete-envelopes:
+    cron: 0 0 7 ? * MON-FRI # can be discussed later
+    enabled: false
+
 # setting env vars + defaults as env vars will be overridden otherwise
 reports:
-  cron: ${REPORTS_CRON:0 0 18 * * *}
+  cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
   recipients: ${REPORTS_RECIPIENTS:}
 
 info:
@@ -103,6 +108,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: finrem
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: cmc
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 containers:
   mappings:
@@ -117,7 +124,10 @@ containers:
       poBox: 12706
     - container: finrem
       jurisdiction: DIVORCE
-      poBox: 12706 #TODO change po box for FR
+      poBox: 12746
+    - container: cmc
+      jurisdiction: CMC
+      poBox: TBD #TODO: update
     - container: bulkscan
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
