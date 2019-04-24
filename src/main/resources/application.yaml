@@ -51,7 +51,7 @@ spring:
 
 monitoring:
   incomplete-envelopes:
-    cron: ${INCOMPLETE_ENVELOPES_CRON:0 0 7 ? * MON-FRI} # can be discussed later
+    cron: ${INCOMPLETE_ENVELOPES_CRON:0 0 9 ? * MON-FRI} # can be discussed later
     enabled: ${INCOMPLETE_ENVELOPES_ENABLED:false}
 
 # setting env vars + defaults as env vars will be overridden otherwise
