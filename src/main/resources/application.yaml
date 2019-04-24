@@ -49,12 +49,12 @@ spring:
           starttls:
             enable: true
 
+# setting env vars + defaults as env vars will be overridden otherwise
 monitoring:
   incomplete-envelopes:
     cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 0 9 ? * MON-FRI} # can be discussed later
     enabled: ${INCOMPLETE_ENVELOPES_TASK_ENABLED:false}
 
-# setting env vars + defaults as env vars will be overridden otherwise
 reports:
   cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
   recipients: ${REPORTS_RECIPIENTS:}
