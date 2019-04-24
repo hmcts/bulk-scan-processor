@@ -8,6 +8,9 @@ management:
   endpoints:
     web:
       base-path: /
+  health:
+    mail:
+      enabled: false
 
 spring:
   application:
@@ -48,6 +51,7 @@ spring:
           auth: true
           starttls:
             enable: true
+    test-connection: true
 
 monitoring:
   incomplete-envelopes:
