@@ -140,8 +140,8 @@ module "bulk-scan" {
     REPORTS_CRON       = "${var.reports_cron}"
     REPORTS_RECIPIENTS = "${data.azurerm_key_vault_secret.reports_recipients.value}"
 
-    INCOMPLETE_ENVELOPES_CRON    = "${var.incomplete_envelopes_cron}"
-    INCOMPLETE_ENVELOPES_ENABLED = "${var.incomplete_envelopes_enabled}"
+    INCOMPLETE_ENVELOPES_TASK_CRON    = "${var.incomplete_envelopes_cron}"
+    INCOMPLETE_ENVELOPES_TASK_ENABLED = "${var.incomplete_envelopes_enabled}"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
