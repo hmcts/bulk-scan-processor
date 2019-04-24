@@ -195,7 +195,7 @@ dependencies {
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '2.2.1'
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '2.2.1'
 
-  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.1.0'
+  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.2.0'
   compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.8', {
     exclude group: 'javax.mail', module: 'mail'
     exclude group: 'net.minidev', module: 'json-smart'
