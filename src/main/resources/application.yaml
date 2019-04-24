@@ -127,7 +127,7 @@ containers:
       poBox: 12746
     - container: cmc
       jurisdiction: CMC
-      poBox: TBD #TODO: update
+      poBox: 12747
     - container: bulkscan
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
