@@ -173,7 +173,12 @@ public class BlobProcessorTask extends Processor {
             envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
 
         if (existingEnvelope != null) {
-            logAbortedProcessingFilePresentInDb(zipFilename, container.getName());
+            log.warn(
+                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
+                zipFilename,
+                container.getName(),
+                existingEnvelope.getId()
+            );
             deleteIfProcessed(cloudBlockBlob, existingEnvelope, container.getName());
         } else if (!cloudBlockBlob.exists()) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
@@ -371,11 +376,4 @@ public class BlobProcessorTask extends Processor {
         );
     }
 
-    private void logAbortedProcessingFilePresentInDb(String zipFilename, String containerName) {
-        log.warn(
-            "Envelope for zip file {} (container {}) already exists. Aborting its processing.",
-            zipFilename,
-            containerName
-        );
-    }
 }
