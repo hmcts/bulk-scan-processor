@@ -20,6 +20,7 @@ import java.util.EnumSet;
 
 import static com.microsoft.azure.storage.blob.BlobListingDetails.SNAPSHOTS;
 import static com.microsoft.azure.storage.blob.DeleteSnapshotsOption.INCLUDE_SNAPSHOTS;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
 @Service
 @ConditionalOnProperty(value = "scheduling.task.delete-rejected-files.enabled")
@@ -40,8 +41,8 @@ public class CleanUpRejectedFilesTask {
     }
     // endregion
 
+    @Scheduled(cron = "${scheduling.task.delete-rejected-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = "delete-rejected-files")
-    @Scheduled(cron = "${scheduling.task.delete-rejected-files.cron}")
     public void run() {
         log.info("Scanning for old rejected files");
         blobManager

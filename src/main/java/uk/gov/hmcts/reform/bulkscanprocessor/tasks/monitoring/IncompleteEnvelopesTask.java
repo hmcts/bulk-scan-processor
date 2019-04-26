@@ -10,6 +10,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 
 import java.time.LocalDate;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
+
 @Component
 @ConditionalOnProperty(prefix = "monitoring.incomplete-envelopes", name = "enabled")
 public class IncompleteEnvelopesTask {
@@ -24,7 +26,7 @@ public class IncompleteEnvelopesTask {
         this.envelopeRepository = envelopeRepository;
     }
 
-    @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}")
+    @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = "incomplete-envelopes-monitoring")
     public void run() {
         log.info("Checking for incomplete envelopes");
