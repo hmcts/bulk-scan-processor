@@ -152,6 +152,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         }
     }
 
+    @SuppressWarnings("squid:CallToDeprecatedMethod") // for sonarqube complaining about deprecated things being used
     private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
         try {
             return objectMapper.readValue(message.getBody(), ProcessedEnvelope.class);
