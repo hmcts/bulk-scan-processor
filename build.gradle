@@ -115,6 +115,13 @@ jacocoTestReport {
     csv.enabled = false
     xml.destination = file("${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml")
   }
+  afterEvaluate {
+    getClassDirectories().from = getClassDirectories().files.collect {
+      fileTree(dir: it, exclude: [
+        'uk/gov/hmcts/reform/bulkscanprocessor/config/**'
+      ])
+    }
+  }
 }
 
 project.tasks['sonarqube'].dependsOn test, integration
@@ -147,6 +154,10 @@ dependencyCheck {
   // range of 0-10 fails the build, anything greater and it doesn't fail the build
   failBuildOnCVSS = System.getProperty('dependencyCheck.failBuild') == 'true' ? 0 : 11
   suppressionFile = 'config/owasp/suppressions.xml'
+  analyzers {
+    // Disable scanning of .NET related binaries
+    assemblyEnabled = false
+  }
 }
 
 dependencyManagement {
@@ -264,7 +275,9 @@ dependencies {
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
 
 bootJar {
-  archiveName = 'bulk-scan-processor.jar'
+  getArchiveFileName().set(provider {
+    'bulk-scan-processor.jar'
+  })
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
