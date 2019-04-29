@@ -50,14 +50,13 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
-  before('smoketest:aks') {
+  before('smoketest:preview') {
     withAksClient('nonprod') {
 
       // Vars needed for AKS testing
       env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
       env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
       env.TEST_SCAN_DELAY = '4000'
-      env.RESOURCE_GROUP = 'bulk-scan-aks'
       env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
 
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT)
