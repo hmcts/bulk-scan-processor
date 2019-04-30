@@ -121,7 +121,9 @@ public class ServiceBusHelperTest {
         ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
         verify(queueClient).send(argument.capture());
 
-        JsonNode jsonNode = objectMapper.readTree(argument.getValue().getBody());
+        JsonNode jsonNode = objectMapper.readTree(
+            MessageBodyRetriever.getBinaryData(argument.getValue().getMessageBody())
+        );
 
         assertThat(jsonNode.get("case_ref").textValue()).isEqualTo(message.getCaseNumber());
         assertThat(jsonNode.get("previous_service_case_ref").textValue())

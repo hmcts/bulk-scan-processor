@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageBodyRetriever;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -56,7 +57,8 @@ public class ErrorNotificationHandler implements IMessageHandler {
     @Override
     public CompletableFuture<Void> onMessageAsync(IMessage message) {
         return CompletableFuture
-            .supplyAsync(message::getBody, SIMPLE_EXEC)
+            .supplyAsync(message::getMessageBody, SIMPLE_EXEC)
+            .thenApplyAsync(MessageBodyRetriever::getBinaryData, SIMPLE_EXEC)
             .thenApplyAsync(this::getErrorMessage, SIMPLE_EXEC)
             .thenAcceptAsync(this::processMessage, SERVICE_EXEC)
             .handleAsync((voided, throwable) -> exceptionHandler.handle(message, throwable), ERROR_EXEC)
