@@ -5,15 +5,15 @@ import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.FailedDocUploadProcessor;
 
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -37,10 +37,10 @@ public class ReuploadFailedEnvelopeTask {
 
     private static final Logger log = LoggerFactory.getLogger(ReuploadFailedEnvelopeTask.class);
 
-    private final List<Mapping> accessMapping;
+    private final Set<String> jurisdictions;
 
-    public ReuploadFailedEnvelopeTask(EnvelopeAccessProperties accessProperties) {
-        this.accessMapping = accessProperties.getMappings();
+    public ReuploadFailedEnvelopeTask(@Qualifier("jurisdictions") Set<String> jurisdictions) {
+        this.jurisdictions = jurisdictions;
     }
 
     /**
@@ -62,15 +62,13 @@ public class ReuploadFailedEnvelopeTask {
 
         try {
             executorService = Executors.newFixedThreadPool(
-                accessMapping.size(),
+                jurisdictions.size(),
                 new ThreadFactoryBuilder().setNameFormat("BSP-REUPLOAD-%d").build()
             );
 
             CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
-            accessMapping
-                .stream()
-                .map(Mapping::getJurisdiction)
+            jurisdictions
                 .forEach(jurisdiction -> {
                     FailedDocUploadProcessor processor = getProcessor();
 
@@ -95,7 +93,7 @@ public class ReuploadFailedEnvelopeTask {
     private void awaitCompletion(CompletionService<Void> completionService) throws InterruptedException {
         int completed = 0;
 
-        while (completed < accessMapping.size()) {
+        while (completed < jurisdictions.size()) {
             Future<Void> future = completionService.take(); // blocks if none available
 
             try {
