@@ -30,19 +30,19 @@ public class SubtypeTest {
     public void should_map_scannable_item_document_types_correctly() {
         asList(
             // null subtype
-            new TestCase(new Given(SSCS1, null), new Then(DocumentType.OTHER, DocumentSubtype.SSCS1)),
-            new TestCase(new Given(WILL, null), new Then(DocumentType.OTHER, DocumentSubtype.WILL)),
-            new TestCase(new Given(COVERSHEET, null), new Then(DocumentType.COVERSHEET, null)),
-            new TestCase(new Given(CHERISHED, null), new Then(DocumentType.CHERISHED, null)),
-            new TestCase(new Given(OTHER, null), new Then(DocumentType.OTHER, null)),
-            new TestCase(new Given(FORM, null), new Then(DocumentType.FORM, null)),
+            new TestCase(new Given(SSCS1, null), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
+            new TestCase(new Given(WILL, null), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
+            new TestCase(new Given(COVERSHEET, null), new Expect(DocumentType.COVERSHEET, null)),
+            new TestCase(new Given(CHERISHED, null), new Expect(DocumentType.CHERISHED, null)),
+            new TestCase(new Given(OTHER, null), new Expect(DocumentType.OTHER, null)),
+            new TestCase(new Given(FORM, null), new Expect(DocumentType.FORM, null)),
             // non-null subtype
-            new TestCase(new Given(SSCS1, SOME_SUBTYPE), new Then(DocumentType.OTHER, DocumentSubtype.SSCS1)),
-            new TestCase(new Given(WILL, SOME_SUBTYPE), new Then(DocumentType.OTHER, DocumentSubtype.WILL)),
-            new TestCase(new Given(COVERSHEET, SOME_SUBTYPE), new Then(DocumentType.COVERSHEET, SOME_SUBTYPE)),
-            new TestCase(new Given(CHERISHED, SOME_SUBTYPE), new Then(DocumentType.CHERISHED, SOME_SUBTYPE)),
-            new TestCase(new Given(OTHER, SOME_SUBTYPE), new Then(DocumentType.OTHER, SOME_SUBTYPE)),
-            new TestCase(new Given(FORM, SOME_SUBTYPE), new Then(DocumentType.FORM, SOME_SUBTYPE))
+            new TestCase(new Given(SSCS1, SOME_SUBTYPE), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
+            new TestCase(new Given(WILL, SOME_SUBTYPE), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
+            new TestCase(new Given(COVERSHEET, SOME_SUBTYPE), new Expect(DocumentType.COVERSHEET, SOME_SUBTYPE)),
+            new TestCase(new Given(CHERISHED, SOME_SUBTYPE), new Expect(DocumentType.CHERISHED, SOME_SUBTYPE)),
+            new TestCase(new Given(OTHER, SOME_SUBTYPE), new Expect(DocumentType.OTHER, SOME_SUBTYPE)),
+            new TestCase(new Given(FORM, SOME_SUBTYPE), new Expect(DocumentType.FORM, SOME_SUBTYPE))
         ).forEach(tc -> {
             // given
             InputScannableItem item = inputScannableItem(tc.input.documentType, tc.input.docSubtype);
@@ -53,23 +53,23 @@ public class SubtypeTest {
             // then
             softly.assertThat(result.getDocumentType())
                 .as("Output document type for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
-                .isEqualTo(tc.output.documentType);
+                .isEqualTo(tc.expected.documentType);
 
             softly.assertThat(result.getDocumentSubtype())
                 .as("Output document subtype for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
-                .isEqualTo(tc.output.docSubtype);
+                .isEqualTo(tc.expected.docSubtype);
         });
     }
 
     // region helper/dsl classes
     private class TestCase {
         public Given input;
-        public Then output;
+        public Expect expected;
 
         // region constructor
-        public TestCase(Given input, Then output) {
+        public TestCase(Given input, Expect expected) {
             this.input = input;
-            this.output = output;
+            this.expected = expected;
         }
         // endregion
     }
@@ -84,11 +84,11 @@ public class SubtypeTest {
         }
     }
 
-    private class Then {
+    private class Expect {
         public DocumentType documentType;
         public String docSubtype;
 
-        public Then(DocumentType documentType, String docSubtype) {
+        public Expect(DocumentType documentType, String docSubtype) {
             this.documentType = documentType;
             this.docSubtype = docSubtype;
         }
