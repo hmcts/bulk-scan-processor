@@ -25,11 +25,11 @@ public class SubtypeTest {
     @Test
     public void should_map_scannable_item_document_types_correctly() {
         asList(
-            new TestCase(new Given(SSCS1), new Then(DocumentType.OTHER, DocumentSubtype.SSCS1)),
-            new TestCase(new Given(WILL), new Then(DocumentType.OTHER, DocumentSubtype.WILL)),
-            new TestCase(new Given(COVERSHEET), new Then(DocumentType.OTHER, DocumentSubtype.COVERSHEET)),
-            new TestCase(new Given(CHERISHED), new Then(DocumentType.CHERISHED, null)),
-            new TestCase(new Given(OTHER), new Then(DocumentType.OTHER, null))
+            new TestCase(new Given(SSCS1), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
+            new TestCase(new Given(WILL), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
+            new TestCase(new Given(COVERSHEET), new Expect(DocumentType.OTHER, DocumentSubtype.COVERSHEET)),
+            new TestCase(new Given(CHERISHED), new Expect(DocumentType.CHERISHED, null)),
+            new TestCase(new Given(OTHER), new Expect(DocumentType.OTHER, null))
         ).forEach(tc -> {
             // given
             InputScannableItem item = inputScannableItem(tc.input.documentType);
@@ -40,23 +40,23 @@ public class SubtypeTest {
             // then
             softly.assertThat(result.getDocumentType())
                 .as("Output document type for type '%s'", tc.input.documentType)
-                .isEqualTo(tc.output.documentType);
+                .isEqualTo(tc.expected.documentType);
 
             softly.assertThat(result.getDocumentSubtype())
                 .as("Output document subtype for type '%s'", tc.input.documentType)
-                .isEqualTo(tc.output.docSubtype);
+                .isEqualTo(tc.expected.docSubtype);
         });
     }
 
     // region helper/dsl classes
     private class TestCase {
         public Given input;
-        public Then output;
+        public Expect expected;
 
         // region constructor
-        public TestCase(Given input, Then output) {
+        public TestCase(Given input, Expect expected) {
             this.input = input;
-            this.output = output;
+            this.expected = expected;
         }
         // endregion
     }
@@ -69,11 +69,11 @@ public class SubtypeTest {
         }
     }
 
-    private class Then {
+    private class Expect {
         public DocumentType documentType;
         public String docSubtype;
 
-        public Then(DocumentType documentType, String docSubtype) {
+        public Expect(DocumentType documentType, String docSubtype) {
             this.documentType = documentType;
             this.docSubtype = docSubtype;
         }
