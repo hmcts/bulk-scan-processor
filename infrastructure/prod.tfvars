@@ -15,3 +15,7 @@ api_gateway_test_valid_certificate_thumbprint = "3B0D23863EE7EF90290AD02B0ACFD7C
 allowed_client_certificate_thumbprints = ["919F8A770C2A2F06933BA11551001ED0581B8848"]
 
 blob_processing_delay_in_minutes = "30"
+
+smtp_host = "smtp.office365.com"
+
+incomplete_envelopes_enabled = "true"

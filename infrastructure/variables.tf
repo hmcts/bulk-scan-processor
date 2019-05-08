@@ -128,8 +128,22 @@ variable "smtp_host" {
 }
 
 variable "reports_cron" {
-  default     = "0 0 18 * * *"
-  description = "Cron signature for job to send out reports to be executed. Default value is 6PM everyday"
+  default     = "0 0 18 ? * MON-FRI"
+  description = "Cron signature for job to send out reports to be executed. Default value is 6PM (server time) every workday"
+}
+
+# endregion
+
+# region incomplete envelopes monitoring
+
+variable "incomplete_envelopes_cron" {
+  default     = "0 0 9 ? * MON-FRI"
+  description = "Cron signature for job to log amount of incomplete envelopes currently present in service"
+}
+
+variable "incomplete_envelopes_enabled" {
+  default     = "false"
+  description = "Task is trivial and no need to run. Will be enabled in production only though"
 }
 
 # endregion

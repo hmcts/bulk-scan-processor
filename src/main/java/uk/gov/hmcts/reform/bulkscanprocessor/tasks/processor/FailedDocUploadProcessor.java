@@ -40,8 +40,7 @@ public class FailedDocUploadProcessor extends Processor {
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository,
-        ContainerMappings containerMappings
+        ProcessEventRepository eventRepository
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
     }
@@ -55,19 +54,18 @@ public class FailedDocUploadProcessor extends Processor {
         EnvelopeProcessor envelopeProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
-        ContainerMappings containerMappings,
+        ContainerMappings containerMappings, // NOSONAR
         ServiceBusHelper serviceBusHelper, // NOSONAR
         String signatureAlg,
         String publicKeyDerFilename
     ) {
-        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository, containerMappings);
+        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
-    public void processJurisdiction(String jurisdiction)
-        throws IOException, StorageException, URISyntaxException {
-        log.info("Started processing failed documents for jurisdiction {}", jurisdiction);
+    public void processJurisdiction(String jurisdiction) {
+        log.info("Started looking for failed documents for jurisdiction {}", jurisdiction);
 
         try {
             List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
@@ -89,7 +87,7 @@ public class FailedDocUploadProcessor extends Processor {
     }
 
     private void processEnvelopes(String containerName, List<Envelope> envelopes)
-        throws IOException, StorageException, URISyntaxException {
+        throws StorageException, URISyntaxException {
 
         log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
 

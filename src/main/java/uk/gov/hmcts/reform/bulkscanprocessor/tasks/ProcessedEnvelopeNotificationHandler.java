@@ -139,7 +139,11 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
             log.error("Invalid 'processed envelope' message with ID {}", message.getMessageId(), e);
             return new MessageProcessingResult(MessageProcessingResultType.UNRECOVERABLE_FAILURE, e);
         } catch (EnvelopeNotFoundException e) {
-            log.error("Failed to handle 'processed envelope' message with ID {} - envelope not found", e);
+            log.error(
+                "Failed to handle 'processed envelope' message with ID {} - envelope not found",
+                message.getMessageId(),
+                e
+            );
             return new MessageProcessingResult(MessageProcessingResultType.UNRECOVERABLE_FAILURE, e);
         } catch (Exception e) {
             log.error(
@@ -152,6 +156,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         }
     }
 
+    @SuppressWarnings("squid:CallToDeprecatedMethod") // for sonarqube complaining about deprecated things being used
     private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
         try {
             return objectMapper.readValue(message.getBody(), ProcessedEnvelope.class);

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
+package uk.gov.hmcts.reform.bulkscanprocessor.tasks.monitoring;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,18 +12,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @IntegrationTest
 @RunWith(SpringRunner.class)
-@TestPropertySource(
-    properties = {
-        "spring.mail.host=false"
-    }
-)
-public class ReportSenderDisabledTest {
+@TestPropertySource(properties = {
+    "monitoring.incomplete-envelopes.enabled=false"
+})
+public class IncompleteEnvelopesDisabledTaskTest {
 
     @Autowired
     private ApplicationContext context;
 
     @Test
     public void should_not_have_report_sender_in_context() {
-        assertThat(context.getBeanNamesForType(ReportSender.class)).isEmpty();
+        assertThat(context.getBeanNamesForType(IncompleteEnvelopesTask.class)).isEmpty();
     }
 }

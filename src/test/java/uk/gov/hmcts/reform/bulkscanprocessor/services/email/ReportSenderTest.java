@@ -46,6 +46,7 @@ public class ReportSenderTest {
         ReportSender reportSender = new ReportSender(
             getMailSender(),
             reportsService,
+            TEST_LOGIN,
             new String[] { reportRecipient1, reportRecipient2}
         );
 
@@ -65,7 +66,7 @@ public class ReportSenderTest {
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
         assertThat(msg.getAttachmentList()).hasSize(1);
-        assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + now());
+        assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + now() + ".csv");
 
         verify(reportsService).getZipFilesSummary(now(), null);
     }
@@ -83,7 +84,7 @@ public class ReportSenderTest {
             .given(mailSender)
             .send(any(MimeMessage.class));
 
-        ReportSender reportSender = new ReportSender(mailSender, reportsService, null);
+        ReportSender reportSender = new ReportSender(mailSender, reportsService, TEST_LOGIN, null);
 
         // when
         Throwable exc = catchThrowable(reportSender::send);

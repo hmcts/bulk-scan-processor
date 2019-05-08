@@ -2,13 +2,19 @@ server:
   port: 8581
 
 management:
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       base-path: /
+  health:
+    mail:
+      enabled: false
 
 spring:
   application:
-    name: Bulk Scanning
+    name: Bulk Scan Processor
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5435}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
@@ -45,10 +51,16 @@ spring:
           auth: true
           starttls:
             enable: true
+    test-connection: true
 
 # setting env vars + defaults as env vars will be overridden otherwise
+monitoring:
+  incomplete-envelopes:
+    cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 0 9 ? * MON-FRI} # can be discussed later
+    enabled: ${INCOMPLETE_ENVELOPES_TASK_ENABLED:true}
+
 reports:
-  cron: ${REPORTS_CRON:0 0 18 * * *}
+  cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
   recipients: ${REPORTS_RECIPIENTS:}
 
 info:
@@ -96,6 +108,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: finrem
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: cmc
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 containers:
   mappings:
@@ -108,6 +122,12 @@ containers:
     - container: divorce
       jurisdiction: DIVORCE
       poBox: 12706
+    - container: finrem
+      jurisdiction: DIVORCE
+      poBox: 12746
+    - container: cmc
+      jurisdiction: CMC
+      poBox: 12747
     - container: bulkscan
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
@@ -158,12 +178,6 @@ envelope-access:
      - jurisdiction: BULKSCAN
        readService: bulk_scan_processor_tests
        updateService: bulk_scan_processor_tests
-     - jurisdiction: PROBATE
-       readService: TBD
-       updateService: TBD
-     - jurisdiction: DIVORCE
-       readService: TBD
-       updateService: TBD
 
 flyway:
   noop:

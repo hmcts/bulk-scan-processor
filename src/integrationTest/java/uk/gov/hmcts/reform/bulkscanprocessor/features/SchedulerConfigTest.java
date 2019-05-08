@@ -1,35 +1,32 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.features;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(
+@IntegrationTest
+@RunWith(SpringRunner.class)
+@TestPropertySource(
     properties = {
         "scheduling.task.scan.enabled=true",
         "scheduling.task.reupload.enabled=true",
         "scheduling.task.notifications_to_orchestrator.enabled=true"
     }
 )
-@RunWith(SpringRunner.class)
 public class SchedulerConfigTest {
 
     @SpyBean
@@ -49,13 +46,6 @@ public class SchedulerConfigTest {
 
     @TestConfiguration
     public static class MockConfig {
-
-        @Bean
-        public CloudBlobClient getCloudBlobClient() throws InvalidKeyException, URISyntaxException {
-            return CloudStorageAccount
-                .parse("UseDevelopmentStorage=true")
-                .createCloudBlobClient();
-        }
 
         @Bean(name = "notifications-helper")
         public ServiceBusHelper notificationsQueueHelper() {

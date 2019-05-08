@@ -2,8 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider;
-import net.javacrumbs.shedlock.spring.ScheduledLockConfiguration;
-import net.javacrumbs.shedlock.spring.ScheduledLockConfigurationBuilder;
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,14 +11,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import java.time.Duration;
 import javax.sql.DataSource;
 
 @Configuration
 @AutoConfigureAfter(FlywayConfiguration.class)
 @DependsOn({"flyway", "flywayInitializer"})
+@EnableScheduling
+@EnableSchedulerLock(defaultLockAtMostFor = "${scheduling.lock_at_most_for}")
 public class ShedLockConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(ShedLockConfiguration.class);
@@ -41,18 +42,5 @@ public class ShedLockConfiguration {
         scheduler.initialize();
 
         return scheduler;
-    }
-
-    @Bean
-    public ScheduledLockConfiguration taskScheduler(
-        LockProvider lockProvider,
-        TaskScheduler taskScheduler,
-        @Value("${scheduling.lock_at_most_for}") String lockAtMostFor
-    ) {
-        return ScheduledLockConfigurationBuilder
-            .withLockProvider(lockProvider)
-            .withTaskScheduler(taskScheduler)
-            .withDefaultLockAtMostFor(Duration.parse(lockAtMostFor))
-            .build();
     }
 }

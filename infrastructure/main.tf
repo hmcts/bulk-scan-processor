@@ -42,8 +42,8 @@ locals {
   #endregion
 
   sku_size                    = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
-  storage_account_name        = "${data.terraform_remote_state.shared_infra.storage_account_name}"
-  storage_account_primary_key = "${data.terraform_remote_state.shared_infra.storage_account_primary_key}"
+  storage_account_name        = "${data.azurerm_key_vault_secret.storage_account_name.value}"
+  storage_account_primary_key = "${data.azurerm_key_vault_secret.storage_account_primary_key.value}"
   storage_account_url_prod    = "https://bulkscan.platform.hmcts.net"
   storage_account_url_notprod = "https://bulkscan.${var.env}.platform.hmcts.net"
   storage_account_url         = "${var.env == "prod" ? local.storage_account_url_prod : local.storage_account_url_notprod}"
@@ -76,6 +76,7 @@ module "bulk-scan" {
   instance_size                   = "${local.sku_size}"
   asp_name                        = "${var.product}-${var.env}"
   asp_rg                          = "${var.product}-${var.env}"
+  java_container_version          = "9.0"
 
   app_settings = {
     // db
@@ -128,10 +129,19 @@ module "bulk-scan" {
     STORAGE_BLOB_SIGNATURE_ALGORITHM = "sha256withrsa"                               // none or sha256withrsa
     STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
 
-    QUEUE_ENVELOPE_SEND = "${data.terraform_remote_state.shared_infra.queue_primary_send_connection_string}"
-    QUEUE_NOTIFICATIONS_SEND = "${data.terraform_remote_state.shared_infra.notifications_queue_primary_send_connection_string}"
-    QUEUE_NOTIFICATIONS_READ = "${data.terraform_remote_state.shared_infra.notifications_queue_primary_listen_connection_string}"
-    QUEUE_PROCESSED_ENVELOPES_READ = "${data.terraform_remote_state.shared_infra.processed_envelopes_queue_primary_listen_connection_string}"
+    QUEUE_ENVELOPE_SEND = "${data.azurerm_key_vault_secret.envelopes_queue_send_conn_str.value}"
+    QUEUE_NOTIFICATIONS_SEND = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
+    QUEUE_NOTIFICATIONS_READ = "${data.azurerm_key_vault_secret.notifications_queue_listen_conn_str.value}"
+    QUEUE_PROCESSED_ENVELOPES_READ = "${data.azurerm_key_vault_secret.processed_envelopes_queue_listen_conn_str.value}"
+
+    SMTP_HOST          = "${var.smtp_host}"
+    SMTP_USERNAME      = "${data.azurerm_key_vault_secret.smtp_username.value}"
+    SMTP_PASSWORD      = "${data.azurerm_key_vault_secret.smtp_password.value}"
+    REPORTS_CRON       = "${var.reports_cron}"
+    REPORTS_RECIPIENTS = "${data.azurerm_key_vault_secret.reports_recipients.value}"
+
+    INCOMPLETE_ENVELOPES_TASK_CRON    = "${var.incomplete_envelopes_cron}"
+    INCOMPLETE_ENVELOPES_TASK_ENABLED = "${var.incomplete_envelopes_enabled}"
 
     SMTP_HOST          = "${var.smtp_host}"
     SMTP_USERNAME      = "${data.azurerm_key_vault_secret.smtp_username.value}"
@@ -142,6 +152,7 @@ module "bulk-scan" {
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
+
   }
 }
 
@@ -183,6 +194,41 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 data "azurerm_key_vault_secret" "s2s_secret" {
   name      = "microservicekey-bulk-scan-processor"
   vault_uri = "${local.s2s_vault_url}"
+}
+
+data "azurerm_key_vault_secret" "storage_account_name" {
+  name      = "storage-account-name"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "storage_account_primary_key" {
+  name      = "storage-account-primary-key"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "envelopes_queue_send_conn_str" {
+  name      = "envelopes-queue-send-connection-string"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "notifications_queue_send_conn_str" {
+  name      = "notifications-queue-send-connection-string"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "notifications_queue_listen_conn_str" {
+  name      = "notifications-queue-listen-connection-string"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "processed_envelopes_queue_listen_conn_str" {
+  name      = "processed-envelopes-queue-listen-connection-string"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+}
+
+data "azurerm_key_vault_secret" "processed_envelopes_queue_send_conn_str" {
+  name      = "processed-envelopes-queue-send-connection-string"
+  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
 }
 
 data "azurerm_key_vault_secret" "reports_recipients" {

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -84,4 +85,12 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("maxFailureCount") int maxFailureCount,
         Pageable pageable
     );
+
+    @Query(
+        nativeQuery = true,
+        value = "SELECT COUNT(1) AS incomplete\n"
+            + "FROM envelopes\n"
+            + "WHERE DATE(createdat) < :date AND status != 'COMPLETED'"
+    )
+    int getIncompleteEnvelopesCountBefore(@Param("date") LocalDate date);
 }

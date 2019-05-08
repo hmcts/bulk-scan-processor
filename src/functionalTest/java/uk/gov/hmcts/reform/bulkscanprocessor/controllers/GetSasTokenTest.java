@@ -94,6 +94,20 @@ public class GetSasTokenTest {
     }
 
     @Test
+    public void should_return_sas_token_for_finrem_when_service_configuration_is_available() throws Exception {
+        Response tokenResponse = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(this.testUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+            .when().get("/token/finrem")
+            .andReturn();
+
+        verifySasTokenProperties(tokenResponse);
+    }
+
+    @Test
     public void should_return_sas_token_for_probate_when_service_configuration_is_available() throws Exception {
         Response tokenResponse = RestAssured
             .given()
@@ -171,7 +185,7 @@ public class GetSasTokenTest {
         Date tokenExpiry = DateUtil.parseDatetime(queryParams.get("se")[0]);
         assertThat(tokenExpiry).isNotNull();
         assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
-        assertThat(queryParams.get("sv")).contains("2018-03-28"); //azure api version is latest
+        assertThat(queryParams.get("sv")).contains("2018-11-09"); //azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl"); //access permissions(write-w,list-l)
     }
 }

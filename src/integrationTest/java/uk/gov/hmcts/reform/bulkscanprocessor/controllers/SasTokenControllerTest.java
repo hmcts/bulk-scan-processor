@@ -8,10 +8,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,9 +22,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 @AutoConfigureMockMvc
+@IntegrationTest
+@RunWith(SpringRunner.class)
 public class SasTokenControllerTest {
 
     @Autowired
@@ -65,7 +65,7 @@ public class SasTokenControllerTest {
 
         assertThat(queryParams.get("sig")).isNotNull();//this is a generated hash of the resource string
         assertThat(queryParams.get("se")[0]).startsWith(currentDate);//the expiry date/time for the signature
-        assertThat(queryParams.get("sv")).contains("2018-03-28");//azure api version is latest
+        assertThat(queryParams.get("sv")).contains("2018-11-09");//azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
     }
 }

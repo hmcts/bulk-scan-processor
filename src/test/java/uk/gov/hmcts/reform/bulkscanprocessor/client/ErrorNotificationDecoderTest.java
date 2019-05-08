@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
+import feign.Request;
 import feign.Response;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,13 @@ public class ErrorNotificationDecoderTest {
 
     private static final ErrorNotificationDecoder DECODER = new ErrorNotificationDecoder(new ObjectMapper());
 
+    private static final Request REQUEST = Request.create(
+        Request.HttpMethod.POST,
+        "/",
+        Collections.emptyMap(),
+        null
+    );
+
     private static final String METHOD_KEY = "key";
 
     @Test
@@ -24,6 +32,7 @@ public class ErrorNotificationDecoderTest {
         Response response = Response.builder()
             .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
             .headers(Collections.emptyMap())
+            .request(REQUEST)
             .body("Unsupported media type".getBytes())
             .build();
 
@@ -49,6 +58,7 @@ public class ErrorNotificationDecoderTest {
         Response response = Response.builder()
             .status(HttpStatus.SERVICE_UNAVAILABLE.value())
             .headers(Collections.emptyMap())
+            .request(REQUEST)
             .body("Service unavailable".getBytes())
             .build();
 
@@ -71,6 +81,7 @@ public class ErrorNotificationDecoderTest {
         Response response = Response.builder()
             .status(HttpStatus.PERMANENT_REDIRECT.value())
             .headers(Collections.emptyMap())
+            .request(REQUEST)
             .body("Did not want to do that".getBytes())
             .build();
 
