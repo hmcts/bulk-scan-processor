@@ -143,12 +143,6 @@ module "bulk-scan" {
     INCOMPLETE_ENVELOPES_TASK_CRON    = "${var.incomplete_envelopes_cron}"
     INCOMPLETE_ENVELOPES_TASK_ENABLED = "${var.incomplete_envelopes_enabled}"
 
-    SMTP_HOST          = "${var.smtp_host}"
-    SMTP_USERNAME      = "${data.azurerm_key_vault_secret.smtp_username.value}"
-    SMTP_PASSWORD      = "${data.azurerm_key_vault_secret.smtp_password.value}"
-    REPORTS_CRON       = "${var.reports_cron}"
-    REPORTS_RECIPIENTS = "${data.azurerm_key_vault_secret.reports_recipients.value}"
-
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
