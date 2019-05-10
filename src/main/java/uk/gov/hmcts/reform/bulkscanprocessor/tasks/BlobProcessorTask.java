@@ -247,7 +247,7 @@ public class BlobProcessorTask extends Processor {
                     log.info("Marked envelope from file {} (container {}) as deleted", blobName, containerName);
                 }
             } else {
-                log.info("File not ready to be deleted.");
+                log.info("File {} from container {} not ready to be deleted yet.", blobName, containerName);
             }
         } catch (StorageException e) {
             log.error("Failed to delete file [{}] in container {}", blobName, containerName, e);
