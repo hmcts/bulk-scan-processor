@@ -37,8 +37,12 @@ public enum Status {
         }
     }
 
+    /**
+     * Returns true if the status represents an envelope file that's been processed, from
+     * the processor's perspective. False otherwise.
+     */
     public boolean isProcessed() {
-        return this == PROCESSED || this == NOTIFICATION_SENT;
+        return this == PROCESSED || this == NOTIFICATION_SENT || this == COMPLETED;
     }
 
 }
