@@ -38,7 +38,7 @@ public enum Status {
     }
 
     public boolean isProcessed() {
-        return this == PROCESSED || this == NOTIFICATION_SENT;
+        return this == PROCESSED || this == NOTIFICATION_SENT || this == COMPLETED;
     }
 
 }
