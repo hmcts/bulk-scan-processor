@@ -42,6 +42,7 @@ public class EnvelopeMapper {
             envelope.zipFileCreateddate,
             envelope.zipFileName,
             envelope.caseNumber,
+            envelope.previousServiceCaseReference,
             envelope.classification,
             toDbScannableItems(envelope.scannableItems),
             toDbPayments(envelope.payments),

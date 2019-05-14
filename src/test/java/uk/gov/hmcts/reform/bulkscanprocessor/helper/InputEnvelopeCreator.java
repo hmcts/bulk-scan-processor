@@ -38,6 +38,7 @@ public final class InputEnvelopeCreator {
             null,
             "file.zip",
             "case_number",
+            "previous_service_case_ref",
             classification,
             scannableItems,
             emptyList(),
