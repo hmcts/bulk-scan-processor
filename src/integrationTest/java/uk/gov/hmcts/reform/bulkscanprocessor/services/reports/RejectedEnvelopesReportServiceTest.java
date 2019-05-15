@@ -54,7 +54,7 @@ public class RejectedEnvelopesReportServiceTest {
     }
 
     @Test
-    public void should_delete_old_files() throws Exception {
+    public void should_read_files_from_rejected_container() throws Exception {
         // given
         // there are two files in rejected container
         rejectedContainer.getBlockBlobReference("foo.zip").uploadText("some content");
