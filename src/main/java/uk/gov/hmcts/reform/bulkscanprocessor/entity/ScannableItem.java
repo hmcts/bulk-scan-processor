@@ -50,6 +50,8 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String documentUrl;
 
+    private String documentUuid;
+
     @Enumerated(EnumType.STRING)
     private DocumentType documentType;
 
@@ -147,6 +149,14 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public String getDocumentSubtype() {
         return documentSubtype;
+    }
+
+    public String getDocumentUuid() {
+        return documentUuid;
+    }
+
+    public void setDocumentUuid(String documentUuid) {
+        this.documentUuid = documentUuid;
     }
 
     @Override

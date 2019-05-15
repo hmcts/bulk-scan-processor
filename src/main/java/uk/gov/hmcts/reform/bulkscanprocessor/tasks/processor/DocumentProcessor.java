@@ -13,6 +13,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -44,10 +46,19 @@ public class DocumentProcessor {
             );
 
         if (filesWithoutUrl.isEmpty()) {
-            scannedItems.forEach(item -> item.setDocumentUrl(response.get(item.getFileName())));
+            scannedItems.forEach(item -> {
+                item.setDocumentUrl(response.get(item.getFileName()));
+                item.setDocumentUuid(extractDocumentUuid(response.get(item.getFileName())));
+            });
             scannableItemRepository.saveAll(scannedItems);
         } else {
             throw new DocumentUrlNotRetrievedException(filesWithoutUrl);
         }
+    }
+
+    private String extractDocumentUuid(String documentUrl) {
+        //text after the last '/' in the url
+        Matcher matcher = Pattern.compile("([^/]+)(?=[^/]*/?$)").matcher(documentUrl);
+        return matcher.find() ? matcher.group(0) : null; //TODO: throw exception when documentUuid is non-null field
     }
 }
