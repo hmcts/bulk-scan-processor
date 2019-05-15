@@ -124,6 +124,9 @@ public class ServiceBusHelperTest {
         JsonNode jsonNode = objectMapper.readTree(argument.getValue().getBody());
 
         assertThat(jsonNode.get("case_ref").textValue()).isEqualTo(message.getCaseNumber());
+        assertThat(jsonNode.get("previous_service_case_ref").textValue())
+            .isEqualTo(message.getPreviousServiceCaseReference());
+
         assertThat(jsonNode.get("po_box").textValue()).isEqualTo(message.getPoBox());
         assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
         assertThat(jsonNode.get("container").textValue()).isEqualTo(message.getContainer());
@@ -156,6 +159,7 @@ public class ServiceBusHelperTest {
     private void mockEnvelopeData() {
         when(envelope.getId()).thenReturn(UUID.randomUUID());
         when(envelope.getCaseNumber()).thenReturn("1111222233334446");
+        when(envelope.getPreviousServiceCaseReference()).thenReturn("12345678");
         when(envelope.getPoBox()).thenReturn("SSCS PO BOX");
         when(envelope.getJurisdiction()).thenReturn("SSCS");
         when(envelope.getContainer()).thenReturn("sscs");
