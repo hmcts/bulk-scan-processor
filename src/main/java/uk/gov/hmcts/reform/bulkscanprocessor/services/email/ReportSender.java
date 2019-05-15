@@ -10,7 +10,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 
 import java.io.File;

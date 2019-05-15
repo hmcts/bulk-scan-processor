@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.util;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.io.File;
 import java.io.FileReader;

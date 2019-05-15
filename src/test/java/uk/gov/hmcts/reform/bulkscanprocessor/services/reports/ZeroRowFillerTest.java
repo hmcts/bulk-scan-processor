@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
 
 import java.util.List;
 

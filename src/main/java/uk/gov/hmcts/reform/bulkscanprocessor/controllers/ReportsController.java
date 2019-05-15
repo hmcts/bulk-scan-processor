@@ -13,9 +13,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSumm
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 
 import java.io.File;
