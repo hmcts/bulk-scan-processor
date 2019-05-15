@@ -11,11 +11,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnv
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
 import static com.microsoft.azure.storage.blob.BlobListingDetails.SNAPSHOTS;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -35,6 +37,19 @@ public class RejectedEnvelopesReportServiceTest {
             .willReturn(asList(containerA, containerB));
 
         service = new RejectedEnvelopesReportService(blobManager);
+    }
+
+    @Test
+    public void should_return_empty_list_when_there_are_no_rejected_files() {
+        // given
+        setUpContainer(containerA, emptyList());
+        setUpContainer(containerB, emptyList());
+
+        // when
+        List<RejectedEnvelope> result = service.getRejectedEnvelopes();
+
+        // then
+        assertThat(result).isEmpty();
     }
 
     @Test
