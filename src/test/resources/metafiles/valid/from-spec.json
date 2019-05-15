@@ -1,5 +1,6 @@
 {
   "case_number": "1111222233334446",
+  "previous_service_case_reference": "12345678",
   "po_box": "XXXX",
   "jurisdiction": "SSCS",
   "delivery_date": "2017-02-23T22:00:00.100Z",

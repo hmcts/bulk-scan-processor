@@ -1,5 +1,6 @@
 {
   "case_number": null,
+  "previous_service_case_reference": null,
   "po_box": "XXXX",
   "jurisdiction": "SSCS",
   "delivery_date": "2017-02-23T00:00:00.100Z",

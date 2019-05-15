@@ -34,6 +34,7 @@ public class EnvelopeMapperTest {
         );
 
         assertThat(dbEnvelope.getCaseNumber()).isEqualTo(zipEnvelope.caseNumber);
+        assertThat(dbEnvelope.getPreviousServiceCaseReference()).isEqualTo(zipEnvelope.previousServiceCaseReference);
         assertThat(dbEnvelope.getPoBox()).isEqualTo(zipEnvelope.poBox);
         assertThat(dbEnvelope.getJurisdiction()).isEqualTo(zipEnvelope.jurisdiction);
         assertThat(dbEnvelope.getDeliveryDate()).isEqualTo(zipEnvelope.deliveryDate);
