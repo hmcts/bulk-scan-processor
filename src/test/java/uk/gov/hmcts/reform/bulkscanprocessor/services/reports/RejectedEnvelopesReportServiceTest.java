@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnv
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
