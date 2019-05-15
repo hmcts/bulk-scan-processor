@@ -21,6 +21,9 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("case_ref")
     private final String caseNumber;
 
+    @JsonProperty("previous_service_case_ref")
+    private final String previousServiceCaseReference;
+
     @JsonProperty("po_box")
     private final String poBox;
 
@@ -53,6 +56,7 @@ public class EnvelopeMsg implements Msg {
     public EnvelopeMsg(Envelope envelope) {
         this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
         this.caseNumber = envelope.getCaseNumber();
+        this.previousServiceCaseReference = envelope.getPreviousServiceCaseReference();
         this.classification = envelope.getClassification();
         this.poBox = envelope.getPoBox();
         this.jurisdiction = envelope.getJurisdiction();
@@ -78,6 +82,10 @@ public class EnvelopeMsg implements Msg {
 
     public String getCaseNumber() {
         return caseNumber;
+    }
+
+    public String getPreviousServiceCaseReference() {
+        return previousServiceCaseReference;
     }
 
     public Classification getClassification() {
