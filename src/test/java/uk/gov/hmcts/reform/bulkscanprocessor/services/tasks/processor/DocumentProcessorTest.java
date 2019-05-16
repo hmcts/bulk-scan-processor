@@ -69,6 +69,7 @@ public class DocumentProcessorTest {
 
         //Document url should be set by the processor
         scannableItem.setDocumentUrl("http://localhost/documents/5fef5f98-e875-4084-b115-47188bc9066b");
+        scannableItem.setDocumentUuid("5fef5f98-e875-4084-b115-47188bc9066b");
 
         //Verify scanned item was saved with doc url updated
         verify(scannableItemRepository).saveAll(ImmutableList.of(scannableItem));
