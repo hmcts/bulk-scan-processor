@@ -155,6 +155,7 @@ public final class EnvelopeCreator {
             null
         );
         scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
+        scannableItem1.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
         ScannableItem scannableItem2 = new ScannableItem(
             "1111002",
@@ -170,6 +171,7 @@ public final class EnvelopeCreator {
             DocumentSubtype.SSCS1
         );
         scannableItem2.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
+        scannableItem2.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
         return ImmutableList.of(scannableItem1, scannableItem2);
     }

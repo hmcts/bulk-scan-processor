@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessorTestSuite;
@@ -81,6 +82,9 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         assertThat(dbEnvelopes.get(0).getScannableItems())
             .extracting(item -> item.getDocumentUrl())
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
+        assertThat(dbEnvelopes.get(0).getScannableItems())
+            .extracting(ScannableItem::getDocumentUuid)
+            .hasSameElementsAs(ImmutableList.of(DOCUMENT_UUID2));
 
         // and
         String failureReason = "Error retrieving urls for uploaded files: 1111002.pdf";
