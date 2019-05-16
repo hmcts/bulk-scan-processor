@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,8 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -58,7 +57,6 @@ public class DocumentProcessor {
 
     private String extractDocumentUuid(String documentUrl) {
         //text after the last '/' in the url
-        Matcher matcher = Pattern.compile("([^/]+)(?=[^/]*/?$)").matcher(documentUrl);
-        return matcher.find() ? matcher.group(0) : null; //TODO: throw exception when documentUuid is non-null field
+        return StringUtils.substringAfterLast(documentUrl, "/");
     }
 }
