@@ -51,7 +51,8 @@ public class ZipFileStatusService {
         return new ZipFileEvent(
             event.getEvent().name(),
             event.getContainer(),
-            event.getCreatedAt()
+            event.getCreatedAt(),
+            event.getReason()
         );
     }
 }
