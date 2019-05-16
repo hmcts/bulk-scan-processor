@@ -56,7 +56,7 @@ public class DocumentProcessor {
     }
 
     private String extractDocumentUuid(String documentUrl) {
-        //text after the last '/' in the url
+        //text after the last '/' in the url. eg: http://localhost/documents/5fef5f98 returns 5fef5f98
         return StringUtils.substringAfterLast(documentUrl, "/");
     }
 }
