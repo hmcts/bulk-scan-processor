@@ -46,8 +46,8 @@ public class ZipStatusControllerTest {
         );
 
         List<ZipFileEvent> events = asList(
-            new ZipFileEvent("type0", "container0", now().minusSeconds(10)),
-            new ZipFileEvent("type1", "container1", now().minusSeconds(15))
+            new ZipFileEvent("type0", "container0", now().minusSeconds(10), "reason0"),
+            new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
         );
 
         given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip", envelopes, events));
@@ -68,10 +68,11 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
             .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))
             .andExpect(jsonPath("$.events[0].created_at").value(toIso(events.get(0).createdAt)))
+            .andExpect(jsonPath("$.events[0].reason").value(events.get(0).reason))
             .andExpect(jsonPath("$.events[1].type").value(events.get(1).eventType))
             .andExpect(jsonPath("$.events[1].container").value(events.get(1).container))
-            .andExpect(jsonPath("$.events[1].created_at").value(toIso(events.get(1).createdAt)));
-
+            .andExpect(jsonPath("$.events[1].created_at").value(toIso(events.get(1).createdAt)))
+            .andExpect(jsonPath("$.events[1].reason").value(events.get(1).reason));
     }
 
     @Test

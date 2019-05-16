@@ -18,11 +18,15 @@ public class ZipFileEvent {
     @JsonSerialize(using = InstantSerializer.class)
     public final Instant createdAt;
 
+    @JsonProperty("reason")
+    public final String reason;
+
     // region constructor
-    public ZipFileEvent(String eventType, String container, Instant createdAt) {
+    public ZipFileEvent(String eventType, String container, Instant createdAt, String reason) {
         this.eventType = eventType;
         this.container = container;
         this.createdAt = createdAt;
+        this.reason = reason;
     }
     // endregion
 }
