@@ -23,12 +23,6 @@
   </suppress>
 
   <suppress>
-    <notes><![CDATA[Used only for testing not used in prod]]></notes>
-    <gav regex="true">^org\.testcontainers:postgresql:.*$</gav>
-    <cpe>cpe:/a:postgresql:postgresql</cpe>
-  </suppress>
-
-  <suppress>
     <notes><![CDATA[ no fix available ]]></notes>
     <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.7$</gav>
     <cve>CVE-2016-6497</cve>
