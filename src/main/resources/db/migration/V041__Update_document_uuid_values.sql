@@ -1,2 +1,3 @@
+-- Extracts the text after the last slash (/) in the documentUrl
 UPDATE scannable_items
- SET documentUrl = REVERSE(SPLIT_PART(REVERSE(documentUrl), '/', 1))
+ SET documentUuid = REVERSE(SPLIT_PART(REVERSE(documentUrl), '/', 1))
