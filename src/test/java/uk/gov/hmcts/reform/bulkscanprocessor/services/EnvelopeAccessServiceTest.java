@@ -30,13 +30,13 @@ public class EnvelopeAccessServiceTest {
         BDDMockito
             .given(accessProps.getMappings())
             .willReturn(asList(
-                new Mapping("jur_A", "read_A", "update_A"),
-                new Mapping("jur_B", "read_B", "update_B")
+                new Mapping("jur_A", "read_A"),
+                new Mapping("jur_B", "read_B")
             ));
     }
 
     @Test
-    public void getReadJurisdictionForService_should_return_name_of_then_jurisdiction_from_which_service_can_read() {
+    public void getReadJurisdictionForService_should_return_name_of_the_jurisdiction_from_which_service_can_read() {
         String jurisdiction = service.getReadJurisdictionForService("read_A");
 
         assertThat(jurisdiction).isEqualTo("jur_A");
