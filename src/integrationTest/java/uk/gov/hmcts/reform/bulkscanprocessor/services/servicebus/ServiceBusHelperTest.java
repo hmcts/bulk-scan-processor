@@ -170,6 +170,7 @@ public class ServiceBusHelperTest {
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
 
         when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
+        when(scannableItem1.getDocumentUuid()).thenReturn("documentUuid1");
         when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
         when(scannableItem1.getDocumentType()).thenReturn(DocumentType.CHERISHED);
@@ -182,6 +183,7 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getOcrData()).thenReturn(ocrData);
 
         when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
+        when(scannableItem2.getDocumentUuid()).thenReturn("documentUuid2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
         when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
         when(scannableItem2.getDocumentType()).thenReturn(DocumentType.OTHER);
@@ -195,6 +197,7 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());
         assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
+        assertThat(jsonNode.get("uuid").asText()).isEqualTo(scannableItem.getDocumentUuid());
         assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate());
     }
 
