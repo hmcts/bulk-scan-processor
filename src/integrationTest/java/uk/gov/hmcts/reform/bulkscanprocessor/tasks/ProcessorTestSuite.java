@@ -39,6 +39,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";
     protected static final String DOCUMENT_URL2 =
         "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
+    protected static final String DOCUMENT_UUID2 = "0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
     protected static final String SIGNATURE_ALGORITHM = "none";
     protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;

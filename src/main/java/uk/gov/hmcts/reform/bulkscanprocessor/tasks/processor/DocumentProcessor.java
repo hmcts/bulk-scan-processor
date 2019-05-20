@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -44,10 +45,18 @@ public class DocumentProcessor {
             );
 
         if (filesWithoutUrl.isEmpty()) {
-            scannedItems.forEach(item -> item.setDocumentUrl(response.get(item.getFileName())));
+            scannedItems.forEach(item -> {
+                item.setDocumentUrl(response.get(item.getFileName()));
+                item.setDocumentUuid(extractDocumentUuid(response.get(item.getFileName())));
+            });
             scannableItemRepository.saveAll(scannedItems);
         } else {
             throw new DocumentUrlNotRetrievedException(filesWithoutUrl);
         }
+    }
+
+    private String extractDocumentUuid(String documentUrl) {
+        //text after the last '/' in the url. eg: http://localhost/documents/5fef5f98 returns 5fef5f98
+        return StringUtils.substringAfterLast(documentUrl, "/");
     }
 }

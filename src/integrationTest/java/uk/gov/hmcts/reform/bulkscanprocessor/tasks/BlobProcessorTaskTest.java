@@ -99,6 +99,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(actualEnvelope.getScannableItems())
             .extracting(item -> item.getDocumentUrl())
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
+
+        assertThat(actualEnvelope.getScannableItems())
+            .extracting(item -> item.getDocumentUuid())
+            .hasSameElementsAs(ImmutableList.of("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"));
         assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         // This verifies pdf file objects were created from the zip file

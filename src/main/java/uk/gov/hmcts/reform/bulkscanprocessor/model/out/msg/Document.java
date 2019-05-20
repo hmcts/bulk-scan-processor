@@ -26,6 +26,9 @@ public class Document {
     @JsonProperty("url")
     public final String url;
 
+    @JsonProperty("uuid")
+    public final String uuid;
+
     // region constructor
     private Document(
         String fileName,
@@ -33,7 +36,8 @@ public class Document {
         DocumentType type,
         String subtype,
         Instant scannedAt,
-        String url
+        String url,
+        String uuid
     ) {
         this.fileName = fileName;
         this.controlNumber = controlNumber;
@@ -41,6 +45,7 @@ public class Document {
         this.subtype = subtype;
         this.scannedAt = scannedAt;
         this.url = url;
+        this.uuid = uuid;
     }
     // endregion
 
@@ -51,7 +56,8 @@ public class Document {
             item.getDocumentType(),
             item.getDocumentSubtype(),
             item.getScanningDate(),
-            item.getDocumentUrl()
+            item.getDocumentUrl(),
+            item.getDocumentUuid()
         );
     }
 }
