@@ -152,7 +152,7 @@ public class EnvelopeFinaliserServiceTest {
                 null
             );
 
-            scannableItem.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
+            scannableItem.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
             return scannableItem;
         })
             .limit(count)

@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
@@ -96,13 +97,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             "id", "amount", "amount_in_pence", "configuration", "json"
         );
         assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
-        assertThat(actualEnvelope.getScannableItems())
-            .extracting(item -> item.getDocumentUrl())
-            .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
 
         assertThat(actualEnvelope.getScannableItems())
-            .extracting(item -> item.getDocumentUuid())
-            .hasSameElementsAs(ImmutableList.of("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"));
+            .extracting(ScannableItem::getDocumentUuid)
+            .hasSameElementsAs(ImmutableList.of(DOCUMENT_UUID2));
         assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         // This verifies pdf file objects were created from the zip file

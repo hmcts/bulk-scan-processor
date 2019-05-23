@@ -23,9 +23,6 @@ public class Document {
     @JsonProperty("scanned_at")
     public final Instant scannedAt;
 
-    @JsonProperty("url")
-    public final String url;
-
     @JsonProperty("uuid")
     public final String uuid;
 
@@ -36,7 +33,6 @@ public class Document {
         DocumentType type,
         String subtype,
         Instant scannedAt,
-        String url,
         String uuid
     ) {
         this.fileName = fileName;
@@ -44,7 +40,6 @@ public class Document {
         this.type = type;
         this.subtype = subtype;
         this.scannedAt = scannedAt;
-        this.url = url;
         this.uuid = uuid;
     }
     // endregion
@@ -56,7 +51,6 @@ public class Document {
             item.getDocumentType(),
             item.getDocumentSubtype(),
             item.getScanningDate(),
-            item.getDocumentUrl(),
             item.getDocumentUuid()
         );
     }

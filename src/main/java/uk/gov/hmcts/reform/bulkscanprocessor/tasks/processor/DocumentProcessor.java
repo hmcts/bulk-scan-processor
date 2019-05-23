@@ -45,10 +45,7 @@ public class DocumentProcessor {
             );
 
         if (filesWithoutUrl.isEmpty()) {
-            scannedItems.forEach(item -> {
-                item.setDocumentUrl(response.get(item.getFileName()));
-                item.setDocumentUuid(extractDocumentUuid(response.get(item.getFileName())));
-            });
+            scannedItems.forEach(item -> item.setDocumentUuid(extractDocumentUuid(response.get(item.getFileName()))));
             scannableItemRepository.saveAll(scannedItems);
         } else {
             throw new DocumentUrlNotRetrievedException(filesWithoutUrl);

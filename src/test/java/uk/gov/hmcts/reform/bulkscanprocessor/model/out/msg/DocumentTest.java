@@ -27,7 +27,7 @@ public class DocumentTest {
         assertThat(document.scannedAt).isEqualTo(scannableItem.getScanningDate());
         assertThat(document.subtype).isEqualTo(scannableItem.getDocumentSubtype());
         assertThat(document.type).isEqualTo(scannableItem.getDocumentType());
-        assertThat(document.url).isEqualTo(scannableItem.getDocumentUrl());
+        assertThat(document.uuid).isEqualTo(scannableItem.getDocumentUuid());
     }
 
     private ScannableItem scannableItem(DocumentType documentType) {
@@ -49,7 +49,7 @@ public class DocumentTest {
             DocumentSubtype.SSCS1
         );
 
-        scannableItem.setDocumentUrl("http://document-url.example.com");
+        scannableItem.setDocumentUuid("5fef5f98-e875-4084-b115-47188bc9066b");
         return scannableItem;
     }
 }

@@ -58,7 +58,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
-        assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUrl() == null);
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUuid() == null);
 
         // and
@@ -87,7 +86,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         Envelope actualEnvelope = getSingleEnvelopeFromDb();
 
         assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
-        assertThat(actualEnvelope.getScannableItems()).allMatch(item -> ObjectUtils.isEmpty(item.getDocumentUrl()));
         assertThat(actualEnvelope.getScannableItems()).allMatch(item -> ObjectUtils.isEmpty(item.getDocumentUuid()));
 
         // and
@@ -110,7 +108,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         Envelope actualEnvelope = envelopeRepository.findAll().get(0);
 
         assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
-        assertThat(actualEnvelope.getScannableItems()).allMatch(e -> ObjectUtils.isEmpty(e.getDocumentUrl()));
         assertThat(actualEnvelope.getScannableItems()).allMatch(e -> ObjectUtils.isEmpty(e.getDocumentUuid()));
 
         // and

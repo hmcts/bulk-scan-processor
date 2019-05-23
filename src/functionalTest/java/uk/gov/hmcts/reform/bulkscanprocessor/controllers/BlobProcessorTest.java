@@ -36,7 +36,6 @@ public class BlobProcessorTest extends BaseFunctionalTest {
 
         assertThat(ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)).contains(envelope.getStatus());
         assertThat(envelope.getScannableItems()).hasSize(2);
-        assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUrl));
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUuid));
     }
 }

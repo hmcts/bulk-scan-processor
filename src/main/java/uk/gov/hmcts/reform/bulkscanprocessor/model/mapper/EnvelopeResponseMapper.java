@@ -75,7 +75,6 @@ public final class EnvelopeResponseMapper {
             scannableItem.getOcrData(),
             scannableItem.getFileName(),
             scannableItem.getNotes(),
-            scannableItem.getDocumentUrl(),
             scannableItem.getDocumentUuid(),
             scannableItem.getDocumentType(),
             scannableItem.getDocumentSubtype()
