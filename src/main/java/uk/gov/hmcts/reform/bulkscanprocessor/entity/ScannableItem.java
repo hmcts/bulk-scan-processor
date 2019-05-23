@@ -48,8 +48,6 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String notes;
 
-    private String documentUrl;
-
     private String documentUuid;
 
     @Enumerated(EnumType.STRING)
@@ -97,14 +95,6 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public String getFileName() {
         return fileName;
-    }
-
-    public String getDocumentUrl() {
-        return documentUrl;
-    }
-
-    public void setDocumentUrl(String documentUrl) {
-        this.documentUrl = documentUrl;
     }
 
     public String getDocumentControlNumber() {

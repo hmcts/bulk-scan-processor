@@ -80,9 +80,6 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .extracting(envelope -> envelope.getStatus())
             .containsOnlyOnce(PROCESSED);
         assertThat(dbEnvelopes.get(0).getScannableItems())
-            .extracting(item -> item.getDocumentUrl())
-            .hasSameElementsAs(ImmutableList.of(DOCUMENT_URL2));
-        assertThat(dbEnvelopes.get(0).getScannableItems())
             .extracting(ScannableItem::getDocumentUuid)
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_UUID2));
 
