@@ -33,7 +33,7 @@ import static org.mockito.Mockito.spy;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
 
-    protected static final String SAMPLE_ZIP_FILE_NAME = "hello_24-06-2018-00-00-00.zip";
+    protected static final String SAMPLE_ZIP_FILE_NAME = "7_24-06-2018-00-00-00.zip";
 
     protected static final String DOCUMENT_URL1 =
         "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d";

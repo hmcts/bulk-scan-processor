@@ -56,6 +56,9 @@ public abstract class Processor {
         List<Pdf> pdfs,
         CloudBlockBlob cloudBlockBlob
     ) {
+        if (envelope == null) {
+            return;
+        }
         if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
             return;
         }

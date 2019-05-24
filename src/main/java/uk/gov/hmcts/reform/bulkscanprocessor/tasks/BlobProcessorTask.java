@@ -174,14 +174,24 @@ public class BlobProcessorTask extends Processor {
         Envelope existingEnvelope =
             envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
 
-        if (existingEnvelope != null) {
+        if (existingEnvelope != null && !existingEnvelope.getStatus().equals(Status.CREATED)) {
             log.warn(
-                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
+                "Envelope for zip file {} (container {}) with {} status already exists. "
+                    + "Aborting its processing. Envelope ID: {}",
+                zipFilename,
+                container.getName(),
+                existingEnvelope.getStatus(),
+                existingEnvelope.getId()
+            );
+            deleteIfProcessed(cloudBlockBlob, existingEnvelope, container.getName());
+        } else if (existingEnvelope != null && cloudBlockBlob.exists()) {
+            log.info(
+                "Envelope for zip file {} (container {}) already created. Trying re-processing. Envelope ID: {}",
                 zipFilename,
                 container.getName(),
                 existingEnvelope.getId()
             );
-            deleteIfProcessed(cloudBlockBlob, existingEnvelope, container.getName());
+            processZipFile(container, cloudBlockBlob, zipFilename, existingEnvelope);
         } else if (!cloudBlockBlob.exists()) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
         } else {
@@ -190,7 +200,7 @@ public class BlobProcessorTask extends Processor {
             if (!isReadyToBeProcessed(cloudBlockBlob)) {
                 logAbortedProcessingNotReadyFile(zipFilename, container.getName());
             } else {
-                processZipFile(container, cloudBlockBlob, zipFilename);
+                processZipFile(container, cloudBlockBlob, zipFilename, null);
             }
         }
     }
@@ -198,7 +208,8 @@ public class BlobProcessorTask extends Processor {
     private void processZipFile(
         CloudBlobContainer container,
         CloudBlockBlob cloudBlockBlob,
-        String zipFilename
+        String zipFilename,
+        Envelope staleInCreationEnvelope
     ) throws StorageException, IOException {
         Optional<String> leaseId = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
@@ -213,6 +224,18 @@ public class BlobProcessorTask extends Processor {
                     processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
 
                 if (processingResult != null) {
+                    if (staleInCreationEnvelope == null) {
+                        Envelope newEnvelope = createEnvelopeFromZipResult(
+                            processingResult,
+                            zipFilename,
+                            container.getName(),
+                            leaseId.get()
+                        );
+                        processingResult.setEnvelope(newEnvelope);
+                    } else {
+                        processingResult.setEnvelope(staleInCreationEnvelope);
+                    }
+
                     processParsedEnvelopeDocuments(
                         processingResult.getEnvelope(),
                         processingResult.getPdfs(),
@@ -265,11 +288,32 @@ public class BlobProcessorTask extends Processor {
             ZipVerifiers.ZipStreamWithSignature zipWithSignature =
                 ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
 
-            ZipFileProcessingResult result = zipFileProcessor.process(
+            return zipFileProcessor.process(
                 zipWithSignature,
                 ZipVerifiers.getPreprocessor(signatureAlg)
             );
+        } catch (InvalidEnvelopeException ex) {
+            log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
+            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            return null;
+        } catch (DocSignatureFailureException ex) {
+            log.warn("Rejected file {} from container {} - invalid signature", zipFilename, containerName, ex);
+            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
+            return null;
+        } catch (Exception ex) {
+            log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
+            return null;
+        }
+    }
 
+    private Envelope createEnvelopeFromZipResult(
+        ZipFileProcessingResult result,
+        String zipFilename,
+        String containerName,
+        String leaseId
+    ) {
+        try {
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
             EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
@@ -280,16 +324,10 @@ public class BlobProcessorTask extends Processor {
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
-            result.setEnvelope(envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName)));
-
-            return result;
+            return envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName));
         } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
-        } catch (DocSignatureFailureException ex) {
-            log.warn("Rejected file {} from container {} - invalid signature", zipFilename, containerName, ex);
-            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);

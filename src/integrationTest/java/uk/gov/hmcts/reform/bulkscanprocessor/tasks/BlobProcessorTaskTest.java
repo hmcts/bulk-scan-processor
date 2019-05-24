@@ -34,7 +34,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
@@ -58,6 +60,34 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
         //Given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
+        testBlobFileProcessed();
+    }
+
+    @Test
+    public void should_continue_processing_blob_when_envelope_stuck_in_created_status() throws Exception {
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
+
+        testBlobFileProcessed();
+
+        // pretend it is stuck
+        envelopeRepository.saveAll(
+            envelopeRepository
+                .findAll()
+                .stream()
+                .peek(envelope -> {
+                    envelope.setStatus(CREATED);
+                    envelope.setZipDeleted(false);
+                })
+                .collect(toList())
+        );
+
+        // reset
+        reset(documentManagementService);
+        processEventRepository.deleteAll();
+
+        // re-run same test ^^
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
+
         testBlobFileProcessed();
     }
 
