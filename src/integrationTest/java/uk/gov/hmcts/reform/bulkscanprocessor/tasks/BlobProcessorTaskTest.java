@@ -74,9 +74,11 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             envelopeRepository
                 .findAll()
                 .stream()
-                .peek(envelope -> {
+                .map(envelope -> {
                     envelope.setStatus(CREATED);
                     envelope.setZipDeleted(false);
+
+                    return envelope;
                 })
                 .collect(toList())
         );
