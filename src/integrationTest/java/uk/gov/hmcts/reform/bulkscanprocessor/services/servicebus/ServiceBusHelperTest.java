@@ -17,10 +17,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
@@ -175,8 +175,8 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getDocumentType()).thenReturn(DocumentType.CHERISHED);
         when(scannableItem1.getScanningDate()).thenReturn(Instant.now());
 
-        OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField(new TextNode("key1"), new TextNode("value1"));
+        InputOcrData ocrData = new InputOcrData();
+        InputOcrDataField field = new InputOcrDataField(new TextNode("key1"), new TextNode("value1"));
         ocrData.setFields(singletonList(field));
 
         when(scannableItem1.getOcrData()).thenReturn(ocrData);

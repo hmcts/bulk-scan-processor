@@ -16,10 +16,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -159,11 +159,11 @@ public class EnvelopeFinaliserServiceTest {
             .collect(toList()));
     }
 
-    private OcrData createOcrData() {
-        OcrData ocrData = new OcrData();
+    private InputOcrData createOcrData() {
+        InputOcrData ocrData = new InputOcrData();
         ocrData.setFields(Arrays.asList(
-            new OcrDataField(new TextNode("key1"), new TextNode("value1")),
-            new OcrDataField(new TextNode("key2"), new TextNode("value2"))
+            new InputOcrDataField(new TextNode("key1"), new TextNode("value1")),
+            new InputOcrDataField(new TextNode("key2"), new TextNode("value2"))
         ));
 
         return ocrData;

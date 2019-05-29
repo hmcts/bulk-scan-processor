@@ -8,9 +8,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesEx
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
@@ -112,8 +112,8 @@ public class EnvelopeProcessorValidationTest {
             "poBox",
             Classification.NEW_APPLICATION,
             asList(
-                scannableItem(InputDocumentType.OTHER, new OcrData()), // no 'SSCS1' documents
-                scannableItem(InputDocumentType.CHERISHED, new OcrData())
+                scannableItem(InputDocumentType.OTHER, new InputOcrData()), // no 'SSCS1' documents
+                scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
             )
         );
 
@@ -134,8 +134,8 @@ public class EnvelopeProcessorValidationTest {
             "poBox",
             Classification.NEW_APPLICATION,
             asList(
-                scannableItem(InputDocumentType.OTHER, new OcrData()),
-                scannableItem(InputDocumentType.CHERISHED, new OcrData())
+                scannableItem(InputDocumentType.OTHER, new InputOcrData()),
+                scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
             )
         );
 
@@ -155,8 +155,8 @@ public class EnvelopeProcessorValidationTest {
             "poBox",
             Classification.NEW_APPLICATION,
             asList(
-                scannableItem(InputDocumentType.SSCS1, new OcrData()),
-                scannableItem(InputDocumentType.SSCS1, new OcrData())
+                scannableItem(InputDocumentType.SSCS1, new InputOcrData()),
+                scannableItem(InputDocumentType.SSCS1, new InputOcrData())
             )
         );
 
@@ -175,8 +175,8 @@ public class EnvelopeProcessorValidationTest {
             "poBox",
             Classification.EXCEPTION, // not NEW_APPLICATION
             asList(
-                scannableItem(InputDocumentType.OTHER, new OcrData()), // on OCR data
-                scannableItem(InputDocumentType.CHERISHED, new OcrData())
+                scannableItem(InputDocumentType.OTHER, new InputOcrData()), // on OCR data
+                scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
             )
         );
 
@@ -189,8 +189,8 @@ public class EnvelopeProcessorValidationTest {
 
     @Test
     public void should_not_throw_exception_when_ocr_data_is_not_missing() throws Exception {
-        OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField(new TextNode("name1"), new TextNode("value1"));
+        InputOcrData ocrData = new InputOcrData();
+        InputOcrDataField field = new InputOcrDataField(new TextNode("name1"), new TextNode("value1"));
         ocrData.setFields(singletonList(field));
 
         InputEnvelope envelope = inputEnvelope(

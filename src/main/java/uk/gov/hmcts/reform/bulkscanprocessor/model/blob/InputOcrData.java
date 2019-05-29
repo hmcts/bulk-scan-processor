@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.model.ocr;
+package uk.gov.hmcts.reform.bulkscanprocessor.model.blob;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
@@ -6,16 +6,16 @@ import com.fasterxml.jackson.annotation.Nulls;
 import java.util.List;
 
 // TODO: make a separate class to represent OCR data in DB
-public class OcrData {
+public class InputOcrData {
 
-    private List<OcrDataField> fields;
+    private List<InputOcrDataField> fields;
 
     @JsonSetter(value = "Metadata_file", nulls = Nulls.FAIL)
-    public void setFields(List<OcrDataField> fields) {
+    public void setFields(List<InputOcrDataField> fields) {
         this.fields = fields;
     }
 
-    public List<OcrDataField> getFields() {
+    public List<InputOcrDataField> getFields() {
         return fields;
     }
 }
