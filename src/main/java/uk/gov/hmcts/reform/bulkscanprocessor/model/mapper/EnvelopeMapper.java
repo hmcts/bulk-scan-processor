@@ -3,11 +3,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 import com.google.common.collect.ImmutableMap;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
@@ -70,11 +73,21 @@ public class EnvelopeMapper {
             scannableItem.manualIntervention,
             scannableItem.nextAction,
             scannableItem.nextActionDate,
-            scannableItem.ocrData,
+            mapOcrData(scannableItem.ocrData),
             scannableItem.fileName,
             scannableItem.notes,
             mapDocumentType(scannableItem.documentType),
             extractDocumentSubtype(scannableItem.documentType)
+        );
+    }
+
+    private static OcrData mapOcrData(InputOcrData inputOcrData) {
+        return inputOcrData == null ? null : new OcrData(
+            inputOcrData
+                .getFields()
+                .stream()
+                .map(field -> new OcrDataField(field.name, field.value))
+                .collect(toList())
         );
     }
 

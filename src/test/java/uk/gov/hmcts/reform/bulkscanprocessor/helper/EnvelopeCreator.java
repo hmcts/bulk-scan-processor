@@ -7,13 +7,14 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -120,6 +122,9 @@ public final class EnvelopeCreator {
     }
 
     public static InputScannableItem inputScannableItem(InputDocumentType docType) {
+        InputOcrData inputOcrData = new InputOcrData();
+        inputOcrData.setFields(Collections.emptyList());
+
         return new InputScannableItem(
             "control number",
             getInstant(),
@@ -127,7 +132,7 @@ public final class EnvelopeCreator {
             "manual intervention",
             "next action",
             getInstant(),
-            new InputOcrData(),
+            inputOcrData,
             "file.pdf",
             "notes",
             docType
@@ -174,16 +179,15 @@ public final class EnvelopeCreator {
         return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
-    private static InputOcrData ocrData(Map<String, String> data) {
-        InputOcrData ocrData = new InputOcrData();
-        List<InputOcrDataField> ocrDataFields = data.entrySet()
+    private static OcrData ocrData(Map<String, String> data) {
+        OcrData ocrData = new OcrData(data
+            .entrySet()
             .stream()
             .map(
-                e -> new InputOcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
+                e -> new OcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
             )
-            .collect(Collectors.toList());
-
-        ocrData.setFields(ocrDataFields);
+            .collect(Collectors.toList())
+        );
 
         return ocrData;
     }

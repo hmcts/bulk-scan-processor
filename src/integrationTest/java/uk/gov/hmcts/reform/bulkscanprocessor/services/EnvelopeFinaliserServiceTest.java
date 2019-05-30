@@ -11,13 +11,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
@@ -159,13 +159,10 @@ public class EnvelopeFinaliserServiceTest {
             .collect(toList()));
     }
 
-    private InputOcrData createOcrData() {
-        InputOcrData ocrData = new InputOcrData();
-        ocrData.setFields(Arrays.asList(
-            new InputOcrDataField(new TextNode("key1"), new TextNode("value1")),
-            new InputOcrDataField(new TextNode("key2"), new TextNode("value2"))
+    private OcrData createOcrData() {
+        return new OcrData(Arrays.asList(
+            new OcrDataField(new TextNode("key1"), new TextNode("value1")),
+            new OcrDataField(new TextNode("key2"), new TextNode("value2"))
         ));
-
-        return ocrData;
     }
 }

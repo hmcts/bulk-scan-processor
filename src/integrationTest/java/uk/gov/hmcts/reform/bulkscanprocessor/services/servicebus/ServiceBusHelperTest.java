@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
@@ -175,9 +175,9 @@ public class ServiceBusHelperTest {
         when(scannableItem1.getDocumentType()).thenReturn(DocumentType.CHERISHED);
         when(scannableItem1.getScanningDate()).thenReturn(Instant.now());
 
-        InputOcrData ocrData = new InputOcrData();
-        InputOcrDataField field = new InputOcrDataField(new TextNode("key1"), new TextNode("value1"));
-        ocrData.setFields(singletonList(field));
+        OcrData ocrData = new OcrData(singletonList(
+            new OcrDataField(new TextNode("key1"), new TextNode("value1"))
+        ));
 
         when(scannableItem1.getOcrData()).thenReturn(ocrData);
 

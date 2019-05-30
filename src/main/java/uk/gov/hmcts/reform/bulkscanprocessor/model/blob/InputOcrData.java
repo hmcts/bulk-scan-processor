@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.Nulls;
 
 import java.util.List;
 
-// TODO: make a separate class to represent OCR data in DB
 public class InputOcrData {
 
     private List<InputOcrDataField> fields;
