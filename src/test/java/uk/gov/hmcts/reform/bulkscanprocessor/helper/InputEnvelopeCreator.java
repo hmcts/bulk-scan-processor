@@ -2,9 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 
 import java.util.List;
 
@@ -47,17 +47,17 @@ public final class InputEnvelopeCreator {
     }
 
     public static InputScannableItem scannableItem(String fileName) {
-        return scannableItem(fileName, InputDocumentType.OTHER, new OcrData());
+        return scannableItem(fileName, InputDocumentType.OTHER, new InputOcrData());
     }
 
-    public static InputScannableItem scannableItem(InputDocumentType documentType, OcrData ocrData) {
+    public static InputScannableItem scannableItem(InputDocumentType documentType, InputOcrData ocrData) {
         return scannableItem("file.pdf", documentType, ocrData);
     }
 
     public static InputScannableItem scannableItem(
         String fileName,
         InputDocumentType documentType,
-        OcrData ocrData
+        InputOcrData ocrData
     ) {
         return new InputScannableItem(
             "control_number",

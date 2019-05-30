@@ -12,13 +12,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
@@ -127,7 +127,7 @@ public final class EnvelopeCreator {
             "manual intervention",
             "next action",
             getInstant(),
-            new OcrData(),
+            new InputOcrData(),
             "file.pdf",
             "notes",
             docType
@@ -174,12 +174,12 @@ public final class EnvelopeCreator {
         return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
-    private static OcrData ocrData(Map<String, String> data) {
-        OcrData ocrData = new OcrData();
-        List<OcrDataField> ocrDataFields = data.entrySet()
+    private static InputOcrData ocrData(Map<String, String> data) {
+        InputOcrData ocrData = new InputOcrData();
+        List<InputOcrDataField> ocrDataFields = data.entrySet()
             .stream()
             .map(
-                e -> new OcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
+                e -> new InputOcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
             )
             .collect(Collectors.toList());
 

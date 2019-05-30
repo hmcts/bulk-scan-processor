@@ -3,9 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
 import java.time.Instant;
 import java.util.List;
@@ -149,7 +149,7 @@ public class EnvelopeMsg implements Msg {
             .orElse(null);
     }
 
-    private List<OcrField> convertFromInputOcrData(OcrData inputOcrData) {
+    private List<OcrField> convertFromInputOcrData(InputOcrData inputOcrData) {
         return inputOcrData
             .getFields()
             .stream()
@@ -157,7 +157,7 @@ public class EnvelopeMsg implements Msg {
             .collect(toList());
     }
 
-    private OcrField convertFromInputOcrDataField(OcrDataField inputField) {
+    private OcrField convertFromInputOcrDataField(InputOcrDataField inputField) {
         String value = inputField.value != null
             ? inputField.value.asText("")
             : "";

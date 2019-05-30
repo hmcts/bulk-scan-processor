@@ -3,10 +3,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 
 import java.time.Instant;
 
@@ -31,8 +31,8 @@ public class DocumentTest {
     }
 
     private ScannableItem scannableItem(DocumentType documentType) {
-        OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField(new TextNode("ocr"), new TextNode("data1"));
+        InputOcrData ocrData = new InputOcrData();
+        InputOcrDataField field = new InputOcrDataField(new TextNode("ocr"), new TextNode("data1"));
         ocrData.setFields(singletonList(field));
 
         ScannableItem scannableItem = new ScannableItem(

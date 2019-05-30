@@ -15,8 +15,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
 
@@ -45,14 +45,14 @@ public class OcrDataSerializationJourneyTest {
 
         AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems).isNotEmpty();
         AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems.get(0).ocrData)
-            .isInstanceOf(OcrData.class);
+            .isInstanceOf(InputOcrData.class);
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(inputEnvelope, "test");
         UUID envelopeId = repository.saveAndFlush(dbEnvelope).getId();
 
         Envelope readEnvelope = repository.getOne(envelopeId);
         AssertionsForInterfaceTypes.assertThat(readEnvelope.getScannableItems().get(0).getOcrData())
-            .isInstanceOf(OcrData.class);
+            .isInstanceOf(InputOcrData.class);
 
         EnvelopeMsg envelopeMsg = new EnvelopeMsg(readEnvelope);
 
