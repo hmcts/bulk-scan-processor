@@ -3,9 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.time.Instant;
 import java.util.List;

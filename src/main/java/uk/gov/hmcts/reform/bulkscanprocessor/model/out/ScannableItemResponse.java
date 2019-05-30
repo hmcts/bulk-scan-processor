@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 

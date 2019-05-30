@@ -3,8 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 import com.google.common.collect.ImmutableMap;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -15,6 +13,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.util.List;
 import java.util.Map;

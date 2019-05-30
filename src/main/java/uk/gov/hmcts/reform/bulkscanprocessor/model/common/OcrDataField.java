@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.entity;
+package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -12,7 +12,10 @@ public class OcrDataField {
     @JsonProperty("metadata_field_value")
     public final ValueNode value;
 
-    public OcrDataField(TextNode name, ValueNode value) {
+    public OcrDataField(
+        @JsonProperty("metadata_field_name") TextNode name,
+        @JsonProperty("metadata_field_value") ValueNode value
+    ) {
         this.name = name;
         this.value = value;
     }
