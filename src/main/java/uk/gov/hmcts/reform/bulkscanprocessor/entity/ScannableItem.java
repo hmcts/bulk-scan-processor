@@ -3,8 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -42,7 +42,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     @Type(type = "jsonb")
     @Column(name = "ocrData", columnDefinition = "jsonb")
-    private InputOcrData ocrData;
+    private OcrData ocrData;
 
     private String fileName;
 
@@ -70,7 +70,7 @@ public class ScannableItem implements EnvelopeAssignable {
         String manualIntervention,
         String nextAction,
         Instant nextActionDate,
-        InputOcrData ocrData,
+        OcrData ocrData,
         String fileName,
         String notes,
         DocumentType documentType,
@@ -121,11 +121,11 @@ public class ScannableItem implements EnvelopeAssignable {
         return nextActionDate;
     }
 
-    public InputOcrData getOcrData() {
+    public OcrData getOcrData() {
         return ocrData;
     }
 
-    public void setOcrData(InputOcrData ocrData) {
+    public void setOcrData(OcrData ocrData) {
         this.ocrData = ocrData;
     }
 

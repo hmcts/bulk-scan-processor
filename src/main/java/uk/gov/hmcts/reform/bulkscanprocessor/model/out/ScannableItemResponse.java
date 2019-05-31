@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
@@ -34,7 +34,7 @@ public class ScannableItemResponse {
     public final Instant nextActionDate;
 
     @JsonProperty("ocr_data")
-    public final InputOcrData ocrData;
+    public final OcrData ocrData;
 
     @JsonProperty("file_name")
     public final String fileName;
@@ -61,7 +61,7 @@ public class ScannableItemResponse {
         @JsonProperty("next_action") String nextAction,
         @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("next_action_date") Instant nextActionDate,
-        @JsonProperty("ocr_data") InputOcrData ocrData,
+        @JsonProperty("ocr_data") OcrData ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
         @JsonProperty("document_uuid") String documentUuid,
