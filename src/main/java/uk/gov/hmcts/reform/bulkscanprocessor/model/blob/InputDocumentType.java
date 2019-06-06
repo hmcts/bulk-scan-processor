@@ -5,6 +5,7 @@ public enum InputDocumentType {
     OTHER("Other"),
     WILL("Will"),
     SSCS1("SSCS1"),
+    FORM("Form"),
     COVERSHEET("Coversheet");
 
     private final String value;
