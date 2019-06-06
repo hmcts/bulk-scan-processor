@@ -18,8 +18,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -152,7 +152,7 @@ public class EnvelopeFinaliserServiceTest {
                 null
             );
 
-            scannableItem.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
+            scannableItem.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
             return scannableItem;
         })
             .limit(count)
@@ -160,12 +160,9 @@ public class EnvelopeFinaliserServiceTest {
     }
 
     private OcrData createOcrData() {
-        OcrData ocrData = new OcrData();
-        ocrData.setFields(Arrays.asList(
+        return new OcrData(Arrays.asList(
             new OcrDataField(new TextNode("key1"), new TextNode("value1")),
             new OcrDataField(new TextNode("key2"), new TextNode("value2"))
         ));
-
-        return ocrData;
     }
 }

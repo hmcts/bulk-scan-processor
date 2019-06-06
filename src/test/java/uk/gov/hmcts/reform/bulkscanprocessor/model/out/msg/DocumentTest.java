@@ -5,8 +5,8 @@ import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.time.Instant;
 
@@ -27,13 +27,11 @@ public class DocumentTest {
         assertThat(document.scannedAt).isEqualTo(scannableItem.getScanningDate());
         assertThat(document.subtype).isEqualTo(scannableItem.getDocumentSubtype());
         assertThat(document.type).isEqualTo(scannableItem.getDocumentType());
-        assertThat(document.url).isEqualTo(scannableItem.getDocumentUrl());
+        assertThat(document.uuid).isEqualTo(scannableItem.getDocumentUuid());
     }
 
     private ScannableItem scannableItem(DocumentType documentType) {
-        OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField(new TextNode("ocr"), new TextNode("data1"));
-        ocrData.setFields(singletonList(field));
+        OcrData ocrData = new OcrData(singletonList(new OcrDataField(new TextNode("ocr"), new TextNode("data1"))));
 
         ScannableItem scannableItem = new ScannableItem(
             "1111001",
@@ -49,7 +47,7 @@ public class DocumentTest {
             DocumentSubtype.SSCS1
         );
 
-        scannableItem.setDocumentUrl("http://document-url.example.com");
+        scannableItem.setDocumentUuid("5fef5f98-e875-4084-b115-47188bc9066b");
         return scannableItem;
     }
 }

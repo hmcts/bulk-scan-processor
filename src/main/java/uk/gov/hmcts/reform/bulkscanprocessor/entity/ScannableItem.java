@@ -4,7 +4,7 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -48,7 +48,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private String notes;
 
-    private String documentUrl;
+    private String documentUuid;
 
     @Enumerated(EnumType.STRING)
     private DocumentType documentType;
@@ -97,14 +97,6 @@ public class ScannableItem implements EnvelopeAssignable {
         return fileName;
     }
 
-    public String getDocumentUrl() {
-        return documentUrl;
-    }
-
-    public void setDocumentUrl(String documentUrl) {
-        this.documentUrl = documentUrl;
-    }
-
     public String getDocumentControlNumber() {
         return documentControlNumber;
     }
@@ -147,6 +139,14 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public String getDocumentSubtype() {
         return documentSubtype;
+    }
+
+    public String getDocumentUuid() {
+        return documentUuid;
+    }
+
+    public void setDocumentUuid(String documentUuid) {
+        this.documentUuid = documentUuid;
     }
 
     @Override

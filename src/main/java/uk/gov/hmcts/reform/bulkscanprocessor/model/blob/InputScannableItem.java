@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.blob;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.OcrDataDeserializer;
 
@@ -17,7 +16,7 @@ public class InputScannableItem {
     public final String manualIntervention;
     public final String nextAction;
     public final Instant nextActionDate;
-    public final OcrData ocrData;
+    public final InputOcrData ocrData;
     public final String fileName;
     public final String notes;
     public final InputDocumentType documentType;
@@ -34,7 +33,7 @@ public class InputScannableItem {
         @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("next_action_date") Instant nextActionDate,
         @JsonDeserialize(using = OcrDataDeserializer.class)
-        @JsonProperty("ocr_data") OcrData ocrData,
+        @JsonProperty("ocr_data") InputOcrData ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
         @JsonProperty("document_type") InputDocumentType documentType,

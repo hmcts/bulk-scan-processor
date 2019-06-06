@@ -23,13 +23,11 @@ public class EnvelopeAccessProperties {
 
         private String jurisdiction;
         private String readService;
-        private String updateService;
 
         // region constructor, getters and setters
-        public Mapping(String jurisdiction, String readService, String updateService) {
+        public Mapping(String jurisdiction, String readService) {
             this.jurisdiction = jurisdiction;
             this.readService = readService;
-            this.updateService = updateService;
         }
 
         public Mapping() {
@@ -50,14 +48,6 @@ public class EnvelopeAccessProperties {
 
         public void setReadService(String readService) {
             this.readService = readService;
-        }
-
-        public String getUpdateService() {
-            return updateService;
-        }
-
-        public void setUpdateService(String updateService) {
-            this.updateService = updateService;
         }
         // endregion
     }

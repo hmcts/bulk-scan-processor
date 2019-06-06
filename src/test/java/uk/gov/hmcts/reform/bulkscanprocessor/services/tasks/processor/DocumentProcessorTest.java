@@ -49,7 +49,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void should_update_document_url_when_doc_response_conntains_matching_file_name_and_doc_url()
+    public void should_update_document_uuid_when_doc_response_conntains_matching_file_name_and_doc_url()
         throws Exception {
         //Given
         byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
@@ -67,8 +67,8 @@ public class DocumentProcessorTest {
 
         //then
 
-        //Document url should be set by the processor
-        scannableItem.setDocumentUrl("http://localhost/documents/5fef5f98-e875-4084-b115-47188bc9066b");
+        //Document uuid should be set by the processor
+        scannableItem.setDocumentUuid("5fef5f98-e875-4084-b115-47188bc9066b");
 
         //Verify scanned item was saved with doc url updated
         verify(scannableItemRepository).saveAll(ImmutableList.of(scannableItem));
@@ -89,8 +89,8 @@ public class DocumentProcessorTest {
         // 'c' is missing
         given(documentManagementService.uploadDocuments(any()))
             .willReturn(ImmutableMap.of(
-                "a.pdf", "http://localhost/documents/a",
-                "b.pdf", "http://localhost/documents/b"
+                "a.pdf", "http://localhost/documents/uuida",
+                "b.pdf", "http://localhost/documents/uuidb"
             ));
 
         // when

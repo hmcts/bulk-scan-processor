@@ -174,10 +174,8 @@ envelope-access:
   mappings:
      - jurisdiction: SSCS
        readService: sscs
-       updateService: TBD
      - jurisdiction: BULKSCAN
        readService: bulk_scan_processor_tests
-       updateService: bulk_scan_processor_tests
 
 flyway:
   noop:

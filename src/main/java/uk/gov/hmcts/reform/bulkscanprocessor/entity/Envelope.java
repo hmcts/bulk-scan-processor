@@ -62,6 +62,8 @@ public class Envelope {
 
     private boolean zipDeleted = false;
 
+    private String previousServiceCaseReference;
+
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(FetchMode.SUBSELECT)
@@ -90,6 +92,7 @@ public class Envelope {
         Instant zipFileCreateddate,
         String zipFileName,
         String caseNumber,
+        String previousServiceCaseReference,
         Classification classification,
         List<ScannableItem> scannableItems,
         List<Payment> payments,
@@ -103,6 +106,7 @@ public class Envelope {
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
         this.caseNumber = caseNumber;
+        this.previousServiceCaseReference = previousServiceCaseReference;
         this.classification = classification;
         this.scannableItems = scannableItems;
         this.payments = payments;
@@ -136,6 +140,10 @@ public class Envelope {
 
     public String getCaseNumber() {
         return caseNumber;
+    }
+
+    public String getPreviousServiceCaseReference() {
+        return previousServiceCaseReference;
     }
 
     public void setContainer(String container) {

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,6 +20,9 @@ public class EnvelopeMsg implements Msg {
 
     @JsonProperty("case_ref")
     private final String caseNumber;
+
+    @JsonProperty("previous_service_case_ref")
+    private final String previousServiceCaseReference;
 
     @JsonProperty("po_box")
     private final String poBox;
@@ -53,6 +56,7 @@ public class EnvelopeMsg implements Msg {
     public EnvelopeMsg(Envelope envelope) {
         this.envelopeId = isNull(envelope.getId()) ? null : envelope.getId().toString();
         this.caseNumber = envelope.getCaseNumber();
+        this.previousServiceCaseReference = envelope.getPreviousServiceCaseReference();
         this.classification = envelope.getClassification();
         this.poBox = envelope.getPoBox();
         this.jurisdiction = envelope.getJurisdiction();
@@ -78,6 +82,10 @@ public class EnvelopeMsg implements Msg {
 
     public String getCaseNumber() {
         return caseNumber;
+    }
+
+    public String getPreviousServiceCaseReference() {
+        return previousServiceCaseReference;
     }
 
     public Classification getClassification() {
@@ -143,7 +151,7 @@ public class EnvelopeMsg implements Msg {
 
     private List<OcrField> convertFromInputOcrData(OcrData inputOcrData) {
         return inputOcrData
-            .getFields()
+            .fields
             .stream()
             .map(this::convertFromInputOcrDataField)
             .collect(toList());

@@ -14,6 +14,7 @@ import static java.util.Collections.emptyList;
 public class InputEnvelope {
 
     public final String caseNumber;
+    public final String previousServiceCaseReference;
     public final String poBox;
     public final String jurisdiction;
     public final Instant deliveryDate;
@@ -37,6 +38,7 @@ public class InputEnvelope {
         @JsonProperty("zip_file_createddate") Instant zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
         @JsonProperty("case_number") String caseNumber,
+        @JsonProperty("previous_service_case_reference") String previousServiceCaseReference,
         @JsonProperty("envelope_classification") Classification classification,
         @JsonProperty("scannable_items") List<InputScannableItem> scannableItems,
         @JsonProperty("payments") List<InputPayment> payments,
@@ -49,6 +51,7 @@ public class InputEnvelope {
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
         this.caseNumber = caseNumber;
+        this.previousServiceCaseReference = previousServiceCaseReference;
         this.classification = classification;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;

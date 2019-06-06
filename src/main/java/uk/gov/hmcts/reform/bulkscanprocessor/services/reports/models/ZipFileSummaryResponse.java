@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

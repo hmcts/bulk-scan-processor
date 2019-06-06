@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
@@ -42,8 +42,8 @@ public class ScannableItemResponse {
     @JsonProperty("notes")
     public final String notes;
 
-    @JsonProperty("document_url")
-    public final String documentUrl;
+    @JsonProperty("document_uuid")
+    public final String documentUuid;
 
     @JsonProperty("document_type")
     public final DocumentType documentType;
@@ -64,7 +64,7 @@ public class ScannableItemResponse {
         @JsonProperty("ocr_data") OcrData ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
-        @JsonProperty("document_url") String documentUrl,
+        @JsonProperty("document_uuid") String documentUuid,
         @JsonProperty("document_type") DocumentType documentType,
         @JsonProperty("document_subtype") String documentSubtype
     ) {
@@ -77,7 +77,7 @@ public class ScannableItemResponse {
         this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
-        this.documentUrl = documentUrl;
+        this.documentUuid = documentUuid;
         this.documentType = documentType;
         this.documentSubtype = documentSubtype;
     }
@@ -93,7 +93,7 @@ public class ScannableItemResponse {
             + ", nextActionDate=" + nextActionDate
             + ", fileName='" + fileName + '\''
             + ", notes='" + notes + '\''
-            + ", documentUrl='" + documentUrl + '\''
+            + ", documentUuid='" + documentUuid + '\''
             + ", documentType='" + documentType + '\''
             + ", documentSubtype='" + documentSubtype + '\''
             + '}';

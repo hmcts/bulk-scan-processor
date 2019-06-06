@@ -11,8 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,10 +29,10 @@ public class OcrDataDeserializerTest {
 
     @Test
     public void should_convert_all_fields_to_their_string_representation() throws Exception {
-        OcrData resultOcrData = deserializeFromBase64("/ocr-data/valid/valid-ocr.json");
+        InputOcrData resultOcrData = deserializeFromBase64("/ocr-data/valid/valid-ocr.json");
 
-        OcrData expectedOcrData = new OcrData();
-        List<OcrDataField> ocrDataFields = Arrays.asList(
+        InputOcrData expectedOcrData = new InputOcrData();
+        List<InputOcrDataField> ocrDataFields = Arrays.asList(
             createOcrDataField(new TextNode("text_field"), new TextNode("some text")),
             createOcrDataField(new TextNode("number_field"), new IntNode(123)),
             createOcrDataField(new TextNode("boolean_field"), BooleanNode.TRUE),
@@ -77,7 +77,7 @@ public class OcrDataDeserializerTest {
         assertThat(thrown.getMessage()).isEqualTo("Failed to parse OCR data");
     }
 
-    private OcrData deserializeFromBase64(String resourceName) throws IOException {
+    private InputOcrData deserializeFromBase64(String resourceName) throws IOException {
         JsonParser jsonParser = getJsonParser(resourceName);
         return deserializer.deserialize(jsonParser, mock(DeserializationContext.class));
     }
@@ -93,7 +93,7 @@ public class OcrDataDeserializerTest {
         return java.util.Base64.getEncoder().encodeToString(fileAsBytes);
     }
 
-    private OcrDataField createOcrDataField(TextNode fieldName, ValueNode fieldValue) {
-        return new OcrDataField(fieldName, fieldValue);
+    private InputOcrDataField createOcrDataField(TextNode fieldName, ValueNode fieldValue) {
+        return new InputOcrDataField(fieldName, fieldValue);
     }
 }

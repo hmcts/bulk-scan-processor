@@ -9,6 +9,11 @@
       "type": ["string", "null"],
       "title": "Case reference number to which the envelope belongs to"
     },
+    "previous_service_case_reference": {
+      "id": "#/properties/previous_service_case_reference",
+      "type": ["string", "null"],
+      "title": "The reference number assigned by the service the case was created in"
+    },
     "po_box": {
       "id": "#/properties/po_box",
       "type": "string",

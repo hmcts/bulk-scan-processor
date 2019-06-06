@@ -27,7 +27,7 @@ public class IncompleteEnvelopesTask {
     }
 
     @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}", zone = EUROPE_LONDON)
-    @SchedulerLock(name = "incomplete-envelopes-monitoring")
+    @SchedulerLock(name = "incomplete-envelopes-monitoring", lockAtLeastFor = 10_000)
     public void run() {
         log.info("Checking for incomplete envelopes");
 

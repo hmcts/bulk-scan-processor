@@ -10,12 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedEnvelopesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ZipFileSummaryResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -34,6 +37,9 @@ public class ReportsControllerTest {
 
     @MockBean
     private ReportsService reportsService;
+
+    @MockBean
+    private RejectedEnvelopesReportService rejectedEnvelopesReportService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -193,6 +199,47 @@ public class ReportsControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.data.length()").value(0));
+    }
+
+    @Test
+    public void should_return_rejected_envelopes() throws Exception {
+        given(rejectedEnvelopesReportService.getRejectedEnvelopes())
+            .willReturn(Arrays.asList(
+                new RejectedEnvelope("a.zip", "A"),
+                new RejectedEnvelope("b.zip", "B")
+            ));
+
+        mockMvc
+            .perform(get("/reports/rejected"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(
+                "{"
+                    + "'count': 2,"
+                    + "'rejected_envelopes': ["
+                    + "  {"
+                    + "    'filename': 'a.zip',"
+                    + "    'container': 'A'"
+                    + "  },"
+                    + "  {"
+                    + "    'filename': 'b.zip',"
+                    + "    'container': 'B'"
+                    + "  }"
+                    + "]"
+                    + "}"
+            ));
+    }
+
+    @Test
+    public void should_return_proper_response_when_there_are_no_rejected_envelopes() throws Exception {
+        given(rejectedEnvelopesReportService.getRejectedEnvelopes())
+            .willReturn(emptyList());
+
+        mockMvc
+            .perform(get("/reports/rejected"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(
+                "{'count': 0, 'rejected_envelopes': []}"
+            ));
     }
 
 }

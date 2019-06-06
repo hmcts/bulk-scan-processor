@@ -12,13 +12,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -106,6 +108,7 @@ public final class EnvelopeCreator {
             timestamp,
             zipFileName,
             "1111222233334446",
+            "123654789",
             Classification.EXCEPTION,
             scannableItems,
             payments(),
@@ -123,6 +126,9 @@ public final class EnvelopeCreator {
     }
 
     public static InputScannableItem inputScannableItem(InputDocumentType docType, String docSubtype) {
+        InputOcrData inputOcrData = new InputOcrData();
+        inputOcrData.setFields(Collections.emptyList());
+
         return new InputScannableItem(
             "control number",
             getInstant(),
@@ -130,7 +136,7 @@ public final class EnvelopeCreator {
             "manual intervention",
             "next action",
             getInstant(),
-            new OcrData(),
+            inputOcrData,
             "file.pdf",
             "notes",
             docType,
@@ -158,7 +164,7 @@ public final class EnvelopeCreator {
             DocumentType.CHERISHED,
             null
         );
-        scannableItem1.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
+        scannableItem1.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
         ScannableItem scannableItem2 = new ScannableItem(
             "1111002",
@@ -173,21 +179,20 @@ public final class EnvelopeCreator {
             DocumentType.OTHER,
             DocumentSubtype.SSCS1
         );
-        scannableItem2.setDocumentUrl("http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
+        scannableItem2.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
         return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
     private static OcrData ocrData(Map<String, String> data) {
-        OcrData ocrData = new OcrData();
-        List<OcrDataField> ocrDataFields = data.entrySet()
+        OcrData ocrData = new OcrData(data
+            .entrySet()
             .stream()
             .map(
                 e -> new OcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
             )
-            .collect(Collectors.toList());
-
-        ocrData.setFields(ocrDataFields);
+            .collect(Collectors.toList())
+        );
 
         return ocrData;
     }

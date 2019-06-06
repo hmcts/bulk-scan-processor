@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -43,6 +44,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -226,7 +228,7 @@ public class BlobProcessorTask extends Processor {
         log.info("Considering the deletion of file {} in container {}", blobName, containerName);
 
         try {
-            if (envelope.getStatus().isProcessed()) {
+            if (isReadyToBeDeleted(envelope)) {
                 log.info("File {} (container {}) is processed - deleting", blobName, containerName);
 
                 boolean deleted;
@@ -244,6 +246,8 @@ public class BlobProcessorTask extends Processor {
                     envelopeProcessor.saveEnvelope(envelope);
                     log.info("Marked envelope from file {} (container {}) as deleted", blobName, containerName);
                 }
+            } else {
+                log.info("File {} from container {} not ready to be deleted yet.", blobName, containerName);
             }
         } catch (StorageException e) {
             log.error("Failed to delete file [{}] in container {}", blobName, containerName, e);
@@ -301,6 +305,14 @@ public class BlobProcessorTask extends Processor {
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
         java.util.Date cutoff = Date.from(Instant.now().minus(this.blobProcessingDelayInMinutes, ChronoUnit.MINUTES));
         return blob.getProperties().getLastModified().before(cutoff);
+    }
+
+    private boolean isReadyToBeDeleted(Envelope envelope) {
+        return EnumSet.of(
+            Status.PROCESSED,
+            Status.NOTIFICATION_SENT,
+            Status.COMPLETED
+        ).contains(envelope.getStatus());
     }
 
     private void handleInvalidFileError(

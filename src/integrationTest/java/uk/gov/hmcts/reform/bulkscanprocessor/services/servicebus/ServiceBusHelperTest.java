@@ -19,8 +19,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.ocr.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
@@ -124,6 +124,9 @@ public class ServiceBusHelperTest {
         JsonNode jsonNode = objectMapper.readTree(argument.getValue().getBody());
 
         assertThat(jsonNode.get("case_ref").textValue()).isEqualTo(message.getCaseNumber());
+        assertThat(jsonNode.get("previous_service_case_ref").textValue())
+            .isEqualTo(message.getPreviousServiceCaseReference());
+
         assertThat(jsonNode.get("po_box").textValue()).isEqualTo(message.getPoBox());
         assertThat(jsonNode.get("jurisdiction").textValue()).isEqualTo(message.getJurisdiction());
         assertThat(jsonNode.get("container").textValue()).isEqualTo(message.getContainer());
@@ -156,6 +159,7 @@ public class ServiceBusHelperTest {
     private void mockEnvelopeData() {
         when(envelope.getId()).thenReturn(UUID.randomUUID());
         when(envelope.getCaseNumber()).thenReturn("1111222233334446");
+        when(envelope.getPreviousServiceCaseReference()).thenReturn("12345678");
         when(envelope.getPoBox()).thenReturn("SSCS PO BOX");
         when(envelope.getJurisdiction()).thenReturn("SSCS");
         when(envelope.getContainer()).thenReturn("sscs");
@@ -165,19 +169,19 @@ public class ServiceBusHelperTest {
         when(envelope.getOpeningDate()).thenReturn(Instant.now());
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
 
-        when(scannableItem1.getDocumentUrl()).thenReturn("documentUrl1");
+        when(scannableItem1.getDocumentUuid()).thenReturn("documentUuid1");
         when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
         when(scannableItem1.getFileName()).thenReturn("doc1_file_name");
         when(scannableItem1.getDocumentType()).thenReturn(DocumentType.CHERISHED);
         when(scannableItem1.getScanningDate()).thenReturn(Instant.now());
 
-        OcrData ocrData = new OcrData();
-        OcrDataField field = new OcrDataField(new TextNode("key1"), new TextNode("value1"));
-        ocrData.setFields(singletonList(field));
+        OcrData ocrData = new OcrData(singletonList(
+            new OcrDataField(new TextNode("key1"), new TextNode("value1"))
+        ));
 
         when(scannableItem1.getOcrData()).thenReturn(ocrData);
 
-        when(scannableItem2.getDocumentUrl()).thenReturn("documentUrl2");
+        when(scannableItem2.getDocumentUuid()).thenReturn("documentUuid2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
         when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
         when(scannableItem2.getDocumentType()).thenReturn(DocumentType.OTHER);
@@ -190,7 +194,7 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());
-        assertThat(jsonNode.get("url").asText()).isEqualTo(scannableItem.getDocumentUrl());
+        assertThat(jsonNode.get("uuid").asText()).isEqualTo(scannableItem.getDocumentUuid());
         assertDateField(jsonNode, "scanned_at", scannableItem.getScanningDate());
     }
 

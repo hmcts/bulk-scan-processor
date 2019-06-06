@@ -8,10 +8,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +45,7 @@ public class EnvelopeMapper {
             envelope.zipFileCreateddate,
             envelope.zipFileName,
             envelope.caseNumber,
+            envelope.previousServiceCaseReference,
             envelope.classification,
             toDbScannableItems(envelope.scannableItems),
             toDbPayments(envelope.payments),
@@ -69,11 +73,21 @@ public class EnvelopeMapper {
             scannableItem.manualIntervention,
             scannableItem.nextAction,
             scannableItem.nextActionDate,
-            scannableItem.ocrData,
+            mapOcrData(scannableItem.ocrData),
             scannableItem.fileName,
             scannableItem.notes,
             mapDocumentType(scannableItem.documentType),
             extractDocumentSubtype(scannableItem.documentType, scannableItem.documentSubtype)
+        );
+    }
+
+    private static OcrData mapOcrData(InputOcrData inputOcrData) {
+        return inputOcrData == null ? null : new OcrData(
+            inputOcrData
+                .getFields()
+                .stream()
+                .map(field -> new OcrDataField(field.name, field.value))
+                .collect(toList())
         );
     }
 
