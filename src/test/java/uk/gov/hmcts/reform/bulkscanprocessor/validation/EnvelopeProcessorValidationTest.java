@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -127,22 +129,29 @@ public class EnvelopeProcessorValidationTest {
 
     @Test
     public void should_throw_exception_when_required_documents_dont_have_ocr() throws Exception {
-        InputEnvelope envelope = inputEnvelope(
-            "SSCS",
-            "poBox",
-            Classification.NEW_APPLICATION,
-            asList(
-                scannableItem(InputDocumentType.SSCS1, new InputOcrData()),
-                scannableItem(InputDocumentType.SSCS1, new InputOcrData())
-            )
-        );
+        SoftAssertions softly = new SoftAssertions();
+        Stream.of(InputDocumentType.FORM, InputDocumentType.SSCS1)
+            .forEach(type -> {
+                InputEnvelope envelope = inputEnvelope(
+                    "SSCS",
+                    "poBox",
+                    Classification.NEW_APPLICATION,
+                    asList(
+                        scannableItem(InputDocumentType.SSCS1, new InputOcrData()),
+                        scannableItem(InputDocumentType.SSCS1, new InputOcrData())
+                    )
+                );
 
-        Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
-        );
+                Throwable throwable = catchThrowable(
+                    () -> EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+                );
 
-        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
-            .hasMessageContaining("Missing OCR");
+                softly.assertThat(throwable)
+                    .as("Expecting exception for doc type " + type)
+                    .isInstanceOf(OcrDataNotFoundException.class)
+                    .hasMessageContaining("Missing OCR");
+            });
+        softly.assertAll();
     }
 
     @Test
