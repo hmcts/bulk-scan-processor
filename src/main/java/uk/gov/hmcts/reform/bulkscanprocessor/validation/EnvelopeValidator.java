@@ -18,13 +18,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 public final class EnvelopeValidator {
 
+    private static final InputDocumentType defaultOcrDocymentType = InputDocumentType.FORM;
     private static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
         ImmutableMap.of(
             "SSCS", InputDocumentType.SSCS1
@@ -45,22 +48,22 @@ public final class EnvelopeValidator {
 
         if (envelope.classification == Classification.NEW_APPLICATION) {
 
-            InputDocumentType typeThatShouldHaveOcrData = ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction);
-
-            if (typeThatShouldHaveOcrData == null) {
-                throw new OcrDataNotFoundException(
-                    "OCR document type for jurisdiction " + envelope.jurisdiction + " not configured"
-                );
-            }
+            List<InputDocumentType> typesThatShouldHaveOcrData =
+                Stream.of(
+                    defaultOcrDocymentType,
+                    ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction)
+                ).filter(Objects::nonNull)
+                .collect(toList());
 
             List<InputScannableItem> docsThatShouldHaveOcr = envelope
                 .scannableItems
                 .stream()
-                .filter(doc -> Objects.equals(doc.documentType, typeThatShouldHaveOcrData))
+                .filter(doc -> typesThatShouldHaveOcrData.contains(doc.documentType))
                 .collect(toList());
 
             if (docsThatShouldHaveOcr.isEmpty()) {
-                throw new OcrDataNotFoundException("No documents of type " + typeThatShouldHaveOcrData + " found");
+                String types = typesThatShouldHaveOcrData.stream().map(t -> t.toString()).collect(joining(", "));
+                throw new OcrDataNotFoundException("No documents of type " + types + " found");
             }
 
             if (docsThatShouldHaveOcr

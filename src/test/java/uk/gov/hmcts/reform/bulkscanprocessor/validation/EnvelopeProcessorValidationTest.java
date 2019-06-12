@@ -126,29 +126,6 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_document_type_for_new_applications_is_not_configured_for_given_jurisdiction() throws Exception {
-        String invalidJurisdictionForNewApplications = "some_name";
-
-        InputEnvelope envelope = inputEnvelope(
-            invalidJurisdictionForNewApplications,
-            "poBox",
-            Classification.NEW_APPLICATION,
-            asList(
-                scannableItem(InputDocumentType.OTHER, new InputOcrData()),
-                scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
-            )
-        );
-
-        Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
-        );
-
-        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
-            .hasMessageContaining(invalidJurisdictionForNewApplications)
-            .hasMessageContaining("not configured");
-    }
-
-    @Test
     public void should_throw_exception_when_required_documents_dont_have_ocr() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
