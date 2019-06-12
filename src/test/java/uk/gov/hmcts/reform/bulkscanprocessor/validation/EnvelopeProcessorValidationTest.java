@@ -137,8 +137,7 @@ public class EnvelopeProcessorValidationTest {
                     "poBox",
                     Classification.NEW_APPLICATION,
                     asList(
-                        scannableItem(InputDocumentType.SSCS1, new InputOcrData()),
-                        scannableItem(InputDocumentType.SSCS1, new InputOcrData())
+                        scannableItem(type, new InputOcrData())
                     )
                 );
 
