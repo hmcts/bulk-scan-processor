@@ -5,8 +5,8 @@ resource "azurerm_key_vault_secret" "test_storage_account_key" {
 }
 
 data "azurerm_key_vault_secret" "source_test_s2s_secret" {
-  name      = "microservicekey-bulk-scan-processor-tests"
-  vault_uri = "${local.s2s_vault_url}"
+  key_vault_id = "${data.azurerm_key_vault.s2s_key_vault.id}"
+  name         = "microservicekey-bulk-scan-processor-tests"
 }
 
 resource "azurerm_key_vault_secret" "test_s2s_secret" {
