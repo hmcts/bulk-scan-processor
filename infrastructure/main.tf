@@ -12,8 +12,8 @@ locals {
   aseName   = "core-compute-${var.env}"
   local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
 
-  s2s_url       = "http://rpe-service-auth-provider-${local.local_env}.service.core-compute-${local.local_env}.internal"
-  s2s_vault_url = "https://s2s-${local.local_env}.vault.azure.net/"
+  s2s_rg        = "rpe-service-auth-provider-${local.local_env}"
+  s2s_url       = "http://${local.s2s_rg}.service.core-compute-${local.local_env}.internal"
   dm_store_url  = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
 
   db_connection_options = "?sslmode=require"
@@ -155,89 +155,94 @@ data "azurerm_key_vault" "key_vault" {
   resource_group_name = "${local.vaultName}"
 }
 
+data "azurerm_key_vault" "s2s_key_vault" {
+  name                = "s2s-${local.local_env}"
+  resource_group_name = "${local.s2s_rg}"
+}
+
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
-  name      = "${var.component}-POSTGRES-USER"
-  value     = "${module.bulk-scan-db.user_name}"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-USER"
+  value        = "${module.bulk-scan-db.user_name}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
-  name      = "${var.component}-POSTGRES-PASS"
-  value     = "${module.bulk-scan-db.postgresql_password}"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PASS"
+  value        = "${module.bulk-scan-db.postgresql_password}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
-  name      = "${var.component}-POSTGRES-HOST"
-  value     = "${module.bulk-scan-db.host_name}"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-HOST"
+  value        = "${module.bulk-scan-db.host_name}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
-  name      = "${var.component}-POSTGRES-PORT"
-  value     = "${module.bulk-scan-db.postgresql_listen_port}"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PORT"
+  value        = "${module.bulk-scan-db.postgresql_listen_port}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
-  name      = "${var.component}-POSTGRES-DATABASE"
-  value     = "${module.bulk-scan-db.postgresql_database}"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-DATABASE"
+  value        = "${module.bulk-scan-db.postgresql_database}"
 }
 
 data "azurerm_key_vault_secret" "s2s_secret" {
-  name      = "microservicekey-bulk-scan-processor"
-  vault_uri = "${local.s2s_vault_url}"
+  key_vault_id = "${data.azurerm_key_vault.s2s_key_vault.id}"
+  name         = "microservicekey-bulk-scan-processor"
 }
 
 data "azurerm_key_vault_secret" "storage_account_name" {
-  name      = "storage-account-name"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "storage-account-name"
 }
 
 data "azurerm_key_vault_secret" "storage_account_primary_key" {
-  name      = "storage-account-primary-key"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "storage-account-primary-key"
 }
 
 data "azurerm_key_vault_secret" "envelopes_queue_send_conn_str" {
-  name      = "envelopes-queue-send-connection-string"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "envelopes-queue-send-connection-string"
 }
 
 data "azurerm_key_vault_secret" "notifications_queue_send_conn_str" {
-  name      = "notifications-queue-send-connection-string"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "notifications-queue-send-connection-string"
 }
 
 data "azurerm_key_vault_secret" "notifications_queue_listen_conn_str" {
-  name      = "notifications-queue-listen-connection-string"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "notifications-queue-listen-connection-string"
 }
 
 data "azurerm_key_vault_secret" "processed_envelopes_queue_listen_conn_str" {
-  name      = "processed-envelopes-queue-listen-connection-string"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "processed-envelopes-queue-listen-connection-string"
 }
 
 data "azurerm_key_vault_secret" "processed_envelopes_queue_send_conn_str" {
-  name      = "processed-envelopes-queue-send-connection-string"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "processed-envelopes-queue-send-connection-string"
 }
 
 data "azurerm_key_vault_secret" "reports_recipients" {
-  name      = "reports-recipients"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "reports-recipients"
 }
 
 data "azurerm_key_vault_secret" "smtp_username" {
-  name      = "reports-email-username"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "reports-email-username"
 }
 
 data "azurerm_key_vault_secret" "smtp_password" {
-  name      = "reports-email-password"
-  vault_uri = "${data.azurerm_key_vault.key_vault.vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "reports-email-password"
 }
 
 # region API (gateway)
