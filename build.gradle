@@ -243,7 +243,7 @@ dependencies {
 
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
-  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.6'
+  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.7'
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
