@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageBodyRetriever;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -156,10 +157,12 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         }
     }
 
-    @SuppressWarnings("squid:CallToDeprecatedMethod") // for sonarqube complaining about deprecated things being used
     private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
         try {
-            return objectMapper.readValue(message.getBody(), ProcessedEnvelope.class);
+            return objectMapper.readValue(
+                MessageBodyRetriever.getBinaryData(message.getMessageBody()),
+                ProcessedEnvelope.class
+            );
         } catch (JsonParseException | JsonMappingException e) {
             throw new InvalidMessageException("Failed to parse 'processed envelope' message", e);
         }
