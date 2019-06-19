@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.8.RELEASE'
   id 'org.flywaydb.flyway' version '5.2.4'
-  id 'org.springframework.boot' version '2.1.5.RELEASE'
+  id 'org.springframework.boot' version '2.1.6.RELEASE'
   id 'org.owasp.dependencycheck' version '5.0.0'
   id 'com.github.ben-manes.versions' version '0.21.0'
   id 'org.sonarqube' version '2.7.1'
@@ -167,12 +167,6 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '28.0-jre') {
       entry 'guava'
     }
-    // solves CVE-2019-12086
-    // remove once spring manager incorporates this changes
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.9.9') {
-      entry 'jackson-core'
-      entry 'jackson-databind'
-    }
   }
 }
 
@@ -209,7 +203,7 @@ dependencies {
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '2.5.0'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.3.0'
-  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.13', {
+  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.14', {
     exclude group: 'javax.mail', module: 'mail'
     exclude group: 'net.minidev', module: 'json-smart'
   }
