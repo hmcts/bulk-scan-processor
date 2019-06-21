@@ -12,5 +12,7 @@ public interface ZipFileSummary {
 
     String getContainer();
 
-    String getStatus();
+    String getLastEventStatus();
+
+    String getEnvelopeStatus();
 }
