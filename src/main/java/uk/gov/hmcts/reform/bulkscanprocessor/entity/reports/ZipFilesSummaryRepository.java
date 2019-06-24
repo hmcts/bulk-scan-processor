@@ -13,30 +13,33 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
 
     @Query(
         nativeQuery = true,
-        value = "SELECT createdEvent.container, createdEvent.zipfilename, createdEvent.createdDate, \n"
-            + "  lastEventName.event AS status,\n"
-            + "  (CASE WHEN lastEventName.event = 'COMPLETED'\n"
-            + "        THEN lastEvent.eventDate ELSE null END\n"
-            + "  ) AS completedDate\n"
-            + "FROM (\n"
-            + "  SELECT container, zipfilename, MIN(createdat) AS createdDate FROM process_events \n"
-            + "  WHERE date(createdat) = :date AND event='ZIPFILE_PROCESSING_STARTED'\n"
-            + "  GROUP BY container, zipfilename\n"
-            + ") createdEvent \n" /* zipfile processing started date */
-            + "JOIN (\n"
-            + "  SELECT container, zipfilename, MAX(createdat) AS eventDate\n"
-            + "  FROM process_events \n"
-            + "  GROUP BY container, zipfilename\n"
-            + ") lastEvent \n" /* zipfile process completion date */
-            + "  ON createdEvent.container = lastEvent.container \n"
-            + "  AND createdEvent.zipfilename = lastEvent.zipfilename\n"
-            + "JOIN (\n"
-            + "  SELECT container, zipfilename, createdat, event\n"
-            + "  FROM process_events\n"
-            + ") lastEventName \n" /* latest event of the zipfile */
-            + "  ON lastEvent.container = lastEventName.container \n"
-            + "  AND lastEvent.zipfilename = lastEventName.zipfilename\n"
-            + "  AND lastEvent.eventDate = lastEventName.createdat\n"
+        value = "SELECT createdEvent.container, createdEvent.zipfilename, createdEvent.createdDate, "
+            + "  lastEventName.event AS lastEventStatus, envelope.status AS envelopeStatus, "
+            + "  (CASE WHEN lastEventName.event = 'COMPLETED' "
+            + "        THEN lastEvent.eventDate ELSE null END "
+            + "  ) AS completedDate "
+            + "FROM ( "
+            + "  SELECT container, zipfilename, MIN(createdat) AS createdDate FROM process_events "
+            + "  WHERE date(createdat) = :date AND event='ZIPFILE_PROCESSING_STARTED' "
+            + "  GROUP BY container, zipfilename "
+            + ") createdEvent " /* zipfile processing started date */
+            + "JOIN ( "
+            + "  SELECT container, zipfilename, MAX(createdat) AS eventDate "
+            + "  FROM process_events "
+            + "  GROUP BY container, zipfilename "
+            + ") lastEvent " /* zipfile process completion date */
+            + "  ON createdEvent.container = lastEvent.container "
+            + "  AND createdEvent.zipfilename = lastEvent.zipfilename "
+            + "JOIN ( "
+            + "  SELECT container, zipfilename, createdat, event "
+            + "  FROM process_events "
+            + ") lastEventName " /* latest event of the zipfile */
+            + "  ON lastEvent.container = lastEventName.container "
+            + "  AND lastEvent.zipfilename = lastEventName.zipfilename "
+            + "  AND lastEvent.eventDate = lastEventName.createdat "
+            + "LEFT JOIN envelopes AS envelope "
+            + "  ON createdEvent.zipfilename = envelope.zipfilename "
+            + "  AND createdEvent.container = envelope.container "
             + "ORDER BY createdEvent.createdDate ASC"
     )
     List<ZipFileSummary> getZipFileSummaryReportFor(@Param("date") LocalDate date);

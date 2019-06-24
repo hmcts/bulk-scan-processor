@@ -11,7 +11,8 @@ public class ZipFileSummaryResponse {
     public final LocalDate dateProcessed;
     public final LocalTime timeProcessed;
     public final String container;
-    public final String status;
+    public final String lastEventStatus;
+    public final String envelopeStatus;
 
     // region constructor
     public ZipFileSummaryResponse(
@@ -21,7 +22,8 @@ public class ZipFileSummaryResponse {
         LocalDate dateProcessed,
         LocalTime timeProcessed,
         String container,
-        String status
+        String lastEventStatus,
+        String envelopeStatus
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -29,7 +31,8 @@ public class ZipFileSummaryResponse {
         this.dateProcessed = dateProcessed;
         this.timeProcessed = timeProcessed;
         this.container = container;
-        this.status = status;
+        this.lastEventStatus = lastEventStatus;
+        this.envelopeStatus = envelopeStatus;
     }
     // endregion
 }

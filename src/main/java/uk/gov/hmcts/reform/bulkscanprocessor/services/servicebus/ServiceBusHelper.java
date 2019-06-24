@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
+import com.microsoft.azure.servicebus.MessageBody;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
@@ -12,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.PreDestroy;
 
+import static java.util.Collections.singletonList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel.TEST;
 
 public class ServiceBusHelper implements AutoCloseable {
@@ -59,16 +61,18 @@ public class ServiceBusHelper implements AutoCloseable {
         Message busMessage = new Message();
         busMessage.setContentType("application/json");
         busMessage.setMessageId(msg.getMsgId());
-        busMessage.setBody(getMsgBodyInBytes(msg));
+        busMessage.setMessageBody(getMsgBodyInBytes(msg));
         if (msg.isTestOnly()) {
             busMessage.setLabel(TEST.toString());
         }
         return busMessage;
     }
 
-    private byte[] getMsgBodyInBytes(Msg message) {
+    private MessageBody getMsgBodyInBytes(Msg message) {
         try {
-            return objectMapper.writeValueAsBytes(message); //default encoding is UTF-8
+            return MessageBody.fromBinaryData(singletonList(
+                objectMapper.writeValueAsBytes(message) //default encoding is UTF-8
+            ));
         } catch (JsonProcessingException e) {
             throw new InvalidMessageException("Unable to create message body in json format", e);
         }

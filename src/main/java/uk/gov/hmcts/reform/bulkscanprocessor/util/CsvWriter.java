@@ -37,7 +37,7 @@ public final class CsvWriter {
                     summary.timeReceived,
                     summary.dateProcessed,
                     summary.timeProcessed,
-                    summary.status
+                    summary.lastEventStatus
                 );
             }
         }

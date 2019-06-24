@@ -28,8 +28,11 @@ public class ZipFilesSummaryReportItem {
     @JsonProperty("container")
     public final String jurisdiction;
 
-    @JsonProperty("status")
-    public final String status;
+    @JsonProperty("last_event_status")
+    public final String lastEventStatus;
+
+    @JsonProperty("envelope_status")
+    public final String envelopeStatus;
 
     // region constructor
     public ZipFilesSummaryReportItem(String fileName,
@@ -38,7 +41,8 @@ public class ZipFilesSummaryReportItem {
                                      LocalDate dateProcessed,
                                      LocalTime timeProcessed,
                                      String container,
-                                     String status
+                                     String lastEventStatus,
+                                     String envelopeStatus
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -46,7 +50,8 @@ public class ZipFilesSummaryReportItem {
         this.dateProcessed = dateProcessed;
         this.timeProcessed = timeProcessed;
         this.jurisdiction = container;
-        this.status = status;
+        this.lastEventStatus = lastEventStatus;
+        this.envelopeStatus = envelopeStatus;
     }
     // endregion
 
