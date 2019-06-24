@@ -76,7 +76,8 @@ public class ReportsService {
             toLocalDate(dbItem.getCompletedDate()),
             toLocalTime(dbItem.getCompletedDate()),
             dbItem.getContainer(),
-            dbItem.getStatus()
+            dbItem.getLastEventStatus(),
+            dbItem.getEnvelopeStatus()
         );
     }
 

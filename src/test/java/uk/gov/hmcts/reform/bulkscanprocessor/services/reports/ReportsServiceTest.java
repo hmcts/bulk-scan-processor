@@ -5,10 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary.ZipFileSummaryItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
@@ -117,10 +119,20 @@ public class ReportsServiceTest {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
-                    "t1.zip", instant.minus(1, MINUTES), null, "c1", ZIPFILE_PROCESSING_STARTED.toString()
+                    "t1.zip",
+                    instant.minus(1, MINUTES),
+                    null,
+                    "c1",
+                    Event.ZIPFILE_PROCESSING_STARTED.toString(),
+                    Status.CREATED.toString()
                 ),
                 new ZipFileSummaryItem(
-                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "c2", COMPLETED.toString()
+                    "t2.zip",
+                    instant.minus(10, MINUTES),
+                    instant.minus(20, MINUTES),
+                    "c2",
+                    Event.COMPLETED.toString(),
+                    Status.UPLOADED.toString()
                 )
             ));
 
@@ -138,7 +150,8 @@ public class ReportsServiceTest {
                     null,
                     null,
                     "c1",
-                    ZIPFILE_PROCESSING_STARTED.toString()
+                    Event.ZIPFILE_PROCESSING_STARTED.toString(),
+                    Status.CREATED.toString()
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -147,7 +160,8 @@ public class ReportsServiceTest {
                     ofInstant(instant.minus(20, MINUTES), UTC).toLocalDate(),
                     toLocalTime(instant.minus(20, MINUTES)),
                     "c2",
-                    COMPLETED.toString()
+                    Event.COMPLETED.toString(),
+                    Status.UPLOADED.toString()
                 )
             );
     }
@@ -158,10 +172,10 @@ public class ReportsServiceTest {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
-                    "t1.zip", instant.minus(1, MINUTES), null, "c1", ZIPFILE_PROCESSING_STARTED.toString()
+                    "t1.zip", instant.minus(1, MINUTES), null, "c1", ZIPFILE_PROCESSING_STARTED.toString(), null
                 ),
                 new ZipFileSummaryItem(
-                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "c2", COMPLETED.toString()
+                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "c2", COMPLETED.toString(), null
                 )
             ));
 

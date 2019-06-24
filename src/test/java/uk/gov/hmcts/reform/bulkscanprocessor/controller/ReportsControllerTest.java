@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
 
 @RunWith(SpringRunner.class)
@@ -115,7 +116,8 @@ public class ReportsControllerTest {
             localDate,
             localTime.plusHours(1),
             "bulkscan",
-            CONSUMED.toString()
+            CONSUMED.toString(),
+            COMPLETED.toString()
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
@@ -167,7 +169,8 @@ public class ReportsControllerTest {
             localDate,
             localTime.plusHours(1),
             "bulkscan",
-            CONSUMED.toString()
+            CONSUMED.toString(),
+            COMPLETED.toString()
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
@@ -184,7 +187,8 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].date_processed").value("2019-01-14"))
             .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10"))
             .andExpect(jsonPath("$.data[0].container").value(response.container))
-            .andExpect(jsonPath("$.data[0].status").value(response.status));
+            .andExpect(jsonPath("$.data[0].last_event_status").value(response.lastEventStatus))
+            .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus));
     }
 
     @Test
