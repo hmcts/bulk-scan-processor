@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -37,6 +38,24 @@ public class MetafileJsonValidatorTestForInvalidFiles {
                 + "\n\terror: object has missing required properties"
             )
             .hasMessageContaining("missing: [\"scannable_items\"]");
+    }
+
+    @Test
+    public void should_not_parse_envelope_with_unrecognised_fields() throws IOException {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/unrecognised-fields.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.parseMetafile(metafile));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageContaining("Unrecognized property in the metadata file")
+            .hasCauseInstanceOf(UnrecognizedPropertyException.class);
+
+        assertThat(exc.getCause().getMessage())
+            .startsWith("Unrecognized field \"invalid_field_name\"");
     }
 
     @Test

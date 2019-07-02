@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
@@ -45,6 +46,10 @@ public class MetafileJsonValidator {
     }
 
     public InputEnvelope parseMetafile(byte[] metafile) throws IOException {
-        return MAPPER.readValue(metafile, InputEnvelope.class);
+        try {
+            return MAPPER.readValue(metafile, InputEnvelope.class);
+        } catch (UnrecognizedPropertyException e) {
+            throw new InvalidEnvelopeSchemaException("Unrecognized property in the metadata file", e);
+        }
     }
 }
