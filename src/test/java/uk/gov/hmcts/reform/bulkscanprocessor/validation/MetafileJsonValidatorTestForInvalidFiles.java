@@ -51,7 +51,8 @@ public class MetafileJsonValidatorTestForInvalidFiles {
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
-                + "\n\terror: object instance has properties which are not allowed by the schema: [\"invalid_field_name\"]"
+                + "\n\terror: object instance has properties which are not allowed by the schema:"
+                + "[\"invalid_field_name\"]"
             )
             .hasMessageContaining("unwanted: [\"invalid_field_name\"]");
 
