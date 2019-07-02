@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -41,21 +40,21 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_unrecognised_fields() throws IOException {
+    public void should_not_parse_envelope_with_unknown_properties() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/unrecognised-fields.json");
 
         // when
-        Throwable exc = catchThrowable(() -> validator.parseMetafile(metafile));
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
 
         // then
         assertThat(exc)
             .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageContaining("Unrecognized property in the metadata file")
-            .hasCauseInstanceOf(UnrecognizedPropertyException.class);
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                + "\n\terror: object instance has properties which are not allowed by the schema: [\"invalid_field_name\"]"
+            )
+            .hasMessageContaining("unwanted: [\"invalid_field_name\"]");
 
-        assertThat(exc.getCause().getMessage())
-            .startsWith("Unrecognized field \"invalid_field_name\"");
     }
 
     @Test
