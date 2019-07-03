@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.not;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource("classpath:application.yaml")
-public class WhenApplicationDeployedTest {
+public class ApplicationHealthTest {
 
     @Value("${test-url}")
     private String testUrl;
