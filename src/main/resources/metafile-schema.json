@@ -124,9 +124,14 @@
               "Other",
               "SSCS1",
               "Will",
-              "Coversheet"
+              "Coversheet",
+              "Form"
             ],
             "default": "Other"
+          },
+          "document_subtype": {
+            "id": "#/properties/scannable_items/items/properties/document_subtype",
+            "type": "string"
           }
         },
         "required": [

@@ -13,11 +13,15 @@ import static java.util.Arrays.asList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.inputScannableItem;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.CHERISHED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.COVERSHEET;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.OTHER;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.WILL;
 
+@SuppressWarnings("checkstyle:LineLength")
 public class SubtypeTest {
+
+    private static final String SOME_SUBTYPE = "foo";
 
     @Rule
     public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
@@ -25,25 +29,34 @@ public class SubtypeTest {
     @Test
     public void should_map_scannable_item_document_types_correctly() {
         asList(
-            new TestCase(new Given(SSCS1), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
-            new TestCase(new Given(WILL), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
-            new TestCase(new Given(COVERSHEET), new Expect(DocumentType.OTHER, DocumentSubtype.COVERSHEET)),
-            new TestCase(new Given(CHERISHED), new Expect(DocumentType.CHERISHED, null)),
-            new TestCase(new Given(OTHER), new Expect(DocumentType.OTHER, null))
+            // null subtype
+            new TestCase(new Given(SSCS1, null), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
+            new TestCase(new Given(WILL, null), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
+            new TestCase(new Given(COVERSHEET, null), new Expect(DocumentType.COVERSHEET, null)),
+            new TestCase(new Given(CHERISHED, null), new Expect(DocumentType.CHERISHED, null)),
+            new TestCase(new Given(OTHER, null), new Expect(DocumentType.OTHER, null)),
+            new TestCase(new Given(FORM, null), new Expect(DocumentType.FORM, null)),
+            // non-null subtype
+            new TestCase(new Given(SSCS1, SOME_SUBTYPE), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
+            new TestCase(new Given(WILL, SOME_SUBTYPE), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
+            new TestCase(new Given(COVERSHEET, SOME_SUBTYPE), new Expect(DocumentType.COVERSHEET, SOME_SUBTYPE)),
+            new TestCase(new Given(CHERISHED, SOME_SUBTYPE), new Expect(DocumentType.CHERISHED, SOME_SUBTYPE)),
+            new TestCase(new Given(OTHER, SOME_SUBTYPE), new Expect(DocumentType.OTHER, SOME_SUBTYPE)),
+            new TestCase(new Given(FORM, SOME_SUBTYPE), new Expect(DocumentType.FORM, SOME_SUBTYPE))
         ).forEach(tc -> {
             // given
-            InputScannableItem item = inputScannableItem(tc.input.documentType);
+            InputScannableItem item = inputScannableItem(tc.input.documentType, tc.input.docSubtype);
 
             // when
             ScannableItem result = EnvelopeMapper.toDbScannableItem(item);
 
             // then
             softly.assertThat(result.getDocumentType())
-                .as("Output document type for type '%s'", tc.input.documentType)
+                .as("Output document type for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
                 .isEqualTo(tc.expected.documentType);
 
             softly.assertThat(result.getDocumentSubtype())
-                .as("Output document subtype for type '%s'", tc.input.documentType)
+                .as("Output document subtype for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
                 .isEqualTo(tc.expected.docSubtype);
         });
     }
@@ -63,9 +76,11 @@ public class SubtypeTest {
 
     private class Given {
         public InputDocumentType documentType;
+        public String docSubtype;
 
-        public Given(InputDocumentType documentType) {
+        public Given(InputDocumentType documentType, String docSubtype) {
             this.documentType = documentType;
+            this.docSubtype = docSubtype;
         }
     }
 
