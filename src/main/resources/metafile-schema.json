@@ -353,5 +353,6 @@
     "zip_file_name",
     "envelope_classification",
     "scannable_items"
-  ]
+  ],
+  "additionalProperties": false
 }
