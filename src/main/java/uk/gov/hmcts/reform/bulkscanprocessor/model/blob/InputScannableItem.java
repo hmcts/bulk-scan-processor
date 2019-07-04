@@ -37,7 +37,7 @@ public class InputScannableItem {
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
         @JsonProperty("document_type") InputDocumentType documentType,
-        @JsonProperty("document_subtype") String documentSubtype
+        @JsonProperty("document_sub_type") String documentSubtype
 
     ) {
         this.documentControlNumber = documentControlNumber;
