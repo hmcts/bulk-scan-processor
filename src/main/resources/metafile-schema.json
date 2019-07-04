@@ -129,8 +129,8 @@
             ],
             "default": "Other"
           },
-          "document_subtype": {
-            "id": "#/properties/scannable_items/items/properties/document_subtype",
+          "document_sub_type": {
+            "id": "#/properties/scannable_items/items/properties/document_sub_type",
             "type": "string"
           }
         },
