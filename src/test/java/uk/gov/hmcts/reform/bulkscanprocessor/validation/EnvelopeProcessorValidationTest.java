@@ -130,7 +130,7 @@ public class EnvelopeProcessorValidationTest {
         // then
         assertThat(throwable)
             .isInstanceOf(FileNameIrregularitiesException.class)
-            .hasMessageContaining("Duplicate scanned items file names: yyy.pdf");
+            .hasMessage("Duplicate scanned items file names: yyy.pdf");
     }
 
     @Test
