@@ -17,12 +17,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 public final class EnvelopeValidator {
@@ -86,21 +88,29 @@ public final class EnvelopeValidator {
      * @param pdfs     to assert against
      */
     public static void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
+        List<String> problems = new ArrayList<>();
+
+        List<String> duplicateFileNames =
+            getDuplicates(envelope.scannableItems.stream().map(it -> it.fileName).collect(toList()));
+        
+        if (!duplicateFileNames.isEmpty()) {
+            problems.add("Duplicate scanned items file names: " + String.join(", ", duplicateFileNames));
+        }
+
         Set<String> scannedFileNames = envelope
             .scannableItems
             .stream()
             .map(item -> item.fileName)
-            .collect(Collectors.toSet());
+            .collect(toSet());
 
         Set<String> pdfFileNames = pdfs
             .stream()
             .map(Pdf::getFilename)
-            .collect(Collectors.toSet());
+            .collect(toSet());
 
         Set<String> missingActualPdfFiles = Sets.difference(scannedFileNames, pdfFileNames);
         Set<String> notDeclaredPdfs = Sets.difference(pdfFileNames, scannedFileNames);
 
-        List<String> problems = new ArrayList<>();
 
         if (!notDeclaredPdfs.isEmpty()) {
             problems.add("Not declared PDFs: " + String.join(", ", notDeclaredPdfs));
@@ -146,5 +156,16 @@ public final class EnvelopeValidator {
                 )
             );
         }
+    }
+
+    private static List<String> getDuplicates(List<String> collection) {
+        return collection
+            .stream()
+            .collect(groupingBy(it -> it, counting()))
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() > 1)
+            .map(entry -> entry.getKey())
+            .collect(toList());
     }
 }

@@ -109,6 +109,33 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
+    public void should_throw_exception_when_multiple_scannable_items_refer_to_single_pdf() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            "poBox",
+            Classification.EXCEPTION,
+            asList(
+                scannableItem("xxx.pdf"),
+                scannableItem("yyy.pdf"),
+                scannableItem("yyy.pdf")
+            )
+        );
+        List<Pdf> pdfs = asList(
+            new Pdf("xxx.pdf", null),
+            new Pdf("yyy.pdf", null)
+        );
+
+        // when
+        Throwable throwable = catchThrowable(() -> EnvelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
+
+        // then
+        assertThat(throwable)
+            .isInstanceOf(FileNameIrregularitiesException.class)
+            .hasMessage("Duplicate scanned items file names: yyy.pdf");
+    }
+
+    @Test
     public void should_throw_exception_when_required_documents_are_missing() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
