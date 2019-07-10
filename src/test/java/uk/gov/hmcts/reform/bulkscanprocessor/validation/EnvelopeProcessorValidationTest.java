@@ -27,7 +27,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
 
 public class EnvelopeProcessorValidationTest {
 
-    private final static String SAMPLE_URL = "https://example.com/";
+    private static final String SAMPLE_URL = "https://example.com/";
 
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
@@ -248,7 +248,9 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
-        List<Mapping> mappings = singletonList(new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL));
+        List<Mapping> mappings = singletonList(
+            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL)
+        );
 
         // when
         Throwable err = catchThrowable(
