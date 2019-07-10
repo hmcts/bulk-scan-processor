@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.time.Instant;
 import java.util.List;
@@ -143,25 +141,19 @@ public class EnvelopeMsg implements Msg {
         return envelope
             .getScannableItems()
             .stream()
-            .filter(si -> si.getOcrData() != null)
-            .map(item -> convertFromInputOcrData(item.getOcrData()))
-            .findFirst()
+            .filter(item -> item.getOcrData() != null)
+            .findFirst() // there's always only one scannable item with OCR data
+            .map(item -> item.getOcrData())
+            .map(ocrData -> ocrData
+                .fields
+                .stream()
+                .map(field -> new OcrField(
+                    field.name.textValue(),
+                    field.value != null ? field.value.asText("") : ""
+                ))
+                .collect(toList())
+            )
             .orElse(null);
     }
 
-    private List<OcrField> convertFromInputOcrData(OcrData inputOcrData) {
-        return inputOcrData
-            .fields
-            .stream()
-            .map(this::convertFromInputOcrDataField)
-            .collect(toList());
-    }
-
-    private OcrField convertFromInputOcrDataField(OcrDataField inputField) {
-        String value = inputField.value != null
-            ? inputField.value.asText("")
-            : "";
-
-        return new OcrField(inputField.name.textValue(), value);
-    }
 }
