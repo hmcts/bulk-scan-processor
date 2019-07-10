@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,16 +92,7 @@ public final class EnvelopeValidator {
         List<String> problems = new ArrayList<>();
 
         List<String> duplicateFileNames =
-            envelope
-                .scannableItems
-                .stream()
-                .map(it -> it.fileName)
-                .collect(groupingBy(it -> it, counting()))
-                .entrySet()
-                .stream()
-                .filter(it -> it.getValue() > 1)
-                .map(it -> it.getKey())
-                .collect(toList());
+            getDuplicates(envelope.scannableItems.stream().map(it -> it.fileName).collect(toList()));
         
         if (!duplicateFileNames.isEmpty()) {
             problems.add("Duplicate scanned items file names: " + String.join(", ", duplicateFileNames));
@@ -165,5 +157,16 @@ public final class EnvelopeValidator {
                 )
             );
         }
+    }
+
+    private static List<String> getDuplicates(List<String> collection) {
+        return collection
+            .stream()
+            .collect(groupingBy(it -> it, counting()))
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() > 1)
+            .map(entry -> entry.getKey())
+            .collect(toList());
     }
 }
