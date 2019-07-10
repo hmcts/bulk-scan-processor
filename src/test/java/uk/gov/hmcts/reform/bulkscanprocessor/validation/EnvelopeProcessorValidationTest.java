@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
 
-@SuppressWarnings("checkstyle:LineLength")
 public class EnvelopeProcessorValidationTest {
 
     private final static String SAMPLE_URL = "https://example.com/";
@@ -209,7 +208,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         // then
-        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+        verifyExceptionIsThrown(envelope, container, err);
     }
 
     @Test
@@ -225,7 +224,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         // then
-        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+        verifyExceptionIsThrown(envelope, container, err);
     }
 
     @Test
@@ -241,7 +240,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         // then
-        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+        verifyExceptionIsThrown(envelope, container, err);
     }
 
     @Test
@@ -260,7 +259,7 @@ public class EnvelopeProcessorValidationTest {
         assertThat(err).isNull();
     }
 
-    private void verifyExceptionIsThrown(InputEnvelope envelope, String container, String poBox, Throwable err) {
+    private void verifyExceptionIsThrown(InputEnvelope envelope, String container, Throwable err) {
         assertThat(err)
             .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
             .hasMessageContaining(envelope.jurisdiction)
