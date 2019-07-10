@@ -107,7 +107,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_excetion_when__multiple_scannable_items_refer_to_single_pdf() {
+    public void should_throw_exception_when_multiple_scannable_items_refer_to_single_pdf() {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
