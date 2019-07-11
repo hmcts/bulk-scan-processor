@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -122,6 +123,16 @@ public final class EnvelopeValidator {
 
         if (!problems.isEmpty()) {
             throw new FileNameIrregularitiesException(String.join(". ", problems));
+        }
+    }
+
+    public static void assertDocumentControlNumbersAreUnique(InputEnvelope envelope) {
+        List<String> dcns = envelope.scannableItems.stream().map(it -> it.documentControlNumber).collect(toList());
+        List<String> duplicateDcns = getDuplicates(dcns);
+        if (!duplicateDcns.isEmpty()) {
+            throw new DuplicateDocumentControlNumbersInEnvelopeException(
+                "Duplicate DCNs in envelope: " + String.join(", ", duplicateDcns)
+            );
         }
     }
 
