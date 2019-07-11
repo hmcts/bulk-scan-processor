@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.req;
+package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req;
 
 public class OcrDataField {
 

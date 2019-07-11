@@ -1,11 +1,11 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation;
+package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.req.FormData;
-import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.res.ValidationResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
 @Component
 public class OcrValidationClient {

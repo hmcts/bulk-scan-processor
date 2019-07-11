@@ -11,10 +11,11 @@ import org.springframework.web.client.HttpServerErrorException.InternalServerErr
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationContextInitializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
-import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.req.FormData;
-import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.req.OcrDataField;
-import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.res.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.res.ValidationResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
 import java.util.UUID;
 

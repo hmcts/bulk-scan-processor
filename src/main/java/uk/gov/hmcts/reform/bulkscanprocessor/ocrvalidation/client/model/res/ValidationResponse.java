@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.res;
+package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
