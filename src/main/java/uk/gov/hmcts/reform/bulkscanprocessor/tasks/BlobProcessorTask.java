@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.FilenameUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -298,8 +299,22 @@ public class BlobProcessorTask extends Processor {
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
             return null;
         } catch (DataIntegrityViolationException ex) {
-            log.warn("Rejected file {} from container {} - duplicate CDN", zipFilename, containerName, ex);
-            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            // only report on constraint violations
+            if (ex.getCause() instanceof ConstraintViolationException) {
+                ConstraintViolationException exception = (ConstraintViolationException) ex.getCause();
+                log.warn(
+                    "Rejected file {} from container {} - DB constraint violation {}",
+                    zipFilename,
+                    containerName,
+                    exception.getConstraintName(),
+                    exception
+                );
+                handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, exception);
+            } else { // act same as before: `Exception` case
+                log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
+                handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
+            }
+
             return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);

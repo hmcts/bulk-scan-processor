@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications;
 
 import com.google.common.collect.ImmutableMap;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.hibernate.exception.ConstraintViolationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
@@ -36,7 +36,7 @@ public final class ErrorMapping {
             .put(OcrDataParseException.class, ERR_METAFILE_INVALID)
             .put(MetadataNotFoundException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(ContainerJurisdictionPoBoxMismatchException.class, ERR_METAFILE_INVALID)
-            .put(DataIntegrityViolationException.class, ERR_ZIP_PROCESSING_FAILED)
+            .put(ConstraintViolationException.class, ERR_ZIP_PROCESSING_FAILED)
             .build();
 
     private ErrorMapping() {
