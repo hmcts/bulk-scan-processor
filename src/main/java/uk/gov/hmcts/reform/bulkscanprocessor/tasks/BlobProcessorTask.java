@@ -277,6 +277,7 @@ public class BlobProcessorTask extends Processor {
             );
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
+            EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 

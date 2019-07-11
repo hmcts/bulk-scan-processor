@@ -5,6 +5,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -133,6 +134,31 @@ public class EnvelopeProcessorValidationTest {
         assertThat(throwable)
             .isInstanceOf(FileNameIrregularitiesException.class)
             .hasMessage("Duplicate scanned items file names: yyy.pdf");
+    }
+
+    @Test
+    public void should_throw_exception_when_document_control_numbers_are_not_unique() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            "poBox",
+            Classification.EXCEPTION,
+            asList(
+                scannableItem("1.pdf", "aaa"),
+                scannableItem("2.pdf", "bbb"),
+                scannableItem("3.pdf", "bbb") // duplicate dcn
+            )
+        );
+
+        // when
+        Throwable throwable = catchThrowable(
+            () -> EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope)
+        );
+
+        // then
+        assertThat(throwable)
+            .isInstanceOf(DuplicateDocumentControlNumbersInEnvelopeException.class)
+            .hasMessage("Duplicate DCNs in envelope: bbb");
     }
 
     @Test
