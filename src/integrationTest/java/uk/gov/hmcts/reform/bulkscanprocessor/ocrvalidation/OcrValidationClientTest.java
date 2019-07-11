@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Options;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
@@ -11,7 +10,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationContextInitializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
@@ -158,7 +156,7 @@ public class OcrValidationClientTest {
         return "http://localhost:" + wiremockOptions.portNumber() + "/validate-ocr";
     }
 
-    private String jsonify(String s) {
-        return s.replace('\'', '"');
+    private String jsonify(String str) {
+        return str.replace('\'', '"');
     }
 }
