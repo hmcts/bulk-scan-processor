@@ -28,7 +28,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-@ActiveProfiles( {
+@ActiveProfiles({
     IntegrationContextInitializer.PROFILE_WIREMOCK,
     Profiles.SERVICE_BUS_STUB,
     Profiles.STORAGE_STUB
