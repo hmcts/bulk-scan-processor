@@ -19,8 +19,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrD
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
-import java.util.UUID;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.forbidden;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
@@ -29,6 +27,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.unauthorized;
 import static java.util.Arrays.asList;
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -51,7 +50,7 @@ public class OcrValidationClientTest {
     @Test
     public void should_map_error_response_from_service_to_model() {
         // given
-        String s2sToken = UUID.randomUUID().toString();
+        String s2sToken = randomUUID().toString();
         stubFor(
             post("/validate-ocr")
                 .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
@@ -76,7 +75,7 @@ public class OcrValidationClientTest {
     @Test
     public void should_map_success_response_from_service_to_model() {
         // given
-        String s2sToken = UUID.randomUUID().toString();
+        String s2sToken = randomUUID().toString();
         stubFor(
             post("/validate-ocr")
                 .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
@@ -101,7 +100,7 @@ public class OcrValidationClientTest {
     @Test
     public void should_map_warnings_response_from_service_to_model() {
         // given
-        String s2sToken = UUID.randomUUID().toString();
+        String s2sToken = randomUUID().toString();
         stubFor(
             post("/validate-ocr")
                 .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
@@ -135,7 +134,7 @@ public class OcrValidationClientTest {
             stubFor(post("/validate-ocr").willReturn(cfg.getLeft()));
 
             // when
-            Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData(), UUID.randomUUID().toString()));
+            Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData(), randomUUID().toString()));
 
             // then
             assertThat(err).isInstanceOf(cfg.getRight());
