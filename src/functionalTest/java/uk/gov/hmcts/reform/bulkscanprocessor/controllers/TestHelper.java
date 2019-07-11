@@ -32,8 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -41,6 +45,8 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
+
+    private static final Random RANDOM = new Random();
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -140,8 +146,12 @@ public class TestHelper {
     ) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+            Map<String, String> tokens = new ConcurrentHashMap<>();
+
             for (String file : files) {
-                zos.putNextEntry(new ZipEntry(file));
+                String dcn = generateDcnNumber();
+                tokens.put("$$" + file.replace(".pdf", "") + "$$", dcn);
+                zos.putNextEntry(new ZipEntry(dcn + ".pdf"));
                 zos.write(Resources.toByteArray(Resources.getResource(file)));
                 zos.closeEntry();
             }
@@ -149,13 +159,28 @@ public class TestHelper {
             if (metadataFile != null) {
                 String metadataTemplate =
                     Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
-                String metadata = metadataTemplate.replace("$$zip_file_name$$", zipFilename);
                 zos.putNextEntry(new ZipEntry("metadata.json"));
-                zos.write(metadata.getBytes());
+                tokens.put("$$zip_file_name$$", zipFilename);
+
+                Pattern pattern = Pattern.compile("(" + String.join("|", tokens.keySet()) + ")");
+                Matcher matcher = pattern.matcher(metadataTemplate);
+                StringBuffer sb = new StringBuffer();
+
+                while (matcher.find()) {
+                    matcher.appendReplacement(sb, tokens.get(matcher.group(1)));
+                }
+
+                matcher.appendTail(sb);
+
+                zos.write(sb.toString().getBytes());
                 zos.closeEntry();
             }
         }
         return outputStream.toByteArray();
+    }
+
+    private String generateDcnNumber() {
+        return Long.toString(System.currentTimeMillis()) + RANDOM.nextInt();
     }
 
     public byte[] createSignedZipArchiveWithRandomName(
