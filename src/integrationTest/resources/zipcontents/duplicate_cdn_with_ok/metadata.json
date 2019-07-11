@@ -1,0 +1,38 @@
+{
+  "case_number": "1111222233334446",
+  "previous_service_case_reference": "12345678",
+  "po_box": "BULKSCANPO",
+  "jurisdiction": "BULKSCAN",
+  "delivery_date": "2018-06-23T00:00:00.000Z",
+  "opening_date": "2018-06-23T00:00:00.000Z",
+  "zip_file_createddate": "2018-06-23T00:00:00.000Z",
+  "zip_file_name": "7_24-06-2018-00-00-00.zip",
+  "envelope_classification": "exception",
+  "scannable_items": [
+      {
+        "document_control_number": "1111002",
+        "scanning_date": "2018-06-23T00:00:00.000Z",
+        "ocr_accuracy": "test",
+        "manual_intervention": "test",
+        "next_action": "return",
+        "next_action_date": "2018-06-23T00:00:00.000Z",
+        "ocr_data": "eyJNZXRhZGF0YV9maWxlIjogW3sibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJuYW1lMSIsICJtZXRhZGF0YV9maWVsZF92YWx1ZSI6ICJ2YWx1ZTEifV19Cg==",
+        "file_name": "1111002.pdf",
+        "notes": "test",
+        "document_type": "SSCS1"
+      }
+  ],
+  "payments": [
+      {
+        "document_control_number": "1111002",
+        "method": "Cheque",
+        "amount": "100.00",
+        "currency": "GBP",
+        "payment_instrument_number": "1000000000",
+        "sort_code": "112233",
+        "account_number": "12345678"
+      }
+  ],
+  "non_scannable_items": [
+  ]
+}

@@ -30,10 +30,10 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.UUID.randomUUID;
 
 public final class EnvelopeCreator {
 
@@ -81,11 +81,11 @@ public final class EnvelopeCreator {
     }
 
     public static Envelope envelope(String jurisdiction, Status status) {
-        return envelope(UUID.randomUUID() + ".zip", jurisdiction, status);
+        return envelope(randomUUID() + ".zip", jurisdiction, status);
     }
 
     public static Envelope envelope(String jurisdiction, Status status, List<ScannableItem> scannableItems) {
-        return envelope(UUID.randomUUID() + ".zip", jurisdiction, status, scannableItems);
+        return envelope(randomUUID() + ".zip", jurisdiction, status, scannableItems);
     }
 
     public static Envelope envelope(String zipFileName, String jurisdiction, Status status) {
@@ -152,7 +152,7 @@ public final class EnvelopeCreator {
         Instant timestamp = getInstant();
 
         ScannableItem scannableItem1 = new ScannableItem(
-            "1111001",
+            randomUUID().toString(),
             timestamp,
             "test",
             "test",
@@ -167,7 +167,7 @@ public final class EnvelopeCreator {
         scannableItem1.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
         ScannableItem scannableItem2 = new ScannableItem(
-            "1111002",
+            randomUUID().toString(),
             timestamp,
             "test",
             "test",
