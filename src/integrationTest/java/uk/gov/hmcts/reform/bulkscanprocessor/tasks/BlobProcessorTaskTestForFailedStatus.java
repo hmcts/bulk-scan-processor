@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,10 +15,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentEx
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.toByteArray;
 import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Collections.emptyMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -259,6 +264,37 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
+    }
+
+    @Test
+    public void should_reject_file_which_has_duplicate_cdn_number() throws Exception {
+        // given
+        byte[] zipBytes = zipDir("zipcontents/ok");
+
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
+
+        // and
+        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
+
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
+            .willReturn(ImmutableMap.of(
+                "1111002.pdf", DOCUMENT_URL2
+            ));
+
+        // when
+        processor.processBlobs();
+
+        // and given
+        String filenameForDuplicate = "DUP" + SAMPLE_ZIP_FILE_NAME;
+        byte[] duplicateZipBytes = zipDir("zipcontents/duplicate_cdn_with_ok");
+        uploadToBlobStorage(filenameForDuplicate, duplicateZipBytes);
+
+        // when
+        processor.processBlobs();
+
+        // then
+        errorWasSent(filenameForDuplicate, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
+        assertThat(envelopeRepository.findAll()).hasSize(1);
     }
 
     private void eventsWereCreated(Event event1, Event event2) {
