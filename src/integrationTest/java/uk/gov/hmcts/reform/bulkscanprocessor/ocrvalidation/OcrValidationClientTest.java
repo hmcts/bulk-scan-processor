@@ -1,13 +1,17 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Options;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.HttpServerErrorException.InternalServerError;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationContextInitializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
@@ -20,10 +24,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Vali
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.forbidden;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.unauthorized;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -45,7 +51,7 @@ public class OcrValidationClientTest {
     private OcrValidationClient client;
 
     @Test
-    public void should_map_response_from_service_to_model() {
+    public void should_map_error_response_from_service_to_model() {
         // given
         String s2sToken = UUID.randomUUID().toString();
         stubFor(
@@ -64,24 +70,78 @@ public class OcrValidationClientTest {
         ValidationResponse res = client.validate(url(), sampleFormData(), s2sToken);
 
         // then
+        assertThat(res.status).isEqualTo(Status.ERRORS);
         assertThat(res.errors).contains("e1", "e2");
         assertThat(res.warnings).contains("w1", "w2");
-        assertThat(res.status).isEqualTo(Status.ERRORS);
+    }
+
+    @Test
+    public void should_map_success_response_from_service_to_model() {
+        // given
+        String s2sToken = UUID.randomUUID().toString();
+        stubFor(
+            post("/validate-ocr")
+                .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
+                .willReturn(okJson(jsonify(
+                    "      {"
+                        + "  'status': 'SUCCESS',"
+                        + "  'errors': [],"
+                        + "  'warnings': []"
+                        + "}"
+                )))
+        );
+
+        // when
+        ValidationResponse res = client.validate(url(), sampleFormData(), s2sToken);
+
+        // then
+        assertThat(res.status).isEqualTo(Status.SUCCESS);
+        assertThat(res.errors).isEmpty();
+        assertThat(res.warnings).isEmpty();
+    }
+
+    @Test
+    public void should_map_warnings_response_from_service_to_model() {
+        // given
+        String s2sToken = UUID.randomUUID().toString();
+        stubFor(
+            post("/validate-ocr")
+                .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
+                .willReturn(okJson(jsonify(
+                    "      {"
+                        + "  'status': 'WARNINGS',"
+                        + "  'errors': [],"
+                        + "  'warnings': ['w1', 'w2']"
+                        + "}"
+                )))
+        );
+
+        // when
+        ValidationResponse res = client.validate(url(), sampleFormData(), s2sToken);
+
+        // then
+        assertThat(res.status).isEqualTo(Status.WARNINGS);
+        assertThat(res.errors).isEmpty();
+        assertThat(res.warnings).contains("w1", "w2");
     }
 
     @Test
     public void should_throw_an_exception_if_server_responds_with_an_error_code() {
-        // given
-        stubFor(
-            post("/validate-ocr")
-                .willReturn(serverError())
-        );
+        // pairs contain server response & expected exception type
+        asList(
+            Pair.of(serverError(), HttpServerErrorException.InternalServerError.class),
+            Pair.of(forbidden(), HttpClientErrorException.Forbidden.class),
+            Pair.of(unauthorized(), HttpClientErrorException.Unauthorized.class)
+        ).forEach(cfg -> {
+            // given
+            stubFor(post("/validate-ocr").willReturn(cfg.getLeft()));
 
-        // when
-        Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData(), UUID.randomUUID().toString()));
+            // when
+            Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData(), UUID.randomUUID().toString()));
 
-        // then
-        assertThat(err).isInstanceOf(InternalServerError.class);
+            // then
+            assertThat(err).isInstanceOf(cfg.getRight());
+        });
     }
 
     private FormData sampleFormData() {
