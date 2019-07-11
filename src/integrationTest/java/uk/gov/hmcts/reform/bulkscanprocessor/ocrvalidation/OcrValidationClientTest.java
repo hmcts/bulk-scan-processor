@@ -16,6 +16,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.req.OcrDataFiel
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.res.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.model.res.ValidationResponse;
 
+import java.util.UUID;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
@@ -43,8 +46,10 @@ public class OcrValidationClientTest {
     @Test
     public void should_map_response_from_service_to_model() {
         // given
+        String s2sToken = UUID.randomUUID().toString();
         stubFor(
             post("/validate-ocr")
+                .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
                 .willReturn(okJson(jsonify(
                     "      {"
                         + "  'status': 'ERRORS',"
@@ -55,7 +60,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        ValidationResponse res = client.validate(url(), sampleFormData());
+        ValidationResponse res = client.validate(url(), sampleFormData(), s2sToken);
 
         // then
         assertThat(res.errors).contains("e1", "e2");
@@ -72,7 +77,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData()));
+        Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData(), UUID.randomUUID().toString()));
 
         // then
         assertThat(err).isInstanceOf(InternalServerError.class);
