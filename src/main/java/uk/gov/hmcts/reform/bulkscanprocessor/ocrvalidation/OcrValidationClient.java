@@ -17,15 +17,13 @@ public class OcrValidationClient {
     }
 
     public ValidationResponse validate(String url, FormData formData, String s2sToken) {
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("ServiceAuthorization", "Bearer " + s2sToken);
 
         return restTemplate.postForObject(
             url,
-            new HttpEntity<>(
-                formData,
-                headers
-            ),
+            new HttpEntity<>(formData, headers),
             ValidationResponse.class
         );
     }
