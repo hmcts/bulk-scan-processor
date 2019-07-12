@@ -5,6 +5,7 @@ import joptsimple.internal.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.util.Optionals;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -44,32 +45,27 @@ public class OcrValidator {
     //endregion
 
     public void assertIsValid(InputEnvelope envelope) {
-        Optional<String> validationUrl = findValidationUrl(envelope);
-        Optional<InputScannableItem> docWithOcr = findDocWithOcr(envelope);
-
-        if (validationUrl.isPresent() && docWithOcr.isPresent()) {
-            Try.of(
-                () -> client.validate(
-                    validationUrl.get(),
-                    toFormData(docWithOcr.get()),
-                    authTokenGenerator.generate()
-                ))
-                .onSuccess(res -> {
-                    switch (res.status) {
-                        case ERRORS:
-                            throw new OcrValidationException(Strings.join(res.errors, ", "));
-                        case WARNINGS:
-                            log.info("Validation ended with warnings. File name: {}", envelope.zipFileName);
-                            break;
-                        default:
-                            break;
-                    }
-                })
-                .onFailure(exc -> {
-                    log.error("Error calling validation endpoint. Url: {}", validationUrl.get(), exc);
-                    // log error and proceed
-                });
-        }
+        Optionals.ifAllPresent(
+            findValidationUrl(envelope),
+            findDocWithOcr(envelope),
+            (validationUrl, docWithOcr) ->
+                Try.of(() -> client.validate(validationUrl, toFormData(docWithOcr), authTokenGenerator.generate()))
+                    .onSuccess(res -> {
+                        switch (res.status) {
+                            case ERRORS:
+                                throw new OcrValidationException(Strings.join(res.errors, ", "));
+                            case WARNINGS:
+                                log.info("Validation ended with warnings. File name: {}", envelope.zipFileName);
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                    .onFailure(exc -> {
+                        log.error("Error calling validation endpoint. Url: {}", validationUrl, exc);
+                        // log error and proceed
+                    })
+        );
     }
 
     private Optional<String> findValidationUrl(InputEnvelope envelope) {
