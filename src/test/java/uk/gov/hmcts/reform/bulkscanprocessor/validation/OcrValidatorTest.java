@@ -120,6 +120,29 @@ public class OcrValidatorTest {
     }
 
     @Test
+    public void should_not_call_validation_there_are_no_documents_with_ocr() {
+        // given
+        InputEnvelope envelope = envelope(
+            "samplePoBox",
+            asList(
+                doc("other", null),
+                doc("other", null)
+            )
+        );
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("c", "j", envelope.poBox, "https://example.com")
+            ));
+
+        // when
+        ocrValidator.assertIsValid(envelope);
+
+        // then
+        verify(client, never()).validate(any(), any(), any());
+    }
+
+    @Test
     public void should_throw_an_exception_if_service_responded_with_error_response() {
         // given
         String poBox = "samplePoBox";
