@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -28,14 +29,17 @@ public class OcrValidator {
 
     private final OcrValidationClient client;
     private final ContainerMappings containerMappings;
+    private final AuthTokenGenerator authTokenGenerator;
 
     //region constructor
     public OcrValidator(
         OcrValidationClient client,
-        ContainerMappings containerMappings
+        ContainerMappings containerMappings,
+        AuthTokenGenerator authTokenGenerator
     ) {
         this.client = client;
         this.containerMappings = containerMappings;
+        this.authTokenGenerator = authTokenGenerator;
     }
     //endregion
 
@@ -61,7 +65,7 @@ public class OcrValidator {
                     client.validate(
                         url,
                         toFormData(docsWithOcr.get(0)),
-                        "token" // TODO
+                        authTokenGenerator.generate()
                     );
 
                 switch (result.status) {
