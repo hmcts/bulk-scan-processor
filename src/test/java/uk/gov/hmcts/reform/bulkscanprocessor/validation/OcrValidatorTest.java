@@ -52,8 +52,8 @@ public class OcrValidatorTest {
 
     private OcrValidator ocrValidator;
 
-    private final static String S2S_TOKEN = "sample-s2s-token";
-    private final static String PO_BOX = "sample PO box";
+    private static final String S2S_TOKEN = "sample-s2s-token";
+    private static final String PO_BOX = "sample PO box";
 
     @Before
     public void setUp() throws Exception {
@@ -92,11 +92,13 @@ public class OcrValidatorTest {
         verify(client).validate(eq(url), argCaptor.capture(), eq(S2S_TOKEN));
         assertThat(argCaptor.getValue().type).isEqualTo(subtype);
         assertThat(argCaptor.getValue().ocrDataFields)
-            .extracting(
-                it -> tuple(it.name, it.value)
-            )
-            .containsExactlyElementsOf(sampleOcr().getFields().stream().map(
-                it -> tuple(it.name.textValue(), it.value.textValue())).collect(toList())
+            .extracting(it -> tuple(it.name, it.value))
+            .containsExactlyElementsOf(
+                sampleOcr()
+                    .getFields()
+                    .stream()
+                    .map(it -> tuple(it.name.textValue(), it.value.textValue()))
+                    .collect(toList())
             );
     }
 
