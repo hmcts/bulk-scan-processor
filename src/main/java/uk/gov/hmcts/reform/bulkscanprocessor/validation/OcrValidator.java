@@ -3,7 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 import joptsimple.internal.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
@@ -13,54 +15,77 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrD
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
-@Service
+@Component
+@EnableConfigurationProperties(ContainerMappings.class)
 public class OcrValidator {
 
     private static final Logger log = LoggerFactory.getLogger(OcrValidator.class);
 
     private final OcrValidationClient client;
+    private final ContainerMappings containerMappings;
 
-    public OcrValidator(OcrValidationClient client) {
+    //region constructor
+    public OcrValidator(
+        OcrValidationClient client,
+        ContainerMappings containerMappings
+    ) {
         this.client = client;
+        this.containerMappings = containerMappings;
     }
+    //endregion
 
     public void assertIsValid(InputEnvelope envelope) {
-        List<InputScannableItem> docsWithOcr =
-            envelope
-                .scannableItems
-                .stream()
-                .filter(it -> it.ocrData != null)
-                .collect(toList());
+        getValidationUrl(envelope).ifPresent(url -> {
+            List<InputScannableItem> docsWithOcr =
+                envelope
+                    .scannableItems
+                    .stream()
+                    .filter(it -> it.ocrData != null)
+                    .collect(toList());
 
-        if (!docsWithOcr.isEmpty()) {
-            if (docsWithOcr.size() > 1) {
-                log.warn(
-                    "Multiple documents with OCR found. Envelope: {}, count: {}",
-                    envelope.zipFileName,
-                    docsWithOcr.size()
-                );
+            if (!docsWithOcr.isEmpty()) {
+                if (docsWithOcr.size() > 1) {
+                    log.warn(
+                        "Multiple documents with OCR found. Envelope: {}, count: {}",
+                        envelope.zipFileName,
+                        docsWithOcr.size()
+                    );
+                }
+
+                ValidationResponse result =
+                    client.validate(
+                        url,
+                        toFormData(docsWithOcr.get(0)),
+                        "token" // TODO
+                    );
+
+                switch (result.status) {
+                    case ERRORS:
+                        throw new OcrValidationException(Strings.join(result.errors, ", "));
+                    case WARNINGS:
+                        log.info("OCR succeeded with errors. Envelope: {}", envelope.zipFileName);
+                        break;
+                    case SUCCESS:
+                        break;
+                }
             }
+        });
 
-            ValidationResponse result =
-                client.validate(
-                    "url", // TODO
-                    toFormData(docsWithOcr.get(0)),
-                    "token" // TODO
-                );
+    }
 
-            switch (result.status) {
-                case ERRORS:
-                    throw new OcrValidationException(Strings.join(result.errors, ", "));
-                case WARNINGS:
-                    log.info("OCR succeeded with errors. Envelope: {}", envelope.zipFileName);
-                    break;
-                case SUCCESS:
-                    break;
-            }
-        }
+    private Optional<String> getValidationUrl(InputEnvelope envelope) {
+        return containerMappings
+            .getMappings()
+            .stream()
+            .filter(mapping -> Objects.equals(mapping.getPoBox(), envelope.poBox))
+            .findFirst()
+            .map(mapping -> mapping.getOcrValidationUrl())
+            .filter(Strings::isNullOrEmpty);
     }
 
     private FormData toFormData(InputScannableItem doc) {
