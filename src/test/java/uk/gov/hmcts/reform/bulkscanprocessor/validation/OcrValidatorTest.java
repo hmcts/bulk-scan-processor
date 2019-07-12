@@ -47,15 +47,17 @@ public class OcrValidatorTest {
     @Mock private ContainerMappings containerMappings;
     @Mock private AuthTokenGenerator authTokenGenerator;
 
-    @Captor ArgumentCaptor<FormData> argCaptor;
+    @Captor
+    private ArgumentCaptor<FormData> argCaptor;
 
     private OcrValidator ocrValidator;
 
-    private final String s2sToken = "sample-s2s-token";
+    private final static String S2S_TOKEN = "sample-s2s-token";
+    private final static String PO_BOX = "sample PO box";
 
     @Before
     public void setUp() throws Exception {
-        given(authTokenGenerator.generate()).willReturn(s2sToken);
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         this.ocrValidator = new OcrValidator(client, containerMappings, authTokenGenerator);
     }
@@ -63,12 +65,11 @@ public class OcrValidatorTest {
     @Test
     public void should_call_rest_client_with_correct_parameters() {
         // given
-        String poBox = "samplePoBox";
         String url = "https://example.com/validate-ocr";
         String subtype = "sample_document_subtype";
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
-            poBox,
+            PO_BOX,
             Classification.EXCEPTION,
             asList(
                 doc(subtype, sampleOcr()),
@@ -78,7 +79,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", poBox, url)
+                new Mapping("container", "jurisdiction", PO_BOX, url)
             ));
 
         given(client.validate(eq(url), any(), any()))
@@ -88,7 +89,7 @@ public class OcrValidatorTest {
         ocrValidator.assertIsValid(envelope);
 
         // then
-        verify(client).validate(eq(url), argCaptor.capture(), eq(s2sToken));
+        verify(client).validate(eq(url), argCaptor.capture(), eq(S2S_TOKEN));
         assertThat(argCaptor.getValue().type).isEqualTo(subtype);
         assertThat(argCaptor.getValue().ocrDataFields)
             .extracting(
@@ -123,7 +124,7 @@ public class OcrValidatorTest {
     public void should_not_call_validation_there_are_no_documents_with_ocr() {
         // given
         InputEnvelope envelope = envelope(
-            "samplePoBox",
+            PO_BOX,
             asList(
                 doc("other", null),
                 doc("other", null)
@@ -145,11 +146,10 @@ public class OcrValidatorTest {
     @Test
     public void should_throw_an_exception_if_service_responded_with_error_response() {
         // given
-        String poBox = "samplePoBox";
         String url = "https://example.com/validate-ocr";
         String subtype = "sample_document_subtype";
         InputEnvelope envelope = envelope(
-            poBox,
+            PO_BOX,
             asList(
                 doc(subtype, sampleOcr()),
                 doc("other", null)
@@ -158,13 +158,13 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", poBox, url)
+                new Mapping("container", "jurisdiction", PO_BOX, url)
             ));
 
         given(client.validate(eq(url), any(), any()))
             .willReturn(new ValidationResponse(Status.ERRORS, emptyList(), singletonList("Error!")));
 
-        given(authTokenGenerator.generate()).willReturn(s2sToken);
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // when
         Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
@@ -180,7 +180,7 @@ public class OcrValidatorTest {
     public void should_continue_if_calling_validation_endpoint_fails() {
         // given
         InputEnvelope envelope = envelope(
-            "samplePoBox",
+            PO_BOX,
             asList(
                 doc("form", sampleOcr()),
                 doc("other", null)
