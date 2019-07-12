@@ -27,7 +27,7 @@ public class OcrValidator {
         this.client = client;
     }
 
-    public void validate(InputEnvelope envelope) {
+    public void assertIsValid(InputEnvelope envelope) {
         List<InputScannableItem> docsWithOcr =
             envelope
                 .scannableItems
