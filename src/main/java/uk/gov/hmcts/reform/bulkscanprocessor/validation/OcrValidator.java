@@ -61,6 +61,7 @@ public class OcrValidator {
                     );
                 }
 
+                // TODO: handle exceptions
                 ValidationResponse result =
                     client.validate(
                         url,
@@ -74,7 +75,7 @@ public class OcrValidator {
                     case WARNINGS:
                         log.info("OCR succeeded with errors. Envelope: {}", envelope.zipFileName);
                         break;
-                    case SUCCESS:
+                    default:
                         break;
                 }
             }
