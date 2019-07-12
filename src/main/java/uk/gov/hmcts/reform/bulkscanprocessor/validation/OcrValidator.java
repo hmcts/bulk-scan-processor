@@ -44,45 +44,45 @@ public class OcrValidator {
     //endregion
 
     public void assertIsValid(InputEnvelope envelope) {
-        getValidationUrl(envelope).ifPresent(url -> {
-            List<InputScannableItem> docsWithOcr =
+        Optional<String> validationUrl = getValidationUrl(envelope);
+        List<InputScannableItem> docsWithOcr =
+            envelope
+                .scannableItems
+                .stream()
+                .filter(it -> it.ocrData != null)
+                .collect(toList());
+
+        if (validationUrl.isPresent() && !docsWithOcr.isEmpty()) {
+            validateOcr(
+                validationUrl.get(),
+                docsWithOcr.get(0),
                 envelope
-                    .scannableItems
-                    .stream()
-                    .filter(it -> it.ocrData != null)
-                    .collect(toList());
+            );
+        }
+    }
 
-            if (!docsWithOcr.isEmpty()) {
-                if (docsWithOcr.size() > 1) {
-                    log.warn(
-                        "Multiple documents with OCR found. Envelope: {}, count: {}",
-                        envelope.zipFileName,
-                        docsWithOcr.size()
-                    );
+    private void validateOcr(String url, InputScannableItem doc, InputEnvelope envelope) {
+        Try.of(
+            () -> client.validate(
+                url,
+                toFormData(doc),
+                authTokenGenerator.generate()
+            ))
+            .onSuccess(res -> {
+                switch (res.status) {
+                    case ERRORS:
+                        throw new OcrValidationException(Strings.join(res.errors, ", "));
+                    case WARNINGS:
+                        log.info("OCR succeeded with errors. Envelope: {}", envelope.zipFileName);
+                        break;
+                    default:
+                        break;
                 }
-
-                Try.of(() -> client.validate(url, toFormData(docsWithOcr.get(0)), authTokenGenerator.generate()))
-                    .onSuccess(res -> {
-                        switch (res.status) {
-                            case ERRORS:
-                                throw new OcrValidationException(Strings.join(res.errors, ", "));
-                            case WARNINGS:
-                                log.info("OCR succeeded with errors. Envelope: {}", envelope.zipFileName);
-                                break;
-                            default:
-                                break;
-                        }
-                    })
-                    .onFailure(exc -> {
-                        log.error(
-                            "Error calling validation endpoint. URL: {}, envelope: {}",
-                            url,
-                            envelope.zipFileName
-                        );
-                        // log error and proceed.
-                    });
-            }
-        });
+            })
+            .onFailure(exc -> {
+                log.error("Error calling validation endpoint. Url: {}", url, exc);
+                // log error and proceed
+            });
     }
 
     private Optional<String> getValidationUrl(InputEnvelope envelope) {
@@ -102,10 +102,7 @@ public class OcrValidator {
                 .ocrData
                 .getFields()
                 .stream()
-                .map(it -> new OcrDataField(
-                    it.name.asText(),
-                    it.value.textValue()
-                ))
+                .map(it -> new OcrDataField(it.name.asText(), it.value.textValue()))
                 .collect(toList())
         );
     }
