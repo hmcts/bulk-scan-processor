@@ -90,7 +90,7 @@ public class OcrValidator {
             .filter(mapping -> Objects.equals(mapping.getPoBox(), envelope.poBox))
             .findFirst()
             .map(mapping -> mapping.getOcrValidationUrl())
-            .filter(Strings::isNullOrEmpty);
+            .filter(target -> !Strings.isNullOrEmpty(target));
     }
 
     private FormData toFormData(InputScannableItem doc) {
