@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
@@ -22,6 +23,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Stat
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
@@ -29,10 +31,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 
@@ -47,8 +51,12 @@ public class OcrValidatorTest {
 
     private OcrValidator ocrValidator;
 
+    private final String s2sToken = "sample-s2s-token";
+
     @Before
     public void setUp() throws Exception {
+        given(authTokenGenerator.generate()).willReturn(s2sToken);
+
         this.ocrValidator = new OcrValidator(client, containerMappings, authTokenGenerator);
     }
 
@@ -57,7 +65,6 @@ public class OcrValidatorTest {
         // given
         String poBox = "samplePoBox";
         String url = "https://example.com/validate-ocr";
-        String s2sToken = "sample-s2s-token";
         String subtype = "sample_document_subtype";
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -77,9 +84,6 @@ public class OcrValidatorTest {
         given(client.validate(eq(url), any(), any()))
             .willReturn(new ValidationResponse(Status.SUCCESS, emptyList(), emptyList()));
 
-        given(authTokenGenerator.generate())
-            .willReturn(s2sToken);
-
         // when
         ocrValidator.assertIsValid(envelope);
 
@@ -95,6 +99,60 @@ public class OcrValidatorTest {
             );
     }
 
+    @Test
+    public void should_not_call_validation_if_url_is_not_configured() {
+        // given
+        InputEnvelope envelope = envelope(
+            "samplePoBox",
+            asList(
+                doc("D8", sampleOcr()),
+                doc("other", null)
+            )
+        );
+
+        given(containerMappings.getMappings()).willReturn(emptyList()); // url not configured
+
+        // when
+        ocrValidator.assertIsValid(envelope);
+
+        // then
+        verify(client, never()).validate(any(), any(), any());
+    }
+
+    @Test
+    public void should_throw_an_exception_if_service_responded_with_error_response() {
+        // given
+        String poBox = "samplePoBox";
+        String url = "https://example.com/validate-ocr";
+        String subtype = "sample_document_subtype";
+        InputEnvelope envelope = envelope(
+            poBox,
+            asList(
+                doc(subtype, sampleOcr()),
+                doc("other", null)
+            )
+        );
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", poBox, url)
+            ));
+
+        given(client.validate(eq(url), any(), any()))
+            .willReturn(new ValidationResponse(Status.ERRORS, emptyList(), singletonList("Error!")));
+
+        given(authTokenGenerator.generate()).willReturn(s2sToken);
+
+        // when
+        Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
+
+
+        // then
+        assertThat(err)
+            .isInstanceOf(OcrValidationException.class)
+            .hasMessageContaining("Error!");
+    }
+
     private InputOcrData sampleOcr() {
         InputOcrData data = new InputOcrData();
         data.setFields(asList(
@@ -102,6 +160,15 @@ public class OcrValidatorTest {
             new InputOcrDataField(new TextNode("foo"), new TextNode("bar"))
         ));
         return data;
+    }
+
+    private InputEnvelope envelope(String poBox, List<InputScannableItem> scannableItems) {
+        return inputEnvelope(
+            "BULKSCAN",
+            poBox,
+            Classification.EXCEPTION,
+            scannableItems
+        );
     }
 
     private InputScannableItem doc(String subtype, InputOcrData ocrData) {
