@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.validation;
+package uk.gov.hmcts.reform.bulkscanprocessor.validation.ocr;
 
 import joptsimple.internal.Strings;
 import org.slf4j.Logger;
