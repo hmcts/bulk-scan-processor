@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
+import io.vavr.control.Try;
 import joptsimple.internal.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrDataField;
-import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
 import java.util.List;
 import java.util.Objects;
@@ -61,26 +61,28 @@ public class OcrValidator {
                     );
                 }
 
-                // TODO: handle exceptions
-                ValidationResponse result =
-                    client.validate(
-                        url,
-                        toFormData(docsWithOcr.get(0)),
-                        authTokenGenerator.generate()
-                    );
-
-                switch (result.status) {
-                    case ERRORS:
-                        throw new OcrValidationException(Strings.join(result.errors, ", "));
-                    case WARNINGS:
-                        log.info("OCR succeeded with errors. Envelope: {}", envelope.zipFileName);
-                        break;
-                    default:
-                        break;
-                }
+                Try.of(() -> client.validate(url, toFormData(docsWithOcr.get(0)), authTokenGenerator.generate()))
+                    .onSuccess(res -> {
+                        switch (res.status) {
+                            case ERRORS:
+                                throw new OcrValidationException(Strings.join(res.errors, ", "));
+                            case WARNINGS:
+                                log.info("OCR succeeded with errors. Envelope: {}", envelope.zipFileName);
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                    .onFailure(exc -> {
+                        log.error(
+                            "Error calling validation endpoint. URL: {}, envelope: {}",
+                            url,
+                            envelope.zipFileName
+                        );
+                        // log error and proceed.
+                    });
             }
         });
-
     }
 
     private Optional<String> getValidationUrl(InputEnvelope envelope) {

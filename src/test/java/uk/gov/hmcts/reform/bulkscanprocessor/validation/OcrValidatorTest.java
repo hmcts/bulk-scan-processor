@@ -176,6 +176,32 @@ public class OcrValidatorTest {
             .hasMessageContaining("Error!");
     }
 
+    @Test
+    public void should_continue_if_calling_validation_endpoint_fails() {
+        // given
+        InputEnvelope envelope = envelope(
+            "samplePoBox",
+            asList(
+                doc("form", sampleOcr()),
+                doc("other", null)
+            )
+        );
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("c", "j", envelope.poBox, "https://example.com")
+            ));
+
+        given(client.validate(any(), any(), any())).willThrow(new RuntimeException());
+
+        // when
+        Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
+
+        // then
+        assertThat(err).isNull();
+        verify(client).validate(any(), any(), any());
+    }
+
     private InputOcrData sampleOcr() {
         InputOcrData data = new InputOcrData();
         data.setFields(asList(
