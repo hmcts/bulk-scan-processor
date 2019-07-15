@@ -150,7 +150,7 @@ public class TestHelper {
 
             for (String file : files) {
                 String dcn = generateDcnNumber();
-                tokens.put("$$" + file.replace(".pdf", "") + "$$", dcn);
+                tokens.put("##" + file.replace(".pdf", "") + "##", dcn);
                 zos.putNextEntry(new ZipEntry(dcn + ".pdf"));
                 zos.write(Resources.toByteArray(Resources.getResource(file)));
                 zos.closeEntry();
@@ -160,7 +160,7 @@ public class TestHelper {
                 String metadataTemplate =
                     Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
                 zos.putNextEntry(new ZipEntry("metadata.json"));
-                tokens.put("$$zip_file_name$$", zipFilename);
+                tokens.put("##zip_file_name##", zipFilename);
 
                 Pattern pattern = Pattern.compile("(" + String.join("|", tokens.keySet()) + ")");
                 Matcher matcher = pattern.matcher(metadataTemplate);
