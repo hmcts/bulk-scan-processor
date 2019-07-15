@@ -53,16 +53,30 @@ public class OcrValidator {
                     .onSuccess(res -> {
                         switch (res.status) {
                             case ERRORS:
-                                throw new OcrValidationException(Strings.join(res.errors, ", "));
+                                throw new OcrValidationException(
+                                    "Ocr validation failed. "
+                                        + "Document OCR: " + docWithOcr.documentControlNumber + ". "
+                                        + "Envelope: " + envelope.zipFileName + ". "
+                                        + "Errors: " + Strings.join(res.errors, ", ")
+                                );
                             case WARNINGS:
-                                log.info("Validation ended with warnings. File name: {}", envelope.zipFileName);
+                                log.info(
+                                    "Validation ended with warnings. File name: {}",
+                                    envelope.zipFileName
+                                );
                                 break;
                             default:
                                 break;
                         }
                     })
                     .onFailure(exc -> {
-                        log.error("Error calling validation endpoint. Url: {}", validationUrl, exc);
+                        log.error(
+                            "Error calling validation endpoint. Url: {}, document: {}, envelope: {}",
+                            validationUrl,
+                            docWithOcr.documentControlNumber,
+                            envelope.zipFileName,
+                            exc
+                        );
                         // log error and proceed
                     })
         );
