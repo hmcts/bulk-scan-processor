@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
 import java.util.List;
 import java.util.Objects;
@@ -49,37 +50,55 @@ public class OcrValidator {
             findValidationUrl(envelope.poBox),
             findDocWithOcr(envelope),
             (validationUrl, docWithOcr) ->
-                Try.of(() -> client.validate(validationUrl, toFormData(docWithOcr), authTokenGenerator.generate()))
-                    .onSuccess(res -> {
-                        switch (res.status) {
-                            case ERRORS:
-                                throw new OcrValidationException(
-                                    "Ocr validation failed. "
-                                        + "Document OCR: " + docWithOcr.documentControlNumber + ". "
-                                        + "Envelope: " + envelope.zipFileName + ". "
-                                        + "Errors: " + Strings.join(res.errors, ", ")
-                                );
-                            case WARNINGS:
-                                log.info(
-                                    "Validation ended with warnings. File name: {}",
-                                    envelope.zipFileName
-                                );
-                                break;
-                            default:
-                                break;
-                        }
-                    })
-                    .onFailure(exc -> {
-                        log.error(
-                            "Error calling validation endpoint. Url: {}, document: {}, envelope: {}",
-                            validationUrl,
-                            docWithOcr.documentControlNumber,
-                            envelope.zipFileName,
-                            exc
-                        );
-                        // log error and proceed
-                    })
+                Try
+                    .of(() -> client.validate(
+                        validationUrl,
+                        toFormData(docWithOcr),
+                        authTokenGenerator.generate()
+                    ))
+                    .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))
+                    .onFailure(exc -> handleRestClientException(exc, validationUrl, envelope, docWithOcr))
         );
+    }
+
+    private void handleValidationResponse(
+        ValidationResponse res,
+        InputEnvelope envelope,
+        InputScannableItem docWithOcr
+    ) {
+        switch (res.status) {
+            case ERRORS:
+                throw new OcrValidationException(
+                    "Ocr validation failed. "
+                        + "Document OCR: " + docWithOcr.documentControlNumber + ". "
+                        + "Envelope: " + envelope.zipFileName + ". "
+                        + "Errors: " + Strings.join(res.errors, ", ")
+                );
+            case WARNINGS:
+                log.info(
+                    "Validation ended with warnings. File name: {}",
+                    envelope.zipFileName
+                );
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void handleRestClientException(
+        Throwable exc,
+        String validationUrl,
+        InputEnvelope envelope,
+        InputScannableItem docWithOcr
+    ) {
+        log.error(
+            "Error calling validation endpoint. Url: {}, document: {}, envelope: {}",
+            validationUrl,
+            docWithOcr.documentControlNumber,
+            envelope.zipFileName,
+            exc
+        );
+        // log error and proceed
     }
 
     private Optional<String> findValidationUrl(String poBox) {
