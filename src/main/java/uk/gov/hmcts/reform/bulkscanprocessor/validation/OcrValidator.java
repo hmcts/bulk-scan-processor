@@ -46,7 +46,7 @@ public class OcrValidator {
 
     public void assertIsValid(InputEnvelope envelope) {
         Optionals.ifAllPresent(
-            findValidationUrl(envelope),
+            findValidationUrl(envelope.poBox),
             findDocWithOcr(envelope),
             (validationUrl, docWithOcr) ->
                 Try.of(() -> client.validate(validationUrl, toFormData(docWithOcr), authTokenGenerator.generate()))
@@ -68,11 +68,11 @@ public class OcrValidator {
         );
     }
 
-    private Optional<String> findValidationUrl(InputEnvelope envelope) {
+    private Optional<String> findValidationUrl(String poBox) {
         return containerMappings
             .getMappings()
             .stream()
-            .filter(mapping -> Objects.equals(mapping.getPoBox(), envelope.poBox))
+            .filter(mapping -> Objects.equals(mapping.getPoBox(), poBox))
             .findFirst()
             .map(mapping -> mapping.getOcrValidationUrl())
             .filter(url -> !Strings.isNullOrEmpty(url));
