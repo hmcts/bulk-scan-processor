@@ -240,6 +240,7 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
 
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
+  compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-2'
 
   compile group: 'org.apache.commons', name: 'commons-csv', version: '1.7'
 
