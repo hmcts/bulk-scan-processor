@@ -12,9 +12,9 @@ locals {
   aseName   = "core-compute-${var.env}"
   local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
 
-  s2s_rg        = "rpe-service-auth-provider-${local.local_env}"
-  s2s_url       = "http://${local.s2s_rg}.service.core-compute-${local.local_env}.internal"
-  dm_store_url  = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
+  s2s_rg       = "rpe-service-auth-provider-${local.local_env}"
+  s2s_url      = "http://${local.s2s_rg}.service.core-compute-${local.local_env}.internal"
+  dm_store_url = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
 
   db_connection_options = "?sslmode=require"
 
@@ -60,6 +60,7 @@ module "bulk-scan-db" {
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
   common_tags        = "${var.common_tags}"
+  subscription       = "${var.subscription}"
 }
 
 module "bulk-scan" {
@@ -129,9 +130,9 @@ module "bulk-scan" {
     STORAGE_BLOB_SIGNATURE_ALGORITHM = "sha256withrsa"                               // none or sha256withrsa
     STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
 
-    QUEUE_ENVELOPE_SEND = "${data.azurerm_key_vault_secret.envelopes_queue_send_conn_str.value}"
-    QUEUE_NOTIFICATIONS_SEND = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
-    QUEUE_NOTIFICATIONS_READ = "${data.azurerm_key_vault_secret.notifications_queue_listen_conn_str.value}"
+    QUEUE_ENVELOPE_SEND            = "${data.azurerm_key_vault_secret.envelopes_queue_send_conn_str.value}"
+    QUEUE_NOTIFICATIONS_SEND       = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
+    QUEUE_NOTIFICATIONS_READ       = "${data.azurerm_key_vault_secret.notifications_queue_listen_conn_str.value}"
     QUEUE_PROCESSED_ENVELOPES_READ = "${data.azurerm_key_vault_secret.processed_envelopes_queue_listen_conn_str.value}"
 
     SMTP_HOST          = "${var.smtp_host}"
@@ -146,7 +147,6 @@ module "bulk-scan" {
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
-
   }
 }
 
