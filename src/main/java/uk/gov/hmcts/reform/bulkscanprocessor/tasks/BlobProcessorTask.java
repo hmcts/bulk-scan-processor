@@ -301,20 +301,12 @@ public class BlobProcessorTask extends Processor {
         } catch (DataIntegrityViolationException ex) {
             // only report on constraint violations
             if (ex.getCause() instanceof ConstraintViolationException) {
-                ConstraintViolationException exception = (ConstraintViolationException) ex.getCause();
-                log.warn(
-                    "Rejected file {} from container {} - DB constraint violation {}",
-                    zipFilename,
+                handleConstraintViolation(
                     containerName,
-                    exception.getConstraintName(),
-                    exception
+                    zipFilename,
+                    leaseId,
+                    (ConstraintViolationException) ex.getCause()
                 );
-
-                if (exception.getConstraintName().equals("scannable_item_dcn")) {
-                    handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, exception);
-                } else {
-                    handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, exception);
-                }
             } else { // act same as before: `Exception` case
                 log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
                 handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
@@ -339,6 +331,27 @@ public class BlobProcessorTask extends Processor {
             Status.NOTIFICATION_SENT,
             Status.COMPLETED
         ).contains(envelope.getStatus());
+    }
+
+    private void handleConstraintViolation(
+        String containerName,
+        String zipFilename,
+        String leaseId,
+        ConstraintViolationException exception
+    ) {
+        log.warn(
+            "Rejected file {} from container {} - DB constraint violation {}",
+            zipFilename,
+            containerName,
+            exception.getConstraintName(),
+            exception
+        );
+
+        if (exception.getConstraintName().equals("scannable_item_dcn")) {
+            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, exception);
+        } else {
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, exception);
+        }
     }
 
     private void handleInvalidFileError(
