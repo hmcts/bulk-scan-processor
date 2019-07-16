@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -348,7 +349,15 @@ public class BlobProcessorTask extends Processor {
         );
 
         if (exception.getConstraintName().equals("scannable_item_dcn")) {
-            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, exception);
+            handleInvalidFileError(
+                Event.FILE_VALIDATION_FAILURE,
+                containerName,
+                zipFilename,
+                leaseId,
+                new DuplicateDocumentControlNumbersInEnvelopeException(
+                    "Received envelope with 'document_control_number' already present in the system"
+                )
+            );
         } else {
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, exception);
         }
