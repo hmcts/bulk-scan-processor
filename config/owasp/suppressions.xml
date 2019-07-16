@@ -62,6 +62,8 @@
     <cve>CVE-2018-19362</cve>
     <cve>CVE-2018-1000873</cve>
     <cve>CVE-2019-12086</cve>
+    <cve>CVE-2019-12384</cve>
+    <cve>CVE-2019-12814</cve>
     <!-- jetty -->
     <cve>CVE-2017-7656</cve>
     <cve>CVE-2017-7657</cve>
