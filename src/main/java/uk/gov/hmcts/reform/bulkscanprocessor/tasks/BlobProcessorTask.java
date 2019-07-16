@@ -309,7 +309,12 @@ public class BlobProcessorTask extends Processor {
                     exception.getConstraintName(),
                     exception
                 );
-                handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, exception);
+
+                if (exception.getConstraintName().equals("scannable_item_dcn")) {
+                    handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, exception);
+                } else {
+                    handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, exception);
+                }
             } else { // act same as before: `Exception` case
                 log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
                 handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
