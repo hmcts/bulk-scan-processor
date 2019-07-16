@@ -180,7 +180,7 @@ public class TestHelper {
     }
 
     private String generateDcnNumber() {
-        return Long.toString(System.currentTimeMillis()) + RANDOM.nextInt();
+        return Long.toString(System.currentTimeMillis()) + Math.abs(RANDOM.nextInt());
     }
 
     public byte[] createSignedZipArchiveWithRandomName(
