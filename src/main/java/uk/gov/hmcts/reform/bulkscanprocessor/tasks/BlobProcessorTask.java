@@ -81,6 +81,7 @@ public class BlobProcessorTask extends Processor {
 
     private final OcrValidator ocrValidator;
 
+    @SuppressWarnings("squid:S00107")
     @Autowired
     public BlobProcessorTask(
         BlobManager blobManager,
