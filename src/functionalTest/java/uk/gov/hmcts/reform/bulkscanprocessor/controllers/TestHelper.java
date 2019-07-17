@@ -153,9 +153,9 @@ public class TestHelper {
                 String metadataTemplate =
                     Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
                 String metadata = metadataTemplate
-                    .replace("##zip_file_name##", zipFilename)
-                    .replace("##dcn1##", generateDcnNumber())
-                    .replace("##dcn2##", generateDcnNumber());
+                    .replace("$$zip_file_name$$", zipFilename)
+                    .replace("$$dcn1$$", generateDcnNumber())
+                    .replace("$$dcn2$$", generateDcnNumber());
                 zos.putNextEntry(new ZipEntry("metadata.json"));
 
                 zos.write(metadata.getBytes());
