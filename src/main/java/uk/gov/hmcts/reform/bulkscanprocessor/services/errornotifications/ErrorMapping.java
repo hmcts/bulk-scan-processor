@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications;
 
 import com.google.common.collect.ImmutableMap;
-import org.hibernate.exception.ConstraintViolationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumberException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
@@ -30,13 +30,13 @@ public final class ErrorMapping {
             .put(DocSignatureFailureException.class, ERR_SIG_VERIFY_FAILED)
             .put(InvalidEnvelopeSchemaException.class, ERR_METAFILE_INVALID)
             .put(FileNameIrregularitiesException.class, ERR_METAFILE_INVALID)
+            .put(DuplicateDocumentControlNumberException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(DuplicateDocumentControlNumbersInEnvelopeException.class, ERR_METAFILE_INVALID)
             .put(OcrDataNotFoundException.class, ERR_METAFILE_INVALID)
             .put(NonPdfFileFoundException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(OcrDataParseException.class, ERR_METAFILE_INVALID)
             .put(MetadataNotFoundException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(ContainerJurisdictionPoBoxMismatchException.class, ERR_METAFILE_INVALID)
-            .put(ConstraintViolationException.class, ERR_ZIP_PROCESSING_FAILED)
             .build();
 
     private ErrorMapping() {
