@@ -9,7 +9,7 @@
   "envelope_classification": "exception",
   "scannable_items": [
       {
-        "document_control_number": "##1111006##",
+        "document_control_number": "##dcn1##",
         "scanning_date": "2017-02-24T00:00:00.000Z",
         "ocr_accuracy": "string",
         "manual_intervention": "string",

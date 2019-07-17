@@ -34,10 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -146,11 +143,7 @@ public class TestHelper {
     ) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
-            Map<String, String> tokens = new ConcurrentHashMap<>();
-
             for (String file : files) {
-                String dcn = generateDcnNumber();
-                tokens.put("##" + file.replace(".pdf", "") + "##", dcn);
                 zos.putNextEntry(new ZipEntry(file));
                 zos.write(Resources.toByteArray(Resources.getResource(file)));
                 zos.closeEntry();
@@ -159,20 +152,13 @@ public class TestHelper {
             if (metadataFile != null) {
                 String metadataTemplate =
                     Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
+                String metadata = metadataTemplate
+                    .replace("##zip_file_name##", zipFilename)
+                    .replace("##dcn1##", generateDcnNumber())
+                    .replace("##dcn2##", generateDcnNumber());
                 zos.putNextEntry(new ZipEntry("metadata.json"));
-                tokens.put("##zip_file_name##", zipFilename);
 
-                Pattern pattern = Pattern.compile("(" + String.join("|", tokens.keySet()) + ")");
-                Matcher matcher = pattern.matcher(metadataTemplate);
-                StringBuffer sb = new StringBuffer();
-
-                while (matcher.find()) {
-                    matcher.appendReplacement(sb, tokens.get(matcher.group(1)));
-                }
-
-                matcher.appendTail(sb);
-
-                zos.write(sb.toString().getBytes());
+                zos.write(metadata.getBytes());
                 zos.closeEntry();
             }
         }
