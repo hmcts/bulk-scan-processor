@@ -220,6 +220,21 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
+    public void should_record_validation_failure_when_document_control_numbers_are_duplicated() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/duplicated_dcns"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
+    @Test
     public void should_record_signature_failure_when_zip_contains_invalid_signature() throws Exception {
         // given
         processor.signatureAlg = "sha256withrsa";

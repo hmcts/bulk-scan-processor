@@ -36,6 +36,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingRe
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -78,6 +79,8 @@ public class BlobProcessorTask extends Processor {
 
     protected final ContainerMappings containerMappings;
 
+    private final OcrValidator ocrValidator;
+
     @Autowired
     public BlobProcessorTask(
         BlobManager blobManager,
@@ -86,11 +89,13 @@ public class BlobProcessorTask extends Processor {
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
+        OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.notificationsQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
+        this.ocrValidator = ocrValidator;
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -103,6 +108,7 @@ public class BlobProcessorTask extends Processor {
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
+        OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
         String publicKeyDerFilename
@@ -114,6 +120,7 @@ public class BlobProcessorTask extends Processor {
             envelopeRepository,
             eventRepository,
             containerMappings,
+            ocrValidator,
             notificationsQueueHelper
         );
         this.signatureAlg = signatureAlg;
@@ -278,6 +285,7 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
+            this.ocrValidator.assertIsValid(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
