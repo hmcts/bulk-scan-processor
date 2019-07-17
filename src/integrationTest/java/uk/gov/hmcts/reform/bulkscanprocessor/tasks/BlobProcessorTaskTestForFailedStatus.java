@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_SIGNATURE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
@@ -295,6 +296,22 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // then
         errorWasSent(filenameForDuplicate, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(envelopeRepository.findAll()).hasSize(1);
+    }
+
+    @Test
+    public void should_record_validation_failure_when_zip_very_long_property_value() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/too_long_dcn"));
+        // will cause:
+        // DataException: could not execute statement
+        // PSQLException: ERROR: value too long for type character varying(100)
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_FAILURE);
     }
 
     private void eventsWereCreated(Event event1, Event event2) {
