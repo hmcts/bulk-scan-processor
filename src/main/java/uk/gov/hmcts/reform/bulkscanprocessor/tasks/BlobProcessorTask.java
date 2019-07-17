@@ -6,7 +6,6 @@ import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -23,7 +21,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumberException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -299,21 +296,6 @@ public class BlobProcessorTask extends Processor {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
             return null;
-        } catch (DataIntegrityViolationException ex) {
-            // only report on constraint violations
-            if (ex.getCause() instanceof ConstraintViolationException) {
-                handleConstraintViolation(
-                    containerName,
-                    zipFilename,
-                    leaseId,
-                    (ConstraintViolationException) ex.getCause()
-                );
-            } else { // act same as before: `Exception` case
-                log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
-                handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
-            }
-
-            return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
@@ -332,37 +314,6 @@ public class BlobProcessorTask extends Processor {
             Status.NOTIFICATION_SENT,
             Status.COMPLETED
         ).contains(envelope.getStatus());
-    }
-
-    private void handleConstraintViolation(
-        String containerName,
-        String zipFilename,
-        String leaseId,
-        ConstraintViolationException exception
-    ) {
-        log.warn(
-            "Rejected file {} from container {} - DB constraint violation {}",
-            zipFilename,
-            containerName,
-            exception.getConstraintName(),
-            exception
-        );
-
-        if (exception.getConstraintName().equals("scannable_item_dcn")) {
-            handleInvalidFileError(
-                Event.FILE_VALIDATION_FAILURE,
-                containerName,
-                zipFilename,
-                leaseId,
-                // Exception is used to notify supplier. Cause is not informative enough
-                new DuplicateDocumentControlNumberException(
-                    "Received envelope with 'document_control_number' already present in the system",
-                    exception
-                )
-            );
-        } else {
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, exception);
-        }
     }
 
     private void handleInvalidFileError(
