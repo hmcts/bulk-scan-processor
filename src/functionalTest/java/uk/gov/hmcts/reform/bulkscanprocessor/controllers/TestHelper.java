@@ -151,7 +151,7 @@ public class TestHelper {
             for (String file : files) {
                 String dcn = generateDcnNumber();
                 tokens.put("##" + file.replace(".pdf", "") + "##", dcn);
-                zos.putNextEntry(new ZipEntry(dcn + ".pdf"));
+                zos.putNextEntry(new ZipEntry(file));
                 zos.write(Resources.toByteArray(Resources.getResource(file)));
                 zos.closeEntry();
             }
