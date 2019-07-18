@@ -1,20 +1,20 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.fasterxml.jackson.databind.node.TextNode;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
-import uk.gov.hmcts.reform.bulkscanprocessor.helper.StaticLogAppender;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
@@ -46,6 +46,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
 @RunWith(MockitoJUnitRunner.class)
 public class OcrValidatorTest {
 
+    @Rule
+    public OutputCapture outputCapture = new OutputCapture();
+
     @Mock private OcrValidationClient client;
     @Mock private ContainerMappings containerMappings;
     @Mock private AuthTokenGenerator authTokenGenerator;
@@ -60,10 +63,14 @@ public class OcrValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        StaticLogAppender.clearEvents();
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         this.ocrValidator = new OcrValidator(client, containerMappings, authTokenGenerator);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        outputCapture.flush();
     }
 
     @Test
@@ -226,10 +233,7 @@ public class OcrValidatorTest {
         ocrValidator.assertIsValid(envelope);
 
         // then
-        assertThat(StaticLogAppender.getEvents()).hasSize(1);
-        ILoggingEvent logEvent = StaticLogAppender.getEvents().get(0);
-        assertThat(logEvent.getLevel()).isEqualTo(Level.WARN);
-        assertThat(logEvent.getMessage()).contains("Multiple documents with OCR");
+        assertThat(outputCapture.toString()).contains("Multiple documents with OCR");
     }
 
     private InputOcrData sampleOcr() {

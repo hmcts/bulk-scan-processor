@@ -1,7 +1,0 @@
-<configuration>
-  <appender name="static-appender" class="uk.gov.hmcts.reform.bulkscanprocessor.helper.StaticLogAppender" />
-
-  <root level="trace">
-    <appender-ref ref="static-appender" />
-  </root>
-</configuration>
