@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureExcep
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -55,6 +56,7 @@ public class FailedDocUploadProcessor extends Processor {
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
         ContainerMappings containerMappings, // NOSONAR
+        OcrValidator ocrValidator, // NOSONAR
         ServiceBusHelper serviceBusHelper, // NOSONAR
         String signatureAlg,
         String publicKeyDerFilename
