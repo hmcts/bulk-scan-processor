@@ -44,6 +44,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.File;
 import java.util.List;
@@ -102,6 +103,9 @@ public class EnvelopeControllerTest {
     private DocumentManagementService documentManagementService;
 
     @Mock
+    private OcrValidator ocrValidator;
+
+    @Mock
     private ServiceBusHelper serviceBusHelper;
 
     @Autowired
@@ -151,6 +155,7 @@ public class EnvelopeControllerTest {
             envelopeRepository,
             processEventRepository,
             containerMappings,
+            ocrValidator,
             serviceBusHelper,
             "none",
             "none"

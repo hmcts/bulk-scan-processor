@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.File;
 import java.util.List;
@@ -83,6 +84,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected DocumentManagementService documentManagementService;
 
     @Mock
+    protected OcrValidator ocrValidator;
+
+    @Mock
     protected ServiceBusHelper serviceBusHelper;
 
     protected CloudBlobContainer testContainer;
@@ -117,6 +121,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             envelopeRepository,
             processEventRepository,
             containerMappings,
+            ocrValidator,
             serviceBusHelper,
             SIGNATURE_ALGORITHM,
             DEFAULT_PUBLIC_KEY_BASE64
@@ -193,6 +198,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             EnvelopeRepository envelopeRepository,
             ProcessEventRepository processEventRepository,
             ContainerMappings containerMappings,
+            OcrValidator ocrValidator,
             ServiceBusHelper serviceBusHelper,
             String signatureAlg,
             String publicKeyBase64
