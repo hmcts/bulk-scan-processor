@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.helper.StaticLogAppender;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
@@ -57,6 +60,7 @@ public class OcrValidatorTest {
 
     @Before
     public void setUp() throws Exception {
+        StaticLogAppender.clearEvents();
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         this.ocrValidator = new OcrValidator(client, containerMappings, authTokenGenerator);
@@ -202,6 +206,30 @@ public class OcrValidatorTest {
         // then
         assertThat(err).isNull();
         verify(client).validate(any(), any(), any());
+    }
+
+    @Test
+    public void should_log_a_warning_if_more_than_one_doc_has_ocr() {
+        // given
+        InputEnvelope envelope = envelope(
+            PO_BOX,
+            asList(
+                doc("form", sampleOcr()),
+                doc("other", null),
+                doc("other", sampleOcr()) // second document with OCR
+            )
+        );
+
+        given(containerMappings.getMappings()).willReturn(emptyList());
+
+        // when
+        ocrValidator.assertIsValid(envelope);
+
+        // then
+        assertThat(StaticLogAppender.getEvents()).hasSize(1);
+        ILoggingEvent logEvent = StaticLogAppender.getEvents().get(0);
+        assertThat(logEvent.getLevel()).isEqualTo(Level.WARN);
+        assertThat(logEvent.getMessage()).contains("Multiple documents with OCR");
     }
 
     private InputOcrData sampleOcr() {

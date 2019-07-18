@@ -47,9 +47,9 @@ public class OcrValidator {
 
     public void assertIsValid(InputEnvelope envelope) {
         Optionals.ifAllPresent(
-            findValidationUrl(envelope.poBox),
             findDocWithOcr(envelope),
-            (validationUrl, docWithOcr) ->
+            findValidationUrl(envelope.poBox),
+            (docWithOcr, validationUrl) ->
                 Try
                     .of(() -> client.validate(
                         validationUrl,
