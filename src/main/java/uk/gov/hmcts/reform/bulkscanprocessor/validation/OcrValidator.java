@@ -120,12 +120,13 @@ public class OcrValidator {
                 .filter(it -> it.ocrData != null)
                 .collect(toList());
         if (docsWithOcr.size() > 1) {
-            log.warn(
+            log.error(
                 "Multiple documents with OCR in envelope. File name: {}. Jurisdiction: {}. DCNs: {}",
                 envelope.zipFileName,
                 envelope.jurisdiction,
                 docsWithOcr.stream().map(doc -> doc.documentControlNumber).collect(joining(", "))
             );
+            // just log an error so that we get a notification, but continue
         }
         return docsWithOcr.stream().findFirst();
     }
