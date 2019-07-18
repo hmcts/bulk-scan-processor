@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -119,7 +120,12 @@ public class OcrValidator {
                 .filter(it -> it.ocrData != null)
                 .collect(toList());
         if (docsWithOcr.size() > 1) {
-            log.warn("Multiple documents with OCR in envelope. File name: {}", envelope.zipFileName);
+            log.warn(
+                "Multiple documents with OCR in envelope. File name: {}. Jurisdiction: {}. DCNs: {}",
+                envelope.zipFileName,
+                envelope.jurisdiction,
+                docsWithOcr.stream().map(doc -> doc.documentControlNumber).collect(joining(", "))
+            );
         }
         return docsWithOcr.stream().findFirst();
     }
