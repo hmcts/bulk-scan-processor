@@ -287,7 +287,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         // and given
         String filenameForDuplicate = "DUP" + SAMPLE_ZIP_FILE_NAME;
-        byte[] duplicateZipBytes = zipDir("zipcontents/duplicate_cdn_with_ok");
+        byte[] duplicateZipBytes = zipDir("zipcontents/ok");
         uploadToBlobStorage(filenameForDuplicate, duplicateZipBytes);
 
         // when
