@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import org.apache.commons.io.Charsets;
 import org.junit.Test;
@@ -125,17 +126,18 @@ public class ReadEnvelopesControllerTest {
             .andExpect(status().is(400));
     }
 
-    private List<EnvelopeResponse> envelopesInDb() throws Exception {
-        Envelope envelope = EnvelopeCreator.envelope("BULKSCAN", Status.PROCESSED);
+    private List<EnvelopeResponse> envelopesInDb() {
+        Envelope envelope = EnvelopeCreator.envelope(
+            "BULKSCAN",
+            Status.PROCESSED,
+            // by default they are random UUID. need to be specific so the field by field comparison passes
+            // it is controller behaviour test after-all
+            EnvelopeCreator.scannableItems(
+                ImmutableList.of("1111001", "1111002").iterator()
+            )
+        );
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
-        // todo: make this better :(
-        envelope.getScannableItems().forEach(item -> {
-            if (item.getOcrData() == null) {
-                item.setDocumentControlNumber("1111001");
-            } else {
-                item.setDocumentControlNumber("1111002");
-            }
-        });
+
         return singletonList(EnvelopeResponseMapper.toEnvelopeResponse(envelope));
     }
 

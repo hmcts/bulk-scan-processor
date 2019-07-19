@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -148,11 +149,11 @@ public final class EnvelopeCreator {
         return envelope("SSCS", Status.NOTIFICATION_SENT);
     }
 
-    private static List<ScannableItem> scannableItems() {
+    public static List<ScannableItem> scannableItems(Iterator<String> dcnFeed) {
         Instant timestamp = getInstant();
 
         ScannableItem scannableItem1 = new ScannableItem(
-            randomUUID().toString(),
+            dcnFeed.hasNext() ? dcnFeed.next() : randomUUID().toString(),
             timestamp,
             "test",
             "test",
@@ -167,7 +168,7 @@ public final class EnvelopeCreator {
         scannableItem1.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
 
         ScannableItem scannableItem2 = new ScannableItem(
-            randomUUID().toString(),
+            dcnFeed.hasNext() ? dcnFeed.next() : randomUUID().toString(),
             timestamp,
             "test",
             "test",
@@ -182,6 +183,10 @@ public final class EnvelopeCreator {
         scannableItem2.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
 
         return ImmutableList.of(scannableItem1, scannableItem2);
+    }
+
+    private static List<ScannableItem> scannableItems() {
+        return scannableItems(Collections.emptyIterator());
     }
 
     private static OcrData ocrData(Map<String, String> data) {
