@@ -1,13 +1,16 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
@@ -43,6 +46,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
 @RunWith(MockitoJUnitRunner.class)
 public class OcrValidatorTest {
 
+    @Rule
+    public OutputCapture outputCapture = new OutputCapture();
+
     @Mock private OcrValidationClient client;
     @Mock private ContainerMappings containerMappings;
     @Mock private AuthTokenGenerator authTokenGenerator;
@@ -60,6 +66,11 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         this.ocrValidator = new OcrValidator(client, containerMappings, authTokenGenerator);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        outputCapture.flush();
     }
 
     @Test
@@ -202,6 +213,27 @@ public class OcrValidatorTest {
         // then
         assertThat(err).isNull();
         verify(client).validate(any(), any(), any());
+    }
+
+    @Test
+    public void should_log_a_warning_if_more_than_one_doc_has_ocr() {
+        // given
+        InputEnvelope envelope = envelope(
+            PO_BOX,
+            asList(
+                doc("form", sampleOcr()),
+                doc("other", null),
+                doc("other", sampleOcr()) // second document with OCR
+            )
+        );
+
+        given(containerMappings.getMappings()).willReturn(emptyList());
+
+        // when
+        ocrValidator.assertIsValid(envelope);
+
+        // then
+        assertThat(outputCapture.toString()).contains("Multiple documents with OCR");
     }
 
     private InputOcrData sampleOcr() {
