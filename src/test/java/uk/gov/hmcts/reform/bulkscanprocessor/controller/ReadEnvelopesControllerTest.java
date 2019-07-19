@@ -128,6 +128,14 @@ public class ReadEnvelopesControllerTest {
     private List<EnvelopeResponse> envelopesInDb() throws Exception {
         Envelope envelope = EnvelopeCreator.envelope("BULKSCAN", Status.PROCESSED);
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
+        // todo: make this better :(
+        envelope.getScannableItems().forEach(item -> {
+            if (item.getOcrData() == null) {
+                item.setDocumentControlNumber("1111001");
+            } else {
+                item.setDocumentControlNumber("1111002");
+            }
+        });
         return singletonList(EnvelopeResponseMapper.toEnvelopeResponse(envelope));
     }
 
