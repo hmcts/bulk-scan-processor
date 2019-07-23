@@ -6,7 +6,7 @@ plugins {
   id 'io.spring.dependency-management' version '1.0.8.RELEASE'
   id 'org.flywaydb.flyway' version '5.2.4'
   id 'org.springframework.boot' version '2.1.6.RELEASE'
-  id 'org.owasp.dependencycheck' version '5.1.1'
+  id 'org.owasp.dependencycheck' version '5.2.0'
   id 'com.github.ben-manes.versions' version '0.21.0'
   id 'org.sonarqube' version '2.7.1'
 }
@@ -239,7 +239,7 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
 
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
-  compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-2'
+  compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
 
   compile group: 'org.apache.commons', name: 'commons-csv', version: '1.7'
 
