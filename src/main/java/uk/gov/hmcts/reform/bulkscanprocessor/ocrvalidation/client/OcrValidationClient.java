@@ -11,8 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Vali
 @Component
 public class OcrValidationClient {
 
-    public static final String PATH = "/forms/{form-type}/validate-ocr";
-
     private final RestTemplate restTemplate;
 
     public OcrValidationClient(RestTemplate restTemplate) {
@@ -26,7 +24,7 @@ public class OcrValidationClient {
         String url =
             UriComponentsBuilder
                 .fromHttpUrl(baseUrl)
-                .path(PATH)
+                .path("/forms/{form-type}/validate-ocr")
                 .buildAndExpand(formData.type)
                 .toString();
 
