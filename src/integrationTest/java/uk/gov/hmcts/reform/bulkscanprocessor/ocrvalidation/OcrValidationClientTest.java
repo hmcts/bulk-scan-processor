@@ -65,7 +65,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        ValidationResponse res = client.validate(url(), sampleFormData("D8"), s2sToken);
+        ValidationResponse res = client.validate(url(), sampleFormData(), "D8", s2sToken);
 
         // then
         assertThat(res.status).isEqualTo(Status.ERRORS);
@@ -90,7 +90,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        ValidationResponse res = client.validate(url(), sampleFormData("A1"), s2sToken);
+        ValidationResponse res = client.validate(url(), sampleFormData(), "A1", s2sToken);
 
         // then
         assertThat(res.status).isEqualTo(Status.SUCCESS);
@@ -115,7 +115,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        ValidationResponse res = client.validate(url(), sampleFormData("XY"), s2sToken);
+        ValidationResponse res = client.validate(url(), sampleFormData(), "XY", s2sToken);
 
         // then
         assertThat(res.status).isEqualTo(Status.WARNINGS);
@@ -135,16 +135,17 @@ public class OcrValidationClientTest {
             stubFor(post(urlPathMatching("/forms/.*/validate-ocr")).willReturn(cfg.getLeft()));
 
             // when
-            Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData("X"), randomUUID().toString()));
+            Throwable err = catchThrowable(
+                () -> client.validate(url(), sampleFormData(), "X", randomUUID().toString())
+            );
 
             // then
             assertThat(err).isInstanceOf(cfg.getRight());
         });
     }
 
-    private FormData sampleFormData(String type) {
+    private FormData sampleFormData() {
         return new FormData(
-            type,
             asList(
                 new OcrDataField("name1", "value1"),
                 new OcrDataField("name2", "value2")
