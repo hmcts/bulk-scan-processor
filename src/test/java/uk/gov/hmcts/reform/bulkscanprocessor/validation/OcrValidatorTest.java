@@ -236,6 +236,27 @@ public class OcrValidatorTest {
         assertThat(outputCapture.toString()).contains("Multiple documents with OCR");
     }
 
+    @Test
+    public void should_log_info_when_ocr_is_present_but_theres_not_service_configured_to_validate_it() {
+        // given
+        InputEnvelope envelope = envelope(
+            PO_BOX,
+            asList(
+                doc("form", sampleOcr()),
+                doc("other", null)
+            )
+        );
+
+        given(containerMappings.getMappings()).willReturn(emptyList());
+
+        // when
+        ocrValidator.assertIsValid(envelope);
+
+        // then
+        assertThat(outputCapture.toString())
+            .contains("OCR validation for po box " + envelope.poBox + " not configured");
+    }
+
     private InputOcrData sampleOcr() {
         InputOcrData data = new InputOcrData();
         data.setFields(asList(

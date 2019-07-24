@@ -103,13 +103,19 @@ public class OcrValidator {
     }
 
     private Optional<String> findValidationUrl(String poBox) {
-        return containerMappings
+        Optional<String> validationUrl = containerMappings
             .getMappings()
             .stream()
             .filter(mapping -> Objects.equals(mapping.getPoBox(), poBox))
             .findFirst()
             .map(mapping -> mapping.getOcrValidationUrl())
             .filter(url -> !Strings.isNullOrEmpty(url));
+
+        if (!validationUrl.isPresent()) {
+            log.info("OCR validation for po box {} not configured", poBox);
+        }
+
+        return validationUrl;
     }
 
     private Optional<InputScannableItem> findDocWithOcr(InputEnvelope envelope) {
