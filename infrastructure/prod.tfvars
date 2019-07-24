@@ -19,3 +19,5 @@ blob_processing_delay_in_minutes = "30"
 smtp_host = "smtp.office365.com"
 
 incomplete_envelopes_enabled = "true"
+
+ocr_validation_url_bulkscan_sample_app = "https://bulk-scan-sample-app-prod.service.core-compute-prod.internal"
