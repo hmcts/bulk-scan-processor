@@ -17,7 +17,12 @@ public class OcrValidationClient {
         this.restTemplate = restTemplate;
     }
 
-    public ValidationResponse validate(String baseUrl, FormData formData, String s2sToken) {
+    public ValidationResponse validate(
+        String baseUrl,
+        FormData formData,
+        String formType,
+        String s2sToken
+    ) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("ServiceAuthorization", "Bearer " + s2sToken);
 
@@ -25,7 +30,7 @@ public class OcrValidationClient {
             UriComponentsBuilder
                 .fromHttpUrl(baseUrl)
                 .path("/forms/{form-type}/validate-ocr")
-                .buildAndExpand(formData.type)
+                .buildAndExpand(formType)
                 .toString();
 
         return restTemplate.postForObject(

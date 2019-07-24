@@ -55,6 +55,7 @@ public class OcrValidator {
                     .of(() -> client.validate(
                         validationUrl,
                         toFormData(docWithOcr),
+                        docWithOcr.documentSubtype,
                         authTokenGenerator.generate()
                     ))
                     .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))
@@ -139,7 +140,6 @@ public class OcrValidator {
 
     private FormData toFormData(InputScannableItem doc) {
         return new FormData(
-            doc.documentSubtype,
             doc
                 .ocrData
                 .getFields()
