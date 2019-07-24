@@ -26,6 +26,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.unauthorized;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,7 @@ public class OcrValidationClientTest {
         // given
         String s2sToken = randomUUID().toString();
         stubFor(
-            post("/validate-ocr")
+            post(urlPathMatching("/forms/D8/validate-ocr"))
                 .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
                 .willReturn(okJson(jsonify(
                     "      {"
@@ -64,7 +65,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        ValidationResponse res = client.validate(url(), sampleFormData(), s2sToken);
+        ValidationResponse res = client.validate(url(), sampleFormData("D8"), s2sToken);
 
         // then
         assertThat(res.status).isEqualTo(Status.ERRORS);
@@ -77,7 +78,7 @@ public class OcrValidationClientTest {
         // given
         String s2sToken = randomUUID().toString();
         stubFor(
-            post("/validate-ocr")
+            post(urlPathMatching("/forms/A1/validate-ocr"))
                 .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
                 .willReturn(okJson(jsonify(
                     "      {"
@@ -89,7 +90,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        ValidationResponse res = client.validate(url(), sampleFormData(), s2sToken);
+        ValidationResponse res = client.validate(url(), sampleFormData("A1"), s2sToken);
 
         // then
         assertThat(res.status).isEqualTo(Status.SUCCESS);
@@ -102,7 +103,7 @@ public class OcrValidationClientTest {
         // given
         String s2sToken = randomUUID().toString();
         stubFor(
-            post("/validate-ocr")
+            post(urlPathMatching("/forms/XY/validate-ocr"))
                 .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
                 .willReturn(okJson(jsonify(
                     "      {"
@@ -114,7 +115,7 @@ public class OcrValidationClientTest {
         );
 
         // when
-        ValidationResponse res = client.validate(url(), sampleFormData(), s2sToken);
+        ValidationResponse res = client.validate(url(), sampleFormData("XY"), s2sToken);
 
         // then
         assertThat(res.status).isEqualTo(Status.WARNINGS);
@@ -131,19 +132,19 @@ public class OcrValidationClientTest {
             Pair.of(unauthorized(), HttpClientErrorException.Unauthorized.class)
         ).forEach(cfg -> {
             // given
-            stubFor(post("/validate-ocr").willReturn(cfg.getLeft()));
+            stubFor(post(urlPathMatching("/forms/.*/validate-ocr")).willReturn(cfg.getLeft()));
 
             // when
-            Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData(), randomUUID().toString()));
+            Throwable err = catchThrowable(() -> client.validate(url(), sampleFormData("X"), randomUUID().toString()));
 
             // then
             assertThat(err).isInstanceOf(cfg.getRight());
         });
     }
 
-    private FormData sampleFormData() {
+    private FormData sampleFormData(String type) {
         return new FormData(
-            "type",
+            type,
             asList(
                 new OcrDataField("name1", "value1"),
                 new OcrDataField("name2", "value2")
@@ -152,7 +153,7 @@ public class OcrValidationClientTest {
     }
 
     private String url() {
-        return "http://localhost:" + wiremockOptions.portNumber() + "/validate-ocr";
+        return "http://localhost:" + wiremockOptions.portNumber();
     }
 
     private String jsonify(String str) {
