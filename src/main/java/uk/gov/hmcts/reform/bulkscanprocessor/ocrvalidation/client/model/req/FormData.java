@@ -6,17 +6,10 @@ import java.util.List;
 
 public class FormData {
 
-    @JsonProperty("form_type")
-    public final String type;
-
     @JsonProperty("ocr_data_fields")
     public final List<OcrDataField> ocrDataFields;
 
-    public FormData(
-        String type,
-        List<OcrDataField> ocrDataFields
-    ) {
-        this.type = type;
+    public FormData(List<OcrDataField> ocrDataFields) {
         this.ocrDataFields = ocrDataFields;
     }
 }

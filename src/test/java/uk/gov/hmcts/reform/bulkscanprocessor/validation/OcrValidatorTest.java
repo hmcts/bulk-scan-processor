@@ -93,15 +93,14 @@ public class OcrValidatorTest {
                 new Mapping("container", "jurisdiction", PO_BOX, url)
             ));
 
-        given(client.validate(eq(url), any(), any()))
+        given(client.validate(eq(url), any(), any(), any()))
             .willReturn(new ValidationResponse(Status.SUCCESS, emptyList(), emptyList()));
 
         // when
         ocrValidator.assertIsValid(envelope);
 
         // then
-        verify(client).validate(eq(url), argCaptor.capture(), eq(S2S_TOKEN));
-        assertThat(argCaptor.getValue().type).isEqualTo(subtype);
+        verify(client).validate(eq(url), argCaptor.capture(), eq(subtype), eq(S2S_TOKEN));
         assertThat(argCaptor.getValue().ocrDataFields)
             .extracting(it -> tuple(it.name, it.value))
             .containsExactlyElementsOf(
@@ -130,7 +129,7 @@ public class OcrValidatorTest {
         ocrValidator.assertIsValid(envelope);
 
         // then
-        verify(client, never()).validate(any(), any(), any());
+        verify(client, never()).validate(any(), any(), any(), any());
     }
 
     @Test
@@ -153,7 +152,7 @@ public class OcrValidatorTest {
         ocrValidator.assertIsValid(envelope);
 
         // then
-        verify(client, never()).validate(any(), any(), any());
+        verify(client, never()).validate(any(), any(), any(), any());
     }
 
     @Test
@@ -174,7 +173,7 @@ public class OcrValidatorTest {
                 new Mapping("container", "jurisdiction", PO_BOX, url)
             ));
 
-        given(client.validate(eq(url), any(), any()))
+        given(client.validate(eq(url), any(), any(), any()))
             .willReturn(new ValidationResponse(Status.ERRORS, emptyList(), singletonList("Error!")));
 
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
@@ -205,14 +204,14 @@ public class OcrValidatorTest {
                 new Mapping("c", "j", envelope.poBox, "https://example.com")
             ));
 
-        given(client.validate(any(), any(), any())).willThrow(new RuntimeException());
+        given(client.validate(any(), any(), any(), any())).willThrow(new RuntimeException());
 
         // when
         Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
 
         // then
         assertThat(err).isNull();
-        verify(client).validate(any(), any(), any());
+        verify(client).validate(any(), any(), any(), any());
     }
 
     @Test
