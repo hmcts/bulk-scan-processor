@@ -148,44 +148,43 @@ public final class EnvelopeCreator {
         return envelope("SSCS", Status.NOTIFICATION_SENT);
     }
 
-    private static List<ScannableItem> scannableItems() {
+    public static ScannableItem scannableItem(
+        String dcn,
+        OcrData ocr,
+        DocumentType documentType,
+        String documentSubtype
+    ) {
         Instant timestamp = getInstant();
 
-        ScannableItem scannableItem1 = new ScannableItem(
-            randomUUID().toString(),
+        return new ScannableItem(
+            dcn,
             timestamp,
             "test",
             "test",
             "return",
             timestamp,
-            null,
-            "1111001.pdf",
+            ocr,
+            dcn + ".pdf",
             "test",
-            DocumentType.CHERISHED,
-            null
+            documentType,
+            documentSubtype
         );
-        scannableItem1.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
-
-        ScannableItem scannableItem2 = new ScannableItem(
-            randomUUID().toString(),
-            timestamp,
-            "test",
-            "test",
-            "return",
-            timestamp,
-            ocrData(ImmutableMap.of("name1", "value1")),
-            "1111002.pdf",
-            "test",
-            DocumentType.OTHER,
-            DocumentSubtype.SSCS1
-        );
-        scannableItem2.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
-
-        return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
-    private static OcrData ocrData(Map<String, String> data) {
-        OcrData ocrData = new OcrData(data
+    private static List<ScannableItem> scannableItems() {
+        return ImmutableList.of(
+            scannableItem(randomUUID().toString(), null, DocumentType.CHERISHED, null),
+            scannableItem(
+                randomUUID().toString(),
+                ocrData(ImmutableMap.of("name1", "value1")),
+                DocumentType.OTHER,
+                DocumentSubtype.SSCS1
+            )
+        );
+    }
+
+    public static OcrData ocrData(Map<String, String> data) {
+        return new OcrData(data
             .entrySet()
             .stream()
             .map(
@@ -193,8 +192,6 @@ public final class EnvelopeCreator {
             )
             .collect(Collectors.toList())
         );
-
-        return ocrData;
     }
 
     private static List<NonScannableItem> nonScannableItems() {

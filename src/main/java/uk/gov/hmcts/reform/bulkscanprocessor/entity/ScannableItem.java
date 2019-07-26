@@ -101,11 +101,6 @@ public class ScannableItem implements EnvelopeAssignable {
         return documentControlNumber;
     }
 
-    // TODO. fix the test which uses this method then remove it
-    public void setDocumentControlNumber(String documentControlNumber) {
-        this.documentControlNumber = documentControlNumber;
-    }
-
     public Instant getScanningDate() {
         return scanningDate;
     }
