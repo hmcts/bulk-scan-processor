@@ -141,7 +141,8 @@
           "document_type",
           "next_action",
           "next_action_date"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "payments": {
@@ -206,7 +207,8 @@
               "payment_instrument_number",
               "sort_code",
               "account_number"
-            ]
+            ],
+            "additionalProperties": false
           },
           {
             "properties": {
@@ -256,7 +258,8 @@
               "amount",
               "currency",
               "payment_instrument_number"
-            ]
+            ],
+            "additionalProperties": false
           },
           {
             "properties": {
@@ -305,7 +308,8 @@
               "method",
               "amount",
               "currency"
-            ]
+            ],
+            "additionalProperties": false
           }
         ]
       }
@@ -340,7 +344,8 @@
         "required": [
           "document_control_number",
           "item_type"
-        ]
+        ],
+        "additionalProperties": false
       }
     }
   },
