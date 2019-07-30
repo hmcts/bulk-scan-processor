@@ -114,7 +114,7 @@ public class OcrValidator {
             .filter(url -> !Strings.isNullOrEmpty(url));
 
         if (!validationUrl.isPresent()) {
-            log.info("OCR validation for po box {} not configured", poBox);
+            log.info("OCR validation URL for po box {} not configured. Skipping validation.", poBox);
         }
 
         return validationUrl;
