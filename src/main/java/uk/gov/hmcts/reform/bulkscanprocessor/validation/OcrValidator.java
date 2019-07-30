@@ -68,6 +68,7 @@ public class OcrValidator {
         InputEnvelope envelope,
         InputScannableItem docWithOcr
     ) {
+        log.info("Validation result for envelope {}: {}", envelope.zipFileName, res.status);
         switch (res.status) {
             case ERRORS:
                 throw new OcrValidationException(
