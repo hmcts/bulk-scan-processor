@@ -20,6 +20,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ResourceUtils;
 
+import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
@@ -39,17 +40,8 @@ import static io.pactfoundation.consumer.dsl.LambdaDsl.newJsonBody;
 
 
 @ExtendWith(PactConsumerTestExt.class)
-@ExtendWith(SpringExtension.class)
 @PactTestFor(providerName = "ocr_validation_service", port = "8889")
-@TestPropertySource(
-    properties = {
-        "spring.mail.host=false"
-    }
-)
-@ActiveProfiles({
-    Profiles.SERVICE_BUS_STUB,
-    Profiles.STORAGE_STUB
-})
+@IntegrationTest
 @SpringBootTest(properties = {
     "ocr_validation_service: localhost:8889",
     "ocr_validation_service.api.url: localhost:8889"
