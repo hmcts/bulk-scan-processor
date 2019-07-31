@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidStatusChangeException;
 

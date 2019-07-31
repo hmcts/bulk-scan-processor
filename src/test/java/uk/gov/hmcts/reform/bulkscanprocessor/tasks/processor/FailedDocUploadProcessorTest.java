@@ -1,12 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -20,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FailedDocUploadProcessorTest {
 
     @Rule
@@ -40,7 +39,7 @@ public class FailedDocUploadProcessorTest {
 
     private FailedDocUploadProcessor processor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         processor = new FailedDocUploadProcessor(
             null,
@@ -49,11 +48,6 @@ public class FailedDocUploadProcessorTest {
             envelopeRepository,
             processEventRepository
         );
-    }
-
-    @After
-    public void tearDown() {
-        outputCapture.flush();
     }
 
     @Test

@@ -3,11 +3,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.Message;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ProcessedEnvelopeNotificationHandlerTest {
 
     private static final String DEAD_LETTER_REASON_PROCESSING_ERROR = "Message processing error";
@@ -38,7 +38,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
 
     private ProcessedEnvelopeNotificationHandler handler;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         handler = new ProcessedEnvelopeNotificationHandler(
             envelopeFinaliserService,

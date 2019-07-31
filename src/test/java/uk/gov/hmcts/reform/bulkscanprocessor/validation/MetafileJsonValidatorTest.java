@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
@@ -18,7 +18,7 @@ public class MetafileJsonValidatorTest {
 
     private MetafileJsonValidator validator;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException, ProcessingException {
         validator = new MetafileJsonValidator();
     }

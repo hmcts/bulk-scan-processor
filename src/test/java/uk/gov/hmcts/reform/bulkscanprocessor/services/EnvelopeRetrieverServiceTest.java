@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataRetrievalFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EnvelopeRetrieverServiceTest {
 
     @Mock
@@ -34,7 +34,7 @@ public class EnvelopeRetrieverServiceTest {
     @Mock
     private EnvelopeAccessService envelopeAccess;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         envelopeRetrieverService = new EnvelopeRetrieverService(envelopeRepository, envelopeAccess);
     }

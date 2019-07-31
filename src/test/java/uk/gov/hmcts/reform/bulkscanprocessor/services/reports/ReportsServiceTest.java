@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
@@ -33,7 +33,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService.TEST_CONTAINER;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReportsServiceTest {
 
     @Mock private EnvelopeCountSummaryRepository repo;
@@ -42,7 +42,7 @@ public class ReportsServiceTest {
 
     private ReportsService service;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.service = new ReportsService(this.repo, zeroRowFiller, zipFilesSummaryRepo);
     }
