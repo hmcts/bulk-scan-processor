@@ -9,6 +9,7 @@ plugins {
   id 'org.owasp.dependencycheck' version '5.2.0'
   id 'com.github.ben-manes.versions' version '0.21.0'
   id 'org.sonarqube' version '2.7.1'
+  id 'au.com.dius.pact' version '3.5.24'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -53,6 +54,15 @@ sourceSets {
     }
     resources.srcDir file('src/apiGatewayTest/resources')
   }
+
+  testContract {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/consumerDrivenContractTest/java')
+    }
+    resources.srcDir file('src/consumerDrivenContractTest/resources')
+  }
 }
 
 tasks.withType(JavaCompile) {
@@ -73,7 +83,7 @@ task integration(type: Test, description: 'Runs the integration tests.', group: 
   classpath = sourceSets.integrationTest.runtimeClasspath
 
   // set your environment variables here
-   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 
   testLogging {
     exceptionFormat = 'full'
@@ -90,6 +100,28 @@ task apiGateway(type: Test) {
   description = "Runs API Gateway Tests"
   testClassesDirs = sourceSets.apiGatewayTest.output.classesDirs
   classpath = sourceSets.apiGatewayTest.runtimeClasspath
+}
+
+task runProviderPactTests(type: Test) {
+  description = "Runs Contract Tests"
+  testClassesDirs = sourceSets.testContract.output.classesDirs
+  classpath = sourceSets.testContract.runtimeClasspath
+}
+
+task runConsumerPactTests(type: Test) {
+  description = "Runs Contract Tests"
+  
+  testClassesDirs = sourceSets.testContract.output.classesDirs
+  classpath = sourceSets.testContract.runtimeClasspath
+}
+
+pact {
+  publish {
+    pactDirectory = 'target/pacts'
+    pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?:'http://localhost:80'
+    tags = [System.getenv("PACT_BRANCH_NAME") ?:'ConsumerDrivenTest']
+    version = project.pactVersion
+  }
 }
 
 checkstyle {
@@ -248,6 +280,17 @@ dependencies {
   testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.10'
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
+  testContractCompile sourceSets.main.runtimeClasspath
+  testContractCompile sourceSets.test.runtimeClasspath
+  testContractCompile  group: 'au.com.dius', name: 'pact-jvm-provider-spring_2.12', version: '3.5.24'
+  testContractCompile group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: '3.5.24'
+  testContractCompile group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: '3.5.24'
+  testContractCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testContractCompile("org.junit.jupiter:junit-jupiter-api:5.3.2")
+  testContractRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+  testContractImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
+
+
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
   integrationTestCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.1.1.RELEASE'
@@ -306,4 +349,3 @@ test {
     exceptionFormat = 'full'
   }
 }
-

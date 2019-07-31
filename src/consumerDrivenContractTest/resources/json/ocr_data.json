@@ -1,0 +1,16 @@
+{
+  "ocr_data_fields": [
+    {
+      "name": "first_name",
+      "value": "John"
+    },
+    {
+      "name": "last_name",
+      "value": "Smith"
+    },
+    {
+      "name": "date_of_birth",
+      "value": "2000-10-10"
+    }
+  ]
+}
