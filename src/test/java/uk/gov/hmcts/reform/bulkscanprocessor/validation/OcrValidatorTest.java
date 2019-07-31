@@ -253,7 +253,7 @@ public class OcrValidatorTest {
 
         // then
         assertThat(outputCapture.toString())
-            .contains("OCR validation for po box " + envelope.poBox + " not configured");
+            .contains("OCR validation URL for po box " + envelope.poBox + " not configured");
     }
 
     private InputOcrData sampleOcr() {
