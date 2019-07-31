@@ -116,12 +116,14 @@ task runProviderPactTests(type: Test) {
   description = "Runs Contract Tests"
   testClassesDirs = sourceSets.testContract.output.classesDirs
   classpath = sourceSets.testContract.runtimeClasspath
+  useJUnitPlatform()
 }
 
 task runConsumerPactTests(type: Test) {
   description = "Runs Contract Tests"
   testClassesDirs = sourceSets.testContract.output.classesDirs
   classpath = sourceSets.testContract.runtimeClasspath
+  useJUnitPlatform()
 }
 
 pact {
