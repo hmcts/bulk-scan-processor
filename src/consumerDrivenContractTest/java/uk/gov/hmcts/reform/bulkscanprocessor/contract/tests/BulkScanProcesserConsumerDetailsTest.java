@@ -7,6 +7,7 @@ import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.model.RequestResponsePact;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,15 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ResourceUtils;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
+import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
@@ -87,7 +85,7 @@ public class BulkScanProcesserConsumerDetailsTest {
     @PactTestFor(pactMethod = "executePostSubmissionOfOcrDataWithSuccessPact")
     public void verifyExecutePostSubmissionWithSuccessPact() throws Exception {
 
-        ValidationResponse res = client.validate("localhost:8889", getOcrData("ocr_data.json"), "PERSONAL", s2sToken);
+        ValidationResponse res = client.validate("http://localhost:8889", getOcrData("ocr_data.json"), "PERSONAL", s2sToken);
         assertThat(res.status,equalTo(Status.SUCCESS));
 
     }
@@ -104,9 +102,16 @@ public class BulkScanProcesserConsumerDetailsTest {
 
 
     private FormData getOcrData(String fileName) throws JSONException, IOException {
-        File file = getFile(fileName);
-        FormData ocrData = objectMapper.readValue(file, FormData.class);
-        return ocrData;
+        return new FormData(
+            ImmutableList.of(
+                new OcrDataField("first_name", "John"),
+                new OcrDataField("last_name", "Smith"),
+                new OcrDataField("date_of_birth", "2000-10-10")
+            )
+        );
+//        File file = getFile(fileName);
+//        FormData ocrData = objectMapper.readValue(file, FormData.class);
+//        return ocrData;
     }
 
 }
