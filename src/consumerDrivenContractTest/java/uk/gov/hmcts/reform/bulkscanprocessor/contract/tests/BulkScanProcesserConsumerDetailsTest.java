@@ -84,7 +84,8 @@ public class BulkScanProcesserConsumerDetailsTest {
     public void verifyExecutePostSubmissionWithSuccessPact() throws Exception {
 
         ValidationResponse res = client.validate("localhost:8889", getOcrData("ocr_data.json"), "PERSONAL", s2sToken);
-        assertThat(res.status).isEqualTo(Status.SUCCESS);
+        assertThat(res.status,equalTo(Status.SUCCESS));
+
     }
 
     private JSONObject createJsonObject(String fileName) throws JSONException, IOException {
