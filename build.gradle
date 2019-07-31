@@ -120,14 +120,13 @@ task runProviderPactTests(type: Test) {
 
 task runConsumerPactTests(type: Test) {
   description = "Runs Contract Tests"
-  
   testClassesDirs = sourceSets.testContract.output.classesDirs
   classpath = sourceSets.testContract.runtimeClasspath
 }
 
 pact {
   publish {
-    pactDirectory = 'target/pacts'
+    pactDirectory = 'build/reports/tests/runConsumerPactTests/*.html'
     pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?:'http://localhost:80'
     tags = [System.getenv("PACT_BRANCH_NAME") ?:'ConsumerDrivenTest']
     version = project.pactVersion
@@ -296,6 +295,7 @@ dependencies {
   testContractCompile group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: '3.5.24'
   testContractCompile group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: '3.5.24'
   testContractCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testContractCompile group: 'org.testcontainers', name: 'postgresql', version: '1.12.0'
   testContractCompile("org.junit.jupiter:junit-jupiter-api:5.3.2")
   testContractRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
   testContractImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
