@@ -59,6 +59,15 @@ tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror"
 }
 
+test {
+  failFast = true
+  useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
@@ -317,10 +326,3 @@ task migratePostgresDatabase(type: FlywayMigrateTask) {
     url = "jdbc:postgresql://${dburl}"
   }
 }
-
-test {
-  testLogging {
-    exceptionFormat = 'full'
-  }
-}
-
