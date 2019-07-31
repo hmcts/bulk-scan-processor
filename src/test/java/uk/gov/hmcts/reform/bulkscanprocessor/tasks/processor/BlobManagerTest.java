@@ -7,12 +7,12 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyState;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.LeaseStatus;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BlobManagerTest {
 
     private static final String INPUT_CONTAINER_NAME = "container-name";
@@ -68,7 +68,7 @@ public class BlobManagerTest {
     @Rule
     public OutputCapture outputCapture = new OutputCapture();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
     }

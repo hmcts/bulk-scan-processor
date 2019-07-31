@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;

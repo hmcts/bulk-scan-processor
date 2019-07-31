@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.blobstorage.MockBlob;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
@@ -23,13 +23,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.blobstorage.MockBlob.mockBlob;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CleanUpRejectedFilesTaskTest {
 
     @Mock private BlobManager blobManager;
     @Mock private CloudBlobContainer container;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         given(blobManager.listRejectedContainers()).willReturn(singletonList(container));
     }

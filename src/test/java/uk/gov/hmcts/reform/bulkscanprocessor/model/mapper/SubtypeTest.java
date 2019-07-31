@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
 import org.assertj.core.api.JUnitSoftAssertions;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;

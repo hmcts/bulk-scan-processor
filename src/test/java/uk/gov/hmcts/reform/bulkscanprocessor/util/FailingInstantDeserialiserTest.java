@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.util;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidDateFormatException;
 
 import java.io.IOException;

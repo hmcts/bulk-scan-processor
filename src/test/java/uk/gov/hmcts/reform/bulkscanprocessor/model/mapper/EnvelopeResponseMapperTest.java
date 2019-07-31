@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.ToStringComparator;
@@ -14,7 +14,7 @@ public class EnvelopeResponseMapperTest {
 
     private Envelope envelope;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         envelope = EnvelopeCreator.envelope();
     }

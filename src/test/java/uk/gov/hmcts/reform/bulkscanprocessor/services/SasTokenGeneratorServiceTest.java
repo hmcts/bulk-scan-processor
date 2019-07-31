@@ -6,10 +6,10 @@ import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.core.PathUtility;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
@@ -22,13 +22,13 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SasTokenGeneratorServiceTest {
 
     private AccessTokenProperties accessTokenProperties;
     private SasTokenGeneratorService tokenGeneratorService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws URISyntaxException {
         StorageCredentials storageCredentials = new StorageCredentialsAccountAndKey("testAccountName", "dGVzdGtleQ==");
 

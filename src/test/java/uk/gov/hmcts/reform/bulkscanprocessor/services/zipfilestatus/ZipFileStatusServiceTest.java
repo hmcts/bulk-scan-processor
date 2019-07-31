@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ZipFileStatusServiceTest {
 
     @Mock private ProcessEventRepository eventRepo;
@@ -34,7 +34,7 @@ public class ZipFileStatusServiceTest {
 
     private ZipFileStatusService service;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.service = new ZipFileStatusService(eventRepo, envelopeRepo);
     }

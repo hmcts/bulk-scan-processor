@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
@@ -19,7 +19,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.OTHER;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OcrPresenceValidatorTest {
 
     private final OcrPresenceValidator validator = new OcrPresenceValidator();

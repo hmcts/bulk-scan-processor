@@ -1,14 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotification;
@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ErrorNotificationServiceTest {
 
     @Rule
@@ -46,15 +46,10 @@ public class ErrorNotificationServiceTest {
 
     private ErrorNotificationService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         capture.reset();
         service = new ErrorNotificationService(client, repository, entityManager);
-    }
-
-    @After
-    public void tearDown() {
-        capture.flush();
     }
 
     @Test

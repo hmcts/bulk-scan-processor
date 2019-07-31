@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationService;
@@ -29,7 +29,7 @@ import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.willThrow;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ErrorNotificationHandlerTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -46,7 +46,7 @@ public class ErrorNotificationHandlerTest {
 
     private ErrorNotificationHandler handler;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         handler = new ErrorNotificationHandler(service, MAPPER, new MessageAutoCompletor(queueClient));
     }

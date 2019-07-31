@@ -2,11 +2,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RejectedEnvelopesReportServiceTest {
 
     @Mock private BlobManager blobManager;
@@ -30,7 +30,7 @@ public class RejectedEnvelopesReportServiceTest {
 
     private RejectedEnvelopesReportService service;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         given(blobManager.listRejectedContainers())
             .willReturn(asList(containerA, containerB));

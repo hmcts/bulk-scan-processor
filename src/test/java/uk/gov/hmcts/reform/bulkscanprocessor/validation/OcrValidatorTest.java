@@ -2,15 +2,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
@@ -48,7 +47,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OcrValidatorTest {
 
     private static final String VALIDATION_URL = "https://example.com/validate-ocr";
@@ -68,14 +67,9 @@ public class OcrValidatorTest {
 
     private OcrValidator ocrValidator;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.ocrValidator = new OcrValidator(client, presenceValidator, containerMappings, authTokenGenerator);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        outputCapture.flush();
     }
 
     @Test

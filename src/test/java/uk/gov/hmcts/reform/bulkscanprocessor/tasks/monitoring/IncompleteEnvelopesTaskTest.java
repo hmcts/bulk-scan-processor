@@ -1,17 +1,17 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.monitoring;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 
 import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IncompleteEnvelopesTaskTest {
 
     @Mock
@@ -19,7 +19,7 @@ public class IncompleteEnvelopesTaskTest {
 
     private IncompleteEnvelopesTask task;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         task = new IncompleteEnvelopesTask(envelopeRepository);
     }

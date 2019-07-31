@@ -3,11 +3,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationException;
@@ -25,7 +25,7 @@ import static org.mockito.BDDMockito.spy;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ErrorNotificationExceptionHandlerTest {
 
     @Mock
@@ -39,7 +39,7 @@ public class ErrorNotificationExceptionHandlerTest {
 
     private static final CompletableFuture<Void> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         handler = new ErrorNotificationExceptionHandler(new MessageAutoCompletor(client));
 
