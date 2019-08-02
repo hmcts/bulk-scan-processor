@@ -159,6 +159,17 @@ dependencyCheck {
   }
 }
 
+// it is important to specify logback classic and core packages explicitly as libraries like spring boot
+// enforces it's own (older) version which is not recommended.
+def versions = [
+  junit: '5.5.1',
+  junitPlatform: '1.5.1',
+  mockitoJupiter: '3.0.0',
+  springBoot: springBoot.class.package.implementationVersion,
+  springHystrix: '2.1.1.RELEASE',
+  springfoxSwagger: '2.9.2'
+]
+
 dependencyManagement {
   dependencies {
     dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.62'
@@ -169,6 +180,10 @@ dependencyManagement {
     // CVE-2019-12814
     dependencySet(group: 'com.fasterxml.jackson.core', version: '2.9.9.1') {
       entry 'jackson-databind'
+    }
+    // align with jupiter
+    dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
+      entry 'mockito-core'
     }
   }
 }
@@ -181,14 +196,6 @@ repositories {
     url "https://dl.bintray.com/hmcts/hmcts-maven"
   }
 }
-
-// it is important to specify logback classic and core packages explicitly as libraries like spring boot
-// enforces it's own (older) version which is not recommended.
-def versions = [
-  springBoot: springBoot.class.package.implementationVersion,
-  springHystrix: '2.1.1.RELEASE',
-  springfoxSwagger: '2.9.2'
-]
 
 ext["rest-assured.version"] = '4.0.0'
 
@@ -244,6 +251,13 @@ dependencies {
   compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
 
   compile group: 'org.apache.commons', name: 'commons-csv', version: '1.7'
+
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junit
+  testCompile group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
+  testCompile group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
+  testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'

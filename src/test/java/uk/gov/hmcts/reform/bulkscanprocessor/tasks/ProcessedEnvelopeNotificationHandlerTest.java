@@ -51,9 +51,12 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     public void should_call_envelope_finaliser_when_message_is_valid() {
         // given
         UUID envelopeId = UUID.randomUUID();
+        IMessage message = validMessage(envelopeId);
+
+        given(message.getLockToken()).willReturn(UUID.randomUUID());
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(validMessage(envelopeId));
+        CompletableFuture<Void> future = handler.onMessageAsync(message);
         future.join();
 
         // then
@@ -81,6 +84,8 @@ public class ProcessedEnvelopeNotificationHandlerTest {
         UUID envelopeId = UUID.randomUUID();
         IMessage message = validMessage(envelopeId);
 
+        given(message.getLockToken()).willReturn(UUID.randomUUID());
+
         // when
         CompletableFuture<Void> future = handler.onMessageAsync(message);
         future.join();
@@ -101,6 +106,8 @@ public class ProcessedEnvelopeNotificationHandlerTest {
 
         UUID envelopeId = UUID.randomUUID();
         IMessage message = validMessage(envelopeId);
+
+        given(message.getLockToken()).willReturn(UUID.randomUUID());
 
         // when
         CompletableFuture<Void> future = handler.onMessageAsync(message);
@@ -154,8 +161,6 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     private IMessage validMessage(UUID envelopeId) {
-        IMessage message = spy(new Message(String.format("{\"id\":\"%s\"}", envelopeId)));
-        given(message.getLockToken()).willReturn(UUID.randomUUID());
-        return message;
+        return spy(new Message(String.format("{\"id\":\"%s\"}", envelopeId)));
     }
 }

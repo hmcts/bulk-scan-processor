@@ -20,6 +20,7 @@ import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.SigningHelper.signWithSha256Rsa;
@@ -113,13 +114,16 @@ public class ZipVerifiersTest {
         assertThat(zis).isNotNull();
     }
 
-    @Test(expected = DocSignatureFailureException.class)
+    @Test
     public void should_not_verify_invalid_zip_successfully() throws Exception {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64, "hello.zip", "x"
         );
-        ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
+        assertThrows(
+            DocSignatureFailureException.class,
+            () -> ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig)
+        );
     }
 
     @Test
