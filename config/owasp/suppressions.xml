@@ -31,6 +31,12 @@
   </suppress>
 
   <suppress>
+    <notes><![CDATA[ used in output capturer in static tests ]]></notes>
+    <filePath regex="true">.*logunit-logback-1\.1\.0\.jar</filePath>
+    <cve>CVE-2017-5929</cve>
+  </suppress>
+
+  <suppress>
     <notes><![CDATA[
        file name: spring-cloud-contract-wiremock-2.1.1.jar.
        This is only used for TESTING purposes.
