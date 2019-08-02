@@ -14,6 +14,7 @@
 ### IntelliJ IDEA ###
 .idea
 /out
+/target
 *.iws
 *.iml
 *.ipr

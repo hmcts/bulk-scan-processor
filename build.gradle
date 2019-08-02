@@ -112,13 +112,6 @@ task apiGateway(type: Test) {
   classpath = sourceSets.apiGatewayTest.runtimeClasspath
 }
 
-task runProviderPactTests(type: Test) {
-  description = "Runs Contract Tests"
-  testClassesDirs = sourceSets.testContract.output.classesDirs
-  classpath = sourceSets.testContract.runtimeClasspath
-  useJUnitPlatform()
-}
-
 task runConsumerPactTests(type: Test) {
   description = "Runs Contract Tests"
   testClassesDirs = sourceSets.testContract.output.classesDirs
@@ -128,9 +121,9 @@ task runConsumerPactTests(type: Test) {
 
 pact {
   publish {
-    pactDirectory = 'build/reports/tests/runConsumerPactTests/*.html'
+    pactDirectory = 'target/pacts'
     pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?:'http://localhost:80'
-    tags = [System.getenv("PACT_BRANCH_NAME") ?:'ConsumerDrivenTest']
+    tags = [System.getenv("PACT_BRANCH_NAME") ?:'ConsumerDrivenContractTest']
     version = project.pactVersion
   }
 }
