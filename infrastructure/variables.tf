@@ -156,7 +156,7 @@ variable "allowed_client_certificate_thumbprints" {
 }
 
 variable "ocr_validation_url_bulkscan_sample_app" {
-  default = "https://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
+  default = "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
 }
 
 # The value of the parameter 'blob_lease_timeout' should be between 15 and 60 seconds.
