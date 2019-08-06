@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.util.Optionals;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
@@ -101,7 +102,10 @@ public class OcrValidator {
             envelope.zipFileName,
             exc
         );
-        // log error and proceed
+
+        if (exc instanceof NotFound) {
+            throw new OcrValidationException("Unrecognised document subtype " + docWithOcr.documentSubtype);
+        }
     }
 
     private Optional<String> findValidationUrl(String poBox) {
