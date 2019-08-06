@@ -29,7 +29,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService.TEST_CONTAINER;
@@ -46,8 +45,6 @@ public class ReportsServiceTest {
     @Before
     public void setUp() throws Exception {
         this.service = new ReportsService(this.repo, zeroRowFiller, zipFilesSummaryRepo);
-        when(this.zeroRowFiller.fill(any(), any()))
-            .thenAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
     }
 
     @Test
@@ -57,6 +54,8 @@ public class ReportsServiceTest {
                 new Item(now().plusDays(1), "A", 100, 1),
                 new Item(now().minusDays(1), "B", 200, 9)
             ));
+        given(this.zeroRowFiller.fill(any(), any()))
+            .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
 
         // when
         List<EnvelopeCountSummary> result = service.getCountFor(now(), false);
@@ -77,6 +76,8 @@ public class ReportsServiceTest {
                 new Item(now(), TEST_CONTAINER, 100, 1),
                 new Item(now(), "some_other_container", 10, 0)
             ));
+        given(this.zeroRowFiller.fill(any(), any()))
+            .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
 
         // when
         List<EnvelopeCountSummary> resultWithoutTestContainer = service.getCountFor(now(), false);
@@ -91,8 +92,9 @@ public class ReportsServiceTest {
 
     @Test
     public void should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
-        given(repo.getReportFor(now()))
-            .willReturn(emptyList());
+        given(repo.getReportFor(now())).willReturn(emptyList());
+        given(this.zeroRowFiller.fill(any(), any()))
+            .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
 
         // when
         List<EnvelopeCountSummary> result = service.getCountFor(now(), false);

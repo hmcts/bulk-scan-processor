@@ -64,8 +64,6 @@ public class OcrValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
-
         this.ocrValidator = new OcrValidator(client, containerMappings, authTokenGenerator);
     }
 
@@ -78,6 +76,18 @@ public class OcrValidatorTest {
     public void should_call_rest_client_with_correct_parameters() {
         // given
         String url = "https://example.com/validate-ocr";
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", PO_BOX, url)
+            ));
+
+        given(client.validate(eq(url), any(), any(), any()))
+            .willReturn(new ValidationResponse(Status.SUCCESS, emptyList(), emptyList()));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        // and
         String subtype = "sample_document_subtype";
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -88,14 +98,6 @@ public class OcrValidatorTest {
                 doc("other", null)
             )
         );
-
-        given(containerMappings.getMappings())
-            .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, url)
-            ));
-
-        given(client.validate(eq(url), any(), any(), any()))
-            .willReturn(new ValidationResponse(Status.SUCCESS, emptyList(), emptyList()));
 
         // when
         ocrValidator.assertIsValid(envelope);
@@ -238,6 +240,8 @@ public class OcrValidatorTest {
             ));
 
         given(client.validate(any(), any(), any(), any())).willThrow(new RuntimeException());
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // when
         Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
