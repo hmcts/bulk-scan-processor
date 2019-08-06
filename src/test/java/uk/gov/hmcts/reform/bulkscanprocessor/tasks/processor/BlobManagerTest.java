@@ -65,16 +65,6 @@ public class BlobManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        given(blobManagementProperties.getBlobLeaseTimeout()).willReturn(30000);
-        given(blobManagementProperties.getBlobCopyTimeoutInMillis()).willReturn(1000);
-        given(blobManagementProperties.getBlobCopyPollingDelayInMillis()).willReturn(50);
-
-        given(inputContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(inputBlob);
-        given(rejectedContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(rejectedBlob);
-
-        given(cloudBlobClient.getContainerReference(INPUT_CONTAINER_NAME)).willReturn(inputContainer);
-        given(cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainer);
-
         blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
     }
 
@@ -155,6 +145,13 @@ public class BlobManagerTest {
     @Test
     public void tryMoveFileToRejectedContainer_copies_and_deletes_original_blob() throws Exception {
         // given
+        given(blobManagementProperties.getBlobCopyTimeoutInMillis()).willReturn(1000);
+        given(inputContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(inputBlob);
+        given(rejectedContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(rejectedBlob);
+        given(cloudBlobClient.getContainerReference(INPUT_CONTAINER_NAME)).willReturn(inputContainer);
+        given(cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainer);
+
+        // and
         mockRejectedBlobToReturnCopyState(PENDING, SUCCESS);
 
         // when
@@ -168,6 +165,13 @@ public class BlobManagerTest {
     @Test
     public void tryMoveFileToRejectedContainer_does_not_delete_blob_when_copying_failed() throws Exception {
         // given
+        given(blobManagementProperties.getBlobCopyTimeoutInMillis()).willReturn(1000);
+        given(inputContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(inputBlob);
+        given(rejectedContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(rejectedBlob);
+        given(cloudBlobClient.getContainerReference(INPUT_CONTAINER_NAME)).willReturn(inputContainer);
+        given(cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainer);
+
+        // and
         mockRejectedBlobToReturnCopyState(PENDING, PENDING, FAILED);
 
         // when
@@ -182,6 +186,12 @@ public class BlobManagerTest {
     @Test
     public void tryMoveFileToRejectedContainer_does_not_delete_blob_when_copying_timed_out() throws Exception {
         // given
+        given(inputContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(inputBlob);
+        given(rejectedContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(rejectedBlob);
+        given(cloudBlobClient.getContainerReference(INPUT_CONTAINER_NAME)).willReturn(inputContainer);
+        given(cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainer);
+
+        // and
         mockRejectedBlobToReturnCopyState(PENDING);
 
         given(blobManagementProperties.getBlobCopyTimeoutInMillis()).willReturn(300);
