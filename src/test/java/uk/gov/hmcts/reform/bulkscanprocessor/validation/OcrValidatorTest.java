@@ -11,7 +11,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.rule.OutputCapture;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
