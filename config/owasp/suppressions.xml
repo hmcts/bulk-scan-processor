@@ -3,7 +3,7 @@
 
   <suppress>
     <notes><![CDATA[No fix is available]]></notes>
-    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.1\.5\.RELEASE$</gav>
+    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.1\.6\.RELEASE$</gav>
     <cve>CVE-2018-1258</cve>
   </suppress>
 
