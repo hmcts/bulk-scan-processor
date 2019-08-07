@@ -11,6 +11,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.rule.OutputCapture;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
@@ -188,6 +189,38 @@ public class OcrValidatorTest {
         assertThat(err)
             .isInstanceOf(OcrValidationException.class)
             .hasMessageContaining("Error!");
+    }
+
+    @Test
+    public void should_throw_an_exception_if_service_responded_with_404() {
+        // given
+        String url = "https://example.com/validate-ocr";
+        String subtype = "sample_document_subtype";
+        InputEnvelope envelope = envelope(
+            PO_BOX,
+            asList(
+                doc(subtype, sampleOcr()),
+                doc("other", null)
+            )
+        );
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", PO_BOX, url)
+            ));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        given(client.validate(any(), any(), any(), any()))
+            .willThrow(NotFound.class);
+
+        // when
+        Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
+
+
+        // then
+        assertThat(err)
+            .isInstanceOf(OcrValidationException.class);
     }
 
     @Test
