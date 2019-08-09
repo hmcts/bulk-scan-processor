@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
@@ -10,6 +11,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 import java.time.Instant;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
@@ -51,6 +54,9 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("ocr_data")
     private final List<OcrField> ocrData;
 
+    @JsonProperty("ocr_validation_warnings")
+    private final List<String> ocrValidationWarnings;
+
     private final boolean testOnly;
 
     public EnvelopeMsg(Envelope envelope) {
@@ -72,6 +78,7 @@ public class EnvelopeMsg implements Msg {
             .collect(toList());
 
         this.ocrData = retrieveOcrData(envelope);
+        this.ocrValidationWarnings = retrieveOcrValidationWarnings(envelope);
     }
 
     @Override
@@ -137,6 +144,17 @@ public class EnvelopeMsg implements Msg {
             + "testOnly='" + testOnly + "'"
             + "zipFileName='" + zipFileName + "'"
             + "}";
+    }
+
+    private List<String> retrieveOcrValidationWarnings(Envelope envelope) {
+        return envelope
+            .getScannableItems()
+            .stream()
+            .map(ScannableItem::getOcrValidationWarnings)
+            .filter(warnings -> warnings != null && warnings.length > 0)
+            .map(warnings -> asList(warnings))
+            .findFirst()
+            .orElse(emptyList());
     }
 
     private List<OcrField> retrieveOcrData(Envelope envelope) {
