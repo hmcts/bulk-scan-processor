@@ -149,7 +149,8 @@ public class EnvelopeFinaliserServiceTest {
                 "1111001.pdf",
                 "test",
                 DocumentType.CHERISHED,
-                null
+                null,
+                new String[]{"warning 1"}
             );
 
             scannableItem.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");

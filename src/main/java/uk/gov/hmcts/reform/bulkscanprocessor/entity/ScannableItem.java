@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
@@ -21,7 +23,10 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "scannable_items")
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@TypeDefs({
+    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class),
+    @TypeDef(name = "string-array", typeClass = StringArrayType.class)
+})
 public class ScannableItem implements EnvelopeAssignable {
 
     @Id
@@ -59,6 +64,10 @@ public class ScannableItem implements EnvelopeAssignable {
     @JoinColumn(name = "envelope_id", nullable = false)
     private Envelope envelope;
 
+    @Type(type = "string-array")
+    @Column(name = "validationWarnings", columnDefinition = "varchar[]")
+    private String[] ocrValidationWarnings;
+
     private ScannableItem() {
         // For use by hibernate.
     }
@@ -74,7 +83,8 @@ public class ScannableItem implements EnvelopeAssignable {
         String fileName,
         String notes,
         DocumentType documentType,
-        String documentSubtype
+        String documentSubtype,
+        String[] ocrValidationWarnings
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -87,6 +97,7 @@ public class ScannableItem implements EnvelopeAssignable {
         this.notes = notes;
         this.documentType = documentType;
         this.documentSubtype = documentSubtype;
+        this.ocrValidationWarnings = ocrValidationWarnings;
     }
 
     public UUID getId() {
@@ -152,5 +163,9 @@ public class ScannableItem implements EnvelopeAssignable {
     @Override
     public void setEnvelope(Envelope envelope) {
         this.envelope = envelope;
+    }
+
+    public String[] getOcrValidationWarnings() {
+        return ocrValidationWarnings;
     }
 }

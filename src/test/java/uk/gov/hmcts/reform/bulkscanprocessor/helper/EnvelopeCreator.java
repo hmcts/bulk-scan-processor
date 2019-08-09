@@ -167,7 +167,8 @@ public final class EnvelopeCreator {
             dcn + ".pdf",
             "test",
             documentType,
-            documentSubtype
+            documentSubtype,
+            new String[]{"warning 1"}
         );
     }
 

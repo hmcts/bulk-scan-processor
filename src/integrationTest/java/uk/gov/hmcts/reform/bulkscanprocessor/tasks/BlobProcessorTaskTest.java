@@ -193,6 +193,25 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
+    public void should_store_ocr_validation_warnings_in_the_envelope() throws Exception {
+        // given
+        List<String> ocrValidationWarnings = ImmutableList.of("warning 1", "warning 2");
+        given(ocrValidator.assertIsValid(any())).willReturn(ocrValidationWarnings);
+
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        Envelope envelope = getSingleEnvelopeFromDb();
+
+        assertThat(envelope.getScannableItems().size()).isEqualTo(1);
+        assertThat(envelope.getScannableItems().get(0).getOcrValidationWarnings())
+            .hasSameElementsAs(ocrValidationWarnings);
+    }
+
+    @Test
     public void should_keep_zip_file_after_unsuccessful_upload_and_not_create_doc_processed_event() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));

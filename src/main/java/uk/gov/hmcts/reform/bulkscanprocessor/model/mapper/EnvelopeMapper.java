@@ -36,7 +36,11 @@ public class EnvelopeMapper {
         // utility class
     }
 
-    public static Envelope toDbEnvelope(InputEnvelope envelope, String containerName) {
+    public static Envelope toDbEnvelope(
+        InputEnvelope envelope,
+        String containerName,
+        List<String> ocrValidationWarnings
+    ) {
         return new Envelope(
             envelope.poBox,
             envelope.jurisdiction,
@@ -47,25 +51,35 @@ public class EnvelopeMapper {
             envelope.caseNumber,
             envelope.previousServiceCaseReference,
             envelope.classification,
-            toDbScannableItems(envelope.scannableItems),
+            toDbScannableItems(envelope.scannableItems, ocrValidationWarnings),
             toDbPayments(envelope.payments),
             toDbNonScannableItems(envelope.nonScannableItems),
             containerName
         );
     }
 
-    private static List<ScannableItem> toDbScannableItems(List<InputScannableItem> scannableItems) {
+    private static List<ScannableItem> toDbScannableItems(
+        List<InputScannableItem> scannableItems,
+        List<String> ocrValidationWarnings
+    ) {
         if (scannableItems != null) {
             return scannableItems
                 .stream()
-                .map(EnvelopeMapper::toDbScannableItem)
+                .map(item ->
+                    toDbScannableItem(
+                        item,
+                        item.ocrData != null ? ocrValidationWarnings.toArray(new String[0]) : null
+                    ))
                 .collect(toList());
         } else {
             return emptyList();
         }
     }
 
-    public static ScannableItem toDbScannableItem(InputScannableItem scannableItem) {
+    public static ScannableItem toDbScannableItem(
+        InputScannableItem scannableItem,
+        String[] ocrValidationWarnings
+    ) {
         return new ScannableItem(
             scannableItem.documentControlNumber,
             scannableItem.scanningDate,
@@ -77,7 +91,8 @@ public class EnvelopeMapper {
             scannableItem.fileName,
             scannableItem.notes,
             mapDocumentType(scannableItem.documentType),
-            extractDocumentSubtype(scannableItem.documentType, scannableItem.documentSubtype)
+            extractDocumentSubtype(scannableItem.documentType, scannableItem.documentSubtype),
+            ocrValidationWarnings
         );
     }
 

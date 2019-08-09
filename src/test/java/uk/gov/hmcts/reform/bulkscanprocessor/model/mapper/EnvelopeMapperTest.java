@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +33,9 @@ public class EnvelopeMapperTest {
     public void should_map_zip_envelope_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile();
         String container = "container1";
+        List<String> ocrValidationWarnings = Arrays.asList("warning 1", "warning 2");
 
-        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(
-            zipEnvelope,
-            container
-        );
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, ocrValidationWarnings);
 
         assertThat(dbEnvelope.getCaseNumber()).isEqualTo(zipEnvelope.caseNumber);
         assertThat(dbEnvelope.getPreviousServiceCaseReference()).isEqualTo(zipEnvelope.previousServiceCaseReference);
@@ -51,6 +50,7 @@ public class EnvelopeMapperTest {
         assertSamePayments(dbEnvelope, zipEnvelope);
         assertSameScannableItems(dbEnvelope, zipEnvelope);
         assertSameNonScannableItems(dbEnvelope, zipEnvelope);
+        assertOnlyScannableItemsWithOcrHaveWarnings(dbEnvelope, ocrValidationWarnings);
 
         // properties specific to DB envelope
         assertThat(dbEnvelope.getId()).isNull();
@@ -88,6 +88,20 @@ public class EnvelopeMapperTest {
             .extracting(this::convertToInputNonScannableItem)
             .usingFieldByFieldElementComparator()
             .containsAll(zipEnvelope.nonScannableItems);
+    }
+
+    private void assertOnlyScannableItemsWithOcrHaveWarnings(
+        Envelope dbEnvelope,
+        List<String> ocrValidationWarnings
+    ) {
+        for (ScannableItem scannableItem: dbEnvelope.getScannableItems()) {
+            if (scannableItem.getOcrData() != null) {
+                assertThat(scannableItem.getOcrValidationWarnings())
+                    .hasSameElementsAs(ocrValidationWarnings);
+            } else {
+                assertThat(scannableItem.getOcrValidationWarnings()).isNull();
+            }
+        }
     }
 
     private InputPayment convertToInputPayment(Payment dbPayment) {

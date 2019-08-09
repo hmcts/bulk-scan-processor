@@ -286,11 +286,14 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
-            this.ocrValidator.assertIsValid(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
-            result.setEnvelope(envelopeProcessor.saveEnvelope(toDbEnvelope(envelope, containerName)));
+            List<String> ocrValidationWarnings = this.ocrValidator.assertIsValid(envelope);
+
+            Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
+
+            result.setEnvelope(envelopeProcessor.saveEnvelope(dbEnvelope));
 
             return result;
         } catch (InvalidEnvelopeException ex) {

@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -47,8 +49,14 @@ public class OcrValidator {
     }
     //endregion
 
-    public void assertIsValid(InputEnvelope envelope) {
-        Optionals.ifAllPresent(
+    /**
+     * If required, validates the OCR data of the given envelope.
+     *
+     * @return List of warnings for valid OCR data, to be displayed to the caseworker
+     * @throws OcrValidationException if the OCR data is invalid
+     */
+    public List<String> assertIsValid(InputEnvelope envelope) {
+        Optional<List<String>> warnings = Optionals.mapIfAllPresent(
             findDocWithOcr(envelope),
             findValidationUrl(envelope.poBox),
             (docWithOcr, validationUrl) ->
@@ -61,7 +69,11 @@ public class OcrValidator {
                     ))
                     .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))
                     .onFailure(exc -> handleRestClientException(exc, validationUrl, envelope, docWithOcr))
+                    .map(response -> response.warnings)
+                    .getOrElseGet(exc -> singletonList("OCR validation was not performed due to errors"))
         );
+
+        return warnings.orElse(emptyList());
     }
 
     private void handleValidationResponse(

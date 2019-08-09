@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -113,6 +114,37 @@ public class OcrValidatorTest {
                     .map(it -> tuple(it.name.textValue(), it.value.textValue()))
                     .collect(toList())
             );
+    }
+
+    @Test
+    public void should_return_warnings_from_successful_validation_result() {
+        // given
+        String url = "https://example.com/validate-ocr";
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", PO_BOX, url)
+            ));
+
+        List<String> expectedWarnings = ImmutableList.of("warning 1", "warning 2");
+
+        given(client.validate(eq(url), any(), any(), any()))
+            .willReturn(new ValidationResponse(Status.SUCCESS, expectedWarnings, emptyList()));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            PO_BOX,
+            Classification.EXCEPTION,
+            asList(doc("subtype1", sampleOcr()))
+        );
+
+        // when
+        List<String> warnings = ocrValidator.assertIsValid(envelope);
+
+        // then
+        assertThat(warnings).isEqualTo(expectedWarnings);
     }
 
     @Test
@@ -244,10 +276,10 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // when
-        Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
+        List<String> warnings = ocrValidator.assertIsValid(envelope);
 
         // then
-        assertThat(err).isNull();
+        assertThat(warnings).containsExactly("OCR validation was not performed due to errors");
         verify(client).validate(any(), any(), any(), any());
     }
 
