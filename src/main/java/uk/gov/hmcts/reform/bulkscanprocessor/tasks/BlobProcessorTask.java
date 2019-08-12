@@ -37,6 +37,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -289,7 +290,7 @@ public class BlobProcessorTask extends Processor {
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
-            List<String> ocrValidationWarnings = this.ocrValidator.assertIsValid(envelope);
+            Optional<OcrValidationWarnings> ocrValidationWarnings = this.ocrValidator.assertOcrDataIsValid(envelope);
 
             Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
 

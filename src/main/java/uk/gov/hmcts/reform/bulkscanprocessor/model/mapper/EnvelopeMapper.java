@@ -15,9 +15,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -39,7 +42,7 @@ public class EnvelopeMapper {
     public static Envelope toDbEnvelope(
         InputEnvelope envelope,
         String containerName,
-        List<String> ocrValidationWarnings
+        Optional<OcrValidationWarnings> ocrValidationWarnings
     ) {
         return new Envelope(
             envelope.poBox,
@@ -60,7 +63,7 @@ public class EnvelopeMapper {
 
     private static List<ScannableItem> toDbScannableItems(
         List<InputScannableItem> scannableItems,
-        List<String> ocrValidationWarnings
+        Optional<OcrValidationWarnings> ocrValidationWarnings
     ) {
         if (scannableItems != null) {
             return scannableItems
@@ -68,12 +71,22 @@ public class EnvelopeMapper {
                 .map(item ->
                     toDbScannableItem(
                         item,
-                        item.ocrData != null ? ocrValidationWarnings.toArray(new String[0]) : null
+                        ocrValidationWarningsForItem(ocrValidationWarnings, item)
                     ))
                 .collect(toList());
         } else {
             return emptyList();
         }
+    }
+
+    private static String[] ocrValidationWarningsForItem(
+        Optional<OcrValidationWarnings> ocrValidationWarnings,
+        InputScannableItem scannableItem
+    ) {
+        return ocrValidationWarnings
+            .filter(w -> Objects.equals(w.documentControlNumber, scannableItem.documentControlNumber))
+            .map(w -> w.warnings.toArray(new String[0]))
+            .orElseGet(() -> new String[0]);
     }
 
     public static ScannableItem toDbScannableItem(

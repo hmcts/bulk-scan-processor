@@ -18,9 +18,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentEx
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -195,8 +197,12 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_store_ocr_validation_warnings_in_the_envelope() throws Exception {
         // given
-        List<String> ocrValidationWarnings = ImmutableList.of("warning 1", "warning 2");
-        given(ocrValidator.assertIsValid(any())).willReturn(ocrValidationWarnings);
+        OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
+            "1111002",
+            ImmutableList.of("warning 1", "warning 2")
+        );
+
+        given(ocrValidator.assertOcrDataIsValid(any())).willReturn(Optional.of(ocrValidationWarnings));
 
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
@@ -208,7 +214,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         assertThat(envelope.getScannableItems().size()).isEqualTo(1);
         assertThat(envelope.getScannableItems().get(0).getOcrValidationWarnings())
-            .hasSameElementsAs(ocrValidationWarnings);
+            .hasSameElementsAs(ocrValidationWarnings.warnings);
     }
 
     @Test

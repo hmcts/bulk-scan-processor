@@ -20,8 +20,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Collections.singletonList;
@@ -53,7 +55,12 @@ public class OcrDataSerializationJourneyTest {
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(
             inputEnvelope,
             "test",
-            singletonList("warning 1")
+            Optional.of(
+                new OcrValidationWarnings(
+                    inputEnvelope.scannableItems.get(0).documentControlNumber,
+                    singletonList("warning 1")
+                )
+            )
         );
 
         UUID envelopeId = repository.saveAndFlush(dbEnvelope).getId();

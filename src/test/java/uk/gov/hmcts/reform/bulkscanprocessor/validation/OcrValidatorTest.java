@@ -26,9 +26,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationC
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
@@ -101,7 +103,7 @@ public class OcrValidatorTest {
         );
 
         // when
-        ocrValidator.assertIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
         verify(client).validate(eq(url), argCaptor.capture(), eq(subtype), eq(S2S_TOKEN));
@@ -133,18 +135,21 @@ public class OcrValidatorTest {
 
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
+        InputScannableItem scannableItem = doc("subtype1", sampleOcr());
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
             PO_BOX,
             Classification.EXCEPTION,
-            asList(doc("subtype1", sampleOcr()))
+            asList(scannableItem)
         );
 
         // when
-        List<String> warnings = ocrValidator.assertIsValid(envelope);
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
-        assertThat(warnings).isEqualTo(expectedWarnings);
+        assertThat(warnings).isPresent();
+        assertThat(warnings.get().documentControlNumber).isEqualTo(scannableItem.documentControlNumber);
+        assertThat(warnings.get().warnings).isEqualTo(expectedWarnings);
     }
 
     @Test
@@ -161,7 +166,7 @@ public class OcrValidatorTest {
         given(containerMappings.getMappings()).willReturn(emptyList()); // url not configured
 
         // when
-        ocrValidator.assertIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
         verify(client, never()).validate(any(), any(), any(), any());
@@ -184,7 +189,7 @@ public class OcrValidatorTest {
             ));
 
         // when
-        ocrValidator.assertIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
         verify(client, never()).validate(any(), any(), any(), any());
@@ -214,7 +219,7 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // when
-        Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
+        Throwable err = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope));
 
 
         // then
@@ -247,7 +252,7 @@ public class OcrValidatorTest {
             .willThrow(NotFound.class);
 
         // when
-        Throwable err = catchThrowable(() -> ocrValidator.assertIsValid(envelope));
+        Throwable err = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope));
 
 
         // then
@@ -258,10 +263,11 @@ public class OcrValidatorTest {
     @Test
     public void should_continue_if_calling_validation_endpoint_fails() {
         // given
+        InputScannableItem scannableItemWithOcr = doc("form", sampleOcr());
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
-                doc("form", sampleOcr()),
+                scannableItemWithOcr,
                 doc("other", null)
             )
         );
@@ -276,10 +282,12 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // when
-        List<String> warnings = ocrValidator.assertIsValid(envelope);
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
-        assertThat(warnings).containsExactly("OCR validation was not performed due to errors");
+        assertThat(warnings).isPresent();
+        assertThat(warnings.get().documentControlNumber).isEqualTo(scannableItemWithOcr.documentControlNumber);
+        assertThat(warnings.get().warnings).containsExactly("OCR validation was not performed due to errors");
         verify(client).validate(any(), any(), any(), any());
     }
 
@@ -298,7 +306,7 @@ public class OcrValidatorTest {
         given(containerMappings.getMappings()).willReturn(emptyList());
 
         // when
-        ocrValidator.assertIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
         assertThat(outputCapture.toString()).contains("Multiple documents with OCR");
@@ -318,7 +326,7 @@ public class OcrValidatorTest {
         given(containerMappings.getMappings()).willReturn(emptyList());
 
         // when
-        ocrValidator.assertIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
         assertThat(outputCapture.toString())
