@@ -65,7 +65,7 @@ public class ScannableItem implements EnvelopeAssignable {
     private Envelope envelope;
 
     @Type(type = "string-array")
-    @Column(name = "validationWarnings", columnDefinition = "varchar[]")
+    @Column(name = "ocrValidationWarnings", columnDefinition = "varchar[]")
     private String[] ocrValidationWarnings;
 
     private ScannableItem() {
