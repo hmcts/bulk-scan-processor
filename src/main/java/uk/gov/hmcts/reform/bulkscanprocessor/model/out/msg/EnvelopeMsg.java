@@ -9,7 +9,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -147,24 +149,28 @@ public class EnvelopeMsg implements Msg {
     }
 
     private List<String> retrieveOcrValidationWarnings(Envelope envelope) {
-        return envelope
-            .getScannableItems()
-            .stream()
-            .map(ScannableItem::getOcrValidationWarnings)
-            .filter(warnings -> warnings != null && warnings.length > 0)
-            .map(warnings -> asList(warnings))
+        return findScannableItemsWithOcrData(envelope)
+            .map(item ->
+                item.getOcrValidationWarnings() != null
+                    ? asList(item.getOcrValidationWarnings())
+                    : Collections.<String>emptyList()
+            )
             .findFirst()
             .orElse(emptyList());
     }
 
     private List<OcrField> retrieveOcrData(Envelope envelope) {
-        return envelope
-            .getScannableItems()
-            .stream()
-            .filter(si -> si.getOcrData() != null)
+        return findScannableItemsWithOcrData(envelope)
             .map(item -> convertFromInputOcrData(item.getOcrData()))
             .findFirst()
             .orElse(null);
+    }
+
+    private Stream<ScannableItem> findScannableItemsWithOcrData(Envelope envelope) {
+        return envelope
+            .getScannableItems()
+            .stream()
+            .filter(si -> si.getOcrData() != null);
     }
 
     private List<OcrField> convertFromInputOcrData(OcrData inputOcrData) {
