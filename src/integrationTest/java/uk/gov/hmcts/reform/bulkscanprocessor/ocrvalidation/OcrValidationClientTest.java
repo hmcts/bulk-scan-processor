@@ -54,7 +54,7 @@ public class OcrValidationClientTest {
         String s2sToken = randomUUID().toString();
         stubFor(
             post(urlPathMatching("/forms/D8/validate-ocr"))
-                .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
+                .withHeader("ServiceAuthorization", equalTo(s2sToken))
                 .willReturn(okJson(jsonify(
                     "      {"
                         + "  'status': 'ERRORS',"
@@ -79,7 +79,7 @@ public class OcrValidationClientTest {
         String s2sToken = randomUUID().toString();
         stubFor(
             post(urlPathMatching("/forms/A1/validate-ocr"))
-                .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
+                .withHeader("ServiceAuthorization", equalTo(s2sToken))
                 .willReturn(okJson(jsonify(
                     "      {"
                         + "  'status': 'SUCCESS',"
@@ -104,7 +104,7 @@ public class OcrValidationClientTest {
         String s2sToken = randomUUID().toString();
         stubFor(
             post(urlPathMatching("/forms/XY/validate-ocr"))
-                .withHeader("ServiceAuthorization", equalTo("Bearer " + s2sToken))
+                .withHeader("ServiceAuthorization", equalTo(s2sToken))
                 .willReturn(okJson(jsonify(
                     "      {"
                         + "  'status': 'WARNINGS',"
