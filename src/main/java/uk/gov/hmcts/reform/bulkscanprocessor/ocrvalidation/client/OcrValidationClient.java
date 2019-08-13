@@ -36,7 +36,7 @@ public class OcrValidationClient {
         String s2sToken
     ) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("ServiceAuthorization", "Bearer " + s2sToken);
+        headers.add("ServiceAuthorization", s2sToken);
 
         String url =
             UriComponentsBuilder
