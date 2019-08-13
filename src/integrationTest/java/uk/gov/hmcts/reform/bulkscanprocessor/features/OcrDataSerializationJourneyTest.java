@@ -20,9 +20,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.UUID;
+
+import static java.util.Collections.singletonList;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -48,7 +52,17 @@ public class OcrDataSerializationJourneyTest {
         AssertionsForInterfaceTypes.assertThat(inputEnvelope.scannableItems.get(0).ocrData)
             .isInstanceOf(InputOcrData.class);
 
-        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(inputEnvelope, "test");
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(
+            inputEnvelope,
+            "test",
+            Optional.of(
+                new OcrValidationWarnings(
+                    inputEnvelope.scannableItems.get(0).documentControlNumber,
+                    singletonList("warning 1")
+                )
+            )
+        );
+
         UUID envelopeId = repository.saveAndFlush(dbEnvelope).getId();
 
         Envelope readEnvelope = repository.getOne(envelopeId);

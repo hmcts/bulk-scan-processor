@@ -15,9 +15,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -32,11 +35,12 @@ public class EnvelopeMapperTest {
     public void should_map_zip_envelope_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile();
         String container = "container1";
-
-        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(
-            zipEnvelope,
-            container
+        OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
+            zipEnvelope.scannableItems.get(0).documentControlNumber,
+            Arrays.asList("warning 1", "warning 2")
         );
+
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.of(ocrValidationWarnings));
 
         assertThat(dbEnvelope.getCaseNumber()).isEqualTo(zipEnvelope.caseNumber);
         assertThat(dbEnvelope.getPreviousServiceCaseReference()).isEqualTo(zipEnvelope.previousServiceCaseReference);
@@ -51,6 +55,7 @@ public class EnvelopeMapperTest {
         assertSamePayments(dbEnvelope, zipEnvelope);
         assertSameScannableItems(dbEnvelope, zipEnvelope);
         assertSameNonScannableItems(dbEnvelope, zipEnvelope);
+        assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
 
         // properties specific to DB envelope
         assertThat(dbEnvelope.getId()).isNull();
@@ -88,6 +93,20 @@ public class EnvelopeMapperTest {
             .extracting(this::convertToInputNonScannableItem)
             .usingFieldByFieldElementComparator()
             .containsAll(zipEnvelope.nonScannableItems);
+    }
+
+    private void assertRightScannableItemsHaveWarnings(
+        Envelope dbEnvelope,
+        OcrValidationWarnings ocrValidationWarnings
+    ) {
+        for (ScannableItem scannableItem : dbEnvelope.getScannableItems()) {
+            if (scannableItem.getDocumentControlNumber().equals(ocrValidationWarnings.documentControlNumber)) {
+                assertThat(scannableItem.getOcrValidationWarnings())
+                    .hasSameElementsAs(ocrValidationWarnings.warnings);
+            } else {
+                assertThat(scannableItem.getOcrValidationWarnings()).isEmpty();
+            }
+        }
     }
 
     private InputPayment convertToInputPayment(Payment dbPayment) {

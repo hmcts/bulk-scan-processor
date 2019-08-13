@@ -17,11 +17,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationC
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -47,8 +50,15 @@ public class OcrValidator {
     }
     //endregion
 
-    public void assertIsValid(InputEnvelope envelope) {
-        Optionals.ifAllPresent(
+    /**
+     * If required, validates the OCR data of the given envelope.
+     *
+     * @return Warnings for valid OCR data, to be displayed to the caseworker. Empty if
+     *         no validation took place.
+     * @throws OcrValidationException if the OCR data is invalid
+     */
+    public Optional<OcrValidationWarnings> assertOcrDataIsValid(InputEnvelope envelope) {
+        return Optionals.mapIfAllPresent(
             findDocWithOcr(envelope),
             findValidationUrl(envelope.poBox),
             (docWithOcr, validationUrl) ->
@@ -61,6 +71,20 @@ public class OcrValidator {
                     ))
                     .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))
                     .onFailure(exc -> handleRestClientException(exc, validationUrl, envelope, docWithOcr))
+                    .map(response -> ocrValidationWarnings(docWithOcr, response.warnings))
+                    .getOrElseGet(exc ->
+                        ocrValidationWarnings(
+                            docWithOcr,
+                            singletonList("OCR validation was not performed due to errors")
+                        )
+                    )
+        );
+    }
+
+    private OcrValidationWarnings ocrValidationWarnings(InputScannableItem scannableItem, List<String> warnings) {
+        return new OcrValidationWarnings(
+            scannableItem.documentControlNumber,
+            warnings != null ? warnings : emptyList()
         );
     }
 

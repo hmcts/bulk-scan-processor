@@ -135,6 +135,10 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo(message.getZipFileName());
         assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
 
+        JsonNode ocrValidationWarnings = jsonNode.get("ocr_validation_warnings");
+        assertThat(ocrValidationWarnings.isArray()).isTrue();
+        assertThat(ocrValidationWarnings.elements()).containsExactly(new TextNode("warning 1"));
+
         assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
         assertDateField(jsonNode, "opening_date", message.getOpeningDate());
 
@@ -182,6 +186,7 @@ public class ServiceBusHelperTest {
         ));
 
         when(scannableItem1.getOcrData()).thenReturn(ocrData);
+        when(scannableItem1.getOcrValidationWarnings()).thenReturn(new String[]{"warning 1"});
 
         when(scannableItem2.getDocumentUuid()).thenReturn("documentUuid2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
