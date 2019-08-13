@@ -5,7 +5,6 @@ import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
 import au.com.dius.pact.model.RequestResponsePact;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,7 +45,7 @@ public class BulkScanProcesserConsumerDetailsTest {
     @Autowired
     private OcrValidationClient client;
 
-    @Pact(state = "Consumer POSTS valid ocrdata ", provider = "ocr_validation_service",
+    @Pact(state = "Consumer POSTS valid OCR data ", provider = "ocr_validation_service",
         consumer = "bulk_scan_processer_service")
     public RequestResponsePact executePostSubmissionOfOcrDataWithSuccessPact(PactDslWithProvider builder) throws
         IOException, JSONException {
@@ -61,7 +60,11 @@ public class BulkScanProcesserConsumerDetailsTest {
             .willRespondWith()
             .status(200)
             .matchHeader("Content-Type", "application/json")
-            .body(newJsonBody((o) -> {
+            .body(newJsonBody(o -> {
+                o.array("warnings",a -> {
+                    a.nullValue();});
+                o.array("errors",a -> {
+                    a.nullValue();});
                 o.stringValue("status", "SUCCESS");
             }).build())
             .toPact();

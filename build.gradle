@@ -93,7 +93,7 @@ task integration(type: Test, description: 'Runs the integration tests.', group: 
   classpath = sourceSets.integrationTest.runtimeClasspath
 
   // set your environment variables here
-  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+   environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 
   testLogging {
     exceptionFormat = 'full'
@@ -122,8 +122,8 @@ task runConsumerPactTests(type: Test) {
 pact {
   publish {
     pactDirectory = 'target/pacts'
-    pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?:'http://localhost:80'
-    tags = [System.getenv("PACT_BRANCH_NAME") ?:'ConsumerDrivenContractTest']
+    pactBrokerUrl = System.getenv("PACT_BROKER_FULL_URL") ?: 'http://localhost:80'
+    tags = [System.getenv("PACT_BRANCH_NAME") ?: 'ConsumerDrivenContractTest']
     version = project.pactVersion
   }
 }
@@ -288,13 +288,11 @@ dependencies {
 
   testContractCompile sourceSets.main.runtimeClasspath
   testContractCompile sourceSets.integrationTest.runtimeClasspath
-  testContractCompile  group: 'au.com.dius', name: 'pact-jvm-provider-spring_2.12', version: '3.5.24'
+  testContractCompile group: 'au.com.dius', name: 'pact-jvm-provider-spring_2.12', version: '3.5.24'
   testContractCompile group: 'au.com.dius', name: 'pact-jvm-consumer-junit5_2.12', version: '3.5.24'
-  testContractCompile group: 'au.com.dius', name: 'pact-jvm-consumer-java8_2.12', version: '3.5.24'
-  testContractCompile("org.junit.jupiter:junit-jupiter-api:5.3.2")
-  testContractRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
-  testContractImplementation('org.junit.jupiter:junit-jupiter-api:5.3.2')
-
+  testContractCompile group: 'au.com.dius',name: 'pact-jvm-consumer-java8_2.12', version: '3.5.24'
+  testContractCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
+  testContractRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
