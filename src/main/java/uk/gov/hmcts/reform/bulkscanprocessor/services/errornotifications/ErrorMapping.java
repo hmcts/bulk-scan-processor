@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundExceptio
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
 import java.util.Map;
@@ -37,6 +38,7 @@ public final class ErrorMapping {
             .put(OcrDataParseException.class, ERR_METAFILE_INVALID)
             .put(MetadataNotFoundException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(ContainerJurisdictionPoBoxMismatchException.class, ERR_METAFILE_INVALID)
+            .put(OcrValidationException.class, ERR_METAFILE_INVALID)
             .build();
 
     private ErrorMapping() {
