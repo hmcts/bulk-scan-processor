@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class EnvelopeProcessor {
             schemaValidator.validate(metadataStream, zipFileName);
 
             return schemaValidator.parseMetafile(metadataStream);
-        } catch (JsonParseException exception) {
+        } catch (JsonParseException | JsonMappingException exception) {
             // invalid json files should also be reported to provider
             throw new InvalidEnvelopeSchemaException("Error occurred while parsing metafile", exception);
         }
