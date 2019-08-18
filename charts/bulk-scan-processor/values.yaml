@@ -20,7 +20,6 @@ java:
       secretRef: storage-secret-${SERVICE_NAME}
       key: accessKey
   environment:
-    APPINSIGHTS_INSTRUMENTATIONKEY: aks-key
     POSTGRES_USER: bulkscanner
     POSTGRES_PASSWORD: bsppassword
     POSTGRES_DB: bulk_scan
