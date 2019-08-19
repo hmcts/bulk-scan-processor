@@ -213,7 +213,7 @@ dependencies {
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '2.5.0'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.3.0'
-  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.14', {
+  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.0.0', {
     exclude group: 'javax.mail', module: 'mail'
     exclude group: 'net.minidev', module: 'json-smart'
   }
