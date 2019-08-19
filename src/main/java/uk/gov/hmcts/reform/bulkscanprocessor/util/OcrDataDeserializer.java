@@ -22,11 +22,11 @@ public class OcrDataDeserializer extends StdDeserializer<InputOcrData> {
     public InputOcrData deserialize(
         JsonParser jsonParser,
         DeserializationContext deserializationContext
-    ) {
+    ) throws OcrDataParseException {
         try {
             return parseOcrData(jsonParser.getText());
         } catch (Exception ex) {
-            throw new OcrDataParseException("Failed to parse OCR data", ex);
+            throw new OcrDataParseException(jsonParser, "Failed to parse OCR data", ex);
         }
     }
 
