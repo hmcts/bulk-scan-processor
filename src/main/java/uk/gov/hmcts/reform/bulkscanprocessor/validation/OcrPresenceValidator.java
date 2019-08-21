@@ -23,9 +23,9 @@ public class OcrPresenceValidator {
      */
     public Optional<InputScannableItem> assertHasProperlySetOcr(List<InputScannableItem> docs) {
 
-        check(docs.stream().filter(it -> it.ocrData != null).count() > 1, MULTIPLE_OCR_MSG);
-        check(docs.stream().filter(it -> it.documentType != FORM).anyMatch(it -> it.ocrData != null), MISPLACED_OCR);
-        check(docs.stream().filter(it -> it.documentType == FORM).anyMatch(it -> it.ocrData == null), MISSING_OCR_MSG);
+        throwIf(docs.stream().filter(it -> it.ocrData != null).count() > 1, MULTIPLE_OCR_MSG);
+        throwIf(docs.stream().anyMatch(it -> it.documentType != FORM && it.ocrData != null), MISPLACED_OCR);
+        throwIf(docs.stream().anyMatch(it -> it.documentType == FORM && it.ocrData == null), MISSING_OCR_MSG);
 
         return docs
             .stream()
@@ -33,13 +33,9 @@ public class OcrPresenceValidator {
             .findFirst();
     }
 
-    private void check(boolean condition, String msg) {
+    private void throwIf(boolean condition, String msg) {
         if (condition) {
             throw new OcrPresenceException(msg);
         }
-    }
-
-    static class ErrorMessages {
-
     }
 }
