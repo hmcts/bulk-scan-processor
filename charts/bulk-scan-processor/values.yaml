@@ -2,22 +2,22 @@ java:
   applicationPort: 8581
   secrets:
     SB_CONN_STRING:
-      secretRef: servicebus-secret-namespace-${SERVICE_NAME}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: connectionString
     TEST_STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}
       key: storageAccountName
     TEST_STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
     TEST_STORAGE_CONTAINER_NAME:
-      secretRef: container-secret-${SERVICE_NAME}-bulkscan
+      secretRef: container-secret-{{ .Release.Name }}-bulkscan
       key: containerName
     STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}}
       key: storageAccountName
     STORAGE_KEY:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
   environment:
     POSTGRES_USER: bulkscanner
@@ -47,9 +47,7 @@ java:
       resourceGroup: rpe-service-auth-provider
       secrets:
         - microservicekey-bulk-scan-processor
-  # Don't modify below here
-  image: ${IMAGE_NAME}
-  ingressHost: ${SERVICE_FQDN}
+  image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 
 postgresql:
   postgresqlUsername: bulkscanner
