@@ -1,24 +1,5 @@
 java:
   applicationPort: 8581
-  secrets:
-    SB_CONN_STRING:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
-      key: connectionString
-    TEST_STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
-    TEST_STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
-    TEST_STORAGE_CONTAINER_NAME:
-      secretRef: container-secret-{{ .Release.Name }}-bulkscan
-      key: containerName
-    STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}}
-      key: storageAccountName
-    STORAGE_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
   environment:
     POSTGRES_USER: bulkscanner
     POSTGRES_PASSWORD: bsppassword
