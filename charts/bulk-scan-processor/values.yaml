@@ -36,8 +36,6 @@ postgresql:
   postgresqlDatabase: bulk_scan
   service:
     port: 5432
-  persistence:
-    enabled: false
 
 servicebus:
   resourceGroup: bulk-scan-aks
