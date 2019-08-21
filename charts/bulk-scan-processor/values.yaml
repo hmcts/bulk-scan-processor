@@ -23,12 +23,12 @@ java:
     POSTGRES_USER: bulkscanner
     POSTGRES_PASSWORD: bsppassword
     POSTGRES_DB: bulk_scan
-    BULK_SCANNING_DB_USER_NAME: bulkscanner
-    BULK_SCANNING_DB_PASSWORD: bsppassword
-    BULK_SCANNING_DB_NAME: bulk_scan
-    BULK_SCANNING_DB_HOST: ${SERVICE_NAME}-postgresql
+    BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.postgresqlUsername}}"
+    BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+    BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
+    BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
     BULK_SCANNING_DB_PORT: "5432"
-    FLYWAY_URL: "jdbc:postgresql://${SERVICE_NAME}-postgresql:5432/bulk_scan"
+    FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/bulk_scan"
     FLYWAY_USER: bulkscanner
     FLYWAY_PASSWORD: bsppassword
     FLYWAY_NOOP_STRATEGY: "false"
