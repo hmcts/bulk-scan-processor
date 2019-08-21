@@ -43,7 +43,7 @@ java:
     QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
   keyVaults:
-    "s2s":
+    s2s:
       resourceGroup: rpe-service-auth-provider
       secrets:
         - microservicekey-bulk-scan-processor
