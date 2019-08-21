@@ -65,7 +65,7 @@ public class OcrPresenceValidatorTest {
                 )
             ))
             .isInstanceOf(OcrPresenceException.class)
-            .hasMessage(OcrPresenceValidator.MISPLACED_OCR);
+            .hasMessage(OcrPresenceValidator.MISPLACED_OCR_MSG);
     }
 
     @Test
