@@ -88,7 +88,7 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_return_empty_optional_if_there_are_not_docs_with_ocr() {
+    public void should_return_empty_optional_if_there_are_no_docs_with_ocr() {
         // given
         List<InputScannableItem> docs =
             asList(
