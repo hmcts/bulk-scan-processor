@@ -89,7 +89,7 @@ withPipeline(type, product, component) {
   after('test') {
     builder.gradle('integration')
   }
-  enableDbMigration()
+  enableDbMigration('bulk-scan')
   enableSlackNotifications(channel)
   enableApiGatewayTest()
   enableDockerBuild()
