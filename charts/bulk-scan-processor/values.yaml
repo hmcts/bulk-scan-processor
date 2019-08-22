@@ -1,35 +1,15 @@
 java:
   applicationPort: 8581
-  secrets:
-    SB_CONN_STRING:
-      secretRef: servicebus-secret-namespace-${SERVICE_NAME}
-      key: connectionString
-    TEST_STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-${SERVICE_NAME}
-      key: storageAccountName
-    TEST_STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-${SERVICE_NAME}
-      key: accessKey
-    TEST_STORAGE_CONTAINER_NAME:
-      secretRef: container-secret-${SERVICE_NAME}-bulkscan
-      key: containerName
-    STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-${SERVICE_NAME}
-      key: storageAccountName
-    STORAGE_KEY:
-      secretRef: storage-secret-${SERVICE_NAME}
-      key: accessKey
   environment:
-    APPINSIGHTS_INSTRUMENTATIONKEY: aks-key
     POSTGRES_USER: bulkscanner
     POSTGRES_PASSWORD: bsppassword
     POSTGRES_DB: bulk_scan
-    BULK_SCANNING_DB_USER_NAME: bulkscanner
-    BULK_SCANNING_DB_PASSWORD: bsppassword
-    BULK_SCANNING_DB_NAME: bulk_scan
-    BULK_SCANNING_DB_HOST: ${SERVICE_NAME}-postgresql
+    BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.postgresqlUsername}}"
+    BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+    BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
+    BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
     BULK_SCANNING_DB_PORT: "5432"
-    FLYWAY_URL: "jdbc:postgresql://${SERVICE_NAME}-postgresql:5432/bulk_scan"
+    FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/bulk_scan"
     FLYWAY_USER: bulkscanner
     FLYWAY_PASSWORD: bsppassword
     FLYWAY_NOOP_STRATEGY: "false"
@@ -44,13 +24,11 @@ java:
     QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
   keyVaults:
-    "s2s":
+    s2s:
       resourceGroup: rpe-service-auth-provider
       secrets:
         - microservicekey-bulk-scan-processor
-  # Don't modify below here
-  image: ${IMAGE_NAME}
-  ingressHost: ${SERVICE_FQDN}
+  image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 
 postgresql:
   postgresqlUsername: bulkscanner
@@ -58,8 +36,6 @@ postgresql:
   postgresqlDatabase: bulk_scan
   service:
     port: 5432
-  persistence:
-    enabled: false
 
 servicebus:
   resourceGroup: bulk-scan-aks

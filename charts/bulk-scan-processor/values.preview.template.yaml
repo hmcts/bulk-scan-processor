@@ -1,0 +1,23 @@
+java:
+  secrets:
+    SB_CONN_STRING:
+      secretRef: servicebus-secret-namespace-${SERVICE_NAME}
+      key: connectionString
+    TEST_STORAGE_ACCOUNT_NAME:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: storageAccountName
+    TEST_STORAGE_ACCOUNT_KEY:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: accessKey
+    TEST_STORAGE_CONTAINER_NAME:
+      secretRef: container-secret-${SERVICE_NAME}-bulkscan
+      key: containerName
+    STORAGE_ACCOUNT_NAME:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: storageAccountName
+    STORAGE_KEY:
+      secretRef: storage-secret-${SERVICE_NAME}
+      key: accessKey
+  # Don't modify below here
+  image: ${IMAGE_NAME}
+  ingressHost: ${SERVICE_FQDN}
