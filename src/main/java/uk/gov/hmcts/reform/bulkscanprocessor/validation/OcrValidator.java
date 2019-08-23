@@ -35,16 +35,19 @@ public class OcrValidator {
     private static final Logger log = LoggerFactory.getLogger(OcrValidator.class);
 
     private final OcrValidationClient client;
+    private final OcrPresenceValidator presenceValidator;
     private final ContainerMappings containerMappings;
     private final AuthTokenGenerator authTokenGenerator;
 
     //region constructor
     public OcrValidator(
         OcrValidationClient client,
+        OcrPresenceValidator presenceValidator,
         ContainerMappings containerMappings,
         AuthTokenGenerator authTokenGenerator
     ) {
         this.client = client;
+        this.presenceValidator = presenceValidator;
         this.containerMappings = containerMappings;
         this.authTokenGenerator = authTokenGenerator;
     }
@@ -149,22 +152,7 @@ public class OcrValidator {
     }
 
     private Optional<InputScannableItem> findDocWithOcr(InputEnvelope envelope) {
-        List<InputScannableItem> docsWithOcr =
-            envelope
-                .scannableItems
-                .stream()
-                .filter(it -> it.ocrData != null)
-                .collect(toList());
-        if (docsWithOcr.size() > 1) {
-            log.error(
-                "Multiple documents with OCR in envelope. File name: {}. Jurisdiction: {}. DCNs: {}",
-                envelope.zipFileName,
-                envelope.jurisdiction,
-                docsWithOcr.stream().map(doc -> doc.documentControlNumber).collect(joining(", "))
-            );
-            // just log an error so that we get a notification, but continue
-        }
-        return docsWithOcr.stream().findFirst();
+        return presenceValidator.assertHasProperlySetOcr(envelope.scannableItems);
     }
 
     private FormData toFormData(InputScannableItem doc) {

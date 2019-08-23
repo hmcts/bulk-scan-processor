@@ -36,7 +36,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingRe
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrPresenceValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
@@ -81,8 +80,6 @@ public class BlobProcessorTask extends Processor {
 
     protected final ContainerMappings containerMappings;
 
-    private final OcrPresenceValidator ocrPresenceValidator;
-
     private final OcrValidator ocrValidator;
 
     @SuppressWarnings("squid:S00107")
@@ -94,14 +91,12 @@ public class BlobProcessorTask extends Processor {
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
-        OcrPresenceValidator ocrPresenceValidator,
         OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.notificationsQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
-        this.ocrPresenceValidator = ocrPresenceValidator;
         this.ocrValidator = ocrValidator;
     }
 
@@ -115,7 +110,6 @@ public class BlobProcessorTask extends Processor {
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
-        OcrPresenceValidator ocrPresenceValidator,
         OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
@@ -128,7 +122,6 @@ public class BlobProcessorTask extends Processor {
             envelopeRepository,
             eventRepository,
             containerMappings,
-            ocrPresenceValidator,
             ocrValidator,
             notificationsQueueHelper
         );
@@ -296,8 +289,6 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
-
-            ocrPresenceValidator.assertHasProperlySetOcr(envelope.scannableItems);
 
             Optional<OcrValidationWarnings> ocrValidationWarnings = this.ocrValidator.assertOcrDataIsValid(envelope);
 
