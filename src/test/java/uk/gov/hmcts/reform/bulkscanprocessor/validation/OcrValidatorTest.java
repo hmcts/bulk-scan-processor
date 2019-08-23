@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
@@ -58,6 +59,7 @@ public class OcrValidatorTest {
     public OutputCapture outputCapture = new OutputCapture();
 
     @Mock private OcrValidationClient client;
+    @Mock private OcrPresenceValidator presenceValidator;
     @Mock private ContainerMappings containerMappings;
     @Mock private AuthTokenGenerator authTokenGenerator;
 
@@ -68,12 +70,39 @@ public class OcrValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        this.ocrValidator = new OcrValidator(client, containerMappings, authTokenGenerator);
+        this.ocrValidator = new OcrValidator(client, presenceValidator, containerMappings, authTokenGenerator);
     }
 
     @After
     public void tearDown() throws Exception {
         outputCapture.flush();
+    }
+
+    @Test
+    public void should_validate_the_presence_of_ocr_data() {
+        // given
+        List<InputScannableItem> docs =
+            asList(
+                doc("other", sampleOcr()),
+                doc("other", null)
+            );
+        InputEnvelope envelope =
+            inputEnvelope(
+                "BULKSCAN",
+                PO_BOX,
+                Classification.EXCEPTION,
+                docs
+            );
+        given(presenceValidator.assertHasProperlySetOcr(docs))
+            .willThrow(new OcrPresenceException("msg"));
+
+        // when
+        Throwable exc = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(OcrPresenceException.class)
+            .hasMessage("msg");
     }
 
     @Test
@@ -92,22 +121,27 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // and
-        String subtype = "sample_document_subtype";
+        InputScannableItem docWithOcr = doc("sample_document_subtype", sampleOcr());
+        List<InputScannableItem> docs =
+            asList(
+                docWithOcr,
+                doc("other", null)
+            );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
             PO_BOX,
             Classification.EXCEPTION,
-            asList(
-                doc(subtype, sampleOcr()),
-                doc("other", null)
-            )
+            docs
         );
+        // and
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(docWithOcr));
 
         // when
         ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
-        verify(client).validate(eq(url), argCaptor.capture(), eq(subtype), eq(S2S_TOKEN));
+        verify(client).validate(eq(url), argCaptor.capture(), eq(docWithOcr.documentSubtype), eq(S2S_TOKEN));
         assertThat(argCaptor.getValue().ocrDataFields)
             .extracting(it -> tuple(it.name, it.value))
             .containsExactlyElementsOf(
@@ -137,6 +171,9 @@ public class OcrValidatorTest {
         InputScannableItem scannableItem = doc("subtype1", sampleOcr());
         InputEnvelope envelope = envelope(PO_BOX, asList(scannableItem));
 
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(scannableItem));
+
         // when
         Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
 
@@ -159,7 +196,10 @@ public class OcrValidatorTest {
 
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
-        InputEnvelope envelope = envelope(PO_BOX, asList(doc("subtype1", sampleOcr())));
+        InputEnvelope envelope = envelope(PO_BOX, asList(doc("z", sampleOcr())));
+
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(doc("z", sampleOcr())));
 
         // when
         Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
@@ -215,14 +255,16 @@ public class OcrValidatorTest {
     @Test
     public void should_throw_an_exception_if_service_responded_with_error_response() {
         // given
-        String subtype = "sample_document_subtype";
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
-                doc(subtype, sampleOcr()),
+                doc("y", sampleOcr()),
                 doc("other", null)
             )
         );
+
+        given(presenceValidator.assertHasProperlySetOcr(any()))
+            .willReturn(Optional.of(doc("y", sampleOcr())));
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
@@ -247,14 +289,16 @@ public class OcrValidatorTest {
     @Test
     public void should_throw_an_exception_if_service_responded_with_404() {
         // given
-        String subtype = "sample_document_subtype";
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
-                doc(subtype, sampleOcr()),
+                doc("x", sampleOcr()),
                 doc("other", null)
             )
         );
+
+        given(presenceValidator.assertHasProperlySetOcr(any()))
+            .willReturn(Optional.of(doc("x", sampleOcr())));
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
@@ -287,6 +331,9 @@ public class OcrValidatorTest {
             )
         );
 
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(scannableItemWithOcr));
+
         given(containerMappings.getMappings())
             .willReturn(singletonList(
                 new Mapping("c", "j", envelope.poBox, VALIDATION_URL)
@@ -304,27 +351,6 @@ public class OcrValidatorTest {
         assertThat(warnings.get().documentControlNumber).isEqualTo(scannableItemWithOcr.documentControlNumber);
         assertThat(warnings.get().warnings).containsExactly("OCR validation was not performed due to errors");
         verify(client).validate(any(), any(), any(), any());
-    }
-
-    @Test
-    public void should_log_a_warning_if_more_than_one_doc_has_ocr() {
-        // given
-        InputEnvelope envelope = envelope(
-            PO_BOX,
-            asList(
-                doc("form", sampleOcr()),
-                doc("other", null),
-                doc("other", sampleOcr()) // second document with OCR
-            )
-        );
-
-        given(containerMappings.getMappings()).willReturn(emptyList());
-
-        // when
-        ocrValidator.assertOcrDataIsValid(envelope);
-
-        // then
-        assertThat(outputCapture.toString()).contains("Multiple documents with OCR");
     }
 
     @Test
