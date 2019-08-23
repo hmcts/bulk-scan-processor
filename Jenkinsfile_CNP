@@ -13,34 +13,29 @@ def component = "processor"
 
 def channel = '#bsp-build-notices'
 
-def apiTestSecrets = [
-  'bulk-scan-${env}': [
-    // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
-    secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
-    secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
+List<LinkedHashMap<String, Object>> apiTestSecrets = [
+  // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
+  secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
+  secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
 
-    // Base64-encoded PKCS 12 key store containing private key and certificate known to the API, but expired
-    secret('test-expired-key-store', 'TEST_EXPIRED_KEY_STORE'),
-    secret('test-expired-key-store-password', 'TEST_EXPIRED_KEY_STORE_PASSWORD'),
+  // Base64-encoded PKCS 12 key store containing private key and certificate known to the API, but expired
+  secret('test-expired-key-store', 'TEST_EXPIRED_KEY_STORE'),
+  secret('test-expired-key-store-password', 'TEST_EXPIRED_KEY_STORE_PASSWORD'),
 
-    // Base64-encoded PKCS12 key store containing private key and certificate known to the API, but not yet valid
-    secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
-    secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
+  // Base64-encoded PKCS12 key store containing private key and certificate known to the API, but not yet valid
+  secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
+  secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
 
-    secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
+  secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
-    secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY')
-  ]
+  secret('test-storage-account-key', 'TEST_STORAGE_ACCOUNT_KEY')
 ]
 
-def commonSecrets = [
-  's2s-${env}': [
-    secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
-    secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
-  ],
-  'bulk-scan-${env}': [
-    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
-  ]
+
+List<LinkedHashMap<String, Object>> commonSecrets = [
+  secret('test-s2s-secret', 'TEST_S2S_SECRET'),
+  secret('s2s-secret', 'S2S_SECRET'),
+  secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER'),
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
@@ -89,7 +84,7 @@ withPipeline(type, product, component) {
   after('test') {
     builder.gradle('integration')
   }
-  enableDbMigration('bulk-scan')
+  enableDbMigration()
   enableSlackNotifications(channel)
   enableApiGatewayTest()
   enableDockerBuild()
@@ -102,4 +97,6 @@ withPipeline(type, product, component) {
   onNonPR() {
     loadVaultSecrets(commonSecrets + apiTestSecrets)
   }
+
+  setVaultName('bulk-scan')
 }
