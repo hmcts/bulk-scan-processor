@@ -3,7 +3,7 @@
 
 def channel = '#bsp-build-notices'
 
-def apiTestSecrets = [
+def secrets = [
   'bulk-scan-${env}': [
     // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
     secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
@@ -20,12 +20,8 @@ def apiTestSecrets = [
     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
     // Test private key used by third party supplier to sign zip files
-    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
-  ]
-]
+    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER'),
 
-def commonSecrets = [
-  'bulk-scan-${env}': [
     secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY')
   ],
   's2s-${env}': [
@@ -59,11 +55,5 @@ withParameterizedPipeline(params.TYPE, params.PRODUCT_NAME, params.APP, params.E
   enableSlackNotifications(channel)
   enableApiGatewayTest()
 
-  onPR() {
-    loadVaultSecrets(commonSecrets)
-  }
-
-  onNonPR() {
-    loadVaultSecrets(commonSecrets + apiTestSecrets)
-  }
+  loadVaultSecrets(secrets)
 }
