@@ -56,17 +56,6 @@ postgresql:
   service:
     port: 5432
 
-servicebus:
-  resourceGroup: bulk-scan-aks
-  teamName: "Software Engineering"
-  location: uksouth
-  serviceplan: basic
-  setup:
-    queues:
-      - name: envelopes
-      - name: notifications
-      - name: processed-envelopes
-
 blobstorage:
   resourceGroup: bulk-scan-aks
   teamName: "Software Engineering"

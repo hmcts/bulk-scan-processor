@@ -2,3 +2,14 @@ java:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
+
+servicebus:
+  resourceGroup: bulk-scan-aks
+  teamName: "Software Engineering"
+  location: uksouth
+  serviceplan: basic
+  setup:
+    queues:
+      - name: envelopes
+      - name: notifications
+      - name: processed-envelopes
