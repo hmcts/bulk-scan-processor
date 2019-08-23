@@ -131,7 +131,7 @@
           },
           "document_sub_type": {
             "id": "#/properties/scannable_items/items/properties/document_sub_type",
-            "type": "string"
+            "type": ["string", "null"]
           }
         },
         "required": [
