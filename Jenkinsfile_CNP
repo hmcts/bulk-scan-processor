@@ -1,5 +1,11 @@
 #!groovy
 
+Map.metaClass.addNested = { Map rhs ->
+  def lhs = delegate
+  rhs.each { k, v -> lhs[k] = lhs[k] in Map ? lhs[k].addNested(v) : v }
+  lhs
+}
+
 @Library("Infrastructure@all-your-base")
 
 import uk.gov.hmcts.contino.GradleBuilder
@@ -100,6 +106,6 @@ withPipeline(type, product, component) {
   }
 
   onNonPR() {
-    loadVaultSecrets(commonSecrets + apiTestSecrets)
+    loadVaultSecrets(commonSecrets.addNested(apiTestSecrets))
   }
 }

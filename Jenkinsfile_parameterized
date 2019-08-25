@@ -1,5 +1,12 @@
 #!groovy
-@Library(value="Infrastructure", changelog=false) _
+
+Map.metaClass.addNested = { Map rhs ->
+  def lhs = delegate
+  rhs.each { k, v -> lhs[k] = lhs[k] in Map ? lhs[k].addNested(v) : v }
+  lhs
+}
+
+@Library(value="Infrastructure", changelog=false)
 
 def channel = '#bsp-build-notices'
 
@@ -64,6 +71,6 @@ withParameterizedPipeline(params.TYPE, params.PRODUCT_NAME, params.APP, params.E
   }
 
   onNonPR() {
-    loadVaultSecrets(commonSecrets + apiTestSecrets)
+    loadVaultSecrets(commonSecrets.addNested(apiTestSecrets))
   }
 }
