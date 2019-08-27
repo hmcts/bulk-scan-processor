@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 
