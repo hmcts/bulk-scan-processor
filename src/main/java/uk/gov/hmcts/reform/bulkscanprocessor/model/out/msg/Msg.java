@@ -4,6 +4,6 @@ public interface Msg {
 
     String getMsgId();
 
-    boolean isTestOnly();
+    String getLabel();
 
 }

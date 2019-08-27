@@ -49,8 +49,8 @@ public class ErrorMsg implements Msg {
 
     @JsonIgnore
     @Override
-    public boolean isTestOnly() {
-        return false;
+    public String getLabel() {
+        return null;
     }
     // endregion
 }
