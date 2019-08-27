@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -21,7 +22,7 @@ public class OcrPresenceValidator {
 
     // The only document types that can (and must) have OCR data.
     // Note: remove 'SSCS1' once sscs migrates to the new format.
-    public static final List<InputDocumentType> OCR_DOC_TYPES = asList(FORM, SSCS1);
+    protected static final List<InputDocumentType> OCR_DOC_TYPES = ImmutableList.of(FORM, SSCS1);
 
     /**
      * Checks whether OCR data is on the correct document.
