@@ -1,9 +1,15 @@
 #!groovy
 
-Map.metaClass.addNested = { Map rhs ->
-  def lhs = delegate
-  rhs.each { k, v -> lhs[k] = lhs[k] in Map ? lhs[k].addNested(v) : v }
-  lhs
+Map mergeMaps(Map[] sources) {
+  if (sources.length == 0) return [:]
+  if (sources.length == 1) return sources[0]
+
+  sources.inject([:]) { result, source ->
+    source.each { k, v ->
+      result[k] = result[k] instanceof Map ? merge(result[k], v) : v
+    }
+    result
+  }
 }
 
 @Library("Infrastructure@all-your-base")
@@ -106,6 +112,6 @@ withPipeline(type, product, component) {
   }
 
   onNonPR() {
-    loadVaultSecrets(commonSecrets.addNested(apiTestSecrets))
+    loadVaultSecrets(mergeMaps(commonSecrets, apiTestSecrets))
   }
 }
