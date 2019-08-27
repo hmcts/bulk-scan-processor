@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,18 +55,24 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_a_doc_that_is_not_form_has_ocr() {
-        assertThatThrownBy(
-            () -> validator.assertHasProperlySetOcr(
-                asList(
-                    doc(FORM, null),
-                    doc(OTHER, new InputOcrData()),
-                    doc(OTHER, null),
-                    doc(CHERISHED, null)
-                )
-            ))
-            .isInstanceOf(OcrPresenceException.class)
-            .hasMessage(OcrPresenceValidator.MISPLACED_OCR_MSG);
+    public void should_throw_an_exception_when_a_doc_that_is_not_form_or_sscs1_has_ocr() {
+        EnumSet
+            .allOf(InputDocumentType.class)
+            .stream()
+            .filter(docType -> !OcrPresenceValidator.OCR_DOC_TYPES.contains(docType))
+            .forEach(invalidDocType -> {
+                assertThatThrownBy(
+                    () -> validator.assertHasProperlySetOcr(
+                        asList(
+                            doc(FORM, null),
+                            doc(OTHER, new InputOcrData()),
+                            doc(OTHER, null),
+                            doc(CHERISHED, null)
+                        )
+                    ))
+                    .isInstanceOf(OcrPresenceException.class)
+                    .hasMessage(OcrPresenceValidator.MISPLACED_OCR_MSG);
+            });
     }
 
     @Test

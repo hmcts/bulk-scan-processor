@@ -2,12 +2,15 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 
 @Component
 public class OcrPresenceValidator {
@@ -16,6 +19,10 @@ public class OcrPresenceValidator {
     public static final String MISSING_OCR_MSG = "Empty OCR on 'form' document";
     public static final String MISPLACED_OCR_MSG = "OCR on document of invalid type";
 
+    // The only document types than can (and must) have OCR data.
+    // Note: remove 'SSCS1' once sscs migrates to the new format.
+    public static final List<InputDocumentType> OCR_DOC_TYPES = asList(FORM, SSCS1);
+
     /**
      * Checks whether OCR data is on the correct document.
      *
@@ -23,19 +30,19 @@ public class OcrPresenceValidator {
      */
     public Optional<InputScannableItem> assertHasProperlySetOcr(List<InputScannableItem> docs) {
 
-        throwIf(docs.stream().filter(it -> it.ocrData != null).count() > 1, MULTIPLE_OCR_MSG);
-        throwIf(docs.stream().anyMatch(it -> it.documentType != FORM && it.ocrData != null), MISPLACED_OCR_MSG);
-        throwIf(docs.stream().anyMatch(it -> it.documentType == FORM && it.ocrData == null), MISSING_OCR_MSG);
+        if (docs.stream().filter(doc -> doc.ocrData != null).count() > 1) {
+            throw new OcrPresenceException(MULTIPLE_OCR_MSG);
+        }
+        if (docs.stream().anyMatch(doc -> !OCR_DOC_TYPES.contains(doc.documentType) && doc.ocrData != null)) {
+            throw new OcrPresenceException(MISPLACED_OCR_MSG);
+        }
+        if (docs.stream().anyMatch(doc -> OCR_DOC_TYPES.contains(doc.documentType) && doc.ocrData == null)) {
+            throw new OcrPresenceException(MISSING_OCR_MSG);
+        }
 
         return docs
             .stream()
             .filter(it -> it.ocrData != null)
             .findFirst();
-    }
-
-    private void throwIf(boolean condition, String msg) {
-        if (condition) {
-            throw new OcrPresenceException(msg);
-        }
     }
 }
