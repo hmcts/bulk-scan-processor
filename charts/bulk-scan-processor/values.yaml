@@ -24,9 +24,9 @@ java:
         - microservicekey-bulk-scan-processor
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 
-postgresql:
-  postgresqlUsername: bulkscanner
-  postgresqlPassword: bsppassword
-  postgresqlDatabase: bulk_scan
-  service:
-    port: 5432
+  postgresql:
+    postgresqlUsername: bulkscanner
+    postgresqlPassword: bsppassword
+    postgresqlDatabase: bulk_scan
+    service:
+      port: 5432
