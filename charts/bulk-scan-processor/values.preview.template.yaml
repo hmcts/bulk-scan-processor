@@ -2,6 +2,33 @@ java:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
+  secrets:
+    SB_CONN_STRING:
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      key: connectionString
+    TEST_STORAGE_ACCOUNT_NAME:
+      secretRef: storage-secret-{{ .Release.Name }}
+      key: storageAccountName
+    TEST_STORAGE_ACCOUNT_KEY:
+      secretRef: storage-secret-{{ .Release.Name }}
+      key: accessKey
+    TEST_STORAGE_CONTAINER_NAME:
+      secretRef: container-secret-{{ .Release.Name }}-bulkscan
+      key: containerName
+    STORAGE_ACCOUNT_NAME:
+      secretRef: storage-secret-{{ .Release.Name }}
+      key: storageAccountName
+    STORAGE_KEY:
+      secretRef: storage-secret-{{ .Release.Name }}
+      key: accessKey
+  environment:
+    STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
+    STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
+    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
+    QUEUE_ENVELOPE_SEND: "$(SB_CONN_STRING);EntityPath=envelopes"
+    QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
+    QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
+    QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
 
 servicebus:
   resourceGroup: bulk-scan-aks
@@ -13,3 +40,13 @@ servicebus:
       - name: envelopes
       - name: notifications
       - name: processed-envelopes
+
+blobstorage:
+  resourceGroup: bulk-scan-aks
+  teamName: "Software Engineering"
+  location: uksouth
+  setup:
+    containers:
+      - bulkscan
+      - bulkscan-rejected
+      - sscs

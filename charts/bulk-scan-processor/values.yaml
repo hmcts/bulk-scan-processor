@@ -1,24 +1,5 @@
 java:
   applicationPort: 8581
-  secrets:
-    SB_CONN_STRING:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
-      key: connectionString
-    TEST_STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
-    TEST_STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
-    TEST_STORAGE_CONTAINER_NAME:
-      secretRef: container-secret-{{ .Release.Name }}-bulkscan
-      key: containerName
-    STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
-    STORAGE_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
   environment:
     POSTGRES_USER: bulkscanner
     POSTGRES_PASSWORD: bsppassword
@@ -35,13 +16,6 @@ java:
     LOGBACK_REQUIRE_ALERT_LEVEL: "false"
     LOGBACK_REQUIRE_ERROR_CODE: "false"
     S2S_NAME: "bulk_scan_processor"
-    STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
-    STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
-    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
-    QUEUE_ENVELOPE_SEND: "$(SB_CONN_STRING);EntityPath=envelopes"
-    QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
-    QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
-    QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
   keyVaults:
     s2s:
       resourceGroup: rpe-service-auth-provider
@@ -55,13 +29,3 @@ postgresql:
   postgresqlDatabase: bulk_scan
   service:
     port: 5432
-
-blobstorage:
-  resourceGroup: bulk-scan-aks
-  teamName: "Software Engineering"
-  location: uksouth
-  setup:
-    containers:
-      - bulkscan
-      - bulkscan-rejected
-      - sscs
