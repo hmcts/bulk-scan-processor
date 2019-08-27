@@ -19,7 +19,7 @@ public class OcrPresenceValidator {
     public static final String MISSING_OCR_MSG = "Empty OCR on 'form' document";
     public static final String MISPLACED_OCR_MSG = "OCR on document of invalid type";
 
-    // The only document types than can (and must) have OCR data.
+    // The only document types that can (and must) have OCR data.
     // Note: remove 'SSCS1' once sscs migrates to the new format.
     public static final List<InputDocumentType> OCR_DOC_TYPES = asList(FORM, SSCS1);
 
