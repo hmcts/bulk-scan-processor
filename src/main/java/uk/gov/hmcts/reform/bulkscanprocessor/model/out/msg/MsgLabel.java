@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 public enum MsgLabel {
 
+    HEARBEAT,
     TEST;
 
     @Override
