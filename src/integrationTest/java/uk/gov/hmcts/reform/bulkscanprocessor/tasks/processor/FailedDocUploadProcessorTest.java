@@ -47,7 +47,6 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             envelopeRepository,
             processEventRepository,
             containerMappings,
-            ocrPresenceValidator,
             ocrValidator,
             serviceBusHelper,
             SIGNATURE_ALGORITHM,
