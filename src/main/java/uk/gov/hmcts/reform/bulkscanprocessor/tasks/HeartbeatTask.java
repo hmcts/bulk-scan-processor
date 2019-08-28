@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.HeartbeatMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 /**
- * Sends heartbeat messages to orchestrator
+ * Sends heartbeat messages to orchestrator.
  */
 @Component
 public class HeartbeatTask {
