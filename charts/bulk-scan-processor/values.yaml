@@ -30,3 +30,6 @@ java:
     postgresqlDatabase: bulk_scan
     service:
       port: 5432
+    extraEnv:
+    - name: POSTGRESQL_DATABASE
+      value: javadatabase
