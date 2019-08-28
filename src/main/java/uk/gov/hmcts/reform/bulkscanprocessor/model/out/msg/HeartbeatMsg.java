@@ -16,7 +16,7 @@ public class HeartbeatMsg implements Msg {
     }
 
     @Override
-    public boolean isTestOnly() {
-        return false;
+    public String getLabel() {
+        return MsgLabel.HEARBEAT.toString();
     }
 }

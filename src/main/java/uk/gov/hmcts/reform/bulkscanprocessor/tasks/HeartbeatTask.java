@@ -18,9 +18,7 @@ public class HeartbeatTask {
 
     private final ServiceBusHelper serviceBusHelper;
 
-    public HeartbeatTask(
-        @Qualifier("envelopes-helper") ServiceBusHelper serviceBusHelper
-    ) {
+    public HeartbeatTask(@Qualifier("envelopes-helper") ServiceBusHelper serviceBusHelper) {
         this.serviceBusHelper = serviceBusHelper;
     }
 
@@ -30,7 +28,7 @@ public class HeartbeatTask {
             serviceBusHelper.sendMessage(new HeartbeatMsg());
             log.info("Heartbeat sent");
         } catch (Exception exc) {
-            log.error("Error sending hearbeat message", exc);
+            log.error("Error sending heartbeat message", exc);
         }
     }
 }
