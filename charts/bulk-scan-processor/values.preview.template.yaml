@@ -1,41 +1,24 @@
 java:
-  applicationPort: 8581
   secrets:
     SB_CONN_STRING:
-      secretRef: servicebus-secret-namespace-${SERVICE_NAME}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: connectionString
     TEST_STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}
       key: storageAccountName
     TEST_STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
     TEST_STORAGE_CONTAINER_NAME:
-      secretRef: container-secret-${SERVICE_NAME}-bulkscan
+      secretRef: container-secret-{{ .Release.Name }}-bulkscan
       key: containerName
     STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}
       key: storageAccountName
     STORAGE_KEY:
-      secretRef: storage-secret-${SERVICE_NAME}
+      secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
   environment:
-    APPINSIGHTS_INSTRUMENTATIONKEY: aks-key
-    POSTGRES_USER: bulkscanner
-    POSTGRES_PASSWORD: bsppassword
-    POSTGRES_DB: bulk_scan
-    BULK_SCANNING_DB_USER_NAME: bulkscanner
-    BULK_SCANNING_DB_PASSWORD: bsppassword
-    BULK_SCANNING_DB_NAME: bulk_scan
-    BULK_SCANNING_DB_HOST: ${SERVICE_NAME}-postgresql
-    BULK_SCANNING_DB_PORT: "5432"
-    FLYWAY_URL: "jdbc:postgresql://${SERVICE_NAME}-postgresql:5432/bulk_scan"
-    FLYWAY_USER: bulkscanner
-    FLYWAY_PASSWORD: bsppassword
-    FLYWAY_NOOP_STRATEGY: "false"
-    LOGBACK_REQUIRE_ALERT_LEVEL: "false"
-    LOGBACK_REQUIRE_ERROR_CODE: "false"
-    S2S_NAME: "bulk_scan_processor"
     STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
@@ -43,23 +26,18 @@ java:
     QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
-  keyVaults:
-    "s2s":
-      resourceGroup: rpe-service-auth-provider
-      secrets:
-        - microservicekey-bulk-scan-processor
+    S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
+    DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
+    SCAN_ENABLED: "true"
+    SCAN_DELAY: "4000"
+    REUPLOAD_ENABLED: "true"
+    REUPLOAD_DELAY: "4000"
+    SPRING_MAIL_HOST: "false"
+    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED: "true"
+    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY: "3000"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
-
-postgresql:
-  postgresqlUsername: bulkscanner
-  postgresqlPassword: bsppassword
-  postgresqlDatabase: bulk_scan
-  service:
-    port: 5432
-  persistence:
-    enabled: false
 
 servicebus:
   resourceGroup: bulk-scan-aks
@@ -81,3 +59,5 @@ blobstorage:
       - bulkscan
       - bulkscan-rejected
       - sscs
+postgresql:
+  enabled: true
