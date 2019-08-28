@@ -14,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.PreDestroy;
 
 import static java.util.Collections.singletonList;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel.TEST;
 
 public class ServiceBusHelper implements AutoCloseable {
 
@@ -62,9 +61,8 @@ public class ServiceBusHelper implements AutoCloseable {
         busMessage.setContentType("application/json");
         busMessage.setMessageId(msg.getMsgId());
         busMessage.setMessageBody(getMsgBodyInBytes(msg));
-        if (msg.isTestOnly()) {
-            busMessage.setLabel(TEST.toString());
-        }
+        busMessage.setLabel(msg.getLabel());
+
         return busMessage;
     }
 

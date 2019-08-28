@@ -134,8 +134,8 @@ public class EnvelopeMsg implements Msg {
     }
 
     @Override
-    public boolean isTestOnly() {
-        return testOnly;
+    public String getLabel() {
+        return testOnly ? MsgLabel.TEST.toString() : null;
     }
 
     @Override
