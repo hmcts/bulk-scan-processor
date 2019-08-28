@@ -1,6 +1,6 @@
 #!groovy
 
-@Library("Infrastructure")
+@Library("Infrastructure@all-your-base")
 
 import uk.gov.hmcts.contino.GradleBuilder
 import uk.gov.hmcts.contino.Kubectl
@@ -88,7 +88,7 @@ withPipeline(type, product, component) {
   enableSlackNotifications(channel)
   enableApiGatewayTest()
   enableDockerBuild()
-  installCharts()
+  //installCharts()
 
   onPR() {
     loadVaultSecrets(commonSecrets)
