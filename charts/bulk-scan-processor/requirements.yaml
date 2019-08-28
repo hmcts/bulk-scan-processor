@@ -1,6 +1,6 @@
 dependencies:
   - name: java
-    version: ~2.2.2
+    version: ~2.3.1
     repository: '@hmctspublic'
   - name: servicebus
     version: ~0.0.3
@@ -8,6 +8,3 @@ dependencies:
   - name: blobstorage
     version: ~0.0.4
     repository: '@hmctspublic'
-  - name: postgresql
-    version: ~2.6.5
-    repository: '@stable'
