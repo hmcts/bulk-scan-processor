@@ -12,7 +12,7 @@ Map mergeMaps(Map[] sources) {
   }
 }
 
-@Library("Infrastructure@all-your-base")
+@Library("Infrastructure")
 
 import uk.gov.hmcts.contino.GradleBuilder
 import uk.gov.hmcts.contino.Kubectl
