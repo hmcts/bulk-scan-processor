@@ -2,14 +2,6 @@ output "app_namespace" {
   value = "${var.deployment_namespace}"
 }
 
-output "vaultName" {
-  value = "${local.vaultName}"
-}
-
-output "vaultUri" {
-  value = "${data.azurerm_key_vault.key_vault.vault_uri}"
-}
-
 output "microserviceName" {
   value = "${var.component}"
 }
