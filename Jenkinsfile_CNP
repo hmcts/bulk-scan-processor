@@ -1,17 +1,5 @@
 #!groovy
 
-Map mergeMaps(Map[] sources) {
-  if (sources.length == 0) return [:]
-  if (sources.length == 1) return sources[0]
-
-  sources.inject([:]) { result, source ->
-    source.each { k, v ->
-      result[k] = result[k] instanceof Map ? merge(result[k], v) : v
-    }
-    result
-  }
-}
-
 @Library("Infrastructure")
 
 import uk.gov.hmcts.contino.GradleBuilder
@@ -25,7 +13,7 @@ def component = "processor"
 
 def channel = '#bsp-build-notices'
 
-def apiTestSecrets = [
+def secrets = [
   'bulk-scan-${env}': [
     // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
     secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
@@ -41,18 +29,14 @@ def apiTestSecrets = [
 
     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
-    secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY')
-  ]
-]
+    secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
 
-def commonSecrets = [
+    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
+  ],
   's2s-${env}': [
     // to be removed later
     secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
     secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
-  ],
-  'bulk-scan-${env}': [
-    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
   ]
 ]
 
@@ -108,11 +92,5 @@ withPipeline(type, product, component) {
   enableDockerBuild()
   installCharts()
 
-  onPR() {
-    loadVaultSecrets(commonSecrets)
-  }
-
-  onNonPR() {
-    loadVaultSecrets(mergeMaps(commonSecrets, apiTestSecrets))
-  }
+  loadVaultSecrets(secrets)
 }
