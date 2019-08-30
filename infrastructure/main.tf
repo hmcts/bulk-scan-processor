@@ -14,7 +14,7 @@ locals {
 
   s2s_rg       = "rpe-service-auth-provider-${local.local_env}"
   s2s_url      = "http://${local.s2s_rg}.service.core-compute-${local.local_env}.internal"
-  dm_store_url = "${local.local_env == "sandbox" ? "false" : "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"}"
+  dm_store_url = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
 
   db_connection_options = "?sslmode=require"
 
