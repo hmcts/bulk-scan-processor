@@ -47,6 +47,7 @@ def apiTestSecrets = [
 
 def commonSecrets = [
   's2s-${env}': [
+    // to be removed later
     secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
     secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
   ],
