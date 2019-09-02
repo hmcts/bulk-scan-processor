@@ -17,6 +17,6 @@ public class HeartbeatMsg implements Msg {
 
     @Override
     public String getLabel() {
-        return MsgLabel.HEARBEAT.toString();
+        return MsgLabel.HEARTBEAT.toString();
     }
 }
