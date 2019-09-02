@@ -145,6 +145,7 @@ module "bulk-scan" {
     INCOMPLETE_ENVELOPES_TASK_ENABLED = "${var.incomplete_envelopes_enabled}"
 
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP = "${var.ocr_validation_url_bulkscan_sample_app}"
+    OCR_VALIDATION_URL_PROBATE             = "${var.ocr_validation_url_probate}"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"

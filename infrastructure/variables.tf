@@ -159,6 +159,10 @@ variable "ocr_validation_url_bulkscan_sample_app" {
   default = "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
 }
 
+variable "ocr_validation_url_probate" {
+  default = ""
+}
+
 # The value of the parameter 'blob_lease_timeout' should be between 15 and 60 seconds.
 variable "blob_lease_timeout" {
   default = "15"
