@@ -2,10 +2,6 @@ output "app_namespace" {
   value = "${var.deployment_namespace}"
 }
 
-output "microserviceName" {
-  value = "${var.component}"
-}
-
 output "TEST_REUPLOAD_DELAY" {
   value = "${var.reupload_delay}"
 }
