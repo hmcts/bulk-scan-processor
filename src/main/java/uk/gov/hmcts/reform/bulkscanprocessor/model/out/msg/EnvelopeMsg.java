@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
@@ -50,6 +51,9 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("zip_file_name")
     private final String zipFileName;
 
+    @JsonProperty("form_type")
+    private final String formType;
+
     @JsonProperty("documents")
     private final List<Document> documents;
 
@@ -78,6 +82,7 @@ public class EnvelopeMsg implements Msg {
             .stream()
             .map(Document::fromScannableItem)
             .collect(toList());
+        this.formType = findSubtypeOfScannableItemWithFormType(envelope);
 
         this.ocrData = retrieveOcrData(envelope);
         this.ocrValidationWarnings = retrieveOcrValidationWarnings(envelope);
@@ -171,6 +176,16 @@ public class EnvelopeMsg implements Msg {
             .getScannableItems()
             .stream()
             .filter(si -> si.getOcrData() != null);
+    }
+
+    private String findSubtypeOfScannableItemWithFormType(Envelope envelope) {
+        return envelope
+            .getScannableItems()
+            .stream()
+            .filter(si -> DocumentType.FORM.equals(si.getDocumentType()))
+            .findFirst()
+            .map(ScannableItem::getDocumentSubtype)
+            .orElse(null);
     }
 
     private List<OcrField> convertFromInputOcrData(OcrData inputOcrData) {
