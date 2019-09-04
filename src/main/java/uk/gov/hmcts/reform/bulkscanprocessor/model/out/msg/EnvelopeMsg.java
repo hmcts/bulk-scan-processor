@@ -56,8 +56,8 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("ocr_data")
     private final List<OcrField> ocrData;
 
-    @JsonProperty("ocr_validation_warnings")
-    private final List<String> ocrValidationWarnings;
+    @JsonProperty("ocr_data_validation_warnings")
+    private final List<String> ocrDataValidationWarnings;
 
     private final boolean testOnly;
 
@@ -80,7 +80,14 @@ public class EnvelopeMsg implements Msg {
             .collect(toList());
 
         this.ocrData = retrieveOcrData(envelope);
-        this.ocrValidationWarnings = retrieveOcrValidationWarnings(envelope);
+        this.ocrDataValidationWarnings = retrieveOcrDataValidationWarnings(envelope);
+    }
+
+    // This method is here to allow for the field name change without downtime
+    // TODO: remove when the orchestrator has switched to the new name - ocr_data_validation_warnings
+    @JsonProperty("ocr_validation_warnings")
+    public List<String> getOcrDataValidationWarnings() {
+        return ocrDataValidationWarnings;
     }
 
     @Override
@@ -148,7 +155,7 @@ public class EnvelopeMsg implements Msg {
             + "}";
     }
 
-    private List<String> retrieveOcrValidationWarnings(Envelope envelope) {
+    private List<String> retrieveOcrDataValidationWarnings(Envelope envelope) {
         return findScannableItemsWithOcrData(envelope)
             .map(item ->
                 item.getOcrValidationWarnings() != null
