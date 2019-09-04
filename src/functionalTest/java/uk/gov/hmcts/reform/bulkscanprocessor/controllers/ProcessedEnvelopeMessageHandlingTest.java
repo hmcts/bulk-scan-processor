@@ -67,7 +67,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems())
-            .as("OCR should be deleted")
+            .as("OCR data should be deleted")
             .allMatch(item -> item.ocrData == null);
 
         assertThat(testHelper.storageHasFile(inputContainer, zipFilename))
