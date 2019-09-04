@@ -103,7 +103,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(actualEnvelope.getScannableItems())
             .extracting(ScannableItem::getDocumentUuid)
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_UUID2));
-        assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         // This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf));
@@ -176,15 +175,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
-        await("file should be deleted")
-            .atMost(2, SECONDS)
-            .until(blob::exists, is(false));
-
         Envelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getStatus()).isEqualTo(PROCESSED);
-        assertThat(envelope.isZipDeleted()).isTrue();
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -218,7 +211,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
-    public void should_keep_zip_file_after_unsuccessful_upload_and_not_create_doc_processed_event() throws Exception {
+    public void should_not_create_doc_processed_event_after_unsuccessful_upload() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
@@ -231,15 +224,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
-        await("file should not be deleted")
-            .timeout(2, SECONDS)
-            .until(blob::exists, is(true));
-
         Envelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
-        assertThat(envelope.isZipDeleted()).isFalse();
 
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
@@ -269,7 +256,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_not_process_again_if_blob_delete_failed() throws Exception {
         // given
-        dbContainsEnvelopeThatWasNotYetDeleted(SAMPLE_ZIP_FILE_NAME, Status.PROCESSED);
+        dbContainsEnvelopeThatWasNotYetDeleted(SAMPLE_ZIP_FILE_NAME, Status.COMPLETED);
 
         // Upload blob to process. This should not be uploaded or processed.
         // It should only be deleted from storage and the envelope should be marked
@@ -294,7 +281,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
-    public void should_not_delete_blob_unless_processed() throws Exception {
+    public void should_not_delete_blob_unless_completed() throws Exception {
         // given
         dbContainsEnvelopeThatWasNotYetDeleted(SAMPLE_ZIP_FILE_NAME, Status.UPLOADED);
 
