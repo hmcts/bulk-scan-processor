@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,11 @@ public abstract class Processor {
             return;
         }
 
-        deleteBlob(envelope, cloudBlockBlob);
+        try {
+            cloudBlockBlob.breakLease(0);
+        } catch (StorageException e) {
+            log.warn("Error breaking lease on file.", e);
+        }
     }
 
     protected long handleEventRelatedError(
@@ -123,58 +128,6 @@ public abstract class Processor {
     private void incrementUploadFailureCount(Envelope envelope) {
         envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
         envelopeRepository.saveAndFlush(envelope);
-    }
-
-    private Boolean deleteBlob(
-        Envelope envelope,
-        CloudBlockBlob cloudBlockBlob
-    ) {
-        try {
-            // Lease needs to be broken before deleting the blob. 0 implies lease is broken immediately
-            cloudBlockBlob.breakLease(0);
-            boolean deleted = cloudBlockBlob.deleteIfExists();
-            logBlobDeletionResult(envelope, deleted);
-            envelope.setZipDeleted(true);
-            envelopeProcessor.saveEnvelope(envelope);
-
-            log.info(
-                "Marked envelope for file {} (container {}) as deleted",
-                envelope.getZipFileName(),
-                envelope.getContainer()
-            );
-
-            return Boolean.TRUE;
-        } catch (Exception ex) {
-            log.error(
-                "An error occurred when deleting file {} from container {}",
-                envelope.getZipFileName(),
-                envelope.getContainer()
-            );
-
-            handleBlobDeletionError(envelope, ex);
-            return Boolean.FALSE;
-        }
-    }
-
-    private void logBlobDeletionResult(Envelope envelope, boolean deleted) {
-        if (deleted) {
-            log.info("Deleted file {} from container {}", envelope.getZipFileName(), envelope.getContainer());
-        } else {
-            log.warn(
-                "Failed to delete file {} from container {} - didn't exist",
-                envelope.getZipFileName(),
-                envelope.getContainer()
-            );
-        }
-    }
-
-    private void handleBlobDeletionError(Envelope envelope, Exception cause) {
-        handleEventRelatedError(
-            Event.BLOB_DELETE_FAILURE,
-            envelope.getContainer(),
-            envelope.getZipFileName(),
-            cause
-        );
     }
 
     private Boolean markAsUploaded(Envelope envelope) {
