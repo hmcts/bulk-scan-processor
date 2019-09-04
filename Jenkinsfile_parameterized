@@ -1,22 +1,10 @@
 #!groovy
 
-Map mergeMaps(Map[] sources) {
-  if (sources.length == 0) return [:]
-  if (sources.length == 1) return sources[0]
-
-  sources.inject([:]) { result, source ->
-    source.each { k, v ->
-      result[k] = result[k] instanceof Map ? merge(result[k], v) : v
-    }
-    result
-  }
-}
-
 @Library(value="Infrastructure", changelog=false)
 
 def channel = '#bsp-build-notices'
 
-def apiTestSecrets = [
+def combinedSecrets = [
   'bulk-scan-${env}': [
     // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
     secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
@@ -32,17 +20,24 @@ def apiTestSecrets = [
 
     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
-    // Test private key used by third party supplier to sign zip files
+    secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
+  ],
+  's2s-${env}': [
+    // to be removed later
+    secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
+    secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
   ]
 ]
 
 def commonSecrets = [
-  'bulk-scan-${env}': [
-    secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY')
-  ],
   's2s-${env}': [
-    secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET')
+    // to be removed later
+    secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
+    secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
+  ],
+  'bulk-scan-${env}': [
+    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
   ]
 ]
 
@@ -77,6 +72,6 @@ withParameterizedPipeline(params.TYPE, params.PRODUCT_NAME, params.APP, params.E
   }
 
   onNonPR() {
-    loadVaultSecrets(mergeMaps(commonSecrets, apiTestSecrets))
+    loadVaultSecrets(combinedSecrets)
   }
 }
