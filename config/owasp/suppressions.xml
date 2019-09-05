@@ -41,6 +41,16 @@
 
   <suppress>
     <notes><![CDATA[
+       file name: commons-compress-1.18.jar
+       Only used in test scope
+   ]]></notes>
+    <gav regex="true">^org\.apache\.commons:commons-compress:1\.18$</gav>
+    <cpe>cpe:/a:apache:commons_compress</cpe>
+    <cve>CVE-2019-12402</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
        file name: wiremock-standalone-2.20.0.jar.
        This is only used for TESTING purposes.
    ]]></notes>
