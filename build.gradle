@@ -231,7 +231,7 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version:'0.0.4'
   compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4', withoutSpringCloudContext
 
-  compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.10', withoutJavaxMailApi
+  compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.11', withoutJavaxMailApi
 
   compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
