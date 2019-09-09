@@ -20,7 +20,7 @@
 
   <suppress>
     <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.7$</gav>
+    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.8$</gav>
     <cve>CVE-2016-6497</cve>
   </suppress>
 
