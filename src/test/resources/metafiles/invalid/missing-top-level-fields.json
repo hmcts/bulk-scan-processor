@@ -1,7 +1,7 @@
 {
   "po_box": "XXXX",
   "delivery_date": "2017-02-23T00:00:00.100Z",
-  "openingdate": "2017-02-24T00:00:00.010Z",
+  "opening_date": "2017-02-24T00:00:00.010Z",
   "zip_file_createddate": "2017-02-24T00:00:00.001Z",
   "zip_file_name": "1_24-02-2017-00-00-00.zip",
   "scannable_items": [

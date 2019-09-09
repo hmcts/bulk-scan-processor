@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
@@ -134,6 +135,15 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("container").textValue()).isEqualTo(message.getContainer());
         assertThat(jsonNode.get("zip_file_name").textValue()).isEqualTo(message.getZipFileName());
         assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
+        assertThat(jsonNode.get("form_type").textValue()).isEqualTo(DocumentSubtype.SSCS1);
+
+        JsonNode ocrValidationWarnings = jsonNode.get("ocr_validation_warnings");
+        assertThat(ocrValidationWarnings.isArray()).isTrue();
+        assertThat(ocrValidationWarnings.elements()).containsExactly(new TextNode("warning 1"));
+
+        JsonNode ocrDataValidationWarnings = jsonNode.get("ocr_data_validation_warnings");
+        assertThat(ocrDataValidationWarnings.isArray()).isTrue();
+        assertThat(ocrDataValidationWarnings.elements()).containsExactly(new TextNode("warning 1"));
 
         assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
         assertDateField(jsonNode, "opening_date", message.getOpeningDate());
@@ -182,11 +192,13 @@ public class ServiceBusHelperTest {
         ));
 
         when(scannableItem1.getOcrData()).thenReturn(ocrData);
+        when(scannableItem1.getOcrValidationWarnings()).thenReturn(new String[]{"warning 1"});
 
         when(scannableItem2.getDocumentUuid()).thenReturn("documentUuid2");
         when(scannableItem2.getDocumentControlNumber()).thenReturn("doc2_control_number");
         when(scannableItem2.getFileName()).thenReturn("doc2_file_name");
-        when(scannableItem2.getDocumentType()).thenReturn(DocumentType.OTHER);
+        when(scannableItem2.getDocumentType()).thenReturn(DocumentType.FORM);
+        when(scannableItem2.getDocumentSubtype()).thenReturn(DocumentSubtype.SSCS1);
         when(scannableItem2.getScanningDate()).thenReturn(Instant.now());
         when(scannableItem2.getOcrData()).thenReturn(null);
     }

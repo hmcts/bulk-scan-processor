@@ -139,7 +139,7 @@ public class EnvelopeFinaliserServiceTest {
             Instant instant = Instant.parse("2018-06-23T12:34:56.123Z");
 
             ScannableItem scannableItem = new ScannableItem(
-                "1111001",
+                UUID.randomUUID().toString(),
                 instant,
                 "test",
                 "test",
@@ -149,7 +149,8 @@ public class EnvelopeFinaliserServiceTest {
                 "1111001.pdf",
                 "test",
                 DocumentType.CHERISHED,
-                null
+                null,
+                new String[]{"warning 1"}
             );
 
             scannableItem.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");

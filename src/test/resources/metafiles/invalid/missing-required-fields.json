@@ -5,7 +5,7 @@
   "opening_date": "2017-02-24T00:00:00.010Z",
   "zip_file_createddate": "2017-02-24T00:00:00.001Z",
   "zip_file_name": "1_24-02-2017-00-00-00.zip",
-  "clasification": "exception",
+  "envelope_classification": "exception",
   "scannable_items": [
     {
       "document_control_number": "1111001",

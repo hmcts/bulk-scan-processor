@@ -3,13 +3,19 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
@@ -45,11 +51,17 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("zip_file_name")
     private final String zipFileName;
 
+    @JsonProperty("form_type")
+    private final String formType;
+
     @JsonProperty("documents")
     private final List<Document> documents;
 
     @JsonProperty("ocr_data")
     private final List<OcrField> ocrData;
+
+    @JsonProperty("ocr_data_validation_warnings")
+    private final List<String> ocrDataValidationWarnings;
 
     private final boolean testOnly;
 
@@ -70,8 +82,17 @@ public class EnvelopeMsg implements Msg {
             .stream()
             .map(Document::fromScannableItem)
             .collect(toList());
+        this.formType = findSubtypeOfScannableItemWithFormType(envelope);
 
         this.ocrData = retrieveOcrData(envelope);
+        this.ocrDataValidationWarnings = retrieveOcrDataValidationWarnings(envelope);
+    }
+
+    // This method is here to allow for the field name change without downtime
+    // TODO: remove when the orchestrator has switched to the new name - ocr_data_validation_warnings
+    @JsonProperty("ocr_validation_warnings")
+    public List<String> getOcrDataValidationWarnings() {
+        return ocrDataValidationWarnings;
     }
 
     @Override
@@ -125,8 +146,8 @@ public class EnvelopeMsg implements Msg {
     }
 
     @Override
-    public boolean isTestOnly() {
-        return testOnly;
+    public String getLabel() {
+        return testOnly ? MsgLabel.TEST.toString() : null;
     }
 
     @Override
@@ -139,13 +160,38 @@ public class EnvelopeMsg implements Msg {
             + "}";
     }
 
+    private List<String> retrieveOcrDataValidationWarnings(Envelope envelope) {
+        return findScannableItemsWithOcrData(envelope)
+            .map(item ->
+                item.getOcrValidationWarnings() != null
+                    ? asList(item.getOcrValidationWarnings())
+                    : Collections.<String>emptyList()
+            )
+            .findFirst()
+            .orElse(emptyList());
+    }
+
     private List<OcrField> retrieveOcrData(Envelope envelope) {
+        return findScannableItemsWithOcrData(envelope)
+            .map(item -> convertFromInputOcrData(item.getOcrData()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private Stream<ScannableItem> findScannableItemsWithOcrData(Envelope envelope) {
         return envelope
             .getScannableItems()
             .stream()
-            .filter(si -> si.getOcrData() != null)
-            .map(item -> convertFromInputOcrData(item.getOcrData()))
+            .filter(si -> si.getOcrData() != null);
+    }
+
+    private String findSubtypeOfScannableItemWithFormType(Envelope envelope) {
+        return envelope
+            .getScannableItems()
+            .stream()
+            .filter(si -> DocumentType.FORM.equals(si.getDocumentType()))
             .findFirst()
+            .map(ScannableItem::getDocumentSubtype)
             .orElse(null);
     }
 

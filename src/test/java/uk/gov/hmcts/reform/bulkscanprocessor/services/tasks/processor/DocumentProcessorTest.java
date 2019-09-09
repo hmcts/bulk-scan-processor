@@ -114,6 +114,7 @@ public class DocumentProcessorTest {
             fileName,
             null,
             null,
+            null,
             null
         );
     }

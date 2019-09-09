@@ -30,10 +30,10 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.UUID.randomUUID;
 
 public final class EnvelopeCreator {
 
@@ -81,11 +81,11 @@ public final class EnvelopeCreator {
     }
 
     public static Envelope envelope(String jurisdiction, Status status) {
-        return envelope(UUID.randomUUID() + ".zip", jurisdiction, status);
+        return envelope(randomUUID() + ".zip", jurisdiction, status);
     }
 
     public static Envelope envelope(String jurisdiction, Status status, List<ScannableItem> scannableItems) {
-        return envelope(UUID.randomUUID() + ".zip", jurisdiction, status, scannableItems);
+        return envelope(randomUUID() + ".zip", jurisdiction, status, scannableItems);
     }
 
     public static Envelope envelope(String zipFileName, String jurisdiction, Status status) {
@@ -122,6 +122,10 @@ public final class EnvelopeCreator {
     }
 
     public static InputScannableItem inputScannableItem(InputDocumentType docType) {
+        return inputScannableItem(docType, null);
+    }
+
+    public static InputScannableItem inputScannableItem(InputDocumentType docType, String docSubtype) {
         InputOcrData inputOcrData = new InputOcrData();
         inputOcrData.setFields(Collections.emptyList());
 
@@ -135,7 +139,8 @@ public final class EnvelopeCreator {
             inputOcrData,
             "file.pdf",
             "notes",
-            docType
+            docType,
+            docSubtype
         );
     }
 
@@ -143,44 +148,44 @@ public final class EnvelopeCreator {
         return envelope("SSCS", Status.NOTIFICATION_SENT);
     }
 
-    private static List<ScannableItem> scannableItems() {
+    public static ScannableItem scannableItem(
+        String dcn,
+        OcrData ocr,
+        DocumentType documentType,
+        String documentSubtype
+    ) {
         Instant timestamp = getInstant();
 
-        ScannableItem scannableItem1 = new ScannableItem(
-            "1111001",
+        return new ScannableItem(
+            dcn,
             timestamp,
             "test",
             "test",
             "return",
             timestamp,
-            null,
-            "1111001.pdf",
+            ocr,
+            dcn + ".pdf",
             "test",
-            DocumentType.CHERISHED,
-            null
+            documentType,
+            documentSubtype,
+            new String[]{"warning 1"}
         );
-        scannableItem1.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
-
-        ScannableItem scannableItem2 = new ScannableItem(
-            "1111002",
-            timestamp,
-            "test",
-            "test",
-            "return",
-            timestamp,
-            ocrData(ImmutableMap.of("name1", "value1")),
-            "1111002.pdf",
-            "test",
-            DocumentType.OTHER,
-            DocumentSubtype.SSCS1
-        );
-        scannableItem2.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
-
-        return ImmutableList.of(scannableItem1, scannableItem2);
     }
 
-    private static OcrData ocrData(Map<String, String> data) {
-        OcrData ocrData = new OcrData(data
+    private static List<ScannableItem> scannableItems() {
+        return ImmutableList.of(
+            scannableItem(randomUUID().toString(), null, DocumentType.CHERISHED, null),
+            scannableItem(
+                randomUUID().toString(),
+                ocrData(ImmutableMap.of("name1", "value1")),
+                DocumentType.OTHER,
+                DocumentSubtype.SSCS1
+            )
+        );
+    }
+
+    public static OcrData ocrData(Map<String, String> data) {
+        return new OcrData(data
             .entrySet()
             .stream()
             .map(
@@ -188,8 +193,6 @@ public final class EnvelopeCreator {
             )
             .collect(Collectors.toList())
         );
-
-        return ocrData;
     }
 
     private static List<NonScannableItem> nonScannableItems() {

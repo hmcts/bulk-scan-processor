@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.StreamSupport;
@@ -41,6 +42,8 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
+
+    private static final Random RANDOM = new Random();
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -149,13 +152,21 @@ public class TestHelper {
             if (metadataFile != null) {
                 String metadataTemplate =
                     Resources.toString(Resources.getResource(metadataFile), StandardCharsets.UTF_8);
-                String metadata = metadataTemplate.replace("$$zip_file_name$$", zipFilename);
+                String metadata = metadataTemplate
+                    .replace("$$zip_file_name$$", zipFilename)
+                    .replace("$$dcn1$$", generateDcnNumber())
+                    .replace("$$dcn2$$", generateDcnNumber());
                 zos.putNextEntry(new ZipEntry("metadata.json"));
+
                 zos.write(metadata.getBytes());
                 zos.closeEntry();
             }
         }
         return outputStream.toByteArray();
+    }
+
+    private String generateDcnNumber() {
+        return Long.toString(System.currentTimeMillis()) + Math.abs(RANDOM.nextInt());
     }
 
     public byte[] createSignedZipArchiveWithRandomName(

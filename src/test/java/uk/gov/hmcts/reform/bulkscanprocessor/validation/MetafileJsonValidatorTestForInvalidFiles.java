@@ -40,6 +40,25 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
+    public void should_not_parse_envelope_with_unknown_properties() throws IOException {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/unrecognised-fields.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                + "\n\terror: object instance has properties which are not allowed by the schema: "
+                + "[\"invalid_field_name\"]"
+            )
+            .hasMessageContaining("unwanted: [\"invalid_field_name\"]");
+
+    }
+
+    @Test
     public void should_not_parse_envelope_with_missing_top_level_fields() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/missing-top-level-fields.json");

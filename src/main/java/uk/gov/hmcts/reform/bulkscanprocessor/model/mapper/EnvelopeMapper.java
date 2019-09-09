@@ -15,9 +15,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrDataField;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -36,7 +39,11 @@ public class EnvelopeMapper {
         // utility class
     }
 
-    public static Envelope toDbEnvelope(InputEnvelope envelope, String containerName) {
+    public static Envelope toDbEnvelope(
+        InputEnvelope envelope,
+        String containerName,
+        Optional<OcrValidationWarnings> ocrValidationWarnings
+    ) {
         return new Envelope(
             envelope.poBox,
             envelope.jurisdiction,
@@ -47,25 +54,45 @@ public class EnvelopeMapper {
             envelope.caseNumber,
             envelope.previousServiceCaseReference,
             envelope.classification,
-            toDbScannableItems(envelope.scannableItems),
+            toDbScannableItems(envelope.scannableItems, ocrValidationWarnings),
             toDbPayments(envelope.payments),
             toDbNonScannableItems(envelope.nonScannableItems),
             containerName
         );
     }
 
-    private static List<ScannableItem> toDbScannableItems(List<InputScannableItem> scannableItems) {
+    private static List<ScannableItem> toDbScannableItems(
+        List<InputScannableItem> scannableItems,
+        Optional<OcrValidationWarnings> ocrValidationWarnings
+    ) {
         if (scannableItems != null) {
             return scannableItems
                 .stream()
-                .map(EnvelopeMapper::toDbScannableItem)
+                .map(item ->
+                    toDbScannableItem(
+                        item,
+                        ocrValidationWarningsForItem(ocrValidationWarnings, item)
+                    ))
                 .collect(toList());
         } else {
             return emptyList();
         }
     }
 
-    public static ScannableItem toDbScannableItem(InputScannableItem scannableItem) {
+    private static String[] ocrValidationWarningsForItem(
+        Optional<OcrValidationWarnings> ocrValidationWarnings,
+        InputScannableItem scannableItem
+    ) {
+        return ocrValidationWarnings
+            .filter(w -> Objects.equals(w.documentControlNumber, scannableItem.documentControlNumber))
+            .map(w -> w.warnings.toArray(new String[0]))
+            .orElseGet(() -> new String[0]);
+    }
+
+    public static ScannableItem toDbScannableItem(
+        InputScannableItem scannableItem,
+        String[] ocrValidationWarnings
+    ) {
         return new ScannableItem(
             scannableItem.documentControlNumber,
             scannableItem.scanningDate,
@@ -77,7 +104,8 @@ public class EnvelopeMapper {
             scannableItem.fileName,
             scannableItem.notes,
             mapDocumentType(scannableItem.documentType),
-            extractDocumentSubtype(scannableItem.documentType)
+            extractDocumentSubtype(scannableItem.documentType, scannableItem.documentSubtype),
+            ocrValidationWarnings
         );
     }
 
@@ -92,13 +120,26 @@ public class EnvelopeMapper {
     }
 
     private static DocumentType mapDocumentType(InputDocumentType inputDocumentType) {
-        return inputDocumentType == InputDocumentType.CHERISHED
-            ? DocumentType.CHERISHED
-            : DocumentType.OTHER;
+        switch (inputDocumentType) {
+            case CHERISHED:
+                return DocumentType.CHERISHED;
+            case COVERSHEET:
+                return DocumentType.COVERSHEET;
+            case FORM:
+                return DocumentType.FORM;
+            default:
+                return DocumentType.OTHER;
+        }
     }
 
-    private static String extractDocumentSubtype(InputDocumentType inputDocumentType) {
-        return subtypeMapping.get(inputDocumentType);
+    private static String extractDocumentSubtype(InputDocumentType inputDocumentType, String inputDocumentSubtype) {
+        switch (inputDocumentType) {
+            case WILL:
+            case SSCS1:
+                return subtypeMapping.get(inputDocumentType);
+            default:
+                return inputDocumentSubtype;
+        }
     }
 
     private static List<Payment> toDbPayments(List<InputPayment> payments) {

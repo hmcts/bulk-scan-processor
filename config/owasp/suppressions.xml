@@ -3,7 +3,7 @@
 
   <suppress>
     <notes><![CDATA[No fix is available]]></notes>
-    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.1\.5\.RELEASE$</gav>
+    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.1\.6\.RELEASE$</gav>
     <cve>CVE-2018-1258</cve>
   </suppress>
 
@@ -20,13 +20,13 @@
 
   <suppress>
     <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.7$</gav>
+    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.8$</gav>
     <cve>CVE-2016-6497</cve>
   </suppress>
 
   <suppress>
     <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org\.testcontainers:postgresql:1\.11\.3$</gav>
+    <gav regex="true">^org\.testcontainers:postgresql:1\.12\.1$</gav>
     <cpe>cpe:/a:postgresql:postgresql</cpe>
   </suppress>
 
@@ -37,6 +37,16 @@
    ]]></notes>
     <filePath regex="true">.*spring-cloud-contract-wiremock-2\.1\.1\.RELEASE\.jar</filePath>
     <cpe>cpe:/a:wiremock:wiremock:2.1.1.release</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+       file name: commons-compress-1.18.jar
+       Only used in test scope
+   ]]></notes>
+    <gav regex="true">^org\.apache\.commons:commons-compress:1\.18$</gav>
+    <cpe>cpe:/a:apache:commons_compress</cpe>
+    <cve>CVE-2019-12402</cve>
   </suppress>
 
   <suppress>
@@ -62,6 +72,8 @@
     <cve>CVE-2018-19362</cve>
     <cve>CVE-2018-1000873</cve>
     <cve>CVE-2019-12086</cve>
+    <cve>CVE-2019-12384</cve>
+    <cve>CVE-2019-12814</cve>
     <!-- jetty -->
     <cve>CVE-2017-7656</cve>
     <cve>CVE-2017-7657</cve>
@@ -74,6 +86,9 @@
     <cve>CVE-2012-6708</cve>
     <cve>CVE-2015-9251</cve>
     <cve>CVE-2019-11358</cve>
+    <!--jackson databind-->
+    <cve>CVE-2019-14379</cve>
+    <cve>CVE-2019-14439</cve>
   </suppress>
 
 </suppressions>

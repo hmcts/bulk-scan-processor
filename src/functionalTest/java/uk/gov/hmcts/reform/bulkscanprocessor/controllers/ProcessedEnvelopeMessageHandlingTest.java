@@ -46,7 +46,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     @Test
     public void should_complete_envelope_referenced_by_queue_message() throws Exception {
         // given
-        String zipFilename = uploadEnvelopeContainingOcrData();
+        String zipFilename = uploadEnvelope();
 
         await("Envelope should be created in the service and notification should be put on the queue")
             .atMost(scanDelay + MAX_MESSAGE_PROCESSING_TIME_MILLIS, TimeUnit.MILLISECONDS)
@@ -81,13 +81,13 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .orElse(false);
     }
 
-    private String uploadEnvelopeContainingOcrData() throws Exception {
+    private String uploadEnvelope() throws Exception {
         String zipFilename = testHelper.getRandomFilename("12-02-2019-00-00-00.test.zip");
 
         testHelper.uploadZipFile(
             inputContainer,
             Arrays.asList("1111006.pdf", "1111002.pdf"),
-            "1111007.metadata-with-ocr-data.json",
+            "1111006_2.metadata.json",
             zipFilename,
             testPrivateKeyDer
         );

@@ -119,6 +119,7 @@ containers:
     - container: probate
       jurisdiction: PROBATE
       poBox: 12625
+      ocrValidationUrl: ${OCR_VALIDATION_URL_PROBATE}
     - container: divorce
       jurisdiction: DIVORCE
       poBox: 12706
@@ -131,6 +132,7 @@ containers:
     - container: bulkscan
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
+      ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
 
 # clients region
 

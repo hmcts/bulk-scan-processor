@@ -1,9 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -14,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -23,8 +26,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
 
-@SuppressWarnings("checkstyle:LineLength")
 public class EnvelopeProcessorValidationTest {
+
+    private static final String SAMPLE_URL = "https://example.com/";
 
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
@@ -106,6 +110,58 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
+    public void should_throw_exception_when_multiple_scannable_items_refer_to_single_pdf() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            "poBox",
+            Classification.EXCEPTION,
+            asList(
+                scannableItem("xxx.pdf"),
+                scannableItem("yyy.pdf"),
+                scannableItem("yyy.pdf")
+            )
+        );
+        List<Pdf> pdfs = asList(
+            new Pdf("xxx.pdf", null),
+            new Pdf("yyy.pdf", null)
+        );
+
+        // when
+        Throwable throwable = catchThrowable(() -> EnvelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
+
+        // then
+        assertThat(throwable)
+            .isInstanceOf(FileNameIrregularitiesException.class)
+            .hasMessage("Duplicate scanned items file names: yyy.pdf");
+    }
+
+    @Test
+    public void should_throw_exception_when_document_control_numbers_are_not_unique() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            "poBox",
+            Classification.EXCEPTION,
+            asList(
+                scannableItem("1.pdf", "aaa"),
+                scannableItem("2.pdf", "bbb"),
+                scannableItem("3.pdf", "bbb") // duplicate dcn
+            )
+        );
+
+        // when
+        Throwable throwable = catchThrowable(
+            () -> EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope)
+        );
+
+        // then
+        assertThat(throwable)
+            .isInstanceOf(DuplicateDocumentControlNumbersInEnvelopeException.class)
+            .hasMessage("Duplicate DCNs in envelope: bbb");
+    }
+
+    @Test
     public void should_throw_exception_when_required_documents_are_missing() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
@@ -126,46 +182,29 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_document_type_for_new_applications_is_not_configured_for_given_jurisdiction() throws Exception {
-        String invalidJurisdictionForNewApplications = "some_name";
-
-        InputEnvelope envelope = inputEnvelope(
-            invalidJurisdictionForNewApplications,
-            "poBox",
-            Classification.NEW_APPLICATION,
-            asList(
-                scannableItem(InputDocumentType.OTHER, new InputOcrData()),
-                scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
-            )
-        );
-
-        Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
-        );
-
-        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
-            .hasMessageContaining(invalidJurisdictionForNewApplications)
-            .hasMessageContaining("not configured");
-    }
-
-    @Test
     public void should_throw_exception_when_required_documents_dont_have_ocr() throws Exception {
-        InputEnvelope envelope = inputEnvelope(
-            "SSCS",
-            "poBox",
-            Classification.NEW_APPLICATION,
-            asList(
-                scannableItem(InputDocumentType.SSCS1, new InputOcrData()),
-                scannableItem(InputDocumentType.SSCS1, new InputOcrData())
-            )
-        );
+        SoftAssertions softly = new SoftAssertions();
+        Stream.of(InputDocumentType.FORM, InputDocumentType.SSCS1)
+            .forEach(type -> {
+                InputEnvelope envelope = inputEnvelope(
+                    "SSCS",
+                    "poBox",
+                    Classification.NEW_APPLICATION,
+                    asList(
+                        scannableItem(type, new InputOcrData())
+                    )
+                );
 
-        Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
-        );
+                Throwable throwable = catchThrowable(
+                    () -> EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+                );
 
-        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
-            .hasMessageContaining("Missing OCR");
+                softly.assertThat(throwable)
+                    .as("Expecting exception for doc type " + type)
+                    .isInstanceOf(OcrDataNotFoundException.class)
+                    .hasMessageContaining("Missing OCR");
+            });
+        softly.assertAll();
     }
 
     @Test
@@ -214,16 +253,15 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("test_jurisdiction");
         String container = "container_not_matching_jurisdiction";
+        List<Mapping> mappings = emptyList();
 
         // when
-        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-            emptyList(),
-            envelope,
-            container
-        ));
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+        );
 
         // then
-        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+        verifyExceptionIsThrown(envelope, container, err);
     }
 
     @Test
@@ -231,16 +269,15 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "abc";
+        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL));
 
         // when
-        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-            singletonList(new ContainerMappings.Mapping(container, "ABC", "123")),
-            envelope,
-            container
-        ));
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+        );
 
         // then
-        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+        verifyExceptionIsThrown(envelope, container, err);
     }
 
     @Test
@@ -248,16 +285,15 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "test";
+        List<Mapping> mappings = singletonList(new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL));
 
         // when
-        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-            singletonList(new ContainerMappings.Mapping(container, "test_jurisdiction", "test_poBox")),
-            envelope,
-            container
-        ));
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+        );
 
         // then
-        verifyExceptionIsThrown(envelope, container, envelope.poBox, err);
+        verifyExceptionIsThrown(envelope, container, err);
     }
 
     @Test
@@ -265,19 +301,20 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
+        List<Mapping> mappings = singletonList(
+            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL)
+        );
 
         // when
-        Throwable err = catchThrowable(() -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-            singletonList(new ContainerMappings.Mapping(container, envelope.jurisdiction, envelope.poBox)),
-            envelope,
-            container
-        ));
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+        );
 
         // then
         assertThat(err).isNull();
     }
 
-    private void verifyExceptionIsThrown(InputEnvelope envelope, String container, String poBox, Throwable err) {
+    private void verifyExceptionIsThrown(InputEnvelope envelope, String container, Throwable err) {
         assertThat(err)
             .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
             .hasMessageContaining(envelope.jurisdiction)

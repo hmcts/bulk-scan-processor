@@ -11,7 +11,7 @@ orchestrator_notifications_task_enabled = "true"
 
 delete_rejected_files_enabled = "true"
 
-api_gateway_test_valid_certificate_thumbprint = "3B0D23863EE7EF90290AD02B0ACFD7C37ED5B330"
+api_gateway_test_valid_certificate_thumbprint = "438EBD399DE66D7081CE2CEECEAC8EEF0497FE49"
 allowed_client_certificate_thumbprints = ["919F8A770C2A2F06933BA11551001ED0581B8848"]
 
 blob_processing_delay_in_minutes = "30"
@@ -19,3 +19,5 @@ blob_processing_delay_in_minutes = "30"
 smtp_host = "smtp.office365.com"
 
 incomplete_envelopes_enabled = "true"
+
+ocr_validation_url_bulkscan_sample_app = ""

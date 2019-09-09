@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.apache.commons.io.Charsets;
 import org.junit.Test;
@@ -13,10 +15,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
@@ -125,9 +130,26 @@ public class ReadEnvelopesControllerTest {
             .andExpect(status().is(400));
     }
 
-    private List<EnvelopeResponse> envelopesInDb() throws Exception {
-        Envelope envelope = EnvelopeCreator.envelope("BULKSCAN", Status.PROCESSED);
+    private List<EnvelopeResponse> envelopesInDb() {
+        // by default they are random UUID. need to be specific so the field by field comparison passes
+        // it is controller behaviour test after-all
+        ScannableItem item1 = EnvelopeCreator.scannableItem("1111001", null, DocumentType.CHERISHED, null);
+        ScannableItem item2 = EnvelopeCreator.scannableItem(
+            "1111002",
+            EnvelopeCreator.ocrData(ImmutableMap.of("name1", "value1")),
+            DocumentType.OTHER,
+            DocumentSubtype.SSCS1
+        );
+        item1.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");
+        item2.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebcbe");
+
+        Envelope envelope = EnvelopeCreator.envelope(
+            "BULKSCAN",
+            Status.PROCESSED,
+            ImmutableList.of(item1, item2)
+        );
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
+
         return singletonList(EnvelopeResponseMapper.toEnvelopeResponse(envelope));
     }
 

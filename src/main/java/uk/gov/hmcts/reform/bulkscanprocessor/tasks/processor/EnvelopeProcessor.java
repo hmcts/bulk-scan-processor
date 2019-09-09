@@ -2,9 +2,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -12,8 +14,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumberException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -61,7 +65,7 @@ public class EnvelopeProcessor {
             schemaValidator.validate(metadataStream, zipFileName);
 
             return schemaValidator.parseMetafile(metadataStream);
-        } catch (JsonParseException exception) {
+        } catch (JsonParseException | OcrDataParseException exception) {
             // invalid json files should also be reported to provider
             throw new InvalidEnvelopeSchemaException("Error occurred while parsing metafile", exception);
         }
@@ -109,14 +113,23 @@ public class EnvelopeProcessor {
     }
 
     public Envelope saveEnvelope(Envelope envelope) {
-        Envelope dbEnvelope = envelopeRepository.saveAndFlush(envelope);
+        try {
+            Envelope dbEnvelope = envelopeRepository.saveAndFlush(envelope);
 
-        log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
-            envelope.getJurisdiction(),
-            envelope.getZipFileName()
-        );
+            log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
+                envelope.getJurisdiction(),
+                envelope.getZipFileName()
+            );
 
-        return dbEnvelope;
+            return dbEnvelope;
+        } catch (DataIntegrityViolationException exception) {
+            if (exception.getCause() instanceof ConstraintViolationException) {
+                evaluateConstraintException((ConstraintViolationException) exception.getCause());
+            }
+
+            // or throw anyway (same behaviour as before)
+            throw exception;
+        }
     }
 
     public List<Envelope> getFailedToUploadEnvelopes(String jurisdiction) {
@@ -138,4 +151,13 @@ public class EnvelopeProcessor {
         });
     }
 
+    private void evaluateConstraintException(ConstraintViolationException exception) {
+        // for further constraint issues can be replaced with switch statement
+        if (exception.getConstraintName().equals("scannable_item_dcn")) {
+            throw new DuplicateDocumentControlNumberException(
+                "Received envelope with 'document_control_number' already present in the system",
+                exception
+            );
+        }
+    }
 }

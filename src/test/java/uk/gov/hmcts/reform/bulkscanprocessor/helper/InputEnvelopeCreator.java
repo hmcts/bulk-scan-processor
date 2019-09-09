@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 
@@ -47,20 +48,25 @@ public final class InputEnvelopeCreator {
     }
 
     public static InputScannableItem scannableItem(String fileName) {
-        return scannableItem(fileName, InputDocumentType.OTHER, new InputOcrData());
+        return scannableItem(fileName, UUID.randomUUID().toString(), InputDocumentType.OTHER, new InputOcrData());
+    }
+
+    public static InputScannableItem scannableItem(String fileName, String dcn) {
+        return scannableItem(fileName, dcn, InputDocumentType.OTHER, new InputOcrData());
     }
 
     public static InputScannableItem scannableItem(InputDocumentType documentType, InputOcrData ocrData) {
-        return scannableItem("file.pdf", documentType, ocrData);
+        return scannableItem("file.pdf", UUID.randomUUID().toString(), documentType, ocrData);
     }
 
     public static InputScannableItem scannableItem(
         String fileName,
+        String dcn,
         InputDocumentType documentType,
         InputOcrData ocrData
     ) {
         return new InputScannableItem(
-            "control_number",
+            dcn,
             null,
             "ocr_accuracy",
             "manula_intervention",
@@ -69,7 +75,8 @@ public final class InputEnvelopeCreator {
             ocrData,
             fileName,
             "notes",
-            documentType
+            documentType,
+            null
         );
     }
 
