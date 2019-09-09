@@ -20,13 +20,13 @@
 
   <suppress>
     <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.7$</gav>
+    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.8$</gav>
     <cve>CVE-2016-6497</cve>
   </suppress>
 
   <suppress>
     <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org\.testcontainers:postgresql:1\.12\.0$</gav>
+    <gav regex="true">^org\.testcontainers:postgresql:1\.12\.1$</gav>
     <cpe>cpe:/a:postgresql:postgresql</cpe>
   </suppress>
 
