@@ -259,11 +259,9 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_reject_file_which_has_duplicate_cdn_number() throws Exception {
+    public void should_reject_file_which_has_duplicate_dcn_number_from_another_envelope() throws Exception {
         // given
-        byte[] zipBytes = zipDir("zipcontents/ok");
-
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
+        uploadToBlobStorage("7_24-06-2018-00-00-00.zip", zipDir("zipcontents/ok"));
 
         // and
         Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
@@ -277,15 +275,13 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // and given
-        String filenameForDuplicate = "DUP" + SAMPLE_ZIP_FILE_NAME;
-        byte[] duplicateZipBytes = zipDir("zipcontents/ok");
-        uploadToBlobStorage(filenameForDuplicate, duplicateZipBytes);
+        uploadToBlobStorage("99_24-06-2018-00-00-00.zip", zipDir("zipcontents/ok_2_with_dcn_from_ok"));
 
         // when
         processor.processBlobs();
 
         // then
-        errorWasSent(filenameForDuplicate, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
+        errorWasSent("99_24-06-2018-00-00-00.zip", ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(envelopeRepository.findAll()).hasSize(1);
     }
 
