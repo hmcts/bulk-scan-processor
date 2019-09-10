@@ -269,7 +269,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_not_process_again_if_blob_delete_failed() throws Exception {
         // given
-        dbContainsEnvelopeThatWasNotYetDeleted(SAMPLE_ZIP_FILE_NAME, Status.PROCESSED);
+        dbContainsEnvelopeThatWasNotYetDeleted(SAMPLE_ZIP_FILE_NAME, Status.COMPLETED);
 
         // Upload blob to process. This should not be uploaded or processed.
         // It should only be deleted from storage and the envelope should be marked
