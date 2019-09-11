@@ -88,13 +88,6 @@ public class EnvelopeMsg implements Msg {
         this.ocrDataValidationWarnings = retrieveOcrDataValidationWarnings(envelope);
     }
 
-    // This method is here to allow for the field name change without downtime
-    // TODO: remove when the orchestrator has switched to the new name - ocr_data_validation_warnings
-    @JsonProperty("ocr_validation_warnings")
-    public List<String> getOcrDataValidationWarnings() {
-        return ocrDataValidationWarnings;
-    }
-
     @Override
     @JsonIgnore
     public String getMsgId() {
