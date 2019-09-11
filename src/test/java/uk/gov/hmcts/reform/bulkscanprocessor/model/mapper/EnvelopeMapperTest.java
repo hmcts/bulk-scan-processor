@@ -71,7 +71,6 @@ public class EnvelopeMapperTest {
 
         assertThat(dbEnvelope.getPayments())
             .extracting(Payment::getDocumentControlNumber)
-            .usingFieldByFieldElementComparator()
             .containsAll(zipEnvelope.payments.stream().map(p -> p.documentControlNumber).collect(toList()));
     }
 
