@@ -156,7 +156,7 @@ variable "allowed_client_certificate_thumbprints" {
 }
 
 variable "ocr_validation_url_bulkscan_sample_app" {
-  default = "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
+  default = ""
 }
 
 variable "ocr_validation_url_probate" {

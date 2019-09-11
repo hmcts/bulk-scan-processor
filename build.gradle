@@ -4,10 +4,10 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-  id 'org.flywaydb.flyway' version '6.0.1'
+  id 'org.flywaydb.flyway' version '6.0.2'
   id 'org.springframework.boot' version '2.1.8.RELEASE'
   id 'org.owasp.dependencycheck' version '5.2.1'
-  id 'com.github.ben-manes.versions' version '0.24.0'
+  id 'com.github.ben-manes.versions' version '0.25.0'
   id 'org.sonarqube' version '2.7.1'
 }
 
@@ -175,7 +175,7 @@ def versions = [
 
 dependencyManagement {
   dependencies {
-    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.62'
+    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.63'
     // CVE-2018-10237 - Unbounded memory allocation
     dependencySet(group: 'com.google.guava', version: '28.1-jre') {
       entry 'guava'
@@ -230,7 +230,7 @@ dependencies {
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.11', withoutJavaxMailApi
 
   compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
-  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
+  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.7'
   // review following dependency after integrating db structure
   compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.6.1'
 
