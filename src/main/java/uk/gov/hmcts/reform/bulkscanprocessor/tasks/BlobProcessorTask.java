@@ -46,7 +46,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -190,7 +189,7 @@ public class BlobProcessorTask extends Processor {
                 container.getName(),
                 existingEnvelope.getId()
             );
-            deleteIfProcessed(cloudBlockBlob, existingEnvelope, container.getName());
+            deleteIfCompleted(cloudBlockBlob, existingEnvelope, container.getName());
         } else if (!cloudBlockBlob.exists()) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
         } else {
@@ -232,13 +231,13 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private void deleteIfProcessed(CloudBlockBlob cloudBlockBlob, Envelope envelope, String containerName) {
+    private void deleteIfCompleted(CloudBlockBlob cloudBlockBlob, Envelope envelope, String containerName) {
         String blobName = cloudBlockBlob.getName();
         log.info("Considering the deletion of file {} in container {}", blobName, containerName);
 
         try {
-            if (isReadyToBeDeleted(envelope)) {
-                log.info("File {} (container {}) is processed - deleting", blobName, containerName);
+            if (envelope.getStatus() == Status.COMPLETED) {
+                log.info("File {} (container {}) is completed - deleting", blobName, containerName);
 
                 boolean deleted;
                 if (cloudBlockBlob.exists()) {
@@ -319,14 +318,6 @@ public class BlobProcessorTask extends Processor {
     private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
         java.util.Date cutoff = Date.from(Instant.now().minus(this.blobProcessingDelayInMinutes, ChronoUnit.MINUTES));
         return blob.getProperties().getLastModified().before(cutoff);
-    }
-
-    private boolean isReadyToBeDeleted(Envelope envelope) {
-        return EnumSet.of(
-            Status.PROCESSED,
-            Status.NOTIFICATION_SENT,
-            Status.COMPLETED
-        ).contains(envelope.getStatus());
     }
 
     private void handleInvalidFileError(
