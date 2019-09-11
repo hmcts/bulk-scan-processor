@@ -146,23 +146,11 @@ public class EnvelopeMapper {
         if (payments != null) {
             return payments
                 .stream()
-                .map(EnvelopeMapper::toDbPayment)
+                .map(payment -> new Payment(payment.documentControlNumber))
                 .collect(toList());
         } else {
             return emptyList();
         }
-    }
-
-    private static Payment toDbPayment(InputPayment payment) {
-        return new Payment(
-            payment.documentControlNumber,
-            payment.method,
-            payment.amount,
-            payment.currency,
-            payment.paymentInstrumentNumber,
-            payment.sortCode,
-            payment.accountNumber
-        );
     }
 
     private static List<NonScannableItem> toDbNonScannableItems(List<InputNonScannableItem> nonScannableItems) {

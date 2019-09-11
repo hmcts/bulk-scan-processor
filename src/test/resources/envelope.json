@@ -36,11 +36,7 @@
       ],
       "payments": [
         {
-          "document_control_number": "1111002",
-          "method": "Cheque",
-          "amount": 100.0,
-          "currency": "GBP",
-          "amount_in_pence": 10000
+          "document_control_number": "1111002"
         }
       ],
       "non_scannable_items": [

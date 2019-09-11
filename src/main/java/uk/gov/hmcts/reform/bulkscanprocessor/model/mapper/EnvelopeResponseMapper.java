@@ -115,16 +115,9 @@ public final class EnvelopeResponseMapper {
     private static PaymentResponse toPaymentResponse(Payment payment) {
         if (payment == null) {
             return null;
+        } else {
+            return new PaymentResponse(payment.getDocumentControlNumber());
         }
-        return new PaymentResponse(
-            payment.getDocumentControlNumber(),
-            payment.getMethod(),
-            Double.toString(payment.getAmount()),
-            payment.getCurrency(),
-            payment.getPaymentInstrumentNumber(),
-            payment.getSortCode(),
-            payment.getAccountNumber()
-        );
     }
 
 }
