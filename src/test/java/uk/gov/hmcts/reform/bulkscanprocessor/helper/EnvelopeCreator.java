@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -204,13 +203,7 @@ public final class EnvelopeCreator {
     private static List<Payment> payments() {
         return newArrayList(
             new Payment(
-                "1111002",
-                "Cheque",
-                BigDecimal.valueOf(100),
-                "GBP",
-                "1000000000",
-                "112233",
-                "12345678"
+                "1111002"
             )
         );
     }

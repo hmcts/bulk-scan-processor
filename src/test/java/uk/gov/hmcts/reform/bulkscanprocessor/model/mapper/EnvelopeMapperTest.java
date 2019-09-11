@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
@@ -21,8 +20,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.COVERSHEET;
@@ -71,9 +70,8 @@ public class EnvelopeMapperTest {
         assertThat(dbEnvelope.getPayments().size()).isEqualTo(zipEnvelope.payments.size());
 
         assertThat(dbEnvelope.getPayments())
-            .extracting(this::convertToInputPayment)
-            .usingFieldByFieldElementComparator()
-            .containsAll(zipEnvelope.payments);
+            .extracting(Payment::getDocumentControlNumber)
+            .containsAll(zipEnvelope.payments.stream().map(p -> p.documentControlNumber).collect(toList()));
     }
 
     private void assertSameScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
@@ -109,18 +107,6 @@ public class EnvelopeMapperTest {
         }
     }
 
-    private InputPayment convertToInputPayment(Payment dbPayment) {
-        return new InputPayment(
-            dbPayment.getDocumentControlNumber(),
-            dbPayment.getMethod(),
-            String.format("%.2f", dbPayment.getAmount()),
-            dbPayment.getCurrency(),
-            dbPayment.getPaymentInstrumentNumber(),
-            dbPayment.getSortCode(),
-            dbPayment.getAccountNumber()
-        );
-    }
-
     private InputScannableItem convertToInputScannableItem(ScannableItem dbScannableItem) {
         return new InputScannableItem(
             dbScannableItem.getDocumentControlNumber(),
@@ -150,7 +136,7 @@ public class EnvelopeMapperTest {
             .fields
             .stream()
             .map(field -> new InputOcrDataField(field.name, field.value))
-            .collect(Collectors.toList());
+            .collect(toList());
         inputOcrData.setFields(fields);
 
         return inputOcrData;
