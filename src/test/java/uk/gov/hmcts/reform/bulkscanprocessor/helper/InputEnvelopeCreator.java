@@ -48,7 +48,11 @@ public final class InputEnvelopeCreator {
     }
 
     public static InputScannableItem scannableItem(String fileName) {
-        return scannableItem(fileName, UUID.randomUUID().toString(), InputDocumentType.OTHER, new InputOcrData());
+        return scannableItem(fileName, InputDocumentType.OTHER);
+    }
+
+    public static InputScannableItem scannableItem(String fileName, InputDocumentType documentType) {
+        return scannableItem(fileName, UUID.randomUUID().toString(), documentType, new InputOcrData());
     }
 
     public static InputScannableItem scannableItem(String fileName, String dcn) {
