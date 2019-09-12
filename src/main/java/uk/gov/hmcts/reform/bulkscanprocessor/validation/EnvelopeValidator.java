@@ -58,24 +58,22 @@ public final class EnvelopeValidator {
      * @param envelope to assert against
      */
     public static void assertEnvelopeContainsDocsOfAllowedTypesOnly(InputEnvelope envelope) {
-        if (envelope.classification == Classification.SUPPLEMENTARY_EVIDENCE) {
-            List<String> disallowedDocTypesFound =
-                envelope
-                    .scannableItems
-                    .stream()
-                    .filter(item -> disallowedDocumentTypes.get(envelope.classification).contains(item.documentType))
-                    .map(item -> item.documentType.toString())
-                    .collect(toList());
+        List<String> disallowedDocTypesFound =
+            envelope
+                .scannableItems
+                .stream()
+                .filter(item -> disallowedDocumentTypes.get(envelope.classification).contains(item.documentType))
+                .map(item -> item.documentType.toString())
+                .collect(toList());
 
-            if (!disallowedDocTypesFound.isEmpty()) {
-                String errorMessage = String.format(
-                    "Envelope contains scannable item(s) of types that are not allowed for classification %s: [%s]",
-                    envelope.classification,
-                    StringUtils.join(disallowedDocTypesFound, ", ")
-                );
+        if (!disallowedDocTypesFound.isEmpty()) {
+            String errorMessage = String.format(
+                "Envelope contains scannable item(s) of types that are not allowed for classification '%s': [%s]",
+                envelope.classification,
+                StringUtils.join(disallowedDocTypesFound, ", ")
+            );
 
-                throw new DisallowedDocumentTypesException(errorMessage);
-            }
+            throw new DisallowedDocumentTypesException(errorMessage);
         }
     }
 

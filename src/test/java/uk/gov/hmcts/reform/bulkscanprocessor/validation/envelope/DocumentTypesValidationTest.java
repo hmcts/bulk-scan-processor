@@ -40,7 +40,7 @@ public class DocumentTypesValidationTest {
             .isInstanceOf(DisallowedDocumentTypesException.class)
             .hasMessage(
                 "Envelope contains scannable item(s) of types that are not allowed for "
-                    + "classification supplementary_evidence: [Form]"
+                    + "classification 'supplementary_evidence': [Form]"
             );
     }
 
@@ -65,7 +65,7 @@ public class DocumentTypesValidationTest {
             .isInstanceOf(DisallowedDocumentTypesException.class)
             .hasMessage(
                 "Envelope contains scannable item(s) of types that are not allowed for "
-                    + "classification supplementary_evidence: [SSCS1]"
+                    + "classification 'supplementary_evidence': [SSCS1]"
             );
     }
 
