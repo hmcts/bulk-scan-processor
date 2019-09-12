@@ -91,8 +91,7 @@ public class OcrValidatorTest {
                 "BULKSCAN",
                 PO_BOX,
                 Classification.EXCEPTION,
-                docs,
-                emptyList()
+                docs
             );
         given(presenceValidator.assertHasProperlySetOcr(docs))
             .willThrow(new OcrPresenceException("msg"));
@@ -132,8 +131,7 @@ public class OcrValidatorTest {
             "BULKSCAN",
             PO_BOX,
             Classification.EXCEPTION,
-            docs,
-            emptyList()
+            docs
         );
         // and
         given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
@@ -390,8 +388,7 @@ public class OcrValidatorTest {
             "BULKSCAN",
             poBox,
             Classification.EXCEPTION,
-            scannableItems,
-            emptyList()
+            scannableItems
         );
     }
 

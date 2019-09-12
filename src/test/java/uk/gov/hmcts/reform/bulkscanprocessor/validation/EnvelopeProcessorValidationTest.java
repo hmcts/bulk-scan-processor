@@ -42,8 +42,7 @@ public class EnvelopeProcessorValidationTest {
             asList(
                 scannableItem("hello.pdf"),
                 scannableItem("world.pdf")
-            ),
-            emptyList()
+            )
         );
         List<Pdf> pdfs = singletonList(new Pdf("hello.pdf", null));
 
@@ -66,8 +65,7 @@ public class EnvelopeProcessorValidationTest {
             asList(
                 scannableItem("aaa.pdf"),
                 scannableItem("bbb.pdf")
-            ),
-            emptyList()
+            )
         );
         List<Pdf> pdfs = asList(
             new Pdf("aaa.pdf", null),
@@ -95,8 +93,7 @@ public class EnvelopeProcessorValidationTest {
                 scannableItem("xxx.pdf"),
                 scannableItem("yyy.pdf"),
                 scannableItem("zzz.pdf")
-            ),
-            emptyList()
+            )
         );
         List<Pdf> pdfs = asList(
             new Pdf("xxx.pdf", null),
@@ -125,8 +122,7 @@ public class EnvelopeProcessorValidationTest {
                 scannableItem("xxx.pdf"),
                 scannableItem("yyy.pdf"),
                 scannableItem("yyy.pdf")
-            ),
-            emptyList()
+            )
         );
         List<Pdf> pdfs = asList(
             new Pdf("xxx.pdf", null),
@@ -153,8 +149,7 @@ public class EnvelopeProcessorValidationTest {
                 scannableItem("1.pdf", "aaa"),
                 scannableItem("2.pdf", "bbb"),
                 scannableItem("3.pdf", "bbb") // duplicate dcn
-            ),
-            emptyList()
+            )
         );
 
         // when
@@ -177,8 +172,7 @@ public class EnvelopeProcessorValidationTest {
             asList(
                 scannableItem(InputDocumentType.OTHER, new InputOcrData()), // no 'SSCS1' documents
                 scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
-            ),
-            emptyList()
+            )
         );
 
         Throwable throwable = catchThrowable(() ->
@@ -200,8 +194,7 @@ public class EnvelopeProcessorValidationTest {
                     Classification.NEW_APPLICATION,
                     asList(
                         scannableItem(type, new InputOcrData())
-                    ),
-                    emptyList()
+                    )
                 );
 
                 Throwable throwable = catchThrowable(
@@ -225,8 +218,7 @@ public class EnvelopeProcessorValidationTest {
             asList(
                 scannableItem(InputDocumentType.OTHER, new InputOcrData()), // on OCR data
                 scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
-            ),
-            emptyList()
+            )
         );
 
         Throwable throwable = catchThrowable(() ->
@@ -248,12 +240,11 @@ public class EnvelopeProcessorValidationTest {
             Classification.NEW_APPLICATION,
             asList(
                 scannableItem(InputDocumentType.SSCS1, ocrData)
-            ),
-            emptyList()
+            )
         );
 
-        Throwable throwable = catchThrowable(() ->
-                                                 EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+        Throwable throwable = catchThrowable(
+            () -> EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isNull();
@@ -340,7 +331,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClasificationNewApplicationIfPaymentsArePresent(envelope)
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
         );
 
         // then
@@ -360,7 +351,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClasificationNewApplicationIfPaymentsArePresent(envelope)
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
         );
 
         // then
@@ -374,13 +365,12 @@ public class EnvelopeProcessorValidationTest {
             "ABC",
             "test_poBox",
             Classification.NEW_APPLICATION,
-            emptyList(),
             emptyList()
         );
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClasificationNewApplicationIfPaymentsArePresent(envelope)
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
         );
 
         // then
@@ -402,7 +392,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClasificationNewApplicationIfPaymentsArePresent(envelope)
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
         );
 
         // then
@@ -424,7 +414,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClasificationNewApplicationIfPaymentsArePresent(envelope)
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
         );
 
         // then

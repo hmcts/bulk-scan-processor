@@ -207,7 +207,7 @@ public final class EnvelopeValidator {
         }
     }
 
-    public static void assertClasificationNewApplicationIfPaymentsArePresent(InputEnvelope envelope) {
+    public static void assertClassificationNewApplicationIfPaymentsArePresent(InputEnvelope envelope) {
         if (envelope.payments != null && !envelope.payments.isEmpty()
             && envelope.classification != Classification.NEW_APPLICATION) {
             throw new InvalidJourneyClassificationException(

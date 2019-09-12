@@ -30,6 +30,21 @@ public final class InputEnvelopeCreator {
         String jurisdiction,
         String poBox,
         Classification classification,
+        List<InputScannableItem> scannableItems
+    ) {
+        return inputEnvelope(
+            jurisdiction,
+            poBox,
+            classification,
+            scannableItems,
+            emptyList()
+        );
+    }
+
+    public static InputEnvelope inputEnvelope(
+        String jurisdiction,
+        String poBox,
+        Classification classification,
         List<InputScannableItem> scannableItems,
         List<InputPayment> payments
     ) {
