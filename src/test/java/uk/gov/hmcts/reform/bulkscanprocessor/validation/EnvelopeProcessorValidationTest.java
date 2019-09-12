@@ -348,6 +348,46 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
+    public void should_not_throw_an_exception_when_no_payments_and_classification_new_application() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            null
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertClasificationNewApplicationIfPaymentsArePresent(envelope)
+        );
+
+        // then
+        assertThat(err).isNull();
+    }
+
+    @Test
+    public void should_not_throw_an_exception_when_empty_payments_and_classification_new_application() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            emptyList()
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertClasificationNewApplicationIfPaymentsArePresent(envelope)
+        );
+
+        // then
+        assertThat(err).isNull();
+    }
+
+    @Test
     public void should_throw_an_exception_when_payments_present_and_classification_exception() {
         // given
         InputEnvelope envelope = inputEnvelope(
