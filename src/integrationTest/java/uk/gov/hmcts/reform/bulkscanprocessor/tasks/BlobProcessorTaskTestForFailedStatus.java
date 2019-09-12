@@ -299,7 +299,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_reject_file_which_has_duplicate_cdn_number1() throws Exception {
+    public void should_reject_file_which_has_exception_classification_with_payments() throws Exception {
         // given
         byte[] zipBytes = zipDir("zipcontents/exception_payments");
 
