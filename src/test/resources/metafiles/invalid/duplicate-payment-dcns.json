@@ -1,0 +1,32 @@
+{
+  "case_number": "1111222233334446",
+  "po_box": "XXXX",
+  "jurisdiction": "SSCS",
+  "delivery_date": "2017-02-23T00:00:00.100Z",
+  "opening_date": "2017-02-24T00:00:00.010Z",
+  "zip_file_createddate": "2017-02-24T00:00:00.001Z",
+  "zip_file_name": "1_24-02-2017-00-00-00.zip",
+  "envelope_classification": "new_application",
+  "scannable_items": [
+    {
+      "document_control_number": "1111001",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111001.pdf",
+      "notes": "test",
+      "document_type": "Other"
+    }
+  ],
+  "payments": [
+    {
+      "document_control_number": "123"
+    },
+    {
+      "document_control_number": "123"
+    }
+  ],
+  "non_scannable_items": [
+  ]
+}
