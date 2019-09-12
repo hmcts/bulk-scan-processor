@@ -240,6 +240,24 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("instance: {\"pointer\":\"/non_scannable_items/0\"}");
     }
 
+    @Test
+    public void should_not_parse_envelope_with_duplicate_payment_dcn_numbers() throws Exception {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/duplicate-payment-dcns.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: array must not contain duplicate element"
+            )
+            .hasMessageContaining("instance: {\"pointer\":\"/payments\"}");
+    }
+
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));
     }
