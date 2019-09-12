@@ -26,8 +26,6 @@ java:
     QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
-    S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
-    DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
     SCAN_ENABLED: "true"
     SCAN_DELAY: "4000"
     REUPLOAD_ENABLED: "true"
@@ -35,10 +33,23 @@ java:
     SPRING_MAIL_HOST: "false"
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED: "true"
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY: "3000"
+    BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.postgresqlUsername}}"
+    BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+    BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
+    BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
+    BULK_SCANNING_DB_PORT: "5432"
+    FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
+    FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
+    FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+    FLYWAY_NOOP_STRATEGY: "false"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
 
+  postgresql:
+    postgresqlUsername: bulkscanner
+    postgresqlPassword: bsppassword
+    postgresqlDatabase: bulk_scan
 servicebus:
   resourceGroup: bulk-scan-aks
   teamName: "Software Engineering"
@@ -61,3 +72,8 @@ blobstorage:
       - sscs
 postgresql:
   enabled: true
+bsp:
+  servicebus:
+    enabled: true
+  blobstorage:
+    enabled: true
