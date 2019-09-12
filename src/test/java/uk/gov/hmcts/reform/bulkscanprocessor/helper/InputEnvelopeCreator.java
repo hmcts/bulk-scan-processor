@@ -87,13 +87,6 @@ public final class InputEnvelopeCreator {
     }
 
     public static InputPayment payment(String documentControlNumber) {
-        return new InputPayment(
-            documentControlNumber,
-            "some_method",
-            "10",
-            "some_currency",
-            "payment_instrument_number",
-            "sort_code",
-            "account_number");
+        return new InputPayment(documentControlNumber);
     }
 }
