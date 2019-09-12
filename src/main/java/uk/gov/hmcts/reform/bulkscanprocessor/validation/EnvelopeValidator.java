@@ -52,7 +52,7 @@ public final class EnvelopeValidator {
     }
 
     /**
-     * Assert envelope contains only scannable items of types that are allowed do the envelope's classification.
+     * Assert envelope contains only scannable items of types that are allowed for the envelope's classification.
      * Otherwise, throws an exception.
      *
      * @param envelope to assert against
