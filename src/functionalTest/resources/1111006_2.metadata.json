@@ -31,17 +31,6 @@
         "document_type": "Other"
       }
   ],
-  "payments": [
-      {
-        "document_control_number": "1111006",
-        "method": "Cheque",
-        "amount": "100.00",
-        "currency": "GBP",
-        "payment_instrument_number": "1000000000",
-        "sort_code": "112233",
-        "account_number": "12345678"
-      }
-  ],
   "non_scannable_items": [
       {
         "document_control_number": "1111002",

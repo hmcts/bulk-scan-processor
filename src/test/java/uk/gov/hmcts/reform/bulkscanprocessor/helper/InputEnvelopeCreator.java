@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
@@ -18,18 +19,19 @@ public final class InputEnvelopeCreator {
     }
 
     public static InputEnvelope inputEnvelope(String jurisdiction) {
-        return inputEnvelope(jurisdiction, "poBox", Classification.EXCEPTION, emptyList());
+        return inputEnvelope(jurisdiction, "poBox", Classification.EXCEPTION, emptyList(), emptyList());
     }
 
     public static InputEnvelope inputEnvelope(String jurisdiction, String poBox) {
-        return inputEnvelope(jurisdiction, poBox, Classification.EXCEPTION, emptyList());
+        return inputEnvelope(jurisdiction, poBox, Classification.EXCEPTION, emptyList(), emptyList());
     }
 
     public static InputEnvelope inputEnvelope(
         String jurisdiction,
         String poBox,
         Classification classification,
-        List<InputScannableItem> scannableItems
+        List<InputScannableItem> scannableItems,
+        List<InputPayment> payments
     ) {
         return new InputEnvelope(
             poBox,
@@ -42,7 +44,7 @@ public final class InputEnvelopeCreator {
             "previous_service_case_ref",
             classification,
             scannableItems,
-            emptyList(),
+            payments,
             emptyList()
         );
     }
@@ -80,4 +82,14 @@ public final class InputEnvelopeCreator {
         );
     }
 
+    public static InputPayment payment(String documentControlNumber) {
+        return new InputPayment(
+            documentControlNumber,
+            "some_method",
+            "10",
+            "some_currency",
+            "payment_instrument_number",
+            "sort_code",
+            "account_number");
+    }
 }

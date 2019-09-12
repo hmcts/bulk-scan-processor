@@ -6,6 +6,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -93,7 +94,7 @@ public final class EnvelopeValidator {
 
         List<String> duplicateFileNames =
             getDuplicates(envelope.scannableItems.stream().map(it -> it.fileName).collect(toList()));
-        
+
         if (!duplicateFileNames.isEmpty()) {
             problems.add("Duplicate scanned items file names: " + String.join(", ", duplicateFileNames));
         }
@@ -165,6 +166,16 @@ public final class EnvelopeValidator {
                     envelope.poBox,
                     containerName
                 )
+            );
+        }
+    }
+
+    public static void assertClasificationNewApplicationIfPaymentsArePresent(InputEnvelope envelope) {
+        if (envelope.payments != null && !envelope.payments.isEmpty()
+            && envelope.classification != Classification.NEW_APPLICATION) {
+            throw new InvalidJourneyClassificationException(
+                "Envelope includes payments which is not supported for journey classification: "
+                    + envelope.classification.toString()
             );
         }
     }
