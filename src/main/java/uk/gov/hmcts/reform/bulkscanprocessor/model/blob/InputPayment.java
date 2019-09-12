@@ -25,7 +25,7 @@ public class InputPayment {
     ) {
         this.documentControlNumber = documentControlNumber;
         this.method = method;
-        this.amount = new BigDecimal(amount);
+        this.amount = amount == null ? BigDecimal.ZERO : new BigDecimal(amount);
         this.currency = currency;
         this.paymentInstrumentNumber = paymentInstrumentNumber;
         this.sortCode = sortCode;

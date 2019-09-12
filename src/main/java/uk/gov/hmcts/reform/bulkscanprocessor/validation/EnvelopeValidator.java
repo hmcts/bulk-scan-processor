@@ -2,8 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
@@ -21,6 +23,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -37,8 +41,41 @@ public final class EnvelopeValidator {
             "SSCS", InputDocumentType.SSCS1
         );
 
+    private static final Map<Classification, List<InputDocumentType>> disallowedDocumentTypes =
+        ImmutableMap.of(
+            Classification.EXCEPTION, emptyList(),
+            Classification.NEW_APPLICATION, emptyList(),
+            Classification.SUPPLEMENTARY_EVIDENCE, asList(InputDocumentType.FORM, InputDocumentType.SSCS1)
+        );
+
     private EnvelopeValidator() {
         // util class
+    }
+
+    /**
+     * Assert envelope contains only scannable items of types that are allowed for the envelope's classification.
+     * Otherwise, throws an exception.
+     *
+     * @param envelope to assert against
+     */
+    public static void assertEnvelopeContainsDocsOfAllowedTypesOnly(InputEnvelope envelope) {
+        List<String> disallowedDocTypesFound =
+            envelope
+                .scannableItems
+                .stream()
+                .filter(item -> disallowedDocumentTypes.get(envelope.classification).contains(item.documentType))
+                .map(item -> item.documentType.toString())
+                .collect(toList());
+
+        if (!disallowedDocTypesFound.isEmpty()) {
+            String errorMessage = String.format(
+                "Envelope contains scannable item(s) of types that are not allowed for classification '%s': [%s]",
+                envelope.classification,
+                StringUtils.join(disallowedDocTypesFound, ", ")
+            );
+
+            throw new DisallowedDocumentTypesException(errorMessage);
+        }
     }
 
     /**
@@ -57,7 +94,7 @@ public final class EnvelopeValidator {
                     defaultOcrDocymentType,
                     ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction)
                 ).filter(Objects::nonNull)
-                .collect(toList());
+                    .collect(toList());
 
             List<InputScannableItem> docsThatShouldHaveOcr = envelope
                 .scannableItems

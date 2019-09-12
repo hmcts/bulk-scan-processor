@@ -137,10 +137,6 @@ public class ServiceBusHelperTest {
         assertThat(jsonNode.get("classification").textValue()).isEqualTo(message.getClassification().name());
         assertThat(jsonNode.get("form_type").textValue()).isEqualTo(DocumentSubtype.SSCS1);
 
-        JsonNode ocrValidationWarnings = jsonNode.get("ocr_validation_warnings");
-        assertThat(ocrValidationWarnings.isArray()).isTrue();
-        assertThat(ocrValidationWarnings.elements()).containsExactly(new TextNode("warning 1"));
-
         JsonNode ocrDataValidationWarnings = jsonNode.get("ocr_data_validation_warnings");
         assertThat(ocrDataValidationWarnings.isArray()).isTrue();
         assertThat(ocrDataValidationWarnings.elements()).containsExactly(new TextNode("warning 1"));
