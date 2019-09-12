@@ -99,7 +99,7 @@ public class MetafileJsonValidatorTest {
 
     @Test
     public void should_parse_envelope_data_with_payments() throws IOException {
-        InputEnvelope envelope = getEnvelope("/metafiles/valid/multiple-payment-methods.json");
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/with-payments.json");
 
         assertThat(envelope.payments).hasSize(2);
         assertThat(envelope.payments.get(0).documentControlNumber).isEqualTo("1111001");
