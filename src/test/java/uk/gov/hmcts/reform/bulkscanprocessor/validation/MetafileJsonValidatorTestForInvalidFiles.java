@@ -202,59 +202,6 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_direct_usage_of_numeric() throws IOException {
-        // given
-        byte[] metafile = getMetafile("/metafiles/invalid/use-of-numeric.json");
-
-        // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
-
-        // then
-        assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith(
-                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
-                    + "\n\terror: instance failed to match exactly one schema (matched 0 out of 3)"
-            )
-            .hasMessageContaining("instance: {\"pointer\":\"/payments/0\"}");
-    }
-
-    @Test
-    public void should_not_parse_envelope_with_no_required_fields_for_cheque_payment() throws IOException {
-        // given
-        byte[] metafile = getMetafile("/metafiles/invalid/invalid-cheque-payment.json");
-
-        // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
-
-        // then
-        assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith(
-                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
-                    + "\n\terror: instance failed to match exactly one schema (matched 0 out of 3)"
-            )
-            .hasMessageContaining("instance: {\"pointer\":\"/payments/0\"}");
-    }
-
-    @Test
-    public void should_not_parse_envelope_with_no_payment_instrument_number_for_postal_payment() throws IOException {
-        // given
-        byte[] metafile = getMetafile("/metafiles/invalid/invalid-postal-order-payment.json");
-
-        // when
-        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
-
-        // then
-        assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
-            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
-                + "\n\terror: instance failed to match exactly one schema (matched 0 out of 3)"
-            )
-            .hasMessageContaining("instance: {\"pointer\":\"/payments/0\"}");
-    }
-
-    @Test
     public void should_not_parse_envelope_with_no_required_fields_in_scannable_items() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-scannable-items.json");
