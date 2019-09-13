@@ -57,6 +57,9 @@ public class EnvelopeMsg implements Msg {
     @JsonProperty("documents")
     private final List<Document> documents;
 
+    @JsonProperty("payments")
+    private final List<Payment> payments;
+
     @JsonProperty("ocr_data")
     private final List<OcrField> ocrData;
 
@@ -78,8 +81,8 @@ public class EnvelopeMsg implements Msg {
         this.zipFileName = envelope.getZipFileName();
         this.testOnly = envelope.isTestOnly();
         this.documents = convertFromDbScannableItems(envelope.getScannableItems());
+        this.payments = convertFromDbPayments(envelope.getPayments());
         this.formType = findSubtypeOfScannableItemWithFormType(envelope);
-
         this.ocrData = retrieveOcrData(envelope);
         this.ocrDataValidationWarnings = retrieveOcrDataValidationWarnings(envelope);
     }
@@ -204,6 +207,15 @@ public class EnvelopeMsg implements Msg {
         return dbScannableItems
             .stream()
             .map(Document::fromScannableItem)
+            .collect(toList());
+    }
+
+    private List<Payment> convertFromDbPayments(
+        List<uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment> dbPayments
+    ) {
+        return dbPayments
+            .stream()
+            .map(p -> new Payment(p.getDocumentControlNumber()))
             .collect(toList());
     }
 }
