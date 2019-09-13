@@ -222,7 +222,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(() ->
-                                                 EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isNull();
