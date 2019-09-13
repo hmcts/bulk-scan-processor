@@ -48,10 +48,13 @@ public class ServiceBusHelperTest {
 
     @Mock
     private IQueueClient queueClient;
+
     @Mock
     private Envelope envelope;
+
     @Mock
     private ScannableItem scannableItem1;
+
     @Mock
     private ScannableItem scannableItem2;
 
@@ -144,11 +147,7 @@ public class ServiceBusHelperTest {
         assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
         assertDateField(jsonNode, "opening_date", message.getOpeningDate());
 
-        JsonNode docs = jsonNode.get("documents");
-        assertThat(docs.isArray()).isTrue();
-        assertThat(docs.size()).isEqualTo(2);
-        checkScannableItem(docs.get(0), scannableItem1);
-        checkScannableItem(docs.get(1), scannableItem2);
+        assertMessageContainsRightDocuments(jsonNode);
 
         assertThat(jsonNode.hasNonNull("ocr_data")).isTrue();
 
@@ -199,8 +198,18 @@ public class ServiceBusHelperTest {
         when(scannableItem2.getOcrData()).thenReturn(null);
     }
 
+    private void assertMessageContainsRightDocuments(JsonNode jsonMessage) {
+        JsonNode documents = jsonMessage.get("documents");
+        assertThat(documents).isNotNull();
+        assertThat(documents.isArray()).isTrue();
+        assertThat(documents.size()).isEqualTo(2);
+
+        assertDocumentMatchesScannableItem(documents.get(0), scannableItem1);
+        assertDocumentMatchesScannableItem(documents.get(1), scannableItem2);
+    }
+
     @SuppressWarnings("unchecked")
-    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
+    private void assertDocumentMatchesScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());
