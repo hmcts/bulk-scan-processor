@@ -77,11 +77,7 @@ public class EnvelopeMsg implements Msg {
         this.openingDate = envelope.getOpeningDate();
         this.zipFileName = envelope.getZipFileName();
         this.testOnly = envelope.isTestOnly();
-        this.documents = envelope
-            .getScannableItems()
-            .stream()
-            .map(Document::fromScannableItem)
-            .collect(toList());
+        this.documents = convertFromDbScannableItems(envelope.getScannableItems());
         this.formType = findSubtypeOfScannableItemWithFormType(envelope);
 
         this.ocrData = retrieveOcrData(envelope);
@@ -202,5 +198,12 @@ public class EnvelopeMsg implements Msg {
             : "";
 
         return new OcrField(inputField.name.textValue(), value);
+    }
+
+    private List<Document> convertFromDbScannableItems(List<ScannableItem> dbScannableItems) {
+        return dbScannableItems
+            .stream()
+            .map(Document::fromScannableItem)
+            .collect(toList());
     }
 }
