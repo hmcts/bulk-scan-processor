@@ -1,6 +1,6 @@
 name: bulk-scan-processor
 home: https://github.com/hmcts/bulk-scan-processor
-version: 0.1.1
+version: 0.1.2
 description: HMCTS Bulk scan processor service
 maintainers:
   - name: HMCTS BSP Team
