@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
@@ -48,12 +49,21 @@ public class ServiceBusHelperTest {
 
     @Mock
     private IQueueClient queueClient;
+
     @Mock
     private Envelope envelope;
+
     @Mock
     private ScannableItem scannableItem1;
+
     @Mock
     private ScannableItem scannableItem2;
+
+    @Mock
+    private Payment payment1;
+
+    @Mock
+    private Payment payment2;
 
     private ServiceBusHelper serviceBusHelper;
 
@@ -144,11 +154,8 @@ public class ServiceBusHelperTest {
         assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
         assertDateField(jsonNode, "opening_date", message.getOpeningDate());
 
-        JsonNode docs = jsonNode.get("documents");
-        assertThat(docs.isArray()).isTrue();
-        assertThat(docs.size()).isEqualTo(2);
-        checkScannableItem(docs.get(0), scannableItem1);
-        checkScannableItem(docs.get(1), scannableItem2);
+        assertMessageContainsRightDocuments(jsonNode);
+        assertMessageContainsRightPayments(jsonNode);
 
         assertThat(jsonNode.hasNonNull("ocr_data")).isTrue();
 
@@ -176,6 +183,7 @@ public class ServiceBusHelperTest {
         when(envelope.getDeliveryDate()).thenReturn(Instant.now());
         when(envelope.getOpeningDate()).thenReturn(Instant.now());
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
+        when(envelope.getPayments()).thenReturn(Arrays.asList(payment1, payment2));
 
         when(scannableItem1.getDocumentUuid()).thenReturn("documentUuid1");
         when(scannableItem1.getDocumentControlNumber()).thenReturn("doc1_control_number");
@@ -197,10 +205,36 @@ public class ServiceBusHelperTest {
         when(scannableItem2.getDocumentSubtype()).thenReturn(DocumentSubtype.SSCS1);
         when(scannableItem2.getScanningDate()).thenReturn(Instant.now());
         when(scannableItem2.getOcrData()).thenReturn(null);
+
+        when(payment1.getDocumentControlNumber()).thenReturn("dcn1");
+        when(payment2.getDocumentControlNumber()).thenReturn("dcn2");
+    }
+
+    private void assertMessageContainsRightPayments(JsonNode jsonMessage) {
+        JsonNode payments = jsonMessage.get("payments");
+        assertThat(payments.isArray()).isTrue();
+        assertThat(payments.size()).isEqualTo(2);
+
+        assertThat(payments)
+            .extracting(item -> item.get("document_control_number").asText())
+            .containsExactly(
+                payment1.getDocumentControlNumber(),
+                payment2.getDocumentControlNumber()
+            );
+    }
+
+    private void assertMessageContainsRightDocuments(JsonNode jsonMessage) {
+        JsonNode documents = jsonMessage.get("documents");
+        assertThat(documents).isNotNull();
+        assertThat(documents.isArray()).isTrue();
+        assertThat(documents.size()).isEqualTo(2);
+
+        assertDocumentMatchesScannableItem(documents.get(0), scannableItem1);
+        assertDocumentMatchesScannableItem(documents.get(1), scannableItem2);
     }
 
     @SuppressWarnings("unchecked")
-    private void checkScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
+    private void assertDocumentMatchesScannableItem(JsonNode jsonNode, ScannableItem scannableItem) {
         assertThat(jsonNode.get("file_name").asText()).isEqualTo(scannableItem.getFileName());
         assertThat(jsonNode.get("control_number").asText()).isEqualTo(scannableItem.getDocumentControlNumber());
         assertThat(jsonNode.get("type").asText()).isEqualTo(scannableItem.getDocumentType().toString());
