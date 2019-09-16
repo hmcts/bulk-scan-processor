@@ -22,11 +22,6 @@
         "document_type": "SSCS1"
       }
   ],
-  "payments": [
-      {
-        "document_control_number": "1111002"
-      }
-  ],
   "non_scannable_items": [
   ]
 }

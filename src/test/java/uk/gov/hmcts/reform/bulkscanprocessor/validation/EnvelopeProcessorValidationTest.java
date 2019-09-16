@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -24,6 +25,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.payment;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
 
 public class EnvelopeProcessorValidationTest {
@@ -174,7 +176,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+                                                 EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
@@ -241,8 +243,8 @@ public class EnvelopeProcessorValidationTest {
             )
         );
 
-        Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+        Throwable throwable = catchThrowable(
+            () -> EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isNull();
@@ -312,6 +314,117 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(err).isNull();
+    }
+
+    @Test
+    public void should_not_throw_an_exception_when_payments_present_and_classification_new_application() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            asList(
+                payment("number1")
+            )
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
+        );
+
+        // then
+        assertThat(err).isNull();
+    }
+
+    @Test
+    public void should_not_throw_an_exception_when_no_payments_and_classification_new_application() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            null
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
+        );
+
+        // then
+        assertThat(err).isNull();
+    }
+
+    @Test
+    public void should_not_throw_an_exception_when_empty_payments_and_classification_new_application() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList()
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
+        );
+
+        // then
+        assertThat(err).isNull();
+    }
+
+    @Test
+    public void should_throw_an_exception_when_payments_present_and_classification_exception() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.EXCEPTION,
+            emptyList(),
+            asList(
+                payment("number1")
+            )
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
+        );
+
+        // then
+        verifyInvalidJourneyClassificationException(envelope, err);
+    }
+
+    @Test
+    public void should_throw_an_exception_when_payments_present_and_classification_supplement_evidence() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.SUPPLEMENTARY_EVIDENCE,
+            emptyList(),
+            asList(
+                payment("number1")
+            )
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
+        );
+
+        // then
+        verifyInvalidJourneyClassificationException(envelope, err);
+    }
+
+    private void verifyInvalidJourneyClassificationException(InputEnvelope envelope, Throwable err) {
+        assertThat(err)
+            .isInstanceOf(InvalidJourneyClassificationException.class)
+            .hasMessageContaining(envelope.classification.toString());
     }
 
     private void verifyExceptionIsThrown(InputEnvelope envelope, String container, Throwable err) {

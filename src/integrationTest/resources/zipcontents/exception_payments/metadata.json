@@ -1,7 +1,8 @@
 {
   "case_number": "1111222233334446",
-  "po_box": "SSCSPO",
-  "jurisdiction": "SSCS",
+  "previous_service_case_reference": "12345678",
+  "po_box": "BULKSCANPO",
+  "jurisdiction": "BULKSCAN",
   "delivery_date": "2018-06-23T00:00:00.000Z",
   "opening_date": "2018-06-23T00:00:00.000Z",
   "zip_file_createddate": "2018-06-23T00:00:00.000Z",
@@ -20,6 +21,11 @@
         "notes": "test",
         "document_type": "SSCS1"
       }
+  ],
+  "payments": [
+    {
+      "document_control_number": "1111002"
+    }
   ],
   "non_scannable_items": [
   ]

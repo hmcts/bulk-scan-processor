@@ -23,11 +23,6 @@
           "document_type": "other"
         }
       ],
-      "payments": [
-        {
-          "document_control_number": "1111002"
-        }
-      ],
       "non_scannable_items": [
       ],
       "status": "PROCESSED",

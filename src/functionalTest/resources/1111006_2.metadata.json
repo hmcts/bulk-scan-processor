@@ -31,11 +31,6 @@
         "document_type": "Other"
       }
   ],
-  "payments": [
-      {
-        "document_control_number": "1111006"
-      }
-  ],
   "non_scannable_items": [
       {
         "document_control_number": "1111002",
