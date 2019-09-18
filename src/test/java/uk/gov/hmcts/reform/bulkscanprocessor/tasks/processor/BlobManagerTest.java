@@ -165,6 +165,7 @@ public class BlobManagerTest {
         List<String> containerNames = containers.stream().map(c -> c.getName()).collect(toList());
 
     }
+
     @Test
     public void listRejectedContainers_retrieves_rejected_containers_only() {
         // given
