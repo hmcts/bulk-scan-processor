@@ -81,7 +81,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
-    public void should_read_blob_specific_container_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
+    public void should_read_from_specific_blob_container_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
         this.blobManagementProperties.setBlobSelectedContainer("bulkscan");
