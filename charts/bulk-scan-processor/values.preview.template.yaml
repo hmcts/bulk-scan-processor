@@ -42,6 +42,7 @@ java:
     FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     FLYWAY_NOOP_STRATEGY: "false"
+    PROCESS_PAYMENTS_ENABLED: "false"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
