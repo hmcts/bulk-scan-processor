@@ -127,7 +127,7 @@ module "bulk-scan" {
     STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES = "${var.blob_processing_delay_in_minutes}"
 
-    STORAGE_BLOB_SELECTED_CONTAINER ="${var.blob_selected_container}"
+    STORAGE_BLOB_SELECTED_CONTAINER = "${var.blob_selected_container}"
 
     STORAGE_BLOB_SIGNATURE_ALGORITHM = "sha256withrsa"                               // none or sha256withrsa
     STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
