@@ -5,9 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
@@ -15,7 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
@@ -53,9 +50,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 @RunWith(SpringRunner.class)
 public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask> {
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
     @Before
     public void setUp() throws Exception {
         super.setUp(BlobProcessorTask::new);
@@ -65,26 +59,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     public void should_read_blob_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
-        testBlobFileProcessed();
-    }
-
-    @Test
-    public void throw_ContainerNotFoundException_when_no_blob_container_found_to_read()
-        throws Exception {
-        expectedEx.expect(ContainerNotFoundException.class);
-        expectedEx.expectMessage("No BLOB Container found");
-        //Given
-        this.blobManagementProperties.setBlobSelectedContainer("NO_CONTAINER");
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
-        testBlobFileProcessed();
-    }
-
-    @Test
-    public void should_read_from_specific_blob_container_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
-        throws Exception {
-        //Given
-        this.blobManagementProperties.setBlobSelectedContainer("bulkscan");
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
         testBlobFileProcessed();
     }

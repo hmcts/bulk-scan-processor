@@ -80,7 +80,6 @@ storage:
   proxy_enabled: ${STORAGE_PROXY_ENABLED:false}
   proxy_host: proxyout.reform.hmcts.net
   proxy_port: 8080
-  blob_selected_container: ${STORAGE_BLOB_SELECTED_CONTAINER:ALL}
 
 queues:
   envelopes:

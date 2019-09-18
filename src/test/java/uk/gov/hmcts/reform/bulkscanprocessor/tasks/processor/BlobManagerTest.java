@@ -8,14 +8,11 @@ import com.microsoft.azure.storage.blob.CopyState;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.LeaseStatus;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerNotFoundException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,9 +39,6 @@ public class BlobManagerTest {
     private static final String REJECTED_CONTAINER_NAME = INPUT_CONTAINER_NAME + "-rejected";
     private static final String INPUT_FILE_NAME = "file-name-123.zip";
     private static final String LEASE_ID = "leaseid123";
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Mock
     private CloudBlobClient cloudBlobClient;
@@ -118,8 +112,6 @@ public class BlobManagerTest {
         );
 
         given(cloudBlobClient.listContainers()).willReturn(allContainers);
-        given(blobManagementProperties.getBlobSelectedContainer()).willReturn("all");
-
         List<CloudBlobContainer> containers = blobManager.listInputContainers();
         List<String> containerNames = containers.stream().map(c -> c.getName()).collect(toList());
 
@@ -127,44 +119,6 @@ public class BlobManagerTest {
         verify(cloudBlobClient).listContainers();
     }
 
-
-    @Test
-    public void listInputContainers_retrieves_selected_container_from_client() {
-        List<CloudBlobContainer> allContainers = Arrays.asList(
-            mockContainer("test1"),
-            mockContainer("test1-rejected"),
-            mockContainer("test2"),
-            mockContainer("test3")
-        );
-
-        given(cloudBlobClient.listContainers()).willReturn(allContainers);
-        given(blobManagementProperties.getBlobSelectedContainer()).willReturn("test2");
-
-        List<CloudBlobContainer> containers = blobManager.listInputContainers();
-        List<String> containerNames = containers.stream().map(c -> c.getName()).collect(toList());
-
-        assertThat(containerNames).hasSameElementsAs(Arrays.asList("test2"));
-        verify(cloudBlobClient).listContainers();
-    }
-
-
-    @Test
-    public void listInputContainers_throw_exception_no_container_found_in_client() {
-        List<CloudBlobContainer> allContainers = Arrays.asList(
-            mockContainer("test1"),
-            mockContainer("test1-rejected"),
-            mockContainer("test2")
-        );
-        expectedEx.expect(ContainerNotFoundException.class);
-        expectedEx.expectMessage("No BLOB Container found");
-
-        given(cloudBlobClient.listContainers()).willReturn(allContainers);
-        given(blobManagementProperties.getBlobSelectedContainer()).willReturn("test3");
-
-        List<CloudBlobContainer> containers = blobManager.listInputContainers();
-        List<String> containerNames = containers.stream().map(c -> c.getName()).collect(toList());
-
-    }
     @Test
     public void listRejectedContainers_retrieves_rejected_containers_only() {
         // given
