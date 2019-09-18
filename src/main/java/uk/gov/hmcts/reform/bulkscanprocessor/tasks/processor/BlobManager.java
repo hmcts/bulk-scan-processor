@@ -99,7 +99,7 @@ public class BlobManager {
         return cloudBlobContainerList;
     }
 
-    private boolean filterBySelectedContainer(CloudBlobContainer container) {
+    private boolean filterBySelectedContainer (CloudBlobContainer container) {
         return SELECT_ALL_CONTAINER.equalsIgnoreCase(properties.getBlobSelectedContainer())
             || properties.getBlobSelectedContainer().equals(container.getName());
     }
