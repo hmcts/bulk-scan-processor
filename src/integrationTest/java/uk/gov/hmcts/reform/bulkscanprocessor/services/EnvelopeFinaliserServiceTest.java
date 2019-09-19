@@ -63,12 +63,12 @@ public class EnvelopeFinaliserServiceTest {
     }
 
     @Test
-    public void finaliseEnvelope_should_update_envelope_status_and_clear_all_ocr_data() {
+    public void finaliseEnvelope_should_update_envelope_status_and_clear_all_ocr_data_and_warnings() {
         // given
         Envelope envelope = envelope(
             "JURISDICTION1",
             Status.NOTIFICATION_SENT,
-            createScannableItemsWithOcrData(3)
+            createScannableItemsWithOcrDataAndWarnings(3)
         );
 
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
@@ -81,14 +81,23 @@ public class EnvelopeFinaliserServiceTest {
 
         assertThat(finalisedEnvelope).isPresent();
         assertThat(finalisedEnvelope.get().getStatus()).isEqualTo(Status.COMPLETED);
-        assertThat(finalisedEnvelope.get().getScannableItems()).allMatch(item -> item.getOcrData() == null);
+        assertThat(finalisedEnvelope.get().getScannableItems())
+            .allMatch(item -> item.getOcrData() == null && item.getOcrValidationWarnings() == null);
     }
 
     @Test
     public void finaliseEnvelope_should_not_update_other_envelopes() {
         // given
-        Envelope envelope1 = envelope("JURISDICTION1", Status.NOTIFICATION_SENT, createScannableItemsWithOcrData(3));
-        Envelope envelope2 = envelope("JURISDICTION1", Status.NOTIFICATION_SENT, createScannableItemsWithOcrData(3));
+        Envelope envelope1 = envelope(
+            "JURISDICTION1",
+            Status.NOTIFICATION_SENT,
+            createScannableItemsWithOcrDataAndWarnings(3)
+        );
+        Envelope envelope2 = envelope(
+            "JURISDICTION1",
+            Status.NOTIFICATION_SENT,
+            createScannableItemsWithOcrDataAndWarnings(3)
+        );
 
         UUID envelope1Id = envelopeRepository.saveAndFlush(envelope1).getId();
         UUID envelope2Id = envelopeRepository.saveAndFlush(envelope2).getId();
@@ -101,7 +110,8 @@ public class EnvelopeFinaliserServiceTest {
 
         assertThat(unaffectedEnvelope).isPresent();
         assertThat(unaffectedEnvelope.get().getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
-        assertThat(unaffectedEnvelope.get().getScannableItems()).allMatch(item -> item.getOcrData() != null);
+        assertThat(unaffectedEnvelope.get().getScannableItems())
+            .allMatch(item -> item.getOcrData() != null && item.getOcrValidationWarnings() != null);
     }
 
     @Test
@@ -134,7 +144,7 @@ public class EnvelopeFinaliserServiceTest {
             .hasMessage(String.format("Envelope with ID %s couldn't be found", nonExistingId));
     }
 
-    private List<ScannableItem> createScannableItemsWithOcrData(int count) {
+    private List<ScannableItem> createScannableItemsWithOcrDataAndWarnings(int count) {
         return new ArrayList<>(Stream.generate(() -> {
             Instant instant = Instant.parse("2018-06-23T12:34:56.123Z");
 

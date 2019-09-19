@@ -8,8 +8,6 @@ import org.hibernate.annotations.TypeDefs;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
-import java.time.Instant;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,6 +18,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "scannable_items")
@@ -167,5 +167,9 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public String[] getOcrValidationWarnings() {
         return ocrValidationWarnings;
+    }
+
+    public void setOcrValidationWarnings(String[] ocrValidationWarnings) {
+        this.ocrValidationWarnings = ocrValidationWarnings;
     }
 }
