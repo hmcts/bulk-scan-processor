@@ -72,7 +72,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     private ScannableItemRepository scannableItemRepository;
 
     @Autowired
-    private BlobManagementProperties blobManagementProperties;
+    protected BlobManagementProperties blobManagementProperties;
 
     @Value("${scheduling.task.reupload.batch}")
     private int reUploadBatchSize;

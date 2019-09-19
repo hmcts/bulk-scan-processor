@@ -15,6 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyException;
 
 import java.net.URISyntaxException;
@@ -33,6 +34,7 @@ public class BlobManager {
 
     private static final Logger log = LoggerFactory.getLogger(BlobManager.class);
     private static final String REJECTED_CONTAINER_NAME_SUFFIX = "-rejected";
+    private static final String SELECT_ALL_CONTAINER = "ALL";
     private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
         "Can't acquire lease on file {} in container {} - already acquired";
 
@@ -84,10 +86,22 @@ public class BlobManager {
     }
 
     public List<CloudBlobContainer> listInputContainers() {
-        return StreamSupport
+        List<CloudBlobContainer> cloudBlobContainerList = StreamSupport
             .stream(cloudBlobClient.listContainers().spliterator(), false)
             .filter(c -> !c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
+            .filter(this::filterBySelectedContainer)
             .collect(toList());
+
+        if (cloudBlobContainerList.isEmpty()) {
+            throw new ContainerNotFoundException();
+        }
+
+        return cloudBlobContainerList;
+    }
+
+    private boolean filterBySelectedContainer(CloudBlobContainer container) {
+        return SELECT_ALL_CONTAINER.equalsIgnoreCase(properties.getBlobSelectedContainer())
+            || properties.getBlobSelectedContainer().equals(container.getName());
     }
 
     public List<CloudBlobContainer> listRejectedContainers() {
