@@ -176,7 +176,6 @@ variable "blob_selected_container" {
   default = "ALL"
 }
 
-
 variable "blob_signature_verification_key_file" {
   default = "trusted_public_key.der"
 }
