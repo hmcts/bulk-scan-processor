@@ -5,9 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
@@ -15,7 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
@@ -44,10 +41,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.*;
 
 @IntegrationTest
 @RunWith(SpringRunner.class)
