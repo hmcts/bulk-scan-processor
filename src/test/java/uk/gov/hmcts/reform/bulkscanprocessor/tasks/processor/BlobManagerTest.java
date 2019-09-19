@@ -8,9 +8,7 @@ import com.microsoft.azure.storage.blob.CopyState;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.LeaseStatus;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -27,6 +25,7 @@ import static com.microsoft.azure.storage.blob.CopyStatus.SUCCESS;
 import static java.util.Arrays.copyOfRange;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeast;
@@ -42,9 +41,6 @@ public class BlobManagerTest {
     private static final String REJECTED_CONTAINER_NAME = INPUT_CONTAINER_NAME + "-rejected";
     private static final String INPUT_FILE_NAME = "file-name-123.zip";
     private static final String LEASE_ID = "leaseid123";
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Mock
     private CloudBlobClient cloudBlobClient;
@@ -153,14 +149,13 @@ public class BlobManagerTest {
             mockContainer("test1-rejected"),
             mockContainer("test2")
         );
-        expectedEx.expect(ContainerNotFoundException.class);
-        expectedEx.expectMessage("No BLOB Container found");
 
         given(cloudBlobClient.listContainers()).willReturn(allContainers);
         given(blobManagementProperties.getBlobSelectedContainer()).willReturn("test3");
 
-        List<CloudBlobContainer> containers = blobManager.listInputContainers();
-        containers.stream().map(c -> c.getName()).collect(toList());
+        assertThatThrownBy(() -> blobManager.listInputContainers())
+            .isInstanceOf(ContainerNotFoundException.class)
+            .hasMessageContaining("No BLOB Container found");
 
     }
 
