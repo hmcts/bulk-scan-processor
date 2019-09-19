@@ -70,6 +70,14 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
+    public void should_read_blob_and_save_metadata_in_database_when_zip_contains_metadata_with_payments_and_pdfs()
+        throws Exception {
+        //Given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/new_application_payments"));
+        testBlobFileProcessed();
+    }
+
+    @Test
     public void throw_ContainerNotFoundException_when_no_blob_container_found_to_read()
         throws Exception {
         expectedEx.expect(ContainerNotFoundException.class);
