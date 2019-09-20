@@ -161,35 +161,6 @@ public class EnvelopeFinaliserServiceTest {
     }
 
     @Test
-    public void finaliseEnvelope_should_not_update_other_envelopes_with_warnings() {
-        // given
-        Envelope envelope1 = envelope(
-            "JURISDICTION1",
-            Status.NOTIFICATION_SENT,
-            createScannableItems(3, null, createWarnings())
-        );
-        Envelope envelope2 = envelope(
-            "JURISDICTION1",
-            Status.NOTIFICATION_SENT,
-            createScannableItems(3, null, createWarnings())
-        );
-
-        UUID envelope1Id = envelopeRepository.saveAndFlush(envelope1).getId();
-        UUID envelope2Id = envelopeRepository.saveAndFlush(envelope2).getId();
-
-        // when
-        envelopeFinaliserService.finaliseEnvelope(envelope1Id);
-
-        // then
-        Optional<Envelope> unaffectedEnvelope = envelopeRepository.findById(envelope2Id);
-
-        assertThat(unaffectedEnvelope).isPresent();
-        assertThat(unaffectedEnvelope.get().getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
-        assertThat(unaffectedEnvelope.get().getScannableItems())
-            .allMatch(item -> item.getOcrData() == null & item.getOcrValidationWarnings() != null);
-    }
-
-    @Test
     public void finaliseEnvelope_should_not_update_other_envelopes_with_ocr_data_and_warnings() {
         // given
         Envelope envelope1 = envelope(
