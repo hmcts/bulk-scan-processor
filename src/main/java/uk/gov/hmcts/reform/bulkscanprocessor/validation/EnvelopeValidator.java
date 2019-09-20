@@ -213,7 +213,7 @@ public final class EnvelopeValidator {
         List<ContainerMappings.Mapping> mappings
     ) {
         if (envelope.payments != null
-            && envelope.payments.size() > 0
+            && !envelope.payments.isEmpty()
             && (!paymentsEnabled
             || !isPaymentsEnabledForContainer(mappings, envelope)
             || envelope.classification != Classification.NEW_APPLICATION
