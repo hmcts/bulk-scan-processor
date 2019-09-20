@@ -50,7 +50,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             ocrValidator,
             serviceBusHelper,
             SIGNATURE_ALGORITHM,
-            DEFAULT_PUBLIC_KEY_BASE64
+            DEFAULT_PUBLIC_KEY_BASE64,
+            paymentsEnabled
         );
     }
 

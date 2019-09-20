@@ -207,14 +207,36 @@ public final class EnvelopeValidator {
         }
     }
 
-    public static void assertClassificationNewApplicationIfPaymentsArePresent(InputEnvelope envelope) {
-        if (envelope.payments != null && !envelope.payments.isEmpty()
-            && envelope.classification != Classification.NEW_APPLICATION) {
+    public static void assertPaymentsEnabledAndAllowedForClassification(
+        InputEnvelope envelope,
+        boolean paymentsEnabled,
+        List<ContainerMappings.Mapping> mappings
+    ) {
+        if (envelope.payments != null
+            && envelope.payments.size() > 0
+            && (!paymentsEnabled
+            || !isPaymentsEnabledForContainer(mappings, envelope)
+            || envelope.classification != Classification.NEW_APPLICATION
+            )) {
             throw new InvalidJourneyClassificationException(
-                "Envelope includes payments which is not supported for journey classification: "
+                "Envelope includes payments which is disabled or not supported for journey classification: "
                     + envelope.classification.toString()
             );
         }
+    }
+
+    private static boolean isPaymentsEnabledForContainer(
+        List<ContainerMappings.Mapping> mappings,
+        InputEnvelope envelope
+    ) {
+        return mappings
+            .stream()
+            .filter(mapping ->
+                mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
+                    && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
+            )
+            .findFirst()
+            .map(ContainerMappings.Mapping::isPaymentsEnabled).get();
     }
 
     private static List<String> getDuplicates(List<String> collection) {

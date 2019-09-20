@@ -99,6 +99,9 @@ public class EnvelopeControllerTest {
     @Value("${scheduling.task.reupload.max_tries}")
     private int reuploadMaxTries;
 
+    @Value("${process-payments.enabled}")
+    private boolean paymentsEnabled;
+
     @Mock
     private DocumentManagementService documentManagementService;
 
@@ -158,8 +161,8 @@ public class EnvelopeControllerTest {
             ocrValidator,
             serviceBusHelper,
             "none",
-            "none"
-
+            "none",
+            paymentsEnabled
         );
 
         testContainer = cloudBlobClient.getContainerReference("bulkscan");

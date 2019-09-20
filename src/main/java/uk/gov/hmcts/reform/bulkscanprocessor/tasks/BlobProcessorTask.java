@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -81,6 +82,8 @@ public class BlobProcessorTask extends Processor {
 
     private final OcrValidator ocrValidator;
 
+    private final boolean paymentsEnabled;
+
     @SuppressWarnings("squid:S00107")
     @Autowired
     public BlobProcessorTask(
@@ -91,12 +94,13 @@ public class BlobProcessorTask extends Processor {
         ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
-        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper
-    ) {
+        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
+        @Value("${process-payments.enabled}") boolean paymentsEnabled) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.notificationsQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
         this.ocrValidator = ocrValidator;
+        this.paymentsEnabled = paymentsEnabled;
     }
 
     // NOTE: this is needed for testing as children of this class are instantiated
@@ -112,8 +116,8 @@ public class BlobProcessorTask extends Processor {
         OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         String signatureAlg,
-        String publicKeyDerFilename
-    ) {
+        String publicKeyDerFilename,
+        @Value("${process-payments.enabled}") boolean paymentsEnabled) {
         this(
             blobManager,
             documentProcessor,
@@ -122,8 +126,8 @@ public class BlobProcessorTask extends Processor {
             eventRepository,
             containerMappings,
             ocrValidator,
-            notificationsQueueHelper
-        );
+            notificationsQueueHelper,
+            paymentsEnabled);
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -286,7 +290,9 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
-            EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope);
+            EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope, Boolean.valueOf(paymentsEnabled), containerMappings.getMappings()
+            );
             EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
@@ -298,6 +304,10 @@ public class BlobProcessorTask extends Processor {
             result.setEnvelope(envelopeProcessor.saveEnvelope(dbEnvelope));
 
             return result;
+        } catch (InvalidJourneyClassificationException ex) {
+            log.error("Rejected file {} from container {} - Invalid payments", zipFilename, containerName);
+            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            return null;
         } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);

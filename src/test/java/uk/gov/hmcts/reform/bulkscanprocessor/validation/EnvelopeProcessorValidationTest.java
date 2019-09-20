@@ -271,7 +271,7 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "abc";
-        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL));
+        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL, true));
 
         // when
         Throwable err = catchThrowable(
@@ -287,7 +287,9 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "test";
-        List<Mapping> mappings = singletonList(new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL));
+        List<Mapping> mappings = singletonList(
+            new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL, true)
+        );
 
         // when
         Throwable err = catchThrowable(
@@ -304,7 +306,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
         List<Mapping> mappings = singletonList(
-            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL)
+            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL, true)
         );
 
         // when
@@ -331,8 +333,11 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
+            () -> EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope,
+                true,
+                singletonList(new Mapping("abc", "ABC", "test_poBox", null, true))
+            ));
 
         // then
         assertThat(err).isNull();
@@ -351,11 +356,64 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
+            () -> EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope,
+                true,
+                singletonList(new Mapping("abc", "ABC", "test_poBox", null, true))
+            ));
 
         // then
         assertThat(err).isNull();
+    }
+
+    @Test
+    public void should_throw_an_exception_when_payments_present_but_payment_processing_disabled() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            asList(
+                payment("number1")
+            )
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope,
+                false, // disable processing payments
+                singletonList(new Mapping("abc", "ABC", "test_poBox", null, true)) //payments enabled for container
+            ));
+
+        // then
+        verifyInvalidJourneyClassificationException(envelope, err);
+    }
+
+    @Test
+    public void should_throw_an_exception_when_payments_present_but_disabled_for_container() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            asList(
+                payment("number1")
+            )
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope,
+                true,  // enable processing payments
+                singletonList(new Mapping("abc", "ABC", "test_poBox", null, false)) //payments disabled for container
+            ));
+
+        // then
+        verifyInvalidJourneyClassificationException(envelope, err);
     }
 
     @Test
@@ -370,8 +428,11 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
+            () -> EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope,
+                true,
+                singletonList(new Mapping("abc", "ABC", "test_poBox", null, true))
+            ));
 
         // then
         assertThat(err).isNull();
@@ -392,8 +453,11 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
+            () -> EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope,
+                true,
+                singletonList(new Mapping("abc", "ABC", "test_poBox", null, true))
+            ));
 
         // then
         verifyInvalidJourneyClassificationException(envelope, err);
@@ -414,8 +478,11 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
+            () -> EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+                envelope,
+                true,
+                singletonList(new Mapping("abc", "ABC", "test_poBox", null, true))
+            ));
 
         // then
         verifyInvalidJourneyClassificationException(envelope, err);

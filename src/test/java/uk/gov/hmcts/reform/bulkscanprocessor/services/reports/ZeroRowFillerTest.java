@@ -18,9 +18,9 @@ public class ZeroRowFillerTest {
         // given
         ContainerMappings containerMappings = new ContainerMappings();
         containerMappings.setMappings(asList(
-            new ContainerMappings.Mapping("c1", "j1", "123", "https://example.com/s1"),
-            new ContainerMappings.Mapping("c2", "j2", "124", "https://example.com/s2"),
-            new ContainerMappings.Mapping("c3", "j3", "125", "https://example.com/s3")
+            new ContainerMappings.Mapping("c1", "j1", "123", "https://example.com/s1", true),
+            new ContainerMappings.Mapping("c2", "j2", "124", "https://example.com/s2", true),
+            new ContainerMappings.Mapping("c3", "j3", "125", "https://example.com/s3", true)
         ));
 
         ZeroRowFiller filler = new ZeroRowFiller(containerMappings);
@@ -48,8 +48,8 @@ public class ZeroRowFillerTest {
         // given
         ContainerMappings containerMappings = new ContainerMappings();
         containerMappings.setMappings(asList(
-            new ContainerMappings.Mapping("c1", "j1", "123", "https://example.com/s1"),
-            new ContainerMappings.Mapping("c2", "j2", "124", "https://example.com/s1")
+            new ContainerMappings.Mapping("c1", "j1", "123", "https://example.com/s1", true),
+            new ContainerMappings.Mapping("c2", "j2", "124", "https://example.com/s1", true)
         ));
 
         ZeroRowFiller filler = new ZeroRowFiller(containerMappings);

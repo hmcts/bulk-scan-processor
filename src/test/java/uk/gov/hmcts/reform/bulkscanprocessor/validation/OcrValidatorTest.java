@@ -112,7 +112,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, url)
+                new Mapping("container", "jurisdiction", PO_BOX, url, true)
             ));
 
         given(client.validate(eq(url), any(), any(), any()))
@@ -158,7 +158,7 @@ public class OcrValidatorTest {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL)
+                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true)
             ));
 
         List<String> expectedWarnings = ImmutableList.of("warning 1", "warning 2");
@@ -188,7 +188,7 @@ public class OcrValidatorTest {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL)
+                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true)
             ));
 
         given(client.validate(any(), any(), any(), any()))
@@ -242,7 +242,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("c", "j", envelope.poBox, "https://example.com")
+                new Mapping("c", "j", envelope.poBox, "https://example.com", true)
             ));
 
         // when
@@ -268,7 +268,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL)
+                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true)
             ));
 
         given(client.validate(any(), any(), any(), any()))
@@ -302,7 +302,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL)
+                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true)
             ));
 
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
@@ -336,7 +336,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("c", "j", envelope.poBox, VALIDATION_URL)
+                new Mapping("c", "j", envelope.poBox, VALIDATION_URL, true)
             ));
 
         given(client.validate(any(), any(), any(), any())).willThrow(new RuntimeException());
