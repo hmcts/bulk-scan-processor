@@ -236,7 +236,8 @@ public final class EnvelopeValidator {
                     && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
             )
             .findFirst()
-            .map(ContainerMappings.Mapping::isPaymentsEnabled).get();
+            .map(ContainerMappings.Mapping::isPaymentsEnabled)
+            .orElse(false);
     }
 
     private static List<String> getDuplicates(List<String> collection) {
