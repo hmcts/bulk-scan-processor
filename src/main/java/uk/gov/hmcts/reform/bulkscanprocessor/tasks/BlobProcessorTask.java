@@ -291,7 +291,7 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
             EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
-                envelope, Boolean.valueOf(paymentsEnabled), containerMappings.getMappings()
+                envelope, paymentsEnabled, containerMappings.getMappings()
             );
             EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
 
