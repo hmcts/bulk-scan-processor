@@ -22,7 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -290,9 +290,10 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
-            EnvelopeValidator.assertPaymentsEnabledAndAllowedForClassification(
+            EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
                 envelope, paymentsEnabled, containerMappings.getMappings()
             );
+            EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope);
             EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
@@ -304,8 +305,10 @@ public class BlobProcessorTask extends Processor {
             result.setEnvelope(envelopeProcessor.saveEnvelope(dbEnvelope));
 
             return result;
-        } catch (InvalidJourneyClassificationException ex) {
-            log.error("Rejected file {} from container {} - Invalid payments", zipFilename, containerName);
+        } catch (PaymentsDisabledException ex) {
+            log.error(
+                "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
+            );
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (InvalidEnvelopeException ex) {

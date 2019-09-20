@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
@@ -207,20 +208,30 @@ public final class EnvelopeValidator {
         }
     }
 
-    public static void assertPaymentsEnabledAndAllowedForClassification(
+    public static void assertClassificationNewApplicationIfPaymentsArePresent(InputEnvelope envelope) {
+        if (envelope.payments != null && !envelope.payments.isEmpty()
+            && envelope.classification != Classification.NEW_APPLICATION) {
+            throw new InvalidJourneyClassificationException(
+                "Envelope includes payments which is not supported for journey classification: "
+                    + envelope.classification.toString()
+            );
+        }
+    }
+
+    public static void assertPaymentsEnabledForContainerIfPaymentsArePresent(
         InputEnvelope envelope,
         boolean paymentsEnabled,
         List<ContainerMappings.Mapping> mappings
     ) {
-        if (envelope.payments != null
-            && !envelope.payments.isEmpty()
-            && (!paymentsEnabled
-            || !isPaymentsEnabledForContainer(mappings, envelope)
-            || envelope.classification != Classification.NEW_APPLICATION
+        if (envelope.payments != null && !envelope.payments.isEmpty()
+            && (!paymentsEnabled || !isPaymentsEnabledForContainer(mappings, envelope)
             )) {
-            throw new InvalidJourneyClassificationException(
-                "Envelope includes payments which is disabled or not supported for journey classification: "
-                    + envelope.classification.toString()
+            throw new PaymentsDisabledException(
+                String.format(
+                    "Envelope contains payment(s) that are not allowed for jurisdiction '%s', poBox: '%s'",
+                    envelope.jurisdiction,
+                    envelope.poBox
+                )
             );
         }
     }
