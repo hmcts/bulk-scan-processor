@@ -172,6 +172,10 @@ variable "blob_processing_delay_in_minutes" {
   default = "0"
 }
 
+variable "blob_selected_container" {
+  default = "ALL"
+}
+
 variable "blob_signature_verification_key_file" {
   default = "trusted_public_key.der"
 }

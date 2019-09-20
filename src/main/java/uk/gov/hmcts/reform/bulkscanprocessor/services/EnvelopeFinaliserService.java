@@ -30,7 +30,10 @@ public class EnvelopeFinaliserService {
     public void finaliseEnvelope(UUID envelopeId) {
         Envelope envelope = findEnvelope(envelopeId);
 
-        envelope.getScannableItems().forEach(item -> item.setOcrData(null));
+        envelope.getScannableItems().forEach(item -> {
+            item.setOcrData(null);
+            item.setOcrValidationWarnings(null);
+        });
         envelope.setStatus(Status.COMPLETED);
         envelopeRepository.saveAndFlush(envelope);
 
