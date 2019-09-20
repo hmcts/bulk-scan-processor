@@ -15,7 +15,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyException;
 
 import java.net.URISyntaxException;
@@ -93,7 +92,7 @@ public class BlobManager {
             .collect(toList());
 
         if (cloudBlobContainerList.isEmpty()) {
-            throw new ContainerNotFoundException();
+            log.error("NO Blob container found, configuration for selected container: {}", properties.getBlobSelectedContainer());
         }
 
         return cloudBlobContainerList;

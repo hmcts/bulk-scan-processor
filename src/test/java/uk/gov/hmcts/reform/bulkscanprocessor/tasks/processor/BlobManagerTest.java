@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerNotFoundException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +24,6 @@ import static com.microsoft.azure.storage.blob.CopyStatus.SUCCESS;
 import static java.util.Arrays.copyOfRange;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeast;
@@ -143,7 +141,7 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void listInputContainers_throw_exception_no_container_found_in_client() {
+    public void listInputContainers_no_container_found_in_client() {
         List<CloudBlobContainer> allContainers = Arrays.asList(
             mockContainer("test1"),
             mockContainer("test1-rejected"),
@@ -153,9 +151,10 @@ public class BlobManagerTest {
         given(cloudBlobClient.listContainers()).willReturn(allContainers);
         given(blobManagementProperties.getBlobSelectedContainer()).willReturn("test3");
 
-        assertThatThrownBy(() -> blobManager.listInputContainers())
-            .isInstanceOf(ContainerNotFoundException.class)
-            .hasMessageContaining("No BLOB Container found");
+        List<CloudBlobContainer> containers = blobManager.listInputContainers();
+
+        assertThat(containers).isEmpty();
+        verify(cloudBlobClient).listContainers();
 
     }
 
