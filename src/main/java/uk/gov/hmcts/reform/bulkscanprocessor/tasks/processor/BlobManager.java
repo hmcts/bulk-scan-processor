@@ -92,7 +92,7 @@ public class BlobManager {
             .collect(toList());
 
         if (cloudBlobContainerList.isEmpty()) {
-            log.error("NO Blob container found, configuration for selected container: {}", properties.getBlobSelectedContainer());
+            log.error("Container not found for configured container name : {}", properties.getBlobSelectedContainer());
         }
 
         return cloudBlobContainerList;
