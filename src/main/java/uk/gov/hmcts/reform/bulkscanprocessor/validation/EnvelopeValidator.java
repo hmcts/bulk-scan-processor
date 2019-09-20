@@ -33,6 +33,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 public final class EnvelopeValidator {
 
@@ -223,9 +224,9 @@ public final class EnvelopeValidator {
         boolean paymentsEnabled,
         List<ContainerMappings.Mapping> mappings
     ) {
-        if (envelope.payments != null && !envelope.payments.isEmpty()
-            && (!paymentsEnabled || !isPaymentsEnabledForContainer(mappings, envelope)
-            )) {
+        if (isNotEmpty(envelope.payments)
+            && (!paymentsEnabled || !isPaymentsEnabledForContainer(mappings, envelope))
+        ) {
             throw new PaymentsDisabledException(
                 String.format(
                     "Envelope contains payment(s) that are not allowed for jurisdiction '%s', poBox: '%s'",
