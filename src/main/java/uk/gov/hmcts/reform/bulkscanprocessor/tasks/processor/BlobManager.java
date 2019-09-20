@@ -99,8 +99,9 @@ public class BlobManager {
     }
 
     private boolean filterBySelectedContainer(CloudBlobContainer container) {
-        return SELECT_ALL_CONTAINER.equalsIgnoreCase(properties.getBlobSelectedContainer())
-            || properties.getBlobSelectedContainer().equals(container.getName());
+        String selectedContainer = properties.getBlobSelectedContainer();
+        return SELECT_ALL_CONTAINER.equalsIgnoreCase(selectedContainer)
+            || selectedContainer.equals(container.getName());
     }
 
     public List<CloudBlobContainer> listRejectedContainers() {

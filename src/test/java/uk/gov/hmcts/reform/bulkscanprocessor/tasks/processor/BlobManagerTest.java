@@ -8,10 +8,12 @@ import com.microsoft.azure.storage.blob.CopyState;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.LeaseStatus;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
 import java.util.Arrays;
@@ -62,6 +64,9 @@ public class BlobManagerTest {
     private CloudBlobContainer rejectedContainer;
 
     private BlobManager blobManager;
+
+    @Rule
+    public OutputCapture outputCapture = new OutputCapture();
 
     @Before
     public void setUp() throws Exception {
@@ -152,6 +157,13 @@ public class BlobManagerTest {
         given(blobManagementProperties.getBlobSelectedContainer()).willReturn("test3");
 
         List<CloudBlobContainer> containers = blobManager.listInputContainers();
+
+        String output = outputCapture.toString();
+
+        assertThat(output).containsPattern(".+ERROR \\[.+\\] "
+                                               + BlobManager.class.getCanonicalName()
+                                               + ":\\d+: Container not found for configured container name : test3+"
+        );
 
         assertThat(containers).isEmpty();
         verify(cloudBlobClient).listContainers();
