@@ -86,29 +86,6 @@ public class EnvelopeFinaliserServiceTest {
     }
 
     @Test
-    public void finaliseEnvelope_should_update_envelope_status_and_clear_all_warnings() {
-        // given
-        Envelope envelope = envelope(
-            "JURISDICTION1",
-            Status.NOTIFICATION_SENT,
-            createScannableItems(3, null, createWarnings())
-        );
-
-        UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
-
-        // when
-        envelopeFinaliserService.finaliseEnvelope(envelopeId);
-
-        // then
-        Optional<Envelope> finalisedEnvelope = envelopeRepository.findById(envelopeId);
-
-        assertThat(finalisedEnvelope).isPresent();
-        assertThat(finalisedEnvelope.get().getStatus()).isEqualTo(Status.COMPLETED);
-        assertThat(finalisedEnvelope.get().getScannableItems())
-            .allMatch(item -> item.getOcrData() == null && item.getOcrValidationWarnings() == null);
-    }
-
-    @Test
     public void finaliseEnvelope_should_update_envelope_status_and_clear_all_ocr_data_and_warnings() {
         // given
         Envelope envelope = envelope(
