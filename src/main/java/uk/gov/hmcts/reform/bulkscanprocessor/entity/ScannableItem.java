@@ -168,4 +168,8 @@ public class ScannableItem implements EnvelopeAssignable {
     public String[] getOcrValidationWarnings() {
         return ocrValidationWarnings;
     }
+
+    public void setOcrValidationWarnings(String[] ocrValidationWarnings) {
+        this.ocrValidationWarnings = ocrValidationWarnings;
+    }
 }
