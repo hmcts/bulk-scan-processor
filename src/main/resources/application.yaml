@@ -120,6 +120,7 @@ containers:
       jurisdiction: PROBATE
       poBox: 12625
       ocrValidationUrl: ${OCR_VALIDATION_URL_PROBATE}
+      payments-enabled: true
     - container: divorce
       jurisdiction: DIVORCE
       poBox: 12706
@@ -133,6 +134,7 @@ containers:
       jurisdiction: BULKSCAN
       poBox: BULKSCANPO
       ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
+      payments-enabled: true
 
 # clients region
 
@@ -183,5 +185,5 @@ flyway:
   noop:
     strategy: "false"
 
-payments:
-  enabled: ${PROCESS_PAYMENTS_ENABLED:false}
+process-payments:
+  enabled: ${PROCESS_PAYMENTS_ENABLED:true}
