@@ -6,3 +6,4 @@ spring:
       aliases:
         service-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
         s2s-secret: S2S_SECRET
+        flyway-password: FLYWAY_PASSWORD

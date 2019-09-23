@@ -20,4 +20,3 @@ java:
     BULK_SCANNING_DB_HOST: bulk-scan-processor-aat.postgres.database.azure.com
     FLYWAY_URL: jdbc:postgresql://bulk-scan-processor-aat.postgres.database.azure.com:5432/bulk_scan?sslmode=require
     FLYWAY_USER: bulk_scanner@bulk-scan-processor-aat
-

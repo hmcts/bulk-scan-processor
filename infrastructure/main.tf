@@ -277,3 +277,9 @@ resource "azurerm_template_deployment" "api" {
 
 # endregion
 
+# Copy postgres password for flyway migration
+resource "azurerm_key_vault_secret" "flyway_password" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "flyway-password"
+  value        = "${module.bulk-scan-db.postgresql_password}"
+}
