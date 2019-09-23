@@ -7,6 +7,14 @@ java:
     SMTP_HOST: "false"
     S2S_URL: "http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     DOCUMENT_MANAGEMENT_URL: "http://dm-store-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+    SCAN_ENABLED: "true"
+    SCAN_DELAY: "4000"
+    REUPLOAD_ENABLED: "true"
+    REUPLOAD_DELAY: "4000"
+    SPRING_MAIL_HOST: "false"
+    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED: "true"
+    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY: "3000"
+    STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
   keyVaults:
     s2s:
       resourceGroup: rpe-service-auth-provider
