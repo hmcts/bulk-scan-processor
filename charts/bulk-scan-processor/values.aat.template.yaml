@@ -15,3 +15,9 @@ java:
     NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY: "3000"
     PROCESS_PAYMENTS_ENABLED: "true"
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
+    BULK_SCANNING_DB_USER_NAME: bulk_scanner@bulk-scan-processor-aat
+    BULK_SCANNING_DB_NAME: bulk_scan
+    BULK_SCANNING_DB_HOST: bulk-scan-processor-aat.postgres.database.azure.com
+    FLYWAY_URL: jdbc:postgresql://bulk-scan-processor-aat.postgres.database.azure.com:5432/bulk_scan?sslmode=require
+    FLYWAY_USER: bulk_scanner@bulk-scan-processor-aat
+

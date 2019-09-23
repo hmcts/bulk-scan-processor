@@ -1,8 +1,8 @@
 spring:
   cloud:
     propertiesvolume:
-      enabled: true
-      prefixed: true
-      paths: /mnt/secrets/s2s
+      prefixed: false
+      paths: /mnt/secrets/bulk-scan
       aliases:
-        s2s.microservicekey-bulk-scan-processor: S2S_SECRET
+        service-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
+        s2s-secret: S2S_SECRET
