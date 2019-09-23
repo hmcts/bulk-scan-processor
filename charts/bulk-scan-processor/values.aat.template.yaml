@@ -20,3 +20,8 @@ java:
     BULK_SCANNING_DB_HOST: bulk-scan-processor-aat.postgres.database.azure.com
     FLYWAY_URL: jdbc:postgresql://bulk-scan-processor-aat.postgres.database.azure.com:5432/bulk_scan?sslmode=require
     FLYWAY_USER: bulk_scanner@bulk-scan-processor-aat
+    DELETE_REJECTED_FILES_ENABLED: "true"
+    DELETE_REJECTED_FILES_CRON: "0 0/10 * * * *"
+    STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
+    INCOMPLETE_ENVELOPES_TASK_CRON: "0 0 * * * *"
+    OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
