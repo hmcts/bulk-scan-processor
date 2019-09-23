@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
@@ -32,6 +33,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 public final class EnvelopeValidator {
 
@@ -215,6 +217,39 @@ public final class EnvelopeValidator {
                     + envelope.classification.toString()
             );
         }
+    }
+
+    public static void assertPaymentsEnabledForContainerIfPaymentsArePresent(
+        InputEnvelope envelope,
+        boolean paymentsEnabled,
+        List<ContainerMappings.Mapping> mappings
+    ) {
+        if (isNotEmpty(envelope.payments)
+            && (!paymentsEnabled || !isPaymentsEnabledForContainer(mappings, envelope))
+        ) {
+            throw new PaymentsDisabledException(
+                String.format(
+                    "Envelope contains payment(s) that are not allowed for jurisdiction '%s', poBox: '%s'",
+                    envelope.jurisdiction,
+                    envelope.poBox
+                )
+            );
+        }
+    }
+
+    private static boolean isPaymentsEnabledForContainer(
+        List<ContainerMappings.Mapping> mappings,
+        InputEnvelope envelope
+    ) {
+        return mappings
+            .stream()
+            .filter(mapping ->
+                mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
+                    && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
+            )
+            .findFirst()
+            .map(ContainerMappings.Mapping::isPaymentsEnabled)
+            .orElse(false);
     }
 
     private static List<String> getDuplicates(List<String> collection) {

@@ -59,7 +59,8 @@ public class FailedDocUploadProcessor extends Processor {
         OcrValidator ocrValidator, // NOSONAR
         ServiceBusHelper serviceBusHelper, // NOSONAR
         String signatureAlg,
-        String publicKeyDerFilename
+        String publicKeyDerFilename,
+        boolean paymentsEnabled // NOSONAR
     ) {
         this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.signatureAlg = signatureAlg;

@@ -89,6 +89,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Mock
     protected ServiceBusHelper serviceBusHelper;
 
+    @Value("${process-payments.enabled}")
+    protected boolean paymentsEnabled;
+
     protected CloudBlobContainer testContainer;
     protected CloudBlobContainer rejectedContainer;
 
@@ -124,7 +127,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             ocrValidator,
             serviceBusHelper,
             SIGNATURE_ALGORITHM,
-            DEFAULT_PUBLIC_KEY_BASE64
+            DEFAULT_PUBLIC_KEY_BASE64,
+            paymentsEnabled
         );
 
         processor = spy(p);
@@ -201,7 +205,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             OcrValidator ocrValidator,
             ServiceBusHelper serviceBusHelper,
             String signatureAlg,
-            String publicKeyBase64
+            String publicKeyBase64,
+            boolean paymentsEnabled
         );
     }
 }
