@@ -16,15 +16,6 @@
     <cve>CVE-2016-6798</cve>
   </suppress>
 
-  <suppress until="2019-09-24">
-    <notes><![CDATA[
-   No fix available
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-    <cve>CVE-2019-14540</cve>
-    <cve>CVE-2019-16335</cve>
-  </suppress>
-
   <!-- not used by server -->
 
   <suppress>
