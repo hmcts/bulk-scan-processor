@@ -11,6 +11,8 @@ public class BlobManagementProperties {
 
     private Integer blobCopyPollingDelayInMillis;
 
+    private String blobSelectedContainer;
+
     public Integer getBlobCopyTimeoutInMillis() {
         return blobCopyTimeoutInMillis;
     }
@@ -33,5 +35,13 @@ public class BlobManagementProperties {
 
     public void setBlobCopyPollingDelayInMillis(int blobCopyPollingDelayInMillis) {
         this.blobCopyPollingDelayInMillis = blobCopyPollingDelayInMillis;
+    }
+
+    public String getBlobSelectedContainer() {
+        return blobSelectedContainer;
+    }
+
+    public void setBlobSelectedContainer(String blobSelectedContainer) {
+        this.blobSelectedContainer = blobSelectedContainer;
     }
 }
