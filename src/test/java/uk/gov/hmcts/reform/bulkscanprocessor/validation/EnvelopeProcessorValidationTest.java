@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
@@ -176,7 +177,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(() ->
-                                                 EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
@@ -271,7 +272,7 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "abc";
-        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL));
+        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL, true));
 
         // when
         Throwable err = catchThrowable(
@@ -287,7 +288,9 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "test";
-        List<Mapping> mappings = singletonList(new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL));
+        List<Mapping> mappings = singletonList(
+            new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL, true)
+        );
 
         // when
         Throwable err = catchThrowable(
@@ -304,7 +307,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
         List<Mapping> mappings = singletonList(
-            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL)
+            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL, true)
         );
 
         // when
@@ -421,10 +424,65 @@ public class EnvelopeProcessorValidationTest {
         verifyInvalidJourneyClassificationException(envelope, err);
     }
 
+    @Test
+    public void should_throw_an_exception_when_payments_present_but_payment_processing_disabled() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            asList(
+                payment("number1")
+            )
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+                envelope, false, singletonList(new Mapping("abc", "ABC", "test_poBox", null, true))
+            ));
+
+        // then
+        verifyPaymentsDisabledException(envelope, err);
+    }
+
+    @Test
+    public void should_throw_an_exception_when_payments_present_but_disabled_for_container() {
+        // given
+        InputEnvelope envelope = inputEnvelope(
+            "ABC",
+            "test_poBox",
+            Classification.NEW_APPLICATION,
+            emptyList(),
+            asList(
+                payment("number1")
+            )
+        );
+
+        // when
+        Throwable err = catchThrowable(
+            () -> EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+                envelope, true, singletonList(new Mapping("abc", "ABC", "test_poBox", null, false))
+            ));
+
+        // then
+        verifyPaymentsDisabledException(envelope, err);
+    }
+
     private void verifyInvalidJourneyClassificationException(InputEnvelope envelope, Throwable err) {
         assertThat(err)
             .isInstanceOf(InvalidJourneyClassificationException.class)
             .hasMessageContaining(envelope.classification.toString());
+    }
+
+    private void verifyPaymentsDisabledException(InputEnvelope envelope, Throwable err) {
+        assertThat(err)
+            .isInstanceOf(PaymentsDisabledException.class)
+            .hasMessageContaining("Envelope contains payment(s) that are not allowed for jurisdiction")
+            .hasMessageContaining(envelope.jurisdiction)
+            .hasMessageContaining(envelope.poBox)
+        ;
     }
 
     private void verifyExceptionIsThrown(InputEnvelope envelope, String container, Throwable err) {
