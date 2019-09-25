@@ -11,5 +11,3 @@ spring:
         notifications-queue-send-connection-string: QUEUE_NOTIFICATIONS_SEND
         notifications-queue-listen-connection-string: QUEUE_NOTIFICATIONS_READ
         processed-envelopes-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
-
-
