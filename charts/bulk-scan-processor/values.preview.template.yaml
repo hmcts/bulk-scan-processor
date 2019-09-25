@@ -33,6 +33,7 @@ java:
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     FLYWAY_NOOP_STRATEGY: "false"
     PROCESS_PAYMENTS_ENABLED: "false"
+    OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
