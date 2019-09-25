@@ -31,11 +31,5 @@ java:
     "bulk-scan":
       resourceGroup: bulk-scan
       secrets:
-        - processor-POSTGRES-PASS
         - s2s-secret
-        - flyway-password
-        - envelopes-queue-send-connection-string
-        - notifications-queue-send-connection-string
-        - notifications-queue-listen-connection-string
-        - processed-envelopes-queue-listen-connection-string
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
