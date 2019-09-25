@@ -33,6 +33,7 @@ public class BlobManager {
 
     private static final Logger log = LoggerFactory.getLogger(BlobManager.class);
     private static final String REJECTED_CONTAINER_NAME_SUFFIX = "-rejected";
+    private static final String SELECT_ALL_CONTAINER = "ALL";
     private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
         "Can't acquire lease on file {} in container {} - already acquired";
 
@@ -84,10 +85,23 @@ public class BlobManager {
     }
 
     public List<CloudBlobContainer> listInputContainers() {
-        return StreamSupport
+        List<CloudBlobContainer> cloudBlobContainerList = StreamSupport
             .stream(cloudBlobClient.listContainers().spliterator(), false)
             .filter(c -> !c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
+            .filter(this::filterBySelectedContainer)
             .collect(toList());
+
+        if (cloudBlobContainerList.isEmpty()) {
+            log.error("Container not found for configured container name : {}", properties.getBlobSelectedContainer());
+        }
+
+        return cloudBlobContainerList;
+    }
+
+    private boolean filterBySelectedContainer(CloudBlobContainer container) {
+        String selectedContainer = properties.getBlobSelectedContainer();
+        return SELECT_ALL_CONTAINER.equalsIgnoreCase(selectedContainer)
+            || selectedContainer.equals(container.getName());
     }
 
     public List<CloudBlobContainer> listRejectedContainers() {

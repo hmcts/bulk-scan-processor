@@ -8,10 +8,12 @@ import com.microsoft.azure.storage.blob.CopyState;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.LeaseStatus;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
 import java.util.Arrays;
@@ -63,6 +65,9 @@ public class BlobManagerTest {
 
     private BlobManager blobManager;
 
+    @Rule
+    public OutputCapture outputCapture = new OutputCapture();
+
     @Before
     public void setUp() throws Exception {
         blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
@@ -112,11 +117,57 @@ public class BlobManagerTest {
         );
 
         given(cloudBlobClient.listContainers()).willReturn(allContainers);
+        given(blobManagementProperties.getBlobSelectedContainer()).willReturn("all");
+
         List<CloudBlobContainer> containers = blobManager.listInputContainers();
         List<String> containerNames = containers.stream().map(c -> c.getName()).collect(toList());
 
         assertThat(containerNames).hasSameElementsAs(Arrays.asList("test1", "test2"));
         verify(cloudBlobClient).listContainers();
+    }
+
+    @Test
+    public void listInputContainers_retrieves_selected_container_from_client() {
+        List<CloudBlobContainer> allContainers = Arrays.asList(
+            mockContainer("test1"),
+            mockContainer("test1-rejected"),
+            mockContainer("test2"),
+            mockContainer("test3")
+        );
+
+        given(cloudBlobClient.listContainers()).willReturn(allContainers);
+        given(blobManagementProperties.getBlobSelectedContainer()).willReturn("test2");
+
+        List<CloudBlobContainer> containers = blobManager.listInputContainers();
+        List<String> containerNames = containers.stream().map(c -> c.getName()).collect(toList());
+
+        assertThat(containerNames).hasSameElementsAs(Arrays.asList("test2"));
+        verify(cloudBlobClient).listContainers();
+    }
+
+    @Test
+    public void listInputContainers_no_container_found_in_client() {
+        List<CloudBlobContainer> allContainers = Arrays.asList(
+            mockContainer("test1"),
+            mockContainer("test1-rejected"),
+            mockContainer("test2")
+        );
+
+        given(cloudBlobClient.listContainers()).willReturn(allContainers);
+        given(blobManagementProperties.getBlobSelectedContainer()).willReturn("test3");
+
+        List<CloudBlobContainer> containers = blobManager.listInputContainers();
+
+        String output = outputCapture.toString();
+
+        assertThat(output).containsPattern(".+ERROR \\[.+\\] "
+                                               + BlobManager.class.getCanonicalName()
+                                               + ":\\d+: Container not found for configured container name : test3+"
+        );
+
+        assertThat(containers).isEmpty();
+        verify(cloudBlobClient).listContainers();
+
     }
 
     @Test
