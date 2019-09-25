@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private static final long MAX_MESSAGE_PROCESSING_TIME_MILLIS = 40_000;
-    private static final long MAX_ENVELOPE_FINALISATION_TIME_MILLIS = 10_000;
+    private static final long MAX_ENVELOPE_FINALISATION_TIME_MILLIS = 20_000;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String s2sToken;
@@ -105,6 +105,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
+        System.out.println("Sending message to " + config.getString("processed-envelopes-queue-conn-string"));
         IMessage message = new Message(
             objectMapper.writeValueAsString(new ProcessedEnvelope(envelopeId))
         );
