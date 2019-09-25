@@ -18,13 +18,13 @@ java:
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
     STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
-    BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.postgresqlUsername}}"
+    BULK_SCANNING_DB_USER_NAME: bulk_scanner@bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com
     BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
-    BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
-    BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
+    BULK_SCANNING_DB_NAME: bulk_scan
+    BULK_SCANNING_DB_HOST: bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com
     BULK_SCANNING_DB_PORT: "5432"
-    FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
-    FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
+    FLYWAY_URL: jdbc:postgresql://bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
+    FLYWAY_USER: bulk_scanner@bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     FLYWAY_NOOP_STRATEGY: "false"
   keyVaults:
