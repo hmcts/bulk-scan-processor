@@ -3,8 +3,6 @@ java:
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
   environment:
-    S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
-    DOCUMENT_MANAGEMENT_URL: "http://dm-store-aat.service.core-compute-aat.internal"
     SCAN_ENABLED: "true"
     SCAN_DELAY: "4000"
     REUPLOAD_ENABLED: "true"
@@ -13,15 +11,3 @@ java:
     DELETE_REJECTED_FILES_ENABLED: "true"
     DELETE_REJECTED_FILES_CRON: "0 0/10 * * * *"
     INCOMPLETE_ENVELOPES_TASK_CRON: "0 0 * * * *"
-    OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
-  keyVaults:
-    "bulk-scan":
-      resourceGroup: bulk-scan
-      secrets:
-        - processor-POSTGRES-PASS
-        - s2s-secret
-        - flyway-password
-        - envelopes-queue-send-connection-string
-        - notifications-queue-send-connection-string
-        - notifications-queue-listen-connection-string
-        - processed-envelopes-queue-listen-connection-string
