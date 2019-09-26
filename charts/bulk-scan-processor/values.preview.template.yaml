@@ -19,31 +19,28 @@ java:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
   environment:
-    STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
-    STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
-    STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
     QUEUE_ENVELOPE_SEND: "$(SB_CONN_STRING);EntityPath=envelopes"
     QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
     QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
-    SCAN_ENABLED: "true"
-    SCAN_DELAY: "4000"
-    REUPLOAD_ENABLED: "true"
-    REUPLOAD_DELAY: "4000"
-    SPRING_MAIL_HOST: "false"
-    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED: "true"
-    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY: "3000"
+    PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING: "${SB_CONN_STRING};EntityPath=processed-envelopes"
     BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.postgresqlUsername}}"
     BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
     BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
-    BULK_SCANNING_DB_PORT: "5432"
     FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
     FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     FLYWAY_NOOP_STRATEGY: "false"
     PROCESS_PAYMENTS_ENABLED: "false"
+    OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
+    DELETE_REJECTED_FILES_ENABLED: "false"
+  keyVaults:
+    "bulk-scan":
+      resourceGroup: bulk-scan
+      secrets:
+        - s2s-secret
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

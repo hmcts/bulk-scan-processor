@@ -1,8 +1,13 @@
 spring:
   cloud:
     propertiesvolume:
-      enabled: true
-      prefixed: true
-      paths: /mnt/secrets/s2s
+      prefixed: false
+      paths: /mnt/secrets/bulk-scan
       aliases:
-        s2s.microservicekey-bulk-scan-processor: S2S_SECRET
+        service-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
+        s2s-secret: S2S_SECRET
+        flyway-password: FLYWAY_PASSWORD
+        envelopes-queue-send-connection-string: QUEUE_ENVELOPE_SEND
+        notifications-queue-send-connection-string: QUEUE_NOTIFICATIONS_SEND
+        notifications-queue-listen-connection-string: QUEUE_NOTIFICATIONS_READ
+        processed-envelopes-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
