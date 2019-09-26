@@ -2,12 +2,4 @@ java:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
-  environment:
-    SCAN_ENABLED: "true"
-    SCAN_DELAY: "4000"
-    REUPLOAD_ENABLED: "true"
-    REUPLOAD_DELAY: "4000"
-    PROCESS_PAYMENTS_ENABLED: "true"
-    DELETE_REJECTED_FILES_ENABLED: "true"
-    DELETE_REJECTED_FILES_CRON: "0 0/10 * * * *"
-    INCOMPLETE_ENVELOPES_TASK_CRON: "0 0 * * * *"
+
