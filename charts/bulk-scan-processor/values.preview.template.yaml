@@ -36,8 +36,6 @@ java:
     PROCESS_PAYMENTS_ENABLED: "false"
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
     DELETE_REJECTED_FILES_ENABLED: "false"
-    DELETE_REJECTED_FILES_CRON: ""
-    INCOMPLETE_ENVELOPES_TASK_CRON: ""
   keyVaults:
     "bulk-scan":
       resourceGroup: bulk-scan
