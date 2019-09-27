@@ -35,8 +35,9 @@
        file name: spring-cloud-contract-wiremock-2.1.1.jar.
        This is only used for TESTING purposes.
    ]]></notes>
-    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.1\.1\.RELEASE\.jar</filePath>
-    <cpe>cpe:/a:wiremock:wiremock:2.1.1.release</cpe>
+    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.1\.3\.RELEASE\.jar</filePath>
+    <cve>CVE-2018-9116</cve>
+    <cve>CVE-2018-9117</cve>
   </suppress>
 
   <suppress>
