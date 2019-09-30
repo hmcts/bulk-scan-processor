@@ -42,3 +42,8 @@ java:
         - notifications-queue-listen-connection-string
         - processed-envelopes-queue-listen-connection-string
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
+bsp:
+  servicebus:
+    enabled: false
+  blobstorage:
+    enabled: false
