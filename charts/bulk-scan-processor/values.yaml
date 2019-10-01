@@ -1,6 +1,7 @@
 java:
   applicationPort: 8581
   ingressHost: bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+  aadIdentityName: bsp
   environment:
     LOGBACK_REQUIRE_ALERT_LEVEL: "false"
     LOGBACK_REQUIRE_ERROR_CODE: "false"
