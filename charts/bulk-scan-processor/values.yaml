@@ -1,6 +1,7 @@
 java:
   applicationPort: 8581
   ingressHost: bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+  aadIdentityName: bsp
   environment:
     LOGBACK_REQUIRE_ALERT_LEVEL: "false"
     LOGBACK_REQUIRE_ERROR_CODE: "false"
@@ -19,13 +20,14 @@ java:
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
     STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
-    BULK_SCANNING_DB_USER_NAME: bulk_scanner@bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com
+    STORAGE_URL: https://bulkscan.{{ .Values.global.environment }}.platform.hmcts.net
+    BULK_SCANNING_DB_USER_NAME: bulk_scanner@bulk-scan-processor-{{ .Values.global.environment }}
     BULK_SCANNING_DB_NAME: bulk_scan
     BULK_SCANNING_DB_HOST: bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com
     BULK_SCANNING_DB_PORT: "5432"
     FLYWAY_URL: jdbc:postgresql://bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
-    FLYWAY_USER: bulk_scanner@bulk-scan-processor-{{ .Values.global.environment }}.postgres.database.azure.com
-    FLYWAY_NOOP_STRATEGY: "false"
+    FLYWAY_USER: bulk_scanner@bulk-scan-processor-{{ .Values.global.environment }}
+    FLYWAY_NOOP_STRATEGY: "true"
     PROCESS_PAYMENTS_ENABLED: "true"
     DELETE_REJECTED_FILES_ENABLED: "true"
     DELETE_REJECTED_FILES_CRON: "0 0/10 * * * *"
@@ -42,3 +44,8 @@ java:
         - notifications-queue-listen-connection-string
         - processed-envelopes-queue-listen-connection-string
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
+bsp:
+  servicebus:
+    enabled: false
+  blobstorage:
+    enabled: false
