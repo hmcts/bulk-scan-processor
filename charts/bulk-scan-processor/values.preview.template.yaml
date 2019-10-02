@@ -32,7 +32,7 @@ java:
     FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
     FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
-    FLYWAY_NOOP_STRATEGY: "false"
+    FLYWAY_NOOP_STRATEGY: "true"
     PROCESS_PAYMENTS_ENABLED: "false"
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
     DELETE_REJECTED_FILES_ENABLED: "false"
