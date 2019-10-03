@@ -98,7 +98,6 @@ withPipeline(type, product, component) {
   }
   enableDbMigration('bulk-scan')
   enableSlackNotifications(channel)
-  enableAksStagingDeployment()
   enableApiGatewayTest()
   enableDockerBuild()
   installCharts()
