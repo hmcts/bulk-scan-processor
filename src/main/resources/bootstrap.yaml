@@ -4,7 +4,7 @@ spring:
       prefixed: false
       paths: /mnt/secrets/bulk-scan
       aliases:
-        service-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
+        processor-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
         s2s-secret: S2S_SECRET
         flyway-password: flyway.password
         envelopes-queue-send-connection-string: QUEUE_ENVELOPE_SEND
