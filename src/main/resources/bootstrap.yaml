@@ -6,7 +6,7 @@ spring:
       aliases:
         service-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
         s2s-secret: S2S_SECRET
-        flyway-password: FLYWAY_PASSWORD
+        flyway-password: flyway.password
         envelopes-queue-send-connection-string: QUEUE_ENVELOPE_SEND
         notifications-queue-send-connection-string: QUEUE_NOTIFICATIONS_SEND
         notifications-queue-listen-connection-string: QUEUE_NOTIFICATIONS_READ
