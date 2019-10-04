@@ -38,7 +38,6 @@ java:
     DELETE_REJECTED_FILES_ENABLED: "false"
   keyVaults:
     "bulk-scan":
-      resourceGroup: bulk-scan
       secrets:
         - s2s-secret
   # Don't modify below here

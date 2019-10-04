@@ -35,7 +35,6 @@ java:
     DELETE_REJECTED_FILES_TTL: PT72H
   keyVaults:
     "bulk-scan":
-      resourceGroup: bulk-scan
       secrets:
         - processor-POSTGRES-PASS
         - s2s-secret
@@ -44,6 +43,8 @@ java:
         - notifications-queue-send-connection-string
         - notifications-queue-listen-connection-string
         - processed-envelopes-queue-listen-connection-string
+        - storage-account-name
+        - storage-account-primary-key
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 bsp:
   servicebus:
