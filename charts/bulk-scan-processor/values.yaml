@@ -44,6 +44,8 @@ java:
         - notifications-queue-send-connection-string
         - notifications-queue-listen-connection-string
         - processed-envelopes-queue-listen-connection-string
+        - storage-account-name
+        - storage-account-primary-key
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 bsp:
   servicebus:
