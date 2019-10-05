@@ -2,15 +2,15 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableList;
-import org.junit.Rule;
+import io.github.netmikey.logunit.api.LogCapturer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -54,8 +54,8 @@ public class OcrValidatorTest {
     private static final String S2S_TOKEN = "sample-s2s-token";
     private static final String PO_BOX = "sample PO box";
 
-    @Rule
-    public OutputCapture outputCapture = new OutputCapture();
+    @RegisterExtension
+    public LogCapturer capturer = LogCapturer.create().captureForType(OcrValidator.class);
 
     @Mock private OcrValidationClient client;
     @Mock private OcrPresenceValidator presenceValidator;
@@ -364,8 +364,7 @@ public class OcrValidatorTest {
         ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
-        assertThat(outputCapture.toString())
-            .contains("OCR validation URL for po box " + envelope.poBox + " not configured");
+        capturer.assertContains("OCR validation URL for po box " + envelope.poBox + " not configured");
     }
 
     private InputOcrData sampleOcr() {

@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.Rule;
+import io.github.netmikey.logunit.api.LogCapturer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +9,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.rule.OutputCapture;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotificationRepository;
@@ -29,8 +28,8 @@ import static org.mockito.BDDMockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class ErrorNotificationServiceTest {
 
-    @Rule
-    public OutputCapture capture = new OutputCapture();
+    @RegisterExtension
+    public LogCapturer capturer = LogCapturer.create().captureForType(ErrorNotificationService.class);
 
     @Captor
     public ArgumentCaptor<ErrorNotificationRequest> requestCaptor;
@@ -48,7 +47,6 @@ public class ErrorNotificationServiceTest {
 
     @BeforeEach
     public void setUp() {
-        capture.reset();
         service = new ErrorNotificationService(client, repository, entityManager);
     }
 
@@ -81,7 +79,7 @@ public class ErrorNotificationServiceTest {
         assertThat(request.referenceId).isEqualTo(serviceBusMessage.id);
 
         // and
-        assertThat(capture.toString()).contains(
+        capturer.assertContains(
             "Error notification for " + request.zipFileName + " published. ID: " + response.getNotificationId()
         );
         verify(repository).saveAndFlush(any(ErrorNotification.class));
