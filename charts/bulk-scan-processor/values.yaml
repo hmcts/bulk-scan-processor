@@ -35,7 +35,6 @@ java:
     DELETE_REJECTED_FILES_TTL: PT72H
   keyVaults:
     "bulk-scan":
-      resourceGroup: bulk-scan
       secrets:
         - processor-POSTGRES-PASS
         - s2s-secret
