@@ -30,7 +30,10 @@ def combinedSecrets = [
     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
     secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
-    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
+    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER'),
+    secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
+    secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+    secret('processed-envelopes-queue-listen-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
   ],
   's2s-${env}': [
     // to be removed later
