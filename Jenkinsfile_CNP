@@ -32,7 +32,7 @@ def combinedSecrets = [
     secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER'),
     secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-    secret('processed-envelopes-queue-listen-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
+    secret('processed-envelopes-queue-send-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
   ],
   's2s-${env}': [
     // to be removed later
@@ -70,7 +70,7 @@ withPipeline(type, product, component) {
   env.TEST_SCAN_DELAY = '4000'
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscan.aat.platform.hmcts.net'
-  
+
   before('smoketest:preview') {
     withAksClient('nonprod') {
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT)
