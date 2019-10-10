@@ -1,13 +1,13 @@
 dependencies:
   - name: java
-    version: ~2.9.1
+    version: ~2.10.0
     repository: '@hmctspublic'
   - name: servicebus
-    version: ~0.1.1
+    version: ~0.2.0
     repository: '@hmctspublic'
     condition: bsp.servicebus.enabled
   - name: blobstorage
-    version: ~0.1.1
+    version: ~0.2.0
     repository: '@hmctspublic'
     condition: bsp.blobstorage.enabled
 
