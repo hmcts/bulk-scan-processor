@@ -13,4 +13,4 @@ spring:
         processed-envelopes-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
         storage-account-name: storage.account_name
         storage-account-primary-key: storage.key
-        AppInsightsInstrumentationKey: azure.application-insights.instrumentation-key
+        app-insights-instrumentation-key: azure.application-insights.instrumentation-key

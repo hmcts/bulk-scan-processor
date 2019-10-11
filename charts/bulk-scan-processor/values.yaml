@@ -45,7 +45,7 @@ java:
         - processed-envelopes-queue-listen-connection-string
         - storage-account-name
         - storage-account-primary-key
-        - AppInsightsInstrumentationKey
+        - app-insights-instrumentation-key
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 bsp:
   servicebus:
