@@ -101,7 +101,7 @@ public class OcrValidator {
                 throw new OcrValidationException(
                     "OCR validation service returned OCR-specific errors. "
                         + "Document control number: " + docWithOcr.documentControlNumber + ". "
-                        + "Envelope: " + envelope.zipFileName + ". "
+                        + "Envelope: " + envelope.zipFileName + "."
                 );
             case WARNINGS:
                 log.info(
