@@ -111,4 +111,12 @@
     <packageUrl regex="true">^pkg:javascript/handlebars\.js@.*$</packageUrl>
     <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
   </suppress>
+  <suppress  until="2019-10-31">
+    <notes><![CDATA[
+   file name: bcprov-jdk15on-1.63.jar
+   This is used only in integration test
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15on@.*$</packageUrl>
+    <cve>CVE-2019-17359</cve>
+  </suppress>
 </suppressions>
