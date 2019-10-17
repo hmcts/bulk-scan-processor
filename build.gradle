@@ -179,7 +179,7 @@ dependencyManagement {
     dependencySet(group: 'com.fasterxml.jackson.core', version: '2.9.10') {
       entry 'jackson-databind'
     }
-    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.63'
+    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.64'
     // CVE-2018-10237 - Unbounded memory allocation
     dependencySet(group: 'com.google.guava', version: '28.1-jre') {
       entry 'guava'
