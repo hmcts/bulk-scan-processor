@@ -283,7 +283,7 @@ public class OcrValidatorTest {
         // then
         assertThat(err)
             .isInstanceOf(OcrValidationException.class)
-            .hasMessageContaining("Error!");
+            .hasMessageContaining("OCR validation service returned OCR-specific errors");
     }
 
     @Test
