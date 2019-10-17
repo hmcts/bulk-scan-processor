@@ -188,3 +188,7 @@ variable "appinsights_instrumentation_key" {
 variable "process_payments_enabled" {
   default = "true"
 }
+
+variable "enable_ase" {
+  default = false
+}

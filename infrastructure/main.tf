@@ -78,6 +78,7 @@ module "bulk-scan" {
   asp_name                        = "${var.product}-${var.env}"
   asp_rg                          = "${var.product}-${var.env}"
   java_container_version          = "9.0"
+  enable_ase                      = "${var.enable_ase}"
 
   app_settings = {
     // db
