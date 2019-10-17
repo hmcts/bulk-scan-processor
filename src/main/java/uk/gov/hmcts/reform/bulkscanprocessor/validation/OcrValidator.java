@@ -99,10 +99,9 @@ public class OcrValidator {
         switch (res.status) {
             case ERRORS:
                 throw new OcrValidationException(
-                    "Ocr validation failed. "
-                        + "Document OCR: " + docWithOcr.documentControlNumber + ". "
-                        + "Envelope: " + envelope.zipFileName + ". "
-                        + "Errors: " + Strings.join(res.errors, ", ")
+                    "OCR validation service returned OCR-specific errors. "
+                        + "Document control number: " + docWithOcr.documentControlNumber + ". "
+                        + "Envelope: " + envelope.zipFileName + "."
                 );
             case WARNINGS:
                 log.info(
