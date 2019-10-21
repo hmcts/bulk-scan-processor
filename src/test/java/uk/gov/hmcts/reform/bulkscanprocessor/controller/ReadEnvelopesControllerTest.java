@@ -36,6 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -66,7 +67,7 @@ public class ReadEnvelopesControllerTest {
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(content().json(expectedEnvelopes()));
 
         verify(envelopeRetrieverService).findByServiceAndStatus("testServiceName", Status.PROCESSED);

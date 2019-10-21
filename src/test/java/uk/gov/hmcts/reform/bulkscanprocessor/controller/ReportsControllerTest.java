@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedEnvelopesReportService;
@@ -22,6 +21,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -129,10 +130,10 @@ public class ReportsControllerTest {
 
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan")
-                .accept(MediaType.APPLICATION_OCTET_STREAM))
+                .accept(APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
-            .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
             .andExpect(content().string(expectedContent));
     }
 
@@ -145,10 +146,10 @@ public class ReportsControllerTest {
 
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14")
-                .accept(MediaType.APPLICATION_OCTET_STREAM))
+                .accept(APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
-            .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
             .andExpect(content().string(
                 "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
             ));
@@ -176,7 +177,7 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.data.length()").value(1))
             .andExpect(jsonPath("$.data[0].file_name").value(response.fileName))
             .andExpect(jsonPath("$.data[0].date_received").value("2019-01-14"))
@@ -198,7 +199,7 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.data.length()").value(0));
     }
 
