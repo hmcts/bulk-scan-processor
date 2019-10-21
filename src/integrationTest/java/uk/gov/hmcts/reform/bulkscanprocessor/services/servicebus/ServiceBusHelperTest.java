@@ -149,7 +149,7 @@ public class ServiceBusHelperTest {
 
         JsonNode ocrDataValidationWarnings = jsonNode.get("ocr_data_validation_warnings");
         assertThat(ocrDataValidationWarnings.isArray()).isTrue();
-        assertThat(ocrDataValidationWarnings.elements()).containsExactly(new TextNode("warning 1"));
+        assertThat(ocrDataValidationWarnings.elements()).asList().containsExactly(new TextNode("warning 1"));
 
         assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
         assertDateField(jsonNode, "opening_date", message.getOpeningDate());
