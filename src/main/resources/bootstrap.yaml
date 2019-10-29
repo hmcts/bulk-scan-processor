@@ -14,3 +14,5 @@ spring:
         storage-account-name: storage.account_name
         storage-account-primary-key: storage.key
         app-insights-instrumentation-key: azure.application-insights.instrumentation-key
+        reports-email-username: SMTP_USERNAME
+        reports-email-password: SMTP_PASSWORD
