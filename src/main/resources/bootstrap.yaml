@@ -16,3 +16,4 @@ spring:
         app-insights-instrumentation-key: azure.application-insights.instrumentation-key
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
+        reports-recipients: REPORTS_RECIPIENTS
