@@ -179,10 +179,6 @@ def versions = [
 
 dependencyManagement {
   dependencies {
-    // CVE-2019-14540, CVE-2019-16335 - until 2.9.9.3 HikariCP issue :o
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.9.10') {
-      entry 'jackson-databind'
-    }
     dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.64'
     // CVE-2018-10237 - Unbounded memory allocation
     dependencySet(group: 'com.google.guava', version: '28.1-jre') {
