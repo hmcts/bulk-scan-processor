@@ -47,6 +47,7 @@ java:
         - app-insights-instrumentation-key
         - reports-email-username
         - reports-email-password
+        - reports-recipients
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 bsp:
   servicebus:
