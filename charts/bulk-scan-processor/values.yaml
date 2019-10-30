@@ -32,6 +32,7 @@ java:
     DELETE_REJECTED_FILES_CRON: "0 0/10 * * * *"
     INCOMPLETE_ENVELOPES_TASK_CRON: "0 0 * * * *"
     DELETE_REJECTED_FILES_TTL: PT72H
+    ERROR_NOTIFICATIONS_ENABLED: "false" # only enabled on prod
   keyVaults:
     "bulk-scan":
       secrets:
@@ -48,6 +49,9 @@ java:
         - reports-email-username
         - reports-email-password
         - reports-recipients
+        - notifications-url
+        - notifications-username
+        - notifications-password
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 bsp:
   servicebus:

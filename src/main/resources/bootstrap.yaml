@@ -17,3 +17,6 @@ spring:
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
         reports-recipients: REPORTS_RECIPIENTS
+        notifications-url: ERROR_NOTIFICATIONS_URL
+        notifications-username: ERROR_NOTIFICATIONS_USERNAME
+        notifications-password: ERROR_NOTIFICATIONS_PASSWORD
