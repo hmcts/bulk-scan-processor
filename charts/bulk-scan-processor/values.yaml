@@ -49,9 +49,9 @@ java:
         - reports-email-username
         - reports-email-password
         - reports-recipients
-        - notifications-url
-        - notifications-username
-        - notifications-password
+        - error-notifications-url
+        - error-notifications-username
+        - error-notifications-password
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 bsp:
   servicebus:
