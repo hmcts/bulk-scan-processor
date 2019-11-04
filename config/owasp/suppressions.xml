@@ -95,7 +95,7 @@
     <cve>CVE-2019-17267</cve>
   </suppress>
 
-  <suppress until="2019-10-31">
+  <suppress until="2019-11-30">
     <notes><![CDATA[
    file name: jackson-databind-2.9.10.jar
    No fix available
@@ -105,7 +105,7 @@
     <cve>CVE-2019-16943</cve>
     <cve>CVE-2019-17531</cve>
   </suppress>
-  <suppress until="2019-10-31">
+  <suppress until="2019-11-30">
     <notes><![CDATA[
    file name: wiremock-standalone-2.20.0.jar: handlebars-v4.0.4.js
     This is only used for TESTING purposes.
@@ -113,7 +113,7 @@
     <packageUrl regex="true">^pkg:javascript/handlebars\.js@.*$</packageUrl>
     <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
   </suppress>
-  <suppress  until="2019-10-31">
+  <suppress  until="2019-11-30">
     <notes><![CDATA[
    file name: bcprov-jdk15on-1.63.jar
    This is used only in integration test
