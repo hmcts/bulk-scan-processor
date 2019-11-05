@@ -149,9 +149,9 @@ document_management:
   url: http://dm-store:4460
 
 error_notifications:
-  url: false
-  username: user
-  password: password
+  url: ${ERROR_NOTIFICATIONS_URL:false}
+  username: ${ERROR_NOTIFICATIONS_USERNAME:user}
+  password: ${ERROR_NOTIFICATIONS_PASSWORD:password}
 
 # end of clients region
 
