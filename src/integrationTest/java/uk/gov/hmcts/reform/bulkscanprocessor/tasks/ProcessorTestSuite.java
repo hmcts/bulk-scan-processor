@@ -4,10 +4,10 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -140,7 +140,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         rejectedContainer.createIfNotExists();
     }
 
-    @AfterEach
+    @After
     public void cleanUp() throws Exception {
         testContainer.deleteIfExists();
         rejectedContainer.deleteIfExists();
@@ -148,13 +148,13 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         processEventRepository.deleteAll();
     }
 
-    @BeforeEach
+    @Before
     public void prepare() throws Exception {
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
     }
 
-    @BeforeAll
+    @BeforeClass
     public static void initialize() {
         File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
 
@@ -164,7 +164,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         dockerComposeContainer.start();
     }
 
-    @AfterAll
+    @AfterClass
     public static void tearDownContainer() {
         dockerComposeContainer.stop();
     }
