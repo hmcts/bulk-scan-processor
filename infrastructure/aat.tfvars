@@ -12,7 +12,7 @@ delete_rejected_files_enabled = "true"
 delete_rejected_files_cron = "0 0/10 * * * *"
 
 api_gateway_test_valid_certificate_thumbprint = "344F8D3870B5BAA8CBDCCA0B1993852FC147BF5D"
-allowed_client_certificate_thumbprints = ["4AF638E82FBD9959A5B8286C673360AC2C2E7053"]
+allowed_client_certificate_thumbprints = ["2A1EE53E044632145C89FE428128080353127DF6"]
 blob_signature_verification_key_file = "nonprod_public_key.der"
 
 incomplete_envelopes_cron = "0 0 * * * *"
