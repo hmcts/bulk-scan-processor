@@ -10,6 +10,7 @@ java:
     S2S_URL: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     DOCUMENT_MANAGEMENT_URL: http://dm-store-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: http://bulk-scan-sample-app-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    OCR_VALIDATION_URL_PROBATE: http://probate-back-office-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     SCAN_ENABLED: "true"
     SCAN_DELAY: "4000"
     REUPLOAD_ENABLED: "true"
