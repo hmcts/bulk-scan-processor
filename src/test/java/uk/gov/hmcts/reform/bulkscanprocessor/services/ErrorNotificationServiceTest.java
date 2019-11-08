@@ -1,15 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.github.netmikey.logunit.api.LogCapturer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.test.rule.OutputCapture;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.client.ErrorNotificationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotification;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ErrorNotificationRepository;
@@ -26,11 +25,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ErrorNotificationServiceTest {
 
-    @Rule
-    public OutputCapture capture = new OutputCapture();
+    @RegisterExtension
+    public LogCapturer capturer = LogCapturer.create().captureForType(ErrorNotificationService.class);
 
     @Captor
     public ArgumentCaptor<ErrorNotificationRequest> requestCaptor;
@@ -46,15 +45,9 @@ public class ErrorNotificationServiceTest {
 
     private ErrorNotificationService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        capture.reset();
         service = new ErrorNotificationService(client, repository, entityManager);
-    }
-
-    @After
-    public void tearDown() {
-        capture.flush();
     }
 
     @Test
@@ -86,7 +79,7 @@ public class ErrorNotificationServiceTest {
         assertThat(request.referenceId).isEqualTo(serviceBusMessage.id);
 
         // and
-        assertThat(capture.toString()).contains(
+        capturer.assertContains(
             "Error notification for " + request.zipFileName + " published. ID: " + response.getNotificationId()
         );
         verify(repository).saveAndFlush(any(ErrorNotification.class));

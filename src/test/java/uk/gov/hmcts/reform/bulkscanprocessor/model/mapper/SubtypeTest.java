@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
-import org.assertj.core.api.JUnitSoftAssertions;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
@@ -10,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.inputScannableItem;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.CHERISHED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.COVERSHEET;
@@ -18,13 +17,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.WILL;
 
-@SuppressWarnings("checkstyle:LineLength")
 public class SubtypeTest {
 
     private static final String SOME_SUBTYPE = "foo";
-
-    @Rule
-    public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
 
     @Test
     public void should_map_scannable_item_document_types_correctly() {
@@ -51,13 +46,19 @@ public class SubtypeTest {
             ScannableItem result = EnvelopeMapper.toDbScannableItem(item, null);
 
             // then
-            softly.assertThat(result.getDocumentType())
-                .as("Output document type for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
-                .isEqualTo(tc.expected.documentType);
-
-            softly.assertThat(result.getDocumentSubtype())
-                .as("Output document subtype for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
-                .isEqualTo(tc.expected.docSubtype);
+            assertSoftly(softly -> {
+                softly.assertThat(result.getDocumentType()).as(
+                    "Output document type for type '%s' and subtype '%s'",
+                    tc.input.documentType,
+                    tc.input.docSubtype
+                ).isEqualTo(tc.expected.documentType);
+                softly.assertThat(result.getDocumentSubtype()).as(
+                    "Output document subtype for type '%s' and subtype '%s'",
+                    tc.input.documentType,
+                    tc.input.docSubtype
+                ).isEqualTo(tc.expected.docSubtype);
+                softly.assertAll();
+            });
         });
     }
 

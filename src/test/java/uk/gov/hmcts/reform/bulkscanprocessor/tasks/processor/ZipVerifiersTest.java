@@ -2,10 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 
 import java.io.ByteArrayInputStream;
@@ -25,7 +25,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAn
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.SigningHelper.signWithSha256Rsa;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ZipVerifiersTest {
 
     private static final String INVALID_SIGNATURE_MESSAGE = "Zip signature failed verification";
@@ -34,7 +34,7 @@ public class ZipVerifiersTest {
     private static String publicKeyBase64;
     private static String xyzPublicKeyBase64;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         publicKeyBase64 =
             Base64.getEncoder().encodeToString(

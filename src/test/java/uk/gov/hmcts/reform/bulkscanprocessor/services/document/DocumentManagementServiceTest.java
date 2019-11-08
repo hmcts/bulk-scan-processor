@@ -2,12 +2,12 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
@@ -33,7 +33,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DocumentManagementServiceTest {
 
     private static final String AUTH_HEADER = "service-auth-header";
@@ -48,7 +48,7 @@ public class DocumentManagementServiceTest {
     @Mock
     private RestTemplate restTemplate;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(authTokenGenerator.generate()).thenReturn(AUTH_HEADER);
 

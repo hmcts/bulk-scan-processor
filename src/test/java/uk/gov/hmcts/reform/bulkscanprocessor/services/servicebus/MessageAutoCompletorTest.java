@@ -1,18 +1,18 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
 import com.microsoft.azure.servicebus.IQueueClient;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MessageAutoCompletorTest {
 
     @Mock
@@ -22,7 +22,7 @@ public class MessageAutoCompletorTest {
 
     private static final UUID LOCK_TOKEN = UUID.randomUUID();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         completor = new MessageAutoCompletor(client);
     }

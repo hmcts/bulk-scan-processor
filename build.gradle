@@ -59,6 +59,15 @@ tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror"
 }
 
+test {
+  failFast = true
+  useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
@@ -257,6 +266,7 @@ dependencies {
   testCompile group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
   testCompile group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
   testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
+  testCompile group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
@@ -315,10 +325,3 @@ task migratePostgresDatabase(type: FlywayMigrateTask) {
     url = "jdbc:postgresql://${dburl}"
   }
 }
-
-test {
-  testLogging {
-    exceptionFormat = 'full'
-  }
-}
-

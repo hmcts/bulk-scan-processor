@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;

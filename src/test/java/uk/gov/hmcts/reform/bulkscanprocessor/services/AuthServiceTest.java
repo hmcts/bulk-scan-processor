@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
 
     private static final String SERVICE_HEADER = "some-header";
@@ -29,12 +29,12 @@ public class AuthServiceTest {
 
     private AuthService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new AuthService(validator);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         reset(validator);
     }

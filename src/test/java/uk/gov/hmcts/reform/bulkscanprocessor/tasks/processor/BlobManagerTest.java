@@ -7,13 +7,13 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyState;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.LeaseStatus;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.github.netmikey.logunit.api.LogCapturer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.test.rule.OutputCapture;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
 import java.util.Arrays;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BlobManagerTest {
 
     private static final String INPUT_CONTAINER_NAME = "container-name";
@@ -65,10 +65,10 @@ public class BlobManagerTest {
 
     private BlobManager blobManager;
 
-    @Rule
-    public OutputCapture outputCapture = new OutputCapture();
+    @RegisterExtension
+    public LogCapturer capturer = LogCapturer.create().captureForType(BlobManager.class);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
     }
@@ -158,12 +158,7 @@ public class BlobManagerTest {
 
         List<CloudBlobContainer> containers = blobManager.listInputContainers();
 
-        String output = outputCapture.toString();
-
-        assertThat(output).containsPattern(".+ERROR \\[.+\\] "
-                                               + BlobManager.class.getCanonicalName()
-                                               + ":\\d+: Container not found for configured container name : test3+"
-        );
+        capturer.assertContains("Container not found for configured container name : test3");
 
         assertThat(containers).isEmpty();
         verify(cloudBlobClient).listContainers();
