@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ErrorNotificationHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
@@ -15,7 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 
-@ServiceBusConfiguration
+@AutoConfigureAfter(ServiceBusHelpersConfiguration.class)
+@Configuration
+@Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class MessageHandlerConfig {
 
     public static final Logger log = LoggerFactory.getLogger(MessageHandlerConfig.class);

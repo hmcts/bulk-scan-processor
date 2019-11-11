@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 @AutoConfigureAfter(QueueClientConfig.class)
-@ServiceBusConfiguration
+@Configuration
+@Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class ServiceBusHelpersConfiguration {
 
     @Autowired

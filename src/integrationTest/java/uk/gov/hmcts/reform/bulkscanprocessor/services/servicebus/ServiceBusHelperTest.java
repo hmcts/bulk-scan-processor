@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@EnableJpaRepositories(basePackages = "uk.gov.hmcts.reform.bulkscanprocessor.entity")
 @IntegrationTest
 @RunWith(SpringRunner.class)
 public class ServiceBusHelperTest {
@@ -149,7 +151,9 @@ public class ServiceBusHelperTest {
 
         JsonNode ocrDataValidationWarnings = jsonNode.get("ocr_data_validation_warnings");
         assertThat(ocrDataValidationWarnings.isArray()).isTrue();
-        assertThat(ocrDataValidationWarnings.elements()).containsExactly(new TextNode("warning 1"));
+        assertThat(ocrDataValidationWarnings.elements())
+            .toIterable()
+            .containsExactly(new TextNode("warning 1"));
 
         assertDateField(jsonNode, "delivery_date", message.getDeliveryDate());
         assertDateField(jsonNode, "opening_date", message.getOpeningDate());

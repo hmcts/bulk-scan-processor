@@ -4,4 +4,4 @@ test-s2s-url: ${TEST_S2S_URL}
 test-s2s-secret: ${TEST_S2S_SECRET}
 
 # no communication with Service Bus
-spring.profiles.active=nosb
+spring.profiles.active=service-bus-stub
