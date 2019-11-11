@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
@@ -31,7 +32,7 @@ import java.util.concurrent.Executors;
  * </p>
  */
 @Service
-@Profile("!nosb") // only active when interaction with Service Bus isn't disabled
+@Profile(Profiles.NOT_SERVICE_BUS_STUB) // only active when interaction with Service Bus isn't disabled
 public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessedEnvelopeNotificationHandler.class);
