@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
 import org.slf4j.Logger;
@@ -40,8 +41,8 @@ public class SasTokenGeneratorService {
     }
 
     public String generateSasToken(String serviceName) {
-
-        log.info("SAS Token request received for service {} ", serviceName);
+        StorageUri storageAccountUri = cloudBlobClient.getStorageUri();
+        log.info("SAS Token request received for service {}. Account URI: {}", serviceName, storageAccountUri);
 
         try {
             return cloudBlobClient
