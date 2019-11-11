@@ -9,6 +9,7 @@ import com.microsoft.azure.servicebus.IMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
  * This involves removing sensitive information, status change and creation of an appropriate event.
  * </p>
  */
+@DependsOn("processed-envelopes-completor")
 @Service
 @Profile(Profiles.NOT_SERVICE_BUS_STUB) // only active when interaction with Service Bus isn't disabled
 public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
