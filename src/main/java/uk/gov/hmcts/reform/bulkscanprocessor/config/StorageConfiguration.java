@@ -5,6 +5,8 @@ import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,8 @@ import java.net.URISyntaxException;
 @Configuration
 @Profile(Profiles.NOT_STORAGE_STUB)
 public class StorageConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(StorageConfiguration.class);
 
     @Value("${storage.proxy_enabled}")
     private boolean isProxyEnabled;
@@ -34,6 +38,8 @@ public class StorageConfiguration {
         @Value("${storage.key}") String key,
         @Value("${storage.url}") String url
     ) throws URISyntaxException {
+        log.info("Initialising cloud blob client. Account name: {}, key: {}, url: {}", accountName, key, url);
+
         if (isProxyEnabled) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
             OperationContext.setDefaultProxy(proxy);

@@ -45,10 +45,13 @@ public class SasTokenGeneratorService {
         log.info("SAS Token request received for service {}. Account URI: {}", serviceName, storageAccountUri);
 
         try {
-            return cloudBlobClient
+            String token = cloudBlobClient
                 .getContainerReference(serviceName)
                 .generateSharedAccessSignature(createSharedAccessPolicy(serviceName), null);
 
+            log.info("Retrieved SAS token: {}", token);
+
+            return token;
         } catch (URISyntaxException | StorageException | InvalidKeyException e) {
             throw new UnableToGenerateSasTokenException(e);
         }
