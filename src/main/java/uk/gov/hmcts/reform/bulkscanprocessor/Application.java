@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor;
 
+import org.springframework.boot.LazyInitializationExcludeFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusHelpersConfiguration;
 
 @SpringBootApplication
 @EnableCircuitBreaker
@@ -13,5 +16,12 @@ public class Application {
 
     public static void main(final String[] args) {
         SpringApplication.run(Application.class, args);
+    }
+
+    @Bean
+    static LazyInitializationExcludeFilter lazyInitExcludeFilter() {
+        return LazyInitializationExcludeFilter.forBeanTypes(
+            ServiceBusHelpersConfiguration.class
+        );
     }
 }
