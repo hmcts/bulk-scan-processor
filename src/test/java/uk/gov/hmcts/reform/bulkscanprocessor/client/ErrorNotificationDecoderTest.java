@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import feign.Request;
+import feign.RequestTemplate;
 import feign.Response;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,8 @@ public class ErrorNotificationDecoderTest {
         Request.HttpMethod.POST,
         "/",
         Collections.emptyMap(),
-        null
+        null,
+        new RequestTemplate()
     );
 
     private static final String METHOD_KEY = "key";
