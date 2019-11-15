@@ -53,7 +53,11 @@ public class ErrorNotificationService {
 
             entity.setNotificationId(response.getNotificationId());
 
-            log.info("Error notification for {} published. ID: {}", message.zipFileName, response.getNotificationId());
+            log.info(
+                "Error notification for file {} sent. Notification ID: {}",
+                message.zipFileName,
+                response.getNotificationId()
+            );
         } finally {
             repository.saveAndFlush(entity);
         }
