@@ -258,6 +258,29 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("instance: {\"pointer\":\"/payments\"}");
     }
 
+    @Test
+    //TODO: remove the test when schema changes are applied to accept the new classification.
+    public void should_not_parse_envelope_with_supplementary_evidence_with_ocr_classification() throws Exception {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/invalid-classification.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
+
+        // then
+
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith(
+                getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                    + "\n\terror: instance value (\"supplementary_evidence_with_ocr\") not found in enum"
+            )
+            .hasMessageContaining("exception")
+            .hasMessageContaining("new_application")
+            .hasMessageContaining("supplementary_evidence")
+            .hasMessageContaining("instance: {\"pointer\":\"/envelope_classification\"}");
+    }
+
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));
     }
