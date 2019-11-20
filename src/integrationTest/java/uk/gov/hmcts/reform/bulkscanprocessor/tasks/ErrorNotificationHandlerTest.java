@@ -233,7 +233,7 @@ public class ErrorNotificationHandlerTest {
             + ErrorNotificationService.class.getCanonicalName()
             + ":\\d+: Error notification for "
             + ZIP_FILE_NAME
-            + " published. ID: "
+            + " sent. Notification ID: "
             + NOTIFICATION_ID
         );
     }
