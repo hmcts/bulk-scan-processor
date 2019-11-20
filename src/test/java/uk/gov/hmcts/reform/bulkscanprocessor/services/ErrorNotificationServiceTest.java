@@ -80,7 +80,7 @@ public class ErrorNotificationServiceTest {
 
         // and
         capturer.assertContains(
-            "Error notification for " + request.zipFileName + " published. ID: " + response.getNotificationId()
+            "Error notification for file " + request.zipFileName + " sent. Notification ID: " + response.getNotificationId()
         );
         verify(repository).saveAndFlush(any(ErrorNotification.class));
     }
