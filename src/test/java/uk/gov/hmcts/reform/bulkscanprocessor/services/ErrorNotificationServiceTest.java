@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
 
+@SuppressWarnings("checkstyle:LineLength")
 @ExtendWith(MockitoExtension.class)
 public class ErrorNotificationServiceTest {
 
