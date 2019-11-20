@@ -4,7 +4,8 @@ public enum Classification {
 
     EXCEPTION("exception"),
     NEW_APPLICATION("new_application"),
-    SUPPLEMENTARY_EVIDENCE("supplementary_evidence");
+    SUPPLEMENTARY_EVIDENCE("supplementary_evidence"),
+    SUPPLEMENTARY_EVIDENCE_WITH_OCR("supplementary_evidence_with_ocr");
 
     private final String value;
 

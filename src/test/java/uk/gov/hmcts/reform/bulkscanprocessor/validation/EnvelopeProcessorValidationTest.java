@@ -470,6 +470,45 @@ public class EnvelopeProcessorValidationTest {
         verifyPaymentsDisabledException(envelope, err);
     }
 
+    @Test
+    public void should_throw_exception_when_required_documents_missing_for_supplementary_evidence_with_ocr() {
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            "bulkscanpo",
+            Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR,
+            asList(
+                scannableItem(InputDocumentType.OTHER, new InputOcrData()), // no 'FORM' documents
+                scannableItem(InputDocumentType.CHERISHED, new InputOcrData())
+            )
+        );
+
+        Throwable throwable = catchThrowable(() ->
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+        );
+
+        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessageContaining("No documents of type Form found");
+    }
+
+    @Test
+    public void should_throw_exception_when_ocr_data_is_missing_for_supplementary_evidence_with_ocr() {
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            "bulkscanpo",
+            Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR,
+            singletonList(
+                scannableItem(InputDocumentType.FORM, new InputOcrData()) // no OCR data
+            )
+        );
+
+        Throwable throwable = catchThrowable(() ->
+            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+        );
+
+        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessageContaining("Missing OCR data");
+    }
+
     private void verifyInvalidJourneyClassificationException(InputEnvelope envelope, Throwable err) {
         assertThat(err)
             .isInstanceOf(InvalidJourneyClassificationException.class)
