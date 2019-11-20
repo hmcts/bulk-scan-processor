@@ -385,7 +385,7 @@ public class BlobProcessorTask extends Processor {
         );
 
         log.info(
-            "Sent error notification for file {} in container {}. Message ID: {}",
+            "Created error notification for file {} in container {}. Queue message ID: {}",
             zipFilename,
             containerName,
             messageId

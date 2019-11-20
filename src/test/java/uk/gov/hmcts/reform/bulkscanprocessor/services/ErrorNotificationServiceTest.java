@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
 
+@SuppressWarnings("checkstyle:LineLength")
 @ExtendWith(MockitoExtension.class)
 public class ErrorNotificationServiceTest {
 
@@ -80,7 +81,7 @@ public class ErrorNotificationServiceTest {
 
         // and
         capturer.assertContains(
-            "Error notification for " + request.zipFileName + " published. ID: " + response.getNotificationId()
+            "Error notification for file " + request.zipFileName + " sent. Notification ID: " + response.getNotificationId()
         );
         verify(repository).saveAndFlush(any(ErrorNotification.class));
     }
