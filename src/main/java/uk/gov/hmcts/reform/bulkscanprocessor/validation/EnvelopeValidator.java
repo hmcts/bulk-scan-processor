@@ -37,7 +37,7 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 public final class EnvelopeValidator {
 
-    private static final InputDocumentType defaultOcrDocymentType = InputDocumentType.FORM;
+    private static final InputDocumentType defaultOcrDocumentType = InputDocumentType.FORM;
     private static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
         ImmutableMap.of(
             "SSCS", InputDocumentType.SSCS1
@@ -47,7 +47,8 @@ public final class EnvelopeValidator {
         ImmutableMap.of(
             Classification.EXCEPTION, emptyList(),
             Classification.NEW_APPLICATION, emptyList(),
-            Classification.SUPPLEMENTARY_EVIDENCE, asList(InputDocumentType.FORM, InputDocumentType.SSCS1)
+            Classification.SUPPLEMENTARY_EVIDENCE, asList(InputDocumentType.FORM, InputDocumentType.SSCS1),
+            Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR, emptyList()
         );
 
     private EnvelopeValidator() {
@@ -82,18 +83,19 @@ public final class EnvelopeValidator {
 
     /**
      * Assert scannable items contain ocr data
-     * when envelope classification is NEW_APPLICATION
+     * when envelope classification is NEW_APPLICATION or SUPPLEMENTARY_EVIDENCE_WITH_OCR
      * Throws exception otherwise.
      *
      * @param envelope to assert against
      */
     public static void assertEnvelopeContainsOcrDataIfRequired(InputEnvelope envelope) {
 
-        if (envelope.classification == Classification.NEW_APPLICATION) {
+        if (envelope.classification == Classification.NEW_APPLICATION
+            || envelope.classification == Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR) {
 
             List<InputDocumentType> typesThatShouldHaveOcrData =
                 Stream.of(
-                    defaultOcrDocymentType,
+                    defaultOcrDocumentType,
                     ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction)
                 ).filter(Objects::nonNull)
                     .collect(toList());
