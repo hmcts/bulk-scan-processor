@@ -388,38 +388,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
-    @Test
-    public void should_reject_file_when_more_than_one_document_contains_ocr_data() throws Exception {
-        // given
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME,
-            zipDir("zipcontents/too_many_form_documents")); // 2 form documents
-
-        Pdf pdf1 = new Pdf("1111001.pdf",
-            toByteArray(getResource("zipcontents/too_many_form_documents/1111001.pdf")));
-
-        Pdf pdf2 = new Pdf("1111002.pdf",
-            toByteArray(getResource("zipcontents/too_many_form_documents/1111002.pdf")));
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1)))
-            .willReturn(ImmutableMap.of(
-                "1111001.pdf", DOCUMENT_URL1
-            ));
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
-            .willReturn(ImmutableMap.of(
-                "1111002.pdf", DOCUMENT_URL2
-            ));
-
-        // when
-        processor.processBlobs();
-
-        // then
-        envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
-        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
-        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
-    }
-
     private void eventsWereCreated(Event event1, Event event2) {
         assertThat(processEventRepository.findAll())
             .hasSize(2)
