@@ -72,6 +72,14 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
+    public void should_read_blob_and_process_when_zip_contains_metadata_with_supplementary_evidence_with_ocr()
+        throws Exception {
+        //Given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/supplementary_evidence_with_ocr"));
+        testBlobFileProcessed();
+    }
+
+    @Test
     public void should_read_blob_check_signature_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
         throws Exception {
         //Given
