@@ -358,7 +358,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_record_validation_failure_when_zip_does_not_contain_required_document_type() throws Exception {
+    public void should_record_validation_failure_when_zip_missing_required_document_type() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_document")); // no "form" type document
 
@@ -373,10 +373,41 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_record_error_when_no_ocr_data_found_for_supplementary_evidence_with_ocr() throws Exception {
+    public void should_record_error_when_ocr_data_missing_for_supplementary_evidence_with_ocr() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME,
             zipDir("zipcontents/supplementary_evidence_with_ocr_missing_ocr_data")); // no ocr data
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
+    @Test
+    public void should_reject_file_when_more_than_one_document_contains_ocr_data() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME,
+            zipDir("zipcontents/too_many_form_documents")); // 2 form documents
+
+        Pdf pdf1 = new Pdf("1111001.pdf",
+            toByteArray(getResource("zipcontents/too_many_form_documents/1111001.pdf")));
+        Pdf pdf2 = new Pdf("1111002.pdf",
+            toByteArray(getResource("zipcontents/too_many_form_documents/1111002.pdf")));
+
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1)))
+            .willReturn(ImmutableMap.of(
+                "1111001.pdf", DOCUMENT_URL2
+            ));
+
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
+            .willReturn(ImmutableMap.of(
+                "1111002.pdf", DOCUMENT_URL2
+            ));
 
         // when
         processor.processBlobs();
