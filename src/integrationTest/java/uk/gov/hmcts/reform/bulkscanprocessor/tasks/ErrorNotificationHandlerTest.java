@@ -231,9 +231,9 @@ public class ErrorNotificationHandlerTest {
         );
         assertThat(output).containsPattern("INFO  \\[error-notification-service\\] "
             + ErrorNotificationService.class.getCanonicalName()
-            + ":\\d+: Error notification for "
+            + ":\\d+: Error notification for file "
             + ZIP_FILE_NAME
-            + " published. ID: "
+            + " sent. Notification ID: "
             + NOTIFICATION_ID
         );
     }
