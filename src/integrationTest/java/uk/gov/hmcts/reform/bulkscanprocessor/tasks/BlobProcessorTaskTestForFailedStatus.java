@@ -396,12 +396,13 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         Pdf pdf1 = new Pdf("1111001.pdf",
             toByteArray(getResource("zipcontents/too_many_form_documents/1111001.pdf")));
+
         Pdf pdf2 = new Pdf("1111002.pdf",
             toByteArray(getResource("zipcontents/too_many_form_documents/1111002.pdf")));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf1)))
             .willReturn(ImmutableMap.of(
-                "1111001.pdf", DOCUMENT_URL2
+                "1111001.pdf", DOCUMENT_URL1
             ));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf2)))
