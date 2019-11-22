@@ -54,7 +54,8 @@
       "enum": [
         "exception",
         "new_application",
-        "supplementary_evidence"
+        "supplementary_evidence",
+        "supplementary_evidence_with_ocr"
       ],
       "default": "exception"
     },

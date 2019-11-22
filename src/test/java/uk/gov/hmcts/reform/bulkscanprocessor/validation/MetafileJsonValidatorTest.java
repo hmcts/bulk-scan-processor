@@ -98,6 +98,15 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
+    public void should_parse_envelope_data_with_supplementary_evidence_with_ocr() throws IOException {
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/with-supplementary-evidence-with-ocr.json");
+
+        assertThat(envelope.classification).isEqualTo(Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR);
+        assertThat(envelope.scannableItems).hasSize(1);
+        assertThat(envelope.scannableItems.get(0).documentControlNumber).isEqualTo("1111001");
+    }
+
+    @Test
     public void should_parse_envelope_data_with_payments() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/with-payments.json");
 

@@ -357,6 +357,37 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
     }
 
+    @Test
+    public void should_record_validation_failure_when_zip_missing_required_document_type() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/missing_document")); // no "form" type document
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
+    @Test
+    public void should_record_error_when_ocr_data_missing_for_supplementary_evidence_with_ocr() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME,
+            zipDir("zipcontents/supplementary_evidence_with_ocr_missing_ocr_data")); // no ocr data
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
     private void eventsWereCreated(Event event1, Event event2) {
         assertThat(processEventRepository.findAll())
             .hasSize(2)
