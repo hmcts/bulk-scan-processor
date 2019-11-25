@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.google.common.collect.ImmutableList;
 import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +28,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         // valid zip file
         EnvelopeResponse envelope = uploadZipFile(files, metadataFile, destZipFilename);
 
-        assertThat(ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)).contains(envelope.getStatus());
+        assertThat(envelope.getStatus()).isIn(Status.NOTIFICATION_SENT, Status.COMPLETED);
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUuid));
     }
@@ -41,7 +40,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
         EnvelopeResponse envelope = uploadZipFile(files, metadataFile, destZipFilename);
 
-        assertThat(ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)).contains(envelope.getStatus());
+        assertThat(envelope.getStatus()).isIn(Status.NOTIFICATION_SENT, Status.COMPLETED);
         assertThat(envelope.getScannableItems()).hasSize(1);
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUuid));
     }
