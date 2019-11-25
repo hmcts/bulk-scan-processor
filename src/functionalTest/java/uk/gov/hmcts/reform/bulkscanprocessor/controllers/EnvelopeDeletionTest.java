@@ -48,7 +48,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     @Test
     public void should_delete_zip_file_after_successful_ingestion() throws Exception {
         List<String> files = Arrays.asList("1111006.pdf");
-        String metadataFile = "1111006.metadata.json";
+        String metadataFile = "exception_metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
         // valid zip file
