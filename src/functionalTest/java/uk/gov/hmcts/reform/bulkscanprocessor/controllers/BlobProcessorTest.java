@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.google.common.collect.ImmutableList;
 import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,13 +22,13 @@ public class BlobProcessorTest extends BaseFunctionalTest {
     @Test
     public void should_process_zipfile_after_upload_and_set_status() {
         List<String> files = Arrays.asList("1111006.pdf", "1111002.pdf");
-        String metadataFile = "1111006_2.metadata.json";
+        String metadataFile = "exception_with_ocr_metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
         // valid zip file
         EnvelopeResponse envelope = uploadZipFile(files, metadataFile, destZipFilename);
 
-        assertThat(ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)).contains(envelope.getStatus());
+        assertThat(envelope.getStatus()).isIn(Status.NOTIFICATION_SENT, Status.COMPLETED);
         assertThat(envelope.getScannableItems()).hasSize(2);
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUuid));
     }
@@ -37,11 +36,11 @@ public class BlobProcessorTest extends BaseFunctionalTest {
     @Test
     public void should_process_zipfile_with_supplementary_evidence_with_oce_classification() {
         List<String> files = Collections.singletonList("1111006.pdf");
-        String metadataFile = "1111006_3.metadata.json";
+        String metadataFile = "supplementary_evidence_with_ocr_metadata.json";
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
         EnvelopeResponse envelope = uploadZipFile(files, metadataFile, destZipFilename);
 
-        assertThat(ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)).contains(envelope.getStatus());
+        assertThat(envelope.getStatus()).isIn(Status.NOTIFICATION_SENT, Status.COMPLETED);
         assertThat(envelope.getScannableItems()).hasSize(1);
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUuid));
     }
