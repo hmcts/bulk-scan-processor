@@ -60,6 +60,7 @@ servicebus:
       - name: envelopes
       - name: notifications
       - name: processed-envelopes
+  enabled: true
 
 blobstorage:
   resourceGroup: bulk-scan-aks
@@ -70,10 +71,6 @@ blobstorage:
       - bulkscan
       - bulkscan-rejected
       - sscs
+  enabled: true
 postgresql:
   enabled: true
-bsp:
-  servicebus:
-    enabled: true
-  blobstorage:
-    enabled: true

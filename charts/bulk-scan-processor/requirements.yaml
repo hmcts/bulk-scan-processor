@@ -5,10 +5,10 @@ dependencies:
   - name: servicebus
     version: ~0.2.2
     repository: '@hmctspublic'
-    condition: bsp.servicebus.enabled
+    condition: servicebus.enabled
   - name: blobstorage
     version: ~0.2.1
     repository: '@hmctspublic'
-    condition: bsp.blobstorage.enabled
+    condition: blobstorage.enabled
 
 
