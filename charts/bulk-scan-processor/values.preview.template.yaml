@@ -72,5 +72,6 @@ blobstorage:
       - bulkscan-rejected
       - sscs
   enabled: true
-postgresql:
-  enabled: true
+  
+  postgresql:
+    enabled: true
