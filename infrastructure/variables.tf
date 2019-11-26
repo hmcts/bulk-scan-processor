@@ -163,6 +163,10 @@ variable "ocr_validation_url_probate" {
   default = ""
 }
 
+variable "ocr_validation_url_divorce" {
+  default = ""
+}
+
 # The value of the parameter 'blob_lease_timeout' should be between 15 and 60 seconds.
 variable "blob_lease_timeout" {
   default = "15"

@@ -125,6 +125,8 @@ containers:
     - container: divorce
       jurisdiction: DIVORCE
       poBox: 12706
+      ocrValidationUrl: ${OCR_VALIDATION_URL_DIVORCE}
+      paymentsEnabled: true
     - container: finrem
       jurisdiction: DIVORCE
       poBox: 12746

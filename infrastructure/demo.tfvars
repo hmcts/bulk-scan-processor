@@ -12,5 +12,6 @@ allowed_client_certificate_thumbprints = ["2A1EE53E044632145C89FE428128080353127
 
 ocr_validation_url_bulkscan_sample_app = "http://bulk-scan-sample-app-demo.service.core-compute-demo.internal"
 ocr_validation_url_probate = "http://probate-back-office-demo.service.core-compute-demo.internal"
+ocr_validation_url_divorce = "http://div-cos-demo.service.core-compute-demo.internal"
 
 enable_ase = true

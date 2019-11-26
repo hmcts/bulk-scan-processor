@@ -151,6 +151,7 @@ module "bulk-scan" {
 
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP = "${var.ocr_validation_url_bulkscan_sample_app}"
     OCR_VALIDATION_URL_PROBATE             = "${var.ocr_validation_url_probate}"
+    OCR_VALIDATION_URL_DIVORCE             = "${var.ocr_validation_url_divorce}"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
