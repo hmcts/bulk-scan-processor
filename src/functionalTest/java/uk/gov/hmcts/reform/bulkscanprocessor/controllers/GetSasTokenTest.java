@@ -150,7 +150,7 @@ public class GetSasTokenTest {
             Arrays.asList(
                 "1111006.pdf"
             ),
-            "1111006.metadata.json",
+            "exception_metadata.json",
             destZipFilename,
             testPrivateKeyDer
         );
@@ -170,7 +170,7 @@ public class GetSasTokenTest {
             Arrays.asList(
                 "1111006.pdf"
             ),
-            "1111006.metadata.json",
+            "exception_metadata.json",
             destZipFilename,
             testPrivateKeyDer
         );

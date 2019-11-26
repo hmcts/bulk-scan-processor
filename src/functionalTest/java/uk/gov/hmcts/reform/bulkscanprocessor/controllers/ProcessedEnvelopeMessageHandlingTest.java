@@ -87,7 +87,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         testHelper.uploadZipFile(
             inputContainer,
             Arrays.asList("1111006.pdf", "1111002.pdf"),
-            "1111006_2.metadata.json",
+            "exception_with_ocr_metadata.json",
             zipFilename,
             testPrivateKeyDer
         );
