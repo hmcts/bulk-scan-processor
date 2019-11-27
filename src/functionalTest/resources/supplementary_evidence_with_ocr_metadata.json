@@ -1,0 +1,24 @@
+{
+  "po_box": "BULKSCANPO",
+  "jurisdiction": "BULKSCAN",
+  "delivery_date": "2018-06-23T00:00:00.000Z",
+  "opening_date": "2018-06-24T00:00:00.000Z",
+  "zip_file_createddate": "2018-02-24T00:00:00.000Z",
+  "zip_file_name": "$$zip_file_name$$",
+  "envelope_classification": "supplementary_evidence_with_ocr",
+  "scannable_items": [
+      {
+        "document_control_number": "$$dcn1$$",
+        "scanning_date": "2017-02-24T00:00:00.000Z",
+        "ocr_accuracy": "string",
+        "manual_intervention": "string",
+        "next_action": "return",
+        "next_action_date": "2018-06-24T00:00:00.000Z",
+        "ocr_data": "ewogICJNZXRhZGF0YV9maWxlIjogWwogICAgewogICAgICAibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJmaXJzdF9uYW1lIiwKICAgICAgIm1ldGFkYXRhX2ZpZWxkX3ZhbHVlIjogIkpvaG4iCiAgICB9LAogICAgewogICAgICAibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJsYXN0X25hbWUiLAogICAgICAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAiU21pdGgiCiAgICB9LAogICAgewogICAgICAibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJkYXRlX29mX2JpcnRoIiwKICAgICAgIm1ldGFkYXRhX2ZpZWxkX3ZhbHVlIjogIjE5ODUtMDMtMjAiCiAgICB9CiAgXQp9Cg==",
+        "file_name": "1111006.pdf",
+        "notes": "",
+        "document_type": "Form",
+        "document_sub_type": "PERSONAL"
+      }
+  ]
+}
