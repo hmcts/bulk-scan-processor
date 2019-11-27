@@ -53,8 +53,7 @@ java:
         - error-notifications-username
         - error-notifications-password
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
-
-  servicebus:
-    enabled: false
-  blobstorage:
-    enabled: false
+servicebus:
+  enabled: false
+blobstorage:
+  enabled: false
