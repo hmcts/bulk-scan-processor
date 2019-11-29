@@ -266,7 +266,7 @@ dependencies {
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
-  integrationTestCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.1.4.RELEASE', {
+  integrationTestCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.0.RELEASE', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
   }
   integrationTestCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.25.1'
