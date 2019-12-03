@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.monitoring;
 
-import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,7 +27,7 @@ public class IncompleteEnvelopesTask {
     }
 
     @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}", zone = EUROPE_LONDON)
-    @SchedulerLock(name = "incomplete-envelopes-monitoring", lockAtLeastFor = 10_000)
+    @SchedulerLock(name = "incomplete-envelopes-monitoring", lockAtLeastFor = "10s")
     public void run() {
         log.info("Checking for incomplete envelopes");
 
