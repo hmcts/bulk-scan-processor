@@ -209,7 +209,7 @@ dependencies {
   }
 
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '3.0.1'
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '3.0.1'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.0.0'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.3.0'
   compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.18', {
