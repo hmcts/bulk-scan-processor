@@ -299,34 +299,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     }
 
     @Test
-    public void should_reject_file_which_has_exception_classification_with_payments() throws Exception {
-        // given
-        byte[] zipBytes = zipDir("zipcontents/exception_payments");
-
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
-
-        // and
-        Pdf pdf = new Pdf(
-            "1111002.pdf",
-            toByteArray(getResource("zipcontents/exception_payments/1111002.pdf"))
-        );
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
-            .willReturn(ImmutableMap.of(
-                "1111002.pdf", DOCUMENT_URL2
-            ));
-
-        // when
-        processor.processBlobs();
-
-        // then
-        envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
-        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
-        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
-    }
-
-    @Test
     public void should_record_validation_failure_when_zip_very_long_property_value() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/too_long_dcn"));
