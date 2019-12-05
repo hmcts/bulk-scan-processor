@@ -188,6 +188,20 @@ dependencyManagement {
     dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
       entry 'mockito-core'
     }
+
+    //to suppress  CVE-2019-17632
+    dependencySet(group: 'org.eclipse.jetty', version: '9.2.28.v20190418') {
+      entry  'jetty-server'
+      entry 'jetty-http'
+      entry 'jetty-webapp'
+      entry 'jetty-servlet'
+      entry 'jetty-security'
+      entry 'jetty-servlets'
+      entry 'jetty-util'
+      entry 'jetty-io'
+      entry 'jetty-continuation'
+      entry 'jetty-xml'
+    }
   }
 }
 
