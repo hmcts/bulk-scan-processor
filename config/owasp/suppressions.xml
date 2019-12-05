@@ -62,4 +62,10 @@
     <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15on@.*$</packageUrl>
     <cve>CVE-2019-17359</cve>
   </suppress>
+
+  <suppress until="2020-01-06">
+    <notes><![CDATA[No fix available. Not used by server - comes with wiremock-jre8 used only in integration tests]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-(webapp|servlet|security|server|servlets|http|continuation|xml|util)@9\.4\.22\.v20191022.*$</packageUrl>
+    <cve>CVE-2019-17632</cve>
+  </suppress>
 </suppressions>
