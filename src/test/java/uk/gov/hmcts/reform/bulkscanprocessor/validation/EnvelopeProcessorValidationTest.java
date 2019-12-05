@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidJourneyClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -320,111 +319,6 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_not_throw_an_exception_when_payments_present_and_classification_new_application() {
-        // given
-        InputEnvelope envelope = inputEnvelope(
-            "ABC",
-            "test_poBox",
-            Classification.NEW_APPLICATION,
-            emptyList(),
-            asList(
-                payment("number1")
-            )
-        );
-
-        // when
-        Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
-
-        // then
-        assertThat(err).isNull();
-    }
-
-    @Test
-    public void should_not_throw_an_exception_when_no_payments_and_classification_new_application() {
-        // given
-        InputEnvelope envelope = inputEnvelope(
-            "ABC",
-            "test_poBox",
-            Classification.NEW_APPLICATION,
-            emptyList(),
-            null
-        );
-
-        // when
-        Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
-
-        // then
-        assertThat(err).isNull();
-    }
-
-    @Test
-    public void should_not_throw_an_exception_when_empty_payments_and_classification_new_application() {
-        // given
-        InputEnvelope envelope = inputEnvelope(
-            "ABC",
-            "test_poBox",
-            Classification.NEW_APPLICATION,
-            emptyList()
-        );
-
-        // when
-        Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
-
-        // then
-        assertThat(err).isNull();
-    }
-
-    @Test
-    public void should_throw_an_exception_when_payments_present_and_classification_exception() {
-        // given
-        InputEnvelope envelope = inputEnvelope(
-            "ABC",
-            "test_poBox",
-            Classification.EXCEPTION,
-            emptyList(),
-            asList(
-                payment("number1")
-            )
-        );
-
-        // when
-        Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
-
-        // then
-        verifyInvalidJourneyClassificationException(envelope, err);
-    }
-
-    @Test
-    public void should_throw_an_exception_when_payments_present_and_classification_supplement_evidence() {
-        // given
-        InputEnvelope envelope = inputEnvelope(
-            "ABC",
-            "test_poBox",
-            Classification.SUPPLEMENTARY_EVIDENCE,
-            emptyList(),
-            asList(
-                payment("number1")
-            )
-        );
-
-        // when
-        Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope)
-        );
-
-        // then
-        verifyInvalidJourneyClassificationException(envelope, err);
-    }
-
-    @Test
     public void should_throw_an_exception_when_payments_present_but_payment_processing_disabled() {
         // given
         InputEnvelope envelope = inputEnvelope(
@@ -507,12 +401,6 @@ public class EnvelopeProcessorValidationTest {
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
             .hasMessageContaining("Missing OCR data");
-    }
-
-    private void verifyInvalidJourneyClassificationException(InputEnvelope envelope, Throwable err) {
-        assertThat(err)
-            .isInstanceOf(InvalidJourneyClassificationException.class)
-            .hasMessageContaining(envelope.classification.toString());
     }
 
     private void verifyPaymentsDisabledException(InputEnvelope envelope, Throwable err) {

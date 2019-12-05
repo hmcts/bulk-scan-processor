@@ -72,6 +72,14 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
+    public void should_read_blob_and_process_when_zip_contains_metadata_with_payments_for_exception_classification()
+        throws Exception {
+        //Given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/exception_payments"));
+        testBlobFileProcessed();
+    }
+
+    @Test
     public void should_read_blob_and_process_when_zip_contains_metadata_with_supplementary_evidence_with_ocr()
         throws Exception {
         //Given

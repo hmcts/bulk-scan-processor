@@ -293,7 +293,6 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
                 envelope, paymentsEnabled, containerMappings.getMappings()
             );
-            EnvelopeValidator.assertClassificationNewApplicationIfPaymentsArePresent(envelope);
             EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
