@@ -105,7 +105,7 @@
           "ocr_data": {
             "id": "#/properties/scannable_items/items/properties/ocr_data",
             "type": ["string", "null"],
-            "pattern": "^[0-9a-zA-Z=]*$"
+            "pattern": "^[0-9a-zA-Z=+/]*$"
           },
           "file_name": {
             "id": "#/properties/scannable_items/items/properties/file_name",
