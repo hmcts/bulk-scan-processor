@@ -5,4 +5,3 @@ java:
   devApplicationInsightsInstrumentKey: "f666440f-43c0-4abb-9c20-2ce175a374f0"
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
-    OCR_VALIDATION_URL_DIVORCE: http://div-cos-aat.service.core-compute-aat.internal
