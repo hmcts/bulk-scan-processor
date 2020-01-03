@@ -54,15 +54,6 @@
     <packageUrl regex="true">^pkg:javascript/handlebars\.js@4\.0\.4.*$</packageUrl>
     <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
   </suppress>
-  <suppress  until="2019-11-30">
-    <notes><![CDATA[
-   file name: bcprov-jdk15on-1.63.jar
-   This is used only in integration test
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15on@.*$</packageUrl>
-    <cve>CVE-2019-17359</cve>
-  </suppress>
-
   <suppress until="2020-01-06">
     <notes><![CDATA[No fix available. Not used by server - comes with wiremock-jre8 used only in integration tests]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-(webapp|servlet|security|server|servlets|http|continuation|xml|util)@9\.4\.22\.v20191022.*$</packageUrl>
