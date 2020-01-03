@@ -190,8 +190,6 @@ dependencyManagement {
     }
     dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.30') {
       entry 'tomcat-embed-core'
-    }
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.30') {
       entry 'tomcat-embed-websocket'
     }
   }
