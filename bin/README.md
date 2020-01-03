@@ -26,6 +26,7 @@ where `envelope` is folder name existing in working directory.
 
 #### Pre-requisites
 
+- Request access to `demo` bulk scan key vault from BSP team
 - Azure CLI
 - JQ CLI processor
 - &lt;folder-name&gt; e.g. `envelope`
