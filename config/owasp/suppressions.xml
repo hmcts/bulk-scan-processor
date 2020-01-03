@@ -59,12 +59,12 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-(webapp|servlet|security|server|servlets|http|continuation|xml|util)@9\.4\.22\.v20191022.*$</packageUrl>
     <cve>CVE-2019-17632</cve>
   </suppress>
-  <suppress>
+  <suppress until="2020-01-31">
     <notes><![CDATA[No fix available. file name: tomcat-embed-websocket-9.0.29.jar]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
     <cve>CVE-2019-17563</cve>
   </suppress>
-  <suppress>
+  <suppress until="2020-01-31">
     <notes><![CDATA[No fix available. file name: tomcat-embed-core-9.0.29.jar]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
     <cve>CVE-2019-17563</cve>
