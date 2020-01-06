@@ -27,11 +27,6 @@ fi
 ENVI="demo"
 DIRECTORY=$1
 
-### PLEASE SET THE FOLLOWING ###
-### ASK BSP TEAM ###
-CONTAINER=""
-### END OF CUSTOM SETUP ###
-
 if [[ ! -d "$DIRECTORY" ]]; then
   echo "Cannot see $DIRECTORY in `pwd`"
   echo "\n  Re-run script \`./sign-zip-upload.sh <folder-name>\`\n"
