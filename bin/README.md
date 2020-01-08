@@ -19,6 +19,8 @@ If help required - ask BSP team.
 #### Sample command line
 
 ```bash
+$ export SAS_TOKEN="sv=2019-02-02&spr=https%2Chttp&se=2019-12-10T15%3A45%3A13Z&sr=c&sp=wl&sig=OmUS7%2BH62ah1rdQr0r36bkA0EZ10GH6fNSP54NAL0Lw%3D"
+$ export CONTAINER="mycontainer"
 $ ./sign-zip-upload.sh envelope
 ```
 
@@ -30,7 +32,7 @@ where `envelope` is folder name existing in working directory.
 - Azure CLI
 - JQ CLI processor
 - &lt;folder-name&gt; e.g. `envelope`
-- `CONTAINER=""` set to some existing one in blob storage. It is hardcoded as only needed one value per team
+- `CONTAINER` environment variable. Current session where command is executed
 - `SAS_TOKEN` environment variable. Current session where command is executed
 
 #### Commands used
