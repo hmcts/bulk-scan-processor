@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureExcep
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -40,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Date;
@@ -52,6 +54,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
+import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
@@ -127,7 +130,8 @@ public class BlobProcessorTask extends Processor {
             containerMappings,
             ocrValidator,
             notificationsQueueHelper,
-            paymentsEnabled);
+            paymentsEnabled
+        );
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -218,7 +222,7 @@ public class BlobProcessorTask extends Processor {
             BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
             // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+            try (ZipInputStream zis = loadData(blobInputStream)) {
                 registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
                 ZipFileProcessingResult processingResult =
@@ -232,6 +236,16 @@ public class BlobProcessorTask extends Processor {
                     );
                 }
             }
+        }
+    }
+
+    private ZipInputStream loadData(BlobInputStream stream) {
+        byte[] array = new byte[0];
+        try {
+            array = toByteArray(stream);
+            return new ZipInputStream(new ByteArrayInputStream(array));
+        } catch (IOException exception) {
+            throw new ZipFileLoadException("Error loading zip archive", exception);
         }
     }
 
@@ -321,6 +335,10 @@ public class BlobProcessorTask extends Processor {
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
+            return null;
+        } catch (ZipFileLoadException ex) {
+            log.warn("Rejected file {} from container {} - failed to load", zipFilename, containerName, ex);
+            handleEventRelatedError(Event.ZIPFILE_LOAD_FAILURE, containerName, zipFilename, ex);
             return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
