@@ -224,7 +224,7 @@ public class BlobProcessorTask extends Processor {
             BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
 
             // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis = loadData(blobInputStream)) {
+            try (ZipInputStream zis = loadIntoMemory(blobInputStream)) {
                 registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
                 ZipFileProcessingResult processingResult =
@@ -241,7 +241,7 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private ZipInputStream loadData(BlobInputStream stream) {
+    private ZipInputStream loadIntoMemory(BlobInputStream stream) {
         try {
             byte[] array = toByteArray(stream);
             return new ZipInputStream(new ByteArrayInputStream(array));
