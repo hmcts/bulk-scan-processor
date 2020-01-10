@@ -238,8 +238,7 @@ public class BlobProcessorTask extends Processor {
     }
 
     private ZipInputStream loadIntoMemory(CloudBlockBlob cloudBlockBlob, String zipFilename) throws StorageException {
-        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
-        try {
+        try (BlobInputStream blobInputStream = cloudBlockBlob.openInputStream()) {
             byte[] array = toByteArray(blobInputStream);
             return new ZipInputStream(new ByteArrayInputStream(array));
         } catch (IOException exception) {
