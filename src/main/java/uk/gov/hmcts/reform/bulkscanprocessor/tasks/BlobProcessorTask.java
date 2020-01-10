@@ -240,9 +240,8 @@ public class BlobProcessorTask extends Processor {
     }
 
     private ZipInputStream loadData(BlobInputStream stream) {
-        byte[] array = new byte[0];
         try {
-            array = toByteArray(stream);
+            byte[] array = toByteArray(stream);
             return new ZipInputStream(new ByteArrayInputStream(array));
         } catch (IOException exception) {
             throw new ZipFileLoadException("Error loading zip archive", exception);
