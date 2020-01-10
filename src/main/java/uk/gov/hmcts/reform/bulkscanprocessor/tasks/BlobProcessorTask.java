@@ -175,6 +175,8 @@ public class BlobProcessorTask extends Processor {
     private void tryProcessZipFile(CloudBlobContainer container, String zipFilename) {
         try {
             processZipFileIfEligible(container, zipFilename);
+        } catch (ZipFileLoadException ex) {
+            log.error("Failed to load file {} from container {}", zipFilename, container.getName(), ex);
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, container.getName(), ex);
         }
@@ -334,10 +336,6 @@ public class BlobProcessorTask extends Processor {
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
-            return null;
-        } catch (ZipFileLoadException ex) {
-            log.warn("Rejected file {} from container {} - failed to load", zipFilename, containerName, ex);
-            handleEventRelatedError(Event.ZIPFILE_LOAD_FAILURE, containerName, zipFilename, ex);
             return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);

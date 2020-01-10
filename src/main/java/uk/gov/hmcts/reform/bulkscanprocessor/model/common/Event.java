@@ -4,7 +4,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 public enum Event {
 
     ZIPFILE_PROCESSING_STARTED, // when processor starts processing zipfile from blob
-    ZIPFILE_LOAD_FAILURE,
     DOC_FAILURE, // generic failure while processing zip file. before uploading to document management
     FILE_VALIDATION_FAILURE,
     DOC_SIGNATURE_FAILURE, // Signature verification failure while processing zip file
