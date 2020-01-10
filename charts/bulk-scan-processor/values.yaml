@@ -34,6 +34,7 @@ java:
     INCOMPLETE_ENVELOPES_TASK_CRON: "0 0 * * * *"
     DELETE_REJECTED_FILES_TTL: PT72H
     ERROR_NOTIFICATIONS_ENABLED: "false" # only enabled on prod
+    STORAGE_PROXY_ENABLED: "true"
   keyVaults:
     "bulk-scan":
       secrets:

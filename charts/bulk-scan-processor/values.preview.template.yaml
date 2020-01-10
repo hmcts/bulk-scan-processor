@@ -37,6 +37,7 @@ java:
     PROCESS_PAYMENTS_ENABLED: "false"
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
     DELETE_REJECTED_FILES_ENABLED: "false"
+    STORAGE_PROXY_ENABLED: "false"
   keyVaults:
     "bulk-scan":
       secrets:
@@ -73,4 +74,4 @@ blobstorage:
       - bulkscan-rejected
       - sscs
   enabled: true
-    
+
