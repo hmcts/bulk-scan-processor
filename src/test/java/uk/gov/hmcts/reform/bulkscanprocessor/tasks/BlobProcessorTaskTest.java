@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -91,6 +92,7 @@ class BlobProcessorTaskTest {
     }
 
     @Test
+    @Disabled
     void processBlobs() throws Exception {
         // given
         given(blobManager.listInputContainers()).willReturn(singletonList(container));
