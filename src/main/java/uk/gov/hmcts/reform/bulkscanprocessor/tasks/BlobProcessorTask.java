@@ -219,10 +219,8 @@ public class BlobProcessorTask extends Processor {
         Optional<String> leaseId = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
         if (leaseId.isPresent()) {
-            BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
-
             // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis = loadIntoMemory(blobInputStream)) {
+            try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
                 registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
                 ZipFileProcessingResult processingResult =
@@ -239,12 +237,13 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private ZipInputStream loadIntoMemory(BlobInputStream stream) {
+    private ZipInputStream loadIntoMemory(CloudBlockBlob cloudBlockBlob, String zipFilename) throws StorageException {
+        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
         try {
-            byte[] array = toByteArray(stream);
+            byte[] array = toByteArray(blobInputStream);
             return new ZipInputStream(new ByteArrayInputStream(array));
         } catch (IOException exception) {
-            throw new ZipFileLoadException("Error loading zip archive", exception);
+            throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
         }
     }
 
