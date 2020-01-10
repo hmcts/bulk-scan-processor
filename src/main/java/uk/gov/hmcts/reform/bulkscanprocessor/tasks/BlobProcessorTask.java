@@ -175,8 +175,6 @@ public class BlobProcessorTask extends Processor {
     private void tryProcessZipFile(CloudBlobContainer container, String zipFilename) {
         try {
             processZipFileIfEligible(container, zipFilename);
-        } catch (ZipFileLoadException ex) {
-            log.error("Failed to load file {} from container {}", zipFilename, container.getName(), ex);
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, container.getName(), ex);
         }
