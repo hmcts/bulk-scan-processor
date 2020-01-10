@@ -6,7 +6,6 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -29,6 +28,7 @@ import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTaskTest {
@@ -92,8 +92,7 @@ class BlobProcessorTaskTest {
     }
 
     @Test
-    @Disabled
-    void processBlobs() throws Exception {
+    void processBlobs_should_not_call_envelopeProcessor_if_failed_to_load_file() throws Exception {
         // given
         given(blobManager.listInputContainers()).willReturn(singletonList(container));
         given(container.listBlobs()).willReturn(singletonList(blob));
@@ -115,6 +114,6 @@ class BlobProcessorTaskTest {
         blobProcessorTask.processBlobs();
 
         // then
-
+        verifyNoMoreInteractions(envelopeProcessor);
     }
 }
