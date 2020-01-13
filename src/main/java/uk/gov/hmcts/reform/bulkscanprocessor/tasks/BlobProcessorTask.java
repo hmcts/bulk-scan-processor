@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureExcep
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -40,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Date;
@@ -52,6 +54,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
+import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
@@ -127,7 +130,8 @@ public class BlobProcessorTask extends Processor {
             containerMappings,
             ocrValidator,
             notificationsQueueHelper,
-            paymentsEnabled);
+            paymentsEnabled
+        );
         this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
@@ -215,10 +219,8 @@ public class BlobProcessorTask extends Processor {
         Optional<String> leaseId = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
         if (leaseId.isPresent()) {
-            BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
-
             // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+            try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
                 registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
                 ZipFileProcessingResult processingResult =
@@ -232,6 +234,15 @@ public class BlobProcessorTask extends Processor {
                     );
                 }
             }
+        }
+    }
+
+    private ZipInputStream loadIntoMemory(CloudBlockBlob cloudBlockBlob, String zipFilename) throws StorageException {
+        try (BlobInputStream blobInputStream = cloudBlockBlob.openInputStream()) {
+            byte[] array = toByteArray(blobInputStream);
+            return new ZipInputStream(new ByteArrayInputStream(array));
+        } catch (IOException exception) {
+            throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
         }
     }
 
