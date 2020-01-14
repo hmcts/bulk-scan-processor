@@ -71,11 +71,11 @@ ZIP_FILE_NAME="${ZIP_ID_PREFIX}_$ZIP_TIME_PART.test.zip"
 echo "Zipping the envelope..."
 
 # zip desired contents (pdf and json only!)
-zip ${ENVELOPE_FILE_NAME} ${DIRECTORY}/*.json ${DIRECTORY}/*.pdf
+zip -j ${ENVELOPE_FILE_NAME} ${DIRECTORY}/*.json ${DIRECTORY}/*.pdf
 
 # sign
 openssl dgst -sha256 -sign private.pem -out ${SIGNATURE_FILE_NAME} ${ENVELOPE_FILE_NAME}
-zip ${ZIP_FILE_NAME} ${ENVELOPE_FILE_NAME} ${SIGNATURE_FILE_NAME} > /dev/null 2>&1
+zip -j ${ZIP_FILE_NAME} ${ENVELOPE_FILE_NAME} ${SIGNATURE_FILE_NAME} > /dev/null 2>&1
 
 # remove retrieved private key
 if [[ "$PEM_EXISTS" == "true" ]]; then
