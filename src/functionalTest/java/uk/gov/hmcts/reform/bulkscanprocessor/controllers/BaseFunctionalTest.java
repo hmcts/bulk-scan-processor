@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.google.common.collect.ImmutableList;
 import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageUri;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
@@ -10,6 +11,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +28,8 @@ public abstract class BaseFunctionalTest {
     protected String testPrivateKeyDer;
     protected CloudBlobContainer inputContainer;
     protected CloudBlobContainer rejectedContainer;
+    protected String proxyHost;
+    protected int proxyPort;
     protected TestHelper testHelper = new TestHelper();
     protected Config config;
 
@@ -36,12 +41,19 @@ public abstract class BaseFunctionalTest {
         this.s2sName = config.getString("test-s2s-name");
         this.s2sSecret = config.getString("test-s2s-secret");
         this.testPrivateKeyDer = config.getString("test-private-key-der");
-
+        this.proxyHost = config.getString("storage-proxy-host");
+        this.proxyPort = Integer.parseInt(config.getString("storage-proxy-port"));
+        
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(
                 config.getString("test-storage-account-name"),
                 config.getString("test-storage-account-key")
             );
+
+        // Apply proxy for functional tests for all environments
+        // as due to NSG config it has to go through outbound proxy
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+        OperationContext.setDefaultProxy(proxy);
 
         CloudBlobClient cloudBlobClient = new CloudStorageAccount(
             storageCredentials,
