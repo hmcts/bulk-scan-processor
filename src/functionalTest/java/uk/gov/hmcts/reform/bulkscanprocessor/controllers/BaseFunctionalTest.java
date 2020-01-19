@@ -44,7 +44,7 @@ public abstract class BaseFunctionalTest {
         this.testPrivateKeyDer = config.getString("test-private-key-der");
         this.proxyHost = config.getString("storage-proxy-host");
         this.proxyPort = Integer.parseInt(config.getString("storage-proxy-port"));
-        this.isProxyEnabled=Boolean.getBoolean(config.getString("proxyout.enabled"));
+        this.isProxyEnabled = Boolean.getBoolean(config.getString("proxyout.enabled"));
 
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(
