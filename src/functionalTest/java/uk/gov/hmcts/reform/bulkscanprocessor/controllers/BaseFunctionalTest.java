@@ -30,6 +30,7 @@ public abstract class BaseFunctionalTest {
     protected CloudBlobContainer rejectedContainer;
     protected String proxyHost;
     protected int proxyPort;
+    protected boolean isProxyEnabled;
     protected TestHelper testHelper = new TestHelper();
     protected Config config;
 
@@ -43,17 +44,20 @@ public abstract class BaseFunctionalTest {
         this.testPrivateKeyDer = config.getString("test-private-key-der");
         this.proxyHost = config.getString("storage-proxy-host");
         this.proxyPort = Integer.parseInt(config.getString("storage-proxy-port"));
-        
+        this.isProxyEnabled=Boolean.getBoolean(config.getString("proxyout.enabled"));
+
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(
                 config.getString("test-storage-account-name"),
                 config.getString("test-storage-account-key")
             );
 
-        // Apply proxy for functional tests for all environments
+        // Apply proxy for functional tests for all environments except preview
         // as due to NSG config it has to go through outbound proxy
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-        OperationContext.setDefaultProxy(proxy);
+        if (isProxyEnabled) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+            OperationContext.setDefaultProxy(proxy);
+        }
 
         CloudBlobClient cloudBlobClient = new CloudStorageAccount(
             storageCredentials,
