@@ -75,6 +75,18 @@ public abstract class BaseFunctionalTest {
             System.out.format("%s=%s%n", envName, environmentVars.get(envName));
         }
 
+        // This is set temporary and will be removed/modified in subsequent PRs
+        System.setProperty("http.proxyHost", proxyHost);
+        System.setProperty("http.proxyPort", proxyPort);
+
+        System.setProperty("https.proxyHost", proxyHost);
+        System.setProperty("https.proxyPort", proxyPort);
+
+        Map<String, String> environmentVars = System.getenv();
+        for (String envName : environmentVars.keySet()) {
+            System.out.format("%s=%s%n", envName, environmentVars.get(envName));
+        }
+
         CloudBlobClient cloudBlobClient = new CloudStorageAccount(
             storageCredentials,
             new StorageUri(new URI(config.getString("test-storage-account-url")), null),
@@ -96,8 +108,8 @@ public abstract class BaseFunctionalTest {
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
                 .filter(env ->
-                    ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
-                        .contains(env.getStatus())
+                            ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
+                                .contains(env.getStatus())
                 )
                 .isPresent()
             );
