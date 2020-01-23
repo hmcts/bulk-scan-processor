@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -29,7 +30,7 @@ public abstract class BaseFunctionalTest {
     protected CloudBlobContainer inputContainer;
     protected CloudBlobContainer rejectedContainer;
     protected String proxyHost;
-    protected int proxyPort;
+    protected String proxyPort;
     protected boolean isProxyEnabled;
     protected TestHelper testHelper = new TestHelper();
     protected Config config;
@@ -43,7 +44,7 @@ public abstract class BaseFunctionalTest {
         this.s2sSecret = config.getString("test-s2s-secret");
         this.testPrivateKeyDer = config.getString("test-private-key-der");
         this.proxyHost = config.getString("storage-proxy-host");
-        this.proxyPort = Integer.parseInt(config.getString("storage-proxy-port"));
+        this.proxyPort = config.getString("storage-proxy-port");
         this.isProxyEnabled = Boolean.getBoolean(config.getString("proxyout.enabled"));
 
         StorageCredentialsAccountAndKey storageCredentials =
@@ -55,8 +56,23 @@ public abstract class BaseFunctionalTest {
         // Apply proxy for functional tests for all environments except preview
         // as due to NSG config it has to go through outbound proxy
         if (isProxyEnabled) {
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+            Proxy proxy = new Proxy(
+                Proxy.Type.HTTP,
+                new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))
+            );
             OperationContext.setDefaultProxy(proxy);
+        }
+
+        // This is set temporary and will be removed/modified in subsequent PRs
+        System.setProperty("http.proxyHost", proxyHost);
+        System.setProperty("http.proxyPort", proxyPort);
+
+        System.setProperty("https.proxyHost", proxyHost);
+        System.setProperty("https.proxyPort", proxyPort);
+
+        Map<String, String> environmentVars = System.getenv();
+        for (String envName : environmentVars.keySet()) {
+            System.out.format("%s=%s%n", envName, environmentVars.get(envName));
         }
 
         CloudBlobClient cloudBlobClient = new CloudStorageAccount(
@@ -80,8 +96,8 @@ public abstract class BaseFunctionalTest {
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
                 .filter(env ->
-                    ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
-                        .contains(env.getStatus())
+                            ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
+                                .contains(env.getStatus())
                 )
                 .isPresent()
             );
