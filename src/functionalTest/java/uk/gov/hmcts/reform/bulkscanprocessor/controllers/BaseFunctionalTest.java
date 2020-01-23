@@ -96,8 +96,8 @@ public abstract class BaseFunctionalTest {
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
                 .filter(env ->
-                            ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
-                                .contains(env.getStatus())
+                    ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
+                        .contains(env.getStatus())
                 )
                 .isPresent()
             );
