@@ -61,14 +61,14 @@ public abstract class BaseFunctionalTest {
                 new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))
             );
             OperationContext.setDefaultProxy(proxy);
+
+            // This is set temporary and will be removed/modified in subsequent PRs
+            System.setProperty("http.proxyHost", proxyHost);
+            System.setProperty("http.proxyPort", proxyPort);
+
+            System.setProperty("https.proxyHost", proxyHost);
+            System.setProperty("https.proxyPort", proxyPort);
         }
-
-        // This is set temporary and will be removed/modified in subsequent PRs
-        System.setProperty("http.proxyHost", proxyHost);
-        System.setProperty("http.proxyPort", proxyPort);
-
-        System.setProperty("https.proxyHost", proxyHost);
-        System.setProperty("https.proxyPort", proxyPort);
 
         Map<String, String> environmentVars = System.getenv();
         for (String envName : environmentVars.keySet()) {
