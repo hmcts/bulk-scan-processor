@@ -236,7 +236,7 @@ dependencies {
   compile group: 'org.flywaydb', name: 'flyway-core', version: '6.2.0'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
   // review following dependency after integrating db structure
-  compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.2'
+  compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.3'
 
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
