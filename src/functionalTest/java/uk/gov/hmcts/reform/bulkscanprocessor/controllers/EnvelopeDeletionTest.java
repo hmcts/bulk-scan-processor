@@ -52,7 +52,14 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
         // valid zip file
-        testHelper.uploadZipFile(inputContainer, files, metadataFile, destZipFilename, testPrivateKeyDer);
+        testHelper.uploadZipFile(
+            inputContainer,
+            files,
+            metadataFile,
+            destZipFilename,
+            testPrivateKeyDer,
+            operationContext
+        );
         filesToDeleteAfterTest.add(destZipFilename);
 
         await("file should be deleted")
@@ -72,7 +79,8 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
             Arrays.asList("1111006.pdf"),
             null, // missing metadata file
             destZipFilename,
-            testPrivateKeyDer
+            testPrivateKeyDer,
+            operationContext
         );
 
         filesToDeleteAfterTest.add(destZipFilename);
@@ -102,7 +110,8 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
                 Arrays.asList("1111006.pdf"),
                 null, // missing metadata file
                 fileName,
-                testPrivateKeyDer
+                testPrivateKeyDer,
+                operationContext
             );
 
             await("file should be deleted")

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.PathUtility;
@@ -73,13 +74,21 @@ public class TestHelper {
         List<String> files,
         String metadataFile,
         final String destZipFilename,
-        String testPrivateKeyDer
+        String testPrivateKeyDer,
+        OperationContext operationContext
     ) {
         try {
             byte[] zipFile =
                 createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
             CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-            blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
+            blockBlobReference.uploadFromByteArray(
+                zipFile,
+                0,
+                zipFile.length,
+                null,
+                null,
+                operationContext
+            );
         } catch (Exception exc) {
             throw new RuntimeException(exc);
         }
