@@ -34,6 +34,7 @@ public abstract class BaseFunctionalTest {
     protected boolean isProxyEnabled;
     protected TestHelper testHelper = new TestHelper();
     protected Config config;
+    protected OperationContext operationContext;
 
     public void setUp() throws Exception {
         this.config = ConfigFactory.load();
@@ -60,7 +61,9 @@ public abstract class BaseFunctionalTest {
                 Proxy.Type.HTTP,
                 new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))
             );
-            OperationContext.setDefaultProxy(proxy);
+
+            operationContext = new OperationContext();
+            operationContext.setProxy(proxy);
 
             // This is set temporary and will be removed/modified in subsequent PRs
             System.setProperty("http.proxyHost", proxyHost);

@@ -47,7 +47,14 @@ public class BlobProcessorTest extends BaseFunctionalTest {
 
     private EnvelopeResponse uploadZipFile(List<String> files, String metadataFile, String destZipFilename) {
         // valid zip file
-        testHelper.uploadZipFile(inputContainer, files, metadataFile, destZipFilename, testPrivateKeyDer);
+        testHelper.uploadZipFile(
+            inputContainer,
+            files,
+            metadataFile,
+            destZipFilename,
+            testPrivateKeyDer,
+            operationContext
+        );
 
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
