@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
