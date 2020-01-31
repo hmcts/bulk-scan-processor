@@ -56,7 +56,8 @@ public class ErrorNotificationClientTest {
             "test_zip_file_name",
             "test_po_box",
             ERR_METAFILE_INVALID.name(),
-            "test_error_description"
+            "test_error_description",
+            "test_service"
         ));
 
         // then
@@ -73,7 +74,8 @@ public class ErrorNotificationClientTest {
             "test_zip_file_name",
             "test_po_box",
             ERR_METAFILE_INVALID.name(),
-            "test_error_description"
+            "test_error_description",
+            "test_service"
         )));
 
         // then
@@ -98,7 +100,8 @@ public class ErrorNotificationClientTest {
             "test_zip_file_name",
             null,
             "test_error_code",
-            null
+            null,
+            "test_service"
         )));
 
         // then
@@ -117,7 +120,8 @@ public class ErrorNotificationClientTest {
             null,
             "test_po_box",
             "test_error_code",
-            "test_description"
+            "test_description",
+            "test_service"
         )));
 
         // then
@@ -136,7 +140,8 @@ public class ErrorNotificationClientTest {
             "test_zip_file_name",
             "test_po_box",
             "test_error_code",
-            "test_description"
+            "test_description",
+            "test_service"
         )));
 
         // then

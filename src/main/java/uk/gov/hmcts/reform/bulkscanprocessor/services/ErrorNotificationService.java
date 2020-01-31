@@ -41,11 +41,13 @@ public class ErrorNotificationService {
             message.documentControlNumber,
             message.errorCode.name(),
             message.errorDescription,
-            message.id
+            message.id,
+            message.service
         );
         ErrorNotification entity = new ErrorNotification(
             entityManager.getReference(ProcessEvent.class, message.eventId),
-            message.errorCode.name()
+            message.errorCode.name(),
+            message.service
         );
 
         try {

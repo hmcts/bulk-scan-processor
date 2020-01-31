@@ -118,7 +118,8 @@ public class ErrorNotificationHandlerTest {
             "po_box",
             "document_control_number",
             ErrorCode.ERR_AV_FAILED,
-            "av fail"
+            "av fail",
+            "service1"
         );
     }
 

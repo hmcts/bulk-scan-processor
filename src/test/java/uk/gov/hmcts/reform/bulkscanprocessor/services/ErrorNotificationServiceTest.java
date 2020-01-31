@@ -62,7 +62,8 @@ public class ErrorNotificationServiceTest {
             "po box",
             "document control number",
             ErrorCode.ERR_AV_FAILED,
-            "antivirus flag"
+            "antivirus flag",
+            "service1"
         );
         ErrorNotificationResponse response = new ErrorNotificationResponse("notify id");
         given(client.notify(requestCaptor.capture())).willReturn(response);
@@ -78,6 +79,7 @@ public class ErrorNotificationServiceTest {
         assertThat(request.errorCode).isEqualTo(serviceBusMessage.errorCode.name());
         assertThat(request.errorDescription).isEqualTo(serviceBusMessage.errorDescription);
         assertThat(request.referenceId).isEqualTo(serviceBusMessage.id);
+        assertThat(request.service).isEqualTo(serviceBusMessage.service);
 
         // and
         capturer.assertContains(
@@ -97,7 +99,8 @@ public class ErrorNotificationServiceTest {
             "po box",
             "document control number",
             ErrorCode.ERR_AV_FAILED,
-            "antivirus flag"
+            "antivirus flag",
+            "service1"
         );
         given(client.notify(any(ErrorNotificationRequest.class))).willThrow(new RuntimeException("oh no"));
 

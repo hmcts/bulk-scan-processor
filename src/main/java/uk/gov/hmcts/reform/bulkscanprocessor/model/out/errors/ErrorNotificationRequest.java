@@ -22,6 +22,9 @@ public class ErrorNotificationRequest {
     @JsonProperty("reference_id")
     public final String referenceId;
 
+    @JsonProperty("service")
+    public final String service;
+
     /**
      * Full request body definition.
      *
@@ -40,7 +43,8 @@ public class ErrorNotificationRequest {
         String documentControlNumber,
         String errorCode,
         String errorDescription,
-        String referenceId
+        String referenceId,
+        String service
     ) {
         this.zipFileName = zipFileName;
         this.poBox = poBox;
@@ -48,6 +52,7 @@ public class ErrorNotificationRequest {
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
         this.referenceId = referenceId;
+        this.service = service;
     }
 
     /**
@@ -64,7 +69,8 @@ public class ErrorNotificationRequest {
         String zipFileName,
         String poBox,
         String errorCode,
-        String errorDescription
+        String errorDescription,
+        String service
     ) {
         this(
             zipFileName,
@@ -72,7 +78,8 @@ public class ErrorNotificationRequest {
             null,
             errorCode,
             errorDescription,
-            null
+            null,
+            service
         );
     }
 }
