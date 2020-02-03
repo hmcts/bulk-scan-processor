@@ -41,8 +41,7 @@ public class ErrorNotificationService {
             message.documentControlNumber,
             message.errorCode.name(),
             message.errorDescription,
-            message.id,
-            message.service
+            message.id
         );
         ErrorNotification entity = new ErrorNotification(
             entityManager.getReference(ProcessEvent.class, message.eventId),

@@ -79,7 +79,6 @@ public class ErrorNotificationServiceTest {
         assertThat(request.errorCode).isEqualTo(serviceBusMessage.errorCode.name());
         assertThat(request.errorDescription).isEqualTo(serviceBusMessage.errorDescription);
         assertThat(request.referenceId).isEqualTo(serviceBusMessage.id);
-        assertThat(request.service).isEqualTo(serviceBusMessage.service);
 
         // and
         capturer.assertContains(

@@ -22,19 +22,15 @@ public class ErrorNotificationRequest {
     @JsonProperty("reference_id")
     public final String referenceId;
 
-    @JsonProperty("service")
-    public final String service;
-
     /**
      * Full request body definition.
      *
-     * @param zipFileName Name of the zip file
-     * @param poBox POBox to which envelope was received
+     * @param zipFileName           Name of the zip file
+     * @param poBox                 POBox to which envelope was received
      * @param documentControlNumber Document control number
-     * @param errorCode Error code
-     * @param errorDescription Error message describing cause of notification
-     * @param referenceId TBD
-     *
+     * @param errorCode             Error code
+     * @param errorDescription      Error message describing cause of notification
+     * @param referenceId           TBD
      * @see uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode
      */
     public ErrorNotificationRequest(
@@ -43,8 +39,7 @@ public class ErrorNotificationRequest {
         String documentControlNumber,
         String errorCode,
         String errorDescription,
-        String referenceId,
-        String service
+        String referenceId
     ) {
         this.zipFileName = zipFileName;
         this.poBox = poBox;
@@ -52,25 +47,22 @@ public class ErrorNotificationRequest {
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
         this.referenceId = referenceId;
-        this.service = service;
     }
 
     /**
      * Constructor with mandatory fields.
      *
-     * @param zipFileName Name of the zip file
-     * @param poBox POBox to which envelope was received
-     * @param errorCode Error code
+     * @param zipFileName      Name of the zip file
+     * @param poBox            POBox to which envelope was received
+     * @param errorCode        Error code
      * @param errorDescription Error message describing cause of notification
-     *
      * @see uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode
      */
     public ErrorNotificationRequest(
         String zipFileName,
         String poBox,
         String errorCode,
-        String errorDescription,
-        String service
+        String errorDescription
     ) {
         this(
             zipFileName,
@@ -78,8 +70,7 @@ public class ErrorNotificationRequest {
             null,
             errorCode,
             errorDescription,
-            null,
-            service
+            null
         );
     }
 }
