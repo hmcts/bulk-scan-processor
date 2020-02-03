@@ -254,7 +254,8 @@ public class ErrorNotificationHandlerTest {
                     "po_box",
                     null,
                     ERR_FILE_LIMIT_EXCEEDED,
-                    "description"
+                    "description",
+                    "service1"
                 )
             ),
             MediaType.APPLICATION_JSON_UTF8_VALUE

@@ -45,7 +45,8 @@ public class ErrorNotificationService {
         );
         ErrorNotification entity = new ErrorNotification(
             entityManager.getReference(ProcessEvent.class, message.eventId),
-            message.errorCode.name()
+            message.errorCode.name(),
+            message.service
         );
 
         try {
