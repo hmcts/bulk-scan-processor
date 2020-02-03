@@ -25,12 +25,13 @@ public class ErrorNotificationRequest {
     /**
      * Full request body definition.
      *
-     * @param zipFileName           Name of the zip file
-     * @param poBox                 POBox to which envelope was received
+     * @param zipFileName Name of the zip file
+     * @param poBox POBox to which envelope was received
      * @param documentControlNumber Document control number
-     * @param errorCode             Error code
-     * @param errorDescription      Error message describing cause of notification
-     * @param referenceId           TBD
+     * @param errorCode Error code
+     * @param errorDescription Error message describing cause of notification
+     * @param referenceId TBD
+     *
      * @see uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode
      */
     public ErrorNotificationRequest(
@@ -52,10 +53,11 @@ public class ErrorNotificationRequest {
     /**
      * Constructor with mandatory fields.
      *
-     * @param zipFileName      Name of the zip file
-     * @param poBox            POBox to which envelope was received
-     * @param errorCode        Error code
+     * @param zipFileName Name of the zip file
+     * @param poBox POBox to which envelope was received
+     * @param errorCode Error code
      * @param errorDescription Error message describing cause of notification
+     *
      * @see uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode
      */
     public ErrorNotificationRequest(
