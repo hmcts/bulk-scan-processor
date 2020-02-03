@@ -99,7 +99,7 @@ public class ErrorNotificationServiceTest {
             "document control number",
             ErrorCode.ERR_AV_FAILED,
             "antivirus flag",
-            "service1"
+            null // optional service field
         );
         given(client.notify(any(ErrorNotificationRequest.class))).willThrow(new RuntimeException("oh no"));
 
