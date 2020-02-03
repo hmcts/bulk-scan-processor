@@ -16,6 +16,7 @@ public class ErrorMsg implements Msg {
     public final String documentControlNumber;
     public final ErrorCode errorCode;
     public final String errorDescription;
+    public final String service;
 
     // region constructors
     @SuppressWarnings("squid:S00107") // number of params
@@ -27,7 +28,8 @@ public class ErrorMsg implements Msg {
         @JsonProperty("poBox") String poBox,
         @JsonProperty("documentControlNumber") String documentControlNumber,
         @JsonProperty(value = "errorCode", required = true) ErrorCode errorCode,
-        @JsonProperty(value = "errorDescription", required = true) String errorDescription
+        @JsonProperty(value = "errorDescription", required = true) String errorDescription,
+        @JsonProperty(value = "service") String service
     ) {
         this.id = id;
         this.eventId = eventId;
@@ -37,6 +39,7 @@ public class ErrorMsg implements Msg {
         this.documentControlNumber = documentControlNumber;
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
+        this.service = service;
     }
     // endregion
 

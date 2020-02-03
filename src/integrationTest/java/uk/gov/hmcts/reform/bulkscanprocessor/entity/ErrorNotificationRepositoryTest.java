@@ -48,7 +48,8 @@ public class ErrorNotificationRepositoryTest {
         // given
         ErrorNotification errorNotification = new ErrorNotification(
             em.getReference(ProcessEvent.class, eventId),
-            ERR_AV_FAILED.name()
+            ERR_AV_FAILED.name(),
+            "test_service"
         );
 
         // when

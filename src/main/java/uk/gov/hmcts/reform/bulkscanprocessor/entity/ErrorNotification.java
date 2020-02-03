@@ -22,6 +22,8 @@ public class ErrorNotification {
 
     private String errorCode;
 
+    private String service;
+
     private final Instant createdAt = Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,9 +34,10 @@ public class ErrorNotification {
         // For use by hibernate.
     }
 
-    public ErrorNotification(ProcessEvent event, String errorCode) {
+    public ErrorNotification(ProcessEvent event, String errorCode, String service) {
         this.event = event;
         this.errorCode = errorCode;
+        this.service = service;
     }
 
     public long getId() {
@@ -55,6 +58,10 @@ public class ErrorNotification {
 
     public String getErrorCode() {
         return errorCode;
+    }
+
+    public String getService() {
+        return service;
     }
 
     public Instant getCreatedAt() {
