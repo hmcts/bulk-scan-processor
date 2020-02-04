@@ -29,7 +29,7 @@ public class ErrorMsg implements Msg {
         @JsonProperty("documentControlNumber") String documentControlNumber,
         @JsonProperty(value = "errorCode", required = true) ErrorCode errorCode,
         @JsonProperty(value = "errorDescription", required = true) String errorDescription,
-        @JsonProperty(value = "service") String service
+        @JsonProperty(value = "service", required = true) String service
     ) {
         this.id = id;
         this.eventId = eventId;
