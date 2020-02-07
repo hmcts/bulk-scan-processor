@@ -253,7 +253,7 @@ dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
   compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
 
-  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.7'
+  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
