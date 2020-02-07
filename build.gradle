@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-  id 'org.flywaydb.flyway' version '6.2.0'
+  id 'org.flywaydb.flyway' version '6.2.2'
   id 'org.springframework.boot' version '2.2.4.RELEASE'
   id 'org.owasp.dependencycheck' version '5.3.0'
   id 'com.github.ben-manes.versions' version '0.27.0'
@@ -212,8 +212,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.2.0'
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.2.0'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.3.0'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.3.0'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.0'
   compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.18', {
@@ -233,8 +233,8 @@ dependencies {
 
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.11', withoutJavaxMailApi
 
-  compile group: 'org.flywaydb', name: 'flyway-core', version: '6.2.1'
-  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
+  compile group: 'org.flywaydb', name: 'flyway-core', version: '6.2.2'
+  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
   // review following dependency after integrating db structure
   compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.3'
 
@@ -253,7 +253,7 @@ dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.6'
   compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
 
-  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.7'
+  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit

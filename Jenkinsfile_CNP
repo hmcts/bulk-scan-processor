@@ -104,7 +104,6 @@ withPipeline(type, product, component) {
   enableSlackNotifications(channel)
   enableAksStagingDeployment()
   enableApiGatewayTest()
-  enableDockerBuild()
   installCharts()
   disableLegacyDeployment()
 
