@@ -234,7 +234,7 @@ dependencies {
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.11', withoutJavaxMailApi
 
   compile group: 'org.flywaydb', name: 'flyway-core', version: '6.2.1'
-  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
+  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
   // review following dependency after integrating db structure
   compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.3'
 
