@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchMetaDataException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
@@ -280,8 +280,8 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(throwable)
-            .isInstanceOf(ZipNameNotMatchMetaDataException.class)
-            .hasMessage("Zip file name uploaded does not match with field \"zip_file_name\" in the metadata");
+            .isInstanceOf(ZipNameNotMatchingMetaDataException.class)
+            .hasMessage("Name of the uploaded zip file does not match with field \"zip_file_name\" in the metadata");
     }
 
     @Test
