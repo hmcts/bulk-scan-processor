@@ -60,8 +60,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         throws Exception {
 
         // given
-        final String zipFileName = "7_24-06-2018-00-00-00.zip";
-        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         given(documentManagementService.uploadDocuments(any()))
             .willReturn(Collections.emptyMap())
@@ -91,18 +90,17 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         assertThat(processEventRepository.findAll())
             .extracting(e -> tuple(e.getContainer(), e.getZipFileName(), e.getEvent(), e.getReason()))
             .containsExactlyInAnyOrder(
-                tuple(testContainer.getName(), zipFileName, ZIPFILE_PROCESSING_STARTED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), zipFileName, DOC_UPLOADED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_PROCESSED, null)
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, ZIPFILE_PROCESSING_STARTED, null),
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_UPLOADED, null),
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_PROCESSED, null)
             );
     }
 
     @Test
     public void should_fail_to_upload_pdfs_when_retrying_with_reupload_task() throws Exception {
         // given
-        final String zipFileName = "7_24-06-2018-00-00-00.zip";
-        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         given(documentManagementService.uploadDocuments(any()))
             .willReturn(Collections.emptyMap()) // blob processor had empty response
@@ -126,17 +124,16 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .hasSize(3)
             .extracting(e -> tuple(e.getContainer(), e.getZipFileName(), e.getEvent(), e.getReason()))
             .containsOnly(
-                tuple(testContainer.getName(), zipFileName, ZIPFILE_PROCESSING_STARTED, null),
-                tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), zipFileName, DOC_UPLOAD_FAILURE, "oh no")
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, ZIPFILE_PROCESSING_STARTED, null),
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_UPLOAD_FAILURE, failureReason),
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_UPLOAD_FAILURE, "oh no")
             );
     }
 
     @Test
     public void should_increment_upload_failure_count_if_unable_to_upload_files() throws Exception {
         // given
-        final String zipFileName = "7_24-06-2018-00-00-00.zip";
-        uploadToBlobStorage(zipFileName, zipDir("zipcontents/ok"));
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         given(documentManagementService.uploadDocuments(any()))
             .willThrow(UnableToUploadDocumentException.class);

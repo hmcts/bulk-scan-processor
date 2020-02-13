@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchMetaDataException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
 import java.util.Map;
@@ -33,6 +34,7 @@ public final class ErrorMapping {
         new ImmutableMap.Builder<Class<?>, ErrorCode>()
             .put(DocSignatureFailureException.class, ERR_SIG_VERIFY_FAILED)
             .put(InvalidEnvelopeSchemaException.class, ERR_METAFILE_INVALID)
+            .put(ZipNameNotMatchMetaDataException.class, ERR_METAFILE_INVALID)
             .put(FileNameIrregularitiesException.class, ERR_METAFILE_INVALID)
             .put(DuplicateDocumentControlNumberException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(DuplicateDocumentControlNumbersInEnvelopeException.class, ERR_METAFILE_INVALID)

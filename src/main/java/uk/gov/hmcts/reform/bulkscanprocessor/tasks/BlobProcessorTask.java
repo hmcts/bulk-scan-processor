@@ -295,6 +295,7 @@ public class BlobProcessorTask extends Processor {
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
+            EnvelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
             EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
                 containerMappings.getMappings(), envelope, containerName
             );

@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchMetaDataException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.payment;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
+import static uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator.assertZipFilenameMatchesWithMetadata;
 
 public class EnvelopeProcessorValidationTest {
 
@@ -264,6 +266,22 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         verifyExceptionIsThrown(envelope, container, err);
+    }
+
+    @Test
+    public void should_throw_an_exception_when_zip_filename_does_not_match_with_metadata() {
+        // given
+        InputEnvelope envelope = inputEnvelope("test_jurisdiction"); // metadata zip file name "file.zip"
+
+        // when
+        Throwable throwable = catchThrowable(
+            () -> assertZipFilenameMatchesWithMetadata(envelope, "invalid-zip-filename.zip")
+        );
+
+        // then
+        assertThat(throwable)
+            .isInstanceOf(ZipNameNotMatchMetaDataException.class)
+            .hasMessage("Zip file name uploaded does not match with field \"zip_file_name\" in the metadata");
     }
 
     @Test
