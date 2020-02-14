@@ -155,8 +155,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     @Test
     public void should_process_other_zip_files_if_previous_zip_fails_to_process() throws Exception {
         // given
-        uploadToBlobStorage("bad_24-06-2018-00-00-00.zip", zipDir("zipcontents/missing_metadata"));
-        uploadToBlobStorage("good_24-06-2018-00-00-00.zip", zipDir("zipcontents/ok"));
+        uploadToBlobStorage("1111_24-06-2018-00-00-00.zip", zipDir("zipcontents/missing_metadata")); //invalid
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok")); //valid
 
         Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 

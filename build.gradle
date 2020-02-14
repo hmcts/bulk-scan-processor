@@ -103,7 +103,7 @@ task apiGateway(type: Test) {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '8.24'
+  toolVersion = '8.29'
   // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
   configDir = new File(rootDir, 'config/checkstyle')
 }
@@ -188,10 +188,6 @@ dependencyManagement {
     dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
       entry 'mockito-core'
     }
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.30') {
-      entry 'tomcat-embed-core'
-      entry 'tomcat-embed-websocket'
-    }
   }
 }
 
@@ -233,7 +229,7 @@ dependencies {
 
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.11', withoutJavaxMailApi
 
-  compile group: 'org.flywaydb', name: 'flyway-core', version: '6.2.2'
+  compile group: 'org.flywaydb', name: 'flyway-core', version: '6.2.3'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.10'
   // review following dependency after integrating db structure
   compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.3'
