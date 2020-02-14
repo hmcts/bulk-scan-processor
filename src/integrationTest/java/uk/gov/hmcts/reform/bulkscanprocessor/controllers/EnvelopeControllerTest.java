@@ -48,7 +48,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.File;
 import java.util.List;
-import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
@@ -181,8 +180,8 @@ public class EnvelopeControllerTest {
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
         throws Exception {
 
-        uploadZipToBlobStore("zipcontents/ok");
-        uploadZipToBlobStore("zipcontents/mismatching_pdfs");
+        uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
+        uploadZipToBlobStore("zipcontents/mismatching_pdfs", "8_24-06-2018-00-00-00.zip");
 
         Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
 
@@ -257,11 +256,11 @@ public class EnvelopeControllerTest {
         assertThat(result.getResolvedException()).isInstanceOf(UnAuthenticatedException.class);
     }
 
-    private void uploadZipToBlobStore(String dirToZip) throws Exception {
+    private void uploadZipToBlobStore(String dirToZip, String zipFilename) throws Exception {
         byte[] zipFile = DirectoryZipper.zipDir(dirToZip);
 
         testContainer
-            .getBlockBlobReference(UUID.randomUUID() + "_01-01-2018-00-00-00.zip")
+            .getBlockBlobReference(zipFilename)
             .uploadFromByteArray(zipFile, 0, zipFile.length);
     }
 }

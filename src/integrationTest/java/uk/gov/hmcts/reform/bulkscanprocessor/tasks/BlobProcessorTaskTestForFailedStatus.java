@@ -286,8 +286,8 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         processor.processBlobs();
 
         // and given
-        String filenameForDuplicate = "DUP" + SAMPLE_ZIP_FILE_NAME;
-        byte[] duplicateZipBytes = zipDir("zipcontents/ok");
+        String filenameForDuplicate = "2_24-06-2018-00-00-00.zip";
+        byte[] duplicateZipBytes = zipDir("zipcontents/duplicate_dcn");
         uploadToBlobStorage(filenameForDuplicate, duplicateZipBytes);
 
         // when
@@ -301,7 +301,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
     @Test
     public void should_record_validation_failure_when_zip_very_long_property_value() throws Exception {
         // given
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/too_long_dcn"));
+        uploadToBlobStorage("7_24-06-2018-00-00-00.zip", zipDir("zipcontents/too_long_dcn"));
         // will cause:
         // DataException: could not execute statement
         // PSQLException: ERROR: value too long for type character varying(100)
@@ -358,6 +358,23 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
+    @Test
+    public void should_record_validation_failure_when_zip_filename_does_not_match_with_metadata() throws Exception {
+        // given
+        String zipFilename = "1233_24-06-2018-00-00-00.zip";
+        // upload metadata with zip_file_name value "1_24-06-2018-00-00-00.zip"
+        uploadToBlobStorage(zipFilename, zipDir("zipcontents/ok"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(zipFilename);
+        errorWasSent(zipFilename, ErrorCode.ERR_METAFILE_INVALID);
     }
 
     private void eventsWereCreated(Event event1, Event event2) {
