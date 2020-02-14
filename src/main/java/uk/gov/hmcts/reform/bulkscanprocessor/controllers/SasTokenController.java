@@ -28,7 +28,7 @@ public class SasTokenController {
     @ApiOperation(value = "Get SAS Token to access blob storage")
     @ApiResponse(code = 200, message = "Success")
     public ResponseEntity<SasTokenResponse> getSasToken(@PathVariable String serviceName) {
-        log.info("Sas request {}", serviceName);
+        log.info("Sas request");
         String sasToken = tokenGeneratorService.generateSasToken(serviceName);
         log.info("SAS Token: {}", sasToken);
 
