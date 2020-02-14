@@ -62,4 +62,9 @@ servicebus:
       - name: processed-envelopes
   enabled: true
 
+blobstorage:
+  resourceGroup: bulk-scan-aks
+  teamName: "Software Engineering"
+  location: ukwest
+  enabled: true
     
