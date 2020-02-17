@@ -71,6 +71,5 @@ blobstorage:
       - bulkscan
       - bulkscan-rejected
       - sscs
-      - publiclaw
   enabled: true
     
