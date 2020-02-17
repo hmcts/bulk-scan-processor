@@ -134,6 +134,7 @@ public class GetSasTokenTest {
 
         verifySasTokenProperties(tokenResponse);
     }
+
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
         Response tokenResponse = RestAssured
