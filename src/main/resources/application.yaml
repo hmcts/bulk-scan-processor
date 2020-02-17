@@ -146,6 +146,8 @@ containers:
       jurisdiction: PUBLICLAW
       #todo update pobox when it is defined
       poBox: 99999
+      paymentsEnabled: false
+
 
 # clients region
 
