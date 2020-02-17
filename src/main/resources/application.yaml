@@ -113,6 +113,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: cmc
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: publiclaw
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 containers:
   mappings:
@@ -140,6 +142,10 @@ containers:
       poBox: BULKSCANPO
       ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
       paymentsEnabled: true
+    - container: publiclaw
+      jurisdiction: PUBLICLAW
+      #todo update pobox when it is defined
+      poBox: 99999
 
 # clients region
 
@@ -181,10 +187,10 @@ scheduling:
 
 envelope-access:
   mappings:
-     - jurisdiction: SSCS
-       readService: sscs
-     - jurisdiction: BULKSCAN
-       readService: bulk_scan_processor_tests
+    - jurisdiction: SSCS
+      readService: sscs
+    - jurisdiction: BULKSCAN
+      readService: bulk_scan_processor_tests
 
 flyway:
   noop:
