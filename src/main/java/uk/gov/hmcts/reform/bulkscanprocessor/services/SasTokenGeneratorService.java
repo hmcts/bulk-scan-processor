@@ -42,7 +42,7 @@ public class SasTokenGeneratorService {
 
     public String generateSasToken(String serviceName) {
         StorageUri storageAccountUri = cloudBlobClient.getStorageUri();
-        log.info("--> SAS Token request received for service {}. Account URI: {}", serviceName, storageAccountUri);
+        log.info("SAS Token request received for service {}. Account URI: {}", serviceName, storageAccountUri);
 
         try {
             return cloudBlobClient
