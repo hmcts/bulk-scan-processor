@@ -122,6 +122,20 @@ public class GetSasTokenTest {
     }
 
     @Test
+    public void should_return_sas_token_for_publiclaw_when_service_configuration_is_available() throws Exception {
+        Response tokenResponse = RestAssured
+            .given()
+            .relaxedHTTPSValidation()
+            .baseUri(this.testUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor func test")
+            .when().get("/token/publiclaw")
+            .andReturn();
+
+        verifySasTokenProperties(tokenResponse);
+    }
+
+    @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
         Response tokenResponse = RestAssured
             .given()
