@@ -70,6 +70,5 @@ blobstorage:
     containers:
       - bulkscan
       - bulkscan-rejected
-      - sscs
   enabled: true
     
