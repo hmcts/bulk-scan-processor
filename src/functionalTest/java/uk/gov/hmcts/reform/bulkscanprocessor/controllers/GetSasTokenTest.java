@@ -18,6 +18,8 @@ import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
@@ -80,76 +82,18 @@ public class GetSasTokenTest {
         }
     }
 
-    @Test
-    public void should_return_sas_token_for_sscs_when_service_configuration_is_available() throws Exception {
-        Response tokenResponse = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/token/sscs")
-            .andReturn();
-
-        verifySasTokenProperties(tokenResponse);
-    }
-
-    @Test
-    public void should_return_sas_token_for_finrem_when_service_configuration_is_available() throws Exception {
-        Response tokenResponse = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/token/finrem")
-            .andReturn();
-
-        verifySasTokenProperties(tokenResponse);
-    }
-
-    @Test
-    public void should_return_sas_token_for_probate_when_service_configuration_is_available() throws Exception {
-        Response tokenResponse = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/token/probate")
-            .andReturn();
-
-        verifySasTokenProperties(tokenResponse);
-    }
-
-    @Test
-    public void should_return_sas_token_for_publiclaw_when_service_configuration_is_available() throws Exception {
-        Response tokenResponse = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor func test")
-            .when().get("/token/publiclaw")
-            .andReturn();
-
-        verifySasTokenProperties(tokenResponse);
+    @ParameterizedTest
+    @ValueSource(strings = { "sscs", "finrem", "probate", "publiclaw" })
+    public void should_return_sas_token_when_service_configuration_is_available(String container) throws Exception {
+        verifySasTokenProperties(sendSasTokenRequest(container));
     }
 
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
-        Response tokenResponse = RestAssured
-            .given()
-            .relaxedHTTPSValidation()
-            .baseUri(this.testUrl)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
-            .when().get("/token/doesnotexist")
-            .andReturn();
-
+        Response tokenResponse = sendSasTokenRequest("doesnotexist");
         assertThat(tokenResponse.getStatusCode()).isEqualTo(400);
         assertThat(tokenResponse.getBody().asString())
-            .contains("No service configuration found for service doesnotexist");
+                .contains("No service configuration found for service doesnotexist");
     }
 
     @Test
@@ -205,5 +149,16 @@ public class GetSasTokenTest {
         assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
         assertThat(queryParams.get("sv")).contains("2019-02-02"); //azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl"); //access permissions(write-w,list-l)
+    }
+
+    private Response sendSasTokenRequest(String container) {
+        return RestAssured
+                .given()
+                .relaxedHTTPSValidation()
+                .baseUri(this.testUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor functional test")
+                .when().get("/token/" + container)
+                .andReturn();
     }
 }
