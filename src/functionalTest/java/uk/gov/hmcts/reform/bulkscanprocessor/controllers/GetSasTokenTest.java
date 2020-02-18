@@ -17,6 +17,7 @@ import io.restassured.response.Response;
 import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -82,8 +83,10 @@ public class GetSasTokenTest {
         }
     }
 
-    @ParameterizedTest(name = "Should return sas token for [{arguments}]")
-    @ValueSource(strings = { "sscs", "finrem", "probate", "publiclaw" })
+
+    @DisplayName("Should return sas token for [{arguments}]")
+    @ParameterizedTest
+    @ValueSource(strings = { "1sscs", "1finrem", "1probate", "1publiclaw" })
     public void should_return_sas_token_when_service_configuration_is_available(String container) throws Exception {
         verifySasTokenProperties(sendSasTokenRequest(container));
     }
