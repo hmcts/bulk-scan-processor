@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.assertj.core.util.Strings;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BlobProcessorTest extends BaseFunctionalTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
     }

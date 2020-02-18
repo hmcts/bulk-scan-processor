@@ -3,9 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,12 +26,12 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
 
     private List<String> filesToDeleteAfterTest = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         for (String filename : filesToDeleteAfterTest) {
             try {
