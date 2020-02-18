@@ -93,7 +93,7 @@ public class GetSasTokenTest {
         Response tokenResponse = sendSasTokenRequest("doesnotexist");
         assertThat(tokenResponse.getStatusCode()).isEqualTo(400);
         assertThat(tokenResponse.getBody().asString())
-                .contains("No service configuration found for service doesnotexist");
+            .contains("No service configuration found for service doesnotexist");
     }
 
     @Test
