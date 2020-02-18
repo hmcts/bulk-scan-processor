@@ -83,7 +83,7 @@ public class GetSasTokenTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "sscs", "finrem", "probate", "publiclaw" })
+    @ValueSource(strings = { "1sscs", "1finrem", "1probate", "1publiclaw" })
     public void should_return_sas_token_when_service_configuration_is_available(String container) throws Exception {
         verifySasTokenProperties(sendSasTokenRequest(container));
     }
