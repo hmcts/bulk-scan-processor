@@ -7,8 +7,8 @@ import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
@@ -29,7 +29,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private String s2sToken;
     private QueueClient queueClient;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
