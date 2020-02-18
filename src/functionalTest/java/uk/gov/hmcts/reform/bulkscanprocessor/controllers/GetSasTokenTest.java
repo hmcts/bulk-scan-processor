@@ -15,9 +15,9 @@ import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.assertj.core.util.DateUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GetSasTokenTest {
 
@@ -43,7 +44,7 @@ public class GetSasTokenTest {
 
     private static final String zipFilename = "24-06-2018-00-00-00.test.zip";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.testUrl = conf.getString("test-url");
         this.blobContainerUrl = conf.getString("test-storage-account-url") + "/";
@@ -52,7 +53,7 @@ public class GetSasTokenTest {
         this.testHelper = new TestHelper();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         // cleanup previous runs
         if (!Strings.isNullOrEmpty(destZipFilename)) {
@@ -172,21 +173,24 @@ public class GetSasTokenTest {
         assertThat(testHelper.storageHasFile(testSasContainer, destZipFilename)).isTrue();
     }
 
-    @Test(expected = StorageException.class)
+    @Test
     public void sas_token_should_not_have_read_and_write_capabilities_for_other_service() throws Exception {
         String sasToken = testHelper.getSasToken("sscs", this.testUrl);
         CloudBlobContainer testSasContainer =
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename(zipFilename);
-        testHelper.uploadAndLeaseZipFile(
-            testSasContainer,
-            Arrays.asList(
-                "1111006.pdf"
-            ),
-            "exception_metadata.json",
-            destZipFilename,
-            testPrivateKeyDer
+        assertThrows(
+            StorageException.class,
+            () -> testHelper.uploadAndLeaseZipFile(
+                    testSasContainer,
+                    Arrays.asList(
+                            "1111006.pdf"
+                    ),
+                    "exception_metadata.json",
+                    destZipFilename,
+                    testPrivateKeyDer
+            )
         );
     }
 
