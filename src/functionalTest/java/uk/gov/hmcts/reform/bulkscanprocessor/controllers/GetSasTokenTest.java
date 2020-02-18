@@ -83,10 +83,8 @@ public class GetSasTokenTest {
         }
     }
 
-
-    @DisplayName("Should return sas token for [{arguments}]")
     @ParameterizedTest
-    @ValueSource(strings = { "1sscs", "1finrem", "1probate", "1publiclaw" })
+    @ValueSource(strings = { "sscs", "finrem", "probate", "publiclaw" })
     public void should_return_sas_token_when_service_configuration_is_available(String container) throws Exception {
         verifySasTokenProperties(sendSasTokenRequest(container));
     }
