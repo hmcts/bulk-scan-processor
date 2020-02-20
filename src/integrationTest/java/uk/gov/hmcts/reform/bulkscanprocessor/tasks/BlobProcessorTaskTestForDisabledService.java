@@ -75,34 +75,4 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
     }
 
-    private void eventsWereCreated(Event event1, Event event2) {
-        assertThat(processEventRepository.findAll())
-            .hasSize(2)
-            .extracting(e -> tuple(e.getContainer(), e.getEvent()))
-            .containsExactlyInAnyOrder(
-                tuple(testContainer.getName(), event1),
-                tuple(testContainer.getName(), event2)
-            );
-    }
-
-    private void errorWasSent(String zipFileName, ErrorCode code) {
-        ArgumentCaptor<ErrorMsg> argument = ArgumentCaptor.forClass(ErrorMsg.class);
-        verify(serviceBusHelper).sendMessage(argument.capture());
-
-        ErrorMsg sentMsg = argument.getValue();
-
-        assertThat(sentMsg.zipFileName).isEqualTo(zipFileName);
-        assertThat(sentMsg.jurisdiction).isEqualTo(CONTAINER_NAME);
-        assertThat(sentMsg.errorCode).isEqualTo(code);
-    }
-
-    private void envelopeWasNotCreated() {
-        List<Envelope> envelopesInDb = envelopeRepository.findAll();
-        assertThat(envelopesInDb).isEmpty();
-    }
-
-    private void fileWasDeleted(String fileName) throws Exception {
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(fileName);
-        await("file should be deleted").timeout(2, SECONDS).until(blob::exists, is(false));
-    }
 }

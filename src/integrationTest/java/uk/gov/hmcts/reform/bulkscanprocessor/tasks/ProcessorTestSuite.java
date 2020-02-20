@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -29,8 +33,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 import java.io.File;
 import java.util.List;
 
+import static com.jayway.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
 
@@ -208,5 +217,36 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             String publicKeyBase64,
             boolean paymentsEnabled
         );
+    }
+
+    protected void eventsWereCreated(Event event1, Event event2) {
+        assertThat(processEventRepository.findAll())
+            .hasSize(2)
+            .extracting(e -> tuple(e.getContainer(), e.getEvent()))
+            .containsExactlyInAnyOrder(
+                tuple(testContainer.getName(), event1),
+                tuple(testContainer.getName(), event2)
+            );
+    }
+
+    protected void errorWasSent(String zipFileName, ErrorCode code) {
+        ArgumentCaptor<ErrorMsg> argument = ArgumentCaptor.forClass(ErrorMsg.class);
+        verify(serviceBusHelper).sendMessage(argument.capture());
+
+        ErrorMsg sentMsg = argument.getValue();
+
+        assertThat(sentMsg.zipFileName).isEqualTo(zipFileName);
+        assertThat(sentMsg.jurisdiction).isEqualTo(CONTAINER_NAME);
+        assertThat(sentMsg.errorCode).isEqualTo(code);
+    }
+
+    protected void envelopeWasNotCreated() {
+        List<Envelope> envelopesInDb = envelopeRepository.findAll();
+        assertThat(envelopesInDb).isEmpty();
+    }
+
+    protected void fileWasDeleted(String fileName) throws Exception {
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(fileName);
+        await("file should be deleted").timeout(2, SECONDS).until(blob::exists, is(false));
     }
 }
