@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureExcep
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -299,6 +300,7 @@ public class BlobProcessorTask extends Processor {
             EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
                 containerMappings.getMappings(), envelope, containerName
             );
+            EnvelopeValidator.assertServiceEnabled(envelope, containerMappings.getMappings());
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
             EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
             EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
@@ -321,6 +323,12 @@ public class BlobProcessorTask extends Processor {
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            return null;
+        } catch (ServiceDisabledException ex) {
+            log.error(
+                "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
+            );
+            handleInvalidFileError(Event.SERVICE_DISABLED, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);

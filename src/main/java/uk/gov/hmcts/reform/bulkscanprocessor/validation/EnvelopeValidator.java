@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -229,6 +230,31 @@ public final class EnvelopeValidator {
             throw new PaymentsDisabledException(
                 String.format(
                     "Envelope contains payment(s) that are not allowed for jurisdiction '%s', poBox: '%s'",
+                    envelope.jurisdiction,
+                    envelope.poBox
+                )
+            );
+        }
+    }
+
+    public static void assertServiceEnabled(
+        InputEnvelope envelope,
+        List<ContainerMappings.Mapping> mappings
+    ) {
+        Boolean isServiceEnabled = mappings
+            .stream()
+            .filter(mapping ->
+                mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
+                    && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
+            )
+            .findFirst()
+            .map(ContainerMappings.Mapping::isEnabled)
+            .orElse(false);
+
+        if (!isServiceEnabled) {
+            throw new ServiceDisabledException(
+                String.format(
+                    "Envelope contains service that is not enabled. Jurisdiction: '%s' POBox: '%s'",
                     envelope.jurisdiction,
                     envelope.poBox
                 )

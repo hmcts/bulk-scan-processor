@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -289,7 +290,7 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "abc";
-        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL, true));
+        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL, true, true));
 
         // when
         Throwable err = catchThrowable(
@@ -306,7 +307,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "test";
         List<Mapping> mappings = singletonList(
-            new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL, true)
+            new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL, true, true)
         );
 
         // when
@@ -324,7 +325,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
         List<Mapping> mappings = singletonList(
-            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL, true)
+            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL, true, true)
         );
 
         // when
@@ -352,7 +353,7 @@ public class EnvelopeProcessorValidationTest {
         // when
         Throwable err = catchThrowable(
             () -> EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                envelope, false, singletonList(new Mapping("abc", "ABC", "test_poBox", null, true))
+                envelope, false, singletonList(new Mapping("abc", "ABC", "test_poBox", null, true, true))
             ));
 
         // then
@@ -375,7 +376,7 @@ public class EnvelopeProcessorValidationTest {
         // when
         Throwable err = catchThrowable(
             () -> EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                envelope, true, singletonList(new Mapping("abc", "ABC", "test_poBox", null, false))
+                envelope, true, singletonList(new Mapping("abc", "ABC", "test_poBox", null, false, true))
             ));
 
         // then
@@ -419,6 +420,25 @@ public class EnvelopeProcessorValidationTest {
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
             .hasMessageContaining("Missing OCR data");
+    }
+
+    @Test
+    public void should_throw_exception_for_disabled_service() {
+        // given
+        InputEnvelope envelope = inputEnvelope("DISABLED_SERVICE", "test_poBox");
+        String container = "abc";
+        List<Mapping> mappings = singletonList(
+            new Mapping(container, "DISABLED_SERVICE", "test_poBox", SAMPLE_URL, true, false)
+        );
+
+        // when
+        Throwable exception = catchThrowable(
+            () -> EnvelopeValidator.assertServiceEnabled(envelope, mappings)
+        );
+
+        // then
+        assertThat(exception).isInstanceOf(ServiceDisabledException.class)
+            .hasMessageContaining("Envelope contains service that is not enabled");
     }
 
     private void verifyPaymentsDisabledException(InputEnvelope envelope, Throwable err) {

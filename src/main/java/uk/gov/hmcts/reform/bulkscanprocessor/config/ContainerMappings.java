@@ -25,6 +25,7 @@ public class ContainerMappings {
         private String poBox;
         private String ocrValidationUrl;
         private boolean paymentsEnabled;
+        private boolean enabled;
 
         // region constructor, getters and setters
         public Mapping(
@@ -32,13 +33,15 @@ public class ContainerMappings {
             String jurisdiction,
             String poBox,
             String ocrValidationUrl,
-            boolean paymentsEnabled
+            boolean paymentsEnabled,
+            boolean enabled
         ) {
             this.container = container;
             this.jurisdiction = jurisdiction;
             this.poBox = poBox;
             this.ocrValidationUrl = ocrValidationUrl;
             this.paymentsEnabled = paymentsEnabled;
+            this.enabled = enabled;
         }
 
         public Mapping() {
@@ -84,6 +87,15 @@ public class ContainerMappings {
         public void setPaymentsEnabled(boolean paymentsEnabled) {
             this.paymentsEnabled = paymentsEnabled;
         }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
         // endregion
     }
 }
