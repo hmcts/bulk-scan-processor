@@ -15,7 +15,7 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.SERVICE_DISABLED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @IntegrationTest
@@ -57,7 +57,7 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<
 
         // then
         envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, SERVICE_DISABLED);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
     }

@@ -328,7 +328,7 @@ public class BlobProcessorTask extends Processor {
             log.error(
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
-            handleInvalidFileError(Event.SERVICE_DISABLED, containerName, zipFilename, leaseId, ex);
+            handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);

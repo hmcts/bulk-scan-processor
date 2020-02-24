@@ -25,7 +25,7 @@ public class ContainerMappings {
         private String poBox;
         private String ocrValidationUrl;
         private boolean paymentsEnabled;
-        private boolean enabled;
+        private boolean enabled = true;
 
         // region constructor, getters and setters
         public Mapping(
