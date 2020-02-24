@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary.ZipFileSummaryItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
@@ -126,7 +127,8 @@ public class ReportsServiceTest {
                     null,
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
-                    Status.CREATED.toString()
+                    Status.CREATED.toString(),
+                    Classification.EXCEPTION.name()
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -134,7 +136,8 @@ public class ReportsServiceTest {
                     instant.minus(20, MINUTES),
                     "c2",
                     Event.COMPLETED.toString(),
-                    Status.UPLOADED.toString()
+                    Status.UPLOADED.toString(),
+                    Classification.NEW_APPLICATION.name()
                 )
             ));
 
@@ -153,7 +156,8 @@ public class ReportsServiceTest {
                     null,
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
-                    Status.CREATED.toString()
+                    Status.CREATED.toString(),
+                    Classification.EXCEPTION.name()
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -163,7 +167,8 @@ public class ReportsServiceTest {
                     toLocalTime(instant.minus(20, MINUTES)),
                     "c2",
                     Event.COMPLETED.toString(),
-                    Status.UPLOADED.toString()
+                    Status.UPLOADED.toString(),
+                    Classification.NEW_APPLICATION.name()
                 )
             );
     }
@@ -174,10 +179,22 @@ public class ReportsServiceTest {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
-                    "t1.zip", instant.minus(1, MINUTES), null, "c1", ZIPFILE_PROCESSING_STARTED.toString(), null
+                    "t1.zip",
+                    instant.minus(1, MINUTES),
+                    null,
+                    "c1",
+                    ZIPFILE_PROCESSING_STARTED.toString(),
+                    null,
+                    Classification.EXCEPTION.name()
                 ),
                 new ZipFileSummaryItem(
-                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "c2", COMPLETED.toString(), null
+                    "t2.zip",
+                    instant.minus(10, MINUTES),
+                    instant.minus(20, MINUTES),
+                    "c2",
+                    COMPLETED.toString(),
+                    null,
+                    Classification.EXCEPTION.name()
                 )
             ));
 
@@ -189,6 +206,7 @@ public class ReportsServiceTest {
         assertThat(result.get(0).container).isEqualTo("c2");
 
         assertThat(result.get(0).fileName).isEqualTo("t2.zip");
+        assertThat(result.get(0).classification).isEqualTo(Classification.EXCEPTION.name());
     }
 
     private LocalTime toLocalTime(Instant instant) {

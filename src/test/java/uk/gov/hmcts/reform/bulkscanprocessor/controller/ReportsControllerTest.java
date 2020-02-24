@@ -7,6 +7,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedEnvelopesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
@@ -115,15 +116,17 @@ public class ReportsControllerTest {
             localTime.plusHours(1),
             "bulkscan",
             CONSUMED.toString(),
-            COMPLETED.toString()
+            COMPLETED.toString(),
+            Classification.EXCEPTION.name()
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
             .willReturn(singletonList(zipFileSummaryResponse));
 
         String expectedContent = String.format(
-            "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
-                + "bulkscan,test.zip,%s,%s,%s,%s,CONSUMED\r\n",
+            "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,"
+                + "Status,Classification\r\n"
+                + "bulkscan,test.zip,%s,%s,%s,%s,CONSUMED,EXCEPTION\r\n",
             localDate.toString(), "12:30:10",
             localDate.toString(), "13:30:10"
         );
@@ -151,7 +154,8 @@ public class ReportsControllerTest {
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
             .andExpect(content().string(
-                "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,Status\r\n"
+                "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,"
+                    + "Status,Classification\r\n"
             ));
     }
 
@@ -168,7 +172,8 @@ public class ReportsControllerTest {
             localTime.plusHours(1),
             "bulkscan",
             CONSUMED.toString(),
-            COMPLETED.toString()
+            COMPLETED.toString(),
+            Classification.SUPPLEMENTARY_EVIDENCE.name()
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
@@ -186,7 +191,8 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].time_processed").value("13:30:10"))
             .andExpect(jsonPath("$.data[0].container").value(response.container))
             .andExpect(jsonPath("$.data[0].last_event_status").value(response.lastEventStatus))
-            .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus));
+            .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus))
+            .andExpect(jsonPath("$.data[0].classification").value(response.classification));
     }
 
     @Test

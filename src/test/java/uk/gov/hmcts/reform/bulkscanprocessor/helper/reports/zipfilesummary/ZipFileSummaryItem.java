@@ -12,6 +12,7 @@ public class ZipFileSummaryItem implements ZipFileSummary {
     private final String container;
     private final String lastEventStatus;
     private final String envelopeStatus;
+    private final String classification;
 
     public ZipFileSummaryItem(
         String zipFileName,
@@ -19,7 +20,8 @@ public class ZipFileSummaryItem implements ZipFileSummary {
         Instant completedDate,
         String container,
         String lastEventStatus,
-        String envelopeStatus
+        String envelopeStatus,
+        String classification
     ) {
         this.zipFileName = zipFileName;
         this.createdDate = createdDate;
@@ -27,6 +29,7 @@ public class ZipFileSummaryItem implements ZipFileSummary {
         this.container = container;
         this.lastEventStatus = lastEventStatus;
         this.envelopeStatus = envelopeStatus;
+        this.classification = classification;
     }
 
     @Override
@@ -57,5 +60,10 @@ public class ZipFileSummaryItem implements ZipFileSummary {
     @Override
     public String getEnvelopeStatus() {
         return envelopeStatus;
+    }
+
+    @Override
+    public String getClassification() {
+        return classification;
     }
 }

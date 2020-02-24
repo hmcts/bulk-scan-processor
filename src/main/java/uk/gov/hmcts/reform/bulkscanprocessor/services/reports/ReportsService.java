@@ -77,7 +77,8 @@ public class ReportsService {
             toLocalTime(dbItem.getCompletedDate()),
             dbItem.getContainer(),
             dbItem.getLastEventStatus(),
-            dbItem.getEnvelopeStatus()
+            dbItem.getEnvelopeStatus(),
+            dbItem.getClassification()
         );
     }
 
