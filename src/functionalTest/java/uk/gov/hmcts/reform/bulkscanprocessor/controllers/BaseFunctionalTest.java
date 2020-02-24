@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -71,11 +70,6 @@ public abstract class BaseFunctionalTest {
 
             System.setProperty("https.proxyHost", proxyHost);
             System.setProperty("https.proxyPort", proxyPort);
-        }
-
-        Map<String, String> environmentVars = System.getenv();
-        for (String envName : environmentVars.keySet()) {
-            System.out.format("%s=%s%n", envName, environmentVars.get(envName));
         }
 
         CloudBlobClient cloudBlobClient = new CloudStorageAccount(
