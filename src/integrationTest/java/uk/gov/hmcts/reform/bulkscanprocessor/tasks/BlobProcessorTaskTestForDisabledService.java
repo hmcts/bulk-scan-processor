@@ -15,7 +15,7 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @IntegrationTest
@@ -25,9 +25,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
     "containers.mappings[0].jurisdiction=BULKSCAN",
     "containers.mappings[0].poBox=BULKSCANPO",
     "containers.mappings[0].paymentsEnabled=false",
-    "containers.mappings[0].enabled=true"
+    "containers.mappings[0].enabled=false"
 })
-public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite<BlobProcessorTask> {
+public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<BlobProcessorTask> {
 
     @Before
     public void setUp() throws Exception {
@@ -35,16 +35,16 @@ public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite
     }
 
     @Test
-    public void should_reject_file_with_payments_when_payments_are_disabled() throws Exception {
+    public void should_reject_file_when_service_is_disabled() throws Exception {
         // given
-        byte[] zipBytes = zipDir("zipcontents/disabled_payments");
+        byte[] zipBytes = zipDir("zipcontents/ok");
 
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
 
         // and
         Pdf pdf = new Pdf(
             "1111002.pdf",
-            toByteArray(getResource("zipcontents/disabled_payments/1111002.pdf"))
+            toByteArray(getResource("zipcontents/ok/1111002.pdf"))
         );
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
@@ -57,9 +57,9 @@ public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite
 
         // then
         envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
-        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_PAYMENTS_DISABLED);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
     }
 
 }

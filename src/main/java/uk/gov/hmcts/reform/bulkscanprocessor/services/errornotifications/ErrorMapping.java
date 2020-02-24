@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_PAYMENTS_DISABLED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_SERVICE_DISABLED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_SIG_VERIFY_FAILED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_ZIP_PROCESSING_FAILED;
 
@@ -46,6 +48,7 @@ public final class ErrorMapping {
             .put(OcrValidationException.class, ERR_METAFILE_INVALID)
             .put(OcrPresenceException.class, ERR_METAFILE_INVALID)
             .put(PaymentsDisabledException.class, ERR_PAYMENTS_DISABLED)
+            .put(ServiceDisabledException.class, ERR_SERVICE_DISABLED)
             .build();
 
     private ErrorMapping() {
