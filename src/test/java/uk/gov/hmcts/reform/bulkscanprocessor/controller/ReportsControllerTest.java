@@ -7,7 +7,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedEnvelopesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
@@ -31,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 
 @WebMvcTest(ReportsController.class)
 public class ReportsControllerTest {
@@ -117,7 +118,7 @@ public class ReportsControllerTest {
             "bulkscan",
             CONSUMED.toString(),
             COMPLETED.toString(),
-            Classification.EXCEPTION.name()
+            EXCEPTION.name()
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
@@ -173,7 +174,7 @@ public class ReportsControllerTest {
             "bulkscan",
             CONSUMED.toString(),
             COMPLETED.toString(),
-            Classification.SUPPLEMENTARY_EVIDENCE.name()
+            SUPPLEMENTARY_EVIDENCE.name()
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))

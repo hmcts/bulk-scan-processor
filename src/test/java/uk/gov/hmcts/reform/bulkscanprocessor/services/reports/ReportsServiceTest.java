@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary.ZipFileSummaryItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
@@ -30,6 +29,8 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService.TEST_CONTAINER;
@@ -128,7 +129,7 @@ public class ReportsServiceTest {
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
                     Status.CREATED.toString(),
-                    Classification.EXCEPTION.name()
+                    EXCEPTION.name()
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -137,7 +138,7 @@ public class ReportsServiceTest {
                     "c2",
                     Event.COMPLETED.toString(),
                     Status.UPLOADED.toString(),
-                    Classification.NEW_APPLICATION.name()
+                    NEW_APPLICATION.name()
                 )
             ));
 
@@ -157,7 +158,7 @@ public class ReportsServiceTest {
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
                     Status.CREATED.toString(),
-                    Classification.EXCEPTION.name()
+                    EXCEPTION.name()
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -168,7 +169,7 @@ public class ReportsServiceTest {
                     "c2",
                     Event.COMPLETED.toString(),
                     Status.UPLOADED.toString(),
-                    Classification.NEW_APPLICATION.name()
+                    NEW_APPLICATION.name()
                 )
             );
     }
@@ -185,7 +186,7 @@ public class ReportsServiceTest {
                     "c1",
                     ZIPFILE_PROCESSING_STARTED.toString(),
                     null,
-                    Classification.EXCEPTION.name()
+                    EXCEPTION.name()
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -194,7 +195,7 @@ public class ReportsServiceTest {
                     "c2",
                     COMPLETED.toString(),
                     null,
-                    Classification.EXCEPTION.name()
+                    EXCEPTION.name()
                 )
             ));
 
@@ -206,7 +207,7 @@ public class ReportsServiceTest {
         assertThat(result.get(0).container).isEqualTo("c2");
 
         assertThat(result.get(0).fileName).isEqualTo("t2.zip");
-        assertThat(result.get(0).classification).isEqualTo(Classification.EXCEPTION.name());
+        assertThat(result.get(0).classification).isEqualTo(EXCEPTION.name());
     }
 
     private LocalTime toLocalTime(Instant instant) {

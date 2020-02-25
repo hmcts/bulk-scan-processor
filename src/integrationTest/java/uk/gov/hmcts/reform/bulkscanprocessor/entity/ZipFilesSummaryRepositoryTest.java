@@ -23,6 +23,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
@@ -53,8 +55,8 @@ public class ZipFilesSummaryRepositoryTest {
             event("c4", "test4.zip", createdDate.minus(30, MINUTES), FILE_VALIDATION_FAILURE)
         );
 
-        dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, Classification.EXCEPTION));
-        dbHasEnvelope(envelope("c2", "test2.zip", Status.CREATED, Classification.SUPPLEMENTARY_EVIDENCE));
+        dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION));
+        dbHasEnvelope(envelope("c2", "test2.zip", Status.CREATED, SUPPLEMENTARY_EVIDENCE));
 
         // when
         List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
@@ -71,7 +73,7 @@ public class ZipFilesSummaryRepositoryTest {
                         "c1",
                         Event.COMPLETED.toString(),
                         Status.COMPLETED.toString(),
-                        Classification.EXCEPTION.name()
+                        EXCEPTION.name()
                     ),
                     new ZipFileSummaryItem(
                         "test2.zip",
@@ -80,7 +82,7 @@ public class ZipFilesSummaryRepositoryTest {
                         "c2",
                         Event.ZIPFILE_PROCESSING_STARTED.toString(),
                         Status.CREATED.toString(),
-                        Classification.SUPPLEMENTARY_EVIDENCE.name()
+                        SUPPLEMENTARY_EVIDENCE.name()
                     ),
                     new ZipFileSummaryItem(
                         "test4.zip",
@@ -128,7 +130,7 @@ public class ZipFilesSummaryRepositoryTest {
             event(container, "test2.zip", nextDay, ZIPFILE_PROCESSING_STARTED)
         );
 
-        dbHasEnvelope(envelope(container, zip1Name, Status.UPLOADED, Classification.SUPPLEMENTARY_EVIDENCE));
+        dbHasEnvelope(envelope(container, zip1Name, Status.UPLOADED, SUPPLEMENTARY_EVIDENCE));
 
         // when
         List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
@@ -145,7 +147,7 @@ public class ZipFilesSummaryRepositoryTest {
                         container,
                         Event.COMPLETED.toString(),
                         Status.UPLOADED.toString(),
-                        Classification.SUPPLEMENTARY_EVIDENCE.name()
+                        SUPPLEMENTARY_EVIDENCE.name()
                     )
                 )
             );

@@ -4,7 +4,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
@@ -18,6 +17,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 
 public class CsvWriterTest {
@@ -38,7 +38,7 @@ public class CsvWriterTest {
                 "bulkscan",
                 Event.DOC_PROCESSED.toString(),
                 Status.UPLOADED.toString(),
-                Classification.SUPPLEMENTARY_EVIDENCE.name()
+                SUPPLEMENTARY_EVIDENCE.name()
             ),
             new ZipFileSummaryResponse(
                 "test2.zip",
@@ -84,7 +84,7 @@ public class CsvWriterTest {
                     date.toString(),
                     time.toString(),
                     DOC_PROCESSED.toString(),
-                    Classification.SUPPLEMENTARY_EVIDENCE.name()
+                    SUPPLEMENTARY_EVIDENCE.name()
                 ),
                 tuple(
                     "bulkscan",
