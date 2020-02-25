@@ -15,4 +15,6 @@ public interface ZipFileSummary {
     String getLastEventStatus();
 
     String getEnvelopeStatus();
+
+    String getClassification();
 }

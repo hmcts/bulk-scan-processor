@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 
 public class CsvWriterTest {
@@ -36,7 +37,8 @@ public class CsvWriterTest {
                 time,
                 "bulkscan",
                 Event.DOC_PROCESSED.toString(),
-                Status.UPLOADED.toString()
+                Status.UPLOADED.toString(),
+                SUPPLEMENTARY_EVIDENCE.name()
             ),
             new ZipFileSummaryResponse(
                 "test2.zip",
@@ -46,7 +48,8 @@ public class CsvWriterTest {
                 time,
                 "bulkscan",
                 Event.DOC_PROCESSED.toString(),
-                Status.UPLOADED.toString()
+                Status.UPLOADED.toString(),
+                null
             )
         );
 
@@ -60,7 +63,7 @@ public class CsvWriterTest {
             .isNotEmpty()
             .hasSize(3)
             .extracting(data -> tuple(
-                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6))
+                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7))
             )
             .containsExactly(
                 tuple(
@@ -70,7 +73,8 @@ public class CsvWriterTest {
                     "Time Received",
                     "Date Processed",
                     "Time Processed",
-                    "Status"
+                    "Status",
+                    "Classification"
                 ),
                 tuple(
                     "bulkscan",
@@ -79,7 +83,8 @@ public class CsvWriterTest {
                     time.toString(),
                     date.toString(),
                     time.toString(),
-                    DOC_PROCESSED.toString()
+                    DOC_PROCESSED.toString(),
+                    SUPPLEMENTARY_EVIDENCE.name()
                 ),
                 tuple(
                     "bulkscan",
@@ -88,7 +93,8 @@ public class CsvWriterTest {
                     time.toString(),
                     date.toString(),
                     time.toString(),
-                    DOC_PROCESSED.toString()
+                    DOC_PROCESSED.toString(),
+                    ""
                 )
             );
     }
@@ -105,7 +111,7 @@ public class CsvWriterTest {
             .isNotEmpty()
             .hasSize(1)
             .extracting(data -> tuple(
-                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6))
+                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7))
             )
             .containsExactly(
                 tuple(
@@ -115,7 +121,8 @@ public class CsvWriterTest {
                     "Time Received",
                     "Date Processed",
                     "Time Processed",
-                    "Status"
+                    "Status",
+                    "Classification"
                 )
             );
     }

@@ -34,6 +34,8 @@ public class ZipFilesSummaryReportItem {
     @JsonProperty("envelope_status")
     public final String envelopeStatus;
 
+    public final String classification;
+
     // region constructor
     public ZipFilesSummaryReportItem(String fileName,
                                      LocalDate dateReceived,
@@ -42,7 +44,8 @@ public class ZipFilesSummaryReportItem {
                                      LocalTime timeProcessed,
                                      String container,
                                      String lastEventStatus,
-                                     String envelopeStatus
+                                     String envelopeStatus,
+                                     String classification
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -52,6 +55,7 @@ public class ZipFilesSummaryReportItem {
         this.jurisdiction = container;
         this.lastEventStatus = lastEventStatus;
         this.envelopeStatus = envelopeStatus;
+        this.classification = classification;
     }
     // endregion
 

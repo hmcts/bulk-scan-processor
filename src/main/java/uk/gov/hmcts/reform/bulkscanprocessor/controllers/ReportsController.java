@@ -85,7 +85,8 @@ public class ReportsController {
                     item.timeProcessed,
                     item.container,
                     item.lastEventStatus,
-                    item.envelopeStatus
+                    item.envelopeStatus,
+                    item.classification
                 ))
                 .collect(toList())
         );

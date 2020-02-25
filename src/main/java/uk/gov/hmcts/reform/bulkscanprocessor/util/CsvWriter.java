@@ -13,7 +13,8 @@ import java.util.List;
 public final class CsvWriter {
 
     private static final String[] ZIP_FILES_SUMMARY_CSV_HEADERS = {
-        "Container", "Zip File Name", "Date Received", "Time Received", "Date Processed", "Time Processed", "Status"
+        "Container", "Zip File Name", "Date Received", "Time Received",
+        "Date Processed", "Time Processed", "Status", "Classification"
     };
 
     private CsvWriter() {
@@ -37,7 +38,8 @@ public final class CsvWriter {
                     summary.timeReceived,
                     summary.dateProcessed,
                     summary.timeProcessed,
-                    summary.lastEventStatus
+                    summary.lastEventStatus,
+                    summary.classification
                 );
             }
         }

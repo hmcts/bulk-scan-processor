@@ -29,6 +29,8 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService.TEST_CONTAINER;
@@ -126,7 +128,8 @@ public class ReportsServiceTest {
                     null,
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
-                    Status.CREATED.toString()
+                    Status.CREATED.toString(),
+                    EXCEPTION.name()
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -134,7 +137,8 @@ public class ReportsServiceTest {
                     instant.minus(20, MINUTES),
                     "c2",
                     Event.COMPLETED.toString(),
-                    Status.UPLOADED.toString()
+                    Status.UPLOADED.toString(),
+                    NEW_APPLICATION.name()
                 )
             ));
 
@@ -153,7 +157,8 @@ public class ReportsServiceTest {
                     null,
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
-                    Status.CREATED.toString()
+                    Status.CREATED.toString(),
+                    EXCEPTION.name()
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -163,7 +168,8 @@ public class ReportsServiceTest {
                     toLocalTime(instant.minus(20, MINUTES)),
                     "c2",
                     Event.COMPLETED.toString(),
-                    Status.UPLOADED.toString()
+                    Status.UPLOADED.toString(),
+                    NEW_APPLICATION.name()
                 )
             );
     }
@@ -174,10 +180,22 @@ public class ReportsServiceTest {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
-                    "t1.zip", instant.minus(1, MINUTES), null, "c1", ZIPFILE_PROCESSING_STARTED.toString(), null
+                    "t1.zip",
+                    instant.minus(1, MINUTES),
+                    null,
+                    "c1",
+                    ZIPFILE_PROCESSING_STARTED.toString(),
+                    null,
+                    EXCEPTION.name()
                 ),
                 new ZipFileSummaryItem(
-                    "t2.zip", instant.minus(10, MINUTES), instant.minus(20, MINUTES), "c2", COMPLETED.toString(), null
+                    "t2.zip",
+                    instant.minus(10, MINUTES),
+                    instant.minus(20, MINUTES),
+                    "c2",
+                    COMPLETED.toString(),
+                    null,
+                    EXCEPTION.name()
                 )
             ));
 
@@ -189,6 +207,7 @@ public class ReportsServiceTest {
         assertThat(result.get(0).container).isEqualTo("c2");
 
         assertThat(result.get(0).fileName).isEqualTo("t2.zip");
+        assertThat(result.get(0).classification).isEqualTo(EXCEPTION.name());
     }
 
     private LocalTime toLocalTime(Instant instant) {
