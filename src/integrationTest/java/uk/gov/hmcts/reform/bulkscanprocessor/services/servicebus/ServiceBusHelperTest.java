@@ -115,7 +115,7 @@ public class ServiceBusHelperTest {
     }
 
     @Test
-    public void should_throw_exception_when_servcie_bus_connection_times_out() throws Exception {
+    public void should_throw_exception_when_service_bus_connection_times_out() throws Exception {
         // given
         Msg msg = new EnvelopeMsg(envelope);
         willThrow(TimeoutException.class).given(queueClient).send(any());
