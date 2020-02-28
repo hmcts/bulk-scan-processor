@@ -7,7 +7,9 @@ import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.MessageBody;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import com.microsoft.azure.servicebus.primitives.TimeoutException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceBusConnectionTimeoutException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
 import java.util.concurrent.CompletableFuture;
@@ -38,6 +40,11 @@ public class ServiceBusHelper implements AutoCloseable {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new InvalidMessageException("Unable to send message", e);
+        } catch (TimeoutException e) {
+            throw new ServiceBusConnectionTimeoutException(
+                "Service Bus connection timed out while sending the message. Message ID: " + msg.getMsgId(),
+                e
+            );
         } catch (ServiceBusException e) {
             throw new InvalidMessageException("Unable to send message", e);
         }

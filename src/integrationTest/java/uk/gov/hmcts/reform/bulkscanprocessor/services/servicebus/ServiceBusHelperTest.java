@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
+import com.microsoft.azure.servicebus.primitives.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceBusConnectionTimeoutException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
@@ -38,6 +40,9 @@ import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -107,6 +112,21 @@ public class ServiceBusHelperTest {
         when(envelope.getId()).thenReturn(null);
         Msg msg = new EnvelopeMsg(envelope);
         serviceBusHelper.sendMessage(msg);
+    }
+
+    @Test
+    public void should_throw_exception_when_service_bus_connection_times_out() throws Exception {
+        // given
+        Msg msg = new EnvelopeMsg(envelope);
+        willThrow(TimeoutException.class).given(queueClient).send(any());
+
+        // when
+        Throwable exc = catchThrowable(() -> serviceBusHelper.sendMessage(msg));
+
+        //then
+        assertThat(exc)
+            .isInstanceOf(ServiceBusConnectionTimeoutException.class)
+            .hasMessage("Service Bus connection timed out while sending the message. Message ID: " + envelope.getId());
     }
 
     @Test
