@@ -12,8 +12,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceBusConnectionTimeoutException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
-import javax.annotation.PreDestroy;
 import java.util.concurrent.CompletableFuture;
+import javax.annotation.PreDestroy;
 
 import static java.util.Collections.singletonList;
 
