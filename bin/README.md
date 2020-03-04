@@ -21,10 +21,12 @@ If help required - ask BSP team.
 ```bash
 $ export SAS_TOKEN="sv=2019-02-02&spr=https%2Chttp&se=2019-12-10T15%3A45%3A13Z&sr=c&sp=wl&sig=OmUS7%2BH62ah1rdQr0r36bkA0EZ10GH6fNSP54NAL0Lw%3D"
 $ export CONTAINER="mycontainer"
-$ ./sign-zip-upload.sh envelope
+$ ./sign-zip-upload.sh envelope 1-15-02-2020-08-08-19.zip
 ```
 
-where `envelope` is folder name existing in working directory.
+In the above command:
+ - `envelope` is folder name existing in working directory
+ - `1-15-02-2020-08-08-19.zip` is the zip file name and it should match with the `zip_file_name` property in metafile json
 
 #### Pre-requisites
 
