@@ -38,10 +38,10 @@
 
   <suppress>
     <notes><![CDATA[
-       file name: spring-cloud-contract-wiremock-2.2.1.jar.
+       file name: spring-cloud-contract-wiremock-2.2.2.jar.
        This is only used for TESTING purposes.
    ]]></notes>
-    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.2\.1\.RELEASE\.jar</filePath>
+    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.2\.2\.RELEASE\.jar</filePath>
     <cve>CVE-2018-9116</cve>
     <cve>CVE-2018-9117</cve>
   </suppress>
