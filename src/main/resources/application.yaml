@@ -134,6 +134,8 @@ containers:
     - container: finrem
       jurisdiction: DIVORCE
       poBox: 12746
+      ocrValidationUrl: ${OCR_VALIDATION_URL_FINREM}
+      paymentsEnabled: true
     - container: cmc
       jurisdiction: CMC
       poBox: 12747
