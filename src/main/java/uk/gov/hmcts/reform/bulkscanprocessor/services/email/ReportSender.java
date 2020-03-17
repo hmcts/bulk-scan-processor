@@ -26,7 +26,7 @@ public class ReportSender {
 
     private static final Logger log = LoggerFactory.getLogger(ReportSender.class);
 
-    public static final String EMAIL_SUBJECT = "Bulk Scan daily report";
+    public static final String EMAIL_SUBJECT = "Bulk Scan Envelopes to Bulk Scan Daily Report";
     public static final String EMAIL_BODY = "This is an auto generated email. Do not respond to it.";
     public static final String ATTACHMENT_PREFIX = "bulk_scan_envelopes_";
 
