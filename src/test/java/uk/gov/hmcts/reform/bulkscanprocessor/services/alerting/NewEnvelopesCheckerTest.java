@@ -12,8 +12,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.LoggerTestUtil;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SATURDAY;
@@ -29,7 +29,7 @@ public class NewEnvelopesCheckerTest {
     private ListAppender<ILoggingEvent> loggingEvents;
 
     @Mock private EnvelopeRepository repo;
-    @Mock private LocalDateTime now;
+    @Mock private ZonedDateTime now;
 
     private NewEnvelopesChecker checker;
 
@@ -73,7 +73,7 @@ public class NewEnvelopesCheckerTest {
         Instant instant = Instant.now();
         given(this.now.getDayOfWeek()).willReturn(MONDAY);
         given(this.now.getHour()).willReturn(NewEnvelopesChecker.END_HOUR - 1);
-        given(this.now.toInstant(ZoneOffset.UTC)).willReturn(instant);
+        given(this.now.toInstant()).willReturn(instant);
 
         given(repo.countAllByCreatedAtAfter(any())).willReturn(0);
 
@@ -93,7 +93,7 @@ public class NewEnvelopesCheckerTest {
         Instant instant = Instant.now();
         given(this.now.getDayOfWeek()).willReturn(MONDAY);
         given(this.now.getHour()).willReturn(NewEnvelopesChecker.END_HOUR - 1);
-        given(this.now.toInstant(ZoneOffset.UTC)).willReturn(instant);
+        given(this.now.toInstant()).willReturn(instant);
 
         given(repo.countAllByCreatedAtAfter(any())).willReturn(1);
 
@@ -105,5 +105,14 @@ public class NewEnvelopesCheckerTest {
         assertThat(loggingEvents.list)
             .extracting(ILoggingEvent::getLevel)
             .doesNotContain(Level.ERROR);
+    }
+
+    @Test
+    void x() {
+        given(repo.countAllByCreatedAtAfter(any())).willReturn(0);
+        NewEnvelopesChecker x = new NewEnvelopesChecker(repo, () -> ZonedDateTime.now());
+
+        x.checkIfEnvelopesAreMissing();
+
     }
 }
