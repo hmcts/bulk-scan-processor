@@ -34,7 +34,7 @@ public class NewEnvelopesCheckerTest {
     private NewEnvelopesChecker checker;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         loggingEvents = LoggerTestUtil.getListAppenderForClass(NewEnvelopesChecker.class);
         checker = new NewEnvelopesChecker(repo, () -> now);
     }
