@@ -19,17 +19,25 @@ command -v jq >/dev/null 2>&1 || {
 if [[ -z "${1}" ]]; then
   echo "Missing folder name in current working directory"
   echo "Folder contents will be considered up to standards, zipped and uploaded to blob storage"
-  echo "\n  Re-run script \`./sign-zip-upload.sh <folder-name>\`\n"
+  echo "\n  Re-run script \`./sign-zip-upload.sh <folder-name> <zip-file-name>\`\n"
+
+  exit 1
+fi
+
+if [[ -z "${2}" ]]; then
+  echo "Missing zip file name"
+  echo "\n  Re-run script \`./sign-zip-upload.sh <folder-name> <zip-file-name>\`\n"
 
   exit 1
 fi
 
 ENVI="demo"
 DIRECTORY=$1
+ZIP_FILE_NAME=$2
 
 if [[ ! -d "$DIRECTORY" ]]; then
   echo "Cannot see $DIRECTORY in `pwd`"
-  echo "\n  Re-run script \`./sign-zip-upload.sh <folder-name>\`\n"
+  echo "\n  Re-run script \`./sign-zip-upload.sh <folder-name> <zip-file-name>\`\n"
 
   exit 1
 fi
@@ -62,11 +70,6 @@ fi
 # signed envelope contents:
 ENVELOPE_FILE_NAME=envelope.zip
 SIGNATURE_FILE_NAME=signature
-
-# generate zip file name
-ZIP_ID_PREFIX=`date +"%s"`
-ZIP_TIME_PART=`date +"%d-%m-%Y-%H-%M-%S"`
-ZIP_FILE_NAME="${ZIP_ID_PREFIX}_$ZIP_TIME_PART.test.zip"
 
 echo "Zipping the envelope..."
 

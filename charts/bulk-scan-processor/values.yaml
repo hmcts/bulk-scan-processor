@@ -12,6 +12,7 @@ java:
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: http://bulk-scan-sample-app-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_PROBATE: http://probate-back-office-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_DIVORCE: http://div-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    OCR_VALIDATION_URL_FINREM: http://finrem-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     SCAN_ENABLED: "true"
     SCAN_DELAY: "4000"
     REUPLOAD_ENABLED: "true"
