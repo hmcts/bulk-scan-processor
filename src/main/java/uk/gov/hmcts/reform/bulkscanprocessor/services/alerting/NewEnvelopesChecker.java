@@ -20,7 +20,7 @@ public class NewEnvelopesChecker {
 
     public static final Duration TIME_WINDOW = Duration.ofHours(1);
     public static final int START_HOUR = 10;
-    public static final int END_HOUR = 17;
+    public static final int END_HOUR = 18;
 
     private final EnvelopeRepository repo;
     private final Supplier<LocalDateTime> timeSupplier;
