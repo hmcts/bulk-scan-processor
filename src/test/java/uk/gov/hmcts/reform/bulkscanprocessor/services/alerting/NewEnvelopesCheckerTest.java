@@ -106,13 +106,4 @@ public class NewEnvelopesCheckerTest {
             .extracting(ILoggingEvent::getLevel)
             .doesNotContain(Level.ERROR);
     }
-
-    @Test
-    void x() {
-        given(repo.countAllByCreatedAtAfter(any())).willReturn(0);
-        NewEnvelopesChecker x = new NewEnvelopesChecker(repo, () -> ZonedDateTime.now());
-
-        x.checkIfEnvelopesAreMissing();
-
-    }
 }
