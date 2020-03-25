@@ -63,7 +63,8 @@ public class ErrorNotificationServiceTest {
             "document control number",
             ErrorCode.ERR_AV_FAILED,
             "antivirus flag",
-            "service1"
+            "service1",
+            "container1"
         );
         ErrorNotificationResponse response = new ErrorNotificationResponse("notify id");
         given(client.notify(requestCaptor.capture())).willReturn(response);
@@ -99,7 +100,8 @@ public class ErrorNotificationServiceTest {
             "document control number",
             ErrorCode.ERR_AV_FAILED,
             "antivirus flag",
-            "service1"
+            "service1",
+            "container1"
         );
         given(client.notify(any(ErrorNotificationRequest.class))).willThrow(new RuntimeException("oh no"));
 
