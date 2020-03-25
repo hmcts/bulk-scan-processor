@@ -5,7 +5,11 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.slf4j.LoggerFactory;
 
-public class LoggerTestUtil {
+public final class LoggerTestUtil {
+
+    private LoggerTestUtil() {
+        // util class
+    }
 
     public static ListAppender<ILoggingEvent> getListAppenderForClass(Class clazz) {
         Logger logger = (Logger) LoggerFactory.getLogger(clazz);
