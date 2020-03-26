@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Instant;
 import java.util.List;
 import javax.persistence.EntityManager;
 
@@ -91,6 +92,19 @@ public class EnvelopeRepositoryTest {
     @Test
     public void should_get_0_when_no_incomplete_envelopes_are_there_from_yesterday_backwards() {
         assertThat(repo.getIncompleteEnvelopesCountBefore(now().toLocalDate())).isEqualTo(0);
+    }
+
+    @Test
+    public void should_count_envelopes_created_after_given_timestamp() {
+        // given
+        dbHas(
+            envelope("A.zip", Status.COMPLETED),
+            envelope("B.zip", Status.CONSUMED)
+        );
+
+        // then
+        assertThat(repo.countAllByCreatedAtAfter(Instant.now().minusSeconds(1))).isEqualTo(2);
+        assertThat(repo.countAllByCreatedAtAfter(Instant.now().plusSeconds(5))).isEqualTo(0);
     }
 
     @Test
