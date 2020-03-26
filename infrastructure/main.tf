@@ -168,6 +168,11 @@ data "azurerm_key_vault" "s2s_key_vault" {
   resource_group_name = "${local.s2s_rg}"
 }
 
+data "azurerm_key_vault" "reform_scan_key_vault" {
+  name                = "reform-scan-${local.local_env}"
+  resource_group_name = "reform-scan-${local.local_env}"
+}
+
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-USER"
@@ -198,6 +203,12 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   value        = "${module.bulk-scan-db.postgresql_database}"
 }
 
+resource "azurerm_key_vault_secret" "notifications_queue_send_conn_string" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "notifications-queue-send-connection-string"
+  value        = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
+}
+
 data "azurerm_key_vault_secret" "s2s_secret" {
   key_vault_id = "${data.azurerm_key_vault.s2s_key_vault.id}"
   name         = "microservicekey-bulk-scan-processor"
@@ -219,10 +230,11 @@ data "azurerm_key_vault_secret" "envelopes_queue_send_conn_str" {
 }
 
 data "azurerm_key_vault_secret" "notifications_queue_send_conn_str" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   name         = "notifications-queue-send-connection-string"
 }
 
+// TODO: remove once the application stops processing notifications queue
 data "azurerm_key_vault_secret" "notifications_queue_listen_conn_str" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "notifications-queue-listen-connection-string"
