@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
      * @return A list of envelopes which belongs to the given jurisdiction.
      */
     List<Envelope> findByJurisdictionAndStatus(String jurisdiction, Status status);
+
+    int countAllByCreatedAtAfter(Instant createdAt);
 
     /**
      * Find all envelopes for given jurisdiction.
