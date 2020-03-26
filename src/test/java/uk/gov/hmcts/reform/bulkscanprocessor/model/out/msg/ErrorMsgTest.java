@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ErrorMsgTest {
 
     @Test
-    public void should_be_the_same_after_serialisation_and_deserialisation() throws Exception {
+    public void should_serialise_and_deserialise_correctly() throws Exception {
         // given
         ErrorMsg original = new ErrorMsg(
             "id1",
