@@ -60,6 +60,8 @@ monitoring:
   incomplete-envelopes:
     cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 0 9 ? * MON-FRI} # can be discussed later
     enabled: ${INCOMPLETE_ENVELOPES_TASK_ENABLED:true}
+  no-new-envelopes:
+    enabled: false
 
 reports:
   cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
