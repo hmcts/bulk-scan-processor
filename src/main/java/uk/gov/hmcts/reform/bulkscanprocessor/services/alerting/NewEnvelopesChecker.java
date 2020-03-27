@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.alerting;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 
 import java.time.Duration;
@@ -13,6 +14,7 @@ import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static java.util.Arrays.asList;
 
+@Component
 public class NewEnvelopesChecker {
 
     private static final Logger logger = LoggerFactory.getLogger(NewEnvelopesChecker.class);
