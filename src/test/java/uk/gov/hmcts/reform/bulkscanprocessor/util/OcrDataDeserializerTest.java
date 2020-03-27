@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -70,11 +71,12 @@ public class OcrDataDeserializerTest {
     }
 
     private void expectOcrParsingToFail(String resourceName) {
-        Throwable thrown = catchThrowable(() -> deserializeFromBase64(resourceName));
+        OcrDataParseException exception = catchThrowableOfType(
+            () -> deserializeFromBase64(resourceName),
+            OcrDataParseException.class
+        );
 
-        assertThat(thrown).isNotNull();
-        assertThat(thrown).isInstanceOf(OcrDataParseException.class);
-        assertThat(thrown.getMessage()).isEqualTo("Failed to parse OCR data");
+        assertThat(exception.getOriginalMessage()).isEqualTo("Failed to parse OCR data");
     }
 
     private InputOcrData deserializeFromBase64(String resourceName) throws IOException {
