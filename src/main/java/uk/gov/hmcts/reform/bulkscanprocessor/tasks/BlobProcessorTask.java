@@ -400,7 +400,8 @@ public class BlobProcessorTask extends Processor {
                 null,
                 errorCode,
                 cause.getMessage(),
-                "bulk_scan_processor"
+                "bulk_scan_processor",
+                containerName
             )
         );
 

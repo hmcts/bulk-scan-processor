@@ -255,7 +255,8 @@ public class ErrorNotificationHandlerTest {
                     null,
                     ERR_FILE_LIMIT_EXCEEDED,
                     "description",
-                    "service1"
+                    "service1",
+                    "container1"
                 )
             ),
             MediaType.APPLICATION_JSON_UTF8_VALUE

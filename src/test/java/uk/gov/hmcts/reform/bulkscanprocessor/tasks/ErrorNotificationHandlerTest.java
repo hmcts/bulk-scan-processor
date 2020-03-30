@@ -119,7 +119,8 @@ public class ErrorNotificationHandlerTest {
             "document_control_number",
             ErrorCode.ERR_AV_FAILED,
             "av fail",
-            "service1"
+            "service1",
+            "container1"
         );
     }
 
