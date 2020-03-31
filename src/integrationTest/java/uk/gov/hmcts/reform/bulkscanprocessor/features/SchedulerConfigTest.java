@@ -24,7 +24,9 @@ import static org.mockito.Mockito.verify;
     properties = {
         "scheduling.task.scan.enabled=true",
         "scheduling.task.reupload.enabled=true",
-        "scheduling.task.notifications_to_orchestrator.enabled=true"
+        "scheduling.task.notifications_to_orchestrator.enabled=true",
+        "scheduling.task.delete-complete-files.enabled=true",
+        "scheduling.task.delete-complete-files.cron: */1 * * * * *"
     }
 )
 public class SchedulerConfigTest {
@@ -33,14 +35,19 @@ public class SchedulerConfigTest {
     private LockProvider lockProvider;
 
     @Test
-    public void should_integrate_with_shedlock() {
+    public void should_integrate_with_shedlock() throws Exception {
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
+
+        // wait for asynchronous run of the scheduled task in background
+        Thread.sleep(2000);
+
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
         assertThat(configCaptor.getAllValues())
             .extracting(lc -> lc.getName())
             .containsOnly(
                 "re-upload-failures",
-                "send-orchestrator-notification"
+                "send-orchestrator-notification",
+                "delete-complete-files"
             );
     }
 
