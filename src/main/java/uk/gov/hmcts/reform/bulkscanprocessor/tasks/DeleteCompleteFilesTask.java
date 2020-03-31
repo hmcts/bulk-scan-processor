@@ -17,8 +17,7 @@ public class DeleteCompleteFilesTask {
     private static final String TASK_NAME = "delete-complete-files";
 
     // region constructor
-    public DeleteCompleteFilesTask(
-    ) {
+    public DeleteCompleteFilesTask() {
         //
     }
     // endregion
