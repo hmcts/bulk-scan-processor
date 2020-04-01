@@ -96,4 +96,6 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
             + "WHERE DATE(createdat) < :date AND status != 'COMPLETED'"
     )
     int getIncompleteEnvelopesCountBefore(@Param("date") LocalDate date);
+
+    List<Envelope> findByContainerAndStatus(String jurisdiction, Status status);
 }

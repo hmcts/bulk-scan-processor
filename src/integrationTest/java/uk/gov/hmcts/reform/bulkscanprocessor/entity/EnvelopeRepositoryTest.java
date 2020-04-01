@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import javax.persistence.EntityManager;
 import static java.time.LocalDateTime.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @RunWith(SpringRunner.class)
@@ -124,6 +126,57 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(repo.getIncompleteEnvelopesCountBefore(now().toLocalDate())).isEqualTo(1);
+    }
+
+    @Test
+    public void should_find_complete_envelopes_by_container() {
+        // given
+        final String container1 = "container1";
+        dbHas(
+            envelope("X", Status.COMPLETED, container1),
+            envelope("Y", Status.PROCESSED, "container2"),
+            envelope("X", Status.COMPLETED, container1),
+            envelope("X", Status.PROCESSED, container1),
+            envelope("Z", Status.COMPLETED, "container3")
+        );
+
+        // when
+        final List<Envelope> result = repo.findByContainerAndStatus(container1, Status.COMPLETED);
+
+        // then
+        assertThat(result)
+            .hasSize(2)
+            .extracting(this::getTupleFromEnvelope)
+            .containsExactlyInAnyOrder(
+                tuple(Status.COMPLETED, container1),
+                tuple(Status.COMPLETED, container1)
+            );
+    }
+
+    @Test
+    public void should_not_find_complete_envelopes_by_container_if_they_do_not_exist() {
+        // given
+        final String container1 = "container1";
+        dbHas(
+            envelope("X", Status.CREATED, container1),
+            envelope("Y", Status.PROCESSED, "container2"),
+            envelope("X", Status.CREATED, container1),
+            envelope("X", Status.PROCESSED, container1),
+            envelope("Z", Status.COMPLETED, "container3")
+        );
+
+        // when
+        final List<Envelope> result = repo.findByContainerAndStatus(container1, Status.COMPLETED);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    private Tuple getTupleFromEnvelope(Envelope envelope) {
+        return new Tuple(
+            envelope.getStatus(),
+            envelope.getContainer()
+        );
     }
 
     private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
