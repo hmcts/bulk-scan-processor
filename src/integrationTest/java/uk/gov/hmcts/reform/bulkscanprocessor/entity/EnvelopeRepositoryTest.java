@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -146,7 +145,7 @@ public class EnvelopeRepositoryTest {
         // then
         assertThat(result)
             .hasSize(2)
-            .extracting(this::getTupleFromEnvelope)
+            .extracting(envelope -> tuple(envelope.getStatus(), envelope.getContainer()))
             .containsExactlyInAnyOrder(
                 tuple(Status.COMPLETED, container1),
                 tuple(Status.COMPLETED, container1)
@@ -170,13 +169,6 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(result).isEmpty();
-    }
-
-    private Tuple getTupleFromEnvelope(Envelope envelope) {
-        return new Tuple(
-            envelope.getStatus(),
-            envelope.getContainer()
-        );
     }
 
     private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
