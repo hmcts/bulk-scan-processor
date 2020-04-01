@@ -36,6 +36,7 @@ java:
     DELETE_REJECTED_FILES_TTL: PT72H
     ERROR_NOTIFICATIONS_ENABLED: "false" # only enabled on prod
     PUBLICLAW_ENABLED: "true"
+    NO_NEW_ENVELOPES_TASK_ENABLED: "false"
   keyVaults:
     "bulk-scan":
       secrets:
