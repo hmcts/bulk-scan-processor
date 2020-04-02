@@ -48,21 +48,21 @@ public class DeleteCompleteFilesTask {
         log.info("Started deleting complete files in container {}", container.getName());
 
         List<Envelope> envelopes = envelopeRepository.findByContainerAndStatus(container.getName(), COMPLETED);
-        int successCnt = 0;
-        int failureCnt = 0;
+        int successCount = 0;
+        int failureCount = 0;
         for (Envelope envelope: envelopes) {
             if (tryProcessCompleteEnvelope(container, envelope)) {
-                successCnt++;
+                successCount++;
             } else {
-                failureCnt++;
+                failureCount++;
             }
         }
 
         log.info(
             "Finished deleting complete files in container {}, deleted {} files, failed to delete {} files",
             container.getName(),
-            successCnt,
-            failureCnt
+            successCount,
+            failureCount
         );
     }
 
