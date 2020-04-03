@@ -38,7 +38,15 @@ public class DeleteCompleteFilesTask {
         log.info("Started {} task", TASK_NAME);
 
         for (CloudBlobContainer container : blobManager.listInputContainers()) {
-            processCompleteFiles(container);
+            try {
+                processCompleteFiles(container);
+            } catch (Exception ex) {
+                log.error(
+                    "Failed to process files from container {}",
+                    container.getName(),
+                    ex
+                );
+            }
         }
 
         log.info("Finished {} task", TASK_NAME);

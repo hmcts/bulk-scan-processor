@@ -168,7 +168,6 @@ class DeleteCompleteFilesTaskTest {
     void should_not_delete_file_if_exception_thrown() throws Exception {
         // given
         final CloudBlobContainer container1 = mock(CloudBlobContainer.class);
-        final CloudBlockBlob cloudBlockBlob11 = mock(CloudBlockBlob.class);
 
         final String containerName1 = "container1";
         final Envelope envelope11 = EnvelopeCreator.envelope("X", Status.COMPLETED, containerName1);
@@ -187,6 +186,39 @@ class DeleteCompleteFilesTaskTest {
         verifyZeroInteractions(envelopeProcessor);
 
         verify(envelopeRepository).findByContainerAndStatus(containerName1, COMPLETED);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_process_second_container_if_processing_the_first_container_throws() throws Exception {
+        // given
+        final CloudBlobContainer container1 = mock(CloudBlobContainer.class);
+        final CloudBlobContainer container2 = mock(CloudBlobContainer.class);
+        final CloudBlockBlob cloudBlockBlob21 = mock(CloudBlockBlob.class);
+
+        final String containerName1 = "container1";
+        final String containerName2 = "container2";
+        final Envelope envelope21 = EnvelopeCreator.envelope("Y", Status.COMPLETED, containerName2);
+
+        given(blobManager.listInputContainers()).willReturn(asList(container1, container2));
+        given(container1.getName()).willReturn(containerName1);
+        given(container2.getName()).willReturn(containerName2);
+        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+            .willThrow(new RuntimeException("msg"));
+        given(envelopeRepository.findByContainerAndStatus(containerName2, COMPLETED))
+            .willReturn(singletonList(envelope21));
+        prepareGivensForEnvelope(container2, cloudBlockBlob21, envelope21);
+        assertThat(envelope21.isZipDeleted()).isFalse();
+
+        // when
+        deleteCompleteFilesTask.run();
+
+        // then
+        verifyEnvelopesSaving(envelope21);
+        verifyNoMoreInteractions(envelopeProcessor);
+
+        verify(envelopeRepository).findByContainerAndStatus(containerName1, COMPLETED);
+        verify(envelopeRepository).findByContainerAndStatus(containerName2, COMPLETED);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
