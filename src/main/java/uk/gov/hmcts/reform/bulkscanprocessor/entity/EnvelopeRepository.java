@@ -97,5 +97,5 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     )
     int getIncompleteEnvelopesCountBefore(@Param("date") LocalDate date);
 
-    List<Envelope> findByContainerAndStatus(String container, Status status);
+    List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 }

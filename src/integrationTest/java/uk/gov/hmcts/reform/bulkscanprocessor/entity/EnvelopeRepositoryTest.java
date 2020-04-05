@@ -140,7 +140,7 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        final List<Envelope> result = repo.findByContainerAndStatus(container1, Status.COMPLETED);
+        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, Status.COMPLETED, false);
 
         // then
         assertThat(result)
@@ -149,6 +149,30 @@ public class EnvelopeRepositoryTest {
             .containsExactlyInAnyOrder(
                 tuple(Status.COMPLETED, container1),
                 tuple(Status.COMPLETED, container1)
+            );
+    }
+
+    @Test
+    public void should_find_complete_envelopes_by_container_excluding_already_deleted() {
+        // given
+        final String container1 = "container1";
+        dbHas(
+            envelope("X", Status.COMPLETED, container1),
+            envelope("Y", Status.PROCESSED, "container2"),
+            envelope("X", Status.COMPLETED, container1, true),
+            envelope("X", Status.PROCESSED, container1),
+            envelope("Z", Status.COMPLETED, "container3")
+        );
+
+        // when
+        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, Status.COMPLETED, false);
+
+        // then
+        assertThat(result)
+            .hasSize(1)
+            .extracting(envelope -> tuple(envelope.getStatus(), envelope.getContainer(), envelope.isZipDeleted()))
+            .containsExactlyInAnyOrder(
+                tuple(Status.COMPLETED, container1, false)
             );
     }
 
@@ -165,7 +189,7 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        final List<Envelope> result = repo.findByContainerAndStatus(container1, Status.COMPLETED);
+        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, Status.COMPLETED, false);
 
         // then
         assertThat(result).isEmpty();
