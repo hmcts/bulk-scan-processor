@@ -157,11 +157,11 @@ public class EnvelopeRepositoryTest {
         // given
         final String container1 = "container1";
         dbHas(
-            envelope("X", Status.COMPLETED, container1),
-            envelope("Y", Status.PROCESSED, "container2"),
+            envelope("X", Status.COMPLETED, container1, false),
+            envelope("Y", Status.PROCESSED, "container2", false),
             envelope("X", Status.COMPLETED, container1, true),
-            envelope("X", Status.PROCESSED, container1),
-            envelope("Z", Status.COMPLETED, "container3")
+            envelope("X", Status.PROCESSED, container1, false),
+            envelope("Z", Status.COMPLETED, "container3", false)
         );
 
         // when
