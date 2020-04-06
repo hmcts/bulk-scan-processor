@@ -84,7 +84,13 @@ public final class EnvelopeCreator {
     }
 
     public static Envelope envelope(String jurisdiction, Status status, String container) {
-        return envelope(randomUUID() + ".zip", jurisdiction, status, scannableItems(), container);
+        return envelope(jurisdiction, status, container, false);
+    }
+
+    public static Envelope envelope(String jurisdiction, Status status, String container, boolean zipDeleted) {
+        Envelope envelope = envelope(randomUUID() + ".zip", jurisdiction, status, scannableItems(), container);
+        envelope.setZipDeleted(zipDeleted);
+        return envelope;
     }
 
     public static Envelope envelope(String jurisdiction, Status status, List<ScannableItem> scannableItems) {

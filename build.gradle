@@ -179,7 +179,7 @@ def versions = [
 
 dependencyManagement {
   dependencies {
-    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.64'
+    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.65'
     // CVE-2018-10237 - Unbounded memory allocation
     dependencySet(group: 'com.google.guava', version: '28.2-jre') {
       entry 'guava'
@@ -209,9 +209,9 @@ dependencies {
   }
 
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.6.0'
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.6.0'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.7.0'
 
-  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.2'
+  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.3'
   compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.18', {
     exclude group: 'javax.mail', module: 'mail'
     exclude group: 'net.minidev', module: 'json-smart'
