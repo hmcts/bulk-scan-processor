@@ -208,7 +208,7 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.6.0'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.7.1'
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.7.0'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.3'
@@ -261,7 +261,7 @@ dependencies {
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
+  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.12'
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
