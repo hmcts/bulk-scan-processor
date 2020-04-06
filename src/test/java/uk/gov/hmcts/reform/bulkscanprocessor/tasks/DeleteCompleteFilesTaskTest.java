@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.net.URISyntaxException;
 
@@ -40,17 +39,13 @@ class DeleteCompleteFilesTaskTest {
     @Mock
     private EnvelopeRepository envelopeRepository;
 
-    @Mock
-    private EnvelopeProcessor envelopeProcessor;
-
     private DeleteCompleteFilesTask deleteCompleteFilesTask;
 
     @BeforeEach
     void setUp() {
         deleteCompleteFilesTask = new DeleteCompleteFilesTask(
             blobManager,
-            envelopeRepository,
-            envelopeProcessor
+            envelopeRepository
         );
     }
 
@@ -73,10 +68,8 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyEnvelopesSaving(envelope11);
-        verifyNoMoreInteractions(envelopeProcessor);
-
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
+        verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
 
         verifyCloudBlockBlobInteractions(cloudBlockBlob11);
@@ -98,7 +91,6 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyZeroInteractions(envelopeProcessor);
         verifyZeroInteractions(envelopeRepository);
     }
 
@@ -123,10 +115,8 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyEnvelopesSaving(envelope11);
-        verifyNoMoreInteractions(envelopeProcessor);
-
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
+        verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
 
         verify(cloudBlockBlob11).exists();
@@ -155,8 +145,6 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyZeroInteractions(envelopeProcessor);
-
         verifyZeroInteractions(envelopeRepository);
 
         verify(cloudBlockBlob11).exists();
@@ -183,8 +171,6 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyZeroInteractions(envelopeProcessor);
-
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
     }
@@ -214,11 +200,9 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyEnvelopesSaving(envelope21);
-        verifyNoMoreInteractions(envelopeProcessor);
-
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName2, COMPLETED, false);
+        verifyEnvelopesSaving(envelope21);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -255,11 +239,9 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyEnvelopesSaving(envelope11, envelope12, envelope21, envelope22);
-        verifyNoMoreInteractions(envelopeProcessor);
-
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName2, COMPLETED, false);
+        verifyEnvelopesSaving(envelope11, envelope12, envelope21, envelope22);
         verifyNoMoreInteractions(envelopeRepository);
 
         verifyCloudBlockBlobInteractions(cloudBlockBlob11);
@@ -287,7 +269,7 @@ class DeleteCompleteFilesTaskTest {
 
     private void verifyEnvelopesSaving(Envelope... envelopes) {
         ArgumentCaptor<Envelope> envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
-        verify(envelopeProcessor, times(envelopes.length)).saveEnvelope(envelopeCaptor.capture());
+        verify(envelopeRepository, times(envelopes.length)).saveAndFlush(envelopeCaptor.capture());
         for (int i = 0; i < envelopes.length; i++) {
             assertThat(envelopeCaptor.getAllValues().get(i).getId())
                 .isEqualTo(envelopes[i].getId());

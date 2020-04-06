@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
@@ -22,16 +21,13 @@ public class DeleteCompleteFilesTask {
 
     private final BlobManager blobManager;
     private final EnvelopeRepository envelopeRepository;
-    private final EnvelopeProcessor envelopeProcessor;
 
     public DeleteCompleteFilesTask(
         BlobManager blobManager,
-        EnvelopeRepository envelopeRepository,
-        EnvelopeProcessor envelopeProcessor
+        EnvelopeRepository envelopeRepository
     ) {
         this.blobManager = blobManager;
         this.envelopeRepository = envelopeRepository;
-        this.envelopeProcessor = envelopeProcessor;
     }
 
     public void run() {
@@ -98,6 +94,12 @@ public class DeleteCompleteFilesTask {
                         envelope.getZipFileName(),
                         container.getName()
                     );
+                } else {
+                    log.info(
+                        "File {} has not been deleted from container {}",
+                        envelope.getZipFileName(),
+                        container.getName()
+                    );
                 }
             } else {
                 deleted = true;
@@ -109,7 +111,7 @@ public class DeleteCompleteFilesTask {
             }
             if (deleted) {
                 envelope.setZipDeleted(true);
-                envelopeProcessor.saveEnvelope(envelope);
+                envelopeRepository.saveAndFlush(envelope);
                 log.info(
                     "Marked envelope from file {} (container {}) as deleted",
                     envelope.getZipFileName(),
