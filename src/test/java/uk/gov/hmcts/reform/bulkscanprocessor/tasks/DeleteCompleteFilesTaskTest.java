@@ -65,7 +65,7 @@ class DeleteCompleteFilesTaskTest {
 
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
         given(container1.getName()).willReturn(containerName1);
-        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false))
             .willReturn(singletonList(envelope11));
         prepareGivensForEnvelope(container1, cloudBlockBlob11, envelope11);
 
@@ -76,7 +76,7 @@ class DeleteCompleteFilesTaskTest {
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeProcessor);
 
-        verify(envelopeRepository).findByContainerAndStatus(containerName1, COMPLETED);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
 
         verifyCloudBlockBlobInteractions(cloudBlockBlob11);
@@ -91,7 +91,7 @@ class DeleteCompleteFilesTaskTest {
 
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
         given(container1.getName()).willReturn(containerName1);
-        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false))
             .willReturn(emptyList());
 
         // when
@@ -113,7 +113,7 @@ class DeleteCompleteFilesTaskTest {
 
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
         given(container1.getName()).willReturn(containerName1);
-        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false))
             .willReturn(singletonList(envelope11));
         given(container1.getBlockBlobReference(envelope11.getZipFileName())).willReturn(cloudBlockBlob11);
         given(cloudBlockBlob11.exists()).willReturn(false);
@@ -126,7 +126,7 @@ class DeleteCompleteFilesTaskTest {
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeProcessor);
 
-        verify(envelopeRepository).findByContainerAndStatus(containerName1, COMPLETED);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
 
         verify(cloudBlockBlob11).exists();
@@ -144,7 +144,7 @@ class DeleteCompleteFilesTaskTest {
 
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
         given(container1.getName()).willReturn(containerName1);
-        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false))
             .willReturn(singletonList(envelope11));
         given(container1.getBlockBlobReference(envelope11.getZipFileName())).willReturn(cloudBlockBlob11);
         given(cloudBlockBlob11.exists()).willReturn(true);
@@ -174,7 +174,7 @@ class DeleteCompleteFilesTaskTest {
 
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
         given(container1.getName()).willReturn(containerName1);
-        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false))
             .willReturn(singletonList(envelope11));
         given(container1.getBlockBlobReference(envelope11.getZipFileName()))
             .willThrow(new StoreException("msg", new RuntimeException()));
@@ -185,7 +185,7 @@ class DeleteCompleteFilesTaskTest {
         // then
         verifyZeroInteractions(envelopeProcessor);
 
-        verify(envelopeRepository).findByContainerAndStatus(containerName1, COMPLETED);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -203,9 +203,9 @@ class DeleteCompleteFilesTaskTest {
         given(blobManager.listInputContainers()).willReturn(asList(container1, container2));
         given(container1.getName()).willReturn(containerName1);
         given(container2.getName()).willReturn(containerName2);
-        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false))
             .willThrow(new RuntimeException("msg"));
-        given(envelopeRepository.findByContainerAndStatus(containerName2, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName2, COMPLETED, false))
             .willReturn(singletonList(envelope21));
         prepareGivensForEnvelope(container2, cloudBlockBlob21, envelope21);
         assertThat(envelope21.isZipDeleted()).isFalse();
@@ -217,8 +217,8 @@ class DeleteCompleteFilesTaskTest {
         verifyEnvelopesSaving(envelope21);
         verifyNoMoreInteractions(envelopeProcessor);
 
-        verify(envelopeRepository).findByContainerAndStatus(containerName1, COMPLETED);
-        verify(envelopeRepository).findByContainerAndStatus(containerName2, COMPLETED);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName2, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -242,9 +242,9 @@ class DeleteCompleteFilesTaskTest {
         given(blobManager.listInputContainers()).willReturn(asList(container1, container2));
         given(container1.getName()).willReturn(containerName1);
         given(container2.getName()).willReturn(containerName2);
-        given(envelopeRepository.findByContainerAndStatus(containerName1, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false))
             .willReturn(asList(envelope11, envelope12));
-        given(envelopeRepository.findByContainerAndStatus(containerName2, COMPLETED))
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(containerName2, COMPLETED, false))
             .willReturn(asList(envelope21, envelope22));
         prepareGivensForEnvelope(container1, cloudBlockBlob11, envelope11);
         prepareGivensForEnvelope(container1, cloudBlockBlob12, envelope12);
@@ -258,8 +258,8 @@ class DeleteCompleteFilesTaskTest {
         verifyEnvelopesSaving(envelope11, envelope12, envelope21, envelope22);
         verifyNoMoreInteractions(envelopeProcessor);
 
-        verify(envelopeRepository).findByContainerAndStatus(containerName1, COMPLETED);
-        verify(envelopeRepository).findByContainerAndStatus(containerName2, COMPLETED);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName1, COMPLETED, false);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(containerName2, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
 
         verifyCloudBlockBlobInteractions(cloudBlockBlob11);

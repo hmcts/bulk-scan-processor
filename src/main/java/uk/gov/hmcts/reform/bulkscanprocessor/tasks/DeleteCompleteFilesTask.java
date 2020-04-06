@@ -55,7 +55,11 @@ public class DeleteCompleteFilesTask {
     private void processCompleteFiles(CloudBlobContainer container) {
         log.info("Started deleting complete files in container {}", container.getName());
 
-        List<Envelope> envelopes = envelopeRepository.findByContainerAndStatus(container.getName(), COMPLETED);
+        List<Envelope> envelopes = envelopeRepository.findByContainerAndStatusAndZipDeleted(
+            container.getName(),
+            COMPLETED,
+            false
+        );
         int successCount = 0;
         int failureCount = 0;
         for (Envelope envelope: envelopes) {
@@ -81,7 +85,7 @@ public class DeleteCompleteFilesTask {
             CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
 
             log.info(
-                "File {} (container {}) is completed - deleting",
+                "File {} (container {}) is complete - deleting",
                 envelope.getZipFileName(),
                 container.getName()
             );
