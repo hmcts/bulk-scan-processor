@@ -51,14 +51,14 @@ public class DeleteCompleteFilesTaskTest {
     public void should_mark_as_deleted_complete_envelope() throws Exception {
         // given
         final String containerName1 = "container1";
-        final Envelope envelope11 = envelope("X", COMPLETED, containerName1, false);
-        Envelope envelopeSaved11 = envelopeRepository.saveAndFlush(envelope11);
+        final Envelope envelope = envelope("X", COMPLETED, containerName1, false);
+        final Envelope envelopeSaved = envelopeRepository.saveAndFlush(envelope);
 
-        CloudBlobContainer container1 = mock(CloudBlobContainer.class);
-        CloudBlockBlob cloudBlockBlob = mock(CloudBlockBlob.class);
+        final CloudBlobContainer container1 = mock(CloudBlobContainer.class);
+        final CloudBlockBlob cloudBlockBlob = mock(CloudBlockBlob.class);
         given(container1.getName()).willReturn(containerName1);
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
-        given(container1.getBlockBlobReference(envelope11.getZipFileName())).willReturn(cloudBlockBlob);
+        given(container1.getBlockBlobReference(envelope.getZipFileName())).willReturn(cloudBlockBlob);
         given(cloudBlockBlob.exists()).willReturn(true);
         given(cloudBlockBlob.deleteIfExists()).willReturn(true);
 
@@ -75,7 +75,7 @@ public class DeleteCompleteFilesTaskTest {
             .hasSize(1)
             .extracting(Envelope::getId)
             .containsExactlyInAnyOrder(
-                envelopeSaved11.getId()
+                envelopeSaved.getId()
             );
         List<Envelope> envelopesNotMarkedAsDeleted = envelopeRepository.findByContainerAndStatusAndZipDeleted(
             containerName1,
@@ -83,7 +83,7 @@ public class DeleteCompleteFilesTaskTest {
             false
         );
         assertThat(envelopesNotMarkedAsDeleted).isEmpty();
-        verify(container1).getBlockBlobReference(envelope11.getZipFileName());
+        verify(container1).getBlockBlobReference(envelope.getZipFileName());
         verify(cloudBlockBlob).exists();
         verify(cloudBlockBlob).deleteIfExists();
 
