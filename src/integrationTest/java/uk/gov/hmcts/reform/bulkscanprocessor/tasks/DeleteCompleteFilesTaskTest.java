@@ -27,6 +27,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 
 @IntegrationTest
 @RunWith(SpringRunner.class)
+@SuppressWarnings("PMD")
 public class DeleteCompleteFilesTaskTest {
     @Mock
     private BlobManager blobManager;

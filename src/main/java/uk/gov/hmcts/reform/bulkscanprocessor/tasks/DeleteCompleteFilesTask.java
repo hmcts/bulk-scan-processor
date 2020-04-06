@@ -48,6 +48,7 @@ public class DeleteCompleteFilesTask {
         log.info("Finished {} task", TASK_NAME);
     }
 
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     private void processCompleteFiles(CloudBlobContainer container) {
         log.info("Started deleting complete files in container {}", container.getName());
 
@@ -74,6 +75,7 @@ public class DeleteCompleteFilesTask {
         );
     }
 
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     private boolean tryProcessCompleteEnvelope(CloudBlobContainer container, Envelope envelope) {
         boolean deleted = false;
 
