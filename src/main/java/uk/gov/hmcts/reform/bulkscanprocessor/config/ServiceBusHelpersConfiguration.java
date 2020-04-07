@@ -5,7 +5,6 @@ import com.microsoft.azure.servicebus.IQueueClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -33,14 +32,6 @@ public class ServiceBusHelpersConfiguration {
         @Qualifier("notifications-client") IQueueClient queueClient
     ) {
         return new ServiceBusHelper(queueClient, objectMapper);
-    }
-
-    @Bean(name = "read-notifications-completor")
-    @ConditionalOnProperty(name = "queues.read-notifications.enabled", havingValue = "true")
-    public MessageAutoCompletor readNotificationsMessageCompletor(
-        @Qualifier("read-notifications-client") IQueueClient queueClient
-    ) {
-        return new MessageAutoCompletor(queueClient);
     }
 
     @Bean(name = "processed-envelopes-completor")
