@@ -5,7 +5,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFil
 
 import java.util.List;
 
-public class RejectedEnvelopesResponse {
+public class RejectedFilesResponse {
 
     @JsonProperty("count")
     public final int count;
@@ -13,7 +13,7 @@ public class RejectedEnvelopesResponse {
     @JsonProperty("rejected_envelopes")
     public final List<RejectedFile> rejectedFiles;
 
-    public RejectedEnvelopesResponse(int count, List<RejectedFile> rejectedFiles) {
+    public RejectedFilesResponse(int count, List<RejectedFile> rejectedFiles) {
         this.count = count;
         this.rejectedFiles = rejectedFiles;
     }

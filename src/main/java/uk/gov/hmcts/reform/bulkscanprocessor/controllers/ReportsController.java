@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedEnvelopesResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
@@ -109,8 +109,8 @@ public class ReportsController {
 
     @GetMapping(path = "/rejected")
     @ApiOperation("Retrieves rejected files")
-    public RejectedEnvelopesResponse getRejectedFiles() {
+    public RejectedFilesResponse getRejectedFiles() {
         List<RejectedFile> rejectedEnvs = this.rejectedFilesReportService.getRejectedFiles();
-        return new RejectedEnvelopesResponse(rejectedEnvs.size(), rejectedEnvs);
+        return new RejectedFilesResponse(rejectedEnvs.size(), rejectedEnvs);
     }
 }
