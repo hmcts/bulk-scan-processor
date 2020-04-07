@@ -2,8 +2,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -12,8 +15,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import java.util.List;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
 @Service
+@ConditionalOnProperty(value = "scheduling.task.delete-complete-files.enabled")
 public class DeleteCompleteFilesTask {
     private static final Logger log = LoggerFactory.getLogger(DeleteCompleteFilesTask.class);
 
@@ -30,6 +35,8 @@ public class DeleteCompleteFilesTask {
         this.envelopeRepository = envelopeRepository;
     }
 
+    @Scheduled(cron = "${scheduling.task.delete-complete-files.cron}", zone = EUROPE_LONDON)
+    @SchedulerLock(name = "delete-complete-files")
     public void run() {
         log.info("Started {} task", TASK_NAME);
 

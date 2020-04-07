@@ -189,6 +189,8 @@ scheduling:
       enabled: ${DELETE_REJECTED_FILES_ENABLED:false}
       cron: ${DELETE_REJECTED_FILES_CRON}
       ttl: ${DELETE_REJECTED_FILES_TTL}
+    delete-complete-files:
+      enabled: false
 
 envelope-access:
   mappings:
