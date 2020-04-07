@@ -10,7 +10,7 @@ public class RejectedFilesResponse {
     @JsonProperty("count")
     public final int count;
 
-    @JsonProperty("rejected_envelopes")
+    @JsonProperty("rejected_files")
     public final List<RejectedFile> rejectedFiles;
 
     public RejectedFilesResponse(int count, List<RejectedFile> rejectedFiles) {

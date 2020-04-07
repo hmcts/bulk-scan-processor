@@ -211,7 +211,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_rejected_envelopes() throws Exception {
+    public void should_return_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
             .willReturn(Arrays.asList(
                 new RejectedFile("a.zip", "A"),
@@ -224,7 +224,7 @@ public class ReportsControllerTest {
             .andExpect(content().json(
                 "{"
                     + "'count': 2,"
-                    + "'rejected_envelopes': ["
+                    + "'rejected_files': ["
                     + "  {"
                     + "    'filename': 'a.zip',"
                     + "    'container': 'A'"
@@ -239,7 +239,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_proper_response_when_there_are_no_rejected_envelopes() throws Exception {
+    public void should_return_proper_response_when_there_are_no_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
             .willReturn(emptyList());
 
@@ -247,7 +247,7 @@ public class ReportsControllerTest {
             .perform(get("/reports/rejected"))
             .andExpect(status().isOk())
             .andExpect(content().json(
-                "{'count': 0, 'rejected_envelopes': []}"
+                "{'count': 0, 'rejected_files': []}"
             ));
     }
 
