@@ -14,10 +14,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSumm
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedEnvelopesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedEnvelopesReportService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 
@@ -35,15 +35,15 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 public class ReportsController {
 
     private final ReportsService reportsService;
-    private final RejectedEnvelopesReportService rejectedEnvelopesReportService;
+    private final RejectedFilesReportService rejectedFilesReportService;
 
     // region constructor
     public ReportsController(
         ReportsService reportsService,
-        RejectedEnvelopesReportService rejectedEnvelopesReportService
+        RejectedFilesReportService rejectedFilesReportService
     ) {
         this.reportsService = reportsService;
-        this.rejectedEnvelopesReportService = rejectedEnvelopesReportService;
+        this.rejectedFilesReportService = rejectedFilesReportService;
     }
     // endregion
 
@@ -108,9 +108,9 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/rejected")
-    @ApiOperation("Retrieves rejected envelopes")
-    public RejectedEnvelopesResponse getRejectedEnvelopes() {
-        List<RejectedEnvelope> rejectedEnvs = this.rejectedEnvelopesReportService.getRejectedEnvelopes();
+    @ApiOperation("Retrieves rejected files")
+    public RejectedEnvelopesResponse getRejectedFiles() {
+        List<RejectedFile> rejectedEnvs = this.rejectedFilesReportService.getRejectedFiles();
         return new RejectedEnvelopesResponse(rejectedEnvs.size(), rejectedEnvs);
     }
 }
