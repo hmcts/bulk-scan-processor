@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.scan.enabled=true",
         "scheduling.task.reupload.enabled=true",
         "scheduling.task.notifications_to_orchestrator.enabled=true",
-        "scheduling.task.notifications_to_orchestrator.enabled=true",
         "scheduling.task.delete-complete-files.enabled=true",
         "scheduling.task.delete-complete-files.cron=* * * * * *"
     }
