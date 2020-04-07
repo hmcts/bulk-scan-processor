@@ -37,6 +37,8 @@ java:
     ERROR_NOTIFICATIONS_ENABLED: "false" # only enabled on prod
     PUBLICLAW_ENABLED: "true"
     NO_NEW_ENVELOPES_TASK_ENABLED: "false"
+    DELETE_COMPLETE_FILES_ENABLED: "true"
+    DELETE_COMPLETE_FILES_CRON: "0 0 20 * * *"
   keyVaults:
     "bulk-scan":
       secrets:
