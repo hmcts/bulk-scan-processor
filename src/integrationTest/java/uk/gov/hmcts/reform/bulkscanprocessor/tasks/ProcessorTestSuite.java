@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelpe
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
@@ -38,7 +39,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public abstract class ProcessorTestSuite<T extends Processor> {
@@ -51,13 +51,13 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
     protected static final String DOCUMENT_UUID2 = "0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
-    protected static final String SIGNATURE_ALGORITHM = "none";
-    protected static final String DEFAULT_PUBLIC_KEY_BASE64 = null;
-
     protected static final String CONTAINER_NAME = "bulkscan";
     protected static final String REJECTED_CONTAINER_NAME = "bulkscan-rejected";
 
     protected T processor;
+
+    @Autowired
+    protected ZipFileProcessor zipFileProcessor;
 
     @Autowired
     private MetafileJsonValidator schemaValidator;
@@ -106,7 +106,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     private static DockerComposeContainer dockerComposeContainer;
 
-    public void setUp(Construct<T> processorConstruct) throws Exception {
+    public void setUp() throws Exception {
 
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
@@ -125,22 +125,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             reUploadBatchSize,
             reuploadMaxTries
         );
-
-        T p = processorConstruct.apply(
-            blobManager,
-            documentProcessor,
-            envelopeProcessor,
-            envelopeRepository,
-            processEventRepository,
-            containerMappings,
-            ocrValidator,
-            serviceBusHelper,
-            SIGNATURE_ALGORITHM,
-            DEFAULT_PUBLIC_KEY_BASE64,
-            paymentsEnabled
-        );
-
-        processor = spy(p);
 
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
         testContainer.createIfNotExists();
@@ -200,23 +184,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         assertThat(envelopes).hasSize(1);
 
         return envelopes.get(0);
-    }
-
-    @FunctionalInterface
-    public interface Construct<T extends Processor> {
-        T apply(
-            BlobManager blobManager,
-            DocumentProcessor documentProcessor,
-            EnvelopeProcessor envelopeProcessor,
-            EnvelopeRepository envelopeRepository,
-            ProcessEventRepository processEventRepository,
-            ContainerMappings containerMappings,
-            OcrValidator ocrValidator,
-            ServiceBusHelper serviceBusHelper,
-            String signatureAlg,
-            String publicKeyBase64,
-            boolean paymentsEnabled
-        );
     }
 
     protected void eventsWereCreated(Event event1, Event event2) {

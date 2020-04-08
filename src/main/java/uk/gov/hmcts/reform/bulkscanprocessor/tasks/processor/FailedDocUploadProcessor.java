@@ -11,15 +11,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,36 +32,19 @@ public class FailedDocUploadProcessor extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
 
+    private final ZipFileProcessor zipFileProcessor;
+
     @Autowired
     public FailedDocUploadProcessor(
         BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
+        ZipFileProcessor zipFileProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
-    }
-
-    // NOTE: this is needed for testing as children of this class are instantiated
-    // using "new" in tests despite being spring beans (sigh!)
-    @SuppressWarnings("squid:S00107")
-    public FailedDocUploadProcessor(
-        BlobManager blobManager,
-        DocumentProcessor documentProcessor,
-        EnvelopeProcessor envelopeProcessor,
-        EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository,
-        ContainerMappings containerMappings, // NOSONAR
-        OcrValidator ocrValidator, // NOSONAR
-        ServiceBusHelper serviceBusHelper, // NOSONAR
-        String signatureAlg,
-        String publicKeyDerFilename,
-        boolean paymentsEnabled // NOSONAR
-    ) {
-        this(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
-        this.signatureAlg = signatureAlg;
-        this.publicKeyDerFilename = publicKeyDerFilename;
+        this.zipFileProcessor = zipFileProcessor;
     }
 
     public void processJurisdiction(String jurisdiction) {
@@ -144,13 +124,7 @@ public class FailedDocUploadProcessor extends Processor {
         String zipFileName
     ) {
         try {
-            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
-            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-                    zis, publicKeyDerFilename, zipFileName, containerName
-                );
-
-            return zipFileProcessor.process(zipWithSignature, ZipVerifiers.getPreprocessor(signatureAlg));
+            return zipFileProcessor.process(zis, containerName, zipFileName);
         } catch (DocSignatureFailureException ex) {
             log.warn("Rejected file {} from container {} - invalid signature", zipFileName, containerName, ex);
             handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
