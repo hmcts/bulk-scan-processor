@@ -190,7 +190,7 @@ scheduling:
       cron: ${DELETE_REJECTED_FILES_CRON}
       ttl: ${DELETE_REJECTED_FILES_TTL}
     delete-complete-files:
-      enabled: ${DELETE_COMPLETE_FILES_ENABLED:false}
+      enabled: ${DELETE_COMPLETE_FILES_ENABLED}
       cron: ${DELETE_COMPLETE_FILES_CRON}
 
 envelope-access:
