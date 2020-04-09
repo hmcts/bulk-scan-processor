@@ -88,7 +88,7 @@ public class ZipVerifiersTest {
         );
 
         assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
-            .isInstanceOf(DocSignatureFailureException.class)
+            .isInstanceOf(InvalidZipFilesException.class)
             .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
     }
 
