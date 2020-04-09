@@ -5,5 +5,5 @@ java:
   devApplicationInsightsInstrumentKey: "f666440f-43c0-4abb-9c20-2ce175a374f0"
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
-    DELETE_COMPLETE_FILES_ENABLED: "true"
+    DELETE_COMPLETE_FILES_ENABLED: "false"
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
