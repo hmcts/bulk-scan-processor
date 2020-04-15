@@ -196,7 +196,7 @@ repositories {
   jcenter()
 }
 
-ext["rest-assured.version"] = '4.3.0'
+ext["rest-assured.version"] = '4.2.0'
 
 dependencies {
   // exclude spring-cloud-context as it is already included in spring-cloud-starter-netflix-hystrix
