@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControl
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipFilesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
@@ -44,6 +45,7 @@ public final class ErrorMapping {
             .put(NonPdfFileFoundException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(OcrDataParseException.class, ERR_METAFILE_INVALID)
             .put(MetadataNotFoundException.class, ERR_ZIP_PROCESSING_FAILED)
+            .put(InvalidZipFilesException.class, ERR_ZIP_PROCESSING_FAILED)
             .put(ContainerJurisdictionPoBoxMismatchException.class, ERR_METAFILE_INVALID)
             .put(OcrValidationException.class, ERR_METAFILE_INVALID)
             .put(OcrPresenceException.class, ERR_METAFILE_INVALID)
