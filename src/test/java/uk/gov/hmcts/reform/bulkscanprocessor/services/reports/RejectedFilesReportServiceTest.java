@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.net.URI;
@@ -22,20 +22,20 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
-public class RejectedEnvelopesReportServiceTest {
+public class RejectedFilesReportServiceTest {
 
     @Mock private BlobManager blobManager;
     @Mock private CloudBlobContainer containerA;
     @Mock private CloudBlobContainer containerB;
 
-    private RejectedEnvelopesReportService service;
+    private RejectedFilesReportService service;
 
     @BeforeEach
     public void setUp() throws Exception {
         given(blobManager.listRejectedContainers())
             .willReturn(asList(containerA, containerB));
 
-        service = new RejectedEnvelopesReportService(blobManager);
+        service = new RejectedFilesReportService(blobManager);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class RejectedEnvelopesReportServiceTest {
         setUpContainer(containerB, emptyList());
 
         // when
-        List<RejectedEnvelope> result = service.getRejectedEnvelopes();
+        List<RejectedFile> result = service.getRejectedFiles();
 
         // then
         assertThat(result).isEmpty();
@@ -61,17 +61,17 @@ public class RejectedEnvelopesReportServiceTest {
         setUpContainer(containerB, asList(mockItem("b1.zip"), mockItem("b2.zip"), mockItem("b3.zip")));
 
         // when
-        List<RejectedEnvelope> result = service.getRejectedEnvelopes();
+        List<RejectedFile> result = service.getRejectedFiles();
 
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new RejectedEnvelope("a1.zip", "A"),
-                new RejectedEnvelope("a2.zip", "A"),
-                new RejectedEnvelope("b1.zip", "B"),
-                new RejectedEnvelope("b2.zip", "B"),
-                new RejectedEnvelope("b3.zip", "B")
+                new RejectedFile("a1.zip", "A"),
+                new RejectedFile("a2.zip", "A"),
+                new RejectedFile("b1.zip", "B"),
+                new RejectedFile("b2.zip", "B"),
+                new RejectedFile("b3.zip", "B")
             );
     }
 

@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedEnvelopesResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedEnvelopesReportService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 
@@ -35,15 +35,15 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 public class ReportsController {
 
     private final ReportsService reportsService;
-    private final RejectedEnvelopesReportService rejectedEnvelopesReportService;
+    private final RejectedFilesReportService rejectedFilesReportService;
 
     // region constructor
     public ReportsController(
         ReportsService reportsService,
-        RejectedEnvelopesReportService rejectedEnvelopesReportService
+        RejectedFilesReportService rejectedFilesReportService
     ) {
         this.reportsService = reportsService;
-        this.rejectedEnvelopesReportService = rejectedEnvelopesReportService;
+        this.rejectedFilesReportService = rejectedFilesReportService;
     }
     // endregion
 
@@ -108,9 +108,9 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/rejected")
-    @ApiOperation("Retrieves rejected envelopes")
-    public RejectedEnvelopesResponse getRejectedEnvelopes() {
-        List<RejectedEnvelope> rejectedEnvs = this.rejectedEnvelopesReportService.getRejectedEnvelopes();
-        return new RejectedEnvelopesResponse(rejectedEnvs.size(), rejectedEnvs);
+    @ApiOperation("Retrieves rejected files")
+    public RejectedFilesResponse getRejectedFiles() {
+        List<RejectedFile> rejectedEnvs = this.rejectedFilesReportService.getRejectedFiles();
+        return new RejectedFilesResponse(rejectedEnvs.size(), rejectedEnvs);
     }
 }

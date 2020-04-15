@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.io.File;
@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RejectedEnvelopesReportServiceTest {
+public class RejectedFilesReportServiceTest {
 
     @Autowired
     private BlobManagementProperties blobManagementProperties;
@@ -63,14 +63,14 @@ public class RejectedEnvelopesReportServiceTest {
         assertThat(rejectedContainer.listBlobs()).hasSize(2); // sanity check
 
         // when
-        List<RejectedEnvelope> result = new RejectedEnvelopesReportService(blobManager).getRejectedEnvelopes();
+        List<RejectedFile> result = new RejectedFilesReportService(blobManager).getRejectedFiles();
 
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new RejectedEnvelope("foo.zip", "test-rejected"),
-                new RejectedEnvelope("bar.zip", "test-rejected")
+                new RejectedFile("foo.zip", "test-rejected"),
+                new RejectedFile("bar.zip", "test-rejected")
             );
     }
 }
