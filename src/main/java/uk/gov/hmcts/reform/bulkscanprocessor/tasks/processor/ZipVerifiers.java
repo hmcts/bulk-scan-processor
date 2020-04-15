@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipArchiveException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipFilesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
@@ -114,7 +115,7 @@ public class ZipVerifiers {
 
     static void verifyFileNames(Set<String> fileNames) {
         if (!(fileNames.size() == 2 && fileNames.containsAll(asList(DOCUMENTS_ZIP, SIGNATURE_SIG)))) {
-            throw new DocSignatureFailureException(
+            throw new InvalidZipFilesException(
                 "Zip entries do not match expected file names. Actual names = " + fileNames
             );
         }
