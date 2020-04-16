@@ -7,10 +7,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedEnvelopesReportService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ public class ReportsControllerTest {
     private ReportsService reportsService;
 
     @MockBean
-    private RejectedEnvelopesReportService rejectedEnvelopesReportService;
+    private RejectedFilesReportService rejectedFilesReportService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -211,11 +211,11 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_rejected_envelopes() throws Exception {
-        given(rejectedEnvelopesReportService.getRejectedEnvelopes())
+    public void should_return_rejected_files() throws Exception {
+        given(rejectedFilesReportService.getRejectedFiles())
             .willReturn(Arrays.asList(
-                new RejectedEnvelope("a.zip", "A"),
-                new RejectedEnvelope("b.zip", "B")
+                new RejectedFile("a.zip", "A"),
+                new RejectedFile("b.zip", "B")
             ));
 
         mockMvc
@@ -224,7 +224,7 @@ public class ReportsControllerTest {
             .andExpect(content().json(
                 "{"
                     + "'count': 2,"
-                    + "'rejected_envelopes': ["
+                    + "'rejected_files': ["
                     + "  {"
                     + "    'filename': 'a.zip',"
                     + "    'container': 'A'"
@@ -239,15 +239,15 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_proper_response_when_there_are_no_rejected_envelopes() throws Exception {
-        given(rejectedEnvelopesReportService.getRejectedEnvelopes())
+    public void should_return_proper_response_when_there_are_no_rejected_files() throws Exception {
+        given(rejectedFilesReportService.getRejectedFiles())
             .willReturn(emptyList());
 
         mockMvc
             .perform(get("/reports/rejected"))
             .andExpect(status().isOk())
             .andExpect(content().json(
-                "{'count': 0, 'rejected_envelopes': []}"
+                "{'count': 0, 'rejected_files': []}"
             ));
     }
 
