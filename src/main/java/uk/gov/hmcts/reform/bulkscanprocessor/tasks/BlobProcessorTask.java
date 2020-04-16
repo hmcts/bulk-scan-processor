@@ -37,7 +37,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
@@ -80,6 +79,8 @@ public class BlobProcessorTask extends Processor {
     @Value("${storage.blob_processing_delay_in_minutes}")
     protected int blobProcessingDelayInMinutes;
 
+    private final ZipFileProcessor zipFileProcessor;
+
     private final ServiceBusHelper notificationsQueueHelper;
 
     protected final ContainerMappings containerMappings;
@@ -94,47 +95,20 @@ public class BlobProcessorTask extends Processor {
         BlobManager blobManager,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
+        ZipFileProcessor zipFileProcessor,
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
-        @Value("${process-payments.enabled}") boolean paymentsEnabled) {
+        @Value("${process-payments.enabled}") boolean paymentsEnabled
+    ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this.zipFileProcessor = zipFileProcessor;
         this.notificationsQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
         this.ocrValidator = ocrValidator;
         this.paymentsEnabled = paymentsEnabled;
-    }
-
-    // NOTE: this is needed for testing as children of this class are instantiated
-    // using "new" in tests despite being spring beans (sigh!)
-    @SuppressWarnings("squid:S00107")
-    public BlobProcessorTask(
-        BlobManager blobManager,
-        DocumentProcessor documentProcessor,
-        EnvelopeProcessor envelopeProcessor,
-        EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository,
-        ContainerMappings containerMappings,
-        OcrValidator ocrValidator,
-        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
-        String signatureAlg,
-        String publicKeyDerFilename,
-        @Value("${process-payments.enabled}") boolean paymentsEnabled) {
-        this(
-            blobManager,
-            documentProcessor,
-            envelopeProcessor,
-            envelopeRepository,
-            eventRepository,
-            containerMappings,
-            ocrValidator,
-            notificationsQueueHelper,
-            paymentsEnabled
-        );
-        this.signatureAlg = signatureAlg;
-        this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
@@ -285,14 +259,7 @@ public class BlobProcessorTask extends Processor {
         String leaseId
     ) {
         try {
-            ZipFileProcessor zipFileProcessor = new ZipFileProcessor(); // todo: inject
-            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename, zipFilename, containerName);
-
-            ZipFileProcessingResult result = zipFileProcessor.process(
-                zipWithSignature,
-                ZipVerifiers.getPreprocessor(signatureAlg)
-            );
+            ZipFileProcessingResult result = zipFileProcessor.process(zis, containerName, zipFilename);
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 

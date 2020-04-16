@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
@@ -30,12 +29,6 @@ public abstract class Processor {
     protected final EnvelopeProcessor envelopeProcessor;
     protected final EnvelopeRepository envelopeRepository;
     protected final ProcessEventRepository eventRepository;
-
-    @Value("${storage.signature_algorithm}")
-    protected String signatureAlg;
-
-    @Value("${storage.public_key_der_file}")
-    protected String publicKeyDerFilename;
 
     protected Processor(
         BlobManager blobManager,
