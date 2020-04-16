@@ -39,7 +39,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
@@ -52,7 +51,20 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
     @Before
     public void setUp() throws Exception {
-        super.setUp(BlobProcessorTask::new);
+        super.setUp();
+
+        processor = new BlobProcessorTask(
+            blobManager,
+            documentProcessor,
+            envelopeProcessor,
+            zipFileProcessor,
+            envelopeRepository,
+            processEventRepository,
+            containerMappings,
+            ocrValidator,
+            serviceBusHelper,
+            paymentsEnabled
+        );
     }
 
     @Test
@@ -92,17 +104,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         throws Exception {
         //Given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/supplementary_evidence_with_ocr_with_payments"));
-        testBlobFileProcessed();
-    }
-
-    @Test
-    public void should_read_blob_check_signature_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
-        throws Exception {
-        //Given
-        processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyDerFilename = "signing/test_public_key.der";
-
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipAndSignDir("zipcontents/ok", "signing/test_private_key.der"));
         testBlobFileProcessed();
     }
 

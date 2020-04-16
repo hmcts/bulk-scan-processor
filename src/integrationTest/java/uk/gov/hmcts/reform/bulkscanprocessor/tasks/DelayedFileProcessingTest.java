@@ -15,7 +15,20 @@ public class DelayedFileProcessingTest extends ProcessorTestSuite<BlobProcessorT
 
     @Before
     public void setUp() throws Exception {
-        super.setUp(BlobProcessorTask::new);
+        super.setUp();
+
+        processor = new BlobProcessorTask(
+            blobManager,
+            documentProcessor,
+            envelopeProcessor,
+            zipFileProcessor,
+            envelopeRepository,
+            processEventRepository,
+            containerMappings,
+            ocrValidator,
+            serviceBusHelper,
+            paymentsEnabled
+        );
     }
 
     @Test

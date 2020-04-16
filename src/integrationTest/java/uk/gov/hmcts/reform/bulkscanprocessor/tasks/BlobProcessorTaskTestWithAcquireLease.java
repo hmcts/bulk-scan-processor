@@ -34,7 +34,20 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
 
     @Before
     public void setUp() throws Exception {
-        super.setUp(BlobProcessorTask::new);
+        super.setUp();
+
+        processor = new BlobProcessorTask(
+            blobManager,
+            documentProcessor,
+            envelopeProcessor,
+            zipFileProcessor,
+            envelopeRepository,
+            processEventRepository,
+            containerMappings,
+            ocrValidator,
+            serviceBusHelper,
+            paymentsEnabled
+        );
     }
 
     @After

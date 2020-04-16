@@ -26,10 +26,8 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_SIGNATURE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
@@ -40,7 +38,20 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
     @Before
     public void setUp() throws Exception {
-        super.setUp(BlobProcessorTask::new);
+        super.setUp();
+
+        processor = new BlobProcessorTask(
+            blobManager,
+            documentProcessor,
+            envelopeProcessor,
+            zipFileProcessor,
+            envelopeRepository,
+            processEventRepository,
+            containerMappings,
+            ocrValidator,
+            serviceBusHelper,
+            paymentsEnabled
+        );
     }
 
     @Test
@@ -217,30 +228,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
-    }
-
-    @Test
-    public void should_record_signature_failure_when_zip_contains_invalid_signature() throws Exception {
-        // given
-        processor.signatureAlg = "sha256withrsa";
-        processor.publicKeyDerFilename = "signing/test_public_key.der";
-
-        uploadToBlobStorage(
-            SAMPLE_ZIP_FILE_NAME,
-            zipAndSignDir(
-                "zipcontents/ok",
-                "signing/some_other_private_key.der" // not matching the public key used for validation!
-            )
-        );
-
-        // when
-        processor.processBlobs();
-
-        // then
-        envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_SIGNATURE_FAILURE);
-        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
-        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SIG_VERIFY_FAILED);
     }
 
     @Test
