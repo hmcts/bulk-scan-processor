@@ -43,6 +43,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
@@ -83,6 +84,9 @@ public class EnvelopeControllerTest {
 
     @Autowired
     private ContainerMappings containerMappings;
+
+    @Autowired
+    private ZipFileProcessor zipFileProcessor;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -155,13 +159,12 @@ public class EnvelopeControllerTest {
                 reUploadBatchSize,
                 reuploadMaxTries
             ),
+            zipFileProcessor,
             envelopeRepository,
             processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,
-            "none",
-            "none",
             paymentsEnabled
         );
 

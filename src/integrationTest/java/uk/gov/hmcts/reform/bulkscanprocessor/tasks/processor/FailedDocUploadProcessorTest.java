@@ -38,19 +38,27 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
 
     @Before
     public void setUp() throws Exception {
-        super.setUp(FailedDocUploadProcessor::new);
+        super.setUp();
+
+        processor = new FailedDocUploadProcessor(
+            blobManager,
+            documentProcessor,
+            envelopeProcessor,
+            zipFileProcessor,
+            envelopeRepository,
+            processEventRepository
+        );
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             documentProcessor,
             envelopeProcessor,
+            zipFileProcessor,
             envelopeRepository,
             processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,
-            SIGNATURE_ALGORITHM,
-            DEFAULT_PUBLIC_KEY_BASE64,
             paymentsEnabled
         );
     }

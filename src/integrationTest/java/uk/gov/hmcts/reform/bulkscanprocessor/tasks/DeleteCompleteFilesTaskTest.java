@@ -41,7 +41,7 @@ public class DeleteCompleteFilesTaskTest {
     private DeleteCompleteFilesTask task;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.task = new DeleteCompleteFilesTask(
             blobManager,
             envelopeRepository
