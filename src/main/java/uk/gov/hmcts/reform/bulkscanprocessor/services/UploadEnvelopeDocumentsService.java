@@ -64,7 +64,7 @@ public class UploadEnvelopeDocumentsService {
     public UploadEnvelopeDocumentsService(
         // only process envelopes after cool down period
         // can be removed once uploading feature is removed from main job
-        @Value("${}") long coolDownPeriod,
+        @Value("${scheduling.task.upload-documents.cool-down-minutes}") long coolDownPeriod,
         EnvelopeRepository envelopeRepository,
         BlobManager blobManager,
         ZipFileProcessor zipFileProcessor,
@@ -85,7 +85,7 @@ public class UploadEnvelopeDocumentsService {
         envelopeRepository
             .findByStatus(CREATED)
             .stream()
-            // can be moved to query instead. up for a change later or now
+            // can be moved to query instead. but it won't be needed after upload is removed from main task
             .filter(envelope -> envelope.getCreatedAt().isBefore(now().minus(coolDownPeriod, MINUTES)))
             .collect(groupingBy(Envelope::getContainer))
             .forEach(this::processByContainer);
