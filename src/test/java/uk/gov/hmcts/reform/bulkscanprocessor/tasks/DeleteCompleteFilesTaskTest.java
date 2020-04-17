@@ -8,10 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
@@ -25,9 +28,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.BLOB_DELETE_FAILURE;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("PMD")
@@ -42,6 +46,12 @@ class DeleteCompleteFilesTaskTest {
     @Mock
     private CloudBlobContainer container1;
 
+    @Mock
+    private ProcessEventRepository eventRepository;
+
+    @Captor
+    private ArgumentCaptor<ProcessEvent> processEventCaptor;
+
     private DeleteCompleteFilesTask deleteCompleteFilesTask;
 
     private static final String CONTAINER_NAME_1 = "container1";
@@ -51,7 +61,8 @@ class DeleteCompleteFilesTaskTest {
     void setUp() {
         deleteCompleteFilesTask = new DeleteCompleteFilesTask(
             blobManager,
-            envelopeRepository
+            envelopeRepository,
+            eventRepository
         );
         given(container1.getName()).willReturn(CONTAINER_NAME_1);
     }
@@ -90,7 +101,9 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyZeroInteractions(envelopeRepository);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
+        verifyNoMoreInteractions(envelopeRepository);
+        verifyNoInteractions(eventRepository);
     }
 
     @Test
@@ -110,6 +123,7 @@ class DeleteCompleteFilesTaskTest {
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
+        verifyNoInteractions(eventRepository);
 
         verify(cloudBlockBlob1).exists();
         verifyNoMoreInteractions(cloudBlockBlob1);
@@ -130,7 +144,9 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verifyZeroInteractions(envelopeRepository);
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
+        verifyNoMoreInteractions(envelopeRepository);
+        verifyNoInteractions(eventRepository);
 
         verify(cloudBlockBlob1).exists();
         verify(cloudBlockBlob1).deleteIfExists();
@@ -154,6 +170,12 @@ class DeleteCompleteFilesTaskTest {
         // then
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
+        verify(eventRepository).saveAndFlush(processEventCaptor.capture());
+        assertThat(processEventCaptor.getValue().getContainer()).isEqualTo(envelope11.getContainer());
+        assertThat(processEventCaptor.getValue().getZipFileName()).isEqualTo(envelope11.getZipFileName());
+        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(BLOB_DELETE_FAILURE);
+        assertThat(processEventCaptor.getValue().getReason()).isEqualTo("msg");
+        verifyNoMoreInteractions(eventRepository);
     }
 
     @Test
@@ -181,6 +203,7 @@ class DeleteCompleteFilesTaskTest {
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_2, COMPLETED, false);
         verifyEnvelopesSaving(envelope21);
         verifyNoMoreInteractions(envelopeRepository);
+        verifyNoInteractions(eventRepository);
     }
 
     @Test
@@ -216,6 +239,7 @@ class DeleteCompleteFilesTaskTest {
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_2, COMPLETED, false);
         verifyEnvelopesSaving(envelope11, envelope12, envelope21, envelope22);
         verifyNoMoreInteractions(envelopeRepository);
+        verifyNoInteractions(eventRepository);
 
         verifyCloudBlockBlobInteractions(cloudBlockBlob11);
         verifyCloudBlockBlobInteractions(cloudBlockBlob12);
