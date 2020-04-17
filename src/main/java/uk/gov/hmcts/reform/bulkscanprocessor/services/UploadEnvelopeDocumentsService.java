@@ -183,12 +183,7 @@ public class UploadEnvelopeDocumentsService {
 
             envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
             envelopeRepository.saveAndFlush(envelope);
-            handleEventRelatedError(
-                DOC_UPLOAD_FAILURE,
-                envelope.getContainer(),
-                envelope.getZipFileName(),
-                exception.getMessage()
-            );
+            // no need to create event. envelopeProcessor::handleEvent does that
 
             return false;
         }
