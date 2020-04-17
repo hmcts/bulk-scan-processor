@@ -97,23 +97,17 @@ public class UploadEnvelopeDocumentsService {
         try {
             CloudBlobContainer blobContainer = blobManager.getContainer(containerName);
 
-            envelopes.forEach(envelope -> {
-                Optional<ZipFileProcessingResult> resultOption = getBlobInputStream(
+            envelopes.forEach(envelope ->
+                getBlobInputStream(
                     blobContainer,
                     envelope.getZipFileName()
                 ).flatMap(inputStream ->
                     processInputStream(inputStream, containerName, envelope.getZipFileName())
-                );
-
-                boolean isUploaded = resultOption
-                    .map(result -> uploadParsedZipFileName(envelope, result.getPdfs()))
-                    .orElse(false);
-
-                // only update envelope state if no errors occurred during zip file processing
-                if (resultOption.isPresent()) {
+                ).ifPresent(result -> {
+                    boolean isUploaded = uploadParsedZipFileName(envelope, result.getPdfs());
                     envelopeProcessor.handleEvent(envelope, isUploaded ? DOC_UPLOADED : DOC_UPLOAD_FAILURE);
-                }
-            });
+                })
+            );
         } catch (URISyntaxException | StorageException exception) {
             log.error("Unable to get client for {} container", containerName, exception);
         }
