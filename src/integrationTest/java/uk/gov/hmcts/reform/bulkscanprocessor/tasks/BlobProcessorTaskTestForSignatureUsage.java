@@ -96,7 +96,6 @@ public class BlobProcessorTaskTestForSignatureUsage extends ProcessorTestSuite<B
         assertThat(actualEnvelope.getScannableItems())
             .extracting(ScannableItem::getDocumentUuid)
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_UUID2));
-        assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         // This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf));
