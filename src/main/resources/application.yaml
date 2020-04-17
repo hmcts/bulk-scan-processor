@@ -174,9 +174,14 @@ scheduling:
   pool: ${SCHEDULING_POOL:10}
   lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
   task:
+    # 1 - scan storage for new envelopes and process them
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
       enabled: ${SCAN_ENABLED:false}
+    # 2 - upload all documents for successfully scanned envelopes
+    upload-documents:
+      cool-down-minutes: 20 # see UploadEnvelopeDocumentsService for explanation
+    # 3 - send notification to orchestrator once all documents are uploaded
     notifications_to_orchestrator:
       delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms
       enabled: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED:false}
