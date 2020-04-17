@@ -10,11 +10,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.util.List;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.BLOB_DELETE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
 @Service
@@ -26,13 +29,16 @@ public class DeleteCompleteFilesTask {
 
     private final BlobManager blobManager;
     private final EnvelopeRepository envelopeRepository;
+    private final ProcessEventRepository eventRepository;
 
     public DeleteCompleteFilesTask(
         BlobManager blobManager,
-        EnvelopeRepository envelopeRepository
+        EnvelopeRepository envelopeRepository,
+        ProcessEventRepository eventRepository
     ) {
         this.blobManager = blobManager;
         this.envelopeRepository = envelopeRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Scheduled(cron = "${scheduling.task.delete-complete-files.cron}", zone = EUROPE_LONDON)
@@ -134,8 +140,33 @@ public class DeleteCompleteFilesTask {
                 container.getName(),
                 ex
             );
+            registerDeleteFailureEvent(
+                envelope,
+                ex.getMessage()
+            );
         }
 
         return deleted;
+    }
+
+    private void registerDeleteFailureEvent(
+        Envelope envelope,
+        String reason
+    ) {
+        ProcessEvent processEvent = new ProcessEvent(
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            BLOB_DELETE_FAILURE
+        );
+
+        processEvent.setReason(reason);
+        eventRepository.saveAndFlush(processEvent);
+
+        log.info(
+            "Zip {} from {} marked as {}",
+            processEvent.getZipFileName(),
+            processEvent.getContainer(),
+            processEvent.getEvent()
+        );
     }
 }
