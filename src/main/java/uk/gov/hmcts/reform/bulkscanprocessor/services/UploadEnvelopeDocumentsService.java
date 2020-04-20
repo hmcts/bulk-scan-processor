@@ -51,7 +51,7 @@ public class UploadEnvelopeDocumentsService {
 
     private static final Logger log = getLogger(UploadEnvelopeDocumentsService.class);
 
-    private final long coolDownPeriod;
+    private final long minimumEnvelopeAge;
     private final EnvelopeRepository envelopeRepository;
     private final BlobManager blobManager;
     private final ZipFileProcessor zipFileProcessor;
@@ -61,14 +61,14 @@ public class UploadEnvelopeDocumentsService {
     public UploadEnvelopeDocumentsService(
         // only process envelopes after cool down period
         // can be removed once uploading feature is removed from main job
-        @Value("${scheduling.task.upload-documents.cool-down-minutes}") long coolDownPeriod,
+        @Value("${scheduling.task.upload-documents.min-envelope-age}") long minimumEnvelopeAge,
         EnvelopeRepository envelopeRepository,
         BlobManager blobManager,
         ZipFileProcessor zipFileProcessor,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor
     ) {
-        this.coolDownPeriod = coolDownPeriod;
+        this.minimumEnvelopeAge = minimumEnvelopeAge;
         this.envelopeRepository = envelopeRepository;
         this.blobManager = blobManager;
         this.zipFileProcessor = zipFileProcessor;
@@ -81,7 +81,7 @@ public class UploadEnvelopeDocumentsService {
             .findByStatus(CREATED)
             .stream()
             // can be moved to query instead. but it won't be needed after upload is removed from main task
-            .filter(envelope -> envelope.getCreatedAt().isBefore(now().minus(coolDownPeriod, MINUTES)))
+            .filter(envelope -> envelope.getCreatedAt().isBefore(now().minus(minimumEnvelopeAge, MINUTES)))
             .collect(groupingBy(Envelope::getContainer))
             .forEach(this::processByContainer);
     }
