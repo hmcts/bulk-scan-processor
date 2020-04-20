@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipArchiveException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipFilesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
@@ -13,6 +14,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 
+// TODO: rename
 public class ZipVerifiers {
 
     public static final String DOCUMENTS_ZIP = "envelope.zip";
@@ -42,7 +44,13 @@ public class ZipVerifiers {
     static ZipInputStream extract(ZipStreamWithSignature zipWithSignature) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 
-        return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
+        if (zipEntries.containsKey(DOCUMENTS_ZIP)) {
+            return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
+        } else {
+            throw new InvalidZipFilesException(
+                "Zip does not contain envelope. Actual zip entries = " + zipEntries.keySet()
+            );
+        }
     }
 
     private static Map<String, byte[]> extractZipEntries(ZipInputStream zis) {

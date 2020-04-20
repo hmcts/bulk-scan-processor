@@ -47,7 +47,7 @@ public final class DirectoryZipper {
         );
     }
 
-    private static byte[] zipItems(List<ZipItem> items) throws IOException {
+    public static byte[] zipItems(List<ZipItem> items) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
 
@@ -70,11 +70,11 @@ public final class DirectoryZipper {
         }
     }
 
-    private static class ZipItem {
+    public static class ZipItem {
         final String name;
         final byte[] content;
 
-        ZipItem(String name, byte[] content) {
+        public ZipItem(String name, byte[] content) {
             this.name = name;
             this.content = content;
         }
