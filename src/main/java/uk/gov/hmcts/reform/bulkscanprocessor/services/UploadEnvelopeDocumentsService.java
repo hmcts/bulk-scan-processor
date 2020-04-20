@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -96,10 +97,11 @@ public class UploadEnvelopeDocumentsService {
                     envelope.getZipFileName()
                 ).flatMap(inputStream ->
                     processInputStream(inputStream, containerName, envelope.getZipFileName(), envelope.getId())
-                ).ifPresent(result -> {
-                    boolean isUploaded = uploadParsedZipFileName(envelope, result.getPdfs());
-                    envelopeProcessor.handleEvent(envelope, isUploaded ? DOC_UPLOADED : DOC_UPLOAD_FAILURE);
-                })
+                ).map(result ->
+                    uploadParsedZipFileName(envelope, result.getPdfs())
+                ).filter(isUploaded -> isUploaded).ifPresent(voidTrue ->
+                    envelopeProcessor.handleEvent(envelope, DOC_UPLOADED)
+                )
             );
         } catch (URISyntaxException | StorageException exception) {
             log.error("Unable to get client for {} container", containerName, exception);
@@ -143,13 +145,7 @@ public class UploadEnvelopeDocumentsService {
                 exception
             );
 
-            envelopeProcessor.createEvent(
-                DOC_UPLOAD_FAILURE,
-                containerName,
-                zipFileName,
-                exception.getMessage(),
-                envelopeId
-            );
+            createDocUploadFailureEvent(containerName, zipFileName, exception.getMessage(), envelopeId);
         }
 
         return Optional.empty();
@@ -177,10 +173,26 @@ public class UploadEnvelopeDocumentsService {
             );
 
             envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
+            Status.fromEvent(DOC_UPLOAD_FAILURE).ifPresent(envelope::setStatus);
             envelopeRepository.saveAndFlush(envelope);
-            // no need to create event. envelopeProcessor::handleEvent does that
+            createDocUploadFailureEvent(
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                exception.getMessage(),
+                envelope.getId()
+            );
 
             return false;
         }
+    }
+
+    private void createDocUploadFailureEvent(String containerName, String zipFileName, String reason, UUID envelopeId) {
+        envelopeProcessor.createEvent(
+            DOC_UPLOAD_FAILURE,
+            containerName,
+            zipFileName,
+            reason,
+            envelopeId
+        );
     }
 }
