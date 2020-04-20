@@ -179,7 +179,7 @@ scheduling:
       enabled: ${SCAN_ENABLED:false}
     # 2 - upload all documents for successfully scanned envelopes
     upload-documents:
-      cool-down-minutes: 20 # see UploadEnvelopeDocumentsService for explanation
+      min-envelope-age: 20 # see UploadEnvelopeDocumentsService for explanation
     # 3 - send notification to orchestrator once all documents are uploaded
     notifications_to_orchestrator:
       delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms

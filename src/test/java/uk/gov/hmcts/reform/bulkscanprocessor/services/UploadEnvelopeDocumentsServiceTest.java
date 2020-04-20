@@ -50,7 +50,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 @ExtendWith(MockitoExtension.class)
 class UploadEnvelopeDocumentsServiceTest {
 
-    private static final long COOL_DOWN_PERIOD_IN_MINUTES = 2;
+    private static final long MIN_ENVELOPE_AGE_IN_MINUTES = 2;
     private static final String CONTAINER_1 = "container-1";
     private static final String CONTAINER_2 = "container-2";
     private static final String ZIP_FILE_NAME = "zip-file-name";
@@ -73,7 +73,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @BeforeEach
     void setUp() {
         uploadService = new UploadEnvelopeDocumentsService(
-            COOL_DOWN_PERIOD_IN_MINUTES,
+            MIN_ENVELOPE_AGE_IN_MINUTES,
             envelopeRepository,
             blobManager,
             zipFileProcessor,
@@ -99,7 +99,7 @@ class UploadEnvelopeDocumentsServiceTest {
     void should_do_nothing_when_envelope_is_not_yet_ready_to_be_processed() {
         // given
         given(envelopeRepository.findByStatus(CREATED)).willReturn(
-            singletonList(getEnvelope(now().plus(COOL_DOWN_PERIOD_IN_MINUTES, MINUTES)))
+            singletonList(getEnvelope(now().plus(MIN_ENVELOPE_AGE_IN_MINUTES, MINUTES)))
         );
 
         // when
@@ -317,7 +317,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     private Envelope getEnvelope(String containerName) {
-        return getEnvelope(containerName, now().minus(COOL_DOWN_PERIOD_IN_MINUTES + 1, MINUTES));
+        return getEnvelope(containerName, now().minus(MIN_ENVELOPE_AGE_IN_MINUTES + 1, MINUTES));
     }
 
     private Envelope getEnvelope(Instant createdAt) {
@@ -325,6 +325,6 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     private Envelope getEnvelope() {
-        return getEnvelope(CONTAINER_1, now().minus(COOL_DOWN_PERIOD_IN_MINUTES + 1, MINUTES));
+        return getEnvelope(CONTAINER_1, now().minus(MIN_ENVELOPE_AGE_IN_MINUTES + 1, MINUTES));
     }
 }
