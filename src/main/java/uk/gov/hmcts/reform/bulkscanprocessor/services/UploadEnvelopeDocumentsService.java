@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static java.time.Instant.now;
@@ -100,7 +101,7 @@ public class UploadEnvelopeDocumentsService {
                     blobContainer,
                     envelope.getZipFileName()
                 ).flatMap(inputStream ->
-                    processInputStream(inputStream, containerName, envelope.getZipFileName())
+                    processInputStream(inputStream, containerName, envelope.getZipFileName(), envelope.getId())
                 ).ifPresent(result -> {
                     boolean isUploaded = uploadParsedZipFileName(envelope, result.getPdfs());
                     envelopeProcessor.handleEvent(envelope, isUploaded ? DOC_UPLOADED : DOC_UPLOAD_FAILURE);
@@ -132,16 +133,23 @@ public class UploadEnvelopeDocumentsService {
     private Optional<ZipFileProcessingResult> processInputStream(
         BlobInputStream blobInputStream,
         String containerName,
-        String zipFileName
+        String zipFileName,
+        UUID envelopeId
     ) {
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
             return Optional.of(
                 zipFileProcessor.process(zis, containerName, zipFileName)
             );
         } catch (Exception exception) {
-            log.error("Failed to process zip. File: {}, Container: {}", zipFileName, containerName, exception);
+            log.error(
+                "Failed to process zip. File: {}, Container: {}, Envelope ID: {}",
+                zipFileName,
+                containerName,
+                envelopeId,
+                exception
+            );
 
-            handleEventRelatedError(containerName, zipFileName, exception.getMessage());
+            handleEventRelatedError(containerName, zipFileName, exception.getMessage(), envelopeId);
         }
 
         return Optional.empty();
@@ -151,14 +159,20 @@ public class UploadEnvelopeDocumentsService {
         try {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
 
-            log.info("Uploaded pdfs. File {}, container: {}", envelope.getZipFileName(), envelope.getContainer());
+            log.info(
+                "Uploaded pdfs. File {}, Container: {}, Envelope ID: {}",
+                envelope.getZipFileName(),
+                envelope.getContainer(),
+                envelope.getId()
+            );
 
             return true;
         } catch (Exception exception) {
             log.error(
-                "Failed to upload PDF files to Document Management. File: {}, Container: {}",
+                "Failed to upload PDF files to Document Management. File: {}, Container: {}, Envelope ID: {}",
                 envelope.getZipFileName(),
                 envelope.getContainer(),
+                envelope.getId(),
                 exception
             );
 
@@ -170,7 +184,7 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private void handleEventRelatedError(String containerName, String zipFileName, String reason) {
+    private void handleEventRelatedError(String containerName, String zipFileName, String reason, UUID envelopeId) {
         ProcessEvent processEvent = new ProcessEvent(
             containerName,
             zipFileName,
@@ -181,10 +195,11 @@ public class UploadEnvelopeDocumentsService {
         eventRepository.saveAndFlush(processEvent);
 
         log.info(
-            "Zip {} from {} marked as {}",
+            "Zip {} from {} marked as {}. Envelope ID: {}",
             processEvent.getZipFileName(),
             processEvent.getContainer(),
-            processEvent.getEvent()
+            processEvent.getEvent(),
+            envelopeId
         );
     }
 }
