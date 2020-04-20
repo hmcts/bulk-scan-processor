@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -30,6 +29,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 
@@ -209,7 +209,7 @@ public class UploadEnvelopeDocumentsService {
             );
 
             envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
-            Status.fromEvent(DOC_UPLOAD_FAILURE).ifPresent(envelope::setStatus);
+            envelope.setStatus(UPLOAD_FAILURE);
             envelopeRepository.saveAndFlush(envelope);
             createDocUploadFailureEvent(
                 envelope.getContainer(),
