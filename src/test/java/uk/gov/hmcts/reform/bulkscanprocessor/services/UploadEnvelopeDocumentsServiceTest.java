@@ -12,8 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -59,7 +57,6 @@ class UploadEnvelopeDocumentsServiceTest {
     @Mock private EnvelopeRepository envelopeRepository;
     @Mock private BlobManager blobManager;
     @Mock private ZipFileProcessor zipFileProcessor;
-    @Mock private ProcessEventRepository eventRepository;
     @Mock private DocumentProcessor documentProcessor;
     @Mock private EnvelopeProcessor envelopeProcessor;
 
@@ -77,7 +74,6 @@ class UploadEnvelopeDocumentsServiceTest {
             envelopeRepository,
             blobManager,
             zipFileProcessor,
-            eventRepository,
             documentProcessor,
             envelopeProcessor
         );
@@ -92,7 +88,7 @@ class UploadEnvelopeDocumentsServiceTest {
         uploadService.processEnvelopes();
 
         // then
-        verifyNoInteractions(blobManager, zipFileProcessor, eventRepository, documentProcessor, envelopeProcessor);
+        verifyNoInteractions(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -107,7 +103,7 @@ class UploadEnvelopeDocumentsServiceTest {
         uploadService.processEnvelopes();
 
         // then
-        verifyNoInteractions(blobManager, zipFileProcessor, eventRepository, documentProcessor, envelopeProcessor);
+        verifyNoInteractions(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -132,7 +128,7 @@ class UploadEnvelopeDocumentsServiceTest {
         uploadService.processEnvelopes();
 
         // then
-        verifyNoInteractions(zipFileProcessor, eventRepository, documentProcessor, envelopeProcessor);
+        verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
         verifyNoMoreInteractions(envelopeRepository);
 
         // and
@@ -156,7 +152,7 @@ class UploadEnvelopeDocumentsServiceTest {
         uploadService.processEnvelopes(); // for uri exception
 
         // then
-        verifyNoInteractions(zipFileProcessor, eventRepository, documentProcessor, envelopeProcessor);
+        verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -174,7 +170,7 @@ class UploadEnvelopeDocumentsServiceTest {
         uploadService.processEnvelopes();
 
         // then
-        verifyNoInteractions(zipFileProcessor, eventRepository, documentProcessor, envelopeProcessor);
+        verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -188,20 +184,21 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
 
         // and
-        willThrow(new IOException()).given(zipFileProcessor)
+        willThrow(new IOException("failed")).given(zipFileProcessor)
             .process(any(ZipInputStream.class), eq(CONTAINER_1), eq(ZIP_FILE_NAME));
 
         // when
         uploadService.processEnvelopes();
 
         // then
-        verifyNoInteractions(documentProcessor, envelopeProcessor);
+        verifyNoInteractions(documentProcessor);
         verifyNoMoreInteractions(envelopeRepository);
 
         // and
-        ArgumentCaptor<ProcessEvent> eventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
-        verify(eventRepository, times(1)).saveAndFlush(eventCaptor.capture());
-        assertThat(eventCaptor.getValue().getEvent()).isEqualTo(Event.DOC_FAILURE);
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        verify(envelopeProcessor, times(1))
+            .createEvent(eventCaptor.capture(), eq(CONTAINER_1), eq(ZIP_FILE_NAME), eq("failed"), eq(null));
+        assertThat(eventCaptor.getValue()).isEqualTo(Event.DOC_UPLOAD_FAILURE);
     }
 
     @Test
