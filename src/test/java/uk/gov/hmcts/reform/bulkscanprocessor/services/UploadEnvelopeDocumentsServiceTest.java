@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -225,13 +226,18 @@ class UploadEnvelopeDocumentsServiceTest {
 
         // then
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(envelopeProcessor, times(1)).handleEvent(any(Envelope.class), eventCaptor.capture());
+        verify(envelopeProcessor, times(1))
+            .createEvent(eventCaptor.capture(), eq(CONTAINER_1), eq(ZIP_FILE_NAME), eq("oh no"), eq(null));
         assertThat(eventCaptor.getValue()).isEqualTo(Event.DOC_UPLOAD_FAILURE);
 
         // and
         ArgumentCaptor<Envelope> envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
         verify(envelopeRepository, times(1)).saveAndFlush(envelopeCaptor.capture());
-        assertThat(envelopeCaptor.getValue().getUploadFailureCount()).isEqualTo(1);
+        assertThat(envelopeCaptor.getValue())
+            .satisfies(actualEnvelope -> {
+                assertThat(actualEnvelope.getUploadFailureCount()).isEqualTo(1);
+                assertThat(actualEnvelope.getStatus()).isEqualTo(Status.UPLOAD_FAILURE);
+            });
     }
 
     @Test
