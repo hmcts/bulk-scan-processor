@@ -31,6 +31,9 @@ public class FailedDocUploadProcessorTest {
     private EnvelopeProcessor envelopeProcessor;
 
     @Mock
+    private ZipFileProcessor zipFileProcessor;
+
+    @Mock
     private EnvelopeRepository envelopeRepository;
 
     @Mock
@@ -44,6 +47,7 @@ public class FailedDocUploadProcessorTest {
             null,
             documentProcessor,
             envelopeProcessor,
+            zipFileProcessor,
             envelopeRepository,
             processEventRepository
         );
