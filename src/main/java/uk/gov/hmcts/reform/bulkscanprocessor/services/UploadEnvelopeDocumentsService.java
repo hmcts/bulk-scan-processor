@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -91,35 +92,70 @@ public class UploadEnvelopeDocumentsService {
         try {
             CloudBlobContainer blobContainer = blobManager.getContainer(containerName);
 
-            envelopes.forEach(envelope ->
-                getBlobInputStream(
+            envelopes.forEach(envelope -> {
+                Optional<CloudBlockBlob> blobClient = getCloudBlockBlob(
                     blobContainer,
-                    envelope.getZipFileName()
-                ).flatMap(inputStream ->
-                    processInputStream(inputStream, containerName, envelope.getZipFileName(), envelope.getId())
-                ).map(result ->
-                    uploadParsedZipFileName(envelope, result.getPdfs())
-                ).filter(isUploaded -> isUploaded).ifPresent(voidTrue ->
-                    envelopeProcessor.handleEvent(envelope, DOC_UPLOADED)
-                )
-            );
+                    envelope.getZipFileName(),
+                    envelope.getId()
+                );
+
+                blobClient
+                    .flatMap(client -> blobManager
+                        .acquireLease(client, containerName, envelope.getZipFileName())
+                        .map(voidLeaseId -> client)
+                    )
+                    .flatMap(client ->
+                        getBlobInputStream(client, containerName, envelope.getZipFileName(), envelope.getId())
+                    ).flatMap(inputStream ->
+                        processInputStream(inputStream, containerName, envelope.getZipFileName(), envelope.getId())
+                    ).map(result ->
+                        uploadParsedZipFileName(envelope, result.getPdfs())
+                    ).filter(isUploaded -> isUploaded).ifPresent(voidTrue ->
+                        envelopeProcessor.handleEvent(envelope, DOC_UPLOADED)
+                    );
+
+                blobClient.ifPresent(this::breakLease);
+            });
         } catch (URISyntaxException | StorageException exception) {
             log.error("Unable to get client for {} container", containerName, exception);
         }
     }
 
-    private Optional<BlobInputStream> getBlobInputStream(CloudBlobContainer blobContainer, String zipFileName) {
+    private Optional<CloudBlockBlob> getCloudBlockBlob(
+        CloudBlobContainer blobContainer,
+        String zipFileName,
+        UUID envelopeId
+    ) {
         try {
-            return Optional.of(
-                blobContainer
-                    .getBlockBlobReference(zipFileName)
-                    .openInputStream()
-            );
+            return Optional.of(blobContainer.getBlockBlobReference(zipFileName));
         } catch (URISyntaxException | StorageException exception) {
             log.error(
-                "Unable to get blob input stream. Container: {}, blob: {}",
+                "Unable to get blob client. Container: {}, Blob: {}, Envelope ID: {}",
                 blobContainer.getName(),
-                zipFileName
+                zipFileName,
+                envelopeId,
+                exception
+            );
+
+            return Optional.empty();
+        }
+    }
+
+    private Optional<BlobInputStream> getBlobInputStream(
+        CloudBlockBlob blobClient,
+        String containerName,
+        String zipFileName,
+        UUID envelopeId
+    ) {
+        try {
+            return Optional.of(blobClient.openInputStream());
+        } catch (StorageException exception) {
+            log.error(
+                "Unable to get blob input stream. Container: {}, Blob: {}, Envelope ID: {}",
+                containerName,
+                zipFileName,
+                envelopeId,
+                exception
             );
 
             return Optional.empty();
@@ -194,5 +230,14 @@ public class UploadEnvelopeDocumentsService {
             reason,
             envelopeId
         );
+    }
+
+    private void breakLease(CloudBlockBlob blobClient) {
+        try {
+            blobClient.breakLease(0);
+        } catch (StorageException exception) {
+            // we will expire lease anyway. no need to escalate to error
+            log.warn("Failed to break the lease for {}", blobClient.getName(), exception);
+        }
     }
 }

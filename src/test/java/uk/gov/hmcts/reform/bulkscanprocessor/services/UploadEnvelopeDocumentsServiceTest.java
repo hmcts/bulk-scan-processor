@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 import static java.time.Instant.now;
@@ -53,6 +54,7 @@ class UploadEnvelopeDocumentsServiceTest {
     private static final String CONTAINER_1 = "container-1";
     private static final String CONTAINER_2 = "container-2";
     private static final String ZIP_FILE_NAME = "zip-file-name";
+    private static final String LEASE_ID = "lease-id";
 
     // used to construct service
     @Mock private EnvelopeRepository envelopeRepository;
@@ -158,11 +160,28 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
+    void should_do_nothing_when_failing_to_acquire_lease() throws URISyntaxException, StorageException {
+        // given
+        given(envelopeRepository.findByStatus(CREATED)).willReturn(singletonList(getEnvelope()));
+        given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
+        given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.empty());
+
+        // when
+        uploadService.processEnvelopes(); // for storage exception
+
+        // then
+        verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
     void should_do_nothing_when_failing_to_get_blob_input_stream() throws URISyntaxException, StorageException {
         // given
         given(envelopeRepository.findByStatus(CREATED)).willReturn(singletonList(getEnvelope()));
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
+        given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
 
         // and
         willThrow(new StorageException("error-code", "message", null)).given(blockBlob).openInputStream();
@@ -182,6 +201,7 @@ class UploadEnvelopeDocumentsServiceTest {
         given(envelopeRepository.findByStatus(CREATED)).willReturn(singletonList(getEnvelope()));
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
+        given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
 
         // and
@@ -211,6 +231,7 @@ class UploadEnvelopeDocumentsServiceTest {
         given(envelopeRepository.findByStatus(CREATED)).willReturn(singletonList(envelope));
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
+        given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
         given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
             .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
@@ -247,6 +268,7 @@ class UploadEnvelopeDocumentsServiceTest {
         given(envelopeRepository.findByStatus(CREATED)).willReturn(singletonList(getEnvelope()));
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
+        given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
         given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
             .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
