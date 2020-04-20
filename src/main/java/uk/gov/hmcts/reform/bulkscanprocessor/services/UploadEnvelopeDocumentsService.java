@@ -138,8 +138,8 @@ public class UploadEnvelopeDocumentsService {
             return Optional.of(
                 zipFileProcessor.process(zis, containerName, zipFileName)
             );
-        } catch (IOException exception) {
-            log.error("Failure reading zip. File: {}, Container: {}", zipFileName, containerName, exception);
+        } catch (Exception exception) {
+            log.error("Failed to process zip. File: {}, Container: {}", zipFileName, containerName, exception);
 
             handleEventRelatedError(containerName, zipFileName, exception.getMessage());
         }
