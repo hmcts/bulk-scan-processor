@@ -175,7 +175,7 @@ def versions = [
   mockitoJupiter: '3.3.3',
   springBoot: springBoot.class.package.implementationVersion,
   springfoxSwagger: '2.9.2',
-  reformLogging     : '5.1.5'
+  reformLogging: '5.1.5'
 
 ]
 
