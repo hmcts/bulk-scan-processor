@@ -2,12 +2,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipFilesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,10 +25,25 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
+    public static Function<ZipStreamWithSignature, ZipInputStream> getPreprocessor(
+        String signatureAlgorithm
+    ) {
+        if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
+            return ZipVerifiers::verifyAndExtract;
+        } else if ("none".equalsIgnoreCase(signatureAlgorithm)) {
+            return ZipVerifiers::noOpVerification;
+        }
+        throw new SignatureValidationException("Undefined signature verification algorithm");
+    }
+
+    static ZipInputStream noOpVerification(ZipStreamWithSignature zipWithSignature) {
+        return zipWithSignature.zipInputStream;
+    }
+
     /**
      * Checks whether the wrapping zip has expected entries and returns the internal zip.
      */
-    public static ZipInputStream verifyAndExtract(ZipStreamWithSignature zipWithSignature) {
+    static ZipInputStream verifyAndExtract(ZipStreamWithSignature zipWithSignature) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 
         verifyFileNames(zipEntries.keySet());
