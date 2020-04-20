@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -31,7 +30,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_SIGNATURE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 
@@ -140,21 +138,10 @@ public class UploadEnvelopeDocumentsService {
             return Optional.of(
                 zipFileProcessor.process(zis, containerName, zipFileName)
             );
-        } catch (DocSignatureFailureException exception) {
-            log.warn(
-                "Rejecting blob - invalid signature. File: {}, Container: {}",
-                zipFileName,
-                containerName,
-                exception
-            );
-
-            handleEventRelatedError(DOC_SIGNATURE_FAILURE, containerName, zipFileName, exception.getMessage());
-
-            blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName, null);
         } catch (IOException exception) {
             log.error("Failure reading zip. File: {}, Container: {}", zipFileName, containerName, exception);
 
-            handleEventRelatedError(DOC_FAILURE, containerName, zipFileName, exception.getMessage());
+            handleEventRelatedError(containerName, zipFileName, exception.getMessage());
         }
 
         return Optional.empty();
@@ -183,11 +170,11 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private void handleEventRelatedError(Event event, String containerName, String zipFileName, String reason) {
+    private void handleEventRelatedError(String containerName, String zipFileName, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
             containerName,
             zipFileName,
-            event
+            DOC_FAILURE
         );
 
         processEvent.setReason(reason);

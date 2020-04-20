@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -203,33 +202,6 @@ class UploadEnvelopeDocumentsServiceTest {
         ArgumentCaptor<ProcessEvent> eventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
         verify(eventRepository, times(1)).saveAndFlush(eventCaptor.capture());
         assertThat(eventCaptor.getValue().getEvent()).isEqualTo(Event.DOC_FAILURE);
-    }
-
-    @Test
-    void should_try_to_reject_when_document_signature_exception_is_experienced()
-        throws URISyntaxException, StorageException, IOException {
-        // given
-        given(envelopeRepository.findByStatus(CREATED)).willReturn(singletonList(getEnvelope()));
-        given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
-        given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
-        given(blockBlob.openInputStream()).willReturn(blobInputStream);
-
-        // and
-        willThrow(new DocSignatureFailureException("oh no")).given(zipFileProcessor)
-            .process(any(ZipInputStream.class), eq(CONTAINER_1), eq(ZIP_FILE_NAME));
-
-        // when
-        uploadService.processEnvelopes();
-
-        // then
-        verify(blobManager, times(1)).tryMoveFileToRejectedContainer(ZIP_FILE_NAME, CONTAINER_1, null);
-        verifyNoInteractions(documentProcessor, envelopeProcessor);
-        verifyNoMoreInteractions(envelopeRepository);
-
-        // and
-        ArgumentCaptor<ProcessEvent> eventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
-        verify(eventRepository, times(1)).saveAndFlush(eventCaptor.capture());
-        assertThat(eventCaptor.getValue().getEvent()).isEqualTo(Event.DOC_SIGNATURE_FAILURE);
     }
 
     @Test
