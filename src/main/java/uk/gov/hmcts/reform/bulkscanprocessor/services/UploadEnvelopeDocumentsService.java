@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -30,7 +28,6 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 
@@ -56,7 +53,6 @@ public class UploadEnvelopeDocumentsService {
     private final EnvelopeRepository envelopeRepository;
     private final BlobManager blobManager;
     private final ZipFileProcessor zipFileProcessor;
-    private final ProcessEventRepository eventRepository;
     private final DocumentProcessor documentProcessor;
     private final EnvelopeProcessor envelopeProcessor;
 
@@ -67,7 +63,6 @@ public class UploadEnvelopeDocumentsService {
         EnvelopeRepository envelopeRepository,
         BlobManager blobManager,
         ZipFileProcessor zipFileProcessor,
-        ProcessEventRepository eventRepository,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor
     ) {
@@ -75,7 +70,6 @@ public class UploadEnvelopeDocumentsService {
         this.envelopeRepository = envelopeRepository;
         this.blobManager = blobManager;
         this.zipFileProcessor = zipFileProcessor;
-        this.eventRepository = eventRepository;
         this.documentProcessor = documentProcessor;
         this.envelopeProcessor = envelopeProcessor;
     }
@@ -138,7 +132,7 @@ public class UploadEnvelopeDocumentsService {
     ) {
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
             return Optional.of(
-                zipFileProcessor.process(zis, containerName, zipFileName)
+                zipFileProcessor.process(zis, zipFileName)
             );
         } catch (Exception exception) {
             log.error(
@@ -149,7 +143,13 @@ public class UploadEnvelopeDocumentsService {
                 exception
             );
 
-            handleEventRelatedError(containerName, zipFileName, exception.getMessage(), envelopeId);
+            envelopeProcessor.createEvent(
+                DOC_UPLOAD_FAILURE,
+                containerName,
+                zipFileName,
+                exception.getMessage(),
+                envelopeId
+            );
         }
 
         return Optional.empty();
@@ -182,24 +182,5 @@ public class UploadEnvelopeDocumentsService {
 
             return false;
         }
-    }
-
-    private void handleEventRelatedError(String containerName, String zipFileName, String reason, UUID envelopeId) {
-        ProcessEvent processEvent = new ProcessEvent(
-            containerName,
-            zipFileName,
-            DOC_FAILURE
-        );
-
-        processEvent.setReason(reason);
-        eventRepository.saveAndFlush(processEvent);
-
-        log.info(
-            "Zip {} from {} marked as {}. Envelope ID: {}",
-            processEvent.getZipFileName(),
-            processEvent.getContainer(),
-            processEvent.getEvent(),
-            envelopeId
-        );
     }
 }
