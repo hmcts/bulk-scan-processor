@@ -25,12 +25,6 @@
   </suppress>
 
   <suppress>
-    <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org\.testcontainers:postgresql:1\.13\.0$</gav>
-    <cpe>cpe:/a:postgresql:postgresql</cpe>
-  </suppress>
-
-  <suppress>
     <notes><![CDATA[ used in output capturer in static tests ]]></notes>
     <filePath regex="true">.*logunit-logback-1\.1\.0\.jar</filePath>
     <cve>CVE-2017-5929</cve>
@@ -48,17 +42,21 @@
 
   <suppress until="2021-01-01">
     <notes><![CDATA[
-   file name: wiremock-2.25.1.jar: handlebars-v4.0.4.js
+   file name: wiremock-2.25.1.jar: jquery-3.4.1.min.js
+    This is only used for TESTING purposes.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/jquery@3\.4\.1\.min.*$</packageUrl>
+    <vulnerabilityName>Regex in its jQuery.htmlPrefilter  sometimes may introduce XSS</vulnerabilityName>
+  </suppress>
+
+  <suppress until="2021-01-01">
+    <notes><![CDATA[
+   file name: wiremock-2.26.3.jar: handlebars-v4.0.4.js
     This is only used for TESTING purposes.
    ]]></notes>
     <packageUrl regex="true">^pkg:javascript/handlebars@4\.0\.4.*$</packageUrl>
     <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
     <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
     <vulnerabilityName>Prototype pollution</vulnerabilityName>
-  </suppress>
-  <suppress until="2020-01-06">
-    <notes><![CDATA[No fix available. Not used by server - comes with wiremock-jre8 used only in integration tests]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-(webapp|servlet|security|server|servlets|http|continuation|xml|util)@9\.4\.22\.v20191022.*$</packageUrl>
-    <cve>CVE-2019-17632</cve>
   </suppress>
 </suppressions>
