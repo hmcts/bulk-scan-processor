@@ -128,6 +128,26 @@ public class EnvelopeCountSummaryRepositoryTest {
             ));
     }
 
+    @Test
+    public void should_handle_single_success_and_single_failure_per_zip_file() {
+        // given
+        dbHas(
+            event("service_A", "A1.zip", DOC_UPLOADED),
+            event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(now());
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyElementsOf(asList(
+                new Item(now(), "service_A", 1, 0),
+                new Item(now(), "service_B", 1, 1)
+            ));
+    }
+
     private void dbHas(ProcessEvent... events) {
         eventRepo.saveAll(asList(events));
     }
