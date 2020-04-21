@@ -19,12 +19,14 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.is;
 
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private static final long MAX_MESSAGE_PROCESSING_TIME_MILLIS = 40_000;
     private static final long MAX_ENVELOPE_FINALISATION_TIME_MILLIS = 10_000;
+    private static final int DELETE_TIMEOUT = 20_000;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String s2sToken;
@@ -54,6 +56,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> hasNotificationBeenSent(zipFilename));
 
+        assertThatCode(() -> getEnvelope(zipFilename)).doesNotThrowAnyException();
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
@@ -70,7 +73,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
 
         await("file should be deleted")
-            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .atMost(DELETE_TIMEOUT, TimeUnit.MILLISECONDS)
             .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(inputContainer, zipFilename), is(false));
     }
