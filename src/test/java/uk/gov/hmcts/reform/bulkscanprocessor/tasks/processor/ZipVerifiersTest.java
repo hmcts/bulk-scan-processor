@@ -22,10 +22,7 @@ public class ZipVerifiersTest {
     public void should_verify_valid_zip_successfully() throws Exception {
         byte[] zipBytes = zipDirAndWrap("signature/sample_valid_content");
 
-        ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(zipBytes)), "hello.zip", "some_container"
-        );
-        ZipInputStream zis = ZipVerifiers.extract(zipStreamWithSig);
+        ZipInputStream zis = ZipVerifiers.extract(new ZipInputStream(new ByteArrayInputStream(zipBytes)));
         assertThat(zis).isNotNull();
     }
 
@@ -34,11 +31,7 @@ public class ZipVerifiersTest {
         byte[] innerZip = zipDir("signature/sample_valid_content");
         byte[] outerZip = zipItems(singletonList((new ZipItem("invalid_entry_name", innerZip))));
 
-        ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(outerZip)), "hello.zip", "some_container"
-        );
-
-        assertThatThrownBy(() -> ZipVerifiers.extract(zipStreamWithSig))
+        assertThatThrownBy(() -> ZipVerifiers.extract(new ZipInputStream(new ByteArrayInputStream(outerZip))))
             .isInstanceOf(InvalidZipFilesException.class)
             .hasMessageContaining("Zip does not contain envelope");
     }
