@@ -248,7 +248,7 @@ public class BlobProcessorTask extends Processor {
         String leaseId
     ) {
         try {
-            ZipFileProcessingResult result = zipFileProcessor.process(zis, containerName, zipFilename);
+            ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
