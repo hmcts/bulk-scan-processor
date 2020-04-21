@@ -23,7 +23,7 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static Function<ZipStreamWithSignature, ZipInputStream> getPreprocessor(
+    public static Function<ZipInputStream, ZipInputStream> getPreprocessor(
         String signatureAlgorithm
     ) {
         if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
@@ -34,15 +34,15 @@ public class ZipVerifiers {
         throw new SignatureValidationException("Undefined signature verification algorithm");
     }
 
-    static ZipInputStream noOpVerification(ZipStreamWithSignature zipWithSignature) {
-        return zipWithSignature.zipInputStream;
+    static ZipInputStream noOpVerification(ZipInputStream zipInputStream) {
+        return zipInputStream;
     }
 
     /**
      * Extracts the inner zip.
      */
-    static ZipInputStream extract(ZipStreamWithSignature zipWithSignature) {
-        Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
+    static ZipInputStream extract(ZipInputStream zipInputStream) {
+        Map<String, byte[]> zipEntries = extractZipEntries(zipInputStream);
 
         if (zipEntries.containsKey(DOCUMENTS_ZIP)) {
             return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
@@ -64,23 +64,6 @@ public class ZipVerifiers {
             return zipEntries;
         } catch (IOException ioe) {
             throw new InvalidZipArchiveException("Error extracting zip entries", ioe);
-        }
-    }
-
-    // TODO: rename / remove
-    public static class ZipStreamWithSignature {
-        public final ZipInputStream zipInputStream;
-        public final String zipFileName;
-        public final String container;
-
-        public ZipStreamWithSignature(
-            ZipInputStream zipInputStream,
-            String zipFileName,
-            String container
-        ) {
-            this.zipInputStream = zipInputStream;
-            this.zipFileName = zipFileName;
-            this.container = container;
         }
     }
 }
