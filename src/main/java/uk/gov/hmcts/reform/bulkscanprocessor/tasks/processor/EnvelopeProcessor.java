@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
@@ -145,6 +146,25 @@ public class EnvelopeProcessor {
         envelope.setStatus(UPLOAD_FAILURE);
 
         envelopeRepository.saveAndFlush(envelope);
+    }
+
+    public void createEvent(Event event, String containerName, String zipFileName, String reason, UUID envelopeId) {
+        ProcessEvent processEvent = new ProcessEvent(
+            containerName,
+            zipFileName,
+            event
+        );
+
+        processEvent.setReason(reason);
+        processEventRepository.saveAndFlush(processEvent);
+
+        log.info(
+            "Zip {} from {} marked as {}. Envelope ID: {}",
+            processEvent.getZipFileName(),
+            processEvent.getContainer(),
+            processEvent.getEvent(),
+            envelopeId
+        );
     }
 
     public void handleEvent(Envelope envelope, Event event) {
