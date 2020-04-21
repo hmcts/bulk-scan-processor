@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.is;
 
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
@@ -56,7 +55,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> hasNotificationBeenSent(zipFilename));
 
-        assertThatCode(() -> getEnvelope(zipFilename)).doesNotThrowAnyException();
+        assertThat(testHelper.storageHasFile(inputContainer, zipFilename)).isTrue();
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
