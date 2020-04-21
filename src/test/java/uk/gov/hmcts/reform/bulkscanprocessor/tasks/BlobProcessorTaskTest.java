@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.blob.BlobInputStream;
-import com.microsoft.azure.storage.blob.BlobProperties;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
@@ -72,9 +71,6 @@ class BlobProcessorTaskTest {
     private ListBlobItem blob;
 
     @Mock
-    private BlobProperties blobProperties;
-
-    @Mock
     private Date date;
 
     @Mock
@@ -107,9 +103,6 @@ class BlobProcessorTaskTest {
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
             .willReturn(null);
         given(cloudBlockBlob.exists()).willReturn(true);
-        given(cloudBlockBlob.getProperties()).willReturn(blobProperties);
-        given(blobProperties.getLastModified()).willReturn(date);
-        given(date.before(any(Date.class))).willReturn(true);
         given(blobManager.acquireLease(any(CloudBlockBlob.class), anyString(), anyString()))
             .willReturn(Optional.of("lease"));
         given(cloudBlockBlob.openInputStream()).willReturn(blobInputStream);
