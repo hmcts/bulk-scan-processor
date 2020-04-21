@@ -140,6 +140,13 @@ public class EnvelopeProcessor {
         );
     }
 
+    public void markAsUploadFailure(Envelope envelope) {
+        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
+        envelope.setStatus(UPLOAD_FAILURE);
+
+        envelopeRepository.saveAndFlush(envelope);
+    }
+
     public void handleEvent(Envelope envelope, Event event) {
         processEventRepository.saveAndFlush(
             new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
