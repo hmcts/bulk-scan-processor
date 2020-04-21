@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -289,10 +288,6 @@ public class BlobProcessorTask extends Processor {
         } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
-        } catch (DocSignatureFailureException ex) {
-            log.warn("Rejected file {} from container {} - invalid signature", zipFilename, containerName, ex);
-            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
