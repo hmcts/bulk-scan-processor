@@ -170,8 +170,8 @@ dependencyCheck {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
-  junit: '5.6.1',
-  junitPlatform: '1.6.1',
+  junit: '5.6.2',
+  junitPlatform: '1.6.2',
   mockitoJupiter: '3.3.3',
   springBoot: springBoot.class.package.implementationVersion,
   springfoxSwagger: '2.9.2'
@@ -208,8 +208,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.7.1'
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.7.1'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.8.0'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.8.0'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.3'
   compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.18', {
@@ -232,13 +232,13 @@ dependencies {
   compile group: 'org.flywaydb', name: 'flyway-core', version: '6.3.3'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
   // review following dependency after integrating db structure
-  compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.7'
+  compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.8'
 
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
 
   compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '3.0.4'
-  compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: '5.1.1'
+  compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: '5.1.5'
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.2.RELEASE'
 
   compile group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.0'
@@ -261,7 +261,7 @@ dependencies {
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.12'
+  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
@@ -270,7 +270,7 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
-  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.13.0'
+  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.14.0'
   integrationTestCompile group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestCompile sourceSets.main.runtimeClasspath
