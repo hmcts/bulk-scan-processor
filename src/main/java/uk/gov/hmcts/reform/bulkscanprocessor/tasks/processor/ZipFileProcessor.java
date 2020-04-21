@@ -15,7 +15,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
-import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers.ZipStreamWithSignature;
 
 @Component
 public class ZipFileProcessor {
@@ -32,15 +31,11 @@ public class ZipFileProcessor {
 
     public ZipFileProcessingResult process(
         ZipInputStream zis,
-        String containerName,
         String zipFileName
     ) throws IOException {
-        ZipStreamWithSignature signedZip = new ZipStreamWithSignature(
-            zis, zipFileName, containerName
-        );
         ZipInputStream verifiedZis = ZipVerifiers
             .getPreprocessor(signatureAlg)
-            .apply(signedZip);
+            .apply(zis);
         ZipEntry zipEntry;
 
         List<Pdf> pdfs = new ArrayList<>();
@@ -58,11 +53,11 @@ public class ZipFileProcessor {
                     break;
                 default:
                     // contract breakage
-                    throw new NonPdfFileFoundException(signedZip.zipFileName, zipEntry.getName());
+                    throw new NonPdfFileFoundException(zipFileName, zipEntry.getName());
             }
         }
 
-        log.info("PDFs found in {}: {}", signedZip.zipFileName, pdfs.size());
+        log.info("PDFs found in {}: {}", zipFileName, pdfs.size());
 
         return new ZipFileProcessingResult(metadata, pdfs);
     }

@@ -124,7 +124,7 @@ public class FailedDocUploadProcessor extends Processor {
         String zipFileName
     ) {
         try {
-            return zipFileProcessor.process(zis, containerName, zipFileName);
+            return zipFileProcessor.process(zis, zipFileName);
         } catch (DocSignatureFailureException ex) {
             log.warn("Rejected file {} from container {} - invalid signature", zipFileName, containerName, ex);
             handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
