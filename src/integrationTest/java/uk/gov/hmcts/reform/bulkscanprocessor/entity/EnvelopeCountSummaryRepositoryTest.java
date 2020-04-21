@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -103,7 +104,11 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("service_B", "B1.zip", DOC_FAILURE),
 
             event("service_C", "C1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-            event("service_C", "C2.zip", DOC_PROCESSED_NOTIFICATION_SENT)
+            event("service_C", "C2.zip", DOC_PROCESSED_NOTIFICATION_SENT),
+
+            event("service_D", "D1.zip", DOC_UPLOADED),
+            event("service_D", "D1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
+            event("service_D", "D1.zip", FILE_VALIDATION_FAILURE)
         );
 
         // when
@@ -115,7 +120,8 @@ public class EnvelopeCountSummaryRepositoryTest {
             .containsExactlyElementsOf(asList(
                 new Item(now(), "service_A", 1, 0),
                 new Item(now(), "service_B", 1, 1),
-                new Item(now(), "service_C", 2, 0)
+                new Item(now(), "service_C", 2, 0),
+                new Item(now(), "service_D", 1, 1)
             ));
     }
 
