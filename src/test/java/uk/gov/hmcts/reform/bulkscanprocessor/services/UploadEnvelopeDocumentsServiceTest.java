@@ -70,7 +70,7 @@ class UploadEnvelopeDocumentsServiceTest {
 
     @Test
     void should_do_nothing_when_unknown_exception_is_caught_in_parent_try_block()
-        throws URISyntaxException, StorageException{
+        throws URISyntaxException, StorageException {
         // given
         willThrow(new RuntimeException("i failed")).given(blobManager).getContainer(CONTAINER_1);
 
@@ -152,6 +152,7 @@ class UploadEnvelopeDocumentsServiceTest {
         // then
         verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
     }
+
     @Test
     void should_do_nothing_when_failing_to_get_blob_input_stream() throws URISyntaxException, StorageException {
         // given
