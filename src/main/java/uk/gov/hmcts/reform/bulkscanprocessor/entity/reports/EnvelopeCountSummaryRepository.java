@@ -15,26 +15,18 @@ public interface EnvelopeCountSummaryRepository extends JpaRepository<Envelope, 
     @Query(
         nativeQuery = true,
         value = "SELECT\n"
-            + "  first_events.container AS container,\n"
-            + "  date(first_events.createdat) AS date,\n"
+            + "  container,\n"
+            + "  date,\n"
             + "  count(*) AS received,\n"
-            + "  SUM(CASE WHEN rejection_events.id IS NOT NULL THEN 1 ELSE 0 END) AS rejected\n"
+            + "  SUM(CASE WHEN event IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE') THEN 1 ELSE 0 END) AS rejected\n"
             + "FROM (\n"
             + "  SELECT DISTINCT on (container, zipfilename)\n"
-            + "    container, zipfilename, createdat\n"
+            + "  container, zipfilename, date(createdat), event\n"
             + "  FROM process_events\n"
-            + "  ORDER BY container, zipfilename, createdat ASC\n"
+            + "  ORDER BY container, zipfilename, date(createdat) ASC\n"
             + ") AS first_events\n"
-            + "LEFT JOIN (\n"
-            + "  SELECT DISTINCT on (container, zipfilename)\n"
-            + "    id, container, zipfilename\n"
-            + "  FROM process_events\n"
-            + "  WHERE event IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE')\n"
-            + ") AS rejection_events\n"
-            + "ON rejection_events.container = first_events.container\n"
-            + "AND rejection_events.zipfilename = first_events.zipfilename\n"
-            + "GROUP BY first_events.container, date(first_events.createdat)\n"
-            + "HAVING date(first_events.createdat) = :date\n"
+            + "GROUP BY container, date\n"
+            + "HAVING date = :date"
     )
     List<EnvelopeCountSummaryItem> getReportFor(@Param("date") LocalDate date);
 }
