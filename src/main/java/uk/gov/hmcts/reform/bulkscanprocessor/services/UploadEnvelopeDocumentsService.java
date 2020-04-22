@@ -67,44 +67,44 @@ public class UploadEnvelopeDocumentsService {
         try {
             CloudBlobContainer blobContainer = blobManager.getContainer(containerName);
 
-            envelopes.forEach(envelope -> {
-                Optional<CloudBlockBlob> blobClient = getCloudBlockBlob(
-                    blobContainer,
-                    envelope.getZipFileName(),
-                    envelope.getId()
-                );
-
-                blobClient
-                    .flatMap(client -> blobManager
-                        .acquireLease(client, containerName, envelope.getZipFileName())
-                        .map(voidLeaseId -> client)
-                    )
-                    .flatMap(client ->
-                        getBlobInputStream(client, containerName, envelope.getZipFileName(), envelope.getId())
-                    ).flatMap(inputStream ->
-                        processInputStream(inputStream, containerName, envelope.getZipFileName(), envelope.getId())
-                    ).map(result ->
-                        uploadParsedZipFileName(envelope, result.getPdfs())
-                    ).filter(isUploaded -> isUploaded).ifPresent(voidTrue ->
-                        envelopeProcessor.handleEvent(envelope, DOC_UPLOADED)
-                    );
-
-                blobClient.ifPresent(this::breakLease);
-            });
-        } catch (UploadFailures failure) {
-            log.error(failure.getMessage(), failure.getCause());
+            envelopes.forEach(envelope -> processEnvelope(blobContainer, envelope));
         } catch (URISyntaxException | StorageException exception) {
             log.error("Unable to get client for {} container", containerName, exception);
         }
     }
 
-    private Optional<CloudBlockBlob> getCloudBlockBlob(
+    private void processEnvelope(CloudBlobContainer blobContainer, Envelope envelope) {
+        String containerName = blobContainer.getName();
+        String zipFileName = envelope.getZipFileName();
+        UUID envelopeId = envelope.getId();
+
+        try {
+            CloudBlockBlob blobClient = getCloudBlockBlob(blobContainer, zipFileName, envelopeId);
+
+            Optional<String> lease = blobManager.acquireLease(blobClient, containerName, envelope.getZipFileName());
+
+            if (lease.isPresent()) {
+                BlobInputStream bis = getBlobInputStream(blobClient, containerName, zipFileName, envelopeId);
+                ZipFileProcessingResult result = processInputStream(bis, containerName, zipFileName, envelopeId);
+
+                uploadParsedZipFileName(envelope, result.getPdfs());
+
+                envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
+
+                breakLease(blobClient);
+            }
+        } catch (UploadFailures failure) {
+            log.error(failure.getMessage(), failure.getCause());
+        }
+    }
+
+    private CloudBlockBlob getCloudBlockBlob(
         CloudBlobContainer blobContainer,
         String zipFileName,
         UUID envelopeId
     ) {
         try {
-            return Optional.of(blobContainer.getBlockBlobReference(zipFileName));
+            return blobContainer.getBlockBlobReference(zipFileName);
         } catch (URISyntaxException | StorageException exception) {
             String message = String.format(
                 "Unable to get blob client. Container: %s, Blob: %s, Envelope ID: %s",
@@ -117,14 +117,14 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private Optional<BlobInputStream> getBlobInputStream(
+    private BlobInputStream getBlobInputStream(
         CloudBlockBlob blobClient,
         String containerName,
         String zipFileName,
         UUID envelopeId
     ) {
         try {
-            return Optional.of(blobClient.openInputStream());
+            return blobClient.openInputStream();
         } catch (StorageException exception) {
             String message = String.format(
                 "Unable to get blob input stream. Container: %s, Blob: %s, Envelope ID: %s",
@@ -137,16 +137,14 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private Optional<ZipFileProcessingResult> processInputStream(
+    private ZipFileProcessingResult processInputStream(
         BlobInputStream blobInputStream,
         String containerName,
         String zipFileName,
         UUID envelopeId
     ) {
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
-            return Optional.of(
-                zipFileProcessor.process(zis, zipFileName)
-            );
+            return zipFileProcessor.process(zis, zipFileName);
         } catch (Exception exception) {
             String message = String.format(
                 "Failed to process zip. File: %s, Container: %s, Envelope ID: %s",
@@ -161,7 +159,7 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private boolean uploadParsedZipFileName(Envelope envelope, List<Pdf> pdfs) {
+    private void uploadParsedZipFileName(Envelope envelope, List<Pdf> pdfs) {
         try {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
 
@@ -171,8 +169,6 @@ public class UploadEnvelopeDocumentsService {
                 envelope.getContainer(),
                 envelope.getId()
             );
-
-            return true;
         } catch (Exception exception) {
             String message = String.format(
                 "Failed to upload PDF files to Document Management. File: %s, Container: %s, Envelope ID: %s",

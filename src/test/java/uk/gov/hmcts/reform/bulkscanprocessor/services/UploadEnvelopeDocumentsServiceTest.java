@@ -109,6 +109,7 @@ class UploadEnvelopeDocumentsServiceTest {
     void should_do_nothing_when_failing_to_acquire_lease() throws URISyntaxException, StorageException {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
         given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.empty());
 
@@ -123,6 +124,7 @@ class UploadEnvelopeDocumentsServiceTest {
     void should_do_nothing_when_failing_to_get_blob_input_stream() throws URISyntaxException, StorageException {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
         given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
 
@@ -141,6 +143,7 @@ class UploadEnvelopeDocumentsServiceTest {
         throws URISyntaxException, StorageException, IOException {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
         given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
@@ -167,6 +170,7 @@ class UploadEnvelopeDocumentsServiceTest {
         throws URISyntaxException, StorageException, IOException {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
         given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
@@ -197,6 +201,7 @@ class UploadEnvelopeDocumentsServiceTest {
         throws URISyntaxException, StorageException, IOException {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
         given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
