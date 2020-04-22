@@ -91,6 +91,8 @@ public class UploadEnvelopeDocumentsService {
 
                 blobClient.ifPresent(this::breakLease);
             });
+        } catch (UploadFailures failure) {
+            log.error(failure.getMessage(), failure.getCause());
         } catch (URISyntaxException | StorageException exception) {
             log.error("Unable to get client for {} container", containerName, exception);
         }
@@ -104,15 +106,14 @@ public class UploadEnvelopeDocumentsService {
         try {
             return Optional.of(blobContainer.getBlockBlobReference(zipFileName));
         } catch (URISyntaxException | StorageException exception) {
-            log.error(
-                "Unable to get blob client. Container: {}, Blob: {}, Envelope ID: {}",
+            String message = String.format(
+                "Unable to get blob client. Container: %s, Blob: %s, Envelope ID: %s",
                 blobContainer.getName(),
                 zipFileName,
-                envelopeId,
-                exception
+                envelopeId
             );
 
-            return Optional.empty();
+            throw new UploadFailures(message, exception);
         }
     }
 
@@ -125,15 +126,14 @@ public class UploadEnvelopeDocumentsService {
         try {
             return Optional.of(blobClient.openInputStream());
         } catch (StorageException exception) {
-            log.error(
-                "Unable to get blob input stream. Container: {}, Blob: {}, Envelope ID: {}",
+            String message = String.format(
+                "Unable to get blob input stream. Container: %s, Blob: %s, Envelope ID: %s",
                 containerName,
                 zipFileName,
-                envelopeId,
-                exception
+                envelopeId
             );
 
-            return Optional.empty();
+            throw new UploadFailures(message, exception);
         }
     }
 
@@ -148,18 +148,17 @@ public class UploadEnvelopeDocumentsService {
                 zipFileProcessor.process(zis, zipFileName)
             );
         } catch (Exception exception) {
-            log.error(
-                "Failed to process zip. File: {}, Container: {}, Envelope ID: {}",
+            String message = String.format(
+                "Failed to process zip. File: %s, Container: %s, Envelope ID: %s",
                 zipFileName,
                 containerName,
-                envelopeId,
-                exception
+                envelopeId
             );
 
             createDocUploadFailureEvent(containerName, zipFileName, exception.getMessage(), envelopeId);
-        }
 
-        return Optional.empty();
+            throw new UploadFailures(message, exception);
+        }
     }
 
     private boolean uploadParsedZipFileName(Envelope envelope, List<Pdf> pdfs) {
@@ -175,12 +174,11 @@ public class UploadEnvelopeDocumentsService {
 
             return true;
         } catch (Exception exception) {
-            log.error(
-                "Failed to upload PDF files to Document Management. File: {}, Container: {}, Envelope ID: {}",
+            String message = String.format(
+                "Failed to upload PDF files to Document Management. File: %s, Container: %s, Envelope ID: %s",
                 envelope.getZipFileName(),
                 envelope.getContainer(),
-                envelope.getId(),
-                exception
+                envelope.getId()
             );
 
             envelopeProcessor.markAsUploadFailure(envelope);
@@ -191,7 +189,7 @@ public class UploadEnvelopeDocumentsService {
                 envelope.getId()
             );
 
-            return false;
+            throw new UploadFailures(message, exception);
         }
     }
 
@@ -211,6 +209,12 @@ public class UploadEnvelopeDocumentsService {
         } catch (StorageException exception) {
             // we will expire lease anyway. no need to escalate to error
             log.warn("Failed to break the lease for {}", blobClient.getName(), exception);
+        }
+    }
+
+    private static class UploadFailures extends RuntimeException {
+        UploadFailures(String message, Exception cause) {
+            super(message, cause);
         }
     }
 }
