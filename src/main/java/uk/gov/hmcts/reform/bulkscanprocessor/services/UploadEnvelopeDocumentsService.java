@@ -5,10 +5,8 @@ import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -24,11 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
-import static java.time.Instant.now;
-import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 
@@ -50,42 +44,24 @@ public class UploadEnvelopeDocumentsService {
 
     private static final Logger log = getLogger(UploadEnvelopeDocumentsService.class);
 
-    private final long minimumEnvelopeAge;
-    private final EnvelopeRepository envelopeRepository;
     private final BlobManager blobManager;
     private final ZipFileProcessor zipFileProcessor;
     private final DocumentProcessor documentProcessor;
     private final EnvelopeProcessor envelopeProcessor;
 
     public UploadEnvelopeDocumentsService(
-        // only process envelopes after cool down period
-        // can be removed once uploading feature is removed from main job
-        @Value("${scheduling.task.upload-documents.min-envelope-age}") long minimumEnvelopeAge,
-        EnvelopeRepository envelopeRepository,
         BlobManager blobManager,
         ZipFileProcessor zipFileProcessor,
         DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor
     ) {
-        this.minimumEnvelopeAge = minimumEnvelopeAge;
-        this.envelopeRepository = envelopeRepository;
         this.blobManager = blobManager;
         this.zipFileProcessor = zipFileProcessor;
         this.documentProcessor = documentProcessor;
         this.envelopeProcessor = envelopeProcessor;
     }
 
-    public void processEnvelopes() {
-        envelopeRepository
-            .findByStatus(CREATED)
-            .stream()
-            // can be moved to query instead. but it won't be needed after upload is removed from main task
-            .filter(envelope -> envelope.getCreatedAt().isBefore(now().minus(minimumEnvelopeAge, MINUTES)))
-            .collect(groupingBy(Envelope::getContainer))
-            .forEach(this::processByContainer);
-    }
-
-    private void processByContainer(String containerName, List<Envelope> envelopes) {
+    public void processByContainer(String containerName, List<Envelope> envelopes) {
         log.info("Processing envelopes in {} container. Envelopes found: {}", containerName, envelopes.size());
 
         try {
