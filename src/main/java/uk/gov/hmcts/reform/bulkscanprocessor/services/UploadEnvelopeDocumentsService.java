@@ -77,9 +77,10 @@ public class UploadEnvelopeDocumentsService {
         String containerName = blobContainer.getName();
         String zipFileName = envelope.getZipFileName();
         UUID envelopeId = envelope.getId();
+        CloudBlockBlob blobClient = null;
 
         try {
-            CloudBlockBlob blobClient = getCloudBlockBlob(blobContainer, zipFileName, envelopeId);
+            blobClient = getCloudBlockBlob(blobContainer, zipFileName, envelopeId);
 
             Optional<String> lease = blobManager.acquireLease(blobClient, containerName, envelope.getZipFileName());
 
@@ -90,11 +91,13 @@ public class UploadEnvelopeDocumentsService {
                 uploadParsedZipFileName(envelope, result.getPdfs());
 
                 envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
-
-                breakLease(blobClient);
             }
         } catch (UploadFailures failure) {
             log.error(failure.getMessage(), failure.getCause());
+        } finally {
+            if (blobClient != null) {
+                tryBreakLease(blobClient);
+            }
         }
     }
 
@@ -199,7 +202,7 @@ public class UploadEnvelopeDocumentsService {
         );
     }
 
-    private void breakLease(CloudBlockBlob blobClient) {
+    private void tryBreakLease(CloudBlockBlob blobClient) {
         try {
             blobClient.breakLease(0);
         } catch (StorageException exception) {
