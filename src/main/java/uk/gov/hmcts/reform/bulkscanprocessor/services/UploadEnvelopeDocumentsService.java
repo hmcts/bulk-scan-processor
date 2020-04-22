@@ -29,7 +29,6 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 
@@ -208,9 +207,7 @@ public class UploadEnvelopeDocumentsService {
                 exception
             );
 
-            envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
-            envelope.setStatus(UPLOAD_FAILURE);
-            envelopeRepository.saveAndFlush(envelope);
+            envelopeProcessor.markAsUploadFailure(envelope);
             createDocUploadFailureEvent(
                 envelope.getContainer(),
                 envelope.getZipFileName(),
