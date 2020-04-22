@@ -25,7 +25,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private static final long MAX_MESSAGE_PROCESSING_TIME_MILLIS = 40_000;
     private static final long MAX_ENVELOPE_FINALISATION_TIME_MILLIS = 10_000;
-    private static final int DELETE_TIMEOUT_MILLIS = 20_000;
+    private static final int DELETE_TIMEOUT_MILLIS = 40_000;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String s2sToken;
