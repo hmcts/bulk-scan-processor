@@ -170,7 +170,7 @@ public class UploadEnvelopeDocumentsService {
     ) {
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
             return Optional.of(
-                zipFileProcessor.process(zis, containerName, zipFileName)
+                zipFileProcessor.process(zis, zipFileName)
             );
         } catch (Exception exception) {
             log.error(

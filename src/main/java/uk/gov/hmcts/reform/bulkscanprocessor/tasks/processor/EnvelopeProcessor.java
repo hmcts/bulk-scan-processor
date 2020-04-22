@@ -141,15 +141,11 @@ public class EnvelopeProcessor {
         );
     }
 
-    public void handleEvent(Envelope envelope, Event event) {
-        processEventRepository.saveAndFlush(
-            new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
-        );
+    public void markAsUploadFailure(Envelope envelope) {
+        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
+        envelope.setStatus(UPLOAD_FAILURE);
 
-        Status.fromEvent(event).ifPresent(status -> {
-            envelope.setStatus(status);
-            envelopeRepository.saveAndFlush(envelope);
-        });
+        envelopeRepository.saveAndFlush(envelope);
     }
 
     public void createEvent(Event event, String containerName, String zipFileName, String reason, UUID envelopeId) {
@@ -169,6 +165,17 @@ public class EnvelopeProcessor {
             processEvent.getEvent(),
             envelopeId
         );
+    }
+
+    public void handleEvent(Envelope envelope, Event event) {
+        processEventRepository.saveAndFlush(
+            new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
+        );
+
+        Status.fromEvent(event).ifPresent(status -> {
+            envelope.setStatus(status);
+            envelopeRepository.saveAndFlush(envelope);
+        });
     }
 
     private void evaluateConstraintException(ConstraintViolationException exception) {

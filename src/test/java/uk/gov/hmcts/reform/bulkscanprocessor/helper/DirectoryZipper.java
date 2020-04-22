@@ -12,10 +12,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.bulkscanprocessor.helper.SigningHelper.signWithSha256Rsa;
 
 public final class DirectoryZipper {
 
@@ -36,22 +34,20 @@ public final class DirectoryZipper {
     }
 
     /**
-     * Zips files from given directory, generates a signature for the resulting archive and then zips both file.
+     * Zips files from given directory and then zips it in wrapping zip.
      */
-    public static byte[] zipAndSignDir(String dirName, String signingKeyName) throws Exception {
+    public static byte[] zipDirAndWrap(String dirName) throws Exception {
 
         byte[] innerZip = zipDir(dirName);
-        byte[] signature = signWithSha256Rsa(innerZip, toByteArray(getResource(signingKeyName)));
 
         return zipItems(
             asList(
-                new ZipItem(ZipVerifiers.DOCUMENTS_ZIP, innerZip),
-                new ZipItem(ZipVerifiers.SIGNATURE_SIG, signature)
+                new ZipItem(ZipVerifiers.DOCUMENTS_ZIP, innerZip)
             )
         );
     }
 
-    private static byte[] zipItems(List<ZipItem> items) throws IOException {
+    public static byte[] zipItems(List<ZipItem> items) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
 
@@ -74,11 +70,11 @@ public final class DirectoryZipper {
         }
     }
 
-    private static class ZipItem {
+    public static class ZipItem {
         final String name;
         final byte[] content;
 
-        ZipItem(String name, byte[] content) {
+        public ZipItem(String name, byte[] content) {
             this.name = name;
             this.content = content;
         }

@@ -206,7 +206,7 @@ class UploadEnvelopeDocumentsServiceTest {
 
         // and
         willThrow(new IOException("failed")).given(zipFileProcessor)
-            .process(any(ZipInputStream.class), eq(CONTAINER_1), eq(ZIP_FILE_NAME));
+            .process(any(ZipInputStream.class), eq(ZIP_FILE_NAME));
 
         // when
         uploadService.processEnvelopes();
@@ -233,7 +233,7 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
         given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
-        given(zipFileProcessor.process(any(ZipInputStream.class), eq(CONTAINER_1), eq(ZIP_FILE_NAME)))
+        given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
             .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
 
         // and
@@ -270,7 +270,7 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
         given(blobManager.acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME)).willReturn(Optional.of(LEASE_ID));
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
-        given(zipFileProcessor.process(any(ZipInputStream.class), eq(CONTAINER_1), eq(ZIP_FILE_NAME)))
+        given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
             .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
         willDoNothing().given(documentProcessor).uploadPdfFiles(emptyList(), emptyList());
 

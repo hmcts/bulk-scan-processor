@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -44,9 +43,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarni
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Date;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,9 +71,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.
 public class BlobProcessorTask extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
-
-    @Value("${storage.blob_processing_delay_in_minutes}")
-    protected int blobProcessingDelayInMinutes;
 
     private final ZipFileProcessor zipFileProcessor;
 
@@ -177,12 +170,7 @@ public class BlobProcessorTask extends Processor {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
         } else {
             cloudBlockBlob.downloadAttributes();
-
-            if (!isReadyToBeProcessed(cloudBlockBlob)) {
-                logAbortedProcessingNotReadyFile(zipFilename, container.getName());
-            } else {
-                processZipFile(container, cloudBlockBlob, zipFilename);
-            }
+            processZipFile(container, cloudBlockBlob, zipFilename);
         }
     }
 
@@ -259,7 +247,7 @@ public class BlobProcessorTask extends Processor {
         String leaseId
     ) {
         try {
-            ZipFileProcessingResult result = zipFileProcessor.process(zis, containerName, zipFilename);
+            ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
@@ -301,10 +289,6 @@ public class BlobProcessorTask extends Processor {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
             return null;
-        } catch (DocSignatureFailureException ex) {
-            log.warn("Rejected file {} from container {} - invalid signature", zipFilename, containerName, ex);
-            handleInvalidFileError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
@@ -314,11 +298,6 @@ public class BlobProcessorTask extends Processor {
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
             return null;
         }
-    }
-
-    private boolean isReadyToBeProcessed(CloudBlockBlob blob) {
-        java.util.Date cutoff = Date.from(Instant.now().minus(this.blobProcessingDelayInMinutes, ChronoUnit.MINUTES));
-        return blob.getProperties().getLastModified().before(cutoff);
     }
 
     private void handleInvalidFileError(
@@ -377,14 +356,6 @@ public class BlobProcessorTask extends Processor {
             zipFilename,
             containerName,
             messageId
-        );
-    }
-
-    private void logAbortedProcessingNotReadyFile(String zipFilename, String containerName) {
-        log.info(
-            "Aborted processing of zip file {} from container {} - not ready yet.",
-            zipFilename,
-            containerName
         );
     }
 
