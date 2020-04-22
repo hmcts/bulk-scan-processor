@@ -70,6 +70,12 @@ public class UploadEnvelopeDocumentsService {
             envelopes.forEach(envelope -> processEnvelope(blobContainer, envelope));
         } catch (URISyntaxException | StorageException exception) {
             log.error("Unable to get client for {} container", containerName, exception);
+        } catch (Exception exception) {
+            log.error(
+                "An error occurred when trying to upload envelope documents for container {}",
+                containerName,
+                exception
+            );
         }
     }
 
