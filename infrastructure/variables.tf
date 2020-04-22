@@ -168,10 +168,6 @@ variable "blob_lease_timeout" {
   default = "15"
 }
 
-variable "blob_processing_delay_in_minutes" {
-  default = "0"
-}
-
 variable "blob_selected_container" {
   default = "ALL"
 }
