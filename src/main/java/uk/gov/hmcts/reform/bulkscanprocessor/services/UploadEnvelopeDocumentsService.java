@@ -71,11 +71,7 @@ public class UploadEnvelopeDocumentsService {
         } catch (URISyntaxException | StorageException exception) {
             log.error("Unable to get client for {} container", containerName, exception);
         } catch (Exception exception) {
-            log.error(
-                "An error occurred when trying to upload envelope documents for container {}",
-                containerName,
-                exception
-            );
+            logGenericError(containerName, exception);
         }
     }
 
@@ -100,6 +96,8 @@ public class UploadEnvelopeDocumentsService {
             }
         } catch (FailedUploadException failure) {
             log.error(failure.getMessage(), failure.getCause());
+        } catch (Exception exception) {
+            logGenericError(containerName, exception);
         } finally {
             if (blobClient != null) {
                 tryBreakLease(blobClient);
@@ -215,6 +213,14 @@ public class UploadEnvelopeDocumentsService {
             // we will expire lease anyway. no need to escalate to error
             log.warn("Failed to break the lease for {}", blobClient.getName(), exception);
         }
+    }
+
+    private void logGenericError(String containerName, Exception exception) {
+        log.error(
+            "An error occurred when trying to upload envelope documents for container {}",
+            containerName,
+            exception
+        );
     }
 
     private static class FailedUploadException extends RuntimeException {

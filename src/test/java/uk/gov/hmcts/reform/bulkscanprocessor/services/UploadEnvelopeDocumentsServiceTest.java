@@ -134,6 +134,25 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
+    void should_do_nothing_when_unknown_exception_is_thrown_during_individual_envelope_processing()
+        throws URISyntaxException, StorageException {
+        // given
+        given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getName()).willReturn(CONTAINER_1);
+        given(blobContainer.getBlockBlobReference(ZIP_FILE_NAME)).willReturn(blockBlob);
+
+        // and
+        willThrow(new RuntimeException("i failed"))
+            .given(blobManager)
+            .acquireLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME);
+
+        // when
+        uploadService.processByContainer(CONTAINER_1, getEnvelopes()); // for storage exception
+
+        // then
+        verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
+    }
+    @Test
     void should_do_nothing_when_failing_to_get_blob_input_stream() throws URISyntaxException, StorageException {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
