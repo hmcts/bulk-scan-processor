@@ -98,7 +98,7 @@ public class UploadEnvelopeDocumentsService {
 
                 envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
             }
-        } catch (UploadFailures failure) {
+        } catch (FailedUploadException failure) {
             log.error(failure.getMessage(), failure.getCause());
         } finally {
             if (blobClient != null) {
@@ -122,7 +122,7 @@ public class UploadEnvelopeDocumentsService {
                 envelopeId
             );
 
-            throw new UploadFailures(message, exception);
+            throw new FailedUploadException(message, exception);
         }
     }
 
@@ -142,7 +142,7 @@ public class UploadEnvelopeDocumentsService {
                 envelopeId
             );
 
-            throw new UploadFailures(message, exception);
+            throw new FailedUploadException(message, exception);
         }
     }
 
@@ -164,7 +164,7 @@ public class UploadEnvelopeDocumentsService {
 
             createDocUploadFailureEvent(containerName, zipFileName, exception.getMessage(), envelopeId);
 
-            throw new UploadFailures(message, exception);
+            throw new FailedUploadException(message, exception);
         }
     }
 
@@ -194,7 +194,7 @@ public class UploadEnvelopeDocumentsService {
                 envelope.getId()
             );
 
-            throw new UploadFailures(message, exception);
+            throw new FailedUploadException(message, exception);
         }
     }
 
@@ -217,8 +217,8 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private static class UploadFailures extends RuntimeException {
-        UploadFailures(String message, Exception cause) {
+    private static class FailedUploadException extends RuntimeException {
+        FailedUploadException(String message, Exception cause) {
             super(message, cause);
         }
     }
