@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 
@@ -124,12 +123,7 @@ public class FailedDocUploadProcessor extends Processor {
         String zipFileName
     ) {
         try {
-            return zipFileProcessor.process(zis, containerName, zipFileName);
-        } catch (DocSignatureFailureException ex) {
-            log.warn("Rejected file {} from container {} - invalid signature", zipFileName, containerName, ex);
-            handleEventRelatedError(Event.DOC_SIGNATURE_FAILURE, containerName, zipFileName, ex);
-            blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName, null);
-            return null;
+            return zipFileProcessor.process(zis, zipFileName);
         } catch (Exception ex) {
             log.error("Failed to reprocess file {} from container {}", zipFileName, containerName, ex);
             handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
