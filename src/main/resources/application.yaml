@@ -205,4 +205,4 @@ flyway:
 process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
 
-use-wrapping-zip: ${USE_WRAPPING_ZIP:true}
+use-wrapping-zip: true
