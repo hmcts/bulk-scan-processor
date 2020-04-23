@@ -19,6 +19,7 @@ import java.util.UUID;
 import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
@@ -111,7 +112,11 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("service_D", "D1.zip", DOC_UPLOADED),
             event("service_D", "D1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
             event("service_D", "D2.zip", ZIPFILE_PROCESSING_STARTED),
-            event("service_D", "D2.zip", FILE_VALIDATION_FAILURE)
+            event("service_D", "D2.zip", FILE_VALIDATION_FAILURE),
+
+            event("service_E", "E1.zip", ZIPFILE_PROCESSING_STARTED),
+            event("service_E", "E1.zip", FILE_VALIDATION_FAILURE),
+            event("service_E", "E1.zip", DOC_CONSUMED)
         );
 
         // when
@@ -124,7 +129,8 @@ public class EnvelopeCountSummaryRepositoryTest {
                 new Item(now(), "service_A", 1, 0),
                 new Item(now(), "service_B", 1, 1),
                 new Item(now(), "service_C", 2, 0),
-                new Item(now(), "service_D", 2, 1)
+                new Item(now(), "service_D", 2, 1),
+                new Item(now(), "service_E", 1, 1)
             ));
     }
 
