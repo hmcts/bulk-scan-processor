@@ -19,11 +19,13 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
-    private static final long MAX_MESSAGE_PROCESSING_TIME_MILLIS = 40_000;
-    private static final long MAX_ENVELOPE_FINALISATION_TIME_MILLIS = 10_000;
+    private static final long MESSAGE_PROCESSING_TIMEOUT_MILLIS = 40_000;
+    private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 10_000;
+    private static final int DELETE_TIMEOUT_MILLIS = 40_000;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String s2sToken;
@@ -49,10 +51,11 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         String zipFilename = uploadEnvelope();
 
         await("Envelope should be created in the service and notification should be put on the queue")
-            .atMost(scanDelay + MAX_MESSAGE_PROCESSING_TIME_MILLIS, TimeUnit.MILLISECONDS)
+            .atMost(scanDelay + MESSAGE_PROCESSING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> hasNotificationBeenSent(zipFilename));
 
+        assertThat(testHelper.storageHasFile(inputContainer, zipFilename)).isTrue();
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
@@ -60,13 +63,18 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
         // then
         await("Envelope should change status to 'COMPLETED'")
-            .atMost(MAX_ENVELOPE_FINALISATION_TIME_MILLIS, TimeUnit.MILLISECONDS)
+            .atMost(ENVELOPE_FINALISATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
 
         EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
+
+        await("file should be deleted")
+            .atMost(DELETE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+            .pollInterval(2, TimeUnit.SECONDS)
+            .until(() -> testHelper.storageHasFile(inputContainer, zipFilename), is(false));
     }
 
     private Boolean hasNotificationBeenSent(String zipFilename) {
