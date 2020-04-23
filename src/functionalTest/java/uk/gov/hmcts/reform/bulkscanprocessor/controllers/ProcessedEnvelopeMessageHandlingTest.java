@@ -23,8 +23,8 @@ import static org.hamcrest.Matchers.is;
 
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
-    private static final long MAX_MESSAGE_PROCESSING_TIME_MILLIS = 40_000;
-    private static final long MAX_ENVELOPE_FINALISATION_TIME_MILLIS = 10_000;
+    private static final long MAX_MESSAGE_PROCESSING_TIMEOUT_MILLIS = 40_000;
+    private static final long MAX_ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 10_000;
     private static final int DELETE_TIMEOUT_MILLIS = 40_000;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -51,7 +51,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         String zipFilename = uploadEnvelope();
 
         await("Envelope should be created in the service and notification should be put on the queue")
-            .atMost(scanDelay + MAX_MESSAGE_PROCESSING_TIME_MILLIS, TimeUnit.MILLISECONDS)
+            .atMost(scanDelay + MAX_MESSAGE_PROCESSING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> hasNotificationBeenSent(zipFilename));
 
@@ -63,7 +63,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
         // then
         await("Envelope should change status to 'COMPLETED'")
-            .atMost(MAX_ENVELOPE_FINALISATION_TIME_MILLIS, TimeUnit.MILLISECONDS)
+            .atMost(MAX_ENVELOPE_FINALISATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
 
