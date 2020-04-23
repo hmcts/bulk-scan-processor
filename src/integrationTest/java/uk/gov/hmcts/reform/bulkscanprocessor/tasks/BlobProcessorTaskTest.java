@@ -136,7 +136,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(actualEnvelope.getScannableItems())
             .extracting(ScannableItem::getDocumentUuid)
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_UUID2));
-        assertThat(actualEnvelope.isZipDeleted()).isTrue();
 
         // This verifies pdf file objects were created from the zip file
         verify(documentManagementService).uploadDocuments(ImmutableList.of(pdf));
@@ -194,7 +193,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
     }
 
     @Test
-    public void should_delete_blob_after_doc_upload_and_mark_envelope_status_as_processed_and_create_new_event()
+    public void should_mark_envelope_status_as_processed_and_create_new_event_after_doc_upload()
         throws Exception {
 
         // given
@@ -209,15 +208,9 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         processor.processBlobs();
 
         // then
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
-        await("file should be deleted")
-            .atMost(2, SECONDS)
-            .until(blob::exists, is(false));
-
         Envelope envelope = getSingleEnvelopeFromDb();
 
         assertThat(envelope.getStatus()).isEqualTo(PROCESSED);
-        assertThat(envelope.isZipDeleted()).isTrue();
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
@@ -315,15 +308,6 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // then
         // Check blob was never uploaded
         verify(documentManagementService, never()).uploadDocuments(anyList());
-
-        // Check blob is deleted
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
-        await("file should be deleted")
-            .atMost(2, SECONDS)
-            .until(blob::exists, is(false));
-
-        Envelope envelope = getSingleEnvelopeFromDb();
-        assertThat(envelope.isZipDeleted()).isTrue();
     }
 
     @Test

@@ -25,10 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.Signature;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -74,12 +70,11 @@ public class TestHelper {
         List<String> files,
         String metadataFile,
         final String destZipFilename,
-        String testPrivateKeyDer,
         OperationContext operationContext
     ) {
         try {
             byte[] zipFile =
-                createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
+                createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
             CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
             blockBlobReference.uploadFromByteArray(
                 zipFile,
@@ -98,11 +93,9 @@ public class TestHelper {
         CloudBlobContainer container,
         List<String> files,
         String metadataFile,
-        String destZipFilename,
-        String testPrivateKeyDer
+        String destZipFilename
     ) throws Exception {
-        byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
+        byte[] zipFile = createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
         blockBlobReference.acquireLease();
@@ -178,34 +171,17 @@ public class TestHelper {
         return Long.toString(System.currentTimeMillis()) + Math.abs(RANDOM.nextInt());
     }
 
-    public byte[] createSignedZipArchiveWithRandomName(
-        List<String> files, String metadataFile, String zipFilename, String privateKeyDer
+    public byte[] createWrappedZipArchiveWithRandomName(
+        List<String> files, String metadataFile, String zipFilename
     ) throws Exception {
         byte[] zipArchive = createZipArchiveWithRandomName(files, metadataFile, zipFilename);
-        byte[] signature = signWithSha256Rsa(zipArchive, privateKeyDer);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
             zos.putNextEntry(new ZipEntry(ZipVerifiers.DOCUMENTS_ZIP));
             zos.write(zipArchive);
             zos.closeEntry();
-            zos.putNextEntry(new ZipEntry(ZipVerifiers.SIGNATURE_SIG));
-            zos.write(signature);
-            zos.closeEntry();
         }
         return outputStream.toByteArray();
-    }
-
-    // Create signature using SHA256/RSA.
-    public byte[] signWithSha256Rsa(byte[] input, String privateKeyDer) throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(privateKeyDer);
-
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-
-        Signature privateSignature = Signature.getInstance("SHA256withRSA");
-        privateSignature.initSign(kf.generatePrivate(spec));
-        privateSignature.update(input);
-        return privateSignature.sign();
     }
 
     public EnvelopeListResponse getEnvelopes(String baseUrl, String s2sToken, Status status) {

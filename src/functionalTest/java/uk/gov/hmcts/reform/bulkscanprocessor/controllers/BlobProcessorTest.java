@@ -52,7 +52,6 @@ public class BlobProcessorTest extends BaseFunctionalTest {
             files,
             metadataFile,
             destZipFilename,
-            testPrivateKeyDer,
             operationContext
         );
 
