@@ -55,7 +55,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> hasNotificationBeenSent(zipFilename));
 
-        assertThat(testHelper.storageHasFile(inputContainer, zipFilename)).isTrue();
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
