@@ -62,7 +62,11 @@ public class UploadEnvelopeDocumentsService {
     }
 
     public void processByContainer(String containerName, List<Envelope> envelopes) {
-        log.info("Processing envelopes in {} container. Envelopes found: {}", containerName, envelopes.size());
+        log.info(
+            "Uploading envelope documents from {} container. Envelopes count: {}",
+            containerName,
+            envelopes.size()
+        );
 
         try {
             CloudBlobContainer blobContainer = blobManager.getContainer(containerName);
