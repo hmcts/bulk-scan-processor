@@ -110,8 +110,7 @@ public class GetSasTokenTest {
                 "1111006.pdf"
             ),
             "exception_metadata.json",
-            destZipFilename,
-            testPrivateKeyDer
+            destZipFilename
         );
 
         assertThat(testHelper.storageHasFile(testSasContainer, destZipFilename)).isTrue();
@@ -132,8 +131,7 @@ public class GetSasTokenTest {
                             "1111006.pdf"
                     ),
                     "exception_metadata.json",
-                    destZipFilename,
-                    testPrivateKeyDer
+                    destZipFilename
             )
         );
     }
