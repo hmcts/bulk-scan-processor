@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -240,7 +239,6 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blockBlob.openInputStream()).willReturn(blobInputStream);
         given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
             .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
-        willDoNothing().given(documentProcessor).uploadPdfFiles(emptyList(), emptyList());
 
         // when
         uploadService.processByContainer(CONTAINER_1, getEnvelopes());
@@ -249,6 +247,9 @@ class UploadEnvelopeDocumentsServiceTest {
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         verify(envelopeProcessor, times(1)).handleEvent(any(Envelope.class), eventCaptor.capture());
         assertThat(eventCaptor.getValue()).isEqualTo(Event.DOC_UPLOADED);
+
+        // and
+        verify(documentProcessor, times(1)).uploadPdfFiles(emptyList(), emptyList());
     }
 
     private List<Envelope> getEnvelopes() {
