@@ -70,12 +70,11 @@ public class TestHelper {
         List<String> files,
         String metadataFile,
         final String destZipFilename,
-        String testPrivateKeyDer,
         OperationContext operationContext
     ) {
         try {
             byte[] zipFile =
-                createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
+                createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
             CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
             blockBlobReference.uploadFromByteArray(
                 zipFile,
@@ -94,11 +93,9 @@ public class TestHelper {
         CloudBlobContainer container,
         List<String> files,
         String metadataFile,
-        String destZipFilename,
-        String testPrivateKeyDer
+        String destZipFilename
     ) throws Exception {
-        byte[] zipFile =
-            createSignedZipArchiveWithRandomName(files, metadataFile, destZipFilename, testPrivateKeyDer);
+        byte[] zipFile = createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
         CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
         blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
         blockBlobReference.acquireLease();
@@ -174,8 +171,8 @@ public class TestHelper {
         return Long.toString(System.currentTimeMillis()) + Math.abs(RANDOM.nextInt());
     }
 
-    public byte[] createSignedZipArchiveWithRandomName(
-        List<String> files, String metadataFile, String zipFilename, String privateKeyDer
+    public byte[] createWrappedZipArchiveWithRandomName(
+        List<String> files, String metadataFile, String zipFilename
     ) throws Exception {
         byte[] zipArchive = createZipArchiveWithRandomName(files, metadataFile, zipFilename);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

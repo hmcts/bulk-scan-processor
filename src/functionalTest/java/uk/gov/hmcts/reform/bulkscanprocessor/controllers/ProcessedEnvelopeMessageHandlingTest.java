@@ -97,7 +97,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             Arrays.asList("1111006.pdf", "1111002.pdf"),
             "exception_with_ocr_metadata.json",
             zipFilename,
-            testPrivateKeyDer,
             operationContext
         );
 

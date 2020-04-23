@@ -54,7 +54,6 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
             Arrays.asList("1111006.pdf"),
             null, // missing metadata file
             destZipFilename,
-            testPrivateKeyDer,
             operationContext
         );
 
@@ -85,7 +84,6 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
                 Arrays.asList("1111006.pdf"),
                 null, // missing metadata file
                 fileName,
-                testPrivateKeyDer,
                 operationContext
             );
 
