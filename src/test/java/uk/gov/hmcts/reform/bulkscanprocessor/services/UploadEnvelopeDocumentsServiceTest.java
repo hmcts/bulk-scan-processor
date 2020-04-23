@@ -68,8 +68,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_unknown_exception_is_caught_in_parent_try_block()
-        throws URISyntaxException, StorageException {
+    void should_do_nothing_when_unknown_exception_is_caught_in_parent_try_block() throws Exception {
         // given
         willThrow(new RuntimeException("i failed")).given(blobManager).getContainer(CONTAINER_1);
 
@@ -81,7 +80,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_failing_to_get_container_client() throws URISyntaxException, StorageException {
+    void should_do_nothing_when_failing_to_get_container_client() throws Exception {
         // given
         willThrow(
             new StorageException("error-code", "message", null), // null is inner exception. we don't care here
@@ -99,7 +98,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_failing_to_get_block_blob_reference() throws URISyntaxException, StorageException {
+    void should_do_nothing_when_failing_to_get_block_blob_reference() throws Exception {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
 
@@ -118,7 +117,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_failing_to_acquire_lease() throws URISyntaxException, StorageException {
+    void should_do_nothing_when_failing_to_acquire_lease() throws Exception {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getName()).willReturn(CONTAINER_1);
@@ -133,8 +132,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_unknown_exception_is_thrown_during_individual_envelope_processing()
-        throws URISyntaxException, StorageException {
+    void should_do_nothing_when_unknown_exception_is_thrown_during_individual_envelope_processing() throws Exception {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getName()).willReturn(CONTAINER_1);
@@ -153,7 +151,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_failing_to_get_blob_input_stream() throws URISyntaxException, StorageException {
+    void should_do_nothing_when_failing_to_get_blob_input_stream() throws Exception {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getName()).willReturn(CONTAINER_1);
@@ -171,8 +169,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_failing_to_read_blob_input_stream()
-        throws URISyntaxException, StorageException, IOException {
+    void should_do_nothing_when_failing_to_read_blob_input_stream() throws Exception {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getName()).willReturn(CONTAINER_1);
@@ -198,8 +195,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_mark_as_doc_upload_failure_when_unable_to_upload_pdfs()
-        throws URISyntaxException, StorageException, IOException {
+    void should_mark_as_doc_upload_failure_when_unable_to_upload_pdfs() throws Exception {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getName()).willReturn(CONTAINER_1);
@@ -229,8 +225,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_mark_as_uploaded_when_everything_went_well()
-        throws URISyntaxException, StorageException, IOException {
+    void should_mark_as_uploaded_when_everything_went_well() throws Exception {
         // given
         given(blobManager.getContainer(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getName()).willReturn(CONTAINER_1);
