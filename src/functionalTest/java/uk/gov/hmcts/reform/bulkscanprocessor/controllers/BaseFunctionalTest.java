@@ -25,7 +25,6 @@ public abstract class BaseFunctionalTest {
     protected String s2sUrl;
     protected String s2sName;
     protected String s2sSecret;
-    protected String testPrivateKeyDer;
     protected CloudBlobContainer inputContainer;
     protected CloudBlobContainer rejectedContainer;
     protected String proxyHost;
@@ -42,7 +41,6 @@ public abstract class BaseFunctionalTest {
         this.s2sUrl = config.getString("test-s2s-url");
         this.s2sName = config.getString("test-s2s-name");
         this.s2sSecret = config.getString("test-s2s-secret");
-        this.testPrivateKeyDer = config.getString("test-private-key-der");
         this.proxyHost = config.getString("storage-proxy-host");
         this.proxyPort = config.getString("storage-proxy-port");
         this.isProxyEnabled = Boolean.valueOf(config.getString("proxyout.enabled"));
