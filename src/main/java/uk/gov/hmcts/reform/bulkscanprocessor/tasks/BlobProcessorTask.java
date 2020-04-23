@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -164,6 +165,7 @@ public class BlobProcessorTask extends Processor {
                 container.getName(),
                 existingEnvelope.getId()
             );
+            deleteIfCompleted(cloudBlockBlob, existingEnvelope, container.getName());
         } else if (!cloudBlockBlob.exists()) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
         } else {
@@ -205,6 +207,37 @@ public class BlobProcessorTask extends Processor {
         } catch (IOException exception) {
             throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
         }
+    }
+
+    private void deleteIfCompleted(CloudBlockBlob cloudBlockBlob, Envelope envelope, String containerName) {
+        String blobName = cloudBlockBlob.getName();
+        log.info("Considering the deletion of file {} in container {}", blobName, containerName);
+
+        try {
+            if (envelope.getStatus() == Status.COMPLETED) {
+                log.info("File {} (container {}) is completed - deleting", blobName, containerName);
+
+                boolean deleted;
+                if (cloudBlockBlob.exists()) {
+                    deleted = cloudBlockBlob.deleteIfExists();
+                    if (deleted) {
+                        log.info("Deleted file {} from container {}", blobName, containerName);
+                    }
+                } else {
+                    deleted = true;
+                    log.info("File {} (container {}) has already been deleted.", blobName, containerName);
+                }
+                if (deleted) {
+                    envelope.setZipDeleted(true);
+                    envelopeProcessor.saveEnvelope(envelope);
+                    log.info("Marked envelope from file {} (container {}) as deleted", blobName, containerName);
+                }
+            } else {
+                log.info("File {} from container {} not ready to be deleted yet.", blobName, containerName);
+            }
+        } catch (StorageException e) {
+            log.error("Failed to delete file [{}] in container {}", blobName, containerName, e);
+        } // Do not propagate exception as this blob has already been marked with a delete failure
     }
 
     private ZipFileProcessingResult processZipFileContent(

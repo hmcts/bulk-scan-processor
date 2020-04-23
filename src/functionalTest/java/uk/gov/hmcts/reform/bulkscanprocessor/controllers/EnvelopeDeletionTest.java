@@ -46,6 +46,30 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     }
 
     @Test
+    public void should_delete_zip_file_after_successful_ingestion() throws Exception {
+        List<String> files = Arrays.asList("1111006.pdf");
+        String metadataFile = "exception_metadata.json";
+        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
+
+        // valid zip file
+        testHelper.uploadZipFile(
+            inputContainer,
+            files,
+            metadataFile,
+            destZipFilename,
+            operationContext
+        );
+        filesToDeleteAfterTest.add(destZipFilename);
+
+        await("file should be deleted")
+            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .pollInterval(2, TimeUnit.SECONDS)
+            .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
+
+        assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isFalse();
+    }
+
+    @Test
     public void should_move_invalid_zip_file_to_rejected_container() throws Exception {
         String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
 
