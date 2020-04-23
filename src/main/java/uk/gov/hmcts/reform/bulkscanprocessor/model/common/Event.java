@@ -17,4 +17,5 @@ public enum Event {
     DOC_PROCESSED_NOTIFICATION_FAILURE, // when document processed notification fails
     DOC_PROCESSING_ABORTED, // when envelope processing cannot be completed (used manually to set the event with reason)
     COMPLETED, // the processing of the envelope completed successfully
+    MANUAL_STATUS_CHANGE, // when envelope status needs to be updated for reprocessing (used manually to set the event with reason)
 }
