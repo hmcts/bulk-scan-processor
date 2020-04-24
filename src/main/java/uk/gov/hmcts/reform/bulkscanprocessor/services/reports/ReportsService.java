@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
@@ -26,6 +28,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Service
 public class ReportsService {
 
+    private static final Logger log = LoggerFactory.getLogger(ReportsService.class);
+
     public static final String TEST_CONTAINER = "bulkscan";
 
     private final EnvelopeCountSummaryRepository repo;
@@ -46,11 +50,14 @@ public class ReportsService {
     // endregion
 
     public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
-        return zeroRowFiller
+        long start = System.currentTimeMillis();
+        final List<EnvelopeCountSummary> reportResult = zeroRowFiller
             .fill(repo.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
             .stream()
             .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
             .collect(toList());
+        log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
+        return reportResult;
     }
 
     /**
