@@ -13,19 +13,18 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 
-// TODO: rename
-public class ZipVerifiers {
+public class ZipExtractor {
 
     public static final String DOCUMENTS_ZIP = "envelope.zip";
 
-    private ZipVerifiers() {
+    private ZipExtractor() {
     }
 
     public static Function<ZipInputStream, ZipInputStream> getPreprocessor(
         boolean useWrappingZip
     ) {
         if (useWrappingZip) {
-            return ZipVerifiers::extract;
+            return ZipExtractor::extract;
         } else {
             return zis -> zis;
         }

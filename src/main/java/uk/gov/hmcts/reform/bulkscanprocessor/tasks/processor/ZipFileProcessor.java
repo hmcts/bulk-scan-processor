@@ -33,7 +33,7 @@ public class ZipFileProcessor {
         ZipInputStream zis,
         String zipFileName
     ) throws IOException {
-        ZipInputStream extractedZis = ZipVerifiers
+        ZipInputStream extractedZis = ZipExtractor
             .getPreprocessor(useWrappingZip)
             .apply(zis);
         ZipEntry zipEntry;

@@ -17,12 +17,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipItems;
 
 @ExtendWith(MockitoExtension.class)
-public class ZipVerifiersTest {
+public class ZipExtractorTest {
     @Test
     public void should_verify_valid_zip_successfully() throws Exception {
         byte[] zipBytes = zipDirAndWrap("signature/sample_valid_content");
 
-        ZipInputStream zis = ZipVerifiers.extract(new ZipInputStream(new ByteArrayInputStream(zipBytes)));
+        ZipInputStream zis = ZipExtractor.extract(new ZipInputStream(new ByteArrayInputStream(zipBytes)));
         assertThat(zis).isNotNull();
     }
 
@@ -31,7 +31,7 @@ public class ZipVerifiersTest {
         byte[] innerZip = zipDir("signature/sample_valid_content");
         byte[] outerZip = zipItems(singletonList((new ZipItem("invalid_entry_name", innerZip))));
 
-        assertThatThrownBy(() -> ZipVerifiers.extract(new ZipInputStream(new ByteArrayInputStream(outerZip))))
+        assertThatThrownBy(() -> ZipExtractor.extract(new ZipInputStream(new ByteArrayInputStream(outerZip))))
             .isInstanceOf(InvalidZipFilesException.class)
             .hasMessageContaining("Zip does not contain envelope");
     }
