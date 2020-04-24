@@ -309,7 +309,7 @@ public class BlobProcessorTask extends Processor {
                 eventId,
                 zipFilename,
                 containerName,
-                null,
+                getPoBox(containerName),
                 null,
                 errorCode,
                 cause.getMessage(),
@@ -326,6 +326,16 @@ public class BlobProcessorTask extends Processor {
         );
     }
 
+    private String getPoBox(String containerName) {
+        return containerMappings
+            .getMappings()
+            .stream()
+            .filter(m -> m.getContainer().equals(containerName))
+            .findFirst()
+            .get()
+            .getPoBox();
+    }
+
     private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {
         log.info(
             "Aborted processing of zip file {} from container {} - doesn't exist anymore.",
@@ -333,5 +343,4 @@ public class BlobProcessorTask extends Processor {
             containerName
         );
     }
-
 }

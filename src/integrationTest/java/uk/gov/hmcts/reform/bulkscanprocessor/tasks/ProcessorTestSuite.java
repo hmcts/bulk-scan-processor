@@ -52,6 +52,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     protected static final String DOCUMENT_UUID2 = "0fa1ab60-f836-43aa-8c65-b07cc9bebcbe";
 
     protected static final String CONTAINER_NAME = "bulkscan";
+    protected static final String PO_BOX = "BULKSCANPO";
     protected static final String REJECTED_CONTAINER_NAME = "bulkscan-rejected";
 
     protected T processor;
@@ -196,7 +197,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             );
     }
 
-    protected void errorWasSent(String zipFileName, ErrorCode code) {
+    protected void assertErrorWasSent(String zipFileName, ErrorCode code) {
         ArgumentCaptor<ErrorMsg> argument = ArgumentCaptor.forClass(ErrorMsg.class);
         verify(serviceBusHelper).sendMessage(argument.capture());
 
@@ -205,6 +206,12 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         assertThat(sentMsg.zipFileName).isEqualTo(zipFileName);
         assertThat(sentMsg.jurisdiction).isEqualTo(CONTAINER_NAME);
         assertThat(sentMsg.errorCode).isEqualTo(code);
+        assertThat(sentMsg.poBox).isEqualTo(PO_BOX);
+        assertThat(sentMsg.container).isEqualTo(CONTAINER_NAME);
+        assertThat(sentMsg.documentControlNumber).isNull();
+        assertThat(sentMsg.service).isEqualTo("bulk_scan_processor");
+        assertThat(sentMsg.errorCode).isEqualTo(code);
+        assertThat(sentMsg.errorDescription).isNotEmpty();
     }
 
     protected void envelopeWasNotCreated() {
