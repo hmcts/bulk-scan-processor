@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipFilesException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,18 +22,13 @@ public class ZipVerifiers {
     }
 
     public static Function<ZipInputStream, ZipInputStream> getPreprocessor(
-        String signatureAlgorithm
+        boolean useWrappingZip
     ) {
-        if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
+        if (useWrappingZip) {
             return ZipVerifiers::extract;
-        } else if ("none".equalsIgnoreCase(signatureAlgorithm)) {
-            return ZipVerifiers::noOpVerification;
+        } else {
+            return zis -> zis;
         }
-        throw new SignatureValidationException("Undefined signature verification algorithm");
-    }
-
-    static ZipInputStream noOpVerification(ZipInputStream zipInputStream) {
-        return zipInputStream;
     }
 
     /**
