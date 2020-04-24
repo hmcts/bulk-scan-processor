@@ -21,34 +21,34 @@ public class ZipFileProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
 
-    private final String signatureAlg;
+    private final boolean useWrappingZip;
 
     public ZipFileProcessor(
-        @Value("${storage.signature_algorithm}") String signatureAlg
+        @Value("${use-wrapping-zip}") boolean useWrappingZip
     ) {
-        this.signatureAlg = signatureAlg;
+        this.useWrappingZip = useWrappingZip;
     }
 
     public ZipFileProcessingResult process(
         ZipInputStream zis,
         String zipFileName
     ) throws IOException {
-        ZipInputStream verifiedZis = ZipVerifiers
-            .getPreprocessor(signatureAlg)
+        ZipInputStream extractedZis = ZipVerifiers
+            .getPreprocessor(useWrappingZip)
             .apply(zis);
         ZipEntry zipEntry;
 
         List<Pdf> pdfs = new ArrayList<>();
         byte[] metadata = null;
 
-        while ((zipEntry = verifiedZis.getNextEntry()) != null) {
+        while ((zipEntry = extractedZis.getNextEntry()) != null) {
             switch (FilenameUtils.getExtension(zipEntry.getName())) {
                 case "json":
-                    metadata = toByteArray(verifiedZis);
+                    metadata = toByteArray(extractedZis);
 
                     break;
                 case "pdf":
-                    pdfs.add(new Pdf(zipEntry.getName(), toByteArray(verifiedZis)));
+                    pdfs.add(new Pdf(zipEntry.getName(), toByteArray(extractedZis)));
 
                     break;
                 default:
