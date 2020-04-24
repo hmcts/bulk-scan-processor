@@ -197,7 +197,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
             );
     }
 
-    protected void assertErrorWasSent(String zipFileName, ErrorCode code) {
+    protected void errorWasSent(String zipFileName, ErrorCode code) {
         ArgumentCaptor<ErrorMsg> argument = ArgumentCaptor.forClass(ErrorMsg.class);
         verify(serviceBusHelper).sendMessage(argument.capture());
 
