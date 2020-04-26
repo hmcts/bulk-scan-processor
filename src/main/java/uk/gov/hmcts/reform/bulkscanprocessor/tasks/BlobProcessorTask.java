@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -331,9 +332,9 @@ public class BlobProcessorTask extends Processor {
             .getMappings()
             .stream()
             .filter(m -> m.getContainer().equals(containerName))
+            .map(ContainerMappings.Mapping::getPoBox)
             .findFirst()
-            .get()
-            .getPoBox();
+            .orElseThrow(() -> new ConfigurationException("Mapping not found for container " + containerName));
     }
 
     private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {
