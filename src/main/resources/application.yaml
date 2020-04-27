@@ -176,6 +176,9 @@ scheduling:
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
       enabled: ${SCAN_ENABLED:false}
+    # 2 - upload all documents for successfully scanned envelopes
+    upload-documents:
+      envelope-age-in-minutes: 20 # see UploadEnvelopeDocumentsTask for explanation
     # 3 - send notification to orchestrator once all documents are uploaded
     notifications_to_orchestrator:
       delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms
