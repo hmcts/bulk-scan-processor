@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSumm
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -51,7 +52,7 @@ public class ReportsServiceTest {
 
     @Test
     public void should_map_repo_result_properly_when_requested_for_envelope_count_summary() {
-        given(repo.getReportFor(now()))
+        given(repo.getReportFor(any(LocalDate.class), any(LocalDate.class)))
             .willReturn(asList(
                 new Item(now().plusDays(1), "A", 100, 1),
                 new Item(now().minusDays(1), "B", 200, 9)
@@ -73,7 +74,7 @@ public class ReportsServiceTest {
 
     @Test
     public void should_filter_out_test_container_when_requested_for_envelope_count_summary() {
-        given(repo.getReportFor(now()))
+        given(repo.getReportFor(any(LocalDate.class), any(LocalDate.class)))
             .willReturn(asList(
                 new Item(now(), TEST_CONTAINER, 100, 1),
                 new Item(now(), "some_other_container", 10, 0)
@@ -94,7 +95,7 @@ public class ReportsServiceTest {
 
     @Test
     public void should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
-        given(repo.getReportFor(now())).willReturn(emptyList());
+        given(repo.getReportFor(any(LocalDate.class), any(LocalDate.class))).willReturn(emptyList());
         given(this.zeroRowFiller.fill(any(), any()))
             .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
 

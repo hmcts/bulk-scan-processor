@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
@@ -22,9 +24,12 @@ import static java.time.LocalDateTime.ofInstant;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Service
 public class ReportsService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportsService.class);
 
     public static final String TEST_CONTAINER = "bulkscan";
 
@@ -46,11 +51,15 @@ public class ReportsService {
     // endregion
 
     public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
-        return zeroRowFiller
-            .fill(repo.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
+        LocalDate earliest = date.atStartOfDay().minusDays(30).atZone(EUROPE_LONDON_ZONE_ID).toLocalDate();
+        final long start = System.currentTimeMillis();
+        final List<EnvelopeCountSummary> reportResult = zeroRowFiller
+            .fill(repo.getReportFor(earliest, date).stream().map(this::fromDb).collect(toList()), date)
             .stream()
             .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
             .collect(toList());
+        log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
+        return reportResult;
     }
 
     /**

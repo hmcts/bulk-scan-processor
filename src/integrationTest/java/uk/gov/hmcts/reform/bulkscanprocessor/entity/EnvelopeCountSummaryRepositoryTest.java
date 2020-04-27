@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCE
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -45,9 +47,11 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("B", DOC_PROCESSED_NOTIFICATION_SENT),
             event("C", DOC_PROCESSED_NOTIFICATION_SENT)
         );
+        LocalDate date = now();
+        LocalDate earliest = date.atStartOfDay().minusDays(30).atZone(EUROPE_LONDON_ZONE_ID).toLocalDate();
 
         // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(now());
+        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(earliest, date);
 
         // then
         assertThat(result)
@@ -66,9 +70,11 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("X", DOC_PROCESSED_NOTIFICATION_SENT),
             event("Y", DOC_PROCESSED_NOTIFICATION_SENT)
         );
+        LocalDate date = now().minusDays(1);
+        LocalDate earliest = date.atStartOfDay().minusDays(30).atZone(EUROPE_LONDON_ZONE_ID).toLocalDate();
 
         // when
-        List<EnvelopeCountSummaryItem> resultForYesterday = reportRepo.getReportFor(now().minusDays(1));
+        List<EnvelopeCountSummaryItem> resultForYesterday = reportRepo.getReportFor(earliest, date);
 
         // then
         assertThat(resultForYesterday).isEmpty();
@@ -87,9 +93,11 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("some_service", "hello.zip", today, DOC_FAILURE),
             event("some_service", "hello.zip", today, DOC_FAILURE)
         );
+        LocalDate date = now();
+        LocalDate earliest = date.atStartOfDay().minusDays(30).atZone(EUROPE_LONDON_ZONE_ID).toLocalDate();
 
         // when
-        List<EnvelopeCountSummaryItem> resultForToday = reportRepo.getReportFor(now());
+        List<EnvelopeCountSummaryItem> resultForToday = reportRepo.getReportFor(earliest, date);
 
         // then
         assertThat(resultForToday).isEmpty();
@@ -118,9 +126,11 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("service_E", "E1.zip", FILE_VALIDATION_FAILURE),
             event("service_E", "E1.zip", DOC_CONSUMED)
         );
+        LocalDate date = now();
+        LocalDate earliest = date.atStartOfDay().minusDays(30).atZone(EUROPE_LONDON_ZONE_ID).toLocalDate();
 
         // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(now());
+        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(earliest, date);
 
         // then
         assertThat(result)
@@ -141,9 +151,11 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("service_A", "A1.zip", DOC_UPLOADED),
             event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
         );
+        LocalDate date = now();
+        LocalDate earliest = date.atStartOfDay().minusDays(30).atZone(EUROPE_LONDON_ZONE_ID).toLocalDate();
 
         // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(now());
+        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(earliest, date);
 
         // then
         assertThat(result)
