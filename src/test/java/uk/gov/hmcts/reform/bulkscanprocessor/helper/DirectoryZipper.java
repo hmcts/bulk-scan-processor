@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.google.common.io.Files;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipVerifiers;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipExtractor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -42,7 +42,7 @@ public final class DirectoryZipper {
 
         return zipItems(
             asList(
-                new ZipItem(ZipVerifiers.DOCUMENTS_ZIP, innerZip)
+                new ZipItem(ZipExtractor.DOCUMENTS_ZIP, innerZip)
             )
         );
     }
