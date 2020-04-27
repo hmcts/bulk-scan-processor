@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -21,34 +20,30 @@ public class ZipFileProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
 
-    private final String signatureAlg;
+    private final ZipExtractor zipExtractor;
 
-    public ZipFileProcessor(
-        @Value("${storage.signature_algorithm}") String signatureAlg
-    ) {
-        this.signatureAlg = signatureAlg;
+    public ZipFileProcessor(ZipExtractor zipExtractor) {
+        this.zipExtractor = zipExtractor;
     }
 
     public ZipFileProcessingResult process(
         ZipInputStream zis,
         String zipFileName
     ) throws IOException {
-        ZipInputStream verifiedZis = ZipVerifiers
-            .getPreprocessor(signatureAlg)
-            .apply(zis);
+        ZipInputStream extractedZis = zipExtractor.extract(zis);
         ZipEntry zipEntry;
 
         List<Pdf> pdfs = new ArrayList<>();
         byte[] metadata = null;
 
-        while ((zipEntry = verifiedZis.getNextEntry()) != null) {
+        while ((zipEntry = extractedZis.getNextEntry()) != null) {
             switch (FilenameUtils.getExtension(zipEntry.getName())) {
                 case "json":
-                    metadata = toByteArray(verifiedZis);
+                    metadata = toByteArray(extractedZis);
 
                     break;
                 case "pdf":
-                    pdfs.add(new Pdf(zipEntry.getName(), toByteArray(verifiedZis)));
+                    pdfs.add(new Pdf(zipEntry.getName(), toByteArray(extractedZis)));
 
                     break;
                 default:
