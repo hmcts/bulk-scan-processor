@@ -125,7 +125,7 @@ public class FailedDocUploadProcessor extends Processor {
             return zipFileProcessor.process(zis, zipFileName);
         } catch (Exception ex) {
             log.error("Failed to reprocess file {} from container {}", zipFileName, containerName, ex);
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex.getMessage(), null);
             return null;
         }
     }

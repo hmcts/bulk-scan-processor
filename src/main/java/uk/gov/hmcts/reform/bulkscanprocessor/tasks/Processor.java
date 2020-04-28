@@ -56,23 +56,36 @@ public abstract class Processor {
         markAsProcessed(envelope);
     }
 
+    // prepare to move to envelope processor
+    protected void handleEventRelatedError(
+        Event event,
+        String containerName,
+        String zipFilename,
+        String reason,
+        Envelope envelope
+    ) {
+        envelopeProcessor.createEvent(
+            event,
+            containerName,
+            zipFilename,
+            reason,
+            envelope == null ? null : envelope.getId()
+        );
+    }
+
     protected long handleEventRelatedError(
         Event event,
         String containerName,
         String zipFilename,
         Exception exception
     ) {
-        return registerEvent(event, containerName, zipFilename, exception.getMessage());
-    }
-
-    protected long registerEvent(Event event, String container, String zipFileName, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
-            container,
-            zipFileName,
+            containerName,
+            zipFilename,
             event
         );
 
-        processEvent.setReason(reason);
+        processEvent.setReason(exception.getMessage());
         long eventId = eventRepository.saveAndFlush(processEvent).getId();
 
         log.info(
@@ -101,7 +114,13 @@ public abstract class Processor {
             );
 
             envelopeProcessor.markAsUploadFailure(envelope);
-            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, envelope.getContainer(), envelope.getZipFileName(), ex);
+            envelopeProcessor.createEvent(
+                Event.DOC_UPLOAD_FAILURE,
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                ex.getMessage(),
+                envelope.getId()
+            );
             return Boolean.FALSE;
         }
     }
