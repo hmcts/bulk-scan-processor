@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -71,31 +70,6 @@ public abstract class Processor {
             reason,
             envelope == null ? null : envelope.getId()
         );
-    }
-
-    protected long handleEventRelatedError(
-        Event event,
-        String containerName,
-        String zipFilename,
-        Exception exception
-    ) {
-        ProcessEvent processEvent = new ProcessEvent(
-            containerName,
-            zipFilename,
-            event
-        );
-
-        processEvent.setReason(exception.getMessage());
-        long eventId = eventRepository.saveAndFlush(processEvent).getId();
-
-        log.info(
-            "Zip {} from {} marked as {}",
-            processEvent.getZipFileName(),
-            processEvent.getContainer(),
-            processEvent.getEvent()
-        );
-
-        return eventId;
     }
 
     private Boolean uploadParsedEnvelopeDocuments(

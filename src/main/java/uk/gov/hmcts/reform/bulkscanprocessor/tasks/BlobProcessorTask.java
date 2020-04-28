@@ -274,7 +274,13 @@ public class BlobProcessorTask extends Processor {
         String leaseId,
         Exception cause
     ) {
-        Long eventId = handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+        Long eventId = envelopeProcessor.createEvent(
+            fileValidationFailure,
+            containerName,
+            zipFilename,
+            cause.getMessage(),
+            null
+        );
 
         ErrorMapping
             .getFor(cause.getClass())
