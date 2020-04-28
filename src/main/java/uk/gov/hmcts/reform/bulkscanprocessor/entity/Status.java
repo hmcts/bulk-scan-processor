@@ -10,7 +10,7 @@ public enum Status {
     CREATED,
     METADATA_FAILURE,   // when we are aware of envelope, but there are inconsistency among files and metadata info
     SIGNATURE_FAILURE,  // the zip archive failed signature verification
-    PROCESSED,          // after storing all docs in DM
+    PROCESSED,          // after storing all docs in DM. TODO: remove once DB doesn't have this state
     UPLOADED,
     UPLOAD_FAILURE,
     NOTIFICATION_SENT,  // after notifying about a new envelope
