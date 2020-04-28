@@ -48,7 +48,7 @@ public class ApplicationHealthTest {
         String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
 
         assertThatCode(() ->
-            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.PROCESSED)
+            testHelper.getEnvelopes(this.testUrl, s2sToken, Status.UPLOADED)
         ).doesNotThrowAnyException();
     }
 
