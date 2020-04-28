@@ -213,8 +213,6 @@ public class BlobProcessorTask extends Processor {
         String containerName,
         String leaseId
     ) {
-        Envelope dbEnvelope = null;
-
         try {
             ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
@@ -237,7 +235,7 @@ public class BlobProcessorTask extends Processor {
 
             Optional<OcrValidationWarnings> ocrValidationWarnings = this.ocrValidator.assertOcrDataIsValid(envelope);
 
-            dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
+            Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
 
             result.setEnvelope(envelopeProcessor.saveEnvelope(dbEnvelope));
 
@@ -260,11 +258,11 @@ public class BlobProcessorTask extends Processor {
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
-            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage(), dbEnvelope);
+            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage(), null);
             return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex.getMessage(), dbEnvelope);
+            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex.getMessage(), null);
             return null;
         }
     }
