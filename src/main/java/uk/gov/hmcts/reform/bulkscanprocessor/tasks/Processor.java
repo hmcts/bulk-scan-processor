@@ -53,9 +53,8 @@ public abstract class Processor {
         if (!markAsUploaded(envelope)) {
             return;
         }
-        if (!markAsProcessed(envelope)) {
-            return;
-        }
+
+        markAsProcessed(envelope);
     }
 
     protected long handleEventRelatedError(
@@ -112,8 +111,8 @@ public abstract class Processor {
         return handleEvent(envelope, DOC_UPLOADED);
     }
 
-    private Boolean markAsProcessed(Envelope envelope) {
-        return handleEvent(envelope, DOC_PROCESSED);
+    private void markAsProcessed(Envelope envelope) {
+        handleEvent(envelope, DOC_PROCESSED);
     }
 
     private Boolean handleEvent(Envelope envelope, Event event) {
