@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 
@@ -101,7 +100,7 @@ public abstract class Processor {
                 ex
             );
 
-            markAsUploadFailure(envelope);
+            envelopeProcessor.markAsUploadFailure(envelope);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, envelope.getContainer(), envelope.getZipFileName(), ex);
             return Boolean.FALSE;
         }
@@ -129,20 +128,5 @@ public abstract class Processor {
             );
             return Boolean.FALSE;
         }
-    }
-
-    private void markAsUploadFailure(Envelope envelope) {
-        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
-        envelope.setStatus(UPLOAD_FAILURE);
-
-        envelopeRepository.saveAndFlush(envelope);
-
-        log.info(
-            "Change envelope {} from {} and {} status to {}",
-            envelope.getId(),
-            envelope.getContainer(),
-            envelope.getZipFileName(),
-            UPLOAD_FAILURE.name()
-        );
     }
 }
