@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,7 @@ public class UploadEnvelopeDocumentsTask {
         this.uploadService = uploadService;
     }
 
+    @SchedulerLock(name = TASK_NAME) // so to not upload documents multiple times
     public void run() {
         log.info("Started {} job", TASK_NAME);
 
