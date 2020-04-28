@@ -129,8 +129,6 @@ module "bulk-scan" {
 
     STORAGE_BLOB_SELECTED_CONTAINER = "${var.blob_selected_container}"
 
-    STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
-
     QUEUE_ENVELOPE_SEND            = "${data.azurerm_key_vault_secret.envelopes_queue_send_conn_str.value}"
     QUEUE_NOTIFICATIONS_SEND       = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
     QUEUE_NOTIFICATIONS_READ       = "${data.azurerm_key_vault_secret.notifications_queue_listen_conn_str.value}"
@@ -231,11 +229,7 @@ data "azurerm_key_vault_secret" "envelopes_queue_send_conn_str" {
 }
 
 data "azurerm_key_vault_secret" "notifications_queue_send_conn_str" {
-  # publish error notifications in reform-scan's queue except in prod
-  key_vault_id = "${local.local_env == "prod"
-                        ? data.azurerm_key_vault.key_vault.id
-                        : data.azurerm_key_vault.reform_scan_key_vault.id
-                    }"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   name         = "notifications-queue-send-connection-string"
 }
 
