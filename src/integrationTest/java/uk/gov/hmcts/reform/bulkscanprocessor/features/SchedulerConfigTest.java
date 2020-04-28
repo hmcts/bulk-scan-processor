@@ -23,6 +23,8 @@ import static org.mockito.Mockito.verify;
 @TestPropertySource(
     properties = {
         "scheduling.task.scan.enabled=true",
+        "scheduling.task.upload-documents.delay=1000",
+        "scheduling.task.upload-documents.enabled=true",
         "scheduling.task.reupload.enabled=true",
         "scheduling.task.notifications_to_orchestrator.enabled=true",
         "scheduling.task.delete-complete-files.enabled=true",
@@ -45,6 +47,7 @@ public class SchedulerConfigTest {
         assertThat(configCaptor.getAllValues())
             .extracting(lc -> lc.getName())
             .containsOnly(
+                "upload-documents",
                 "re-upload-failures",
                 "send-orchestrator-notification",
                 "delete-complete-files"
