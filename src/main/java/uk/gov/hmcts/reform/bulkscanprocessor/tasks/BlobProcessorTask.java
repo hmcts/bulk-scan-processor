@@ -191,8 +191,7 @@ public class BlobProcessorTask extends Processor {
                 if (processingResult != null) {
                     processParsedEnvelopeDocuments(
                         processingResult.getEnvelope(),
-                        processingResult.getPdfs(),
-                        cloudBlockBlob
+                        processingResult.getPdfs()
                     );
                 }
             }

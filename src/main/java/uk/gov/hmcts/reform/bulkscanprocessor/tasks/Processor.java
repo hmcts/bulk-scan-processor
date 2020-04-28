@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -46,8 +45,7 @@ public abstract class Processor {
 
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,
-        List<Pdf> pdfs,
-        CloudBlockBlob cloudBlockBlob
+        List<Pdf> pdfs
     ) {
         if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
             return;
