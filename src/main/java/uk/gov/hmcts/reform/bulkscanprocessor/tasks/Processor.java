@@ -55,23 +55,6 @@ public abstract class Processor {
         markAsProcessed(envelope);
     }
 
-    // prepare to move to envelope processor
-    protected void handleEventRelatedError(
-        Event event,
-        String containerName,
-        String zipFilename,
-        String reason,
-        Envelope envelope
-    ) {
-        envelopeProcessor.createEvent(
-            event,
-            containerName,
-            zipFilename,
-            reason,
-            envelope == null ? null : envelope.getId()
-        );
-    }
-
     private Boolean uploadParsedEnvelopeDocuments(
         Envelope envelope,
         List<Pdf> pdfs
