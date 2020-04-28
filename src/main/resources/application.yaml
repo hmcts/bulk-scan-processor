@@ -171,12 +171,21 @@ scheduling:
   pool: ${SCHEDULING_POOL:10}
   lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
   task:
+    # 1 - scan storage for new envelopes and process them
     scan:
       delay: ${SCAN_DELAY:30000} # In milliseconds
       enabled: ${SCAN_ENABLED:false}
+    # 2 - upload all documents for successfully scanned envelopes
+    upload-documents:
+      envelope-age-in-minutes: 20 # see UploadEnvelopeDocumentsTask for explanation
+    # 3 - send notification to orchestrator once all documents are uploaded
     notifications_to_orchestrator:
       delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms
       enabled: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED:false}
+    # 4 - delete completed files by orchestrator (message is received whenever envelope has been processed by it)
+    delete-complete-files:
+      enabled: ${DELETE_COMPLETE_FILES_ENABLED}
+      cron: ${DELETE_COMPLETE_FILES_CRON}
     reupload:
       batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all
       delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
@@ -186,9 +195,6 @@ scheduling:
       enabled: ${DELETE_REJECTED_FILES_ENABLED:false}
       cron: ${DELETE_REJECTED_FILES_CRON}
       ttl: ${DELETE_REJECTED_FILES_TTL}
-    delete-complete-files:
-      enabled: ${DELETE_COMPLETE_FILES_ENABLED}
-      cron: ${DELETE_COMPLETE_FILES_CRON}
 
 envelope-access:
   mappings:
