@@ -181,20 +181,31 @@ public class BlobProcessorTask extends Processor {
         Optional<String> leaseId = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
 
         if (leaseId.isPresent()) {
-            // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
-                registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
+            Envelope envelope = envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
 
-                ZipFileProcessingResult processingResult =
-                    processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
+            if (envelope == null) {
+                // Zip file will include metadata.json and collection of pdf documents
+                try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
+                    registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
-                if (processingResult != null) {
-                    processParsedEnvelopeDocuments(
-                        processingResult.getEnvelope(),
-                        processingResult.getPdfs(),
-                        cloudBlockBlob
-                    );
+                    ZipFileProcessingResult processingResult =
+                        processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
+
+                    if (processingResult != null) {
+                        processParsedEnvelopeDocuments(
+                            processingResult.getEnvelope(),
+                            processingResult.getPdfs(),
+                            cloudBlockBlob
+                        );
+                    }
                 }
+            } else {
+                log.info(
+                    "Envelope already exists for container %s and file %s - aborting its processing. Envelope ID: %s",
+                    container.getName(),
+                    zipFilename,
+                    envelope.getId()
+                );
             }
         }
     }
