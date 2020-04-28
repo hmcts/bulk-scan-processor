@@ -6,5 +6,3 @@ scan_delay = "4000"
 
 orchestrator_notifications_task_delay = "3000"
 orchestrator_notifications_task_enabled = "true"
-
-blob_signature_verification_key_file = "test_public_key.der"

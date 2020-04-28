@@ -129,8 +129,6 @@ module "bulk-scan" {
 
     STORAGE_BLOB_SELECTED_CONTAINER = "${var.blob_selected_container}"
 
-    STORAGE_BLOB_PUBLIC_KEY          = "${var.blob_signature_verification_key_file}"
-
     QUEUE_ENVELOPE_SEND            = "${data.azurerm_key_vault_secret.envelopes_queue_send_conn_str.value}"
     QUEUE_NOTIFICATIONS_SEND       = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
     QUEUE_NOTIFICATIONS_READ       = "${data.azurerm_key_vault_secret.notifications_queue_listen_conn_str.value}"
