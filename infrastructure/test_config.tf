@@ -20,8 +20,3 @@ resource "azurerm_key_vault_secret" "s2s_secret" {
   name         = "s2s-secret"
   value        = "${data.azurerm_key_vault_secret.s2s_secret.value}"
 }
-
-data "azurerm_key_vault_secret" "test_private_key_der" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "test-private-key-der"
-}

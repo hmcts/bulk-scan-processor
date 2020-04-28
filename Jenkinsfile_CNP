@@ -30,7 +30,6 @@ def combinedSecrets = [
     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
     secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
-    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER'),
     secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
     secret('processed-envelopes-queue-send-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
   ],
@@ -46,9 +45,6 @@ def commonSecrets = [
     // to be removed later
     secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
     secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
-  ],
-  'bulk-scan-${env}': [
-    secret('test-private-key-der', 'TEST_PRIVATE_KEY_DER')
   ]
 ]
 
