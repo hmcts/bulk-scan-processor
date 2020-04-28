@@ -6,7 +6,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -15,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 
@@ -102,16 +102,10 @@ public abstract class Processor {
                 ex
             );
 
-            incrementUploadFailureCount(envelope);
-            updateEnvelopeLastStatus(envelope, Event.DOC_UPLOAD_FAILURE);
+            markAsUploadFailure(envelope);
             handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, envelope.getContainer(), envelope.getZipFileName(), ex);
             return Boolean.FALSE;
         }
-    }
-
-    private void incrementUploadFailureCount(Envelope envelope) {
-        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
-        envelopeRepository.saveAndFlush(envelope);
     }
 
     private Boolean markAsUploaded(Envelope envelope) {
@@ -138,19 +132,18 @@ public abstract class Processor {
         }
     }
 
-    private void updateEnvelopeLastStatus(Envelope envelope, Event event) {
-        Status.fromEvent(event).ifPresent(status -> {
-            envelope.setStatus(status);
+    private void markAsUploadFailure(Envelope envelope) {
+        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
+        envelope.setStatus(UPLOAD_FAILURE);
 
-            envelopeRepository.saveAndFlush(envelope);
+        envelopeRepository.saveAndFlush(envelope);
 
-            log.info(
-                "Change envelope {} from {} and {} status to {}",
-                envelope.getId(),
-                envelope.getContainer(),
-                envelope.getZipFileName(),
-                status
-            );
-        });
+        log.info(
+            "Change envelope {} from {} and {} status to {}",
+            envelope.getId(),
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            UPLOAD_FAILURE.name()
+        );
     }
 }
