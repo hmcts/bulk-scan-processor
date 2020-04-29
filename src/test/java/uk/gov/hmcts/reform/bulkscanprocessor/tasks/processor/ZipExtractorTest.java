@@ -30,7 +30,7 @@ public class ZipExtractorTest {
     @Test
     void should_extract_inner_zip_when_wrapping_is_enabled() throws Exception {
         // given
-        byte[] innerZip = zipDir("signature/sample_valid_content");
+        byte[] innerZip = zipDir("envelopes/sample_valid_content");
         byte[] outerZip = zipItems(singletonList((new ZipItem(ZipExtractor.DOCUMENTS_ZIP, innerZip))));
 
         // when
@@ -42,7 +42,7 @@ public class ZipExtractorTest {
 
     @Test
     public void should_throw_exception_if_envelope_is_not_found() throws Exception {
-        byte[] innerZip = zipDir("signature/sample_valid_content");
+        byte[] innerZip = zipDir("envelopes/sample_valid_content");
         byte[] outerZip = zipItems(singletonList((new ZipItem("invalid_entry_name", innerZip))));
 
         assertThatThrownBy(() -> extractor.extract(toZipStream(outerZip)))
@@ -53,7 +53,7 @@ public class ZipExtractorTest {
     @Test
     void should_return_original_zip_if_wrapping_is_disabled() throws Exception {
         // given
-        ZipInputStream input = toZipStream(zipDirAndWrap("signature/sample_valid_content"));
+        ZipInputStream input = toZipStream(zipDirAndWrap("envelopes/sample_valid_content"));
 
         // when
         ZipInputStream result = new ZipExtractor(false).extract(input);
