@@ -94,7 +94,7 @@ public class DeleteCompleteFilesTask {
         String loggingContext = "File name: " + envelope.getZipFileName() + ", Container: " + container.getName();
 
         try {
-            log.info("Deleting file. " + loggingContext);
+            log.info("Deleting file. {}", loggingContext);
 
             CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
 
