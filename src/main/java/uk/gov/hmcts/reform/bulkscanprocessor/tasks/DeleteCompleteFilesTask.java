@@ -72,7 +72,7 @@ public class DeleteCompleteFilesTask {
         );
         int successCount = 0;
         int failureCount = 0;
-        for (Envelope envelope: envelopes) {
+        for (Envelope envelope : envelopes) {
             if (tryProcessCompleteEnvelope(container, envelope)) {
                 successCount++;
             } else {
@@ -88,65 +88,41 @@ public class DeleteCompleteFilesTask {
         );
     }
 
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     private boolean tryProcessCompleteEnvelope(CloudBlobContainer container, Envelope envelope) {
-        boolean deleted = false;
+        boolean deleted;
+
+        String loggingContext = "File name: " + envelope.getZipFileName() + ", Container: " + container.getName();
 
         try {
-            CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
+            log.info("Deleting file. " + loggingContext);
 
-            log.info(
-                "File {} (container {}) is complete - deleting",
-                envelope.getZipFileName(),
-                container.getName()
-            );
+            CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
 
             if (cloudBlockBlob.exists()) {
                 deleted = cloudBlockBlob.deleteIfExists();
                 if (deleted) {
-                    log.info(
-                        "Deleted file {} from container {}",
-                        envelope.getZipFileName(),
-                        container.getName()
-                    );
+                    log.info("File deleted. {}", loggingContext);
                 } else {
-                    log.info(
-                        "File {} has not been deleted from container {}",
-                        envelope.getZipFileName(),
-                        container.getName()
-                    );
+                    log.info("File has not been deleted. {}", loggingContext);
                 }
             } else {
                 deleted = true;
-                log.info(
-                    "File {} (container {}) has already been deleted.",
-                    envelope.getZipFileName(),
-                    container.getName()
-                );
+                log.info("File has already been deleted. {}", loggingContext);
             }
+
             if (deleted) {
                 envelope.setZipDeleted(true);
                 envelopeRepository.saveAndFlush(envelope);
-                log.info(
-                    "Marked envelope from file {} (container {}) as deleted",
-                    envelope.getZipFileName(),
-                    container.getName()
-                );
+                log.info("Marked envelope as deleted. {}", loggingContext);
             }
-        } catch (Exception ex) {
-            log.error(
-                "Failed to process file {} from container {}",
-                envelope.getZipFileName(),
-                container.getName(),
-                ex
-            );
-            registerDeleteFailureEvent(
-                envelope,
-                ex.getMessage()
-            );
-        }
 
-        return deleted;
+            return deleted;
+
+        } catch (Exception ex) {
+            log.error("Failed to process file. {}", loggingContext, ex);
+            registerDeleteFailureEvent(envelope, ex.getMessage());
+            return false;
+        }
     }
 
     private void registerDeleteFailureEvent(
