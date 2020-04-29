@@ -1,13 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -46,8 +43,7 @@ public abstract class Processor {
 
     protected void processParsedEnvelopeDocuments(
         Envelope envelope,
-        List<Pdf> pdfs,
-        CloudBlockBlob cloudBlockBlob
+        List<Pdf> pdfs
     ) {
         if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
             return;
@@ -55,38 +51,8 @@ public abstract class Processor {
         if (!markAsUploaded(envelope)) {
             return;
         }
-        if (!markAsProcessed(envelope)) {
-            return;
-        }
-    }
 
-    protected long handleEventRelatedError(
-        Event event,
-        String containerName,
-        String zipFilename,
-        Exception exception
-    ) {
-        return registerEvent(event, containerName, zipFilename, exception.getMessage());
-    }
-
-    protected long registerEvent(Event event, String container, String zipFileName, String reason) {
-        ProcessEvent processEvent = new ProcessEvent(
-            container,
-            zipFileName,
-            event
-        );
-
-        processEvent.setReason(reason);
-        long eventId = eventRepository.saveAndFlush(processEvent).getId();
-
-        log.info(
-            "Zip {} from {} marked as {}",
-            processEvent.getZipFileName(),
-            processEvent.getContainer(),
-            processEvent.getEvent()
-        );
-
-        return eventId;
+        markAsProcessed(envelope);
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
@@ -104,24 +70,24 @@ public abstract class Processor {
                 ex
             );
 
-            incrementUploadFailureCount(envelope);
-            updateEnvelopeLastStatus(envelope, Event.DOC_UPLOAD_FAILURE);
-            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, envelope.getContainer(), envelope.getZipFileName(), ex);
+            envelopeProcessor.markAsUploadFailure(envelope);
+            envelopeProcessor.createEvent(
+                Event.DOC_UPLOAD_FAILURE,
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                ex.getMessage(),
+                envelope.getId()
+            );
             return Boolean.FALSE;
         }
-    }
-
-    private void incrementUploadFailureCount(Envelope envelope) {
-        envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
-        envelopeRepository.saveAndFlush(envelope);
     }
 
     private Boolean markAsUploaded(Envelope envelope) {
         return handleEvent(envelope, DOC_UPLOADED);
     }
 
-    private Boolean markAsProcessed(Envelope envelope) {
-        return handleEvent(envelope, DOC_PROCESSED);
+    private void markAsProcessed(Envelope envelope) {
+        handleEvent(envelope, DOC_PROCESSED);
     }
 
     private Boolean handleEvent(Envelope envelope, Event event) {
@@ -138,21 +104,5 @@ public abstract class Processor {
             );
             return Boolean.FALSE;
         }
-    }
-
-    private void updateEnvelopeLastStatus(Envelope envelope, Event event) {
-        Status.fromEvent(event).ifPresent(status -> {
-            envelope.setStatus(status);
-
-            envelopeRepository.saveAndFlush(envelope);
-
-            log.info(
-                "Change envelope {} from {} and {} status to {}",
-                envelope.getId(),
-                envelope.getContainer(),
-                envelope.getZipFileName(),
-                status
-            );
-        });
     }
 }

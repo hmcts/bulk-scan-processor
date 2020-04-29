@@ -186,7 +186,7 @@ public class BlobProcessorTask extends Processor {
             if (envelope == null) {
                 // Zip file will include metadata.json and collection of pdf documents
                 try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
-                    registerEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
+                    createEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
                     ZipFileProcessingResult processingResult =
                         processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
@@ -194,14 +194,13 @@ public class BlobProcessorTask extends Processor {
                     if (processingResult != null) {
                         processParsedEnvelopeDocuments(
                             processingResult.getEnvelope(),
-                            processingResult.getPdfs(),
-                            cloudBlockBlob
+                            processingResult.getPdfs()
                         );
                     }
                 }
             } else {
                 log.info(
-                    "Envelope already exists for container %s and file %s - aborting its processing. Envelope ID: %s",
+                    "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
                     container.getName(),
                     zipFilename,
                     envelope.getId()
@@ -270,13 +269,28 @@ public class BlobProcessorTask extends Processor {
             return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
-            handleEventRelatedError(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
+            createEvent(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
             return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFilename, ex);
+            createEvent(Event.DOC_FAILURE, containerName, zipFilename, ex);
             return null;
         }
+    }
+
+    private void createEvent(
+        Event event,
+        String containerName,
+        String zipFilename,
+        Exception exception
+    ) {
+        envelopeProcessor.createEvent(
+            event,
+            containerName,
+            zipFilename,
+            exception == null ? null : exception.getMessage(),
+            null
+        );
     }
 
     private void handleInvalidFileError(
@@ -286,7 +300,13 @@ public class BlobProcessorTask extends Processor {
         String leaseId,
         Exception cause
     ) {
-        Long eventId = handleEventRelatedError(fileValidationFailure, containerName, zipFilename, cause);
+        Long eventId = envelopeProcessor.createEvent(
+            fileValidationFailure,
+            containerName,
+            zipFilename,
+            cause.getMessage(),
+            null
+        );
 
         ErrorMapping
             .getFor(cause.getClass())

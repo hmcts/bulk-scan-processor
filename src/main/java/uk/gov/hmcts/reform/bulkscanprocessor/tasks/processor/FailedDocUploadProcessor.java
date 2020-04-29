@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,8 +94,9 @@ public class FailedDocUploadProcessor extends Processor {
 
         log.info("Processing zip file {} from container {}", envelope.getZipFileName(), envelope.getContainer());
 
-        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
-        BlobInputStream blobInputStream = cloudBlockBlob.openInputStream();
+        BlobInputStream blobInputStream = container
+            .getBlockBlobReference(envelope.getZipFileName())
+            .openInputStream();
 
         try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
             ZipFileProcessingResult result = processZipInputStream(
@@ -108,8 +108,7 @@ public class FailedDocUploadProcessor extends Processor {
             if (result != null) {
                 processParsedEnvelopeDocuments(
                     envelope,
-                    result.getPdfs(),
-                    cloudBlockBlob
+                    result.getPdfs()
                 );
             }
         }
@@ -126,7 +125,7 @@ public class FailedDocUploadProcessor extends Processor {
             return zipFileProcessor.process(zis, zipFileName);
         } catch (Exception ex) {
             log.error("Failed to reprocess file {} from container {}", zipFileName, containerName, ex);
-            handleEventRelatedError(Event.DOC_FAILURE, containerName, zipFileName, ex);
+            envelopeProcessor.createEvent(Event.DOC_FAILURE, containerName, zipFileName, ex.getMessage(), null);
             return null;
         }
     }

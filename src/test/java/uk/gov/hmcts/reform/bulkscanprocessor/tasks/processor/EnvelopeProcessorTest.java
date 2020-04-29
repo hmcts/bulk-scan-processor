@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -58,6 +59,9 @@ class EnvelopeProcessorTest {
 
     @Test
     void should_create_new_event_only() {
+        // given
+        given(processEventRepository.saveAndFlush(any(ProcessEvent.class))).willReturn(new ProcessEvent());
+
         // when
         envelopeProcessor.createEvent(DOC_UPLOAD_FAILURE, "container", "zip-file-name", "reason", randomUUID());
 

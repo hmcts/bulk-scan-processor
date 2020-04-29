@@ -148,7 +148,7 @@ public class EnvelopeProcessor {
         envelopeRepository.saveAndFlush(envelope);
     }
 
-    public void createEvent(Event event, String containerName, String zipFileName, String reason, UUID envelopeId) {
+    public long createEvent(Event event, String containerName, String zipFileName, String reason, UUID envelopeId) {
         ProcessEvent processEvent = new ProcessEvent(
             containerName,
             zipFileName,
@@ -156,7 +156,7 @@ public class EnvelopeProcessor {
         );
 
         processEvent.setReason(reason);
-        processEventRepository.saveAndFlush(processEvent);
+        long eventId = processEventRepository.saveAndFlush(processEvent).getId();
 
         log.info(
             "Zip {} from {} marked as {}. Envelope ID: {}",
@@ -165,6 +165,8 @@ public class EnvelopeProcessor {
             processEvent.getEvent(),
             envelopeId
         );
+
+        return eventId;
     }
 
     public void handleEvent(Envelope envelope, Event event) {
