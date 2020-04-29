@@ -194,14 +194,13 @@ public class BlobProcessorTask extends Processor {
                     if (processingResult != null) {
                         processParsedEnvelopeDocuments(
                             processingResult.getEnvelope(),
-                            processingResult.getPdfs(),
-                            cloudBlockBlob
+                            processingResult.getPdfs()
                         );
                     }
                 }
             } else {
                 log.info(
-                    "Envelope already exists for container %s and file %s - aborting its processing. Envelope ID: %s",
+                    "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
                     container.getName(),
                     zipFilename,
                     envelope.getId()
