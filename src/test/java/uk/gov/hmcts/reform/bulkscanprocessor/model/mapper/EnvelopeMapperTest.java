@@ -12,21 +12,24 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.COVERSHEET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.WILL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.CHERISHED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FORM;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
 
 public class EnvelopeMapperTest {
 
@@ -36,7 +39,7 @@ public class EnvelopeMapperTest {
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
             zipEnvelope.scannableItems.get(0).documentControlNumber,
-            Arrays.asList("warning 1", "warning 2")
+            asList("warning 1", "warning 2")
         );
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.of(ocrValidationWarnings));
@@ -79,8 +82,19 @@ public class EnvelopeMapperTest {
 
         assertThat(dbEnvelope.getScannableItems())
             .extracting(this::convertToInputScannableItem)
-            .usingRecursiveFieldByFieldElementComparator()
+            .usingElementComparatorIgnoringFields("ocrData", "documentType")
             .containsAll(zipEnvelope.scannableItems);
+        assertThat(dbEnvelope.getScannableItems())
+            .extracting(ScannableItem::getOcrData)
+            .extracting(this::convertToInputOcrData)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsAll(
+                zipEnvelope.scannableItems.stream().map(item -> item.ocrData).collect(toList())
+            );
+        assertThat(dbEnvelope.getScannableItems())
+            .extracting(ScannableItem::getDocumentType)
+            .usingDefaultComparator()
+            .containsExactly(CHERISHED, OTHER, FORM, DocumentType.COVERSHEET);
     }
 
     private void assertSameNonScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
@@ -158,7 +172,7 @@ public class EnvelopeMapperTest {
                             return InputDocumentType.SSCS1;
                         case WILL:
                             return InputDocumentType.WILL;
-                        case COVERSHEET:
+                        case DocumentSubtype.COVERSHEET:
                             return InputDocumentType.COVERSHEET;
                         default:
                             return InputDocumentType.OTHER;

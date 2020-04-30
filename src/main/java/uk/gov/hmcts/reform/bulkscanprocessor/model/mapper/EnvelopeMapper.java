@@ -126,6 +126,7 @@ public class EnvelopeMapper {
             case COVERSHEET:
                 return DocumentType.COVERSHEET;
             case FORM:
+            case SSCS1:
                 return DocumentType.FORM;
             default:
                 return DocumentType.OTHER;
