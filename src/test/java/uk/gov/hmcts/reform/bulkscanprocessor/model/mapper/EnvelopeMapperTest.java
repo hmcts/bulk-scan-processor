@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputNonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
@@ -25,6 +24,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.COVERSHEET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.WILL;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.CHERISHED;
@@ -172,7 +172,7 @@ public class EnvelopeMapperTest {
                             return InputDocumentType.SSCS1;
                         case WILL:
                             return InputDocumentType.WILL;
-                        case DocumentSubtype.COVERSHEET:
+                        case COVERSHEET:
                             return InputDocumentType.COVERSHEET;
                         default:
                             return InputDocumentType.OTHER;
