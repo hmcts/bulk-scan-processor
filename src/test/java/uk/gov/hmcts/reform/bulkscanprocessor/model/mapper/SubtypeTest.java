@@ -25,14 +25,14 @@ public class SubtypeTest {
     public void should_map_scannable_item_document_types_correctly() {
         asList(
             // null subtype
-            new TestCase(new Given(SSCS1, null), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
+            new TestCase(new Given(SSCS1, null), new Expect(DocumentType.FORM, DocumentSubtype.SSCS1)),
             new TestCase(new Given(WILL, null), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
             new TestCase(new Given(COVERSHEET, null), new Expect(DocumentType.COVERSHEET, null)),
             new TestCase(new Given(CHERISHED, null), new Expect(DocumentType.CHERISHED, null)),
             new TestCase(new Given(OTHER, null), new Expect(DocumentType.OTHER, null)),
             new TestCase(new Given(FORM, null), new Expect(DocumentType.FORM, null)),
             // non-null subtype
-            new TestCase(new Given(SSCS1, SOME_SUBTYPE), new Expect(DocumentType.OTHER, DocumentSubtype.SSCS1)),
+            new TestCase(new Given(SSCS1, SOME_SUBTYPE), new Expect(DocumentType.FORM, DocumentSubtype.SSCS1)),
             new TestCase(new Given(WILL, SOME_SUBTYPE), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
             new TestCase(new Given(COVERSHEET, SOME_SUBTYPE), new Expect(DocumentType.COVERSHEET, SOME_SUBTYPE)),
             new TestCase(new Given(CHERISHED, SOME_SUBTYPE), new Expect(DocumentType.CHERISHED, SOME_SUBTYPE)),
