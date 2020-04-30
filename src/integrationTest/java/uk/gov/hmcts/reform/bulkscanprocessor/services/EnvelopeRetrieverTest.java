@@ -41,10 +41,10 @@ public class EnvelopeRetrieverTest {
     public void should_retrieve_envelopes_by_status_and_jurisdiction() throws Exception {
         // given
         dbContains(
-            envelope("A", Status.PROCESSED),
-            envelope("A", Status.PROCESSED),
+            envelope("A", Status.UPLOADED),
+            envelope("A", Status.UPLOADED),
             envelope("A", Status.CONSUMED),
-            envelope("B", Status.PROCESSED),
+            envelope("B", Status.UPLOADED),
             envelope("B", Status.CONSUMED)
         );
 
@@ -52,12 +52,12 @@ public class EnvelopeRetrieverTest {
         serviceCanReadFromJurisdiction("service_A", "A");
 
         // when
-        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_A", Status.PROCESSED);
+        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_A", Status.UPLOADED);
 
         // then
         assertThat(envs).hasSize(2);
         assertThat(envs).allMatch(e -> e.getJurisdiction().equals("A"));
-        assertThat(envs).allMatch(e -> e.getStatus() == Status.PROCESSED);
+        assertThat(envs).allMatch(e -> e.getStatus() == Status.UPLOADED);
     }
 
     @Test
@@ -66,10 +66,10 @@ public class EnvelopeRetrieverTest {
 
         // given
         dbContains(
-            envelope("A", Status.PROCESSED),
+            envelope("A", Status.UPLOADED),
             envelope("A", Status.CONSUMED),
-            envelope("B", Status.PROCESSED),
-            envelope("B", Status.PROCESSED)
+            envelope("B", Status.UPLOADED),
+            envelope("B", Status.UPLOADED)
         );
 
         // and
@@ -86,8 +86,8 @@ public class EnvelopeRetrieverTest {
     public void should_retrieve_all_envelopes_for_given_jurisdiction_if_passed_status_is_null() throws Exception {
         // given
         dbContains(
-            envelope("X", Status.PROCESSED),
-            envelope("X", Status.PROCESSED),
+            envelope("X", Status.UPLOAD_FAILURE),
+            envelope("X", Status.UPLOAD_FAILURE),
             envelope("X", Status.CONSUMED),
             envelope("X", Status.UPLOADED),
             envelope("Y", Status.CONSUMED)
@@ -107,7 +107,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_retrieve_single_envelope_by_id() throws Exception {
         // given
-        Envelope envelopeIdDb = envelopeRepo.saveAndFlush(envelope("X", Status.PROCESSED));
+        Envelope envelopeIdDb = envelopeRepo.saveAndFlush(envelope("X", Status.UPLOADED));
         serviceCanReadFromJurisdiction("service_X", "X");
 
         // when
@@ -120,7 +120,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_return_empty_optional_if_envelope_is_not_found() throws Exception {
         // given
-        envelopeRepo.saveAndFlush(envelope("X", Status.PROCESSED));
+        envelopeRepo.saveAndFlush(envelope("X", Status.UPLOADED));
         serviceCanReadFromJurisdiction("service_X", "X");
 
         // when
@@ -133,7 +133,7 @@ public class EnvelopeRetrieverTest {
     @Test
     public void should_throw_an_exception_if_service_cannot_read_existing_envelope() throws Exception {
         // given
-        Envelope envelopeForServiceB = envelopeRepo.saveAndFlush(envelope("B", Status.PROCESSED));
+        Envelope envelopeForServiceB = envelopeRepo.saveAndFlush(envelope("B", Status.UPLOADED));
         serviceCanReadFromJurisdiction("service_A", "A");
 
         // when

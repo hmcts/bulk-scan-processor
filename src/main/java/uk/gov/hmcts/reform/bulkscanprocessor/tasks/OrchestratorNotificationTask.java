@@ -16,9 +16,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 /**
  * Sends notifications to the orchestrator containing processed envelopes.
@@ -50,7 +52,11 @@ public class OrchestratorNotificationTask {
     public void run() {
         log.info("Started sending notifications to orchestrator");
 
-        List<Envelope> envelopesToSend = envelopeRepo.findByStatus(PROCESSED);
+        // once all PROCESSED are consumed the list will always be empty and can be removed
+        List<Envelope> uploadedEnvelopes = envelopeRepo.findByStatus(UPLOADED);
+        List<Envelope> processedEnvelopes = envelopeRepo.findByStatus(PROCESSED);
+        List<Envelope> envelopesToSend = new ArrayList<>(uploadedEnvelopes);
+        envelopesToSend.addAll(processedEnvelopes);
 
         int successCount = (int)envelopesToSend
             .stream()

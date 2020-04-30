@@ -47,7 +47,7 @@ public class OrchestratorNotificationTaskTest {
     @Test
     public void should_update_envelope_status_and_events_after_sending_notification() {
         // given
-        Envelope envelopeInDb = envelopeRepo.saveAndFlush(envelope("some_jurisdiction", Status.PROCESSED));
+        Envelope envelopeInDb = envelopeRepo.saveAndFlush(envelope("some_jurisdiction", Status.UPLOADED));
 
         // when
         task.run();
@@ -67,7 +67,7 @@ public class OrchestratorNotificationTaskTest {
     @Test
     public void should_not_update_envelope_and_create_an_event_if_sending_notification_failed() {
         // given
-        Envelope envelopeInDb = envelopeRepo.saveAndFlush(envelope("some_jurisdiction", Status.PROCESSED));
+        Envelope envelopeInDb = envelopeRepo.saveAndFlush(envelope("some_jurisdiction", Status.UPLOADED));
 
         doThrow(InvalidMessageException.class)
             .when(serviceBusHelper).sendMessage(any());
@@ -80,7 +80,7 @@ public class OrchestratorNotificationTaskTest {
         List<ProcessEvent> events = processEventRepo.findAll();
 
         assertThat(envelopeAfterTaskRun.getStatus())
-            .isEqualTo(Status.PROCESSED); // status still the same.
+            .isEqualTo(Status.UPLOADED); // status still the same.
 
         assertThat(events)
             .hasOnlyOneElementSatisfying(event -> {

@@ -93,10 +93,6 @@ queues:
   notifications:
     connection-string: ${QUEUE_NOTIFICATIONS_SEND}
     queue-name: notifications
-  read-notifications:
-    connection-string: ${QUEUE_NOTIFICATIONS_READ}
-    queue-name: notifications
-    enabled: ${ERROR_NOTIFICATIONS_ENABLED:false}
 
 accesstoken:
   serviceConfig:
@@ -159,11 +155,6 @@ idam:
 
 document_management:
   url: http://dm-store:4460
-
-error_notifications:
-  url: ${ERROR_NOTIFICATIONS_URL:false}
-  username: ${ERROR_NOTIFICATIONS_USERNAME:user}
-  password: ${ERROR_NOTIFICATIONS_PASSWORD:password}
 
 # end of clients region
 
