@@ -9,7 +9,6 @@ spring:
         flyway-password: flyway.password
         envelopes-queue-send-connection-string: QUEUE_ENVELOPE_SEND
         notifications-queue-send-connection-string: QUEUE_NOTIFICATIONS_SEND
-        notifications-queue-listen-connection-string: QUEUE_NOTIFICATIONS_READ
         processed-envelopes-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
         storage-account-name: storage.account_name
         storage-account-primary-key: storage.key
@@ -17,6 +16,3 @@ spring:
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
         reports-recipients: REPORTS_RECIPIENTS
-        error-notifications-url: ERROR_NOTIFICATIONS_URL
-        error-notifications-username: ERROR_NOTIFICATIONS_USERNAME
-        error-notifications-password: ERROR_NOTIFICATIONS_PASSWORD
