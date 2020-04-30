@@ -66,7 +66,7 @@ class UploadEnvelopeDocumentsTaskTest {
     // will verify grouping by container and throwing different error
     // so both exception branches are covered in a single test
     @Test
-    void should_do_nothing_when_failing_to_get_container_client() {
+    void should_call_service_twice_when_2_different_containers_are_present_in_the_list() {
         // given
         List<Envelope> envelopes = Arrays.asList(
             getEnvelope(CONTAINER_1, MINIMUM_ENVELOPE_AGE - 1),
