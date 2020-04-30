@@ -8,13 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
@@ -28,10 +25,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.BLOB_DELETE_FAILURE;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("PMD")
@@ -45,9 +40,6 @@ class DeleteCompleteFilesTaskTest {
 
     @Mock
     private CloudBlobContainer container1;
-
-    @Captor
-    private ArgumentCaptor<ProcessEvent> processEventCaptor;
 
     private DeleteCompleteFilesTask deleteCompleteFilesTask;
 
@@ -163,10 +155,6 @@ class DeleteCompleteFilesTaskTest {
         // then
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
-        assertThat(processEventCaptor.getValue().getContainer()).isEqualTo(envelope11.getContainer());
-        assertThat(processEventCaptor.getValue().getZipFileName()).isEqualTo(envelope11.getZipFileName());
-        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(BLOB_DELETE_FAILURE);
-        assertThat(processEventCaptor.getValue().getReason()).isEqualTo("msg");
     }
 
     @Test
