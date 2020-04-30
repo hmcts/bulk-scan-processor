@@ -48,10 +48,7 @@ public class ZipFileStatusServiceTest {
             event(Event.DOC_FAILURE, "B", now().minusSeconds(2), "reason2")
         );
 
-        List<Envelope> envelopes = asList(
-            envelope(UUID.randomUUID(), "A", Status.PROCESSED),
-            envelope(UUID.randomUUID(), "B", Status.PROCESSED)
-        );
+        List<Envelope> envelopes = asList(envelope("A"), envelope("B"));
 
         given(envelopeRepo.findByZipFileName("hello.zip")).willReturn(envelopes);
         given(eventRepo.findByZipFileName("hello.zip")).willReturn(events);
@@ -116,11 +113,11 @@ public class ZipFileStatusServiceTest {
         assertThat(result.events).isNotNull().isEmpty();
     }
 
-    private Envelope envelope(UUID id, String container, Status status) {
+    private Envelope envelope(String container) {
         Envelope envelope = mock(Envelope.class);
-        given(envelope.getId()).willReturn(id);
+        given(envelope.getId()).willReturn(UUID.randomUUID());
         given(envelope.getContainer()).willReturn(container);
-        given(envelope.getStatus()).willReturn(status);
+        given(envelope.getStatus()).willReturn(Status.UPLOADED);
         return envelope;
     }
 

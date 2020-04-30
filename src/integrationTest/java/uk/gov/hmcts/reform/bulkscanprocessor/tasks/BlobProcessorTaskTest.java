@@ -37,10 +37,9 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
@@ -131,7 +130,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             parse(originalMetaFile),
             "id", "amount", "amount_in_pence", "configuration", "json"
         );
-        assertThat(actualEnvelope.getStatus()).isEqualTo(PROCESSED);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOADED);
 
         assertThat(actualEnvelope.getScannableItems())
             .extracting(ScannableItem::getDocumentUuid)
@@ -145,8 +144,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
             .containsExactlyInAnyOrder(
                 ZIPFILE_PROCESSING_STARTED,
-                DOC_UPLOADED,
-                DOC_PROCESSED
+                DOC_UPLOADED
             );
 
         assertThat(processEvents).allMatch(pe -> pe.getReason() == null);
@@ -210,14 +208,14 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // then
         Envelope envelope = getSingleEnvelopeFromDb();
 
-        assertThat(envelope.getStatus()).isEqualTo(PROCESSED);
+        assertThat(envelope.getStatus()).isEqualTo(UPLOADED);
 
         // Check events created
         List<Event> actualEvents = processEventRepository.findAll().stream()
             .map(ProcessEvent::getEvent)
             .collect(toList());
 
-        assertThat(actualEvents).containsOnly(ZIPFILE_PROCESSING_STARTED, DOC_UPLOADED, DOC_PROCESSED);
+        assertThat(actualEvents).containsOnly(ZIPFILE_PROCESSING_STARTED, DOC_UPLOADED);
     }
 
     @Test

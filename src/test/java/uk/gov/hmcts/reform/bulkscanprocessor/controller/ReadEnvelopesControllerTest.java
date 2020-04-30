@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
@@ -41,6 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 @WebMvcTest(EnvelopeController.class)
 public class ReadEnvelopesControllerTest {
@@ -60,17 +60,17 @@ public class ReadEnvelopesControllerTest {
 
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
-        when(envelopeRetrieverService.findByServiceAndStatus("testServiceName", Status.PROCESSED))
+        when(envelopeRetrieverService.findByServiceAndStatus("testServiceName", UPLOADED))
             .thenReturn(envelopes);
 
-        mockMvc.perform(get("/envelopes?status=PROCESSED")
+        mockMvc.perform(get("/envelopes?status={status}", UPLOADED.name())
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(content().json(expectedEnvelopes()));
 
-        verify(envelopeRetrieverService).findByServiceAndStatus("testServiceName", Status.PROCESSED);
+        verify(envelopeRetrieverService).findByServiceAndStatus("testServiceName", UPLOADED);
         verify(authService).authenticate("testServiceAuthHeader");
     }
 
@@ -143,7 +143,7 @@ public class ReadEnvelopesControllerTest {
 
         Envelope envelope = EnvelopeCreator.envelope(
             "BULKSCAN",
-            Status.PROCESSED,
+            UPLOADED,
             ImmutableList.of(item1, item2)
         );
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
