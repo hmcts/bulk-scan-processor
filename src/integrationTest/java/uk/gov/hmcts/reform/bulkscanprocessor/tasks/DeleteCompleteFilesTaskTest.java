@@ -39,17 +39,13 @@ public class DeleteCompleteFilesTaskTest {
     @Autowired
     private EnvelopeProcessor envelopeProcessor;
 
-    @Autowired
-    private ProcessEventRepository eventRepository;
-
     private DeleteCompleteFilesTask task;
 
     @Before
     public void setUp() {
         this.task = new DeleteCompleteFilesTask(
             blobManager,
-            envelopeRepository,
-            eventRepository
+            envelopeRepository
         );
     }
 
