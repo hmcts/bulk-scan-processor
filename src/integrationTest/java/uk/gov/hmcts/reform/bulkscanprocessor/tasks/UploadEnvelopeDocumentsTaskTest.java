@@ -48,9 +48,8 @@ public class UploadEnvelopeDocumentsTaskTest {
     @MockBean private DocumentManagementService documentManagementService;
 
     @BeforeClass
-    public static void initializeContainer() {
-        TestStorageHelper.createDocker();
-        TestStorageHelper.startDocker();
+    public static void initializeStorage() {
+        TestStorageHelper.initialize();
     }
 
     @AfterClass
@@ -60,14 +59,14 @@ public class UploadEnvelopeDocumentsTaskTest {
 
     @Before
     public void prepare() {
-        STORAGE_HELPER.createContainer();
+        STORAGE_HELPER.createBulkscanContainer();
         envelopeRepository.deleteAll();
         eventRepository.deleteAll();
     }
 
     @After
     public void cleanUp() {
-        STORAGE_HELPER.deleteContainer();
+        STORAGE_HELPER.deleteBulkscanContainer();
         envelopeRepository.deleteAll();
         eventRepository.deleteAll();
     }

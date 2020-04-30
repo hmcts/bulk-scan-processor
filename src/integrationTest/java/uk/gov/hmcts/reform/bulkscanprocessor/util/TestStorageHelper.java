@@ -36,36 +36,33 @@ public class TestStorageHelper {
         return INSTANCE;
     }
 
-    public static void createDocker() {
+    private static void createDocker() {
         dockerContainer = new DockerComposeContainer<>(
             new File("src/integrationTest/resources/docker-compose.yml")
         ).withExposedService("azure-storage", 10000);
+        dockerContainer.start();
     }
 
-    public static void startDocker() {
-        if (dockerContainer == null) {
-            throw new RuntimeException(
-                "Cannot start container. Did you create one with "
-                    + TestStorageHelper.class.getSimpleName()
-                    + "::createDocker in a static context?"
-            );
-        }
-
+    private static void initializeStorage() {
         try {
-            dockerContainer.start();
             cloudBlobClient = CloudStorageAccount
                 .parse("UseDevelopmentStorage=true")
                 .createCloudBlobClient();
         } catch (InvalidKeyException | URISyntaxException exception) {
-            throw new RuntimeException("Unable to setup docker environment", exception);
+            throw new RuntimeException("Unable to initialize storage", exception);
         }
+    }
+
+    public static void initialize() {
+        createDocker();
+        initializeStorage();
     }
 
     public static void stopDocker() {
         dockerContainer.stop();
     }
 
-    public void createContainer() {
+    public void createBulkscanContainer() {
         try {
             testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
             testContainer.createIfNotExists();
@@ -74,7 +71,7 @@ public class TestStorageHelper {
         }
     }
 
-    public void deleteContainer() {
+    public void deleteBulkscanContainer() {
         try {
             testContainer.deleteIfExists();
         } catch (StorageException exception) {
