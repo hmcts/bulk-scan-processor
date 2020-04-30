@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,6 +28,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOA
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
+@Deprecated // next PR (after #1213) will remove this test
+@Ignore
 @IntegrationTest
 @RunWith(SpringRunner.class)
 public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUploadProcessor> {
