@@ -101,10 +101,6 @@ module "bulk-scan" {
 
     DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"
 
-    ERROR_NOTIFICATIONS_URL      = "${data.azurerm_key_vault_secret.notifications-url.value}"
-    ERROR_NOTIFICATIONS_USERNAME = "${data.azurerm_key_vault_secret.notifications-username.value}"
-    ERROR_NOTIFICATIONS_PASSWORD = "${data.azurerm_key_vault_secret.notifications-password.value}"
-
     S2S_URL    = "${local.s2s_url}"
     S2S_NAME   = "${var.s2s_name}"
     S2S_SECRET = "${data.azurerm_key_vault_secret.s2s_secret.value}"
@@ -122,8 +118,6 @@ module "bulk-scan" {
     DELETE_REJECTED_FILES_ENABLED = "${var.delete_rejected_files_enabled}"
     DELETE_REJECTED_FILES_CRON    = "${var.delete_rejected_files_cron}"
     DELETE_REJECTED_FILES_TTL     = "${var.delete_rejected_files_ttl}"
-
-    ERROR_NOTIFICATIONS_ENABLED = "${var.error_notifications_enabled}"
 
     STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
 
@@ -231,12 +225,6 @@ data "azurerm_key_vault_secret" "envelopes_queue_send_conn_str" {
 data "azurerm_key_vault_secret" "notifications_queue_send_conn_str" {
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   name         = "notifications-queue-send-connection-string"
-}
-
-// TODO: remove once the application stops processing notifications queue
-data "azurerm_key_vault_secret" "notifications_queue_listen_conn_str" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "notifications-queue-listen-connection-string"
 }
 
 data "azurerm_key_vault_secret" "processed_envelopes_queue_listen_conn_str" {
