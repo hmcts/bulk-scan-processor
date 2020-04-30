@@ -125,7 +125,6 @@ module "bulk-scan" {
 
     QUEUE_ENVELOPE_SEND            = "${data.azurerm_key_vault_secret.envelopes_queue_send_conn_str.value}"
     QUEUE_NOTIFICATIONS_SEND       = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
-    QUEUE_NOTIFICATIONS_READ       = "${data.azurerm_key_vault_secret.notifications_queue_listen_conn_str.value}"
     QUEUE_PROCESSED_ENVELOPES_READ = "${data.azurerm_key_vault_secret.processed_envelopes_queue_listen_conn_str.value}"
 
     SMTP_HOST          = "${var.smtp_host}"
