@@ -32,10 +32,27 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FO
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
 
 public class EnvelopeMapperTest {
+    private static final String METAFILE_BASE_PATH = "/metafiles/valid/";
+
+    @Test
+    public void should_map_envelope_fields_payments_andnon_scannable_items_correctly() throws Exception {
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "no-scannable-items.json");
+        String container = "container1";
+
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.empty());
+
+        assertSameFields(dbEnvelope, zipEnvelope);
+
+        assertSamePayments(dbEnvelope, zipEnvelope);
+        assertThat(dbEnvelope.getScannableItems()).isEmpty();
+        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
+
+        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
+    }
 
     @Test
     public void should_map_zip_envelope_with_scannable_items_without_sscs1_item_correctly() throws Exception {
-        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-no-sscs1-scannable-items.json");
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "no-sscs1-scannable-items.json");
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
             zipEnvelope.scannableItems.get(0).documentControlNumber,
@@ -44,34 +61,22 @@ public class EnvelopeMapperTest {
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.of(ocrValidationWarnings));
 
-        assertSameFields(dbEnvelope, zipEnvelope);
-
-        assertSamePayments(dbEnvelope, zipEnvelope);
         assertSameScannableItems(dbEnvelope, zipEnvelope);
         assertSameOcrData(dbEnvelope, zipEnvelope);
         assertDocumentTypes(dbEnvelope, CHERISHED, OTHER, DocumentType.COVERSHEET);
-        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
         assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
-
-        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
     }
 
     @Test
     public void should_map_zip_envelope_with_scannable_items_with_sscs1_item_correctly() throws Exception {
-        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-with-sscs1-scannable-item.json");
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "with-sscs1-scannable-item.json");
         String container = "container1";
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.empty());
 
-        assertSameFields(dbEnvelope, zipEnvelope);
-
-        assertSamePayments(dbEnvelope, zipEnvelope);
         assertSameScannableItems(dbEnvelope, zipEnvelope);
         assertSameOcrData(dbEnvelope, zipEnvelope);
         assertDocumentTypes(dbEnvelope, CHERISHED, OTHER, FORM, DocumentType.COVERSHEET);
-        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
-
-        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
     }
 
     private void assertDbEnvelopeSpecificProperties(String container, Envelope dbEnvelope) {
