@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.FailedDocUploadProcessor;
 
 import java.io.File;
 
@@ -77,9 +76,8 @@ public class ReuploadFailedEnvelopeTaskTest {
         task.processUploadFailures();
 
         // then
-        assertThat(outputCapture.toString()).containsPattern(".+ERROR \\[.+\\] "
-            + FailedDocUploadProcessor.class.getCanonicalName()
-            + ":\\d+: An error occurred when processing failed documents for jurisdiction BULKSCAN\\."
+        assertThat(outputCapture.toString()).containsPattern(
+                ".+ERROR.+\\n An error occurred when processing failed documents for jurisdiction BULKSCAN"
         );
     }
 }
