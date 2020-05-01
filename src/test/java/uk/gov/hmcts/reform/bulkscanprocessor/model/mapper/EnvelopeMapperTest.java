@@ -50,7 +50,7 @@ public class EnvelopeMapperTest {
     }
 
     @Test
-    public void should_map_zip_envelope_without_sscs1_scannble_items_correctly() throws Exception {
+    public void should_map_zip_envelope_with_scannable_items_without_sscs1_item_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-no-sscs1-scannable-items.json");
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
@@ -73,7 +73,7 @@ public class EnvelopeMapperTest {
     }
 
     @Test
-    public void should_map_zip_envelope_with_sscs1_scannble_item_correctly() throws Exception {
+    public void should_map_zip_envelope_with_scannable_items_with_sscs1_item_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-with-sscs1-scannable-item.json");
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
