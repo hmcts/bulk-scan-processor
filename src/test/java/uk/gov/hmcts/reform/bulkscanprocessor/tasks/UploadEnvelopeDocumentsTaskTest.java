@@ -32,7 +32,7 @@ class UploadEnvelopeDocumentsTaskTest {
     private static final String CONTAINER_1 = "container-1";
     private static final String CONTAINER_2 = "container-2";
     private static final String ZIP_FILE_NAME = "zip-file-name";
-    private static final long MINIMUM_ENVELOPE_AGE = 20;
+    private static final long MINIMUM_ENVELOPE_AGE_IN_MINUTES = 20;
 
     @Mock private EnvelopeRepository envelopeRepository;
     @Mock private UploadEnvelopeDocumentsService uploadService;
@@ -56,7 +56,7 @@ class UploadEnvelopeDocumentsTaskTest {
         given(envelopeRepository.findByStatus(CREATED)).willReturn(singletonList(getEnvelope()));
 
         // when
-        getTask(MINIMUM_ENVELOPE_AGE + 1).run();
+        getTask(MINIMUM_ENVELOPE_AGE_IN_MINUTES + 1).run();
 
         // then
         verifyNoInteractions(uploadService);
@@ -69,8 +69,8 @@ class UploadEnvelopeDocumentsTaskTest {
     void should_call_service_twice_when_2_different_containers_are_present_in_the_list() {
         // given
         List<Envelope> envelopes = Arrays.asList(
-            getEnvelope(CONTAINER_1, MINIMUM_ENVELOPE_AGE - 1),
-            getEnvelope(CONTAINER_2, MINIMUM_ENVELOPE_AGE - 1)
+            getEnvelope(CONTAINER_1, MINIMUM_ENVELOPE_AGE_IN_MINUTES - 1),
+            getEnvelope(CONTAINER_2, MINIMUM_ENVELOPE_AGE_IN_MINUTES - 1)
         );
         given(envelopeRepository.findByStatus(CREATED)).willReturn(envelopes);
 
@@ -123,6 +123,6 @@ class UploadEnvelopeDocumentsTaskTest {
     }
 
     private Envelope getEnvelope() {
-        return getEnvelope(CONTAINER_1, MINIMUM_ENVELOPE_AGE);
+        return getEnvelope(CONTAINER_1, MINIMUM_ENVELOPE_AGE_IN_MINUTES);
     }
 }
