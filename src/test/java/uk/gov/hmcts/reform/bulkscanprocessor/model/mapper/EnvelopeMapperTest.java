@@ -34,8 +34,24 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OT
 public class EnvelopeMapperTest {
 
     @Test
-    public void should_map_zip_envelope_correctly() throws Exception {
-        InputEnvelope zipEnvelope = getEnvelopeFromMetafile();
+    public void should_map_zip_envelope_without_scannable_items_correctly() throws Exception {
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-no-scannable-items.json");
+        String container = "container1";
+
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.empty());
+
+        assertSameFields(dbEnvelope, zipEnvelope);
+
+        assertSamePayments(dbEnvelope, zipEnvelope);
+        assertThat(dbEnvelope.getScannableItems()).isEmpty();
+        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
+
+        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
+    }
+
+    @Test
+    public void should_map_zip_envelope_without_sscs1_scannble_items_correctly() throws Exception {
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-no-sscs1-scannable-items.json");
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
             zipEnvelope.scannableItems.get(0).documentControlNumber,
@@ -44,6 +60,52 @@ public class EnvelopeMapperTest {
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.of(ocrValidationWarnings));
 
+        assertSameFields(dbEnvelope, zipEnvelope);
+
+        assertSamePayments(dbEnvelope, zipEnvelope);
+        assertSameScannableItems(dbEnvelope, zipEnvelope);
+        assertSameOcrData(dbEnvelope, zipEnvelope);
+        assertDocumentTypes(dbEnvelope, CHERISHED, OTHER, DocumentType.COVERSHEET);
+        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
+        assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
+
+        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
+    }
+
+    @Test
+    public void should_map_zip_envelope_with_sscs1_scannble_item_correctly() throws Exception {
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-with-sscs1-scannable-item.json");
+        String container = "container1";
+        OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
+            zipEnvelope.scannableItems.get(0).documentControlNumber,
+            asList("warning 1", "warning 2")
+        );
+
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.of(ocrValidationWarnings));
+
+        assertSameFields(dbEnvelope, zipEnvelope);
+
+        assertSamePayments(dbEnvelope, zipEnvelope);
+        assertSameScannableItems(dbEnvelope, zipEnvelope);
+        assertSameOcrData(dbEnvelope, zipEnvelope);
+        assertDocumentTypes(dbEnvelope, CHERISHED, OTHER, FORM, DocumentType.COVERSHEET);
+        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
+        assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
+
+        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
+    }
+
+    private void assertDbEnvelopeSpecificProperties(String container, Envelope dbEnvelope) {
+        assertThat(dbEnvelope.getId()).isNull();
+        assertThat(dbEnvelope.getStatus()).isEqualTo(Status.CREATED);
+        assertThat(dbEnvelope.getUploadFailureCount()).isEqualTo(0);
+        assertThat(dbEnvelope.isZipDeleted()).isFalse();
+        assertThat(dbEnvelope.getCreatedAt()).isBefore(Instant.now().plusMillis(1));
+        assertThat(dbEnvelope.getCreatedAt()).isAfter(Instant.now().minusSeconds(1));
+        assertThat(dbEnvelope.getContainer()).isEqualTo(container);
+    }
+
+    private void assertSameFields(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getCaseNumber()).isEqualTo(zipEnvelope.caseNumber);
         assertThat(dbEnvelope.getPreviousServiceCaseReference()).isEqualTo(zipEnvelope.previousServiceCaseReference);
         assertThat(dbEnvelope.getPoBox()).isEqualTo(zipEnvelope.poBox);
@@ -53,22 +115,6 @@ public class EnvelopeMapperTest {
         assertThat(dbEnvelope.getZipFileCreateddate()).isEqualTo(zipEnvelope.zipFileCreateddate);
         assertThat(dbEnvelope.getZipFileName()).isEqualTo(zipEnvelope.zipFileName);
         assertThat(dbEnvelope.getClassification()).isEqualTo(zipEnvelope.classification);
-
-        assertSamePayments(dbEnvelope, zipEnvelope);
-        assertSameScannableItems(dbEnvelope, zipEnvelope);
-        assertSameOcrData(dbEnvelope, zipEnvelope);
-        assertSameDocumentTypes(dbEnvelope, zipEnvelope);
-        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
-        assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
-
-        // properties specific to DB envelope
-        assertThat(dbEnvelope.getId()).isNull();
-        assertThat(dbEnvelope.getStatus()).isEqualTo(Status.CREATED);
-        assertThat(dbEnvelope.getUploadFailureCount()).isEqualTo(0);
-        assertThat(dbEnvelope.isZipDeleted()).isFalse();
-        assertThat(dbEnvelope.getCreatedAt()).isBefore(Instant.now().plusMillis(1));
-        assertThat(dbEnvelope.getCreatedAt()).isAfter(Instant.now().minusSeconds(1));
-        assertThat(dbEnvelope.getContainer()).isEqualTo(container);
     }
 
     private void assertSamePayments(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
@@ -98,11 +144,11 @@ public class EnvelopeMapperTest {
             );
     }
 
-    private void assertSameDocumentTypes(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
+    private void assertDocumentTypes(Envelope dbEnvelope, DocumentType... documentTypes) {
         assertThat(dbEnvelope.getScannableItems())
             .extracting(ScannableItem::getDocumentType)
             .usingDefaultComparator()
-            .containsExactly(CHERISHED, OTHER, FORM, DocumentType.COVERSHEET);
+            .containsExactly(documentTypes);
     }
 
     private void assertSameNonScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
