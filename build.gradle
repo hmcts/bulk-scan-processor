@@ -174,7 +174,8 @@ def versions = [
   junitPlatform: '1.6.2',
   mockitoJupiter: '3.3.3',
   springBoot: springBoot.class.package.implementationVersion,
-  springfoxSwagger: '2.9.2'
+  springfoxSwagger: '2.9.2',
+  reformLogging: '5.1.5'
 ]
 
 dependencyManagement {
@@ -242,8 +243,8 @@ dependencies {
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
 
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '3.0.4'
-  compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: '5.1.5'
+  compile group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
+  compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.2.RELEASE'
 
   compile group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.0'
