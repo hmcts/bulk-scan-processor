@@ -161,6 +161,6 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     private IMessage validMessage(UUID envelopeId) {
-        return spy(new Message(String.format("{\"id\":\"%s\"}", envelopeId)));
+        return spy(new Message(String.format("{\"id\":\"%s\", \"dummy\":\"xx\"}", envelopeId)));
     }
 }
