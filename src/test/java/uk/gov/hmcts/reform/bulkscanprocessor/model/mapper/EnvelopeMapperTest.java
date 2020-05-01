@@ -34,22 +34,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OT
 public class EnvelopeMapperTest {
 
     @Test
-    public void should_map_zip_envelope_without_scannable_items_correctly() throws Exception {
-        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-no-scannable-items.json");
-        String container = "container1";
-
-        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.empty());
-
-        assertSameFields(dbEnvelope, zipEnvelope);
-
-        assertSamePayments(dbEnvelope, zipEnvelope);
-        assertThat(dbEnvelope.getScannableItems()).isEmpty();
-        assertSameNonScannableItems(dbEnvelope, zipEnvelope);
-
-        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
-    }
-
-    @Test
     public void should_map_zip_envelope_with_scannable_items_without_sscs1_item_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-no-sscs1-scannable-items.json");
         String container = "container1";
@@ -76,12 +60,8 @@ public class EnvelopeMapperTest {
     public void should_map_zip_envelope_with_scannable_items_with_sscs1_item_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile("from-spec-with-sscs1-scannable-item.json");
         String container = "container1";
-        OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
-            zipEnvelope.scannableItems.get(0).documentControlNumber,
-            asList("warning 1", "warning 2")
-        );
 
-        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.of(ocrValidationWarnings));
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.empty());
 
         assertSameFields(dbEnvelope, zipEnvelope);
 
@@ -90,7 +70,6 @@ public class EnvelopeMapperTest {
         assertSameOcrData(dbEnvelope, zipEnvelope);
         assertDocumentTypes(dbEnvelope, CHERISHED, OTHER, FORM, DocumentType.COVERSHEET);
         assertSameNonScannableItems(dbEnvelope, zipEnvelope);
-        assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
 
         assertDbEnvelopeSpecificProperties(container, dbEnvelope);
     }

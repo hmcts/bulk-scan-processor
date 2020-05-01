@@ -37,7 +37,7 @@ import static java.util.UUID.randomUUID;
 public final class EnvelopeCreator {
 
     private static final MetafileJsonValidator validator;
-    private static final String VALID_METAFILE_PATH = "/metafiles/valid/";
+    private static final String METAFILE_BASE_PATH = "/metafiles/valid/";
 
     static {
         try {
@@ -51,7 +51,7 @@ public final class EnvelopeCreator {
     }
 
     private static InputStream getMetaFile(String fileName) {
-        return EnvelopeCreator.class.getResourceAsStream(VALID_METAFILE_PATH + fileName);
+        return EnvelopeCreator.class.getResourceAsStream(METAFILE_BASE_PATH + fileName);
     }
 
     public static InputEnvelope getEnvelopeFromMetafile(String fileName) throws IOException {
