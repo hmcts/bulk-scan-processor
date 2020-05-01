@@ -163,14 +163,14 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
     private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
         try {
             ProcessedEnvelope processedEnvelope = objectMapper.readValue(
-                    MessageBodyRetriever.getBinaryData(message.getMessageBody()),
-                    ProcessedEnvelope.class
+                MessageBodyRetriever.getBinaryData(message.getMessageBody()),
+                ProcessedEnvelope.class
             );
             log.info(
-                    "Parsed processed envelope message, Id :{}, Processed ccd reference :{}, Processed Ccd Type : {}",
-                    processedEnvelope.id,
-                    processedEnvelope.processedCcdReference,
-                    processedEnvelope.processedCcdType
+                "Parsed processed envelope message, Id :{}, ccd reference :{}, Ccd Type : {}",
+                processedEnvelope.id,
+                processedEnvelope.processedCcdReference,
+                processedEnvelope.processedCcdType
             );
             return processedEnvelope;
         } catch (JsonParseException | JsonMappingException e) {

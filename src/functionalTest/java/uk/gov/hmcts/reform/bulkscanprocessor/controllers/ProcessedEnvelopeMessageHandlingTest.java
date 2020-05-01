@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.Message;
@@ -10,7 +9,6 @@ import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
@@ -27,7 +25,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 10_000;
     private static final int DELETE_TIMEOUT_MILLIS = 40_000;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private String s2sToken;
     private QueueClient queueClient;
 
@@ -114,9 +111,14 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
         IMessage message = new Message(
-            objectMapper.writeValueAsString(new ProcessedEnvelope(envelopeId, "2133333", "EXCEPTION_RECORD"))
+            " {"
+                + "\"id\":\"70e1829f-ddfe-4cef-81f9-6591fa42d70a\","
+                + "\"processedCcdReference\":\"ccd-ref\","
+                + "\"processedCcdType\":\"ccd-type\""
+                + "}"
         );
 
         queueClient.send(message);
     }
 }
+

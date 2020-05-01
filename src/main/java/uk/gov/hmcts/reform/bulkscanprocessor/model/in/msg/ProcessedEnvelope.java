@@ -13,9 +13,9 @@ public class ProcessedEnvelope {
     public final String processedCcdType;
 
     public ProcessedEnvelope(
-            @JsonProperty("id") UUID id,
-            @JsonProperty("processed_ccd_reference") String processedCcdReference,
-            @JsonProperty("processed_ccd_type") String processedCcdType
+        @JsonProperty("id") UUID id,
+        @JsonProperty("processed_ccd_reference") String processedCcdReference,
+        @JsonProperty("processed_ccd_type") String processedCcdType
     ) {
         this.id = id;
         this.processedCcdReference = processedCcdReference;
