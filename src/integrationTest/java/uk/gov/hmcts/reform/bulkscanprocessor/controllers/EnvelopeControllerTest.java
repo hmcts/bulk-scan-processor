@@ -62,7 +62,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 @ActiveProfiles({
     IntegrationContextInitializer.PROFILE_WIREMOCK,
@@ -197,7 +197,7 @@ public class EnvelopeControllerTest {
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
-        mockMvc.perform(get("/envelopes?status=" + PROCESSED)
+        mockMvc.perform(get("/envelopes?status=" + UPLOADED)
             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
@@ -208,7 +208,7 @@ public class EnvelopeControllerTest {
 
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
-        assertThat(envelopes.get(0).getStatus()).isEqualTo(PROCESSED);
+        assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
 
         verify(documentManagementService, never())
             .uploadDocuments(

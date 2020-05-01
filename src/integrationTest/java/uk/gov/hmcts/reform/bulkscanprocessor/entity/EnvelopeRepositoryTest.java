@@ -60,7 +60,7 @@ public class EnvelopeRepositoryTest {
     public void findEnvelopesToResend_should_filter_based_on_status_and_jurisdiction() throws Exception {
         // given
         dbHas(
-            envelope("A", Status.PROCESSED),
+            envelope("A", Status.CREATED),
             envelope("A", Status.UPLOAD_FAILURE),
             envelope("B", Status.UPLOAD_FAILURE)
         );
@@ -76,7 +76,7 @@ public class EnvelopeRepositoryTest {
     public void findByZipFileName_should_find_envelops_in_db() {
         // given
         dbHas(
-            envelope("A.zip", "X", Status.PROCESSED),
+            envelope("A.zip", "X", Status.CREATED),
             envelope("A.zip", "Y", Status.UPLOAD_FAILURE),
             envelope("B.zip", "Z", Status.UPLOAD_FAILURE)
         );
@@ -112,7 +112,7 @@ public class EnvelopeRepositoryTest {
     public void should_get_1_incomplete_envelope_from_yesterday() {
         // given
         dbHas(
-            envelope("A.zip", "X", Status.PROCESSED),
+            envelope("A.zip", "X", Status.UPLOADED),
             envelope("B.zip", "Y", Status.COMPLETED),
             envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
             envelope("D.zip", "Z", Status.COMPLETED)
@@ -133,9 +133,9 @@ public class EnvelopeRepositoryTest {
         final String container1 = "container1";
         dbHas(
             envelope("X", Status.COMPLETED, container1),
-            envelope("Y", Status.PROCESSED, "container2"),
+            envelope("Y", Status.UPLOADED, "container2"),
             envelope("X", Status.COMPLETED, container1),
-            envelope("X", Status.PROCESSED, container1),
+            envelope("X", Status.UPLOADED, container1),
             envelope("Z", Status.COMPLETED, "container3")
         );
 
@@ -158,9 +158,9 @@ public class EnvelopeRepositoryTest {
         final String container1 = "container1";
         dbHas(
             envelope("X", Status.COMPLETED, container1, false),
-            envelope("Y", Status.PROCESSED, "container2", false),
+            envelope("Y", Status.UPLOADED, "container2", false),
             envelope("X", Status.COMPLETED, container1, true),
-            envelope("X", Status.PROCESSED, container1, false),
+            envelope("X", Status.UPLOADED, container1, false),
             envelope("Z", Status.COMPLETED, "container3", false)
         );
 
@@ -182,9 +182,9 @@ public class EnvelopeRepositoryTest {
         final String container1 = "container1";
         dbHas(
             envelope("X", Status.CREATED, container1),
-            envelope("Y", Status.PROCESSED, "container2"),
+            envelope("Y", Status.UPLOADED, "container2"),
             envelope("X", Status.CREATED, container1),
-            envelope("X", Status.PROCESSED, container1),
+            envelope("X", Status.UPLOADED, container1),
             envelope("Z", Status.COMPLETED, "container3")
         );
 

@@ -11,7 +11,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -39,17 +38,13 @@ public class DeleteCompleteFilesTaskTest {
     @Autowired
     private EnvelopeProcessor envelopeProcessor;
 
-    @Autowired
-    private ProcessEventRepository eventRepository;
-
     private DeleteCompleteFilesTask task;
 
     @Before
     public void setUp() {
         this.task = new DeleteCompleteFilesTask(
             blobManager,
-            envelopeRepository,
-            eventRepository
+            envelopeRepository
         );
     }
 
