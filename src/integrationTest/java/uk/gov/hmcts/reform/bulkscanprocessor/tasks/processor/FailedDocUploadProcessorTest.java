@@ -20,10 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
@@ -87,7 +86,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         assertThat(dbEnvelopes)
             .hasSize(1)
             .extracting(envelope -> envelope.getStatus())
-            .containsOnlyOnce(PROCESSED);
+            .containsOnlyOnce(UPLOADED);
         assertThat(dbEnvelopes.get(0).getScannableItems())
             .extracting(ScannableItem::getDocumentUuid)
             .hasSameElementsAs(ImmutableList.of(DOCUMENT_UUID2));
@@ -100,8 +99,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             .containsExactlyInAnyOrder(
                 tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, ZIPFILE_PROCESSING_STARTED, null),
                 tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_UPLOAD_FAILURE, failureReason),
-                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_UPLOADED, null),
-                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_PROCESSED, null)
+                tuple(testContainer.getName(), SAMPLE_ZIP_FILE_NAME, DOC_UPLOADED, null)
             );
     }
 

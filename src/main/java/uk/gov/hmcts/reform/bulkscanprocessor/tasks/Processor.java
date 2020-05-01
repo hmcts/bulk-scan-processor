@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 
 
@@ -48,11 +47,8 @@ public abstract class Processor {
         if (!uploadParsedEnvelopeDocuments(envelope, pdfs)) {
             return;
         }
-        if (!markAsUploaded(envelope)) {
-            return;
-        }
 
-        markAsProcessed(envelope);
+        markAsUploaded(envelope);
     }
 
     private Boolean uploadParsedEnvelopeDocuments(
@@ -82,27 +78,17 @@ public abstract class Processor {
         }
     }
 
-    private Boolean markAsUploaded(Envelope envelope) {
-        return handleEvent(envelope, DOC_UPLOADED);
-    }
-
-    private void markAsProcessed(Envelope envelope) {
-        handleEvent(envelope, DOC_PROCESSED);
-    }
-
-    private Boolean handleEvent(Envelope envelope, Event event) {
+    private void markAsUploaded(Envelope envelope) {
         try {
-            envelopeProcessor.handleEvent(envelope, event);
-            return Boolean.TRUE;
+            envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
         } catch (Exception exception) {
             log.error(
                 "Failed to update database for the event: {} zip file: {} jurisdiction: {}",
-                event.name(),
+                DOC_UPLOADED.name(),
                 envelope.getZipFileName(),
                 envelope.getJurisdiction(),
                 exception
             );
-            return Boolean.FALSE;
         }
     }
 }

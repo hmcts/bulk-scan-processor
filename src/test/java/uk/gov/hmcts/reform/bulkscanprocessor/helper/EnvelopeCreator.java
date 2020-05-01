@@ -76,7 +76,7 @@ public final class EnvelopeCreator {
     }
 
     public static Envelope envelope() {
-        return envelope("SSCS", Status.PROCESSED);
+        return envelope("SSCS", Status.UPLOADED);
     }
 
     public static Envelope envelope(String jurisdiction, Status status) {

@@ -20,7 +20,7 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,17 +47,17 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeAccess.getReadJurisdictionForService("testService"))
             .thenReturn("testJurisdiction");
 
-        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", UPLOADED))
             .thenReturn(envelopes);
 
         List<EnvelopeResponse> retrievedResponses =
-            envelopeRetrieverService.findByServiceAndStatus("testService", PROCESSED);
+            envelopeRetrieverService.findByServiceAndStatus("testService", UPLOADED);
         // then
         assertThat(retrievedResponses)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(envelopesResponse);
 
-        verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", PROCESSED);
+        verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", UPLOADED);
     }
 
     @Test
@@ -92,11 +92,11 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeAccess.getReadJurisdictionForService("testService"))
             .thenReturn("testJurisdiction");
 
-        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", PROCESSED))
+        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", UPLOADED))
             .thenThrow(DataRetrievalFailureException.class);
 
         Throwable throwable = catchThrowable(() ->
-            envelopeRetrieverService.findByServiceAndStatus("testService", PROCESSED));
+            envelopeRetrieverService.findByServiceAndStatus("testService", UPLOADED));
 
         assertThat(throwable).isInstanceOf(DataRetrievalFailureException.class);
     }

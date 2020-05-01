@@ -44,7 +44,7 @@ public class OrchestratorNotificationTaskTest {
         final int numberOfEnvelopesToSend = 5;
 
         given(
-            envelopeRepo.findByStatus(Status.PROCESSED)
+            envelopeRepo.findByStatus(Status.UPLOADED)
         ).willReturn(
             range(0, numberOfEnvelopesToSend).mapToObj(i -> envelope()).collect(toList())
         );
