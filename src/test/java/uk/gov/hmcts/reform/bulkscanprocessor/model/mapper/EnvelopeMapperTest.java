@@ -56,6 +56,8 @@ public class EnvelopeMapperTest {
 
         assertSamePayments(dbEnvelope, zipEnvelope);
         assertSameScannableItems(dbEnvelope, zipEnvelope);
+        assertSameOcrData(dbEnvelope, zipEnvelope);
+        assertSameDocumentTypes(dbEnvelope, zipEnvelope);
         assertSameNonScannableItems(dbEnvelope, zipEnvelope);
         assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
 
@@ -84,6 +86,9 @@ public class EnvelopeMapperTest {
             .extracting(this::convertToInputScannableItem)
             .usingElementComparatorIgnoringFields("ocrData", "documentType")
             .containsAll(zipEnvelope.scannableItems);
+    }
+
+    private void assertSameOcrData(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getScannableItems())
             .extracting(ScannableItem::getOcrData)
             .extracting(this::convertToInputOcrData)
@@ -91,6 +96,9 @@ public class EnvelopeMapperTest {
             .containsAll(
                 zipEnvelope.scannableItems.stream().map(item -> item.ocrData).collect(toList())
             );
+    }
+
+    private void assertSameDocumentTypes(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getScannableItems())
             .extracting(ScannableItem::getDocumentType)
             .usingDefaultComparator()
