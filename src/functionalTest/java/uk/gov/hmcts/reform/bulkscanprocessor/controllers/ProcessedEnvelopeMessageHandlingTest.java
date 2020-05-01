@@ -114,7 +114,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
         IMessage message = new Message(
-            objectMapper.writeValueAsString(new ProcessedEnvelope(envelopeId))
+            objectMapper.writeValueAsString(new ProcessedEnvelope(envelopeId, "2133333", "EXCEPTION_RECORD"))
         );
 
         queueClient.send(message);
