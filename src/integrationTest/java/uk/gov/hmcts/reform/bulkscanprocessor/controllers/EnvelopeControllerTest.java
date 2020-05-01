@@ -97,12 +97,6 @@ public class EnvelopeControllerTest {
     @Autowired
     private ScannableItemRepository scannableItemRepository;
 
-    @Value("${scheduling.task.reupload.batch}")
-    private int reUploadBatchSize;
-
-    @Value("${scheduling.task.reupload.max_tries}")
-    private int reuploadMaxTries;
-
     @Value("${process-payments.enabled}")
     private boolean paymentsEnabled;
 
@@ -155,9 +149,7 @@ public class EnvelopeControllerTest {
             new EnvelopeProcessor(
                 schemaValidator,
                 envelopeRepository,
-                processEventRepository,
-                reUploadBatchSize,
-                reuploadMaxTries
+                processEventRepository
             ),
             zipFileProcessor,
             envelopeRepository,

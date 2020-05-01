@@ -122,9 +122,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,
             envelopeRepository,
-            processEventRepository,
-            reUploadBatchSize,
-            reuploadMaxTries
+            processEventRepository
         );
 
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
