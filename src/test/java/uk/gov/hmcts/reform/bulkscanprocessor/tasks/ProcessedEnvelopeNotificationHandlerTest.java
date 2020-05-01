@@ -160,6 +160,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
         verifyNoMoreInteractions(messageCompletor);
     }
 
+    //ProcessedEnvelope should ignore unknown fields when json deserialization
     private IMessage validMessage(UUID envelopeId) {
         return spy(new Message(String.format("{\"id\":\"%s\", \"dummy\":\"xx\"}", envelopeId)));
     }
