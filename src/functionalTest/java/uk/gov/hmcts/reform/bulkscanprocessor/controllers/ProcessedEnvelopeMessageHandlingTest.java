@@ -86,7 +86,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .orElse(false);
     }
 
-    private String uploadEnvelope() throws Exception {
+    private String uploadEnvelope() {
         String zipFilename = testHelper.getRandomFilename("12-02-2019-00-00-00.test.zip");
 
         testHelper.uploadZipFile(
@@ -112,9 +112,9 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
         IMessage message = new Message(
             " {"
-                + "\"id\":\"70e1829f-ddfe-4cef-81f9-6591fa42d70a\","
-                + "\"processedCcdReference\":\"ccd-ref\","
-                + "\"processedCcdType\":\"ccd-type\""
+                + "\"id\":\"" + envelopeId + "\","
+                + "\"processedCcdReference\":\"ccd-ref-9283\","
+                + "\"processedCcdType\":\"ccd-type-exception\""
                 + "}"
         );
 
