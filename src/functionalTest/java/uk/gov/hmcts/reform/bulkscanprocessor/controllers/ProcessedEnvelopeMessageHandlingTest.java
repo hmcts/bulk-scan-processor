@@ -114,7 +114,8 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             " {"
                 + "\"id\":\"" + envelopeId + "\","
                 + "\"processedCcdReference\":\"ccd-ref-9283\","
-                + "\"processedCcdType\":\"ccd-type-exception\""
+                + "\"processedCcdType\":\"ccd-type-exception\","
+                + "\"dummy\":\"value-should-ignore\""
                 + "}"
         );
 
