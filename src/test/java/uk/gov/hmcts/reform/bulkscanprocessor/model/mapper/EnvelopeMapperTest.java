@@ -45,7 +45,15 @@ public class EnvelopeMapperTest {
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.of(ocrValidationWarnings));
 
-        assertSameFields(dbEnvelope, zipEnvelope);
+        assertThat(dbEnvelope.getCaseNumber()).isEqualTo(zipEnvelope.caseNumber);
+        assertThat(dbEnvelope.getPreviousServiceCaseReference()).isEqualTo(zipEnvelope.previousServiceCaseReference);
+        assertThat(dbEnvelope.getPoBox()).isEqualTo(zipEnvelope.poBox);
+        assertThat(dbEnvelope.getJurisdiction()).isEqualTo(zipEnvelope.jurisdiction);
+        assertThat(dbEnvelope.getDeliveryDate()).isEqualTo(zipEnvelope.deliveryDate);
+        assertThat(dbEnvelope.getOpeningDate()).isEqualTo(zipEnvelope.openingDate);
+        assertThat(dbEnvelope.getZipFileCreateddate()).isEqualTo(zipEnvelope.zipFileCreateddate);
+        assertThat(dbEnvelope.getZipFileName()).isEqualTo(zipEnvelope.zipFileName);
+        assertThat(dbEnvelope.getClassification()).isEqualTo(zipEnvelope.classification);
 
         assertSamePayments(dbEnvelope, zipEnvelope);
         assertSameScannableItems(dbEnvelope, zipEnvelope);
@@ -95,18 +103,6 @@ public class EnvelopeMapperTest {
         assertThat(dbEnvelope.getCreatedAt()).isBefore(Instant.now().plusMillis(1));
         assertThat(dbEnvelope.getCreatedAt()).isAfter(Instant.now().minusSeconds(1));
         assertThat(dbEnvelope.getContainer()).isEqualTo(container);
-    }
-
-    private void assertSameFields(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
-        assertThat(dbEnvelope.getCaseNumber()).isEqualTo(zipEnvelope.caseNumber);
-        assertThat(dbEnvelope.getPreviousServiceCaseReference()).isEqualTo(zipEnvelope.previousServiceCaseReference);
-        assertThat(dbEnvelope.getPoBox()).isEqualTo(zipEnvelope.poBox);
-        assertThat(dbEnvelope.getJurisdiction()).isEqualTo(zipEnvelope.jurisdiction);
-        assertThat(dbEnvelope.getDeliveryDate()).isEqualTo(zipEnvelope.deliveryDate);
-        assertThat(dbEnvelope.getOpeningDate()).isEqualTo(zipEnvelope.openingDate);
-        assertThat(dbEnvelope.getZipFileCreateddate()).isEqualTo(zipEnvelope.zipFileCreateddate);
-        assertThat(dbEnvelope.getZipFileName()).isEqualTo(zipEnvelope.zipFileName);
-        assertThat(dbEnvelope.getClassification()).isEqualTo(zipEnvelope.classification);
     }
 
     private void assertSamePayments(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
