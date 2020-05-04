@@ -21,5 +21,4 @@ public class ProcessedEnvelope {
         this.processedCcdReference = processedCcdReference;
         this.processedCcdType = processedCcdType;
     }
-
 }
