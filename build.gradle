@@ -214,7 +214,7 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.9.0'
+  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.9.1'
   compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.9.0'
 
   compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.3'
