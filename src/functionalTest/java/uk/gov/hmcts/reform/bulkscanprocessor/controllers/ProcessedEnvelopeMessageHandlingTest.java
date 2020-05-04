@@ -114,8 +114,8 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         IMessage message = new Message(
             " {"
                 + "\"id\":\"" + envelopeId + "\","
-                + "\"processedCcdReference\":\"ccd-ref-9283\","
-                + "\"processedCcdType\":\"ccd-type-exception\","
+                + "\"processed_ccd_reference\":\"ccd-ref-9283\","
+                + "\"processed_ccd_type\":\"ccd-type-exception\","
                 + "\"dummy\":\"value-should-ignore\""
                 + "}"
         );
