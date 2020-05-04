@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.Message;
@@ -10,7 +9,6 @@ import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
@@ -27,7 +25,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 10_000;
     private static final int DELETE_TIMEOUT_MILLIS = 40_000;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private String s2sToken;
     private QueueClient queueClient;
 
@@ -89,7 +86,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .orElse(false);
     }
 
-    private String uploadEnvelope() throws Exception {
+    private String uploadEnvelope() {
         String zipFilename = testHelper.getRandomFilename("12-02-2019-00-00-00.test.zip");
 
         testHelper.uploadZipFile(
@@ -112,11 +109,18 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             );
     }
 
+    //unknown fields should be ignored
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
         IMessage message = new Message(
-            objectMapper.writeValueAsString(new ProcessedEnvelope(envelopeId))
+            " {"
+                + "\"id\":\"" + envelopeId + "\","
+                + "\"processed_ccd_reference\":\"ccd-ref-9283\","
+                + "\"processed_ccd_type\":\"ccd-type-exception\","
+                + "\"dummy\":\"value-should-ignore\""
+                + "}"
         );
 
         queueClient.send(message);
     }
 }
+
