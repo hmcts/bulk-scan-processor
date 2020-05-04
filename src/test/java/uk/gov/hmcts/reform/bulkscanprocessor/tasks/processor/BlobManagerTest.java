@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.microsoft.azure.storage.AccessCondition;
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobProperties;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
@@ -20,14 +23,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.microsoft.azure.storage.StorageErrorCode.LEASE_ID_MISMATCH;
 import static com.microsoft.azure.storage.blob.CopyStatus.FAILED;
 import static com.microsoft.azure.storage.blob.CopyStatus.PENDING;
 import static com.microsoft.azure.storage.blob.CopyStatus.SUCCESS;
 import static java.util.Arrays.copyOfRange;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -94,6 +100,35 @@ public class BlobManagerTest {
 
         assertThat(result).isEqualTo(Optional.empty());
         verify(inputBlob, never()).acquireLease(any(), any());
+    }
+
+    @Test
+    public void tryReleaseLease_releases_lease_on_blob() throws Exception {
+        String leaseId = "lease-id-123";
+
+        blobManager.tryReleaseLease(inputBlob, "container-name", "zip-filename.zip", leaseId);
+
+        ArgumentCaptor<AccessCondition> accessConditionCaptor = ArgumentCaptor.forClass(AccessCondition.class);
+        verify(inputBlob).releaseLease(accessConditionCaptor.capture());
+        assertThat(accessConditionCaptor.getValue()).isNotNull();
+        assertThat(accessConditionCaptor.getValue().getLeaseID()).isEqualTo(leaseId);
+    }
+
+    @Test
+    public void tryReleaseLease_does_not_throw_error_when_failure() throws Exception {
+        willThrow(new StorageException(LEASE_ID_MISMATCH.toString(), "test exception", null))
+            .given(inputBlob)
+            .releaseLease(any());
+
+        assertThatCode(
+            () ->
+                blobManager.tryReleaseLease(
+                    inputBlob,
+                    "container-name",
+                    "zip-filename.zip",
+                    "leaseId123"
+                )
+        ).doesNotThrowAnyException();
     }
 
     @Test

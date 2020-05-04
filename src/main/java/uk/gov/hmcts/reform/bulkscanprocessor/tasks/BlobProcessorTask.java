@@ -169,43 +169,58 @@ public class BlobProcessorTask extends Processor {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
         } else {
             cloudBlockBlob.downloadAttributes();
-            processZipFile(container, cloudBlockBlob, zipFilename);
+            leaseAndProcessZipFile(container, cloudBlockBlob, zipFilename);
+        }
+    }
+
+    private void leaseAndProcessZipFile(
+        CloudBlobContainer container,
+        CloudBlockBlob cloudBlockBlob,
+        String zipFilename
+    ) throws StorageException, IOException {
+        Optional<String> leaseIdOption = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
+
+        if (leaseIdOption.isPresent()) {
+            String leaseId = leaseIdOption.get();
+
+            try {
+                processZipFile(container, cloudBlockBlob, zipFilename, leaseId);
+            } finally {
+                blobManager.tryReleaseLease(cloudBlockBlob, container.getName(), zipFilename, leaseId);
+            }
         }
     }
 
     private void processZipFile(
         CloudBlobContainer container,
         CloudBlockBlob cloudBlockBlob,
-        String zipFilename
+        String zipFilename,
+        String leaseId
     ) throws StorageException, IOException {
-        Optional<String> leaseId = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
+        Envelope envelope = envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
 
-        if (leaseId.isPresent()) {
-            Envelope envelope = envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
+        if (envelope == null) {
+            // Zip file will include metadata.json and collection of pdf documents
+            try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
+                createEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
-            if (envelope == null) {
-                // Zip file will include metadata.json and collection of pdf documents
-                try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
-                    createEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
+                ZipFileProcessingResult processingResult =
+                    processZipFileContent(zis, zipFilename, container.getName(), leaseId);
 
-                    ZipFileProcessingResult processingResult =
-                        processZipFileContent(zis, zipFilename, container.getName(), leaseId.get());
-
-                    if (processingResult != null) {
-                        processParsedEnvelopeDocuments(
-                            processingResult.getEnvelope(),
-                            processingResult.getPdfs()
-                        );
-                    }
+                if (processingResult != null) {
+                    processParsedEnvelopeDocuments(
+                        processingResult.getEnvelope(),
+                        processingResult.getPdfs()
+                    );
                 }
-            } else {
-                log.info(
-                    "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
-                    container.getName(),
-                    zipFilename,
-                    envelope.getId()
-                );
             }
+        } else {
+            log.info(
+                "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
+                container.getName(),
+                zipFilename,
+                envelope.getId()
+            );
         }
     }
 

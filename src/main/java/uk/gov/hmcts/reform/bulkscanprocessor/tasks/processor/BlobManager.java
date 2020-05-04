@@ -80,6 +80,26 @@ public class BlobManager {
         }
     }
 
+    public void tryReleaseLease(
+        CloudBlockBlob cloudBlockBlob,
+        String containerName,
+        String zipFileName,
+        String leaseId
+    ) {
+        try {
+            log.info("Releasing lease on file {} in container {}", zipFileName, containerName);
+            cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
+            log.info("Released lease on file {} in container {}", zipFileName, containerName);
+        } catch (Exception exc) {
+            log.error(
+                "Failed to release the lease on file {} in container {}",
+                zipFileName,
+                containerName,
+                exc
+            );
+        }
+    }
+
     public CloudBlobContainer getContainer(String containerName) throws URISyntaxException, StorageException {
         return cloudBlobClient.getContainerReference(containerName);
     }
