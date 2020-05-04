@@ -109,6 +109,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             );
     }
 
+    //unknown fields should be ignored
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
         IMessage message = new Message(
             " {"
