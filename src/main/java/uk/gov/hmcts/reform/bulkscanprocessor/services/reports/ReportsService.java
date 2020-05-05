@@ -20,10 +20,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.time.LocalDateTime.ofInstant;
-import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Service
 public class ReportsService {
@@ -78,7 +77,7 @@ public class ReportsService {
     private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
-            ofInstant(dbItem.getCreatedDate(), UTC).toLocalDate(),
+            toLocalDate(dbItem.getCreatedDate()),
             toLocalTime(dbItem.getCreatedDate()),
             toLocalDate(dbItem.getCompletedDate()),
             toLocalTime(dbItem.getCompletedDate()),
@@ -100,14 +99,15 @@ public class ReportsService {
 
     private LocalDate toLocalDate(Instant instant) {
         if (instant != null) {
-            return LocalDateTime.ofInstant(instant, UTC).toLocalDate();
+            return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID).toLocalDate();
         }
         return null;
     }
 
     private LocalTime toLocalTime(Instant instant) {
         if (instant != null) {
-            return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss").format(instant.atZone(UTC)));
+            return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss")
+                .format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
         }
         return null;
     }
