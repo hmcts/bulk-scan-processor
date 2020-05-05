@@ -35,18 +35,16 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times()
-        throws Exception {
+    public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times() {
         // given
-        final String jurisdiction = "X";
         final int maxFailCount = 5;
 
         dbHas(
-            envelopeWithFailureCount(maxFailCount - 2, jurisdiction),
-            envelopeWithFailureCount(maxFailCount - 1, jurisdiction),
-            envelopeWithFailureCount(maxFailCount, jurisdiction),
-            envelopeWithFailureCount(maxFailCount + 1, jurisdiction),
-            envelopeWithFailureCount(maxFailCount + 2, jurisdiction)
+            envelopeWithFailureCount(maxFailCount - 2),
+            envelopeWithFailureCount(maxFailCount - 1),
+            envelopeWithFailureCount(maxFailCount),
+            envelopeWithFailureCount(maxFailCount + 1),
+            envelopeWithFailureCount(maxFailCount + 2)
         );
 
         // when
@@ -195,8 +193,8 @@ public class EnvelopeRepositoryTest {
         assertThat(result).isEmpty();
     }
 
-    private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
-        Envelope envelope = envelope(jurisdiction, Status.UPLOAD_FAILURE);
+    private Envelope envelopeWithFailureCount(int failCount) {
+        Envelope envelope = envelope("X", Status.UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
         return envelope;
     }
