@@ -66,7 +66,7 @@ public class FailedDocUploadProcessorTest {
 
         // we only test the output pattern. client is null
         // when
-        catchThrowableOfType(() -> processor.processJurisdiction("SSCS"), NullPointerException.class);
+        catchThrowableOfType(() -> processor.processJurisdiction(), NullPointerException.class);
 
         // then
         capturer.assertContains("Re-uploading documents. Container: test, envelopes found: 3");

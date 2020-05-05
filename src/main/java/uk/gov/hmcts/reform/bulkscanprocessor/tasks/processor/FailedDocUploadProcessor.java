@@ -52,7 +52,7 @@ public class FailedDocUploadProcessor extends Processor {
         this.maxReUploadTriesCount = maxReUploadTriesCount;
     }
 
-    public void processJurisdiction(String jurisdiction) {
+    public void processJurisdiction() {
         envelopeRepository
             .findEnvelopesToResend(maxReUploadTriesCount)
             .stream()
