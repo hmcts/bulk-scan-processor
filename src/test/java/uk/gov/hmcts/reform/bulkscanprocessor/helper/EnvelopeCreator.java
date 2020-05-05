@@ -49,12 +49,12 @@ public final class EnvelopeCreator {
     private EnvelopeCreator() {
     }
 
-    public static InputStream getMetaFile() {
-        return EnvelopeCreator.class.getResourceAsStream("/metafiles/valid/from-spec.json");
+    private static InputStream getMetaFile(String filePath) {
+        return EnvelopeCreator.class.getResourceAsStream(filePath);
     }
 
-    public static InputEnvelope getEnvelopeFromMetafile() throws IOException {
-        try (InputStream inputStream = getMetaFile()) {
+    public static InputEnvelope getEnvelopeFromMetafile(String filePath) throws IOException {
+        try (InputStream inputStream = getMetaFile(filePath)) {
             return validator.parseMetafile(IOUtils.toByteArray(inputStream));
         }
     }

@@ -1,0 +1,112 @@
+{
+  "case_number": "1111222233334446",
+  "previous_service_case_reference": "12345678",
+  "po_box": "XXXX",
+  "jurisdiction": "SSCS",
+  "delivery_date": "2017-02-23T22:00:00.100Z",
+  "opening_date": "2017-03-31T00:00:00.010Z",
+  "zip_file_createddate": "2017-02-24T00:00:00.001Z",
+  "zip_file_name": "1_24-02-2017-00-00-00.zip",
+  "envelope_classification": "new_application",
+  "scannable_items": [
+    {
+      "document_control_number": "1111001",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "return",
+      "next_action_date": "2017-02-24T00:00:00.000Z",
+      "file_name": "1111001.pdf",
+      "notes": "The document had ink spilled on it",
+      "document_type": "Cherished",
+      "ocr_data": "eyJNZXRhZGF0YV9maWxlIjogW3sgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAibmFtZTIiLCAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAidmFsdWUyIn1dfQo="
+    },
+    {
+      "document_control_number": "1111002",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111002.pdf",
+      "notes": "Cheque will be forwarded to court to bank it",
+      "document_type": "Other",
+      "document_sub_type": null
+    },
+    {
+      "document_control_number": "1111002",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111002.pdf",
+      "notes": "Cheque will be forwarded to court to bank it",
+      "document_type": "Other",
+      "document_sub_type": "Will"
+    },
+    {
+      "document_control_number": "1111002",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111002.pdf",
+      "notes": "Cheque will be forwarded to court to bank it",
+      "document_type": "Other",
+      "document_sub_type": "Coversheet"
+    },
+    {
+      "document_control_number": "1111002",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111002.pdf",
+      "notes": "Cheque will be forwarded to court to bank it",
+      "document_type": "Will"
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "SSCS1",
+      "document_sub_type": "SSCS1",
+      "ocr_data": "eyJNZXRhZGF0YV9maWxlIjogW3sgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAibmFtZTIiLCAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAidmFsdWUyIn1dfQo="
+    },
+    {
+      "document_control_number": "1111004",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": null,
+      "next_action": null,
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111004.pdf",
+      "notes": null,
+      "document_type": "Coversheet"
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "Form",
+      "ocr_data": "eyJNZXRhZGF0YV9maWxlIjogW3sgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAibmFtZTIiLCAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAidmFsdWUyIn1dfQo="
+    }
+  ],
+  "payments": [
+    {
+      "document_control_number": "1111002"
+    }
+  ],
+  "non_scannable_items": [
+    {
+      "document_control_number": "1111001",
+      "item_type": "CD",
+      "notes": "4GB USB memory stick"
+    }
+  ]
+}

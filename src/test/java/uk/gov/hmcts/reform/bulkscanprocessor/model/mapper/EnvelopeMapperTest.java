@@ -27,12 +27,16 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEn
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.COVERSHEET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.WILL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.CHERISHED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FORM;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
 
 public class EnvelopeMapperTest {
+    private static final String METAFILE_BASE_PATH = "/metafiles/valid/";
 
     @Test
     public void should_map_zip_envelope_correctly() throws Exception {
-        InputEnvelope zipEnvelope = getEnvelopeFromMetafile();
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "with-scannable-items.json");
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
             zipEnvelope.scannableItems.get(0).documentControlNumber,
@@ -56,7 +60,42 @@ public class EnvelopeMapperTest {
         assertSameNonScannableItems(dbEnvelope, zipEnvelope);
         assertRightScannableItemsHaveWarnings(dbEnvelope, ocrValidationWarnings);
 
-        // properties specific to DB envelope
+        assertDbEnvelopeSpecificProperties(container, dbEnvelope);
+    }
+
+    @Test
+    public void should_map_document_types_subtypes_and_ocr_data_correctly() throws Exception {
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "with-scannable-items.json");
+        String container = "container1";
+
+        Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.empty());
+
+        assertSameOcrData(dbEnvelope, zipEnvelope);
+        assertDocumentTypes(
+            dbEnvelope,
+            CHERISHED,
+            OTHER,
+            OTHER,
+            OTHER,
+            OTHER,
+            FORM,
+            DocumentType.COVERSHEET,
+            FORM
+        );
+        assertDocumentSubTypes(
+            dbEnvelope,
+            null,
+            null,
+            InputDocumentType.WILL.toString(),
+            InputDocumentType.COVERSHEET.toString(),
+            WILL,
+            SSCS1,
+            null,
+            null
+        );
+    }
+
+    private void assertDbEnvelopeSpecificProperties(String container, Envelope dbEnvelope) {
         assertThat(dbEnvelope.getId()).isNull();
         assertThat(dbEnvelope.getStatus()).isEqualTo(Status.CREATED);
         assertThat(dbEnvelope.getUploadFailureCount()).isEqualTo(0);
@@ -79,8 +118,32 @@ public class EnvelopeMapperTest {
 
         assertThat(dbEnvelope.getScannableItems())
             .extracting(this::convertToInputScannableItem)
-            .usingRecursiveFieldByFieldElementComparator()
+            .usingElementComparatorIgnoringFields("ocrData", "documentType", "documentSubtype")
             .containsAll(zipEnvelope.scannableItems);
+    }
+
+    private void assertSameOcrData(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
+        assertThat(dbEnvelope.getScannableItems())
+            .extracting(ScannableItem::getOcrData)
+            .extracting(this::convertToInputOcrData)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsAll(
+                zipEnvelope.scannableItems.stream().map(item -> item.ocrData).collect(toList())
+            );
+    }
+
+    private void assertDocumentTypes(Envelope dbEnvelope, DocumentType... documentTypes) {
+        assertThat(dbEnvelope.getScannableItems())
+            .extracting(ScannableItem::getDocumentType)
+            .usingDefaultComparator()
+            .containsExactly(documentTypes);
+    }
+
+    private void assertDocumentSubTypes(Envelope dbEnvelope, String... documentSubTypes) {
+        assertThat(dbEnvelope.getScannableItems())
+            .extracting(ScannableItem::getDocumentSubtype)
+            .usingDefaultComparator()
+            .containsExactly(documentSubTypes);
     }
 
     private void assertSameNonScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
