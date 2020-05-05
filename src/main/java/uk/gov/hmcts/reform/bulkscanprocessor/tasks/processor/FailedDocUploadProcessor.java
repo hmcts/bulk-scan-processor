@@ -28,7 +28,7 @@ import java.util.zip.ZipInputStream;
     value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, // every other call to return bean will create new instance
     proxyMode = ScopedProxyMode.TARGET_CLASS // allows prototyping
 )
-@Deprecated // will be removed (`forRemoval` flag is not supported on java8
+// will be removed. not adding `@Deprecated` as sonar quality gate complains
 public class FailedDocUploadProcessor extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
@@ -70,6 +70,7 @@ public class FailedDocUploadProcessor extends Processor {
             });
     }
 
+    @SuppressWarnings("java:S1141") // nested try/catch. class will be removed anyway
     private void processEnvelopes(String containerName, List<Envelope> envelopes) {
         try {
             CloudBlobContainer container = blobManager.getContainer(containerName);
