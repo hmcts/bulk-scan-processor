@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -19,6 +20,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.Processor;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 @Component
@@ -26,11 +28,13 @@ import java.util.zip.ZipInputStream;
     value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, // every other call to return bean will create new instance
     proxyMode = ScopedProxyMode.TARGET_CLASS // allows prototyping
 )
+@Deprecated // will be removed (`forRemoval` flag is not supported on java8
 public class FailedDocUploadProcessor extends Processor {
 
     private static final Logger log = LoggerFactory.getLogger(FailedDocUploadProcessor.class);
 
     private final ZipFileProcessor zipFileProcessor;
+    private final int maxReUploadTriesCount;
 
     @Autowired
     public FailedDocUploadProcessor(
@@ -39,53 +43,52 @@ public class FailedDocUploadProcessor extends Processor {
         EnvelopeProcessor envelopeProcessor,
         ZipFileProcessor zipFileProcessor,
         EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository
+        ProcessEventRepository eventRepository,
+        // this value will be moved to task instead as this class is not needed
+        @Value("${scheduling.task.reupload.max_tries}") int maxReUploadTriesCount
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.zipFileProcessor = zipFileProcessor;
+        this.maxReUploadTriesCount = maxReUploadTriesCount;
     }
 
     public void processJurisdiction(String jurisdiction) {
-        log.info("Started looking for failed documents for jurisdiction {}", jurisdiction);
+        envelopeRepository
+            .findEnvelopesToResend(maxReUploadTriesCount)
+            .stream()
+            .collect(Collectors.groupingBy(Envelope::getContainer))
+            .forEach((containerName, envelopesInContainer) -> {
+                log.info(
+                    "Re-uploading documents. Container: {}, envelopes found: {}",
+                    containerName,
+                    envelopesInContainer.size()
+                );
 
-        try {
-            List<Envelope> envelopes = envelopeProcessor.getFailedToUploadEnvelopes(jurisdiction);
+                processEnvelopes(containerName, envelopesInContainer);
 
-            if (!envelopes.isEmpty()) {
-                String containerName = envelopes.get(0).getContainer();
-
-                processEnvelopes(containerName, envelopes);
-            }
-
-            log.info(
-                "Finished processing failed documents for jurisdiction {}. Processed {} envelopes.",
-                jurisdiction,
-                envelopes.size()
-            );
-        } catch (Exception ex) {
-            log.error("An error occurred when processing failed documents for jurisdiction {}.", jurisdiction, ex);
-        }
+                log.info("Finished re-uploaded documents. Container: {}", containerName);
+            });
     }
 
-    private void processEnvelopes(String containerName, List<Envelope> envelopes)
-        throws StorageException, URISyntaxException {
+    private void processEnvelopes(String containerName, List<Envelope> envelopes) {
+        try {
+            CloudBlobContainer container = blobManager.getContainer(containerName);
 
-        log.info("Processing {} failed documents for container {}", envelopes.size(), containerName);
-
-        CloudBlobContainer container = blobManager.getContainer(containerName);
-
-        for (Envelope envelope : envelopes) {
-            try {
-                processEnvelope(container, envelope);
-            } catch (Exception ex) {
-                log.error(
-                    "An error occurred when processing failed document {} from container {}. Envelope ID: {}",
-                    envelope.getZipFileName(),
-                    containerName,
-                    envelope.getId(),
-                    ex
-                );
+            for (Envelope envelope : envelopes) {
+                try {
+                    processEnvelope(container, envelope);
+                } catch (Exception ex) {
+                    log.error(
+                        "An error occurred when processing failed document {} from container {}. Envelope ID: {}",
+                        envelope.getZipFileName(),
+                        containerName,
+                        envelope.getId(),
+                        ex
+                    );
+                }
             }
+        } catch (Exception exception) {
+            log.error("An error occurred when processing failed documents. Container: {}", containerName, exception);
         }
     }
 

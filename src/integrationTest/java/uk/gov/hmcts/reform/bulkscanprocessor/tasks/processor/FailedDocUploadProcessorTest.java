@@ -45,7 +45,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             envelopeProcessor,
             zipFileProcessor,
             envelopeRepository,
-            processEventRepository
+            processEventRepository,
+            5 // max re-upload tries count
         );
 
         blobProcessorTask = new BlobProcessorTask(

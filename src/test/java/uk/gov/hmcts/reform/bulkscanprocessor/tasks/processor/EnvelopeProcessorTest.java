@@ -34,7 +34,7 @@ class EnvelopeProcessorTest {
 
     @BeforeEach
     void setUp() {
-        envelopeProcessor = new EnvelopeProcessor(schemaValidator, envelopeRepository, processEventRepository, 0, 0);
+        envelopeProcessor = new EnvelopeProcessor(schemaValidator, envelopeRepository, processEventRepository);
     }
 
     @Test

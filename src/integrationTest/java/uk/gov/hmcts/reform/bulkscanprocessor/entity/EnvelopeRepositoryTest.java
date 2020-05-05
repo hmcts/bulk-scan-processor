@@ -50,14 +50,14 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend(jurisdiction, maxFailCount, null);
+        List<Envelope> result = repo.findEnvelopesToResend(maxFailCount);
 
         // then
         assertThat(result).hasSize(2);
     }
 
     @Test
-    public void findEnvelopesToResend_should_filter_based_on_status_and_jurisdiction() throws Exception {
+    public void findEnvelopesToResend_should_filter_based_on_status_and_jurisdiction() {
         // given
         dbHas(
             envelope("A", Status.CREATED),
@@ -66,10 +66,10 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend("A", 1_000, null);
+        List<Envelope> result = repo.findEnvelopesToResend(1_000);
 
         // then
-        assertThat(result).hasSize(1);
+        assertThat(result).hasSize(2);
     }
 
     @Test
