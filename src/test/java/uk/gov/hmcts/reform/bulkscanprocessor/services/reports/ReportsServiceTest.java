@@ -22,7 +22,6 @@ import java.util.List;
 
 import static java.time.LocalDate.now;
 import static java.time.LocalDateTime.ofInstant;
-import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -34,6 +33,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService.TEST_CONTAINER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @ExtendWith(MockitoExtension.class)
 public class ReportsServiceTest {
@@ -45,7 +45,7 @@ public class ReportsServiceTest {
     private ReportsService service;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         this.service = new ReportsService(this.repo, zeroRowFiller, zipFilesSummaryRepo);
     }
 
@@ -151,7 +151,7 @@ public class ReportsServiceTest {
             .containsExactly(
                 new ZipFileSummaryResponse(
                     "t1.zip",
-                    ofInstant(instant.minus(1, MINUTES), UTC).toLocalDate(),
+                    ofInstant(instant.minus(1, MINUTES), EUROPE_LONDON_ZONE_ID).toLocalDate(),
                     toLocalTime(instant.minus(1, MINUTES)),
                     null,
                     null,
@@ -162,9 +162,9 @@ public class ReportsServiceTest {
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
-                    ofInstant(instant.minus(10, MINUTES), UTC).toLocalDate(),
+                    ofInstant(instant.minus(10, MINUTES), EUROPE_LONDON_ZONE_ID).toLocalDate(),
                     toLocalTime(instant.minus(10, MINUTES)),
-                    ofInstant(instant.minus(20, MINUTES), UTC).toLocalDate(),
+                    ofInstant(instant.minus(20, MINUTES), EUROPE_LONDON_ZONE_ID).toLocalDate(),
                     toLocalTime(instant.minus(20, MINUTES)),
                     "c2",
                     Event.COMPLETED.toString(),
@@ -211,7 +211,7 @@ public class ReportsServiceTest {
     }
 
     private LocalTime toLocalTime(Instant instant) {
-        return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss").format(instant.atZone(UTC)));
+        return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss").format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
     }
 
 }
