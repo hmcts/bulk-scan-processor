@@ -4,7 +4,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.io.File;
@@ -18,7 +17,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 
 public class CsvWriterTest {
 
@@ -36,7 +35,7 @@ public class CsvWriterTest {
                 date,
                 time,
                 "bulkscan",
-                Event.DOC_PROCESSED.toString(),
+                DOC_UPLOADED.toString(),
                 Status.UPLOADED.toString(),
                 SUPPLEMENTARY_EVIDENCE.name()
             ),
@@ -47,7 +46,7 @@ public class CsvWriterTest {
                 date,
                 time,
                 "bulkscan",
-                Event.DOC_PROCESSED.toString(),
+                DOC_UPLOADED.toString(),
                 Status.UPLOADED.toString(),
                 null
             )
@@ -83,7 +82,7 @@ public class CsvWriterTest {
                     time.toString(),
                     date.toString(),
                     time.toString(),
-                    DOC_PROCESSED.toString(),
+                    DOC_UPLOADED.toString(),
                     SUPPLEMENTARY_EVIDENCE.name()
                 ),
                 tuple(
@@ -93,7 +92,7 @@ public class CsvWriterTest {
                     time.toString(),
                     date.toString(),
                     time.toString(),
-                    DOC_PROCESSED.toString(),
+                    DOC_UPLOADED.toString(),
                     ""
                 )
             );

@@ -25,9 +25,9 @@ public class ProcessEventRepositoryTest {
     public void findByZipFileName_should_find_events_in_db() {
         // given
         repo.saveAll(asList(
-            new ProcessEvent("A", "hello.zip", Event.DOC_PROCESSED),
-            new ProcessEvent("B", "hello.zip", Event.DOC_PROCESSED),
-            new ProcessEvent("C", "world.zip", Event.DOC_PROCESSED)
+            new ProcessEvent("A", "hello.zip", Event.DOC_UPLOADED),
+            new ProcessEvent("B", "hello.zip", Event.DOC_UPLOADED),
+            new ProcessEvent("C", "world.zip", Event.DOC_UPLOADED)
         ));
 
         // when
@@ -40,8 +40,8 @@ public class ProcessEventRepositoryTest {
         softly.assertThat(resultForHello)
             .usingElementComparatorOnFields("container", "zipFileName", "event")
             .containsExactlyInAnyOrder(
-                new ProcessEvent("A", "hello.zip", Event.DOC_PROCESSED),
-                new ProcessEvent("B", "hello.zip", Event.DOC_PROCESSED)
+                new ProcessEvent("A", "hello.zip", Event.DOC_UPLOADED),
+                new ProcessEvent("B", "hello.zip", Event.DOC_UPLOADED)
             );
 
         softly.assertThat(resultForX).hasSize(0);

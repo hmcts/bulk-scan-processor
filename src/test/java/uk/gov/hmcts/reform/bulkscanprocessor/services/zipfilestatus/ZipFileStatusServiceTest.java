@@ -44,7 +44,7 @@ public class ZipFileStatusServiceTest {
         // given
         List<ProcessEvent> events = asList(
             event(Event.DOC_UPLOADED, "A", now(), null),
-            event(Event.DOC_PROCESSED, "A", now().minusSeconds(1), "reason1"),
+            event(Event.DOC_PROCESSED_NOTIFICATION_SENT, "A", now().plusSeconds(1), null),
             event(Event.DOC_FAILURE, "B", now().minusSeconds(2), "reason2")
         );
 
