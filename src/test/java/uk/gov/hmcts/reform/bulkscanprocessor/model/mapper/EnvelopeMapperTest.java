@@ -64,7 +64,7 @@ public class EnvelopeMapperTest {
     }
 
     @Test
-    public void should_map_document_types_and_subtypes_correctly() throws Exception {
+    public void should_map_document_types_subtypes_and_ocr_data_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "with-scannable-items.json");
         String container = "container1";
 
