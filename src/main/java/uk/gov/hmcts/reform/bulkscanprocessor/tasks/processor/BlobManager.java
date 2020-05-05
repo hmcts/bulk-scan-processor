@@ -64,7 +64,7 @@ public class BlobManager {
             }
 
             String leaseId = cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
-            log.info("Acquired lease on file {} in container {}", zipFilename, containerName);
+            log.info("Acquired lease on file {} in container {}. Lease ID: {}", zipFilename, containerName, leaseId);
             return Optional.of(leaseId);
         } catch (StorageException storageException) {
             if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
@@ -77,6 +77,27 @@ public class BlobManager {
             logAcquireLeaseError(zipFilename, containerName, exception);
 
             return Optional.empty();
+        }
+    }
+
+    public void tryReleaseLease(
+        CloudBlockBlob cloudBlockBlob,
+        String containerName,
+        String zipFileName,
+        String leaseId
+    ) {
+        try {
+            log.info("Releasing lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
+            cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
+            log.info("Released lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
+        } catch (Exception exc) {
+            log.error(
+                "Failed to release the lease on file {} in container {}. Lease ID: {}",
+                zipFileName,
+                containerName,
+                leaseId,
+                exc
+            );
         }
     }
 
