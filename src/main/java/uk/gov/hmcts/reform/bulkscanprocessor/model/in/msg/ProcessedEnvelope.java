@@ -9,16 +9,22 @@ import java.util.UUID;
 public class ProcessedEnvelope {
 
     public final UUID id;
-    public final String processedCcdReference;
-    public final String processedCcdType;
+
+    public final UUID envelopeId;
+
+    public final Long ccdId;
+
+    public final String envelopeCcdAction;
 
     public ProcessedEnvelope(
         @JsonProperty("id") UUID id,
-        @JsonProperty("processed_ccd_reference") String processedCcdReference,
-        @JsonProperty("processed_ccd_type") String processedCcdType
+        @JsonProperty("envelope_id") UUID envelopeId,
+        @JsonProperty("ccd_id") Long ccdId,
+        @JsonProperty("envelope_ccd_action") String envelopeCcdAction
     ) {
         this.id = id;
-        this.processedCcdReference = processedCcdReference;
-        this.processedCcdType = processedCcdType;
+        this.envelopeId = envelopeId;
+        this.ccdId = ccdId;
+        this.envelopeCcdAction = envelopeCcdAction;
     }
 }
