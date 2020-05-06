@@ -275,12 +275,6 @@ dependencies {
   smokeTestCompile sourceSets.test.runtimeClasspath
   smokeTestCompile sourceSets.functionalTest.runtimeClasspath
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured'
-
-  apiGatewayTestCompile sourceSets.main.runtimeClasspath
-  apiGatewayTestCompile sourceSets.test.runtimeClasspath
-
-  apiGatewayTestCompile group: 'io.rest-assured', name: 'rest-assured'
-  apiGatewayTestCompile group: 'com.typesafe', name: 'config', version: '1.4.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
