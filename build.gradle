@@ -45,14 +45,6 @@ sourceSets {
     resources.srcDir file('src/smokeTest/resources')
   }
 
-  apiGatewayTest {
-    java {
-      compileClasspath += main.output
-      runtimeClasspath += main.output
-      srcDir file('src/apiGatewayTest/java')
-    }
-    resources.srcDir file('src/apiGatewayTest/resources')
-  }
 }
 
 tasks.withType(JavaCompile) {
@@ -93,12 +85,6 @@ task smoke(type: Test) {
   description = "Runs Smoke Tests"
   testClassesDirs = sourceSets.smokeTest.output.classesDirs
   classpath = sourceSets.smokeTest.runtimeClasspath
-}
-
-task apiGateway(type: Test) {
-  description = "Runs API Gateway Tests"
-  testClassesDirs = sourceSets.apiGatewayTest.output.classesDirs
-  classpath = sourceSets.apiGatewayTest.runtimeClasspath
 }
 
 checkstyle {
