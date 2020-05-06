@@ -62,7 +62,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             containerMappings,
             ocrValidator,
             serviceBusHelper,
-            paymentsEnabled
+            paymentsEnabled,
+            RETRY_COUNT
         );
     }
 

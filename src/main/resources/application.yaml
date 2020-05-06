@@ -93,6 +93,7 @@ queues:
   notifications:
     connection-string: ${QUEUE_NOTIFICATIONS_SEND}
     queue-name: notifications
+    manual-retry-count: 2
 
 accesstoken:
   serviceConfig:

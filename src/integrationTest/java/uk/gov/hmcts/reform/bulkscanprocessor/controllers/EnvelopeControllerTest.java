@@ -74,6 +74,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 @RunWith(SpringRunner.class)
 public class EnvelopeControllerTest {
 
+    private static final int RETRY_COUNT = 2;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -165,7 +167,8 @@ public class EnvelopeControllerTest {
             containerMappings,
             ocrValidator,
             serviceBusHelper,
-            paymentsEnabled
+            paymentsEnabled,
+            RETRY_COUNT
         );
 
         testContainer = cloudBlobClient.getContainerReference("bulkscan");

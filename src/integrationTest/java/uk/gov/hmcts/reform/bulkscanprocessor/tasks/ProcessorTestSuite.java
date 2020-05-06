@@ -57,6 +57,8 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     protected T processor;
 
+    protected static final int RETRY_COUNT = 2;
+
     @Autowired
     protected ZipFileProcessor zipFileProcessor;
 

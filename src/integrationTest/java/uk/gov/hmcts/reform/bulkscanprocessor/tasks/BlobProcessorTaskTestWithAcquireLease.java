@@ -46,7 +46,8 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
             containerMappings,
             ocrValidator,
             serviceBusHelper,
-            paymentsEnabled
+            paymentsEnabled,
+            RETRY_COUNT
         );
     }
 

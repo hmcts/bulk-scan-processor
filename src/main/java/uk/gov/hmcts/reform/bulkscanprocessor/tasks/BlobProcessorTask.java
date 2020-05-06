@@ -82,6 +82,8 @@ public class BlobProcessorTask extends Processor {
 
     private final boolean paymentsEnabled;
 
+    private final int retryCount;
+
     @SuppressWarnings("squid:S00107")
     @Autowired
     public BlobProcessorTask(
@@ -94,7 +96,8 @@ public class BlobProcessorTask extends Processor {
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
-        @Value("${process-payments.enabled}") boolean paymentsEnabled
+        @Value("${process-payments.enabled}") boolean paymentsEnabled,
+        @Value("${queues.notifications.manual-retry-count}") int retryCount
     ) {
         super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
         this.zipFileProcessor = zipFileProcessor;
@@ -102,6 +105,7 @@ public class BlobProcessorTask extends Processor {
         this.containerMappings = containerMappings;
         this.ocrValidator = ocrValidator;
         this.paymentsEnabled = paymentsEnabled;
+        this.retryCount = retryCount;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
@@ -326,16 +330,7 @@ public class BlobProcessorTask extends Processor {
         ErrorMapping
             .getFor(cause.getClass())
             .ifPresent(errorCode -> {
-                try {
-                    sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
-                } catch (Exception exc) {
-                    log.error(
-                        "Error sending notification to the queue."
-                            + "File name: " + zipFilename + " "
-                            + "Container: " + containerName,
-                        exc
-                    );
-                }
+                sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
             });
 
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
@@ -350,27 +345,41 @@ public class BlobProcessorTask extends Processor {
     ) {
         String messageId = UUID.randomUUID().toString();
 
-        this.notificationsQueueHelper.sendMessage(
-            new ErrorMsg(
-                messageId,
-                eventId,
-                zipFilename,
-                containerName,
-                getPoBox(containerName),
-                null,
-                errorCode,
-                cause.getMessage(),
-                "bulk_scan_processor",
-                containerName
-            )
-        );
-
-        log.info(
-            "Created error notification for file {} in container {}. Queue message ID: {}",
+        final ErrorMsg errorMessage = new ErrorMsg(
+            messageId,
+            eventId,
             zipFilename,
             containerName,
-            messageId
+            getPoBox(containerName),
+            null,
+            errorCode,
+            cause.getMessage(),
+            "bulk_scan_processor",
+            containerName
         );
+        sendErrorMessage(errorMessage, retryCount);
+    }
+
+    private void sendErrorMessage(ErrorMsg errorMessage, int retryCount) {
+        try {
+            notificationsQueueHelper.sendMessage(errorMessage);
+            log.info(
+                "Created error notification for file {} in container {}. Queue message ID: {}",
+                errorMessage.zipFileName,
+                errorMessage.container,
+                errorMessage.getMsgId()
+            );
+        } catch (Exception ex) {
+            log.error(
+                "Error sending notification to the queue."
+                    + "File name: " + errorMessage.zipFileName + " "
+                    + "Container: " + errorMessage.container,
+                ex
+            );
+            if (retryCount > 0) {
+                sendErrorMessage(errorMessage, retryCount--);
+            }
+        }
     }
 
     private String getPoBox(String containerName) {
