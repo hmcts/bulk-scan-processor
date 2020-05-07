@@ -326,18 +326,20 @@ public class BlobProcessorTask extends Processor {
 
         Optionals.ifPresentOrElse(
             ErrorMapping.getFor(cause.getClass()),
-            (errorCode) -> trySendErrorMessageToQueueAndMoveFileToRejectedContainer(
+            (errorCode) -> trySendErrorMessageAndMoveFileToRejectedContainer(
                 zipFilename,
                 containerName,
                 cause, eventId,
                 leaseId,
                 errorCode
             ),
-            () -> blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId)
+            () -> {
+                throw new ConfigurationException("Error code not found for " + cause.getClass().getName());
+            }
         );
     }
 
-    private void trySendErrorMessageToQueueAndMoveFileToRejectedContainer(
+    private void trySendErrorMessageAndMoveFileToRejectedContainer(
         String zipFilename,
         String containerName,
         Exception cause,
