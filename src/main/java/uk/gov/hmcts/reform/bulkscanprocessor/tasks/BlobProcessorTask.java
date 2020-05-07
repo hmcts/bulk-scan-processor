@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.util.Optionals;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -323,22 +324,38 @@ public class BlobProcessorTask extends Processor {
             null
         );
 
-        ErrorMapping
-            .getFor(cause.getClass())
-            .ifPresent(errorCode -> {
-                try {
-                    sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
-                } catch (Exception exc) {
-                    log.error(
-                        "Error sending notification to the queue."
-                            + "File name: " + zipFilename + " "
-                            + "Container: " + containerName,
-                        exc
-                    );
-                }
-            });
+        Optionals.ifPresentOrElse(
+            ErrorMapping.getFor(cause.getClass()),
+            (errorCode) -> trySendErrorMessageToQueueAndMoveFileToRejectedContainer(
+                zipFilename,
+                containerName,
+                cause, eventId,
+                leaseId,
+                errorCode
+            ),
+            () -> blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId)
+        );
+    }
 
-        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+    private void trySendErrorMessageToQueueAndMoveFileToRejectedContainer(
+        String zipFilename,
+        String containerName,
+        Exception cause,
+        Long eventId,
+        String leaseId,
+        ErrorCode errorCode
+    ) {
+        try {
+            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
+            blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+        } catch (Exception exc) {
+            log.error(
+                "Error sending notification to the queue."
+                    + "File name: " + zipFilename + " "
+                    + "Container: " + containerName,
+                exc
+            );
+        }
     }
 
     private void sendErrorMessageToQueue(
