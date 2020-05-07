@@ -109,13 +109,15 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             );
     }
 
+    //Todo remove id when orchestrator starts sending
     //unknown fields should be ignored
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
         IMessage message = new Message(
             " {"
                 + "\"id\":\"" + envelopeId + "\","
-                + "\"processed_ccd_reference\":\"ccd-ref-9283\","
-                + "\"processed_ccd_type\":\"ccd-type-exception\","
+                + "\"envelope_id\":\"" + envelopeId + "\","
+                + "\"ccd_id\":123432443,"
+                + "\"envelope_ccd_action\":\"ccd-type-exception\","
                 + "\"dummy\":\"value-should-ignore\""
                 + "}"
         );
