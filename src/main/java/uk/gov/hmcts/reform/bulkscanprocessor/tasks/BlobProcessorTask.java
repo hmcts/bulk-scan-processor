@@ -357,6 +357,7 @@ public class BlobProcessorTask extends Processor {
                     + "Container: " + containerName,
                 exc
             );
+            throw exc;
         }
     }
 
