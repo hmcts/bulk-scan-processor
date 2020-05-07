@@ -334,7 +334,7 @@ public class BlobProcessorTask extends Processor {
                 errorCode
             ),
             () -> {
-                throw new ConfigurationException("Error code not found for " + cause.getClass().getName());
+                throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
             }
         );
     }
