@@ -144,13 +144,6 @@ variable "incomplete_envelopes_enabled" {
 
 # endregion
 
-# list of SSL client certificate thumbprints that are accepted by the API (gateway)
-# (excludes certificates used by API tests)
-variable "allowed_client_certificate_thumbprints" {
-  type    = "list"
-  default = []
-}
-
 variable "ocr_validation_url_bulkscan_sample_app" {
   default = ""
 }
