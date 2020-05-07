@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTaskTest {
     private static final int RETRY_COUNT = 2;
-    
+
     private BlobProcessorTask blobProcessorTask;
 
     @Mock

@@ -59,7 +59,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             ocrValidator,
             serviceBusHelper,
             paymentsEnabled,
-            RETRY_COUNT
+            retryCount
         );
     }
 

@@ -357,6 +357,7 @@ public class BlobProcessorTask extends Processor {
             "bulk_scan_processor",
             containerName
         );
+
         sendErrorMessage(errorMessage, retryCount);
     }
 
@@ -377,7 +378,7 @@ public class BlobProcessorTask extends Processor {
                 ex
             );
             if (retryCount > 0) {
-                sendErrorMessage(errorMessage, retryCount--);
+                sendErrorMessage(errorMessage, --retryCount);
             }
         }
     }

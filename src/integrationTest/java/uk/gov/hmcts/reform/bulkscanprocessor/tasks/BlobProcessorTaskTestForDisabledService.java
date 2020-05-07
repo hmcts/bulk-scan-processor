@@ -44,7 +44,7 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<
             ocrValidator,
             serviceBusHelper,
             paymentsEnabled,
-            RETRY_COUNT
+            retryCount
         );
     }
 

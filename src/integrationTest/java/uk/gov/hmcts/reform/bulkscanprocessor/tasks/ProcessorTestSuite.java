@@ -57,8 +57,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     protected T processor;
 
-    protected static final int RETRY_COUNT = 2;
-
     @Autowired
     protected ZipFileProcessor zipFileProcessor;
 
@@ -103,6 +101,9 @@ public abstract class ProcessorTestSuite<T extends Processor> {
 
     @Value("${process-payments.enabled}")
     protected boolean paymentsEnabled;
+
+    @Value("${queues.notifications.manual-retry-count}")
+    protected int retryCount;
 
     protected CloudBlobContainer testContainer;
     protected CloudBlobContainer rejectedContainer;

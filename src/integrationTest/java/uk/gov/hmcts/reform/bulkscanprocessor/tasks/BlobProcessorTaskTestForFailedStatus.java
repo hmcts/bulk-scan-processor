@@ -51,7 +51,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
             ocrValidator,
             serviceBusHelper,
             paymentsEnabled,
-            RETRY_COUNT
+            retryCount
         );
     }
 
