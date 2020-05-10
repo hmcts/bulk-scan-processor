@@ -13,6 +13,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
+import org.assertj.core.api.SoftAssertions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -199,9 +200,14 @@ public class TestHelper {
                 .get(url)
                 .andReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertSuccessfulEnvelopesResponse(response);
 
-        return response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+        EnvelopeListResponse deserialisedResponse =
+            response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+
+        assertThat(deserialisedResponse).isNotNull();
+
+        return deserialisedResponse;
     }
 
     public Optional<EnvelopeResponse> getEnvelopeByZipFileName(
@@ -232,5 +238,21 @@ public class TestHelper {
         assertThat(response.getStatusCode()).isEqualTo(200);
 
         return response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
+    }
+
+    private void assertSuccessfulEnvelopesResponse(Response response) {
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(200);
+
+            try {
+                response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+            } catch (Exception exc) {
+                softly.fail(
+                    "Expected list of envelopes in the body but got\n'%s'\nException:\n%s",
+                    response.getBody().print(),
+                    exc
+                );
+            }
+        });
     }
 }
