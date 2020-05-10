@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
 
+    private static final String TEST_SOURCE_NAME = "Bulk Scan Processor tests";
     private static final Random RANDOM = new Random();
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
@@ -114,7 +115,7 @@ public class TestHelper {
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor functional test")
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
             .when().get("/token/" + containerName)
             .andReturn();
 
@@ -195,7 +196,7 @@ public class TestHelper {
                 .baseUri(baseUrl)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header("ServiceAuthorization", "Bearer " + s2sToken)
-                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
                 .when()
                 .get(url)
                 .andReturn();
@@ -230,7 +231,7 @@ public class TestHelper {
                 .baseUri(baseUrl)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header("ServiceAuthorization", "Bearer " + s2sToken)
-                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
                 .when()
                 .get("/envelopes/" + id)
                 .andReturn();
