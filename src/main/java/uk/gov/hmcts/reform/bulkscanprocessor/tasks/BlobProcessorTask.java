@@ -318,9 +318,7 @@ public class BlobProcessorTask extends Processor {
                 leaseId,
                 errorCode
             ),
-            () -> {
-                throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
-            }
+            () -> blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId)
         );
     }
 
