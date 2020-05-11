@@ -5,7 +5,6 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -37,21 +36,15 @@ public class EnvelopeProcessor {
     private final MetafileJsonValidator schemaValidator;
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
-    private final int reUploadBatchSize;
-    private final int maxReuploadTriesCount;
 
     public EnvelopeProcessor(
         MetafileJsonValidator schemaValidator,
         EnvelopeRepository envelopeRepository,
-        ProcessEventRepository processEventRepository,
-        @Value("${scheduling.task.reupload.batch}") int reUploadBatchSize,
-        @Value("${scheduling.task.reupload.max_tries}") int maxReuploadTriesCount
+        ProcessEventRepository processEventRepository
     ) {
         this.schemaValidator = schemaValidator;
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
-        this.reUploadBatchSize = reUploadBatchSize;
-        this.maxReuploadTriesCount = maxReuploadTriesCount;
     }
 
     public InputEnvelope parseEnvelope(
@@ -131,14 +124,6 @@ public class EnvelopeProcessor {
             // or throw anyway (same behaviour as before)
             throw exception;
         }
-    }
-
-    public List<Envelope> getFailedToUploadEnvelopes(String jurisdiction) {
-        return envelopeRepository.findEnvelopesToResend(
-            jurisdiction,
-            maxReuploadTriesCount,
-            reUploadBatchSize > 0 ? PageRequest.of(0, reUploadBatchSize) : null
-        );
     }
 
     public void markAsUploadFailure(Envelope envelope) {

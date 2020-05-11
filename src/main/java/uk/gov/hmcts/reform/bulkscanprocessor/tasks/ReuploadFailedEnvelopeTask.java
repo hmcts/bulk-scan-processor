@@ -1,25 +1,15 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.FailedDocUploadProcessor;
-
-import java.util.Set;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -37,10 +27,8 @@ public class ReuploadFailedEnvelopeTask {
 
     private static final Logger log = LoggerFactory.getLogger(ReuploadFailedEnvelopeTask.class);
 
-    private final Set<String> jurisdictions;
-
-    public ReuploadFailedEnvelopeTask(@Qualifier("jurisdictions") Set<String> jurisdictions) {
-        this.jurisdictions = jurisdictions;
+    public ReuploadFailedEnvelopeTask() {
+        // empty constructor
     }
 
     /**
@@ -55,60 +43,15 @@ public class ReuploadFailedEnvelopeTask {
 
     @SchedulerLock(name = "re-upload-failures")
     @Scheduled(fixedDelayString = "${scheduling.task.reupload.delay}")
-    public void processUploadFailures() throws InterruptedException {
+    public void processUploadFailures() {
         log.info("Started failed document processing job");
 
-        ExecutorService executorService = null;
-
         try {
-            executorService = Executors.newFixedThreadPool(
-                jurisdictions.size(),
-                new ThreadFactoryBuilder().setNameFormat("BSP-REUPLOAD-%d").build()
-            );
+            getProcessor().processJurisdiction();
 
-            CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
-
-            jurisdictions
-                .forEach(jurisdiction -> {
-                    FailedDocUploadProcessor processor = getProcessor();
-
-                    completionService.submit(() -> {
-                        processor.processJurisdiction(jurisdiction);
-                        return null;
-                    });
-                });
-
-            awaitCompletion(completionService);
-            executorService.shutdown();
             log.info("Finished failed document processing job");
         } catch (Exception ex) {
             log.error("An error occurred while processing failed documents", ex);
-        } finally {
-            if (executorService != null) {
-                executorService.shutdown();
-            }
-        }
-    }
-
-    private void awaitCompletion(CompletionService<Void> completionService) throws InterruptedException {
-        int completed = 0;
-
-        while (completed < jurisdictions.size()) {
-            Future<Void> future = completionService.take(); // blocks if none available
-
-            try {
-                future.get(); // waits if necessary
-            } catch (InterruptedException | ExecutionException exception) {
-                log.error("An error occurred when waiting for processing failed documents to complete", exception);
-
-                future.cancel(true);
-
-                if (exception instanceof InterruptedException) {
-                    Thread.currentThread().interrupt();
-                }
-            } finally {
-                completed++;
-            }
         }
     }
 }

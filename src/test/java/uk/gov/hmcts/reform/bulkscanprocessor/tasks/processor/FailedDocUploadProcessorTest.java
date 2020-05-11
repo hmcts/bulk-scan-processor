@@ -49,7 +49,8 @@ public class FailedDocUploadProcessorTest {
             envelopeProcessor,
             zipFileProcessor,
             envelopeRepository,
-            processEventRepository
+            processEventRepository,
+            1 // max re-upload-tries-count
         );
     }
 
@@ -61,13 +62,14 @@ public class FailedDocUploadProcessorTest {
         List<Envelope> envelopes = Collections.nCopies(3, testEnvelope);
 
         // and
-        given(envelopeProcessor.getFailedToUploadEnvelopes("SSCS")).willReturn(envelopes);
+        given(envelopeRepository.findEnvelopesToResend(1)).willReturn(envelopes);
 
         // we only test the output pattern. client is null
         // when
-        catchThrowableOfType(() -> processor.processJurisdiction("SSCS"), NullPointerException.class);
+        catchThrowableOfType(() -> processor.processJurisdiction(), NullPointerException.class);
 
         // then
-        capturer.assertContains("Processing 3 failed documents for container test");
+        capturer.assertContains("Re-uploading documents. Container: test, envelopes found: 3");
+        capturer.assertContains("Finished re-uploaded documents. Container: test");
     }
 }
