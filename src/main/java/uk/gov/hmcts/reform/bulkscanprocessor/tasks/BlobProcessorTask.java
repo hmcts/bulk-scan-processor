@@ -205,15 +205,7 @@ public class BlobProcessorTask extends Processor {
             try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
                 createEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
-                ZipFileProcessingResult processingResult =
-                    processZipFileContent(zis, zipFilename, container.getName(), leaseId);
-
-                if (processingResult != null) {
-                    processParsedEnvelopeDocuments(
-                        processingResult.getEnvelope(),
-                        processingResult.getPdfs()
-                    );
-                }
+                processZipFileContent(zis, zipFilename, container.getName(), leaseId);
             }
         } else {
             log.info(
@@ -234,7 +226,7 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private ZipFileProcessingResult processZipFileContent(
+    private void processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
         String containerName,
@@ -264,33 +256,26 @@ public class BlobProcessorTask extends Processor {
 
             Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
 
-            result.setEnvelope(envelopeProcessor.saveEnvelope(dbEnvelope));
-
-            return result;
+            envelopeProcessor.saveEnvelope(dbEnvelope);
         } catch (PaymentsDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
         } catch (ServiceDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
         } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             createEvent(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
-            return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
             createEvent(Event.DOC_FAILURE, containerName, zipFilename, ex);
-            return null;
         }
     }
 
