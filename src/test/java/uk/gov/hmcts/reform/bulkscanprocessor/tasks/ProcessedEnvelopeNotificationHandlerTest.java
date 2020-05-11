@@ -51,7 +51,9 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     public void should_call_envelope_finaliser_when_message_is_valid() {
         // given
         UUID envelopeId = UUID.randomUUID();
-        IMessage message = validMessage(envelopeId);
+        Long ccdId = 123123L;
+        String envelopeCcdAction = "AUTO_ATTACHED_TO_CASE";
+        IMessage message = validMessage(envelopeId, ccdId, envelopeCcdAction);
 
         given(message.getLockToken()).willReturn(UUID.randomUUID());
 
@@ -61,7 +63,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
 
         // then
         assertThat(future.isCompletedExceptionally()).isFalse();
-        verify(envelopeFinaliserService).finaliseEnvelope(envelopeId);
+        verify(envelopeFinaliserService).finaliseEnvelope(envelopeId, ccdId, envelopeCcdAction);
     }
 
     @Test
@@ -82,7 +84,9 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     public void should_complete_message_when_finaliser_completes_successfully() {
         // given
         UUID envelopeId = UUID.randomUUID();
-        IMessage message = validMessage(envelopeId);
+        Long ccdId = 312312L;
+        String envelopeCcdAction = "EXCEPTION_RECORD";
+        IMessage message = validMessage(envelopeId, ccdId, envelopeCcdAction);
 
         given(message.getLockToken()).willReturn(UUID.randomUUID());
 
@@ -92,7 +96,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
 
         // then
         assertThat(future.isCompletedExceptionally()).isFalse();
-        verify(envelopeFinaliserService).finaliseEnvelope(envelopeId);
+        verify(envelopeFinaliserService).finaliseEnvelope(envelopeId, ccdId, envelopeCcdAction);
         verify(messageCompletor).completeAsync(message.getLockToken());
     }
 
@@ -102,10 +106,10 @@ public class ProcessedEnvelopeNotificationHandlerTest {
         String exceptionMessage = "test exception";
         willThrow(new EnvelopeNotFoundException(exceptionMessage))
             .given(envelopeFinaliserService)
-            .finaliseEnvelope(any());
+            .finaliseEnvelope(any(), any(), any());
 
         UUID envelopeId = UUID.randomUUID();
-        IMessage message = validMessage(envelopeId);
+        IMessage message = validMessage(envelopeId, null, null);
 
         given(message.getLockToken()).willReturn(UUID.randomUUID());
 
@@ -115,7 +119,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
 
         // then
         assertThat(future.isCompletedExceptionally()).isFalse();
-        verify(envelopeFinaliserService).finaliseEnvelope(envelopeId);
+        verify(envelopeFinaliserService).finaliseEnvelope(envelopeId, null, null);
         verify(messageCompletor).deadLetterAsync(
             message.getLockToken(),
             DEAD_LETTER_REASON_PROCESSING_ERROR,
@@ -147,12 +151,12 @@ public class ProcessedEnvelopeNotificationHandlerTest {
         // given
         willThrow(new RuntimeException("test exception"))
             .given(envelopeFinaliserService)
-            .finaliseEnvelope(any());
+            .finaliseEnvelope(any(), any(), any());
 
         UUID envelopeId = UUID.randomUUID();
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(validMessage(envelopeId));
+        CompletableFuture<Void> future = handler.onMessageAsync(validMessage(envelopeId, null, null));
         future.join();
 
         // then
@@ -161,7 +165,14 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     //ProcessedEnvelope should ignore unknown fields when json deserialization
-    private IMessage validMessage(UUID envelopeId) {
-        return spy(new Message(String.format("{\"id\":\"%s\", \"dummy\":\"xx\"}", envelopeId)));
+    private IMessage validMessage(UUID envelopeId, Long ccdId, String envelopeCcdAction) {
+        return spy(new Message(
+            String.format(
+                " {\"envelope_id\":\"%1$s\",\"ccd_id\":%2$s,\"envelope_ccd_action\":%3$s,\"dummy\":\"xx\"}",
+                envelopeId,
+                ccdId,
+                envelopeCcdAction == null ? null : ("\"" + envelopeCcdAction + "\"")
+            )
+        ));
     }
 }
