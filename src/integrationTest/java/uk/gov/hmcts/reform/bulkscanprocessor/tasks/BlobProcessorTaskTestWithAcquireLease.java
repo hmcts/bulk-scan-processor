@@ -90,9 +90,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents)
             .extracting(event -> event.getEvent())
-            .containsExactlyInAnyOrder(
-                Event.ZIPFILE_PROCESSING_STARTED, Event.DOC_UPLOADED
-            );
+            .containsExactlyInAnyOrder(Event.ZIPFILE_PROCESSING_STARTED);
     }
 
     @NotNull

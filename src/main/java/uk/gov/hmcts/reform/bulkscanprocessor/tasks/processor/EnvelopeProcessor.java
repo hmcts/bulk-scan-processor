@@ -106,16 +106,16 @@ public class EnvelopeProcessor {
             .orElse(null);
     }
 
-    public Envelope saveEnvelope(Envelope envelope) {
+    public void saveEnvelope(Envelope envelope) {
         try {
             Envelope dbEnvelope = envelopeRepository.saveAndFlush(envelope);
 
-            log.info("Envelope for jurisdiction {} and zip file name {} successfully saved in database.",
+            log.info(
+                "Envelope successfully saved in database. Jurisdiction: {}, File name: {}, Envelope ID: {}",
                 envelope.getJurisdiction(),
-                envelope.getZipFileName()
+                envelope.getZipFileName(),
+                dbEnvelope.getId()
             );
-
-            return dbEnvelope;
         } catch (DataIntegrityViolationException exception) {
             if (exception.getCause() instanceof ConstraintViolationException) {
                 evaluateConstraintException((ConstraintViolationException) exception.getCause());
