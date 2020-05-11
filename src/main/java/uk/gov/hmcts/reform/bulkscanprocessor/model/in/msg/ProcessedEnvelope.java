@@ -16,7 +16,7 @@ public class ProcessedEnvelope {
 
     public ProcessedEnvelope(
         @JsonProperty("envelope_id") UUID envelopeId,
-        @JsonProperty("xx_ccd_id") String ccdId,
+        @JsonProperty("ccd_id") String ccdId,
         @JsonProperty("envelope_ccd_action") String envelopeCcdAction
     ) {
         this.envelopeId = envelopeId;

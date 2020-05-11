@@ -27,7 +27,7 @@ public class EnvelopeFinaliserService {
     }
 
     @Transactional
-    public void finaliseEnvelope(UUID envelopeId, Long ccdId, String envelopeCcdAction) {
+    public void finaliseEnvelope(UUID envelopeId, String ccdId, String envelopeCcdAction) {
         Envelope envelope = findEnvelope(envelopeId);
 
         envelope.getScannableItems().forEach(item -> {
@@ -35,7 +35,7 @@ public class EnvelopeFinaliserService {
             item.setOcrValidationWarnings(null);
         });
         envelope.setStatus(Status.COMPLETED);
-        envelope.setCcdId(String.valueOf(ccdId));
+        envelope.setCcdId(ccdId);
         envelope.setEnvelopeCcdAction(envelopeCcdAction);
 
         envelopeRepository.saveAndFlush(envelope);

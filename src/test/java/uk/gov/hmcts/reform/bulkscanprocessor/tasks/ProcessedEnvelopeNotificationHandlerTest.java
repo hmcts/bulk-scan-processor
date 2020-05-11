@@ -51,7 +51,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     public void should_call_envelope_finaliser_when_message_is_valid() {
         // given
         UUID envelopeId = UUID.randomUUID();
-        Long ccdId = 123123L;
+        String ccdId = "123123";
         String envelopeCcdAction = "AUTO_ATTACHED_TO_CASE";
         IMessage message = validMessage(envelopeId, ccdId, envelopeCcdAction);
 
@@ -84,7 +84,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     public void should_complete_message_when_finaliser_completes_successfully() {
         // given
         UUID envelopeId = UUID.randomUUID();
-        Long ccdId = 312312L;
+        String ccdId = "312312";
         String envelopeCcdAction = "EXCEPTION_RECORD";
         IMessage message = validMessage(envelopeId, ccdId, envelopeCcdAction);
 
@@ -165,12 +165,12 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     //ProcessedEnvelope should ignore unknown fields when json deserialization
-    private IMessage validMessage(UUID envelopeId, Long ccdId, String envelopeCcdAction) {
+    private IMessage validMessage(UUID envelopeId, String ccdId, String envelopeCcdAction) {
         return spy(new Message(
             String.format(
                 " {\"envelope_id\":\"%1$s\",\"ccd_id\":%2$s,\"envelope_ccd_action\":%3$s,\"dummy\":\"xx\"}",
                 envelopeId,
-                ccdId,
+                ccdId == null ? null : ("\"" + ccdId + "\""),
                 envelopeCcdAction == null ? null : ("\"" + envelopeCcdAction + "\"")
             )
         ));

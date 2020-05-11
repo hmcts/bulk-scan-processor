@@ -72,7 +72,7 @@ public class EnvelopeFinaliserServiceTest {
         );
 
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
-        Long ccdId = 312312L;
+        String ccdId = "312312";
         String envelopeCcdAction = "EXCEPTION_RECORD";
         // when
         envelopeFinaliserService.finaliseEnvelope(envelopeId, ccdId, envelopeCcdAction);
@@ -84,7 +84,7 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(finalisedEnvelope.get().getStatus()).isEqualTo(Status.COMPLETED);
         assertThat(finalisedEnvelope.get().getScannableItems())
             .allMatch(item -> item.getOcrData() == null && item.getOcrValidationWarnings() == null);
-        assertThat(finalisedEnvelope.get().getCcdId()).isEqualTo(ccdId.toString());
+        assertThat(finalisedEnvelope.get().getCcdId()).isEqualTo(ccdId);
         assertThat(finalisedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelopeCcdAction);
     }
 
@@ -98,7 +98,7 @@ public class EnvelopeFinaliserServiceTest {
         );
 
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
-        Long ccdId = 909033412141414L;
+        String ccdId = "909033412141414";
         String envelopeCcdAction = "AUTO_ATTACHED_TO_CASE";
         // when
         envelopeFinaliserService.finaliseEnvelope(envelopeId, ccdId, envelopeCcdAction);
@@ -110,7 +110,7 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(finalisedEnvelope.get().getStatus()).isEqualTo(Status.COMPLETED);
         assertThat(finalisedEnvelope.get().getScannableItems())
             .allMatch(item -> item.getOcrData() == null && item.getOcrValidationWarnings() == null);
-        assertThat(finalisedEnvelope.get().getCcdId()).isEqualTo(ccdId.toString());
+        assertThat(finalisedEnvelope.get().getCcdId()).isEqualTo(ccdId);
         assertThat(finalisedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelopeCcdAction);
     }
 
@@ -130,7 +130,7 @@ public class EnvelopeFinaliserServiceTest {
 
         UUID envelope1Id = envelopeRepository.saveAndFlush(envelope1).getId();
         UUID envelope2Id = envelopeRepository.saveAndFlush(envelope2).getId();
-        Long ccdId = 9843232L;
+        String ccdId = "9843232";
         String envelopeCcdAction = "EXCEPTION_RECORD";
 
         // when
@@ -166,7 +166,7 @@ public class EnvelopeFinaliserServiceTest {
         UUID envelope1Id = envelopeRepository.saveAndFlush(envelope1).getId();
         UUID envelope2Id = envelopeRepository.saveAndFlush(envelope2).getId();
 
-        Long ccdId = 31221321L;
+        String ccdId = "31221321";
         String envelopeCcdAction = "EXCEPTION_RECORD";
         // when
         envelopeFinaliserService.finaliseEnvelope(envelope1Id, ccdId, envelopeCcdAction);
@@ -189,7 +189,7 @@ public class EnvelopeFinaliserServiceTest {
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
-        envelopeFinaliserService.finaliseEnvelope(envelopeId, 2321L, "EXCEPTION_RECORD");
+        envelopeFinaliserService.finaliseEnvelope(envelopeId, "2321", "EXCEPTION_RECORD");
 
         // then
         List<ProcessEvent> savedEvents = processEventRepository.findByZipFileName(envelope.getZipFileName());
