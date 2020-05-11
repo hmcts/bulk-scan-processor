@@ -55,7 +55,7 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findEnvelopesToResend_should_filter_based_on_status_and_jurisdiction() {
+    public void findEnvelopesToResend_should_filter_based_on_status() {
         // given
         dbHas(
             envelope("A", Status.CREATED),
