@@ -160,6 +160,8 @@ public class EnvelopeFinaliserServiceTest {
             Status.NOTIFICATION_SENT,
             createScannableItems(3, createOcrData(), createWarnings())
         );
+        envelope2.setEnvelopeCcdAction("AUTO_ATTACHED_TO_CASE");
+        envelope2.setCcdId("12");
 
         UUID envelope1Id = envelopeRepository.saveAndFlush(envelope1).getId();
         UUID envelope2Id = envelopeRepository.saveAndFlush(envelope2).getId();
@@ -176,8 +178,8 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(unaffectedEnvelope.get().getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
         assertThat(unaffectedEnvelope.get().getScannableItems())
             .allMatch(item -> item.getOcrData() != null && item.getOcrValidationWarnings() != null);
-        assertThat(unaffectedEnvelope.get().getCcdId()).isNull();
-        assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isNull();
+        assertThat(unaffectedEnvelope.get().getCcdId()).isEqualTo(envelope2.getCcdId());
+        assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelope2.getEnvelopeCcdAction());
     }
 
     @Test
