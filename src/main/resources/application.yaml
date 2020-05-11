@@ -170,7 +170,6 @@ scheduling:
     upload-documents:
       delay: ${UPLOAD_TASK_DELAY} # In milliseconds
       enabled: ${UPLOAD_TASK_ENABLED}
-      envelope-age-in-minutes: 20 # see UploadEnvelopeDocumentsTask for explanation
     # 3 - send notification to orchestrator once all documents are uploaded
     notifications_to_orchestrator:
       delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms

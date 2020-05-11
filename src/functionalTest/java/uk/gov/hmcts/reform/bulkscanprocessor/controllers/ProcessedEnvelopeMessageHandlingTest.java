@@ -47,7 +47,9 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         // given
         String zipFilename = uploadEnvelope();
 
-        await("Envelope should be created in the service and notification should be put on the queue")
+        await(
+            "File " + zipFilename + " should be created in the service and notification should be put on the queue"
+        )
             .atMost(scanDelay + MESSAGE_PROCESSING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> hasNotificationBeenSent(zipFilename));
@@ -59,7 +61,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         sendProcessedEnvelopeMessage(envelopeId);
 
         // then
-        await("Envelope should change status to 'COMPLETED'")
+        await("File " + zipFilename + " should change status to 'COMPLETED'")
             .atMost(ENVELOPE_FINALISATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
@@ -68,7 +70,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
 
-        await("file should be deleted")
+        await("File " + zipFilename + " should be deleted")
             .atMost(DELETE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(inputContainer, zipFilename), is(false));

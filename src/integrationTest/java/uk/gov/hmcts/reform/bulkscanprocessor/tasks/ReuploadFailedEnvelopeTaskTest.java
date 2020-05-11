@@ -7,20 +7,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.rule.OutputCapture;
-import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 
 @IntegrationTest
 @RunWith(SpringRunner.class)
@@ -52,9 +47,6 @@ public class ReuploadFailedEnvelopeTaskTest {
     @Autowired
     private ReuploadFailedEnvelopeTask task;
 
-    @SpyBean
-    private EnvelopeProcessor envelopeProcessor;
-
     @After
     public void tearDown() {
         outputCapture.flush();
@@ -64,20 +56,5 @@ public class ReuploadFailedEnvelopeTaskTest {
     public void should_return_new_instance_of_processor_when_rerequesting_via_lookup_method() {
         // comparing instance hashes. .hashCode() just returns same one
         assertThat(task.getProcessor().toString()).isNotEqualTo(task.getProcessor().toString());
-    }
-
-    @Test
-    public void should_await_for_all_futures_even_if_their_code_throw_exception() throws Exception {
-        // given
-        given(envelopeProcessor.getFailedToUploadEnvelopes(anyString()))
-            .willThrow(JpaObjectRetrievalFailureException.class);
-
-        // when
-        task.processUploadFailures();
-
-        // then
-        assertThat(outputCapture.toString()).containsPattern(
-                ".+ERROR.+\\n An error occurred when processing failed documents for jurisdiction BULKSCAN"
-        );
     }
 }

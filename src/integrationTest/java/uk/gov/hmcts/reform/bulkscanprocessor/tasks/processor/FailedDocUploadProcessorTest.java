@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,13 +28,13 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOA
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
+@Deprecated // next PR (after #1213) will remove this test
+@Ignore
 @IntegrationTest
 @RunWith(SpringRunner.class)
 public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUploadProcessor> {
 
     private BlobProcessorTask blobProcessorTask;
-
-    private static final String JURISDICTION = "BULKSCAN";
 
     @Before
     public void setUp() throws Exception {
@@ -45,7 +46,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
             envelopeProcessor,
             zipFileProcessor,
             envelopeRepository,
-            processEventRepository
+            processEventRepository,
+            5 // max re-upload tries count
         );
 
         blobProcessorTask = new BlobProcessorTask(
@@ -78,7 +80,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction(JURISDICTION);
+        processor.processJurisdiction();
 
         // then
         List<Envelope> dbEnvelopes = envelopeRepository.findAll();
@@ -115,7 +117,7 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs();
 
         // when
-        processor.processJurisdiction(JURISDICTION);
+        processor.processJurisdiction();
 
         // then
         assertThat(envelopeRepository.findAll())
@@ -147,8 +149,8 @@ public class FailedDocUploadProcessorTest extends ProcessorTestSuite<FailedDocUp
         blobProcessorTask.processBlobs(); // original run
 
         // when
-        processor.processJurisdiction(JURISDICTION); // retry run
-        processor.processJurisdiction(JURISDICTION); // another retry run
+        processor.processJurisdiction(); // retry run
+        processor.processJurisdiction(); // another retry run
 
         // then
         List<Envelope> envelopes = envelopeRepository.findAll();
