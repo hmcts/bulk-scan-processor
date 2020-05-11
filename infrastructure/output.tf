@@ -31,10 +31,6 @@ output "PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING" {
   value = "${data.azurerm_key_vault_secret.processed_envelopes_queue_send_conn_str.value}"
 }
 
-output "api_gateway_url" {
-  value = "https://core-api-mgmt-${var.env}.azure-api.net/${local.api_base_path}"
-}
-
 output "test_storage_container_name" {
   value = "bulkscan"
 }
