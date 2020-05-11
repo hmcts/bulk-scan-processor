@@ -37,6 +37,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
@@ -228,6 +229,23 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         given(ocrValidator.assertOcrDataIsValid(any())).willReturn(Optional.of(ocrValidationWarnings));
 
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/supplementary_evidence_with_ocr"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        Envelope envelope = getSingleEnvelopeFromDb();
+
+        verify(ocrValidator).assertOcrDataIsValid(any());
+        assertThat(envelope.getScannableItems().size()).isEqualTo(1);
+        assertThat(envelope.getScannableItems().get(0).getOcrValidationWarnings())
+            .hasSameElementsAs(ocrValidationWarnings.warnings);
+    }
+
+    @Test
+    public void should_not_call_ocr_validation_for_exception() throws Exception {
+        // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         // when
@@ -236,9 +254,10 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
         // then
         Envelope envelope = getSingleEnvelopeFromDb();
 
+        verifyNoInteractions(ocrValidator);
         assertThat(envelope.getScannableItems().size()).isEqualTo(1);
-        assertThat(envelope.getScannableItems().get(0).getOcrValidationWarnings())
-            .hasSameElementsAs(ocrValidationWarnings.warnings);
+        assertThat(envelope.getScannableItems().get(0).getOcrValidationWarnings().length)
+            .isEqualTo(0);
     }
 
     @Test

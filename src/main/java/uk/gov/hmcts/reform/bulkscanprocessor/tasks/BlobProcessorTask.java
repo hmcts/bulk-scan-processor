@@ -51,6 +51,7 @@ import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
@@ -259,7 +260,13 @@ public class BlobProcessorTask extends Processor {
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
-            Optional<OcrValidationWarnings> ocrValidationWarnings = this.ocrValidator.assertOcrDataIsValid(envelope);
+            Optional<OcrValidationWarnings> ocrValidationWarnings;
+
+            if (envelope.classification != EXCEPTION) {
+                ocrValidationWarnings = this.ocrValidator.assertOcrDataIsValid(envelope);
+            } else {
+                ocrValidationWarnings = Optional.empty();
+            }
 
             Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
 
