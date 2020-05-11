@@ -152,7 +152,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_not_call_rest_client_for_exception() {
+    public void should_not_call_rest_client_for_exception_journey_classification() {
         // given
         InputScannableItem docWithOcr = doc("sample_document_subtype", sampleOcr());
         List<InputScannableItem> docs =
