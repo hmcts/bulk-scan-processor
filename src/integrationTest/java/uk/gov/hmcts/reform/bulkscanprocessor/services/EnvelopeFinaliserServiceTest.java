@@ -110,7 +110,7 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(finalisedEnvelope.get().getStatus()).isEqualTo(Status.COMPLETED);
         assertThat(finalisedEnvelope.get().getScannableItems())
             .allMatch(item -> item.getOcrData() == null && item.getOcrValidationWarnings() == null);
-        assertThat(finalisedEnvelope.get().getCcdId()).isEqualTo(ccdId);
+        assertThat(finalisedEnvelope.get().getCcdId()).isEqualTo(ccdId.toString());
         assertThat(finalisedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelopeCcdAction);
     }
 
@@ -143,8 +143,8 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(unaffectedEnvelope.get().getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
         assertThat(unaffectedEnvelope.get().getScannableItems())
             .allMatch(item -> item.getOcrData() != null && item.getOcrValidationWarnings() == null);
-        assertThat(unaffectedEnvelope.get().getCcdId()).isEqualTo(ccdId);
-        assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelopeCcdAction);
+        assertThat(unaffectedEnvelope.get().getCcdId()).isNull();
+        assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isNull();
     }
 
     @Test
@@ -176,8 +176,8 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(unaffectedEnvelope.get().getStatus()).isEqualTo(Status.NOTIFICATION_SENT);
         assertThat(unaffectedEnvelope.get().getScannableItems())
             .allMatch(item -> item.getOcrData() != null && item.getOcrValidationWarnings() != null);
-        assertThat(unaffectedEnvelope.get().getCcdId()).isEqualTo(ccdId);
-        assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelopeCcdAction);
+        assertThat(unaffectedEnvelope.get().getCcdId()).isNull();
+        assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isNull();
     }
 
     @Test
