@@ -165,7 +165,7 @@ public class EnvelopeControllerTest {
             serviceBusHelper,
             paymentsEnabled
         );
-        uploadTask = new UploadEnvelopeDocumentsTask(0, envelopeRepository, uploadService);
+        uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService);
 
         testContainer = cloudBlobClient.getContainerReference("bulkscan");
         testContainer.createIfNotExists();
