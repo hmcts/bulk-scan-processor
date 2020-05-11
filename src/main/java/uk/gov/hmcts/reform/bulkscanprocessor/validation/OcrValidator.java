@@ -26,6 +26,7 @@ import java.util.Optional;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
 
 @Component
 @EnableConfigurationProperties(ContainerMappings.class)
@@ -60,6 +61,10 @@ public class OcrValidator {
      * @throws OcrValidationException if the OCR data is invalid
      */
     public Optional<OcrValidationWarnings> assertOcrDataIsValid(InputEnvelope envelope) {
+        if (envelope.classification == EXCEPTION) {
+            return Optional.empty();
+        }
+
         return Optionals.mapIfAllPresent(
             findDocWithOcr(envelope),
             findValidationUrl(envelope.poBox),

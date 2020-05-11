@@ -84,12 +84,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Autowired
     private BlobManagementProperties blobManagementProperties;
 
-    @Value("${scheduling.task.reupload.batch}")
-    private int reUploadBatchSize;
-
-    @Value("${scheduling.task.reupload.max_tries}")
-    private int reuploadMaxTries;
-
     @Mock
     protected DocumentManagementService documentManagementService;
 

@@ -26,8 +26,6 @@ public enum Status {
                 return Optional.of(UPLOADED);
             case DOC_UPLOAD_FAILURE:
                 return Optional.of(UPLOAD_FAILURE);
-            case DOC_PROCESSED:
-                return Optional.of(PROCESSED);
             case DOC_CONSUMED:
                 return Optional.of(CONSUMED);
             case DOC_PROCESSED_NOTIFICATION_SENT:

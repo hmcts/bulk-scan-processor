@@ -15,20 +15,6 @@ def channel = '#bsp-build-notices'
 
 def combinedSecrets = [
   'bulk-scan-${env}': [
-    // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
-    secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
-    secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
-
-    // Base64-encoded PKCS 12 key store containing private key and certificate known to the API, but expired
-    secret('test-expired-key-store', 'TEST_EXPIRED_KEY_STORE'),
-    secret('test-expired-key-store-password', 'TEST_EXPIRED_KEY_STORE_PASSWORD'),
-
-    // Base64-encoded PKCS12 key store containing private key and certificate known to the API, but not yet valid
-    secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
-    secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
-
-    secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
-
     secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
     secret('processed-envelopes-queue-send-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
@@ -99,7 +85,6 @@ withPipeline(type, product, component) {
   enableDbMigration('bulk-scan')
   enableSlackNotifications(channel)
   enableAksStagingDeployment()
-  enableApiGatewayTest()
   installCharts()
   disableLegacyDeployment()
 
