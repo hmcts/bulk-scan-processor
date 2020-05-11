@@ -31,7 +31,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
@@ -42,7 +41,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelpe
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -97,9 +95,6 @@ public class EnvelopeControllerTest {
     @Autowired
     private ProcessEventRepository processEventRepository;
 
-    @Autowired
-    private ScannableItemRepository scannableItemRepository;
-
     @Value("${process-payments.enabled}")
     private boolean paymentsEnabled;
 
@@ -148,18 +143,12 @@ public class EnvelopeControllerTest {
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
-            new DocumentProcessor(
-                documentManagementService,
-                scannableItemRepository
-            ),
             new EnvelopeProcessor(
                 schemaValidator,
                 envelopeRepository,
                 processEventRepository
             ),
             zipFileProcessor,
-            envelopeRepository,
-            processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,
