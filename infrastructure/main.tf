@@ -18,29 +18,6 @@ locals {
 
   db_connection_options = "?sslmode=require"
 
-  #region API gateway
-  create_api = "${var.env != "preview" && var.env != "spreview"}"
-
-  # certificate thumbprints used by API tests
-  allowed_test_certificate_thumbprints = [
-    "${var.api_gateway_test_valid_certificate_thumbprint}",
-    "${var.api_gateway_test_expired_certificate_thumbprint}",
-    "${var.api_gateway_test_not_yet_valid_certificate_thumbprint}",
-  ]
-
-  # list of the thumbprints of the SSL certificates that should be accepted by the API (gateway)
-  allowed_certificate_thumbprints = "${concat(
-                                         local.allowed_test_certificate_thumbprints,
-                                         var.allowed_client_certificate_thumbprints
-                                       )}"
-
-  thumbprints_in_quotes     = "${formatlist("&quot;%s&quot;", local.allowed_certificate_thumbprints)}"
-  thumbprints_in_quotes_str = "${join(",", local.thumbprints_in_quotes)}"
-  api_policy                = "${replace(file("template/api-policy.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", local.thumbprints_in_quotes_str)}"
-  api_base_path             = "bulk-scan"
-
-  #endregion
-
   sku_size                    = "${var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"}"
   storage_account_name        = "${data.azurerm_key_vault_secret.storage_account_name.value}"
   storage_account_primary_key = "${data.azurerm_key_vault_secret.storage_account_primary_key.value}"
@@ -250,31 +227,6 @@ data "azurerm_key_vault_secret" "smtp_password" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "reports-email-password"
 }
-
-# region API (gateway)
-
-data "template_file" "api_template" {
-  template = "${file("${path.module}/template/api.json")}"
-}
-
-resource "azurerm_template_deployment" "api" {
-  template_body       = "${data.template_file.api_template.rendered}"
-  name                = "${var.product}-api-${var.env}"
-  deployment_mode     = "Incremental"
-  resource_group_name = "core-infra-${var.env}"
-  count               = "${local.create_api ? 1 : 0}"
-
-  parameters = {
-    apiManagementServiceName = "core-api-mgmt-${var.env}"
-    apiName                  = "bulk-scan-api"
-    apiProductName           = "bulk-scan"
-    serviceUrl               = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
-    apiBasePath              = "${local.api_base_path}"
-    policy                   = "${local.api_policy}"
-  }
-}
-
-# endregion
 
 # Copy postgres password for flyway migration
 resource "azurerm_key_vault_secret" "flyway_password" {
