@@ -136,7 +136,11 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
             );
 
             ProcessedEnvelope processedEnvelope = readProcessedEnvelope(message);
-            envelopeFinaliserService.finaliseEnvelope(processedEnvelope.id);
+            envelopeFinaliserService.finaliseEnvelope(
+                processedEnvelope.envelopeId,
+                processedEnvelope.ccdId,
+                processedEnvelope.envelopeCcdAction
+            );
             log.info("'Processed envelope' message with ID {} processed successfully", message.getMessageId());
             return new MessageProcessingResult(MessageProcessingResultType.SUCCESS);
         } catch (InvalidMessageException e) {
@@ -160,7 +164,6 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         }
     }
 
-    //Todo remove id from logs
     private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
         try {
             ProcessedEnvelope processedEnvelope = objectMapper.readValue(
@@ -168,8 +171,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
                 ProcessedEnvelope.class
             );
             log.info(
-                "Parsed processed envelope message, Id :{}, Envelope Id :{}, ccd reference :{}, Ccd Type : {}",
-                processedEnvelope.id,
+                "Parsed processed envelope message, Envelope Id :{}, ccd reference :{}, Ccd Type : {}",
                 processedEnvelope.envelopeId,
                 processedEnvelope.ccdId,
                 processedEnvelope.envelopeCcdAction

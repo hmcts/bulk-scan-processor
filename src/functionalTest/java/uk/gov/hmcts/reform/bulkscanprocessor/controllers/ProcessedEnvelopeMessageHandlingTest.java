@@ -42,6 +42,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         );
     }
 
+    //Todo assert ccd details when the change is deployed to AAT
     @Test
     public void should_complete_envelope_referenced_by_queue_message() throws Exception {
         // given
@@ -111,12 +112,10 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             );
     }
 
-    //Todo remove id when orchestrator starts sending
     //unknown fields should be ignored
     private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
         IMessage message = new Message(
             " {"
-                + "\"id\":\"" + envelopeId + "\","
                 + "\"envelope_id\":\"" + envelopeId + "\","
                 + "\"ccd_id\":123432443,"
                 + "\"envelope_ccd_action\":\"ccd-type-exception\","
