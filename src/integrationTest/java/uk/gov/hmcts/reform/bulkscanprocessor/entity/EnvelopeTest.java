@@ -1,17 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,9 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class EnvelopeTest {
-
-    @Rule
-    public OutputCapture capture = new OutputCapture();
 
     @Autowired
     private EnvelopeRepository repository;
@@ -33,7 +27,7 @@ public class EnvelopeTest {
     }
 
     @Test
-    public void should_insert_into_db_and_retrieve_the_same_envelope() throws IOException {
+    public void should_insert_into_db_and_retrieve_the_same_envelope() {
         // given
         Envelope envelope = EnvelopeCreator.envelope();
 
@@ -48,7 +42,7 @@ public class EnvelopeTest {
     }
 
     @Test
-    public void should_log_a_warning_when_container_is_not_set() throws IOException {
+    public void should_log_a_warning_when_container_is_not_set() {
         // given
         Envelope envelope = EnvelopeCreator.envelope();
         envelope.setContainer(null);
@@ -57,11 +51,6 @@ public class EnvelopeTest {
         Envelope dbEnvelope = repository.saveAndFlush(envelope);
 
         // then
-        assertThat(capture.toString()).containsPattern(
-                ".+ WARN.+" + Envelope.class.getSimpleName() + " Missing required container for .+\\.zip"
-        );
-
-        // and
         assertThat(dbEnvelope.getId()).isNotNull();
     }
 }
