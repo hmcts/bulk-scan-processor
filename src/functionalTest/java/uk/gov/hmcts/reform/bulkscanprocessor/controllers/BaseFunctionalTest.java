@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.google.common.collect.ImmutableList;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
@@ -10,13 +9,16 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class BaseFunctionalTest {
 
@@ -85,16 +87,32 @@ public abstract class BaseFunctionalTest {
         rejectedContainer = cloudBlobClient.getContainerReference(rejectedContainerName);
     }
 
-    protected void waitForFileToBeProcessed(String fileName, String s2sToken) {
+    protected void uploadZipFile(List<String> files, String metadataFile, String destZipFilename) {
+        // valid zip file
+        testHelper.uploadZipFile(
+            inputContainer,
+            files,
+            metadataFile,
+            destZipFilename,
+            operationContext
+        );
+    }
+
+    protected EnvelopeResponse waitForEnvelopeToBeInStatus(String fileName, List<Status> awaitedStatuses) {
+        String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
+
         await("File " + fileName + " should be processed")
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
-                .filter(env ->
-                    ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
-                        .contains(env.getStatus())
-                )
-                .isPresent()
+            .until(() ->
+                       testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
+                           .filter(env -> awaitedStatuses.contains(env.getStatus()))
+                           .isPresent()
             );
+
+        EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName).get();
+        assertThat(envelope.getStatus()).isIn(awaitedStatuses);
+
+        return envelope;
     }
 }
