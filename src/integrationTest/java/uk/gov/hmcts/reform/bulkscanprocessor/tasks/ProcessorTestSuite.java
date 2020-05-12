@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 
-public abstract class ProcessorTestSuite<T extends Processor> {
+public abstract class ProcessorTestSuite<T> {
 
     protected static final String SAMPLE_ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
 
@@ -84,12 +84,6 @@ public abstract class ProcessorTestSuite<T extends Processor> {
     @Autowired
     private BlobManagementProperties blobManagementProperties;
 
-    @Value("${scheduling.task.reupload.batch}")
-    private int reUploadBatchSize;
-
-    @Value("${scheduling.task.reupload.max_tries}")
-    private int reuploadMaxTries;
-
     @Mock
     protected DocumentManagementService documentManagementService;
 
@@ -122,9 +116,7 @@ public abstract class ProcessorTestSuite<T extends Processor> {
         envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,
             envelopeRepository,
-            processEventRepository,
-            reUploadBatchSize,
-            reuploadMaxTries
+            processEventRepository
         );
 
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);

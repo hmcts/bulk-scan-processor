@@ -8,7 +8,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,8 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
@@ -32,7 +29,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -68,9 +64,13 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.
 @Component
 @EnableConfigurationProperties(ContainerMappings.class)
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-public class BlobProcessorTask extends Processor {
+public class BlobProcessorTask {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
+
+    private final BlobManager blobManager;
+
+    private final EnvelopeProcessor envelopeProcessor;
 
     private final ZipFileProcessor zipFileProcessor;
 
@@ -82,21 +82,17 @@ public class BlobProcessorTask extends Processor {
 
     private final boolean paymentsEnabled;
 
-    @SuppressWarnings("squid:S00107")
-    @Autowired
     public BlobProcessorTask(
         BlobManager blobManager,
-        DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         ZipFileProcessor zipFileProcessor,
-        EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         @Value("${process-payments.enabled}") boolean paymentsEnabled
     ) {
-        super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this.blobManager = blobManager;
+        this.envelopeProcessor = envelopeProcessor;
         this.zipFileProcessor = zipFileProcessor;
         this.notificationsQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
@@ -204,15 +200,7 @@ public class BlobProcessorTask extends Processor {
             try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
                 createEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
 
-                ZipFileProcessingResult processingResult =
-                    processZipFileContent(zis, zipFilename, container.getName(), leaseId);
-
-                if (processingResult != null) {
-                    processParsedEnvelopeDocuments(
-                        processingResult.getEnvelope(),
-                        processingResult.getPdfs()
-                    );
-                }
+                processZipFileContent(zis, zipFilename, container.getName(), leaseId);
             }
         } else {
             log.info(
@@ -233,7 +221,7 @@ public class BlobProcessorTask extends Processor {
         }
     }
 
-    private ZipFileProcessingResult processZipFileContent(
+    private void processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
         String containerName,
@@ -263,33 +251,26 @@ public class BlobProcessorTask extends Processor {
 
             Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
 
-            result.setEnvelope(envelopeProcessor.saveEnvelope(dbEnvelope));
-
-            return result;
+            envelopeProcessor.saveEnvelope(dbEnvelope);
         } catch (PaymentsDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
         } catch (ServiceDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
         } catch (InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-            return null;
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             createEvent(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
-            return null;
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
             createEvent(Event.DOC_FAILURE, containerName, zipFilename, ex);
-            return null;
         }
     }
 

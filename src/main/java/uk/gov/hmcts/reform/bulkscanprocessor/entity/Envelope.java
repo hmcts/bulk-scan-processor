@@ -64,6 +64,10 @@ public class Envelope {
 
     private String previousServiceCaseReference;
 
+    private String ccdId;
+
+    private String envelopeCcdAction;
+
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(FetchMode.SUBSELECT)
@@ -224,5 +228,21 @@ public class Envelope {
         if (container == null) {
             log.warn("Missing required container for {}", zipFileName);
         }
+    }
+
+    public void setCcdId(String ccdId) {
+        this.ccdId = ccdId;
+    }
+
+    public void setEnvelopeCcdAction(String envelopeCcdAction) {
+        this.envelopeCcdAction = envelopeCcdAction;
+    }
+
+    public String getCcdId() {
+        return ccdId;
+    }
+
+    public String getEnvelopeCcdAction() {
+        return envelopeCcdAction;
     }
 }

@@ -10,18 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
 import java.util.Optional;
 
 import static java.util.Collections.singletonList;
@@ -38,19 +34,10 @@ class BlobProcessorTaskTest {
     private BlobManager blobManager;
 
     @Mock
-    private DocumentProcessor documentProcessor;
-
-    @Mock
     private EnvelopeProcessor envelopeProcessor;
 
     @Mock
     private ZipFileProcessor zipFileProcessor;
-
-    @Mock
-    private EnvelopeRepository envelopeRepository;
-
-    @Mock
-    private ProcessEventRepository eventRepository;
 
     @Mock
     private ContainerMappings containerMappings;
@@ -71,20 +58,14 @@ class BlobProcessorTaskTest {
     private ListBlobItem blob;
 
     @Mock
-    private Date date;
-
-    @Mock
     private BlobInputStream blobInputStream;
 
     @BeforeEach
     void setUp() {
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
-            documentProcessor,
             envelopeProcessor,
             zipFileProcessor,
-            envelopeRepository,
-            eventRepository,
             containerMappings,
             ocrValidator,
             notificationsQueueHelper,

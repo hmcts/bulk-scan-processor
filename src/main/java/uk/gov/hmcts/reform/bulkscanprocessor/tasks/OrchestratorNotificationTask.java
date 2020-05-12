@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
@@ -50,30 +51,29 @@ public class OrchestratorNotificationTask {
     public void run() {
         log.info("Started sending notifications to orchestrator");
 
+        AtomicInteger successCount = new AtomicInteger(0);
+
         List<Envelope> envelopesToSend = envelopeRepo.findByStatus(UPLOADED);
 
-        int successCount = (int) envelopesToSend
-            .stream()
-            .filter(env -> {
+        envelopesToSend
+            .forEach(env -> {
                 try {
                     serviceBusHelper.sendMessage(new EnvelopeMsg(env));
                     logEnvelopeSent(env);
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
                     updateStatus(env);
-                    return true;
+                    successCount.incrementAndGet();
                 } catch (Exception exc) {
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
                     // log error and try with another envelope.
                     log.error("Error sending envelope notification", exc);
-                    return false;
                 }
-            })
-            .count();
+            });
 
         log.info(
             "Finished sending notifications to orchestrator. Successful: {}. Failures {}.",
-            successCount,
-            envelopesToSend.size() - successCount
+            successCount.get(),
+            envelopesToSend.size() - successCount.get()
         );
     }
 

@@ -1,34 +1,16 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ObjectUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.Arrays;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
-import static com.jayway.awaitility.Awaitility.await;
-import static java.util.Collections.emptyMap;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
@@ -42,87 +24,13 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         processor = new BlobProcessorTask(
             blobManager,
-            documentProcessor,
             envelopeProcessor,
             zipFileProcessor,
-            envelopeRepository,
-            processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,
             paymentsEnabled
         );
-    }
-
-    @Test
-    public void should_record_failure_of_upload_when_document_management_returns_empty_response() throws Exception {
-        // given
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
-
-        // and
-        given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
-
-        // when
-        processor.processBlobs();
-
-        // then
-        Envelope actualEnvelope = getSingleEnvelopeFromDb();
-
-        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
-        assertThat(actualEnvelope.getScannableItems()).allMatch(item -> item.getDocumentUuid() == null);
-
-        // and
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_UPLOAD_FAILURE);
-    }
-
-    @Test
-    public void should_record_failure_of_upload_once_and_not_reprocess() throws Exception {
-        // given
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
-
-        // and
-        given(documentManagementService.uploadDocuments(any())).willReturn(emptyMap());
-
-        // when
-        processor.processBlobs();
-
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
-        await("file should not be deleted")
-            .timeout(2, SECONDS)
-            .until(blob::exists, is(true));
-
-        processor.processBlobs();
-
-        // then
-        Envelope actualEnvelope = getSingleEnvelopeFromDb();
-
-        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
-        assertThat(actualEnvelope.getScannableItems()).allMatch(item -> ObjectUtils.isEmpty(item.getDocumentUuid()));
-
-        // and
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_UPLOAD_FAILURE);
-    }
-
-    @Test
-    public void should_record_failure_of_upload_when_document_management_throws_exception() throws Exception {
-        // given
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
-
-        // and
-        Throwable throwable = new UnableToUploadDocumentException("oh no", null);
-        given(documentManagementService.uploadDocuments(any())).willThrow(throwable);
-
-        // when
-        processor.processBlobs();
-
-        // then
-        Envelope actualEnvelope = envelopeRepository.findAll().get(0);
-
-        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOAD_FAILURE);
-        assertThat(actualEnvelope.getScannableItems()).allMatch(e -> ObjectUtils.isEmpty(e.getDocumentUuid()));
-
-        // and
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_UPLOAD_FAILURE);
     }
 
     @Test
@@ -255,14 +163,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
 
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
 
-        // and
-        Pdf pdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
-            .willReturn(ImmutableMap.of(
-                "1111002.pdf", DOCUMENT_URL2
-            ));
-
         // when
         processor.processBlobs();
 
@@ -277,22 +177,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         // then
         errorWasSent(filenameForDuplicate, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(envelopeRepository.findAll()).hasSize(1);
-    }
-
-    @Test
-    public void should_record_validation_failure_when_zip_very_long_property_value() throws Exception {
-        // given
-        uploadToBlobStorage("7_24-06-2018-00-00-00.zip", zipDir("zipcontents/too_long_dcn"));
-        // will cause:
-        // DataException: could not execute statement
-        // PSQLException: ERROR: value too long for type character varying(100)
-
-        // when
-        processor.processBlobs();
-
-        // then
-        envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DOC_FAILURE);
     }
 
     @Test

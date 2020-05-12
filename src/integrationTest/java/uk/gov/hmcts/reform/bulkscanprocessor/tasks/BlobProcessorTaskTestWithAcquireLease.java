@@ -2,12 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -29,31 +26,19 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 @RunWith(SpringRunner.class)
 public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<BlobProcessorTask> {
 
-    @Rule
-    public OutputCapture outputCapture = new OutputCapture();
-
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
         processor = new BlobProcessorTask(
             blobManager,
-            documentProcessor,
             envelopeProcessor,
             zipFileProcessor,
-            envelopeRepository,
-            processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,
             paymentsEnabled
         );
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        super.cleanUp();
-        outputCapture.flush();
     }
 
     @Test
@@ -90,9 +75,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents)
             .extracting(event -> event.getEvent())
-            .containsExactlyInAnyOrder(
-                Event.ZIPFILE_PROCESSING_STARTED, Event.DOC_UPLOADED
-            );
+            .containsExactlyInAnyOrder(Event.ZIPFILE_PROCESSING_STARTED);
     }
 
     @NotNull

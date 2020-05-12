@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,16 +31,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
@@ -79,6 +78,8 @@ public class EnvelopeControllerTest {
 
     private BlobProcessorTask blobProcessorTask;
 
+    private UploadEnvelopeDocumentsTask uploadTask;
+
     @Autowired
     private MetafileJsonValidator schemaValidator;
 
@@ -94,29 +95,23 @@ public class EnvelopeControllerTest {
     @Autowired
     private ProcessEventRepository processEventRepository;
 
-    @Autowired
-    private ScannableItemRepository scannableItemRepository;
-
-    @Value("${scheduling.task.reupload.batch}")
-    private int reUploadBatchSize;
-
-    @Value("${scheduling.task.reupload.max_tries}")
-    private int reuploadMaxTries;
-
     @Value("${process-payments.enabled}")
     private boolean paymentsEnabled;
 
-    @Mock
+    @MockBean
     private DocumentManagementService documentManagementService;
 
-    @Mock
+    @MockBean
     private OcrValidator ocrValidator;
 
-    @Mock
+    @MockBean
     private ServiceBusHelper serviceBusHelper;
 
     @Autowired
     private BlobManagementProperties blobManagementProperties;
+
+    @Autowired
+    private UploadEnvelopeDocumentsService uploadService;
 
     @MockBean
     private AuthTokenValidator tokenValidator;
@@ -148,25 +143,18 @@ public class EnvelopeControllerTest {
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
-            new DocumentProcessor(
-                documentManagementService,
-                scannableItemRepository
-            ),
             new EnvelopeProcessor(
                 schemaValidator,
                 envelopeRepository,
-                processEventRepository,
-                reUploadBatchSize,
-                reuploadMaxTries
+                processEventRepository
             ),
             zipFileProcessor,
-            envelopeRepository,
-            processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,
             paymentsEnabled
         );
+        uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService);
 
         testContainer = cloudBlobClient.getContainerReference("bulkscan");
         testContainer.createIfNotExists();
@@ -194,6 +182,7 @@ public class EnvelopeControllerTest {
             );
 
         blobProcessorTask.processBlobs();
+        uploadTask.run();
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 

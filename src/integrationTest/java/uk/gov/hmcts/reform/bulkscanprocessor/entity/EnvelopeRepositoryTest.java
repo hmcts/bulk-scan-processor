@@ -35,29 +35,27 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times()
-        throws Exception {
+    public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times() {
         // given
-        final String jurisdiction = "X";
         final int maxFailCount = 5;
 
         dbHas(
-            envelopeWithFailureCount(maxFailCount - 2, jurisdiction),
-            envelopeWithFailureCount(maxFailCount - 1, jurisdiction),
-            envelopeWithFailureCount(maxFailCount, jurisdiction),
-            envelopeWithFailureCount(maxFailCount + 1, jurisdiction),
-            envelopeWithFailureCount(maxFailCount + 2, jurisdiction)
+            envelopeWithFailureCount(maxFailCount - 2),
+            envelopeWithFailureCount(maxFailCount - 1),
+            envelopeWithFailureCount(maxFailCount),
+            envelopeWithFailureCount(maxFailCount + 1),
+            envelopeWithFailureCount(maxFailCount + 2)
         );
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend(jurisdiction, maxFailCount, null);
+        List<Envelope> result = repo.findEnvelopesToResend(maxFailCount);
 
         // then
         assertThat(result).hasSize(2);
     }
 
     @Test
-    public void findEnvelopesToResend_should_filter_based_on_status_and_jurisdiction() throws Exception {
+    public void findEnvelopesToResend_should_filter_based_on_status() {
         // given
         dbHas(
             envelope("A", Status.CREATED),
@@ -66,10 +64,16 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend("A", 1_000, null);
+        List<Envelope> result = repo.findEnvelopesToResend(1_000);
 
         // then
-        assertThat(result).hasSize(1);
+        assertThat(result)
+            .hasSize(2)
+            .extracting(envelope -> tuple(envelope.getContainer(), envelope.getJurisdiction()))
+            .containsOnly(
+                tuple("SSCS", "A"),
+                tuple("SSCS", "B")
+            );
     }
 
     @Test
@@ -195,8 +199,8 @@ public class EnvelopeRepositoryTest {
         assertThat(result).isEmpty();
     }
 
-    private Envelope envelopeWithFailureCount(int failCount, String jurisdiction) throws Exception {
-        Envelope envelope = envelope(jurisdiction, Status.UPLOAD_FAILURE);
+    private Envelope envelopeWithFailureCount(int failCount) {
+        Envelope envelope = envelope("X", Status.UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
         return envelope;
     }

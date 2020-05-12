@@ -22,11 +22,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 
 @ExtendWith(MockitoExtension.class)
-class UploadEnvelopeDocumentsTaskTest {
+class ReUploadFailedEnvelopesTaskTest {
 
+    private static final int MAX_RE_UPLOAD_TRIES = 5;
     private static final String CONTAINER_1 = "container-1";
     private static final String CONTAINER_2 = "container-2";
     private static final String ZIP_FILE_NAME = "zip-file-name";
@@ -34,20 +34,20 @@ class UploadEnvelopeDocumentsTaskTest {
     @Mock private EnvelopeRepository envelopeRepository;
     @Mock private UploadEnvelopeDocumentsService uploadService;
 
-    private UploadEnvelopeDocumentsTask task;
+    private ReuploadFailedEnvelopeTask task;
 
     @BeforeEach
-    void setUp() {
-        task = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService);
+    private void setUp() {
+        task = new ReuploadFailedEnvelopeTask(envelopeRepository, uploadService, MAX_RE_UPLOAD_TRIES);
     }
 
     @Test
     void should_do_nothing_when_no_envelopes_to_process_are_found() {
         // given
-        given(envelopeRepository.findByStatus(CREATED)).willReturn(emptyList());
+        given(envelopeRepository.findEnvelopesToResend(MAX_RE_UPLOAD_TRIES)).willReturn(emptyList());
 
         // when
-        task.run();
+        task.processUploadFailures();
 
         // then
         verifyNoInteractions(uploadService);
@@ -57,16 +57,16 @@ class UploadEnvelopeDocumentsTaskTest {
     // will verify grouping by container and throwing different error
     // so both exception branches are covered in a single test
     @Test
-    void should_call_service_twice_when_2_different_containers_are_present_in_the_list() {
+    void should_call_service_twice_for_individual_containers() {
         // given
         List<Envelope> envelopes = Arrays.asList(
             getEnvelope(CONTAINER_1),
             getEnvelope(CONTAINER_2)
         );
-        given(envelopeRepository.findByStatus(CREATED)).willReturn(envelopes);
+        given(envelopeRepository.findEnvelopesToResend(MAX_RE_UPLOAD_TRIES)).willReturn(envelopes);
 
         // when
-        task.run();
+        task.processUploadFailures();
 
         // then
         verifyNoMoreInteractions(envelopeRepository);
