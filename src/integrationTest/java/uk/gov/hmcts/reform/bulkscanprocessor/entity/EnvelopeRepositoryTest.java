@@ -67,7 +67,13 @@ public class EnvelopeRepositoryTest {
         List<Envelope> result = repo.findEnvelopesToResend(1_000);
 
         // then
-        assertThat(result).hasSize(2);
+        assertThat(result)
+            .hasSize(2)
+            .extracting(envelope -> tuple(envelope.getContainer(), envelope.getJurisdiction()))
+            .containsOnly(
+                tuple("SSCS", "A"),
+                tuple("SSCS", "B")
+            );
     }
 
     @Test
