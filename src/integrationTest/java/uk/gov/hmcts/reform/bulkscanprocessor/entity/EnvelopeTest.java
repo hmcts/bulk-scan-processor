@@ -1,13 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
@@ -20,9 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class EnvelopeTest {
-
-    @Rule
-    public OutputCapture capture = new OutputCapture();
 
     @Autowired
     private EnvelopeRepository repository;
@@ -57,11 +52,6 @@ public class EnvelopeTest {
         Envelope dbEnvelope = repository.saveAndFlush(envelope);
 
         // then
-        assertThat(capture.toString()).containsPattern(
-                ".+ WARN.+" + Envelope.class.getSimpleName() + " Missing required container for .+\\.zip"
-        );
-
-        // and
         assertThat(dbEnvelope.getId()).isNotNull();
     }
 }
