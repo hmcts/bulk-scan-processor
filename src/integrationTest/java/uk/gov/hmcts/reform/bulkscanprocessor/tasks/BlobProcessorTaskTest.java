@@ -41,11 +41,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
 
         processor = new BlobProcessorTask(
             blobManager,
-            documentProcessor,
             envelopeProcessor,
             zipFileProcessor,
-            envelopeRepository,
-            processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,

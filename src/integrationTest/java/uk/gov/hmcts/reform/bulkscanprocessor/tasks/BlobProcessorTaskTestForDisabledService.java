@@ -35,11 +35,8 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<
 
         processor = new BlobProcessorTask(
             blobManager,
-            documentProcessor,
             envelopeProcessor,
             zipFileProcessor,
-            envelopeRepository,
-            processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,

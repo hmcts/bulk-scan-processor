@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 
-public abstract class ProcessorTestSuite<T extends Processor> {
+public abstract class ProcessorTestSuite<T> {
 
     protected static final String SAMPLE_ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
 
