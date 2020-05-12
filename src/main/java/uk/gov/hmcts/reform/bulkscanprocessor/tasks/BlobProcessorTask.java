@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -336,13 +337,10 @@ public class BlobProcessorTask extends Processor {
             sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
             blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
         } catch (Exception exc) {
-            log.error(
-                "Error sending notification to the queue."
-                    + "File name: " + zipFilename + " "
-                    + "Container: " + containerName,
-                exc
-            );
-            throw exc;
+            final String msg = "Error sending notification to the queue."
+                + "File name: " + zipFilename + " "
+                + "Container: " + containerName;
+            throw new EnvelopeRejectingException(msg, exc);
         }
     }
 
