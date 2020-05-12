@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipArchiveException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipFilesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipEntriesException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class ZipExtractor {
             if (zipEntries.containsKey(DOCUMENTS_ZIP)) {
                 return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
             } else {
-                throw new InvalidZipFilesException(
+                throw new InvalidZipEntriesException(
                     "Zip does not contain envelope. Actual zip entries = " + zipEntries.keySet()
                 );
             }
