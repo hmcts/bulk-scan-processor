@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +27,7 @@ public class EnvelopeTest {
     }
 
     @Test
-    public void should_insert_into_db_and_retrieve_the_same_envelope() throws IOException {
+    public void should_insert_into_db_and_retrieve_the_same_envelope() {
         // given
         Envelope envelope = EnvelopeCreator.envelope();
 
@@ -43,7 +42,7 @@ public class EnvelopeTest {
     }
 
     @Test
-    public void should_log_a_warning_when_container_is_not_set() throws IOException {
+    public void should_log_a_warning_when_container_is_not_set() {
         // given
         Envelope envelope = EnvelopeCreator.envelope();
         envelope.setContainer(null);
