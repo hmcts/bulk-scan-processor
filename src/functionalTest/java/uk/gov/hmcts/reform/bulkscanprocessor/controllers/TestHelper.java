@@ -13,6 +13,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
+import org.assertj.core.api.SoftAssertions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
 
+    private static final String TEST_SOURCE_NAME = "Bulk Scan Processor tests";
     private static final Random RANDOM = new Random();
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
@@ -113,7 +115,7 @@ public class TestHelper {
             .relaxedHTTPSValidation()
             .baseUri(testUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor functional test")
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
             .when().get("/token/" + containerName)
             .andReturn();
 
@@ -194,14 +196,19 @@ public class TestHelper {
                 .baseUri(baseUrl)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header("ServiceAuthorization", "Bearer " + s2sToken)
-                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
                 .when()
                 .get(url)
                 .andReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertSuccessfulEnvelopesResponse(response);
 
-        return response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+        EnvelopeListResponse deserialisedResponse =
+            response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+
+        assertThat(deserialisedResponse).isNotNull();
+
+        return deserialisedResponse;
     }
 
     public Optional<EnvelopeResponse> getEnvelopeByZipFileName(
@@ -224,7 +231,7 @@ public class TestHelper {
                 .baseUri(baseUrl)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header("ServiceAuthorization", "Bearer " + s2sToken)
-                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor smoke test")
+                .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
                 .when()
                 .get("/envelopes/" + id)
                 .andReturn();
@@ -232,5 +239,21 @@ public class TestHelper {
         assertThat(response.getStatusCode()).isEqualTo(200);
 
         return response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
+    }
+
+    private void assertSuccessfulEnvelopesResponse(Response response) {
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(response.getStatusCode()).isEqualTo(200);
+
+            try {
+                response.getBody().as(EnvelopeListResponse.class, ObjectMapperType.JACKSON_2);
+            } catch (Exception exc) {
+                softly.fail(
+                    "Expected list of envelopes in the body but got\n'%s'\nException:\n%s",
+                    response.getBody().print(),
+                    exc
+                );
+            }
+        });
     }
 }

@@ -86,7 +86,7 @@ public abstract class BaseFunctionalTest {
     }
 
     protected void waitForFileToBeProcessed(String fileName, String s2sToken) {
-        await("processing of file " + fileName + "should end")
+        await("File " + fileName + " should be processed")
             .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
