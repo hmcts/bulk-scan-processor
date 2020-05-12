@@ -12,14 +12,14 @@ public class ProcessedEnvelope {
 
     public final UUID envelopeId;
 
-    public final Long ccdId;
+    public final String ccdId;
 
     public final String envelopeCcdAction;
 
     public ProcessedEnvelope(
         @JsonProperty("id") UUID id,
         @JsonProperty("envelope_id") UUID envelopeId,
-        @JsonProperty("ccd_id") Long ccdId,
+        @JsonProperty("xx_ccd_id") String ccdId,
         @JsonProperty("envelope_ccd_action") String envelopeCcdAction
     ) {
         this.id = id;
