@@ -3,42 +3,34 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.FailedDocUploadProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 
-/**
- * This class is a task executed by Scheduler as per configured interval.
- * It will retrieve failed to upload envelopes from DB and try to re-upload.
- * <ol>
- *     <li>Get batch of failed to upload envelopes</li>
- *     <li>Retrieve relevant zip file from Blob Storage</li>
- *     <li>Try to upload pdfs</li>
- * </ol>
- */
+import static java.util.stream.Collectors.groupingBy;
+
 @Component
 @ConditionalOnProperty(value = "scheduling.task.reupload.enabled", matchIfMissing = true)
-@EnableConfigurationProperties(EnvelopeAccessProperties.class)
 public class ReuploadFailedEnvelopeTask {
 
     private static final Logger log = LoggerFactory.getLogger(ReuploadFailedEnvelopeTask.class);
 
-    public ReuploadFailedEnvelopeTask() {
-        // empty constructor
-    }
+    private final EnvelopeRepository envelopeRepository;
+    private final UploadEnvelopeDocumentsService uploadService;
+    private final int maxReUploadTriesCount;
 
-    /**
-     * Spring overrides the {@code @Lookup} method and returns an instance of bean.
-     *
-     * @return Instance of {@code FailedDocUploadProcessor}
-     */
-    @Lookup
-    public FailedDocUploadProcessor getProcessor() {
-        return null;
+    public ReuploadFailedEnvelopeTask(
+        EnvelopeRepository envelopeRepository,
+        UploadEnvelopeDocumentsService uploadService,
+        @Value("${scheduling.task.reupload.max_tries}") int maxReUploadTriesCount
+    ) {
+        this.envelopeRepository = envelopeRepository;
+        this.uploadService = uploadService;
+        this.maxReUploadTriesCount = maxReUploadTriesCount;
     }
 
     @SchedulerLock(name = "re-upload-failures")
@@ -46,12 +38,12 @@ public class ReuploadFailedEnvelopeTask {
     public void processUploadFailures() {
         log.info("Started failed document processing job");
 
-        try {
-            getProcessor().processJurisdiction();
+        envelopeRepository
+            .findEnvelopesToResend(maxReUploadTriesCount)
+            .stream()
+            .collect(groupingBy(Envelope::getContainer))
+            .forEach(uploadService::processByContainer);
 
-            log.info("Finished failed document processing job");
-        } catch (Exception ex) {
-            log.error("An error occurred while processing failed documents", ex);
-        }
+        log.info("Finished failed document processing job");
     }
 }
