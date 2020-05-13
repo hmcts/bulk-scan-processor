@@ -45,7 +45,7 @@ public class BlobProcessorTaskTestForFailingNotification extends ProcessorTestSu
     }
 
     @Test
-    public void should_record_error_when_ocr_data_missing_for_supplementary_evidence_with_ocr() throws Exception {
+    public void should_abandon_rejected_file_when_sending_error_notification_fails() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME,
                             zipDir("zipcontents/supplementary_evidence_with_ocr_missing_ocr_data")); // no ocr data
