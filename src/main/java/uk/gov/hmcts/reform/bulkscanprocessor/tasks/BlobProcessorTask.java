@@ -308,18 +308,20 @@ public class BlobProcessorTask {
 
         Optionals.ifPresentOrElse(
             ErrorMapping.getFor(cause.getClass()),
-            (errorCode) -> sendErrorMessage(
-                zipFilename,
-                containerName,
-                cause, eventId,
-                leaseId,
-                errorCode
-            ),
+            (errorCode) -> {
+                sendErrorMessage(
+                    zipFilename,
+                    containerName,
+                    cause, eventId,
+                    leaseId,
+                    errorCode
+                );
+                blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+            },
             () -> {
                 throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
             }
         );
-        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
 
     private void sendErrorMessage(

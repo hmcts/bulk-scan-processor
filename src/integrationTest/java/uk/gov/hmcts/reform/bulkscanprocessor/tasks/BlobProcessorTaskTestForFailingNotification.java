@@ -4,7 +4,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -20,13 +19,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 
 @IntegrationTest
 @RunWith(SpringRunner.class)
-@TestPropertySource(properties = {
-    "containers.mappings[0].container=bulkscan",
-    "containers.mappings[0].jurisdiction=BULKSCAN",
-    "containers.mappings[0].poBox=BULKSCANPO",
-    "containers.mappings[0].paymentsEnabled=false",
-    "containers.mappings[0].enabled=false"
-})
 public class BlobProcessorTaskTestForFailingNotification extends ProcessorTestSuite<BlobProcessorTask> {
 
     @Before
@@ -45,7 +37,7 @@ public class BlobProcessorTaskTestForFailingNotification extends ProcessorTestSu
     }
 
     @Test
-    public void should_abandon_rejected_file_when_sending_error_notification_fails() throws Exception {
+    public void should_abandon_processing_invalid_file() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME,
                             zipDir("zipcontents/supplementary_evidence_with_ocr_missing_ocr_data")); // no ocr data
