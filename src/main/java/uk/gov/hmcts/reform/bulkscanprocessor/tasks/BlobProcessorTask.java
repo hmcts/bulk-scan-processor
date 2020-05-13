@@ -312,7 +312,8 @@ public class BlobProcessorTask {
                 sendErrorMessage(
                     zipFilename,
                     containerName,
-                    cause, eventId,
+                    cause,
+                    eventId,
                     leaseId,
                     errorCode
                 );
@@ -335,7 +336,7 @@ public class BlobProcessorTask {
         try {
             sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
         } catch (Exception exc) {
-            final String msg = "Error sending notification to the queue."
+            final String msg = "Error sending error notification to the queue."
                 + "File name: " + zipFilename + " "
                 + "Container: " + containerName;
             throw new EnvelopeRejectingException(msg, exc);
