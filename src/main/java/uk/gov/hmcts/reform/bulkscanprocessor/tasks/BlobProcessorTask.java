@@ -8,7 +8,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,8 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
@@ -34,7 +31,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -70,9 +66,13 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.
 @Component
 @EnableConfigurationProperties(ContainerMappings.class)
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-public class BlobProcessorTask extends Processor {
+public class BlobProcessorTask {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
+
+    private final BlobManager blobManager;
+
+    private final EnvelopeProcessor envelopeProcessor;
 
     private final ZipFileProcessor zipFileProcessor;
 
@@ -84,21 +84,17 @@ public class BlobProcessorTask extends Processor {
 
     private final boolean paymentsEnabled;
 
-    @SuppressWarnings("squid:S00107")
-    @Autowired
     public BlobProcessorTask(
         BlobManager blobManager,
-        DocumentProcessor documentProcessor,
         EnvelopeProcessor envelopeProcessor,
         ZipFileProcessor zipFileProcessor,
-        EnvelopeRepository envelopeRepository,
-        ProcessEventRepository eventRepository,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         @Value("${process-payments.enabled}") boolean paymentsEnabled
     ) {
-        super(blobManager, documentProcessor, envelopeProcessor, envelopeRepository, eventRepository);
+        this.blobManager = blobManager;
+        this.envelopeProcessor = envelopeProcessor;
         this.zipFileProcessor = zipFileProcessor;
         this.notificationsQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
