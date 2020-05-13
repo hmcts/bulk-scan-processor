@@ -312,7 +312,7 @@ public class BlobProcessorTask extends Processor {
 
         Optionals.ifPresentOrElse(
             ErrorMapping.getFor(cause.getClass()),
-            (errorCode) -> trySendErrorMessageAndMoveFileToRejectedContainer(
+            (errorCode) -> sendErrorMessage(
                 zipFilename,
                 containerName,
                 cause, eventId,
@@ -323,9 +323,10 @@ public class BlobProcessorTask extends Processor {
                 throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
             }
         );
+        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
 
-    private void trySendErrorMessageAndMoveFileToRejectedContainer(
+    private void sendErrorMessage(
         String zipFilename,
         String containerName,
         Exception cause,
@@ -335,7 +336,6 @@ public class BlobProcessorTask extends Processor {
     ) {
         try {
             sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
-            blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
         } catch (Exception exc) {
             final String msg = "Error sending notification to the queue."
                 + "File name: " + zipFilename + " "
