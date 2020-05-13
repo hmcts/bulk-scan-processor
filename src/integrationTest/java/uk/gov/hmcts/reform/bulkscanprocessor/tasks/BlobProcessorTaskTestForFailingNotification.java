@@ -35,11 +35,8 @@ public class BlobProcessorTaskTestForFailingNotification extends ProcessorTestSu
 
         processor = new BlobProcessorTask(
             blobManager,
-            documentProcessor,
             envelopeProcessor,
             zipFileProcessor,
-            envelopeRepository,
-            processEventRepository,
             containerMappings,
             ocrValidator,
             serviceBusHelper,
