@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipFilesException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipEntriesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.ZipItem;
 
 import java.io.ByteArrayInputStream;
@@ -46,7 +46,7 @@ public class ZipExtractorTest {
         byte[] outerZip = zipItems(singletonList((new ZipItem("invalid_entry_name", innerZip))));
 
         assertThatThrownBy(() -> extractor.extract(toZipStream(outerZip)))
-            .isInstanceOf(InvalidZipFilesException.class)
+            .isInstanceOf(InvalidZipEntriesException.class)
             .hasMessageContaining("Zip does not contain envelope");
     }
 

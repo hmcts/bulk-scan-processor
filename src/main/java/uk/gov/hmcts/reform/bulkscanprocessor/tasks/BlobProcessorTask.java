@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.util.Optionals;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
@@ -304,22 +306,41 @@ public class BlobProcessorTask {
             null
         );
 
-        ErrorMapping
-            .getFor(cause.getClass())
-            .ifPresent(errorCode -> {
-                try {
-                    sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
-                } catch (Exception exc) {
-                    log.error(
-                        "Error sending notification to the queue."
-                            + "File name: " + zipFilename + " "
-                            + "Container: " + containerName,
-                        exc
-                    );
-                }
-            });
+        Optionals.ifPresentOrElse(
+            ErrorMapping.getFor(cause.getClass()),
+            (errorCode) -> {
+                sendErrorMessage(
+                    zipFilename,
+                    containerName,
+                    cause,
+                    eventId,
+                    leaseId,
+                    errorCode
+                );
+                blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+            },
+            () -> {
+                throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
+            }
+        );
+    }
 
-        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+    private void sendErrorMessage(
+        String zipFilename,
+        String containerName,
+        Exception cause,
+        Long eventId,
+        String leaseId,
+        ErrorCode errorCode
+    ) {
+        try {
+            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
+        } catch (Exception exc) {
+            final String msg = "Error sending error notification to the queue."
+                + "File name: " + zipFilename + " "
+                + "Container: " + containerName;
+            throw new EnvelopeRejectingException(msg, exc);
+        }
     }
 
     private void sendErrorMessageToQueue(
