@@ -116,6 +116,7 @@ containers:
     - container: sscs
       jurisdiction: SSCS
       poBox: 12626
+      ocrValidationUrl: ${OCR_VALIDATION_URL_SSCS}
     - container: probate
       jurisdiction: PROBATE
       poBox: 12625
