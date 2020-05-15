@@ -1,4 +1,19 @@
 java:
+  keyVaults:
+    "bulk-scan":
+      secrets:
+        - processor-POSTGRES-PASS
+        - s2s-secret
+        - flyway-password
+        - envelopes-staging-queue-send-connection-string
+        - notifications-queue-send-connection-string
+        - processed-envelopes-queue-listen-connection-string
+        - storage-staging-account-name
+        - storage-staging-account-primary-key
+        - app-insights-instrumentation-key
+        - reports-email-username
+        - reports-email-password
+        - reports-recipients
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
