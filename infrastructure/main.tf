@@ -48,7 +48,7 @@ module "bulk-scan-staging-db" {
   env                = "${var.env}"
   database_name      = "bulk_scan"
   postgresql_user    = "bulk_scanner"
-  postgresql_version = "10"
+  postgresql_version = "11"
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
   common_tags        = "${var.common_tags}"
