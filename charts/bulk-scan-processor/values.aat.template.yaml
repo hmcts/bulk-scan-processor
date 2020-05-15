@@ -6,8 +6,8 @@ java:
         - s2s-secret
         - flyway-password
         - envelopes-staging-queue-send-connection-string
-        - notifications-queue-send-connection-string
-        - processed-envelopes-queue-listen-connection-string
+        - notifications-staging-queue-send-connection-string
+        - processed-envelopes-staging-queue-listen-connection-string
         - storage-staging-account-name
         - storage-staging-account-primary-key
         - app-insights-instrumentation-key
