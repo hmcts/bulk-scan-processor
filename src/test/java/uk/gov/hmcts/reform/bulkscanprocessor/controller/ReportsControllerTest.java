@@ -118,7 +118,9 @@ public class ReportsControllerTest {
             "bulkscan",
             CONSUMED.toString(),
             COMPLETED.toString(),
-            EXCEPTION.name()
+            EXCEPTION.name(),
+            "ccd-id",
+            "ccd-action"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
@@ -174,7 +176,9 @@ public class ReportsControllerTest {
             "bulkscan",
             CONSUMED.toString(),
             COMPLETED.toString(),
-            SUPPLEMENTARY_EVIDENCE.name()
+            SUPPLEMENTARY_EVIDENCE.name(),
+            "ccd-id",
+            "ccd-action"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
