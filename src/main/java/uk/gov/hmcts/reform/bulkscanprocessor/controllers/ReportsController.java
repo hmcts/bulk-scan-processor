@@ -88,7 +88,9 @@ public class ReportsController {
                     item.container,
                     item.lastEventStatus,
                     item.envelopeStatus,
-                    item.classification
+                    item.classification,
+                    item.ccdId,
+                    item.ccdAction
                 ))
                 .collect(toList())
         );
