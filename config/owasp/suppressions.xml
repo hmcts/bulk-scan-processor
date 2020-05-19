@@ -59,4 +59,12 @@
     <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
     <vulnerabilityName>Prototype pollution</vulnerabilityName>
   </suppress>
+
+  <suppress until="2020-09-01">
+    <notes><![CDATA[
+   file name: spring-security-crypto-5.2.2.RELEASE.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
+    <cve>CVE-2020-5407</cve>
+  </suppress>
 </suppressions>
