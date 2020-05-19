@@ -37,15 +37,16 @@ public class ZipFilesSummaryReportItem {
     public final String classification;
 
     // region constructor
-    public ZipFilesSummaryReportItem(String fileName,
-                                     LocalDate dateReceived,
-                                     LocalTime timeReceived,
-                                     LocalDate dateProcessed,
-                                     LocalTime timeProcessed,
-                                     String container,
-                                     String lastEventStatus,
-                                     String envelopeStatus,
-                                     String classification
+    public ZipFilesSummaryReportItem(
+        String fileName,
+        LocalDate dateReceived,
+        LocalTime timeReceived,
+        LocalDate dateProcessed,
+        LocalTime timeProcessed,
+        String container,
+        String lastEventStatus,
+        String envelopeStatus,
+        String classification
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
