@@ -84,7 +84,9 @@ public class ReportsService {
             dbItem.getContainer(),
             dbItem.getLastEventStatus(),
             dbItem.getEnvelopeStatus(),
-            dbItem.getClassification()
+            dbItem.getClassification(),
+            dbItem.getCcdId(),
+            dbItem.getCcdAction()
         );
     }
 
