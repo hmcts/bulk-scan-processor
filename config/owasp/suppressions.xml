@@ -2,12 +2,6 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
 
   <suppress>
-    <notes><![CDATA[No fix is available]]></notes>
-    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.2\.2\.RELEASE$</gav>
-    <cve>CVE-2018-1258</cve>
-  </suppress>
-
-  <suppress>
     <notes><![CDATA[Nested dependency of adal4j. Microsoft needs to update strong relation of this library in ServiceBus]]></notes>
     <gav regex="true">^org\.apache\.sling:org\.apache\.sling\.javax\.activation:0\.1\.0$</gav>
     <cve>CVE-2013-4390</cve>
