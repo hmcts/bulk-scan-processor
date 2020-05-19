@@ -20,6 +20,8 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
             + "envelope.classification AS classification, "
             + "lastEventName.event AS lastEventStatus, "
             + "envelope.status AS envelopeStatus, "
+            + "envelope.ccdId AS ccdId, "
+            + "envelope.envelopeCcdAction AS ccdAction, "
             + "(CASE WHEN lastEventName.event = 'COMPLETED' THEN lastEvent.eventDate "
             + "      ELSE null "
             + "END) AS completedDate "
