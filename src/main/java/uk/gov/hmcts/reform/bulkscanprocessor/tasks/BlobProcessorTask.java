@@ -216,11 +216,11 @@ public class BlobProcessorTask {
     }
 
     private ZipInputStream loadIntoMemory(CloudBlockBlob cloudBlockBlob, String zipFilename) throws StorageException {
-        log.info("Loading {} into memory.", zipFilename);
+        log.info("Loading file {} into memory.", zipFilename);
         try (BlobInputStream blobInputStream = cloudBlockBlob.openInputStream()) {
             byte[] array = toByteArray(blobInputStream);
             log.info(
-                "Finished loading {} into memory. {} bytes loaded.",
+                "Finished loading file {} into memory. {} bytes loaded.",
                 zipFilename,
                 FileUtils.byteCountToDisplaySize(array.length)
             );
