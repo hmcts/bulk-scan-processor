@@ -136,7 +136,7 @@ public class ReportsControllerTest {
 
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan")
-                .accept(APPLICATION_OCTET_STREAM))
+                         .accept(APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
@@ -152,7 +152,7 @@ public class ReportsControllerTest {
 
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14")
-                .accept(APPLICATION_OCTET_STREAM))
+                         .accept(APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
@@ -197,7 +197,9 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].container").value(response.container))
             .andExpect(jsonPath("$.data[0].last_event_status").value(response.lastEventStatus))
             .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus))
-            .andExpect(jsonPath("$.data[0].classification").value(response.classification));
+            .andExpect(jsonPath("$.data[0].classification").value(response.classification))
+            .andExpect(jsonPath("$.data[0].ccd_id").value(response.ccdId))
+            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction));
     }
 
     @Test

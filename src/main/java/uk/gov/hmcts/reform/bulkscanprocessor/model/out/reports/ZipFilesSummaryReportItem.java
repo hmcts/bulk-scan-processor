@@ -36,16 +36,25 @@ public class ZipFilesSummaryReportItem {
 
     public final String classification;
 
+    @JsonProperty("ccd_id")
+    public final String ccdId;
+
+    @JsonProperty("ccd_action")
+    public final String ccdAction;
+
     // region constructor
-    public ZipFilesSummaryReportItem(String fileName,
-                                     LocalDate dateReceived,
-                                     LocalTime timeReceived,
-                                     LocalDate dateProcessed,
-                                     LocalTime timeProcessed,
-                                     String container,
-                                     String lastEventStatus,
-                                     String envelopeStatus,
-                                     String classification
+    public ZipFilesSummaryReportItem(
+        String fileName,
+        LocalDate dateReceived,
+        LocalTime timeReceived,
+        LocalDate dateProcessed,
+        LocalTime timeProcessed,
+        String container,
+        String lastEventStatus,
+        String envelopeStatus,
+        String classification,
+        String ccdId,
+        String ccdAction
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -56,6 +65,8 @@ public class ZipFilesSummaryReportItem {
         this.lastEventStatus = lastEventStatus;
         this.envelopeStatus = envelopeStatus;
         this.classification = classification;
+        this.ccdId = ccdId;
+        this.ccdAction = ccdAction;
     }
     // endregion
 
