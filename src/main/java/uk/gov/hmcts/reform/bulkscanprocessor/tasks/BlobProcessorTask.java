@@ -220,7 +220,7 @@ public class BlobProcessorTask {
         try (BlobInputStream blobInputStream = cloudBlockBlob.openInputStream()) {
             byte[] array = toByteArray(blobInputStream);
             log.info(
-                "Finished loading file {} into memory. {} bytes loaded.",
+                "Finished loading file {} into memory. {} loaded.",
                 zipFilename,
                 FileUtils.byteCountToDisplaySize(array.length)
             );
