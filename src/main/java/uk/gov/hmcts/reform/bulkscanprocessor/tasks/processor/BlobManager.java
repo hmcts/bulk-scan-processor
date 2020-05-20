@@ -77,7 +77,7 @@ public class BlobManager {
 
             String leaseId = cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
             log.info("Acquired lease on file {} in container {}. Lease ID: {}", zipFilename, containerName, leaseId);
-            // add lease acquired time to the blob metadata
+            // add lease expire time to the blob metadata
             cloudBlockBlob.getMetadata().put(
                 LEASE_EXPIRE_TIME,
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
@@ -108,7 +108,7 @@ public class BlobManager {
         try {
             log.info("Releasing lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
             cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
-            // clear lease acquired time from blob metadata
+            // clear lease expire time from blob metadata
             cloudBlockBlob.getMetadata().remove(LEASE_EXPIRE_TIME);
             log.info("Released lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
         } catch (Exception exc) {
