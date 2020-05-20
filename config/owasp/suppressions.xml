@@ -3,10 +3,8 @@
 
   <suppress>
     <notes><![CDATA[No fix is available]]></notes>
-    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.2\.2\.RELEASE$</gav>
+    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.2\.4\.RELEASE$</gav>
     <cve>CVE-2018-1258</cve>
-    <cve>CVE-2020-5407</cve>
-    <cve>CVE-2020-5408</cve>
   </suppress>
 
   <suppress>
@@ -22,7 +20,7 @@
 
   <suppress>
     <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.10$</gav>
+    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.11$</gav>
     <cve>CVE-2016-6497</cve>
   </suppress>
 
