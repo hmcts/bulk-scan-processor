@@ -9,6 +9,7 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.DeleteSnapshotsOption;
 import com.microsoft.azure.storage.blob.LeaseStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyException;
 
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,7 @@ import java.util.stream.StreamSupport;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Component
 @EnableConfigurationProperties(BlobManagementProperties.class)
@@ -36,6 +39,7 @@ public class BlobManager {
     private static final String SELECT_ALL_CONTAINER = "ALL";
     private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
         "Can't acquire lease on file {} in container {} - already acquired";
+    public static final String LEASE_ACQUIRED_TIME = "lease-acquired-time";
 
     private final CloudBlobClient cloudBlobClient;
     private final BlobManagementProperties properties;
@@ -61,10 +65,24 @@ public class BlobManager {
             if (cloudBlockBlob.getProperties().getLeaseStatus() == LeaseStatus.LOCKED) {
                 log.info(LEASE_ALREADY_ACQUIRED_MESSAGE, zipFilename, containerName);
                 return Optional.empty();
+            } else if (!readyToAcquireLease(cloudBlockBlob)) {
+                log.info(
+                    "Can't acquire lease on file {} in container {} "
+                        + "because lease was acquired less than {} seconds ago.",
+                    zipFilename,
+                    containerName,
+                    properties.getBlobLeaseAcquireDelayInSeconds()
+                );
+                return Optional.empty();
             }
 
             String leaseId = cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
             log.info("Acquired lease on file {} in container {}. Lease ID: {}", zipFilename, containerName, leaseId);
+            // add lease acquired time to the blob metadata
+            cloudBlockBlob.getMetadata().put(
+                LEASE_ACQUIRED_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).toString()
+            );
+
             return Optional.of(leaseId);
         } catch (StorageException storageException) {
             if (storageException.getHttpStatusCode() == HttpStatus.CONFLICT.value()) {
@@ -89,6 +107,8 @@ public class BlobManager {
         try {
             log.info("Releasing lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
             cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
+            // clear lease acquired time from blob metadata
+            cloudBlockBlob.getMetadata().remove(LEASE_ACQUIRED_TIME);
             log.info("Released lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
         } catch (Exception exc) {
             log.error(
@@ -221,5 +241,17 @@ public class BlobManager {
             containerName,
             exception
         );
+    }
+
+    private boolean readyToAcquireLease(CloudBlockBlob cloudBlockBlob) {
+        String leaseAcquiredAt = cloudBlockBlob.getMetadata().get(LEASE_ACQUIRED_TIME);
+        if (StringUtils.isBlank(leaseAcquiredAt)) {
+            return true;
+        } else {
+            LocalDateTime leaseAcquiredAtTime = LocalDateTime.parse(leaseAcquiredAt);
+            Duration timeDifference = Duration.between(LocalDateTime.now(), leaseAcquiredAtTime);
+            // returns true if lease acquired for longer than configured duration
+            return Math.abs(timeDifference.getSeconds()) > properties.getBlobLeaseAcquireDelayInSeconds();
+        }
     }
 }

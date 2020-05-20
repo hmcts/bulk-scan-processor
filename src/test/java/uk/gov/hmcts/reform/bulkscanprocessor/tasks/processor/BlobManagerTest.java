@@ -19,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +41,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager.LEASE_ACQUIRED_TIME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @ExtendWith(MockitoExtension.class)
 public class BlobManagerTest {
@@ -92,6 +96,42 @@ public class BlobManagerTest {
     }
 
     @Test
+    public void acquireLease_acquires_lease_when_already_acquired_lease_duration_is_expired() throws Exception {
+        given(blobProperties.getLeaseStatus()).willReturn(LeaseStatus.UNLOCKED);
+        given(blobManagementProperties.getBlobLeaseAcquireDelayInSeconds()).willReturn(30);
+        given(inputBlob.getProperties()).willReturn(blobProperties);
+        HashMap<String, String> metadata = new HashMap<>();
+        LocalDateTime initialLeaseAcquiredTime = LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(60);
+        metadata.put(LEASE_ACQUIRED_TIME, initialLeaseAcquiredTime.toString());
+        given(inputBlob.getMetadata()).willReturn(metadata);
+        given(inputBlob.acquireLease(any(), any())).willReturn(LEASE_ID);
+
+        Optional<String> result = blobManager.acquireLease(inputBlob, "container-name", "zip-filename.zip");
+
+        assertThat(result).isEqualTo(Optional.of(LEASE_ID));
+        verify(inputBlob).acquireLease(any(), any());
+        String newLeaseAcquiredTime = inputBlob.getMetadata().get(LEASE_ACQUIRED_TIME);
+        assertThat(LocalDateTime.parse(newLeaseAcquiredTime))
+            .isAfter(initialLeaseAcquiredTime); // check if metadata is updated after acquiring new lease
+    }
+
+    @Test
+    public void acquireLease_does_not_acquire_lease_when_already_acquired_lease_duration_is_not_expired()
+        throws Exception {
+        given(blobProperties.getLeaseStatus()).willReturn(LeaseStatus.UNLOCKED);
+        given(blobManagementProperties.getBlobLeaseAcquireDelayInSeconds()).willReturn(30);
+        given(inputBlob.getProperties()).willReturn(blobProperties);
+        HashMap<String, String> metadata = new HashMap<>();
+        metadata.put(LEASE_ACQUIRED_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(10).toString());
+        given(inputBlob.getMetadata()).willReturn(metadata);
+
+        Optional<String> result = blobManager.acquireLease(inputBlob, "container-name", "zip-filename.zip");
+
+        assertThat(result).isEqualTo(Optional.empty());
+        verify(inputBlob, never()).acquireLease(any(), any());
+    }
+
+    @Test
     public void acquireLease_acquires_does_not_acquire_lease_on_blob_when_locked() throws Exception {
         given(blobProperties.getLeaseStatus()).willReturn(LeaseStatus.LOCKED);
         given(inputBlob.getProperties()).willReturn(blobProperties);
@@ -103,15 +143,19 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void tryReleaseLease_releases_lease_on_blob() throws Exception {
+    public void tryReleaseLease_releases_lease_on_blob_and_clears_blob_metadata() throws Exception {
         String leaseId = "lease-id-123";
 
+        HashMap<String, String> metadata = new HashMap<>();
+        metadata.put(LEASE_ACQUIRED_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(10).toString());
+        given(inputBlob.getMetadata()).willReturn(metadata);
         blobManager.tryReleaseLease(inputBlob, "container-name", "zip-filename.zip", leaseId);
 
         ArgumentCaptor<AccessCondition> accessConditionCaptor = ArgumentCaptor.forClass(AccessCondition.class);
         verify(inputBlob).releaseLease(accessConditionCaptor.capture());
         assertThat(accessConditionCaptor.getValue()).isNotNull();
         assertThat(accessConditionCaptor.getValue().getLeaseID()).isEqualTo(leaseId);
+        assertThat(inputBlob.getMetadata()).doesNotContainKey(LEASE_ACQUIRED_TIME);
     }
 
     @Test
