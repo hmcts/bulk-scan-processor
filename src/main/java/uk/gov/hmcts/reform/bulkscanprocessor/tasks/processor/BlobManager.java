@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyException;
 
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +38,7 @@ public class BlobManager {
     private static final String SELECT_ALL_CONTAINER = "ALL";
     private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
         "Can't acquire lease on file {} in container {} - already acquired";
-    public static final String LEASE_ACQUIRED_TIME = "lease-acquired-time";
+    public static final String LEASE_EXPIRE_TIME = "lease-expire-time";
 
     private final CloudBlobClient cloudBlobClient;
     private final BlobManagementProperties properties;
@@ -80,7 +79,9 @@ public class BlobManager {
             log.info("Acquired lease on file {} in container {}. Lease ID: {}", zipFilename, containerName, leaseId);
             // add lease acquired time to the blob metadata
             cloudBlockBlob.getMetadata().put(
-                LEASE_ACQUIRED_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).toString()
+                LEASE_EXPIRE_TIME,
+                LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
+                    .plusSeconds(properties.getBlobLeaseAcquireDelayInSeconds()).toString()
             );
 
             return Optional.of(leaseId);
@@ -108,7 +109,7 @@ public class BlobManager {
             log.info("Releasing lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
             cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
             // clear lease acquired time from blob metadata
-            cloudBlockBlob.getMetadata().remove(LEASE_ACQUIRED_TIME);
+            cloudBlockBlob.getMetadata().remove(LEASE_EXPIRE_TIME);
             log.info("Released lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
         } catch (Exception exc) {
             log.error(
@@ -244,14 +245,13 @@ public class BlobManager {
     }
 
     private boolean readyToAcquireLease(CloudBlockBlob cloudBlockBlob) {
-        String leaseAcquiredAt = cloudBlockBlob.getMetadata().get(LEASE_ACQUIRED_TIME);
+        String leaseAcquiredAt = cloudBlockBlob.getMetadata().get(LEASE_EXPIRE_TIME);
         if (StringUtils.isBlank(leaseAcquiredAt)) {
             return true;
         } else {
             LocalDateTime leaseAcquiredAtTime = LocalDateTime.parse(leaseAcquiredAt);
-            Duration timeDifference = Duration.between(LocalDateTime.now(EUROPE_LONDON_ZONE_ID), leaseAcquiredAtTime);
-            // returns true if lease acquired for longer than configured duration
-            return Math.abs(timeDifference.getSeconds()) > properties.getBlobLeaseAcquireDelayInSeconds();
+            return leaseAcquiredAtTime.isBefore(LocalDateTime.now(EUROPE_LONDON_ZONE_ID));
         }
+
     }
 }
