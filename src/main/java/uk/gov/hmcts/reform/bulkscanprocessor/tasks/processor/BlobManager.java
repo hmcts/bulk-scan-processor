@@ -249,7 +249,7 @@ public class BlobManager {
             return true;
         } else {
             LocalDateTime leaseAcquiredAtTime = LocalDateTime.parse(leaseAcquiredAt);
-            Duration timeDifference = Duration.between(LocalDateTime.now(), leaseAcquiredAtTime);
+            Duration timeDifference = Duration.between(LocalDateTime.now(EUROPE_LONDON_ZONE_ID), leaseAcquiredAtTime);
             // returns true if lease acquired for longer than configured duration
             return Math.abs(timeDifference.getSeconds()) > properties.getBlobLeaseAcquireDelayInSeconds();
         }
