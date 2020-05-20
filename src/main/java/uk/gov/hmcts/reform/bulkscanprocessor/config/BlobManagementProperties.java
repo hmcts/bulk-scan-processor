@@ -13,6 +13,8 @@ public class BlobManagementProperties {
 
     private String blobSelectedContainer;
 
+    private Integer blobLeaseAcquireDelayInSeconds;
+
     public Integer getBlobCopyTimeoutInMillis() {
         return blobCopyTimeoutInMillis;
     }
@@ -43,5 +45,13 @@ public class BlobManagementProperties {
 
     public void setBlobSelectedContainer(String blobSelectedContainer) {
         this.blobSelectedContainer = blobSelectedContainer;
+    }
+
+    public Integer getBlobLeaseAcquireDelayInSeconds() {
+        return blobLeaseAcquireDelayInSeconds;
+    }
+
+    public void setBlobLeaseAcquireDelayInSeconds(Integer blobLeaseAcquireDelayInSeconds) {
+        this.blobLeaseAcquireDelayInSeconds = blobLeaseAcquireDelayInSeconds;
     }
 }
