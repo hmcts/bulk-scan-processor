@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager.LEASE_EXPIRE_TIME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager.LEASE_EXPIRATION_TIME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @ExtendWith(MockitoExtension.class)
@@ -96,7 +96,7 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void acquireLease_acquires_lease_when_lease_expire_time_is_before_now() throws Exception {
+    public void acquireLease_acquires_lease_when_lease_expiration_time_is_before_now() throws Exception {
         // given
         given(blobProperties.getLeaseStatus()).willReturn(LeaseStatus.UNLOCKED);
         given(blobManagementProperties.getBlobLeaseAcquireDelayInSeconds()).willReturn(30);
@@ -104,7 +104,7 @@ public class BlobManagerTest {
 
         HashMap<String, String> metadata = new HashMap<>();
         LocalDateTime initialLeaseExpireTime = LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(60);
-        metadata.put(LEASE_EXPIRE_TIME, initialLeaseExpireTime.toString()); // lease expired
+        metadata.put(LEASE_EXPIRATION_TIME, initialLeaseExpireTime.toString()); // lease expired
         given(inputBlob.getMetadata()).willReturn(metadata);
         given(inputBlob.acquireLease(any(), any())).willReturn(LEASE_ID);
 
@@ -114,7 +114,7 @@ public class BlobManagerTest {
         // then
         assertThat(result).isEqualTo(Optional.of(LEASE_ID));
         verify(inputBlob).acquireLease(any(), any());
-        String newLeaseAcquiredTime = inputBlob.getMetadata().get(LEASE_EXPIRE_TIME);
+        String newLeaseAcquiredTime = inputBlob.getMetadata().get(LEASE_EXPIRATION_TIME);
         assertThat(LocalDateTime.parse(newLeaseAcquiredTime))
             .isAfter(initialLeaseExpireTime); // check if metadata is updated after acquiring new lease
     }
@@ -127,7 +127,7 @@ public class BlobManagerTest {
         given(blobManagementProperties.getBlobLeaseAcquireDelayInSeconds()).willReturn(30);
         given(inputBlob.getProperties()).willReturn(blobProperties);
         HashMap<String, String> metadata = new HashMap<>();
-        metadata.put(LEASE_EXPIRE_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).plusSeconds(60).toString());
+        metadata.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).plusSeconds(60).toString());
         given(inputBlob.getMetadata()).willReturn(metadata); // lease not expired yet
 
         // when
@@ -154,7 +154,7 @@ public class BlobManagerTest {
         String leaseId = "lease-id-123";
 
         HashMap<String, String> metadata = new HashMap<>();
-        metadata.put(LEASE_EXPIRE_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(10).toString());
+        metadata.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(10).toString());
         given(inputBlob.getMetadata()).willReturn(metadata);
         blobManager.tryReleaseLease(inputBlob, "container-name", "zip-filename.zip", leaseId);
 
@@ -162,7 +162,7 @@ public class BlobManagerTest {
         verify(inputBlob).releaseLease(accessConditionCaptor.capture());
         assertThat(accessConditionCaptor.getValue()).isNotNull();
         assertThat(accessConditionCaptor.getValue().getLeaseID()).isEqualTo(leaseId);
-        assertThat(inputBlob.getMetadata()).doesNotContainKey(LEASE_EXPIRE_TIME);
+        assertThat(inputBlob.getMetadata()).doesNotContainKey(LEASE_EXPIRATION_TIME);
     }
 
     @Test

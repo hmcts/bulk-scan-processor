@@ -38,7 +38,7 @@ public class BlobManager {
     private static final String SELECT_ALL_CONTAINER = "ALL";
     private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
         "Can't acquire lease on file {} in container {} - already acquired";
-    public static final String LEASE_EXPIRE_TIME = "lease-expire-time";
+    public static final String LEASE_EXPIRATION_TIME = "lease-expiration-time";
 
     private final CloudBlobClient cloudBlobClient;
     private final BlobManagementProperties properties;
@@ -77,9 +77,9 @@ public class BlobManager {
 
             String leaseId = cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
             log.info("Acquired lease on file {} in container {}. Lease ID: {}", zipFilename, containerName, leaseId);
-            // add lease expire time to the blob metadata
+            // add lease expiration time to the blob metadata
             cloudBlockBlob.getMetadata().put(
-                LEASE_EXPIRE_TIME,
+                LEASE_EXPIRATION_TIME,
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
                     .plusSeconds(properties.getBlobLeaseAcquireDelayInSeconds()).toString()
             );
@@ -108,8 +108,8 @@ public class BlobManager {
         try {
             log.info("Releasing lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
             cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
-            // clear lease expire time from blob metadata
-            cloudBlockBlob.getMetadata().remove(LEASE_EXPIRE_TIME);
+            // clear lease expiration time from blob metadata
+            cloudBlockBlob.getMetadata().remove(LEASE_EXPIRATION_TIME);
             log.info("Released lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
         } catch (Exception exc) {
             log.error(
@@ -245,7 +245,7 @@ public class BlobManager {
     }
 
     private boolean readyToAcquireLease(CloudBlockBlob cloudBlockBlob) {
-        String leaseAcquiredAt = cloudBlockBlob.getMetadata().get(LEASE_EXPIRE_TIME);
+        String leaseAcquiredAt = cloudBlockBlob.getMetadata().get(LEASE_EXPIRATION_TIME);
         if (StringUtils.isBlank(leaseAcquiredAt)) {
             return true;
         } else {
