@@ -36,7 +36,7 @@ java:
     PROCESS_PAYMENTS_ENABLED: "false"
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"
     SCAN_DELAY: "2000"
-    LEASE_ACQUIRE_DELAY: "120"
+    LEASE_ACQUIRE_DELAY_IN_SECONDS: "120"
     UPLOAD_TASK_DELAY: "2000"
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
   keyVaults:
