@@ -47,7 +47,9 @@
         }
       ],
       "status": "UPLOADED",
-      "zip_file_createddate": "2018-06-23T12:34:56.123Z"
+      "zip_file_createddate": "2018-06-23T12:34:56.123Z",
+      "ccd_id": "ccd-id",
+      "ccd_action": "ccd-action"
     }
   ]
 }

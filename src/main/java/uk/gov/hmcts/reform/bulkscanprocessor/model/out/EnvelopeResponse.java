@@ -61,6 +61,12 @@ public class EnvelopeResponse {
     @JsonProperty("non_scannable_items")
     private final List<NonScannableItemResponse> nonScannableItems;
 
+    @JsonProperty("ccd_id")
+    private final String ccdId;
+
+    @JsonProperty("ccd_action")
+    private final String envelopeCcdAction;
+
     @JsonCreator
     public EnvelopeResponse(
         @JsonProperty("id") UUID id,
@@ -79,7 +85,9 @@ public class EnvelopeResponse {
         @JsonProperty("classification") String classification,
         @JsonProperty("scannable_items") List<ScannableItemResponse> scannableItems,
         @JsonProperty("payments") List<PaymentResponse> payments,
-        @JsonProperty("non_scannable_items") List<NonScannableItemResponse> nonScannableItems
+        @JsonProperty("non_scannable_items") List<NonScannableItemResponse> nonScannableItems,
+        @JsonProperty("ccd_id") String ccdId,
+        @JsonProperty("ccd_action") String envelopeCcdAction
     ) {
         this.id = id;
         this.caseNumber = caseNumber;
@@ -95,6 +103,8 @@ public class EnvelopeResponse {
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
         this.payments = payments == null ? emptyList() : payments;
         this.nonScannableItems = nonScannableItems == null ? emptyList() : nonScannableItems;
+        this.ccdId = ccdId;
+        this.envelopeCcdAction = envelopeCcdAction;
     }
 
     public UUID getId() {
@@ -153,6 +163,14 @@ public class EnvelopeResponse {
         return nonScannableItems;
     }
 
+    public String getCcdId() {
+        return ccdId;
+    }
+
+    public String getEnvelopeCcdAction() {
+        return envelopeCcdAction;
+    }
+
     @Override
     public String toString() {
         return "EnvelopeResponse{"
@@ -170,7 +188,8 @@ public class EnvelopeResponse {
             + ", scannableItems=" + scannableItems
             + ", payments=" + payments
             + ", nonScannableItems=" + nonScannableItems
+            + ", ccdId=" + ccdId
+            + ", envelopeCcdAction=" + envelopeCcdAction
             + '}';
     }
-
 }
