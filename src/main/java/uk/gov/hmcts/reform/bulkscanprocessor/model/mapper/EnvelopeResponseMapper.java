@@ -46,7 +46,9 @@ public final class EnvelopeResponseMapper {
             envelope.getClassification().toString(),
             toScannableItemsResponse(envelope.getScannableItems()),
             toPaymentsResponse(envelope.getPayments()),
-            toNonScannableItemsResponse(envelope.getNonScannableItems())
+            toNonScannableItemsResponse(envelope.getNonScannableItems()),
+            envelope.getCcdId(),
+            envelope.getEnvelopeCcdAction()
         );
     }
 
