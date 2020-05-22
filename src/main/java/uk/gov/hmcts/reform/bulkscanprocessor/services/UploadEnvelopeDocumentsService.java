@@ -63,7 +63,7 @@ public class UploadEnvelopeDocumentsService {
 
     public void processByContainer(String containerName, List<Envelope> envelopes) {
         log.info(
-            "Uploading envelope documents from {} container. Envelopes count: {}",
+            "Uploading envelope documents from container {}. Envelopes count: {}",
             containerName,
             envelopes.size()
         );
@@ -72,8 +72,6 @@ public class UploadEnvelopeDocumentsService {
             CloudBlobContainer blobContainer = blobManager.getContainer(containerName);
 
             envelopes.forEach(envelope -> processEnvelope(blobContainer, envelope));
-        } catch (URISyntaxException | StorageException exception) {
-            log.error("Unable to get client for {} container", containerName, exception);
         } catch (Exception exception) {
             log.error(
                 "An error occurred when trying to upload documents. Container: {}",
@@ -87,23 +85,21 @@ public class UploadEnvelopeDocumentsService {
         String containerName = blobContainer.getName();
         String zipFileName = envelope.getZipFileName();
         UUID envelopeId = envelope.getId();
-        CloudBlockBlob blobClient = null;
+        CloudBlockBlob blob = null;
+        Optional<String> leaseId = Optional.empty();
 
         try {
-            blobClient = getCloudBlockBlob(blobContainer, zipFileName, envelopeId);
+            blob = getCloudBlockBlob(blobContainer, zipFileName, envelopeId);
+            leaseId = blobManager.acquireLease(blob, containerName, envelope.getZipFileName());
 
-            Optional<String> lease = blobManager.acquireLease(blobClient, containerName, envelope.getZipFileName());
-
-            if (lease.isPresent()) {
-                BlobInputStream bis = getBlobInputStream(blobClient, containerName, zipFileName, envelopeId);
+            if (leaseId.isPresent()) {
+                BlobInputStream bis = getBlobInputStream(blob, containerName, zipFileName, envelopeId);
                 ZipFileProcessingResult result = processInputStream(bis, containerName, zipFileName, envelopeId);
 
                 uploadParsedZipFileName(envelope, result.getPdfs());
 
                 envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
             }
-        } catch (FailedUploadException failure) {
-            log.error(failure.getMessage(), failure.getCause());
         } catch (Exception exception) {
             log.error(
                 "An error occurred when trying to upload documents. Container: {}, File: {}, Envelope ID: {}",
@@ -113,8 +109,8 @@ public class UploadEnvelopeDocumentsService {
                 exception
             );
         } finally {
-            if (blobClient != null) {
-                tryBreakLease(blobClient);
+            if (leaseId.isPresent()) {
+                blobManager.tryReleaseLease(blob, containerName, zipFileName, leaseId.get());
             }
         }
     }
@@ -185,7 +181,7 @@ public class UploadEnvelopeDocumentsService {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
 
             log.info(
-                "Uploaded pdfs. File {}, Container: {}, Envelope ID: {}",
+                "Uploaded PDF files to Document Management. File {}, Container: {}, Envelope ID: {}",
                 envelope.getZipFileName(),
                 envelope.getContainer(),
                 envelope.getId()
@@ -218,15 +214,6 @@ public class UploadEnvelopeDocumentsService {
             reason,
             envelopeId
         );
-    }
-
-    private void tryBreakLease(CloudBlockBlob blobClient) {
-        try {
-            blobClient.breakLease(0);
-        } catch (StorageException exception) {
-            // we will expire lease anyway. no need to escalate to error
-            log.warn("Failed to break the lease for {}", blobClient.getName(), exception);
-        }
     }
 
     private static class FailedUploadException extends RuntimeException {
