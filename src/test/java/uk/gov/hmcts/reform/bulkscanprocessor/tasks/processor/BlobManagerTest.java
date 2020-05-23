@@ -93,7 +93,7 @@ public class BlobManagerTest {
 
         assertThat(result).isEqualTo(Optional.of(LEASE_ID));
         verify(inputBlob).acquireLease(any(), any());
-        verify(inputBlob).uploadMetadata();
+        verify(inputBlob).uploadMetadata(any(), any(), any());
     }
 
     @Test
@@ -115,7 +115,7 @@ public class BlobManagerTest {
         // then
         assertThat(result).isEqualTo(Optional.of(LEASE_ID));
         verify(inputBlob).acquireLease(any(), any());
-        verify(inputBlob).uploadMetadata();
+        verify(inputBlob).uploadMetadata(any(), any(), any());
         String newLeaseAcquiredTime = inputBlob.getMetadata().get(LEASE_EXPIRATION_TIME);
         assertThat(LocalDateTime.parse(newLeaseAcquiredTime))
             .isAfter(initialLeaseExpireTime); // check if metadata is updated after acquiring new lease
