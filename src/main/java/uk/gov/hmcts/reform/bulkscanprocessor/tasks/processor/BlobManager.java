@@ -85,7 +85,7 @@ public class BlobManager {
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
                     .plusSeconds(properties.getBlobLeaseAcquireDelayInSeconds()).toString()
             );
-            cloudBlockBlob.uploadMetadata();
+            cloudBlockBlob.uploadMetadata(AccessCondition.generateLeaseCondition(leaseId), null, null);
 
             log.info(
                 "Updated blob metadata with lease expiration time for file {} in container {}. "
