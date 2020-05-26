@@ -119,8 +119,6 @@ public class BlobManager {
         try {
             log.info("Releasing lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
             cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
-            // clear lease expiration time from blob metadata
-            cloudBlockBlob.getMetadata().remove(LEASE_EXPIRATION_TIME);
             log.info("Released lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
         } catch (Exception exc) {
             log.error(
