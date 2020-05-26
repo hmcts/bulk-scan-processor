@@ -40,7 +40,7 @@ public class OcrPresenceValidator {
         if (docs.stream().anyMatch(doc -> OCR_DOC_TYPES.contains(doc.documentType) && doc.ocrData == null)) {
             throw new OcrPresenceException(MISSING_OCR_MSG);
         }
-        if (docs.stream().filter(doc -> doc.ocrData != null).anyMatch(doc -> doc.documentSubtype == null)) {
+        if (docs.stream().anyMatch(doc -> doc.documentSubtype == null && doc.ocrData != null)) {
             throw new OcrPresenceException(MISSING_DOC_SUBTYPE_MSG);
         }
 
