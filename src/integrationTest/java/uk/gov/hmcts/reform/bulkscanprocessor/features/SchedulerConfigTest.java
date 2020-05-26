@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.scan.enabled=true",
         "scheduling.task.upload-documents.delay=1000",
         "scheduling.task.upload-documents.enabled=true",
-        "scheduling.task.reupload.enabled=true",
         "scheduling.task.notifications_to_orchestrator.enabled=true",
         "scheduling.task.delete-complete-files.enabled=true",
         "scheduling.task.delete-complete-files.cron=* * * * * *"
@@ -48,7 +47,6 @@ public class SchedulerConfigTest {
             .extracting(lc -> lc.getName())
             .containsOnly(
                 "upload-documents",
-                "re-upload-failures",
                 "send-orchestrator-notification",
                 "delete-complete-files"
             );
