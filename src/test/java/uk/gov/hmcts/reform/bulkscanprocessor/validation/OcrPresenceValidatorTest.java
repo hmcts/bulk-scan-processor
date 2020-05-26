@@ -81,8 +81,8 @@ public class OcrPresenceValidatorTest {
             () -> validator.assertHasProperlySetOcr(
                 asList(
                     doc(FORM, null, new InputOcrData()), // missing subtype
-                    doc(OTHER, null),
-                    doc(CHERISHED, null)
+                    doc(OTHER, "some-subtype-1", null),
+                    doc(CHERISHED, "some-subtype-2", null)
                 )
             ))
             .isInstanceOf(OcrPresenceException.class)
