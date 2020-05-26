@@ -91,7 +91,7 @@ public class EnvelopeMapperTest {
             WILL,
             SSCS1,
             null,
-            null
+            "PERSONAL"
         );
     }
 
