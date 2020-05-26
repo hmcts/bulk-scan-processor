@@ -93,6 +93,7 @@ public class BlobManagerTest {
 
         assertThat(result).isEqualTo(Optional.of(LEASE_ID));
         verify(inputBlob).acquireLease(any(), any());
+        verify(inputBlob).uploadMetadata(any(), any(), any());
     }
 
     @Test
@@ -114,6 +115,7 @@ public class BlobManagerTest {
         // then
         assertThat(result).isEqualTo(Optional.of(LEASE_ID));
         verify(inputBlob).acquireLease(any(), any());
+        verify(inputBlob).uploadMetadata(any(), any(), any());
         String newLeaseAcquiredTime = inputBlob.getMetadata().get(LEASE_EXPIRATION_TIME);
         assertThat(LocalDateTime.parse(newLeaseAcquiredTime))
             .isAfter(initialLeaseExpireTime); // check if metadata is updated after acquiring new lease
@@ -136,6 +138,7 @@ public class BlobManagerTest {
         // then
         assertThat(result).isEqualTo(Optional.empty());
         verify(inputBlob, never()).acquireLease(any(), any());
+        verify(inputBlob, never()).uploadMetadata();
     }
 
     @Test
@@ -150,19 +153,15 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void tryReleaseLease_releases_lease_on_blob_and_clears_blob_metadata() throws Exception {
+    public void tryReleaseLease_releases_lease_on_blob() throws Exception {
         String leaseId = "lease-id-123";
 
-        HashMap<String, String> metadata = new HashMap<>();
-        metadata.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(10).toString());
-        given(inputBlob.getMetadata()).willReturn(metadata);
         blobManager.tryReleaseLease(inputBlob, "container-name", "zip-filename.zip", leaseId);
 
         ArgumentCaptor<AccessCondition> accessConditionCaptor = ArgumentCaptor.forClass(AccessCondition.class);
         verify(inputBlob).releaseLease(accessConditionCaptor.capture());
         assertThat(accessConditionCaptor.getValue()).isNotNull();
         assertThat(accessConditionCaptor.getValue().getLeaseID()).isEqualTo(leaseId);
-        assertThat(inputBlob.getMetadata()).doesNotContainKey(LEASE_EXPIRATION_TIME);
     }
 
     @Test

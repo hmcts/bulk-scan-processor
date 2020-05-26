@@ -38,7 +38,7 @@ public class BlobManager {
     private static final String SELECT_ALL_CONTAINER = "ALL";
     private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
         "Can't acquire lease on file {} in container {} - already acquired";
-    public static final String LEASE_EXPIRATION_TIME = "lease-expiration-time";
+    public static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 
     private final CloudBlobClient cloudBlobClient;
     private final BlobManagementProperties properties;
@@ -64,24 +64,35 @@ public class BlobManager {
             if (cloudBlockBlob.getProperties().getLeaseStatus() == LeaseStatus.LOCKED) {
                 log.info(LEASE_ALREADY_ACQUIRED_MESSAGE, zipFilename, containerName);
                 return Optional.empty();
-            } else if (!readyToAcquireLease(cloudBlockBlob)) {
+            } else if (!readyToAcquireLease(cloudBlockBlob, zipFilename, containerName)) {
                 log.info(
-                    "Can't acquire lease on file {} in container {} "
-                        + "because lease was acquired less than {} seconds ago.",
+                    "Lease already acquired on file {} in container {} less than {} seconds ago. "
+                        + "Lease Expires at: {}",
                     zipFilename,
                     containerName,
-                    properties.getBlobLeaseAcquireDelayInSeconds()
+                    properties.getBlobLeaseAcquireDelayInSeconds(),
+                    cloudBlockBlob.getMetadata().get(LEASE_EXPIRATION_TIME)
                 );
                 return Optional.empty();
             }
 
             String leaseId = cloudBlockBlob.acquireLease(properties.getBlobLeaseTimeout(), null);
             log.info("Acquired lease on file {} in container {}. Lease ID: {}", zipFilename, containerName, leaseId);
+
             // add lease expiration time to the blob metadata
             cloudBlockBlob.getMetadata().put(
                 LEASE_EXPIRATION_TIME,
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
                     .plusSeconds(properties.getBlobLeaseAcquireDelayInSeconds()).toString()
+            );
+            cloudBlockBlob.uploadMetadata(AccessCondition.generateLeaseCondition(leaseId), null, null);
+
+            log.info(
+                "Updated blob metadata with lease expiration time for file {} in container {}. "
+                    + "Lease Expiration Time: {}",
+                zipFilename,
+                containerName,
+                cloudBlockBlob.getMetadata().get(LEASE_EXPIRATION_TIME)
             );
 
             return Optional.of(leaseId);
@@ -108,8 +119,6 @@ public class BlobManager {
         try {
             log.info("Releasing lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
             cloudBlockBlob.releaseLease(AccessCondition.generateLeaseCondition(leaseId));
-            // clear lease expiration time from blob metadata
-            cloudBlockBlob.getMetadata().remove(LEASE_EXPIRATION_TIME);
             log.info("Released lease on file {} in container {}. Lease ID: {}", zipFileName, containerName, leaseId);
         } catch (Exception exc) {
             log.error(
@@ -244,13 +253,21 @@ public class BlobManager {
         );
     }
 
-    private boolean readyToAcquireLease(CloudBlockBlob cloudBlockBlob) {
-        String leaseAcquiredAt = cloudBlockBlob.getMetadata().get(LEASE_EXPIRATION_TIME);
-        if (StringUtils.isBlank(leaseAcquiredAt)) {
-            return true;
+    private boolean readyToAcquireLease(CloudBlockBlob cloudBlockBlob, String fileName, String container) {
+        // TODO: remove filename and container params and logging when the lease issue is resolved
+        String leaseExpirationTime = cloudBlockBlob.getMetadata().get(LEASE_EXPIRATION_TIME);
+        log.info(
+            "Checking if lease acquired on file {} in container {}. Lease Expiration Time: {}",
+            fileName,
+            container,
+            leaseExpirationTime
+        );
+
+        if (StringUtils.isBlank(leaseExpirationTime)) {
+            return true; // lease not acquired on file
         } else {
-            LocalDateTime leaseAcquiredAtTime = LocalDateTime.parse(leaseAcquiredAt);
-            return leaseAcquiredAtTime.isBefore(LocalDateTime.now(EUROPE_LONDON_ZONE_ID));
+            LocalDateTime leaseExpiresAt = LocalDateTime.parse(leaseExpirationTime);
+            return leaseExpiresAt.isBefore(LocalDateTime.now(EUROPE_LONDON_ZONE_ID)); // check if lease expired
         }
 
     }
