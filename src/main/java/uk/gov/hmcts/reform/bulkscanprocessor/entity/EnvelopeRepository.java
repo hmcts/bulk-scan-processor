@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> findByJurisdiction(String jurisdiction);
 
     List<Envelope> findByStatus(Status status);
+
+    List<Envelope> findByStatusIn(Collection<Status> statuses);
 
     List<Envelope> findByZipFileName(String zipFileName);
 
