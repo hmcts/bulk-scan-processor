@@ -38,7 +38,7 @@ public class BlobManager {
     private static final String SELECT_ALL_CONTAINER = "ALL";
     private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
         "Can't acquire lease on file {} in container {} - already acquired";
-    public static final String LEASE_EXPIRATION_TIME = "lease-expiration-time";
+    public static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 
     private final CloudBlobClient cloudBlobClient;
     private final BlobManagementProperties properties;
