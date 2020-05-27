@@ -39,7 +39,7 @@ class UploadEnvelopeDocumentsTaskTest {
 
     @Mock private EnvelopeRepository envelopeRepository;
     @Mock private UploadEnvelopeDocumentsService uploadService;
-    private int maxRetries = 5;
+    private final int maxRetries = 5;
 
     private UploadEnvelopeDocumentsTask task;
 
@@ -100,7 +100,10 @@ class UploadEnvelopeDocumentsTaskTest {
 
         // then
         verify(uploadService, times(1)).processByContainer(anyString(), envelopesCaptor.capture());
-        assertThat(envelopesCaptor.getValue()).hasSize(1);
+        List<Envelope> processedEnvelopes = envelopesCaptor.getValue();
+        // only the first envelopes should be processed
+        assertThat(processedEnvelopes).hasSize(1);
+        assertThat(processedEnvelopes.get(0).getUploadFailureCount()).isEqualTo(maxRetries - 1);
     }
 
     private Envelope getEnvelope(String containerName, int uploadFailures) {
