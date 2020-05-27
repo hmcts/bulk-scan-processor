@@ -215,6 +215,8 @@ public class BlobManager {
                 && StorageErrorCodeStrings.LEASE_LOST.equals(e.getErrorCode())) {
                 log.info("Deleting File {} got LEASE_LOST error error retrying", fileName);
                 inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, null, null, null);
+            } else {
+                throw e;
             }
         }
         log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
