@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
-import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -10,6 +9,7 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.DeleteSnapshotsOption;
 import com.microsoft.azure.storage.blob.LeaseStatus;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,14 +206,27 @@ public class BlobManager {
             ? AccessCondition.generateLeaseCondition(leaseId)
             : AccessCondition.generateEmptyCondition();
 
+
+        //TODO, for testing, will delete
+        try {
+            TimeUnit.MINUTES.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         try {
             inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, deleteCondition, null, null);
         } catch (StorageException e) {
             //if lease lost retry
-            log.warn("Deleting File {} got error ", fileName, e);
-            if (e.getHttpStatusCode() == HttpURLConnection.HTTP_PRECON_FAILED
-                && StorageErrorCodeStrings.LEASE_LOST.equals(e.getErrorCode())) {
-                log.info("Deleting File {} got LEASE_LOST error, retrying...", fileName);
+            log.warn(
+                "Deleting File {} got error, Error code {}, Http status {} ",
+                fileName,
+                e.getErrorCode(),
+                e.getHttpStatusCode(),
+                e
+            );
+
+            if (e.getHttpStatusCode() == HttpURLConnection.HTTP_PRECON_FAILED) {
+                log.info("Deleting File {} got error, retrying...", fileName);
                 inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, null, null, null);
             } else {
                 throw e;
