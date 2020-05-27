@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.microsoft.azure.storage.AccessCondition;
+import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobProperties;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
@@ -8,6 +9,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyState;
 import com.microsoft.azure.storage.blob.CopyStatus;
+import com.microsoft.azure.storage.blob.DeleteSnapshotsOption;
 import com.microsoft.azure.storage.blob.LeaseStatus;
 import io.github.netmikey.logunit.api.LogCapturer;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
+import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -343,6 +346,67 @@ public class BlobManagerTest {
 
         verify(rejectedBlob, atLeast(expectedMinInvocations)).getCopyState();
         verify(inputBlob, never()).deleteIfExists();
+    }
+
+    @Test
+    public void tryMoveFileToRejectedContainer_retry_delete_when_lease_lost() throws Exception {
+        // given
+        given(blobManagementProperties.getBlobCopyTimeoutInMillis()).willReturn(1000);
+        given(inputContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(inputBlob);
+        given(rejectedContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(rejectedBlob);
+        given(cloudBlobClient.getContainerReference(INPUT_CONTAINER_NAME)).willReturn(inputContainer);
+        given(cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainer);
+
+        willThrow(new StorageException(
+                StorageErrorCodeStrings.LEASE_LOST,
+                "precondition exception",
+                HttpURLConnection.HTTP_PRECON_FAILED,
+                null,
+                null
+            )
+        ).given(inputBlob).deleteIfExists(any(DeleteSnapshotsOption.class), any(AccessCondition.class), any(), any());
+
+        given(inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, null, null, null))
+            .willReturn(true);
+        // and
+        mockRejectedBlobToReturnCopyState(PENDING, SUCCESS);
+
+        // when
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+
+        // then
+        verify(rejectedBlob).startCopy(inputBlob);
+        verify(inputBlob,times(2)).deleteIfExists(any(), any(), any(), any());
+    }
+
+    @Test
+    public void tryMoveFileToRejectedContainer_do_not_retry_delete_when_error_different_than_lease_lost()
+        throws Exception {
+        // given
+        given(blobManagementProperties.getBlobCopyTimeoutInMillis()).willReturn(1000);
+        given(inputContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(inputBlob);
+        given(rejectedContainer.getBlockBlobReference(INPUT_FILE_NAME)).willReturn(rejectedBlob);
+        given(cloudBlobClient.getContainerReference(INPUT_CONTAINER_NAME)).willReturn(inputContainer);
+        given(cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainer);
+
+        willThrow(new StorageException(
+                StorageErrorCodeStrings.LEASE_ALREADY_BROKEN,
+                "precondition exception",
+                HttpURLConnection.HTTP_PRECON_FAILED,
+                null,
+                null
+            )
+        ).given(inputBlob).deleteIfExists(any(DeleteSnapshotsOption.class), any(AccessCondition.class), any(), any());
+
+        // and
+        mockRejectedBlobToReturnCopyState(PENDING, SUCCESS);
+
+        // when
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+
+        // then
+        verify(rejectedBlob).startCopy(inputBlob);
+        verify(inputBlob).deleteIfExists(any(), any(), any(), any());
     }
 
     private void mockRejectedBlobToReturnCopyState(CopyStatus... copyStatuses) {
