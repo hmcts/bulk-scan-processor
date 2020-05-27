@@ -9,7 +9,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.DeleteSnapshotsOption;
 import com.microsoft.azure.storage.blob.LeaseStatus;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -208,11 +207,7 @@ public class BlobManager {
 
 
         //TODO, for testing, will delete
-        try {
-            TimeUnit.MINUTES.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        tryReleaseLease(inputBlob, inputContainerName, fileName, leaseId);
         try {
             inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, deleteCondition, null, null);
         } catch (StorageException e) {
