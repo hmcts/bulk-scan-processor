@@ -130,7 +130,7 @@ public class EnvelopeControllerTest {
             serviceBusHelper,
             paymentsEnabled
         );
-        uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService);
+        uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 
         testContainer = cloudBlobClient.getContainerReference("bulkscan");
         testContainer.createIfNotExists();
