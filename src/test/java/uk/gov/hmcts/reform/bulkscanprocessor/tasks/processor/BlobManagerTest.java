@@ -153,15 +153,20 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void tryReleaseLease_releases_lease_on_blob() throws Exception {
+    public void tryReleaseLease_clears_lease_expiration_time_and_releases_lease_on_blob() throws Exception {
         String leaseId = "lease-id-123";
 
+        HashMap<String, String> metadata = new HashMap<>();
+        metadata.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(10).toString());
+        given(inputBlob.getMetadata()).willReturn(metadata);
         blobManager.tryReleaseLease(inputBlob, "container-name", "zip-filename.zip", leaseId);
 
         ArgumentCaptor<AccessCondition> accessConditionCaptor = ArgumentCaptor.forClass(AccessCondition.class);
         verify(inputBlob).releaseLease(accessConditionCaptor.capture());
         assertThat(accessConditionCaptor.getValue()).isNotNull();
         assertThat(accessConditionCaptor.getValue().getLeaseID()).isEqualTo(leaseId);
+        verify(inputBlob).uploadMetadata(any(), any(), any());
+        assertThat(inputBlob.getMetadata()).doesNotContainKey(LEASE_EXPIRATION_TIME);
     }
 
     @Test
