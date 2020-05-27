@@ -35,7 +35,7 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findEnvelopesToResend_should_not_return_envelopes_that_failed_to_be_sent_too_many_times() {
+    public void findEnvelopesToUpload_should_not_return_envelopes_that_failed_to_be_uploaded_too_many_times() {
         // given
         final int maxFailCount = 5;
 
@@ -48,31 +48,31 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend(maxFailCount);
+        List<Envelope> result = repo.findEnvelopesToUpload(maxFailCount);
 
         // then
         assertThat(result).hasSize(2);
     }
 
     @Test
-    public void findEnvelopesToResend_should_filter_based_on_status() {
+    public void findEnvelopesToUpload_should_filter_based_on_status() {
         // given
-        dbHas(
-            envelope("A", Status.CREATED),
-            envelope("A", Status.UPLOAD_FAILURE),
-            envelope("B", Status.UPLOAD_FAILURE)
-        );
+        Envelope e1 = envelope("A", Status.CREATED);
+        Envelope e2 = envelope("A", Status.UPLOAD_FAILURE);
+        Envelope e3 = envelope("B", Status.UPLOADED);
+        Envelope e4 = envelope("B", Status.NOTIFICATION_SENT);
+
+        dbHas(e1, e2, e3, e4);
 
         // when
-        List<Envelope> result = repo.findEnvelopesToResend(1_000);
+        List<Envelope> result = repo.findEnvelopesToUpload(1_000);
 
         // then
         assertThat(result)
-            .hasSize(2)
-            .extracting(envelope -> tuple(envelope.getContainer(), envelope.getJurisdiction()))
-            .containsOnly(
-                tuple("SSCS", "A"),
-                tuple("SSCS", "B")
+            .extracting(Envelope::getZipFileName)
+            .containsExactlyInAnyOrder(
+                e1.getZipFileName(),
+                e2.getZipFileName()
             );
     }
 
