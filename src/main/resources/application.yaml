@@ -82,6 +82,7 @@ storage:
   proxy_host: proxyout.reform.hmcts.net
   proxy_port: 8080
   blob_selected_container: ${STORAGE_BLOB_SELECTED_CONTAINER}
+  blob_lease_acquire_delay_in_seconds: ${LEASE_ACQUIRE_DELAY_IN_SECONDS}
 
 queues:
   envelopes:

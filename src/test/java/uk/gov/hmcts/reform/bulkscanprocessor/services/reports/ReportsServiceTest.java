@@ -129,7 +129,9 @@ public class ReportsServiceTest {
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
                     Status.CREATED.toString(),
-                    EXCEPTION.name()
+                    EXCEPTION.name(),
+                    null,
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -138,7 +140,9 @@ public class ReportsServiceTest {
                     "c2",
                     Event.COMPLETED.toString(),
                     Status.UPLOADED.toString(),
-                    NEW_APPLICATION.name()
+                    NEW_APPLICATION.name(),
+                    null,
+                    null
                 )
             ));
 
@@ -158,7 +162,9 @@ public class ReportsServiceTest {
                     "c1",
                     Event.ZIPFILE_PROCESSING_STARTED.toString(),
                     Status.CREATED.toString(),
-                    EXCEPTION.name()
+                    EXCEPTION.name(),
+                    null,
+                    null
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -169,7 +175,9 @@ public class ReportsServiceTest {
                     "c2",
                     Event.COMPLETED.toString(),
                     Status.UPLOADED.toString(),
-                    NEW_APPLICATION.name()
+                    NEW_APPLICATION.name(),
+                    null,
+                    null
                 )
             );
     }
@@ -186,7 +194,9 @@ public class ReportsServiceTest {
                     "c1",
                     ZIPFILE_PROCESSING_STARTED.toString(),
                     null,
-                    EXCEPTION.name()
+                    EXCEPTION.name(),
+                    null,
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -195,7 +205,9 @@ public class ReportsServiceTest {
                     "c2",
                     COMPLETED.toString(),
                     null,
-                    EXCEPTION.name()
+                    EXCEPTION.name(),
+                    null,
+                    null
                 )
             ));
 

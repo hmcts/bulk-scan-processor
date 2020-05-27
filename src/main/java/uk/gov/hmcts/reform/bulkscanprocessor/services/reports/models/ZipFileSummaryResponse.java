@@ -14,6 +14,8 @@ public class ZipFileSummaryResponse {
     public final String lastEventStatus;
     public final String envelopeStatus;
     public final String classification;
+    public final String ccdId;
+    public final String ccdAction;
 
     // region constructor
     public ZipFileSummaryResponse(
@@ -25,7 +27,9 @@ public class ZipFileSummaryResponse {
         String container,
         String lastEventStatus,
         String envelopeStatus,
-        String classification
+        String classification,
+        String ccdId,
+        String ccdAction
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -36,6 +40,8 @@ public class ZipFileSummaryResponse {
         this.lastEventStatus = lastEventStatus;
         this.envelopeStatus = envelopeStatus;
         this.classification = classification;
+        this.ccdId = ccdId;
+        this.ccdAction = ccdAction;
     }
     // endregion
 }

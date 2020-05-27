@@ -5,6 +5,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,8 +216,14 @@ public class BlobProcessorTask {
     }
 
     private ZipInputStream loadIntoMemory(CloudBlockBlob cloudBlockBlob, String zipFilename) throws StorageException {
+        log.info("Loading file {} into memory.", zipFilename);
         try (BlobInputStream blobInputStream = cloudBlockBlob.openInputStream()) {
             byte[] array = toByteArray(blobInputStream);
+            log.info(
+                "Finished loading file {} into memory. {} loaded.",
+                zipFilename,
+                FileUtils.byteCountToDisplaySize(array.length)
+            );
             return new ZipInputStream(new ByteArrayInputStream(array));
         } catch (IOException exception) {
             throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);

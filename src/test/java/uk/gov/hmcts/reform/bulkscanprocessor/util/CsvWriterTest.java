@@ -37,7 +37,9 @@ public class CsvWriterTest {
                 "bulkscan",
                 DOC_UPLOADED.toString(),
                 Status.UPLOADED.toString(),
-                SUPPLEMENTARY_EVIDENCE.name()
+                SUPPLEMENTARY_EVIDENCE.name(),
+                null,
+                null
             ),
             new ZipFileSummaryResponse(
                 "test2.zip",
@@ -48,6 +50,8 @@ public class CsvWriterTest {
                 "bulkscan",
                 DOC_UPLOADED.toString(),
                 Status.UPLOADED.toString(),
+                null,
+                null,
                 null
             )
         );

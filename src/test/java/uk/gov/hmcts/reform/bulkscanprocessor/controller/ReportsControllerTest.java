@@ -118,7 +118,9 @@ public class ReportsControllerTest {
             "bulkscan",
             CONSUMED.toString(),
             COMPLETED.toString(),
-            EXCEPTION.name()
+            EXCEPTION.name(),
+            "ccd-id",
+            "ccd-action"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
@@ -134,7 +136,7 @@ public class ReportsControllerTest {
 
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan")
-                .accept(APPLICATION_OCTET_STREAM))
+                         .accept(APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
@@ -150,7 +152,7 @@ public class ReportsControllerTest {
 
         mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14")
-                .accept(APPLICATION_OCTET_STREAM))
+                         .accept(APPLICATION_OCTET_STREAM))
             .andExpect(status().isOk())
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zip-files-summary.csv"))
             .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
@@ -174,7 +176,9 @@ public class ReportsControllerTest {
             "bulkscan",
             CONSUMED.toString(),
             COMPLETED.toString(),
-            SUPPLEMENTARY_EVIDENCE.name()
+            SUPPLEMENTARY_EVIDENCE.name(),
+            "ccd-id",
+            "ccd-action"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
@@ -193,7 +197,9 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].container").value(response.container))
             .andExpect(jsonPath("$.data[0].last_event_status").value(response.lastEventStatus))
             .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus))
-            .andExpect(jsonPath("$.data[0].classification").value(response.classification));
+            .andExpect(jsonPath("$.data[0].classification").value(response.classification))
+            .andExpect(jsonPath("$.data[0].ccd_id").value(response.ccdId))
+            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction));
     }
 
     @Test

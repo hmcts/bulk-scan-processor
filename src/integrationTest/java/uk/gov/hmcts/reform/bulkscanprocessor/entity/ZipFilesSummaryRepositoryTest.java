@@ -55,8 +55,8 @@ public class ZipFilesSummaryRepositoryTest {
             event("c4", "test4.zip", createdDate.minus(30, MINUTES), FILE_VALIDATION_FAILURE)
         );
 
-        dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION));
-        dbHasEnvelope(envelope("c2", "test2.zip", Status.CREATED, SUPPLEMENTARY_EVIDENCE));
+        dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1"));
+        dbHasEnvelope(envelope("c2", "test2.zip", Status.CREATED, SUPPLEMENTARY_EVIDENCE, null, null));
 
         // when
         List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
@@ -73,7 +73,9 @@ public class ZipFilesSummaryRepositoryTest {
                         "c1",
                         Event.COMPLETED.toString(),
                         Status.COMPLETED.toString(),
-                        EXCEPTION.name()
+                        EXCEPTION.name(),
+                        "ccd-id-1",
+                        "ccd-action-1"
                     ),
                     new ZipFileSummaryItem(
                         "test2.zip",
@@ -82,7 +84,9 @@ public class ZipFilesSummaryRepositoryTest {
                         "c2",
                         Event.ZIPFILE_PROCESSING_STARTED.toString(),
                         Status.CREATED.toString(),
-                        SUPPLEMENTARY_EVIDENCE.name()
+                        SUPPLEMENTARY_EVIDENCE.name(),
+                        null,
+                        null
                     ),
                     new ZipFileSummaryItem(
                         "test4.zip",
@@ -90,6 +94,8 @@ public class ZipFilesSummaryRepositoryTest {
                         null,
                         "c4",
                         Event.FILE_VALIDATION_FAILURE.toString(),
+                        null,
+                        null,
                         null,
                         null
                     )
@@ -130,7 +136,7 @@ public class ZipFilesSummaryRepositoryTest {
             event(container, "test2.zip", nextDay, ZIPFILE_PROCESSING_STARTED)
         );
 
-        dbHasEnvelope(envelope(container, zip1Name, Status.UPLOADED, SUPPLEMENTARY_EVIDENCE));
+        dbHasEnvelope(envelope(container, zip1Name, Status.UPLOADED, SUPPLEMENTARY_EVIDENCE, null, null));
 
         // when
         List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
@@ -147,7 +153,9 @@ public class ZipFilesSummaryRepositoryTest {
                         container,
                         Event.COMPLETED.toString(),
                         Status.UPLOADED.toString(),
-                        SUPPLEMENTARY_EVIDENCE.name()
+                        SUPPLEMENTARY_EVIDENCE.name(),
+                        null,
+                        null
                     )
                 )
             );
@@ -168,7 +176,14 @@ public class ZipFilesSummaryRepositoryTest {
         return event;
     }
 
-    private Envelope envelope(String container, String zipFileName, Status status, Classification classification) {
+    private Envelope envelope(
+        String container,
+        String zipFileName,
+        Status status,
+        Classification classification,
+        String ccdId,
+        String ccdAction
+    ) {
         Envelope envelope = new Envelope(
             UUID.randomUUID().toString(),
             "jurisdiction1",
@@ -186,6 +201,9 @@ public class ZipFilesSummaryRepositoryTest {
         );
 
         envelope.setStatus(status);
+
+        envelope.setCcdId(ccdId);
+        envelope.setEnvelopeCcdAction(ccdAction);
 
         return envelope;
     }

@@ -17,4 +17,8 @@ public interface ZipFileSummary {
     String getEnvelopeStatus();
 
     String getClassification();
+
+    String getCcdId();
+
+    String getCcdAction();
 }

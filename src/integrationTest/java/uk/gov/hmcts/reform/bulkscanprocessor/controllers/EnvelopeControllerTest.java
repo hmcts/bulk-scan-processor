@@ -73,49 +73,25 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 @RunWith(SpringRunner.class)
 public class EnvelopeControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
+
+    @Autowired private MetafileJsonValidator schemaValidator;
+    @Autowired private ContainerMappings containerMappings;
+    @Autowired private ZipFileProcessor zipFileProcessor;
+    @Autowired private EnvelopeRepository envelopeRepository;
+    @Autowired private ProcessEventRepository processEventRepository;
+    @Autowired private BlobManagementProperties blobManagementProperties;
+    @Autowired private UploadEnvelopeDocumentsService uploadService;
+
+    @Value("${process-payments.enabled}") private boolean paymentsEnabled;
+
+    @MockBean private DocumentManagementService documentManagementService;
+    @MockBean private OcrValidator ocrValidator;
+    @MockBean private ServiceBusHelper serviceBusHelper;
+    @MockBean private AuthTokenValidator tokenValidator;
 
     private BlobProcessorTask blobProcessorTask;
-
     private UploadEnvelopeDocumentsTask uploadTask;
-
-    @Autowired
-    private MetafileJsonValidator schemaValidator;
-
-    @Autowired
-    private ContainerMappings containerMappings;
-
-    @Autowired
-    private ZipFileProcessor zipFileProcessor;
-
-    @Autowired
-    private EnvelopeRepository envelopeRepository;
-
-    @Autowired
-    private ProcessEventRepository processEventRepository;
-
-    @Value("${process-payments.enabled}")
-    private boolean paymentsEnabled;
-
-    @MockBean
-    private DocumentManagementService documentManagementService;
-
-    @MockBean
-    private OcrValidator ocrValidator;
-
-    @MockBean
-    private ServiceBusHelper serviceBusHelper;
-
-    @Autowired
-    private BlobManagementProperties blobManagementProperties;
-
-    @Autowired
-    private UploadEnvelopeDocumentsService uploadService;
-
-    @MockBean
-    private AuthTokenValidator tokenValidator;
-
     private CloudBlobContainer testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;

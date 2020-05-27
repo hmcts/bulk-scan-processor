@@ -42,7 +42,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         );
     }
 
-    //Todo assert ccd details when the change is deployed to AAT
     @Test
     public void should_complete_envelope_referenced_by_queue_message() throws Exception {
         // given
@@ -59,7 +58,9 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
-        sendProcessedEnvelopeMessage(envelopeId);
+        String ccdId = "ccd-id";
+        String ccdAction = "ccd-action";
+        sendProcessedEnvelopeMessage(envelopeId, ccdId, ccdAction);
 
         // then
         await("File " + zipFilename + " should change status to 'COMPLETED'")
@@ -70,6 +71,8 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
+        assertThat(updatedEnvelope.getCcdId()).isEqualTo(ccdId);
+        assertThat(updatedEnvelope.getEnvelopeCcdAction()).isEqualTo(ccdAction);
 
         await("File " + zipFilename + " should be deleted")
             .atMost(DELETE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
@@ -113,12 +116,12 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     //unknown fields should be ignored
-    private void sendProcessedEnvelopeMessage(UUID envelopeId) throws Exception {
+    private void sendProcessedEnvelopeMessage(UUID envelopeId, String ccdId, String ccdAction) throws Exception {
         IMessage message = new Message(
             " {"
                 + "\"envelope_id\":\"" + envelopeId + "\","
-                + "\"ccd_id\":123432443,"
-                + "\"envelope_ccd_action\":\"ccd-type-exception\","
+                + "\"ccd_id\":\"" + ccdId + "\","
+                + "\"envelope_ccd_action\":\"" + ccdAction + "\","
                 + "\"dummy\":\"value-should-ignore\""
                 + "}"
         );
