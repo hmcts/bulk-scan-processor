@@ -210,10 +210,10 @@ public class BlobManager {
             inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, deleteCondition, null, null);
         } catch (StorageException e) {
             //if lease lost retry
-            log.info("Deleting File {} got error ", fileName, e);
+            log.warn("Deleting File {} got error ", fileName, e);
             if (e.getHttpStatusCode() == HttpURLConnection.HTTP_PRECON_FAILED
                 && StorageErrorCodeStrings.LEASE_LOST.equals(e.getErrorCode())) {
-                log.info("Deleting File {} got LEASE_LOST error error retrying", fileName);
+                log.info("Deleting File {} got LEASE_LOST error, retrying...", fileName);
                 inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, null, null, null);
             } else {
                 throw e;
