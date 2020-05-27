@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
+import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -205,9 +206,6 @@ public class BlobManager {
             ? AccessCondition.generateLeaseCondition(leaseId)
             : AccessCondition.generateEmptyCondition();
 
-
-        //TODO, for testing, will delete
-        tryReleaseLease(inputBlob, inputContainerName, fileName, leaseId);
         try {
             inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, deleteCondition, null, null);
         } catch (StorageException e) {
@@ -220,7 +218,8 @@ public class BlobManager {
                 e
             );
 
-            if (e.getHttpStatusCode() == HttpURLConnection.HTTP_PRECON_FAILED) {
+            if (e.getHttpStatusCode() == HttpURLConnection.HTTP_PRECON_FAILED
+                && StorageErrorCodeStrings.LEASE_LOST.equals(e.getErrorCode())) {
                 log.info("Deleting File {} got error, retrying...", fileName);
                 inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, null, null, null);
             } else {
