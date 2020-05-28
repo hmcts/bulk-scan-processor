@@ -10,11 +10,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
 @Component
 @ConditionalOnProperty(
@@ -46,9 +43,8 @@ public class UploadEnvelopeDocumentsTask {
         log.info("Started {} job", TASK_NAME);
 
         envelopeRepository
-            .findByStatusIn(asList(CREATED, UPLOAD_FAILURE))
+            .findEnvelopesToUpload(maxRetries)
             .stream()
-            .filter(envelope -> envelope.getUploadFailureCount() < maxRetries) // TODO: replace with custom query
             .collect(groupingBy(Envelope::getContainer))
             .forEach(uploadService::processByContainer);
 
