@@ -1,1 +1,0 @@
-CREATE INDEX envelopes_uploadfailurecount_idx ON envelopes(uploadfailurecount);
