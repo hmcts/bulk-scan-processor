@@ -246,7 +246,7 @@ dependencies {
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
   compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
 
-  compile group: 'commons-io', name: 'commons-io', version: '2.6'
+  compile group: 'commons-io', name: 'commons-io', version: '2.7'
   compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
 
   compile group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
