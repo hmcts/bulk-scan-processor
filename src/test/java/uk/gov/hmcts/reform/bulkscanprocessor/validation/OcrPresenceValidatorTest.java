@@ -15,7 +15,10 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.*;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.CHERISHED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.OTHER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 
 @ExtendWith(MockitoExtension.class)
 public class OcrPresenceValidatorTest {
