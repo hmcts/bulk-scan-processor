@@ -82,10 +82,8 @@ module "bulk-scan" {
     S2S_NAME   = "${var.s2s_name}"
     S2S_SECRET = "${data.azurerm_key_vault_secret.s2s_secret.value}"
 
-    REUPLOAD_BATCH     = "${var.reupload_batch}"
-    REUPLOAD_DELAY     = "${var.reupload_delay}"
     REUPLOAD_MAX_TRIES = "${var.reupload_max_tries}"
-    REUPLOAD_ENABLED   = "${var.reupload_enabled}"
+
     SCAN_DELAY         = "${var.scan_delay}"
     SCAN_ENABLED       = "${var.scan_enabled}"
 

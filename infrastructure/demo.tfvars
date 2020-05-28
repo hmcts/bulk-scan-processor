@@ -1,6 +1,5 @@
 token_validity = "5184000" #60 days in seconds
 vault_section = "preprod"
-reupload_enabled = "true"
 scan_enabled = "true"
 
 orchestrator_notifications_task_enabled = "true"

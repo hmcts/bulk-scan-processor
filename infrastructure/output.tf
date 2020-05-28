@@ -2,10 +2,6 @@ output "app_namespace" {
   value = "${var.deployment_namespace}"
 }
 
-output "TEST_REUPLOAD_DELAY" {
-  value = "${var.reupload_delay}"
-}
-
 output "TEST_SCAN_DELAY" {
   value = "${var.scan_delay}"
 }
