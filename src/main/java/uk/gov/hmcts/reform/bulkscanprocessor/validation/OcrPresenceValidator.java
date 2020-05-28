@@ -40,7 +40,8 @@ public class OcrPresenceValidator {
         if (docs.stream().anyMatch(doc -> OCR_DOC_TYPES.contains(doc.documentType) && doc.ocrData == null)) {
             throw new OcrPresenceException(MISSING_OCR_MSG);
         }
-        if (docs.stream().anyMatch(doc -> doc.documentSubtype == null && doc.ocrData != null)) {
+        // TODO: For SSCS1 we don't recieve document subtype as it follows a different contract
+        if (docs.stream().anyMatch(doc -> doc.documentType != SSCS1 && doc.documentSubtype == null && doc.ocrData != null)) {
             throw new OcrPresenceException(MISSING_DOC_SUBTYPE_MSG);
         }
 

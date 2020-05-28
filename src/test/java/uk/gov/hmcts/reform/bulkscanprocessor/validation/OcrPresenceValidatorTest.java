@@ -15,9 +15,7 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.CHERISHED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.OTHER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OcrPresenceValidatorTest {
@@ -87,6 +85,25 @@ public class OcrPresenceValidatorTest {
             ))
             .isInstanceOf(OcrPresenceException.class)
             .hasMessage(OcrPresenceValidator.MISSING_DOC_SUBTYPE_MSG);
+    }
+
+    @Test
+    public void should_return_document_with_ocr_when_doctype_is_sscs1_and_subtype_is_not_set() {
+        // given
+        InputScannableItem docWithOcr = doc(SSCS1, null, new InputOcrData());
+        List<InputScannableItem> docs =
+            asList(
+                docWithOcr,
+                doc(OTHER, null),
+                doc(OTHER, null),
+                doc(CHERISHED, null)
+            );
+
+        // when
+        Optional<InputScannableItem> result = validator.assertHasProperlySetOcr(docs);
+
+        // then
+        assertThat(result).get().isEqualTo(docWithOcr);
     }
 
     @Test
