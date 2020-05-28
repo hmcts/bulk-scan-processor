@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
+import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyException;
 
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -208,7 +210,26 @@ public class BlobManager {
             ? AccessCondition.generateLeaseCondition(leaseId)
             : AccessCondition.generateEmptyCondition();
 
-        inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, deleteCondition, null, null);
+        try {
+            inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, deleteCondition, null, null);
+        } catch (StorageException e) {
+            //if lease lost retry
+            log.warn(
+                "Deleting File {} got error, Error code {}, Http status {} ",
+                fileName,
+                e.getErrorCode(),
+                e.getHttpStatusCode(),
+                e
+            );
+
+            if (e.getHttpStatusCode() == HttpURLConnection.HTTP_PRECON_FAILED
+                && StorageErrorCodeStrings.LEASE_LOST.equals(e.getErrorCode())) {
+                log.info("Deleting File {} got error, retrying...", fileName);
+                inputBlob.deleteIfExists(DeleteSnapshotsOption.NONE, null, null, null);
+            } else {
+                throw e;
+            }
+        }
         log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
     }
 
