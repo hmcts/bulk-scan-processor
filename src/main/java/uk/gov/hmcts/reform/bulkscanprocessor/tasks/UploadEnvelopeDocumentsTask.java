@@ -30,7 +30,7 @@ public class UploadEnvelopeDocumentsTask {
     public UploadEnvelopeDocumentsTask(
         EnvelopeRepository envelopeRepository,
         UploadEnvelopeDocumentsService uploadService,
-        @Value("${scheduling.task.reupload.max_tries}") int maxRetries
+        @Value("${scheduling.task.upload-documents.max_tries}") int maxRetries
     ) {
         this.envelopeRepository = envelopeRepository;
         this.uploadService = uploadService;

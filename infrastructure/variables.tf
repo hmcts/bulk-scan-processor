@@ -65,10 +65,6 @@ variable "common_tags" {
   type = "map"
 }
 
-variable "reupload_max_tries" {
-  default = "15"
-}
-
 variable "scan_delay" {
   default = "30000" # In milliseconds
 }

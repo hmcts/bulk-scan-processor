@@ -172,6 +172,7 @@ scheduling:
     upload-documents:
       delay: ${UPLOAD_TASK_DELAY} # In milliseconds
       enabled: ${UPLOAD_TASK_ENABLED}
+      max_tries: ${UPLOAD_MAX_TRIES}
     # 3 - send notification to orchestrator once all documents are uploaded
     notifications_to_orchestrator:
       delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms
@@ -180,8 +181,7 @@ scheduling:
     delete-complete-files:
       enabled: ${DELETE_COMPLETE_FILES_ENABLED}
       cron: ${DELETE_COMPLETE_FILES_CRON}
-    reupload:
-      max_tries: ${REUPLOAD_MAX_TRIES:5}
+
     delete-rejected-files:
       enabled: ${DELETE_REJECTED_FILES_ENABLED:false}
       cron: ${DELETE_REJECTED_FILES_CRON}
