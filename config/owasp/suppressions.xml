@@ -30,12 +30,12 @@
     <cve>CVE-2017-5929</cve>
   </suppress>
 
-  <suppress>
+  <suppress until="2021-10-02">
     <notes><![CDATA[
-       file name: spring-cloud-contract-wiremock-2.2.2.jar.
+       file name: spring-cloud-contract-wiremock-2.2.3.jar.
        This is only used for TESTING purposes.
    ]]></notes>
-    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.2\.2\.RELEASE\.jar</filePath>
+    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.2\.3\.RELEASE\.jar</filePath>
     <cve>CVE-2018-9116</cve>
     <cve>CVE-2018-9117</cve>
   </suppress>
