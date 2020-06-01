@@ -30,7 +30,7 @@
     <cve>CVE-2017-5929</cve>
   </suppress>
 
-  <suppress>
+  <suppress until="2021-10-02">
     <notes><![CDATA[
        file name: spring-cloud-contract-wiremock-2.2.3.jar.
        This is only used for TESTING purposes.
