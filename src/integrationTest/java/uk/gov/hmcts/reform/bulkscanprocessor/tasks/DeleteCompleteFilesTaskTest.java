@@ -15,9 +15,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,6 +54,7 @@ public class DeleteCompleteFilesTaskTest {
     public void should_mark_as_deleted_complete_envelope() throws Exception {
         // given
         final String containerName1 = "container1";
+        final String leaseId = "LEASEID";
         final Envelope envelope = envelope("X", COMPLETED, containerName1, false);
         final Envelope envelopeSaved = envelopeRepository.saveAndFlush(envelope);
 
@@ -59,9 +62,11 @@ public class DeleteCompleteFilesTaskTest {
         final CloudBlockBlob cloudBlockBlob = mock(CloudBlockBlob.class);
         given(container1.getName()).willReturn(containerName1);
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
+        given(blobManager.acquireLease(cloudBlockBlob, containerName1, envelope.getZipFileName()))
+            .willReturn(Optional.of(leaseId));
         given(container1.getBlockBlobReference(envelope.getZipFileName())).willReturn(cloudBlockBlob);
         given(cloudBlockBlob.exists()).willReturn(true);
-        given(cloudBlockBlob.deleteIfExists()).willReturn(true);
+        given(cloudBlockBlob.deleteIfExists(any(), any(), any(), any())).willReturn(true);
 
         // when
         task.run();
@@ -86,7 +91,7 @@ public class DeleteCompleteFilesTaskTest {
         assertThat(envelopesNotMarkedAsDeleted).isEmpty();
         verify(container1).getBlockBlobReference(envelope.getZipFileName());
         verify(cloudBlockBlob).exists();
-        verify(cloudBlockBlob).deleteIfExists();
+        verify(cloudBlockBlob).deleteIfExists(any(), any(), any(), any());
 
         // and when
         task.run();
