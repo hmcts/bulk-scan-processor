@@ -65,12 +65,16 @@ public class ZipFileStatusServiceTest {
                 new ZipFileEnvelope(
                     envelopes.get(0).getId().toString(),
                     envelopes.get(0).getContainer(),
-                    envelopes.get(0).getStatus().name()
+                    envelopes.get(0).getStatus().name(),
+                    envelopes.get(0).getCcdId(),
+                    envelopes.get(0).getEnvelopeCcdAction()
                 ),
                 new ZipFileEnvelope(
                     envelopes.get(1).getId().toString(),
                     envelopes.get(1).getContainer(),
-                    envelopes.get(1).getStatus().name()
+                    envelopes.get(1).getStatus().name(),
+                    envelopes.get(1).getCcdId(),
+                    envelopes.get(1).getEnvelopeCcdAction()
                 )
             );
 
