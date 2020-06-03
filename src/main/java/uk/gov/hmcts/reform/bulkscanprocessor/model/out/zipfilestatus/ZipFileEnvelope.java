@@ -13,11 +13,19 @@ public class ZipFileEnvelope {
     @JsonProperty("status")
     public final String status;
 
+    @JsonProperty("ccd_id")
+    public final String ccdId;
+
+    @JsonProperty("envelope_ccd_action")
+    public final String envelopeCcdAction;
+
     // region constructor
-    public ZipFileEnvelope(String id, String container, String status) {
+    public ZipFileEnvelope(String id, String container, String status, String ccdId, String envelopeCcdAction) {
         this.id = id;
         this.container = container;
         this.status = status;
+        this.ccdId = ccdId;
+        this.envelopeCcdAction = envelopeCcdAction;
     }
     // endregion
 }

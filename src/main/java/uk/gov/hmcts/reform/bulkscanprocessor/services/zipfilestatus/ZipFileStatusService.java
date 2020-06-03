@@ -43,7 +43,9 @@ public class ZipFileStatusService {
         return new ZipFileEnvelope(
             envelope.getId().toString(),
             envelope.getContainer(),
-            envelope.getStatus().name()
+            envelope.getStatus().name(),
+            envelope.getCcdId(),
+            envelope.getEnvelopeCcdAction()
         );
     }
 
