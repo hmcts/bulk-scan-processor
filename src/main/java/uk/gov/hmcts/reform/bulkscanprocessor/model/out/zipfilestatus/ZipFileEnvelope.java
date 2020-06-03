@@ -21,11 +21,11 @@ public class ZipFileEnvelope {
 
     // region constructor
     public ZipFileEnvelope(
-    String id, 
-    String container, 
-    String status, 
-    String ccdId, 
-    String envelopeCcdAction
+        String id,
+        String container,
+        String status,
+        String ccdId,
+        String envelopeCcdAction
     ) {
         this.id = id;
         this.container = container;
