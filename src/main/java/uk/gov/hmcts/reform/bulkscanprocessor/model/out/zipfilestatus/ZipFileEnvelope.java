@@ -20,7 +20,13 @@ public class ZipFileEnvelope {
     public final String envelopeCcdAction;
 
     // region constructor
-    public ZipFileEnvelope(String id, String container, String status, String ccdId, String envelopeCcdAction) {
+    public ZipFileEnvelope(
+    String id, 
+    String container, 
+    String status, 
+    String ccdId, 
+    String envelopeCcdAction
+    ) {
         this.id = id;
         this.container = container;
         this.status = status;
