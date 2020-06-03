@@ -70,7 +70,11 @@ public class CleanUpRejectedFilesTask {
                                 if (leaseId.isPresent()) {
                                     AccessCondition accessCondition = generateLeaseCondition(leaseId.get());
                                     blob.delete(INCLUDE_SNAPSHOTS, accessCondition, null, null);
-                                    log.info("Deleted rejected file {}", blob.getName());
+                                    log.info(
+                                        "Deleted rejected file {} from container {}",
+                                        blob.getName(),
+                                        container.getName()
+                                    );
                                 }
                             }
                         } catch (URISyntaxException | StorageException exc) {
