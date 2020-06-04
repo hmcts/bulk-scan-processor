@@ -2,7 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.azure.storage.blob.ListBlobItem;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -55,38 +57,42 @@ public class CleanUpRejectedFilesTask {
                 container
                     .listBlobs(null, true, EnumSet.of(SNAPSHOTS), null, null)
                     .forEach(listItem -> {
-                        try {
-                            final String zipFileName = FilenameUtils.getName(listItem.getUri().toString());
-                            CloudBlockBlob blob = container.getBlockBlobReference(
-                                zipFileName
-                            );
-
-                            if (canBeDeleted(blob)) {
-                                Optional<String> leaseId = blobManager.acquireLease(
-                                    blob,
-                                    container.getName(),
-                                    zipFileName
-                                );
-                                if (leaseId.isPresent()) {
-                                    AccessCondition accessCondition = generateLeaseCondition(leaseId.get());
-                                    blob.delete(INCLUDE_SNAPSHOTS, accessCondition, null, null);
-                                    log.info(
-                                        "Deleted rejected file {} from container {}",
-                                        blob.getName(),
-                                        container.getName()
-                                    );
-                                }
-                            }
-                        } catch (URISyntaxException | StorageException exc) {
-                            log.error(
-                                "Unable to delete rejected file {} from container {}",
-                                listItem.getUri(),
-                                container.getName(),
-                                exc
-                            );
-                        }
+                        tryDeleteFile(container, listItem);
                     });
             });
+    }
+
+    private void tryDeleteFile(CloudBlobContainer container, ListBlobItem listItem) {
+        try {
+            final String zipFileName = FilenameUtils.getName(listItem.getUri().toString());
+            CloudBlockBlob blob = container.getBlockBlobReference(
+                zipFileName
+            );
+
+            if (canBeDeleted(blob)) {
+                Optional<String> leaseId = blobManager.acquireLease(
+                    blob,
+                    container.getName(),
+                    zipFileName
+                );
+                if (leaseId.isPresent()) {
+                    AccessCondition accessCondition = generateLeaseCondition(leaseId.get());
+                    blob.delete(INCLUDE_SNAPSHOTS, accessCondition, null, null);
+                    log.info(
+                        "Deleted rejected file {} from container {}",
+                        blob.getName(),
+                        container.getName()
+                    );
+                }
+            }
+        } catch (URISyntaxException | StorageException exc) {
+            log.error(
+                "Unable to delete rejected file {} from container {}",
+                listItem.getUri(),
+                container.getName(),
+                exc
+            );
+        }
     }
 
     private boolean canBeDeleted(CloudBlockBlob blob) throws StorageException {
