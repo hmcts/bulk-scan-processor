@@ -243,7 +243,9 @@ public class BlobProcessorTask {
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
             log.info(
-                "Parsed envelope. Payment DCNs: {}. Document DCNs: {}",
+                "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
+                zipFilename,
+                containerName,
                 envelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
                 envelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
             );
