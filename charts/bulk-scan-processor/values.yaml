@@ -13,7 +13,7 @@ java:
     OCR_VALIDATION_URL_PROBATE: http://probate-back-office-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_DIVORCE: http://div-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_FINREM: http://finrem-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-    OCR_VALIDATION_URL_SSCS: ""
+    OCR_VALIDATION_URL_SSCS: http://sscs-bulk-scan-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     SCAN_ENABLED: "true"
     SCAN_DELAY: "4000"
     LEASE_ACQUIRE_DELAY_IN_SECONDS: "300"

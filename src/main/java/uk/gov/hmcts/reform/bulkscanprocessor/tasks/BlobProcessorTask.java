@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
@@ -240,6 +241,14 @@ public class BlobProcessorTask {
             ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
+
+            log.info(
+                "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
+                zipFilename,
+                containerName,
+                envelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
+                envelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
+            );
 
             EnvelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
             EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
