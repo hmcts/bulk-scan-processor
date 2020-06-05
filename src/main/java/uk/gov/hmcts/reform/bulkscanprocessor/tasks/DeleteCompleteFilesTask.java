@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -13,7 +14,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.util.List;
+import java.util.Optional;
 
+import static com.microsoft.azure.storage.AccessCondition.generateLeaseCondition;
+import static com.microsoft.azure.storage.blob.DeleteSnapshotsOption.NONE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
@@ -83,7 +87,7 @@ public class DeleteCompleteFilesTask {
     }
 
     private boolean tryProcessCompleteEnvelope(CloudBlobContainer container, Envelope envelope) {
-        boolean deleted;
+        boolean deleted = false;
 
         String loggingContext = "File name: " + envelope.getZipFileName() + ", Container: " + container.getName();
 
@@ -93,11 +97,24 @@ public class DeleteCompleteFilesTask {
             CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
 
             if (cloudBlockBlob.exists()) {
-                deleted = cloudBlockBlob.deleteIfExists();
-                if (deleted) {
-                    log.info("File deleted. {}", loggingContext);
-                } else {
-                    log.info("File has not been deleted. {}", loggingContext);
+                Optional<String> leaseId = blobManager.acquireLease(
+                    cloudBlockBlob,
+                    container.getName(),
+                    envelope.getZipFileName()
+                );
+                if (leaseId.isPresent()) {
+                    AccessCondition accessCondition = generateLeaseCondition(leaseId.get());
+                    deleted = cloudBlockBlob.deleteIfExists(
+                        NONE,
+                        accessCondition,
+                        null,
+                        null
+                    );
+                    if (deleted) {
+                        log.info("File deleted. {}", loggingContext);
+                    } else {
+                        log.info("File has not been deleted. {}", loggingContext);
+                    }
                 }
             } else {
                 deleted = true;
