@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
@@ -9,6 +8,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 
 public final class CsvWriter {
 
@@ -30,7 +32,7 @@ public final class CsvWriter {
         FileWriter fileWriter = new FileWriter(csvFile);
 
         try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
-            for (ZipFileSummaryResponse summary : CollectionUtils.emptyIfNull(data)) {
+            for (ZipFileSummaryResponse summary : ofNullable(data).orElse(emptyList())) {
                 printer.printRecord(
                     summary.container,
                     summary.fileName,
