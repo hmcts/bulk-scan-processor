@@ -159,7 +159,6 @@ def versions = [
   junit: '5.6.2',
   junitPlatform: '1.6.2',
   mockitoJupiter: '3.3.3',
-  springBoot: springBoot.class.package.implementationVersion,
   springfoxSwagger: '2.9.2',
   reformLogging: '5.1.5'
 ]
@@ -217,14 +216,13 @@ dependencies {
     exclude group: 'net.minidev', module: 'json-smart'
   }
 
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springBoot
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: versions.springBoot
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: versions.springBoot
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-json', version: versions.springBoot
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: versions.springBoot
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: versions.springBoot
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-json'
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
-  compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version:'0.0.5'
   compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4', withoutSpringCloudContext
 
   compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.13', withoutJavaxMailApi
@@ -259,7 +257,7 @@ dependencies {
   testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
   testCompile group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
 
-  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
+  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
   testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
@@ -277,7 +275,7 @@ dependencies {
   functionalTestCompile sourceSets.test.runtimeClasspath
   functionalTestCompile group: 'io.rest-assured', name: 'rest-assured'
   functionalTestCompile group: 'com.typesafe', name: 'config', version: '1.4.0'
-  functionalTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
+  functionalTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile sourceSets.test.runtimeClasspath
