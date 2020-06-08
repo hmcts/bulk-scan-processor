@@ -174,19 +174,6 @@ dependencyManagement {
     dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
       entry 'mockito-core'
     }
-    // CVE-2020-9488. remove once dependency is resolved by spring boot logging
-    dependencySet(group: 'org.apache.logging.log4j', version: '2.13.3') {
-      entry 'log4j-to-slf4j'
-      entry 'log4j-api'
-    }
-    //dom4j-2.1.1.jar cause CVE-2020-10683. remove when spring-boot-starter-data-jpa uses dom 2.1.3
-    dependency group: 'org.dom4j', name: 'dom4j', version: '2.1.3'
-
-    // CVE-2020-9484 present in 9.0.34
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.36') {
-      entry 'tomcat-embed-core'
-      entry 'tomcat-embed-websocket'
-    }
   }
 }
 
