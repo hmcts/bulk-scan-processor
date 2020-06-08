@@ -336,6 +336,14 @@ public class BlobProcessorTask {
                 blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
             },
             () -> {
+                log.error(
+                    "Error notification not sent because Error code mapping not found for {}. "
+                        + "File name: {} Container: {} Reason: {}",
+                    cause.getClass().getName(),
+                    zipFilename,
+                    containerName,
+                    cause
+                );
                 throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
             }
         );
