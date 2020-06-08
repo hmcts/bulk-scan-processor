@@ -14,7 +14,7 @@
         "manual_intervention": "string",
         "next_action": "return",
         "next_action_date": "2018-06-24T00:00:00.000Z",
-        "ocr_data": "ewogICJNZXRhZGF0YV9maWxlIjogWwogICAgewogICAgICAibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJmaXJzdF9uYW1lIiwKICAgICAgIm1ldGFkYXRhX2ZpZWxkX3ZhbHVlIjogbnVsbAogICAgfSwKICAgIHsKICAgICAgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAibGFzdF9uYW1lIiwKICAgICAgIm1ldGFkYXRhX2ZpZWxkX3ZhbHVlIjogIiIKICAgIH0sCiAgICB7CiAgICAgICJtZXRhZGF0YV9maWVsZF9uYW1lIjogImRhdGVfb2ZfYmlydGgiLAogICAgICAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAiMTk4NS0wMy0yMCIKICAgIH0KICBdCn0K",
+        "ocr_data": "ewogICJNZXRhZGF0YV9maWxlIjogWwogICAgewogICAgICAibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJmaXJzdF9uYW1lIiwKICAgICAgIm1ldGFkYXRhX2ZpZWxkX3ZhbHVlIjogIiIKICAgIH0sCiAgICB7CiAgICAgICJtZXRhZGF0YV9maWVsZF9uYW1lIjogImxhc3RfbmFtZSIsCiAgICAgICJtZXRhZGF0YV9maWVsZF92YWx1ZSI6ICIiCiAgICB9LAogICAgewogICAgICAibWV0YWRhdGFfZmllbGRfbmFtZSI6ICJkYXRlX29mX2JpcnRoIiwKICAgICAgIm1ldGFkYXRhX2ZpZWxkX3ZhbHVlIjogIjE5ODUtMDMtMjAiCiAgICB9CiAgXQp9Cg==",
         "file_name": "1111006.pdf",
         "notes": "",
         "document_type": "Form",
