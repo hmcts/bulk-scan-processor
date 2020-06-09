@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 /**
  * Base class for all exceptions that represent failed zip file processing situation.
  */
-public abstract class ZipFileProcessingFailedException extends InvalidEnvelopeException {
+public abstract class ZipFileProcessingFailedException extends RuntimeException {
 
     public ZipFileProcessingFailedException(String message) {
         super(message);
