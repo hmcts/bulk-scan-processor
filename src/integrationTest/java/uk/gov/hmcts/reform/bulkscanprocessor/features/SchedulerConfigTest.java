@@ -84,10 +84,5 @@ public class SchedulerConfigTest {
             return mock(ServiceBusHelper.class);
         }
 
-        @Bean
-        public TelemetryClient telemetryClient() {
-            return mock(TelemetryClient.class);
-        }
-
     }
 }
