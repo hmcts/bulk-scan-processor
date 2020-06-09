@@ -323,7 +323,7 @@ public class BlobProcessorTask {
         );
 
         Optionals.ifPresentOrElse(
-            ErrorMapping.getFor(cause.getClass()),
+            ErrorMapping.getFor(cause),
             (errorCode) -> {
                 sendErrorMessage(
                     zipFilename,

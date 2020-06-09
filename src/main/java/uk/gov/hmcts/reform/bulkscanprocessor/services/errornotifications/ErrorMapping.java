@@ -34,10 +34,10 @@ public final class ErrorMapping {
         // util class
     }
 
-    public static Optional<ErrorCode> getFor(Class<?> clazz) {
+    public static Optional<ErrorCode> getFor(Exception exception) {
         return mapping.entrySet()
             .stream()
-            .filter(entry -> clazz.isInstance(entry.getKey()))
+            .filter(entry -> entry.getKey().isInstance(exception))
             .map(Map.Entry::getValue)
             .findFirst();
     }
