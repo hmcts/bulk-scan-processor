@@ -4,13 +4,14 @@ import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.Duration;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
 import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext;
-import com.microsoft.applicationinsights.web.internal.ThreadContext;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import static java.lang.System.currentTimeMillis;
 
 @Aspect
 @Component
@@ -28,7 +29,7 @@ public class AppInsights {
 
     @Around("@annotation(org.springframework.scheduling.annotation.Scheduled)")
     public void aroundSchedule(ProceedingJoinPoint joinPoint) throws Throwable {
-        RequestTelemetryContext requestTelemetry = ThreadContext.getRequestTelemetryContext();
+        RequestTelemetryContext requestTelemetry =  new RequestTelemetryContext(currentTimeMillis(), null);
         boolean success = false;
 
         try {
@@ -52,7 +53,7 @@ public class AppInsights {
                 "NO NULL request requestName: {}, start ticks {}, currentTimeMillis: {}, requestID: {}",
                 requestName,
                 requestTelemetryContext.getRequestStartTimeTicks(),
-                System.currentTimeMillis(),
+                currentTimeMillis(),
                 requestTelemetryContext.getHttpRequestTelemetry().getId()
             );
             handleRequestTelemetry(
@@ -77,7 +78,7 @@ public class AppInsights {
     ) {
         if (requestTelemetry != null) {
             requestTelemetry.setName(requestName);
-            requestTelemetry.setDuration(new Duration(System.currentTimeMillis() - start));
+            requestTelemetry.setDuration(new Duration(currentTimeMillis() - start));
             requestTelemetry.setSuccess(success);
 
             telemetryClient.trackRequest(requestTelemetry);
