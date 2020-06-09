@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.config;
+package uk.gov.hmcts.reform.bulkscanprocessor.logging;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.Duration;
@@ -20,8 +20,6 @@ public class AppInsights {
     private static final Logger log = LoggerFactory.getLogger(AppInsights.class);
 
     private final TelemetryClient telemetryClient;
-
-    public static final String EUROPE_LONDON = "Europe/London";
 
     public AppInsights(TelemetryClient telemetryClient) {
         this.telemetryClient = telemetryClient;
@@ -48,7 +46,8 @@ public class AppInsights {
     ) {
         String requestName = "Schedule /" + caller;
 
-        if (requestTelemetryContext != null) {
+        RequestTelemetry requestTelemetry = requestTelemetryContext.getHttpRequestTelemetry();
+        if (requestTelemetry != null) {
             log.info(
                 "NO NULL request requestName: {}, start ticks {}, currentTimeMillis: {}, requestID: {}",
                 requestName,
@@ -56,32 +55,17 @@ public class AppInsights {
                 currentTimeMillis(),
                 requestTelemetryContext.getHttpRequestTelemetry().getId()
             );
-            handleRequestTelemetry(
-                requestTelemetryContext.getHttpRequestTelemetry(),
-                requestName,
-                requestTelemetryContext.getRequestStartTimeTicks(),
-                success
-            );
-        } else {
-            log.warn(
-                "Request Telemetry Context has been removed by ThreadContext - cannot log '{}' request",
-                requestName
-            );
-        }
-    }
 
-    private void handleRequestTelemetry(
-        RequestTelemetry requestTelemetry,
-        String requestName,
-        long start,
-        boolean success
-    ) {
-        if (requestTelemetry != null) {
             requestTelemetry.setName(requestName);
-            requestTelemetry.setDuration(new Duration(currentTimeMillis() - start));
+            requestTelemetry.setDuration(new Duration(
+                currentTimeMillis() - requestTelemetryContext.getRequestStartTimeTicks())
+            );
+
             requestTelemetry.setSuccess(success);
 
             telemetryClient.trackRequest(requestTelemetry);
         }
+
     }
+
 }
