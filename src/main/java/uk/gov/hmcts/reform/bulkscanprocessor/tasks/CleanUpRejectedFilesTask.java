@@ -32,6 +32,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON
 public class CleanUpRejectedFilesTask {
 
     private static final Logger log = LoggerFactory.getLogger(CleanUpRejectedFilesTask.class);
+    private static final String TASK_NAME = "delete-rejected-files";
 
     private final BlobManager blobManager;
     private final Duration ttl;
@@ -47,9 +48,10 @@ public class CleanUpRejectedFilesTask {
     // endregion
 
     @Scheduled(cron = "${scheduling.task.delete-rejected-files.cron}", zone = EUROPE_LONDON)
-    @SchedulerLock(name = "delete-rejected-files")
+    @SchedulerLock(name = TASK_NAME)
     public void run() {
-        log.info("Scanning for old rejected files");
+        log.info("Started {} job", TASK_NAME);
+
         blobManager
             .listRejectedContainers()
             .forEach(container -> {
@@ -60,6 +62,8 @@ public class CleanUpRejectedFilesTask {
                         tryDeleteFile(container, listItem);
                     });
             });
+
+        log.info("Finished {} job", TASK_NAME);
     }
 
     private void tryDeleteFile(CloudBlobContainer container, ListBlobItem listItem) {
