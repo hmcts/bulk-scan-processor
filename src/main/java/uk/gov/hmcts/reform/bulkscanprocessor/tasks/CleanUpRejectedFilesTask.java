@@ -63,8 +63,8 @@ public class CleanUpRejectedFilesTask {
     }
 
     private void tryDeleteFile(CloudBlobContainer container, ListBlobItem listItem) {
+        final String zipFileName = FilenameUtils.getName(listItem.getUri().toString());
         try {
-            final String zipFileName = FilenameUtils.getName(listItem.getUri().toString());
             CloudBlockBlob blob = container.getBlockBlobReference(
                 zipFileName
             );
@@ -88,7 +88,7 @@ public class CleanUpRejectedFilesTask {
         } catch (URISyntaxException | StorageException exc) {
             log.error(
                 "Unable to delete rejected file {} from container {}",
-                listItem.getUri(),
+                zipFileName,
                 container.getName(),
                 exc
             );
