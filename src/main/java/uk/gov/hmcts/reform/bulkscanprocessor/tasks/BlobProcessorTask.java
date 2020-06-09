@@ -21,10 +21,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetafileException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileProcessingFailedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -280,7 +282,7 @@ public class BlobProcessorTask {
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (InvalidEnvelopeException ex) {
+        } catch (InvalidMetafileException | ZipFileProcessingFailedException | InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
@@ -323,7 +325,7 @@ public class BlobProcessorTask {
         );
 
         Optionals.ifPresentOrElse(
-            ErrorMapping.getFor(cause.getClass()),
+            ErrorMapping.getFor(cause),
             (errorCode) -> {
                 sendErrorMessage(
                     zipFilename,
@@ -336,6 +338,14 @@ public class BlobProcessorTask {
                 blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
             },
             () -> {
+                log.error(
+                    "Error notification not sent because Error code mapping not found for {}. "
+                        + "File name: {} Container: {} Reason: {}",
+                    cause.getClass().getName(),
+                    zipFilename,
+                    containerName,
+                    cause
+                );
                 throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
             }
         );
