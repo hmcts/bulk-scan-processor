@@ -50,7 +50,7 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
 
         deleteCompleteFilesTask.run();
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(15);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -70,7 +70,7 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(15);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
