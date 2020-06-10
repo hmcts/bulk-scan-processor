@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.logging;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.verify;
 
 @TestPropertySource(
     properties = {
-        "scheduling.task.upload-documents.delay=99000",
+        "scheduling.task.upload-documents.delay=99999",
         "scheduling.task.upload-documents.enabled=true",
         "scheduling.task.upload-documents.max_tries=3"
     }
@@ -44,11 +45,12 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
     private UploadEnvelopeDocumentsTask uploadEnvelopeDocumentsTask;
 
     @Test
-    public void should_trace_when_success() {
+    public void should_trace_when_success() throws InterruptedException {
 
         given(envelopeRepository.findEnvelopesToUpload(3)).willReturn(Arrays.asList());
 
         uploadEnvelopeDocumentsTask.run();
+        TimeUnit.MILLISECONDS.sleep(500);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -60,7 +62,7 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
     }
 
     @Test
-    public void should_trace_when_failed() {
+    public void should_trace_when_failed() throws InterruptedException {
         given(envelopeRepository.findEnvelopesToUpload(3)).willThrow(new RuntimeException("failed"));
 
         try {
@@ -68,6 +70,8 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
+        TimeUnit.MILLISECONDS.sleep(500);
+
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();

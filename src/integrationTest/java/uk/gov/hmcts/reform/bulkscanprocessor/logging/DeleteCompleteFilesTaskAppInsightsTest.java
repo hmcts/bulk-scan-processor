@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.logging;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -45,10 +46,12 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
 
 
     @Test
-    public void should_trace_when_success() {
+    public void should_trace_when_success() throws InterruptedException {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
 
         deleteCompleteFilesTask.run();
+        TimeUnit.MILLISECONDS.sleep(500);
+
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();
@@ -59,7 +62,7 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
     }
 
     @Test
-    public void should_trace_when_failed() {
+    public void should_trace_when_failed() throws InterruptedException {
         given(blobManager.listInputContainers()).willThrow(new RuntimeException("failed"));
 
         try {
@@ -67,6 +70,7 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
+        TimeUnit.MILLISECONDS.sleep(500);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 

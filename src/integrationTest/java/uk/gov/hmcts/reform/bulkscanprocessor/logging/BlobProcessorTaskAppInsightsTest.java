@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.logging;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.verify;
 @TestPropertySource(
     properties = {
         "scheduling.task.scan.enabled=true",
-        "scheduling.task.scan.delay=94000"
+        "scheduling.task.scan.delay=99999"
     }
 )
 @IntegrationTest
@@ -48,12 +49,13 @@ public class BlobProcessorTaskAppInsightsTest {
     private BlobProcessorTask blobProcessorTask;
 
     @Test
-    public void should_trace_when_success() {
+    public void should_trace_when_success() throws InterruptedException {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
 
         blobProcessorTask.processBlobs();
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
+        TimeUnit.MILLISECONDS.sleep(500);
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();
 
@@ -63,7 +65,7 @@ public class BlobProcessorTaskAppInsightsTest {
     }
 
     @Test
-    public void should_trace_when_failed() {
+    public void should_trace_when_failed() throws InterruptedException {
         given(blobManager.listInputContainers()).willThrow(new RuntimeException("failed"));
 
         try {
@@ -71,6 +73,7 @@ public class BlobProcessorTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
+        TimeUnit.MILLISECONDS.sleep(500);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
