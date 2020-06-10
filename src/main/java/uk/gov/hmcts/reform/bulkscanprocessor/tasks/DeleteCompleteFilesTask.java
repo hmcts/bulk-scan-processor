@@ -40,9 +40,9 @@ public class DeleteCompleteFilesTask {
     }
 
     @Scheduled(cron = "${scheduling.task.delete-complete-files.cron}", zone = EUROPE_LONDON)
-    @SchedulerLock(name = "delete-complete-files")
+    @SchedulerLock(name = TASK_NAME)
     public void run() {
-        log.info("Started {} task", TASK_NAME);
+        log.info("Started {} job", TASK_NAME);
 
         for (CloudBlobContainer container : blobManager.listInputContainers()) {
             try {
@@ -56,7 +56,7 @@ public class DeleteCompleteFilesTask {
             }
         }
 
-        log.info("Finished {} task", TASK_NAME);
+        log.info("Finished {} job", TASK_NAME);
     }
 
     @SuppressWarnings("PMD.DataflowAnomalyAnalysis")

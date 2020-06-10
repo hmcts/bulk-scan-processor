@@ -18,6 +18,8 @@ public class IncompleteEnvelopesTask {
 
     private static final Logger log = LoggerFactory.getLogger(IncompleteEnvelopesTask.class);
 
+    private static final String TASK_NAME = "incomplete-envelopes-monitoring";
+
     private final EnvelopeRepository envelopeRepository;
 
     public IncompleteEnvelopesTask(
@@ -27,9 +29,9 @@ public class IncompleteEnvelopesTask {
     }
 
     @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}", zone = EUROPE_LONDON)
-    @SchedulerLock(name = "incomplete-envelopes-monitoring", lockAtLeastFor = "10s")
+    @SchedulerLock(name = TASK_NAME, lockAtLeastFor = "10s")
     public void run() {
-        log.info("Checking for incomplete envelopes");
+        log.info("Started {} job", TASK_NAME);
 
         LocalDate now = LocalDate.now();
         int incompleteEnvelopes = envelopeRepository.getIncompleteEnvelopesCountBefore(now);
@@ -41,6 +43,6 @@ public class IncompleteEnvelopesTask {
             log.warn("There are {} incomplete envelopes as of {}", incompleteEnvelopes, now);
         }
 
-        log.debug("Finished checking for incomplete envelopes");
+        log.info("Finished {} job", TASK_NAME);
     }
 }
