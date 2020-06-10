@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -53,7 +52,6 @@ public class BlobProcessorTaskAppInsightsTest {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
 
         blobProcessorTask.processBlobs();
-        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -73,7 +71,6 @@ public class BlobProcessorTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
