@@ -8,8 +8,8 @@ java:
         - envelopes-staging-queue-send-connection-string
         - notifications-staging-queue-send-connection-string
         - processed-envelopes-staging-queue-listen-connection-string
-        - storage-staging-account-name
-        - storage-staging-account-primary-key
+        - storage-account-staging-name
+        - storage-account-staging-primary-key
         - app-insights-instrumentation-key
         - reports-email-username
         - reports-email-password

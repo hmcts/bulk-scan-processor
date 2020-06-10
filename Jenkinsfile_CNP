@@ -15,9 +15,8 @@ def channel = '#bsp-build-notices'
 
 def combinedSecrets = [
   'bulk-scan-${env}': [
-    secret('storage-staging-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
-    secret('storage-staging-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-    secret('processed-envelopes-staging-queue-send-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
+    secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+    secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME')
   ],
   's2s-${env}': [
     // to be removed later
