@@ -3,12 +3,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.logging;
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.DeleteCompleteFilesTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -28,6 +30,7 @@ import static org.mockito.Mockito.verify;
     }
 )
 @IntegrationTest
+@RunWith(SpringRunner.class)
 public class DeleteCompleteFilesTaskAppInsightsTest {
 
     @SpyBean

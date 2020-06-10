@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -52,7 +51,6 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
         given(envelopeRepository.findEnvelopesToUpload(3)).willReturn(Arrays.asList());
 
         uploadEnvelopeDocumentsTask.run();
-        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -72,7 +70,6 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
