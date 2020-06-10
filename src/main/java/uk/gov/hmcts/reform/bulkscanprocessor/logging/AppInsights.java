@@ -17,8 +17,6 @@ import static java.lang.System.currentTimeMillis;
 @Component
 public class AppInsights {
 
-    private static final Logger log = LoggerFactory.getLogger(AppInsights.class);
-
     private final TelemetryClient telemetryClient;
 
     public AppInsights(TelemetryClient telemetryClient) {
