@@ -9,27 +9,32 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.logging.DeleteCompleteFilesTaskAppInsightsTest_backup.MockConfig;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.DeleteCompleteFilesTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @TestPropertySource(
     properties = {
-        "scheduling.task.delete-complete-files.enabled=true",
-        "scheduling.task.delete-complete-files.cron=1 1 1 1 1 1"
+        "scheduling.task.delete-complete-files.enabled=true"
     }
 )
-@IntegrationTest
+@ContextConfiguration(classes = {DeleteCompleteFilesTask.class, AppInsights.class, MockConfig.class})
 @RunWith(SpringRunner.class)
 public class DeleteCompleteFilesTaskAppInsightsTest {
 
@@ -48,9 +53,9 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
     @Test
     public void should_trace_when_success() throws InterruptedException {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
+        doNothing().when(telemetry).trackRequest(any());
 
         deleteCompleteFilesTask.run();
-        TimeUnit.SECONDS.sleep(5);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -64,13 +69,13 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
     @Test
     public void should_trace_when_failed() throws InterruptedException {
         given(blobManager.listInputContainers()).willThrow(new RuntimeException("failed"));
+        doNothing().when(telemetry).trackRequest(any());
 
         try {
             deleteCompleteFilesTask.run();
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.SECONDS.sleep(5);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -79,5 +84,26 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
         assertThat(requestTelemetry.getName()).isEqualTo("Schedule /DeleteCompleteFilesTask");
         assertThat(requestTelemetry.isSuccess()).isFalse();
         assertThat(requestTelemetry.getId()).isNotBlank();
+    }
+
+
+    @Configuration
+    public static class MockConfig {
+
+        @Bean
+        public BlobManager blobManager() {
+            return mock(BlobManager.class);
+        }
+
+        @Bean
+        public EnvelopeRepository envelopeRepository() {
+            return mock(EnvelopeRepository.class);
+        }
+
+        @Bean
+        public TelemetryClient telemetryClient() {
+            return mock(TelemetryClient.class);
+        }
+
     }
 }
