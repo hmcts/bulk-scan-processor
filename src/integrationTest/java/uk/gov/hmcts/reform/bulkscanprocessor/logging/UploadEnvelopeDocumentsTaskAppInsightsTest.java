@@ -20,7 +20,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsSer
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -94,9 +93,15 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
         public EnvelopeRepository envelopeRepo() {
             return mock(EnvelopeRepository.class);
         }
+
         @Bean
-        public UploadEnvelopeDocumentsService uploadService() { return mock(UploadEnvelopeDocumentsService.class); }
+        public UploadEnvelopeDocumentsService uploadService() {
+            return mock(UploadEnvelopeDocumentsService.class);
+        }
+
         @Bean
-        public TelemetryClient telemetryClient() { return mock(TelemetryClient.class); }
+        public TelemetryClient telemetryClient() {
+            return mock(TelemetryClient.class);
+        }
     }
 }

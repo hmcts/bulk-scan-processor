@@ -91,17 +91,25 @@ public class OrchestratorNotificationTaskAppInsightsTest {
 
     @Configuration
     public static class MockConfig {
+
         @Bean(name = "envelopes-helper")
         public ServiceBusHelper envelopesQueueHelper() {
             return mock(ServiceBusHelper.class);
         }
+
         @Bean
         public EnvelopeRepository envelopeRepo() {
             return mock(EnvelopeRepository.class);
         }
+
         @Bean
-        public ProcessEventRepository processEventRepo() { return mock(ProcessEventRepository.class); }
+        public ProcessEventRepository processEventRepo() {
+            return mock(ProcessEventRepository.class);
+        }
+
         @Bean
-        public TelemetryClient telemetryClient() { return mock(TelemetryClient.class); }
+        public TelemetryClient telemetryClient() {
+            return mock(TelemetryClient.class);
+        }
     }
 }
