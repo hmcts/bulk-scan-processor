@@ -39,7 +39,7 @@ public class DeleteCompleteFilesTask {
         this.envelopeRepository = envelopeRepository;
     }
 
-    @Scheduled(fixedDelayString = "1000", zone = EUROPE_LONDON)
+    @Scheduled(fixedDelayString = "${scheduling.task.delete-complete-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         log.info("Started {} job", TASK_NAME);

@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelpe
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.OrchestratorNotificationTask;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -56,6 +57,7 @@ public class OrchestratorNotificationTaskAppInsightsTest {
 
         orchestratorNotificationTask.run();
 
+        TimeUnit.SECONDS.sleep(1);
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();
@@ -74,7 +76,7 @@ public class OrchestratorNotificationTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-
+        TimeUnit.SECONDS.sleep(1);
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();
