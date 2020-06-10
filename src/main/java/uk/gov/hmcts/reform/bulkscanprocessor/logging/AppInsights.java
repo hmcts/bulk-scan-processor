@@ -48,14 +48,6 @@ public class AppInsights {
 
         RequestTelemetry requestTelemetry = requestTelemetryContext.getHttpRequestTelemetry();
         if (requestTelemetry != null) {
-            log.info(
-                "NO NULL request requestName: {}, start ticks {}, currentTimeMillis: {}, requestID: {}",
-                requestName,
-                requestTelemetryContext.getRequestStartTimeTicks(),
-                currentTimeMillis(),
-                requestTelemetryContext.getHttpRequestTelemetry().getId()
-            );
-
             requestTelemetry.setName(requestName);
             requestTelemetry.setDuration(new Duration(
                 currentTimeMillis() - requestTelemetryContext.getRequestStartTimeTicks())
