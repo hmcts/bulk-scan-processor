@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.DeleteCompleteFilesTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
