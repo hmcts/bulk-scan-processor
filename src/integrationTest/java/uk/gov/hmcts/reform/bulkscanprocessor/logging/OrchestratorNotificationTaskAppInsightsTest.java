@@ -56,8 +56,8 @@ public class OrchestratorNotificationTaskAppInsightsTest {
 
         orchestratorNotificationTask.run();
 
-        TimeUnit.MILLISECONDS.sleep(500);
-        verify(telemetry).trackRequest(telemetryRequestCaptor.capture());
+        TimeUnit.SECONDS.sleep(1);
+        verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();
 
@@ -75,7 +75,7 @@ public class OrchestratorNotificationTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.MILLISECONDS.sleep(500);
+        TimeUnit.SECONDS.sleep(1);
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();

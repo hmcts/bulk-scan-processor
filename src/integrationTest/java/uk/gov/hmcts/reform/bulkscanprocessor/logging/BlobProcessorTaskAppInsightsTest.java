@@ -53,9 +53,9 @@ public class BlobProcessorTaskAppInsightsTest {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
 
         blobProcessorTask.processBlobs();
+        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
-        TimeUnit.MILLISECONDS.sleep(500);
 
         RequestTelemetry requestTelemetry = telemetryRequestCaptor.getValue();
 
@@ -73,7 +73,7 @@ public class BlobProcessorTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.MILLISECONDS.sleep(500);
+        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 

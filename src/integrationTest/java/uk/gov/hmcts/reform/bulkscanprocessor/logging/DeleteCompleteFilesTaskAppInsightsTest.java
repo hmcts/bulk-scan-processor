@@ -44,13 +44,12 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
     @Autowired
     private DeleteCompleteFilesTask deleteCompleteFilesTask;
 
-
     @Test
     public void should_trace_when_success() throws InterruptedException {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
 
         deleteCompleteFilesTask.run();
-        TimeUnit.MILLISECONDS.sleep(500);
+        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -70,7 +69,7 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.MILLISECONDS.sleep(500);
+        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 

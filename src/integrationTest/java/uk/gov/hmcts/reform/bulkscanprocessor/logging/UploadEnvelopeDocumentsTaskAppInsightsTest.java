@@ -50,7 +50,7 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
         given(envelopeRepository.findEnvelopesToUpload(3)).willReturn(Arrays.asList());
 
         uploadEnvelopeDocumentsTask.run();
-        TimeUnit.MILLISECONDS.sleep(500);
+        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
@@ -70,7 +70,7 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
         } catch (Exception ex) {
             //ignore
         }
-        TimeUnit.MILLISECONDS.sleep(500);
+        TimeUnit.SECONDS.sleep(1);
 
         verify(telemetry, atLeastOnce()).trackRequest(telemetryRequestCaptor.capture());
 
