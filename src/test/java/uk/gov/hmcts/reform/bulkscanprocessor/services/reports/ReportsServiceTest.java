@@ -141,8 +141,8 @@ public class ReportsServiceTest {
                     Event.COMPLETED.toString(),
                     Status.UPLOADED.toString(),
                     NEW_APPLICATION.name(),
-                    null,
-                    null
+                    "ccd-id",
+                    "ccd-action"
                 )
             ));
 
@@ -176,8 +176,8 @@ public class ReportsServiceTest {
                     Event.COMPLETED.toString(),
                     Status.UPLOADED.toString(),
                     NEW_APPLICATION.name(),
-                    null,
-                    null
+                    "ccd-id",
+                    "ccd-action"
                 )
             );
     }

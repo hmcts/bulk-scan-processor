@@ -16,11 +16,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -45,6 +47,10 @@ class DeleteCompleteFilesTaskTest {
 
     private static final String CONTAINER_NAME_1 = "container1";
     private static final String CONTAINER_NAME_2 = "container2";
+    private static final String LEASE_ID_11 = "LEASEID11";
+    private static final String LEASE_ID_12 = "LEASEID12";
+    private static final String LEASE_ID_21 = "LEASEID21";
+    private static final String LEASE_ID_22 = "LEASEID22";
 
     @BeforeEach
     void setUp() {
@@ -66,6 +72,8 @@ class DeleteCompleteFilesTaskTest {
         given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false))
             .willReturn(singletonList(envelope11));
         prepareGivensForEnvelope(container1, cloudBlockBlob11, envelope11);
+        given(blobManager.acquireLease(cloudBlockBlob11, CONTAINER_NAME_1, envelope11.getZipFileName()))
+            .willReturn(Optional.of(LEASE_ID_11));
 
         // when
         deleteCompleteFilesTask.run();
@@ -74,6 +82,9 @@ class DeleteCompleteFilesTaskTest {
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
+
+        verify(blobManager).acquireLease(cloudBlockBlob11, CONTAINER_NAME_1, envelope11.getZipFileName());
+        verifyNoMoreInteractions(blobManager);
 
         verifyCloudBlockBlobInteractions(cloudBlockBlob11);
     }
@@ -110,7 +121,6 @@ class DeleteCompleteFilesTaskTest {
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
-
         verify(cloudBlockBlob1).exists();
         verifyNoMoreInteractions(cloudBlockBlob1);
     }
@@ -123,8 +133,10 @@ class DeleteCompleteFilesTaskTest {
         final Envelope envelope11 = prepareEnvelope("X", cloudBlockBlob1, container1);
         given(blobManager.listInputContainers()).willReturn(singletonList(container1));
         given(cloudBlockBlob1.exists()).willReturn(true);
-        given(cloudBlockBlob1.deleteIfExists()).willReturn(false);
+        given(cloudBlockBlob1.deleteIfExists(any(), any(), any(), any())).willReturn(false);
         assertThat(envelope11.isZipDeleted()).isFalse();
+        given(blobManager.acquireLease(cloudBlockBlob1, CONTAINER_NAME_1, envelope11.getZipFileName()))
+            .willReturn(Optional.of(LEASE_ID_11));
 
         // when
         deleteCompleteFilesTask.run();
@@ -133,8 +145,11 @@ class DeleteCompleteFilesTaskTest {
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
 
+        verify(blobManager).acquireLease(cloudBlockBlob1, CONTAINER_NAME_1, envelope11.getZipFileName());
+        verifyNoMoreInteractions(blobManager);
+
         verify(cloudBlockBlob1).exists();
-        verify(cloudBlockBlob1).deleteIfExists();
+        verify(cloudBlockBlob1).deleteIfExists(any(), any(), any(), any());
         verifyNoMoreInteractions(cloudBlockBlob1);
     }
 
@@ -174,10 +189,16 @@ class DeleteCompleteFilesTaskTest {
         prepareGivensForEnvelope(container2, cloudBlockBlob21, envelope21);
         assertThat(envelope21.isZipDeleted()).isFalse();
 
+        given(blobManager.acquireLease(cloudBlockBlob21, CONTAINER_NAME_2, envelope21.getZipFileName()))
+            .willReturn(Optional.of(LEASE_ID_11));
+
         // when
         deleteCompleteFilesTask.run();
 
         // then
+        verify(blobManager).acquireLease(cloudBlockBlob21, CONTAINER_NAME_2, envelope21.getZipFileName());
+        verifyNoMoreInteractions(blobManager);
+
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_2, COMPLETED, false);
         verifyEnvelopesSaving(envelope21);
@@ -209,6 +230,15 @@ class DeleteCompleteFilesTaskTest {
         prepareGivensForEnvelope(container2, cloudBlockBlob21, envelope21);
         prepareGivensForEnvelope(container2, cloudBlockBlob22, envelope22);
 
+        given(blobManager.acquireLease(cloudBlockBlob11, CONTAINER_NAME_1, envelope11.getZipFileName()))
+            .willReturn(Optional.of(LEASE_ID_11));
+        given(blobManager.acquireLease(cloudBlockBlob12, CONTAINER_NAME_1, envelope12.getZipFileName()))
+            .willReturn(Optional.of(LEASE_ID_12));
+        given(blobManager.acquireLease(cloudBlockBlob21, CONTAINER_NAME_2, envelope21.getZipFileName()))
+            .willReturn(Optional.of(LEASE_ID_21));
+        given(blobManager.acquireLease(cloudBlockBlob22, CONTAINER_NAME_2, envelope22.getZipFileName()))
+            .willReturn(Optional.of(LEASE_ID_22));
+
         // when
         deleteCompleteFilesTask.run();
 
@@ -222,6 +252,12 @@ class DeleteCompleteFilesTaskTest {
         verifyCloudBlockBlobInteractions(cloudBlockBlob12);
         verifyCloudBlockBlobInteractions(cloudBlockBlob21);
         verifyCloudBlockBlobInteractions(cloudBlockBlob22);
+
+        verify(blobManager).acquireLease(cloudBlockBlob11, CONTAINER_NAME_1, envelope11.getZipFileName());
+        verify(blobManager).acquireLease(cloudBlockBlob12, CONTAINER_NAME_1, envelope12.getZipFileName());
+        verify(blobManager).acquireLease(cloudBlockBlob21, CONTAINER_NAME_2, envelope21.getZipFileName());
+        verify(blobManager).acquireLease(cloudBlockBlob22, CONTAINER_NAME_2, envelope22.getZipFileName());
+        verifyNoMoreInteractions(blobManager);
     }
 
     private Envelope prepareEnvelope(
@@ -245,13 +281,13 @@ class DeleteCompleteFilesTaskTest {
     ) throws URISyntaxException, StorageException {
         given(container.getBlockBlobReference(envelope.getZipFileName())).willReturn(cloudBlockBlob);
         given(cloudBlockBlob.exists()).willReturn(true);
-        given(cloudBlockBlob.deleteIfExists()).willReturn(true);
+        given(cloudBlockBlob.deleteIfExists(any(), any(), any(), any())).willReturn(true);
         assertThat(envelope.isZipDeleted()).isFalse();
     }
 
     private void verifyCloudBlockBlobInteractions(CloudBlockBlob cloudBlockBlob11) throws StorageException {
         verify(cloudBlockBlob11).exists();
-        verify(cloudBlockBlob11).deleteIfExists();
+        verify(cloudBlockBlob11).deleteIfExists(any(), any(), any(), any());
         verifyNoMoreInteractions(cloudBlockBlob11);
     }
 

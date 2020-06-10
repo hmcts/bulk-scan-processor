@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsSer
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 
 @Component
 @ConditionalOnProperty(
@@ -25,13 +25,16 @@ public class UploadEnvelopeDocumentsTask {
 
     private final EnvelopeRepository envelopeRepository;
     private final UploadEnvelopeDocumentsService uploadService;
+    private final int maxRetries;
 
     public UploadEnvelopeDocumentsTask(
         EnvelopeRepository envelopeRepository,
-        UploadEnvelopeDocumentsService uploadService
+        UploadEnvelopeDocumentsService uploadService,
+        @Value("${scheduling.task.upload-documents.max_tries}") int maxRetries
     ) {
         this.envelopeRepository = envelopeRepository;
         this.uploadService = uploadService;
+        this.maxRetries = maxRetries;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task." + TASK_NAME + ".delay}")
@@ -40,7 +43,7 @@ public class UploadEnvelopeDocumentsTask {
         log.info("Started {} job", TASK_NAME);
 
         envelopeRepository
-            .findByStatus(CREATED)
+            .findEnvelopesToUpload(maxRetries)
             .stream()
             .collect(groupingBy(Envelope::getContainer))
             .forEach(uploadService::processByContainer);

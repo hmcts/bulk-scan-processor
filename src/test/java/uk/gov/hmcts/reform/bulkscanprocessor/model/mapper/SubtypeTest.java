@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -8,7 +9,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.inputScannableItem;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.CHERISHED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.COVERSHEET;
@@ -46,19 +46,17 @@ public class SubtypeTest {
             ScannableItem result = EnvelopeMapper.toDbScannableItem(item, null);
 
             // then
-            assertSoftly(softly -> {
-                softly.assertThat(result.getDocumentType()).as(
-                    "Output document type for type '%s' and subtype '%s'",
-                    tc.input.documentType,
-                    tc.input.docSubtype
-                ).isEqualTo(tc.expected.documentType);
-                softly.assertThat(result.getDocumentSubtype()).as(
-                    "Output document subtype for type '%s' and subtype '%s'",
-                    tc.input.documentType,
-                    tc.input.docSubtype
-                ).isEqualTo(tc.expected.docSubtype);
-                softly.assertAll();
-            });
+            SoftAssertions softly = new SoftAssertions();
+
+            softly.assertThat(result.getDocumentType())
+                .as("Output type for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
+                .isEqualTo(tc.expected.documentType);
+
+            softly.assertThat(result.getDocumentSubtype())
+                .as("Output subtype for type '%s' and subtype '%s'", tc.input.documentType, tc.input.docSubtype)
+                .isEqualTo(tc.expected.docSubtype);
+
+            softly.assertAll();
         });
     }
 

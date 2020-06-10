@@ -3,15 +3,13 @@
 
   <suppress>
     <notes><![CDATA[No fix is available]]></notes>
-    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.2\.4\.RELEASE$</gav>
+    <gav regex="true">^org\.springframework\.security:spring-security-crypto:5\.3\.2\.RELEASE$</gav>
     <cve>CVE-2018-1258</cve>
   </suppress>
 
   <suppress>
     <notes><![CDATA[Nested dependency of adal4j. Microsoft needs to update strong relation of this library in ServiceBus]]></notes>
     <gav regex="true">^org\.apache\.sling:org\.apache\.sling\.javax\.activation:0\.1\.0$</gav>
-    <cve>CVE-2013-4390</cve>
-    <cve>CVE-2016-0956</cve>
     <cve>CVE-2016-5394</cve>
     <cve>CVE-2016-6798</cve>
   </suppress>
@@ -19,23 +17,17 @@
   <!-- not used by server -->
 
   <suppress>
-    <notes><![CDATA[ no fix available ]]></notes>
-    <gav regex="true">^org.codehaus.groovy:groovy-(json|xml):2\.5\.11$</gav>
-    <cve>CVE-2016-6497</cve>
-  </suppress>
-
-  <suppress>
     <notes><![CDATA[ used in output capturer in static tests ]]></notes>
     <filePath regex="true">.*logunit-logback-1\.1\.0\.jar</filePath>
     <cve>CVE-2017-5929</cve>
   </suppress>
 
-  <suppress>
+  <suppress until="2021-10-02">
     <notes><![CDATA[
-       file name: spring-cloud-contract-wiremock-2.2.2.jar.
+       file name: spring-cloud-contract-wiremock-2.2.3.jar.
        This is only used for TESTING purposes.
    ]]></notes>
-    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.2\.2\.RELEASE\.jar</filePath>
+    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.2\.3\.RELEASE\.jar</filePath>
     <cve>CVE-2018-9116</cve>
     <cve>CVE-2018-9117</cve>
   </suppress>

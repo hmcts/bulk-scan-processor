@@ -33,8 +33,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public final class EnvelopeValidator {
 
@@ -224,7 +223,7 @@ public final class EnvelopeValidator {
         boolean paymentsEnabled,
         List<ContainerMappings.Mapping> mappings
     ) {
-        if (isNotEmpty(envelope.payments)
+        if (!isEmpty(envelope.payments)
             && (!paymentsEnabled || !isPaymentsEnabledForContainer(mappings, envelope))
         ) {
             throw new PaymentsDisabledException(

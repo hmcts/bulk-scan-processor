@@ -98,7 +98,7 @@ public class UploadEnvelopeDocumentsTaskTest {
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
-        new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService).run();
+        new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1).run();
 
         // then
         assertThat(envelopeRepository.findById(envelopeId))
