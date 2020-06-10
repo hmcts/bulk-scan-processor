@@ -51,7 +51,7 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
     private DeleteCompleteFilesTask deleteCompleteFilesTask;
 
     @Test
-    public void should_trace_when_success() throws InterruptedException {
+    public void should_trace_when_success() {
         given(blobManager.listInputContainers()).willReturn(Arrays.asList());
         doNothing().when(telemetry).trackRequest(any());
 
@@ -67,7 +67,7 @@ public class DeleteCompleteFilesTaskAppInsightsTest {
     }
 
     @Test
-    public void should_trace_when_failed() throws InterruptedException {
+    public void should_trace_when_failed() {
         given(blobManager.listInputContainers()).willThrow(new RuntimeException("failed"));
         doNothing().when(telemetry).trackRequest(any());
 

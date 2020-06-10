@@ -53,7 +53,7 @@ public class OrchestratorNotificationTaskAppInsightsTest {
     private OrchestratorNotificationTask orchestratorNotificationTask;
 
     @Test
-    public void should_trace_when_success() throws InterruptedException {
+    public void should_trace_when_success() {
 
         given(envelopeRepository.findByStatus(UPLOADED)).willReturn(Arrays.asList());
         doNothing().when(telemetry).trackRequest(any());
@@ -70,7 +70,7 @@ public class OrchestratorNotificationTaskAppInsightsTest {
     }
 
     @Test
-    public void should_trace_when_failed() throws InterruptedException {
+    public void should_trace_when_failed() {
         given(envelopeRepository.findByStatus(UPLOADED)).willThrow(new RuntimeException("failed"));
         doNothing().when(telemetry).trackRequest(any());
 

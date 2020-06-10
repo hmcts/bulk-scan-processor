@@ -52,7 +52,7 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
     private UploadEnvelopeDocumentsTask uploadEnvelopeDocumentsTask;
 
     @Test
-    public void should_trace_when_success() throws InterruptedException {
+    public void should_trace_when_success() {
         given(envelopeRepository.findEnvelopesToUpload(3)).willReturn(Arrays.asList());
         doNothing().when(telemetry).trackRequest(any());
 
@@ -68,7 +68,7 @@ public class UploadEnvelopeDocumentsTaskAppInsightsTest {
     }
 
     @Test
-    public void should_trace_when_failed() throws InterruptedException {
+    public void should_trace_when_failed() {
         given(envelopeRepository.findEnvelopesToUpload(3)).willThrow(new RuntimeException("failed"));
         doNothing().when(telemetry).trackRequest(any());
 
