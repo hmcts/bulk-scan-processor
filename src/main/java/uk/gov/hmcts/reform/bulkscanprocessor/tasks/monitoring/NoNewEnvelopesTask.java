@@ -26,7 +26,7 @@ public class NoNewEnvelopesTask {
     @Scheduled(cron = "0 0 * * * *", zone = EUROPE_LONDON)
     @SchedulerLock(name = JOB_NAME, lockAtLeastFor = "30s")
     public void run() {
-        log.info("Started {} job", JOB_NAME);
+        log.info("Starting {} job", JOB_NAME);
         checker.checkIfEnvelopesAreMissing();
         log.info("Finished {} job", JOB_NAME);
     }
