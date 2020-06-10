@@ -9,6 +9,7 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.DeleteCompleteFilesTask;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(SpringRunner.class)
 public class DeleteCompleteFilesTaskAppInsightsTest {
 
-    @MockBean
+    @SpyBean
     protected TelemetryClient telemetry;
 
     @Captor
