@@ -15,7 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.logging.DeleteCompleteFilesTaskAppInsightsTest_backup.MockConfig;
+import uk.gov.hmcts.reform.bulkscanprocessor.logging.DeleteCompleteFilesTaskAppInsightsTest.MockConfig;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.DeleteCompleteFilesTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
