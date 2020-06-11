@@ -52,4 +52,21 @@ public class InputScannableItem {
         this.documentType = documentType;
         this.documentSubtype = documentSubtype;
     }
+
+    @Override
+    public String toString() {
+        return "InputScannableItem{" +
+            "documentControlNumber='" + documentControlNumber + '\'' +
+            ", scanningDate=" + scanningDate +
+            ", ocrAccuracy='" + ocrAccuracy + '\'' +
+            ", manualIntervention='" + manualIntervention + '\'' +
+            ", nextAction='" + nextAction + '\'' +
+            ", nextActionDate=" + nextActionDate +
+            ", ocrData=" + ocrData +
+            ", fileName='" + fileName + '\'' +
+            ", notes='" + notes + '\'' +
+            ", documentType=" + documentType +
+            ", documentSubtype='" + documentSubtype + '\'' +
+            '}';
+    }
 }

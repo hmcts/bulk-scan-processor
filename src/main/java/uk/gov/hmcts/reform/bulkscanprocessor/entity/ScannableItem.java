@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import java.util.Arrays;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -171,5 +172,26 @@ public class ScannableItem implements EnvelopeAssignable {
 
     public void setOcrValidationWarnings(String[] ocrValidationWarnings) {
         this.ocrValidationWarnings = ocrValidationWarnings;
+    }
+
+    @Override
+    public String toString() {
+        return "ScannableItem{" +
+            "id=" + id +
+            ", documentControlNumber='" + documentControlNumber + '\'' +
+            ", scanningDate=" + scanningDate +
+            ", ocrAccuracy='" + ocrAccuracy + '\'' +
+            ", manualIntervention='" + manualIntervention + '\'' +
+            ", nextAction='" + nextAction + '\'' +
+            ", nextActionDate=" + nextActionDate +
+            ", ocrData=" + ocrData +
+            ", fileName='" + fileName + '\'' +
+            ", notes='" + notes + '\'' +
+            ", documentUuid='" + documentUuid + '\'' +
+            ", documentType=" + documentType +
+            ", documentSubtype='" + documentSubtype + '\'' +
+            ", envelope=" + envelope +
+            ", ocrValidationWarnings=" + Arrays.toString(ocrValidationWarnings) +
+            '}';
     }
 }
