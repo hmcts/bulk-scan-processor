@@ -29,6 +29,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 public class OrchestratorNotificationTask {
 
     private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
+    private static final String TASK_NAME = "send-orchestrator-notification";
 
     private final ServiceBusHelper serviceBusHelper;
     private final EnvelopeRepository envelopeRepo;
@@ -46,10 +47,10 @@ public class OrchestratorNotificationTask {
     }
     // endregion
 
-    @SchedulerLock(name = "send-orchestrator-notification")
+    @SchedulerLock(name = TASK_NAME)
     @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
-        log.info("Started sending notifications to orchestrator");
+        log.info("Started {} job", TASK_NAME);
 
         AtomicInteger successCount = new AtomicInteger(0);
 
@@ -75,6 +76,7 @@ public class OrchestratorNotificationTask {
             successCount.get(),
             envelopesToSend.size() - successCount.get()
         );
+        log.info("Finished {} job", TASK_NAME);
     }
 
     private void logEnvelopeSent(Envelope env) {
