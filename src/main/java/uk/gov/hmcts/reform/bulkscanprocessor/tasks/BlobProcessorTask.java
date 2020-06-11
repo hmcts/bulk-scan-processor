@@ -243,7 +243,7 @@ public class BlobProcessorTask {
             ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
-
+            log.info("InputEnvelope scannable items: {}", envelope.scannableItems);
             log.info(
                 "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
                 zipFilename,
@@ -270,8 +270,26 @@ public class BlobProcessorTask {
             Optional<OcrValidationWarnings> ocrValidationWarnings = this.ocrValidator.assertOcrDataIsValid(envelope);
 
             Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
+            log.info("dbEnvelope {} scannable items: {}", zipFilename, dbEnvelope.getScannableItems());
 
             envelopeProcessor.saveEnvelope(dbEnvelope);
+
+            Envelope savedEnv = envelopeProcessor.getEnvelopeByFileAndContainer(zipFilename, containerName);
+            if (savedEnv != null) {
+                log.info("Saved envelope READ {} scannable items: {}",
+                    zipFilename,
+                    savedEnv.getScannableItems()
+                );
+            }
+
+            savedEnv = envelopeProcessor.getEnvelopeByFileAndContainer(zipFilename, containerName);
+            if (savedEnv != null) {
+                log.info("Saved envelope READ AGAIN {} scannable items: {}",
+                    zipFilename,
+                    savedEnv.getScannableItems()
+                );
+            }
+
         } catch (PaymentsDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
