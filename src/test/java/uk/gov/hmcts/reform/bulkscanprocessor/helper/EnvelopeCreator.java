@@ -192,7 +192,8 @@ public final class EnvelopeCreator {
             "test",
             documentType,
             documentSubtype,
-            new String[]{"warning 1"}
+            new String[]{"warning 1"},
+            1
         );
     }
 

@@ -45,7 +45,8 @@ public class DocumentTest {
             "notes 1",
             documentType,
             DocumentSubtype.SSCS1,
-            new String[]{"warning 1"}
+            new String[]{"warning 1"},
+            1
         );
 
         scannableItem.setDocumentUuid("5fef5f98-e875-4084-b115-47188bc9066b");

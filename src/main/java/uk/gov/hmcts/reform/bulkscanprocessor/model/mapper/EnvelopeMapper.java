@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -66,12 +67,14 @@ public class EnvelopeMapper {
         Optional<OcrValidationWarnings> ocrValidationWarnings
     ) {
         if (scannableItems != null) {
+            AtomicInteger documentOrder = new AtomicInteger(0);
             return scannableItems
                 .stream()
                 .map(item ->
                     toDbScannableItem(
                         item,
-                        ocrValidationWarningsForItem(ocrValidationWarnings, item)
+                        ocrValidationWarningsForItem(ocrValidationWarnings, item),
+                        documentOrder.incrementAndGet()
                     ))
                 .collect(toList());
         } else {
@@ -91,7 +94,8 @@ public class EnvelopeMapper {
 
     public static ScannableItem toDbScannableItem(
         InputScannableItem scannableItem,
-        String[] ocrValidationWarnings
+        String[] ocrValidationWarnings,
+        int documentOrder
     ) {
         return new ScannableItem(
             scannableItem.documentControlNumber,
@@ -105,7 +109,8 @@ public class EnvelopeMapper {
             scannableItem.notes,
             mapDocumentType(scannableItem.documentType),
             extractDocumentSubtype(scannableItem.documentType, scannableItem.documentSubtype),
-            ocrValidationWarnings
+            ocrValidationWarnings,
+            documentOrder
         );
     }
 
