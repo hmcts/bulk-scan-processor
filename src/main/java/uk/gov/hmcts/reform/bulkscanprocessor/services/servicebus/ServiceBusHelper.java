@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.microsoft.applicationinsights.internal.util.LocalStringsUtils;
+import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext;
+import com.microsoft.applicationinsights.web.internal.ThreadContext;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.MessageBody;
@@ -12,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceBusConnectionTimeoutException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.PreDestroy;
 
@@ -22,6 +26,8 @@ public class ServiceBusHelper implements AutoCloseable {
     private final IQueueClient sendClient;
 
     private final ObjectMapper objectMapper;
+
+    private static final String PARENT_ID = "ParentId";
 
     public ServiceBusHelper(IQueueClient queueClient, ObjectMapper objectMapper) {
         this.sendClient = queueClient;
@@ -69,7 +75,17 @@ public class ServiceBusHelper implements AutoCloseable {
         busMessage.setMessageId(msg.getMsgId());
         busMessage.setMessageBody(getMsgBodyInBytes(msg));
         busMessage.setLabel(msg.getLabel());
-
+        busMessage.setProperties(new HashMap<String,String>());
+        RequestTelemetryContext context = ThreadContext.getRequestTelemetryContext();
+        String parentId;
+        if (context != null
+            && context.getHttpRequestTelemetry() != null
+            && context.getHttpRequestTelemetry().getId() != null) {
+            parentId = context.getHttpRequestTelemetry().getId();
+        } else {
+            parentId = LocalStringsUtils.generateRandomIntegerId();
+        }
+        busMessage.getProperties().put(PARENT_ID, parentId);
         return busMessage;
     }
 

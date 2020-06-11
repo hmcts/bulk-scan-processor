@@ -144,6 +144,13 @@ public class ServiceBusHelperTest {
         assertThat(busMessage.getLabel()).isNullOrEmpty();
     }
 
+    @Test
+    public void should_add_parent_id_to_properties_in_standard_message() {
+        Msg msg = new EnvelopeMsg(envelope);
+        Message busMessage = serviceBusHelper.mapToBusMessage(msg);
+        assertThat(busMessage.getProperties().get("ParentId")).isNotBlank();
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void should_send_message_with_envelope_data() throws Exception {
