@@ -203,7 +203,4 @@ public class ScannableItem implements EnvelopeAssignable {
         return documentOrder;
     }
 
-    public void setDocumentOrder(int documentOrder) {
-        this.documentOrder = documentOrder;
-    }
 }

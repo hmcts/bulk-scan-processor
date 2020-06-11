@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -114,6 +115,16 @@ public class EnvelopeMapperTest {
 
     private void assertSameScannableItems(Envelope dbEnvelope, InputEnvelope zipEnvelope) {
         assertThat(dbEnvelope.getScannableItems().size()).isEqualTo(zipEnvelope.scannableItems.size());
+
+        AtomicInteger index = new AtomicInteger(0);
+
+        assertThat(dbEnvelope.getScannableItems())
+            .extracting(s -> s.getDocumentOrder() + " " + s.getDocumentControlNumber())
+            .containsExactlyElementsOf(zipEnvelope.scannableItems.stream()
+                .map(p -> index.incrementAndGet() + " " + p.documentControlNumber)
+                .collect(toList())
+            );
+
 
         assertThat(dbEnvelope.getScannableItems())
             .extracting(this::convertToInputScannableItem)
