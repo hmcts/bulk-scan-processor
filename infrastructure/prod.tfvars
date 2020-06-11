@@ -1,9 +1,6 @@
 vault_section = "prod"
 capacity = "2"
 
-reupload_delay = "600000"
-reupload_enabled = "true"
-
 scan_delay = "300000"
 scan_enabled = "true"
 

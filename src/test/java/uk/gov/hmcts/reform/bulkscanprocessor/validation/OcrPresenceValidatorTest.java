@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.CHERISHED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.OTHER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 
 @ExtendWith(MockitoExtension.class)
 public class OcrPresenceValidatorTest {
@@ -76,6 +77,39 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
+    public void should_throw_exception_doc_with_ocr_has_no_subtype() {
+        assertThatThrownBy(
+            () -> validator.assertHasProperlySetOcr(
+                asList(
+                    doc(FORM, null, new InputOcrData()), // missing subtype
+                    doc(OTHER, "some-subtype-1", null),
+                    doc(CHERISHED, "some-subtype-2", null)
+                )
+            ))
+            .isInstanceOf(OcrPresenceException.class)
+            .hasMessage(OcrPresenceValidator.MISSING_DOC_SUBTYPE_MSG);
+    }
+
+    @Test
+    public void should_return_document_with_ocr_when_doctype_is_sscs1_and_subtype_is_not_set() {
+        // given
+        InputScannableItem docWithOcr = doc(SSCS1, null, new InputOcrData());
+        List<InputScannableItem> docs =
+            asList(
+                docWithOcr,
+                doc(OTHER, null),
+                doc(OTHER, null),
+                doc(CHERISHED, null)
+            );
+
+        // when
+        Optional<InputScannableItem> result = validator.assertHasProperlySetOcr(docs);
+
+        // then
+        assertThat(result).get().isEqualTo(docWithOcr);
+    }
+
+    @Test
     public void should_return_document_with_ocr() {
         // given
         InputScannableItem docWithOcr = doc(FORM, new InputOcrData());
@@ -112,6 +146,10 @@ public class OcrPresenceValidatorTest {
     }
 
     private InputScannableItem doc(InputDocumentType type, InputOcrData ocr) {
+        return doc(type, "some-doc-subtype", ocr);
+    }
+
+    private InputScannableItem doc(InputDocumentType type, String subtype, InputOcrData ocr) {
         return new InputScannableItem(
             null,
             null,
@@ -123,7 +161,8 @@ public class OcrPresenceValidatorTest {
             null,
             null,
             type,
-            null
+            subtype
         );
     }
+
 }

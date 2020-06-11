@@ -68,7 +68,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_unknown_exception_is_caught_in_parent_try_block() throws Exception {
+    void should_do_nothing_when_blob_manager_fails_to_retrieve_container_representation() throws Exception {
         // given
         willThrow(new RuntimeException("i failed")).given(blobManager).getContainer(CONTAINER_1);
 
@@ -245,6 +245,7 @@ class UploadEnvelopeDocumentsServiceTest {
 
         // and
         verify(documentProcessor, times(1)).uploadPdfFiles(emptyList(), emptyList());
+        verify(blobManager).tryReleaseLease(blockBlob, CONTAINER_1, ZIP_FILE_NAME, LEASE_ID);
     }
 
     private List<Envelope> getEnvelopes() {

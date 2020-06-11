@@ -82,6 +82,7 @@ storage:
   proxy_host: proxyout.reform.hmcts.net
   proxy_port: 8080
   blob_selected_container: ${STORAGE_BLOB_SELECTED_CONTAINER}
+  blob_lease_acquire_delay_in_seconds: ${LEASE_ACQUIRE_DELAY_IN_SECONDS}
 
 queues:
   envelopes:
@@ -171,6 +172,7 @@ scheduling:
     upload-documents:
       delay: ${UPLOAD_TASK_DELAY} # In milliseconds
       enabled: ${UPLOAD_TASK_ENABLED}
+      max_tries: ${UPLOAD_MAX_TRIES:5}
     # 3 - send notification to orchestrator once all documents are uploaded
     notifications_to_orchestrator:
       delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms
@@ -179,11 +181,7 @@ scheduling:
     delete-complete-files:
       enabled: ${DELETE_COMPLETE_FILES_ENABLED}
       cron: ${DELETE_COMPLETE_FILES_CRON}
-    reupload:
-      batch: ${REUPLOAD_BATCH:20} # fetch 20 envelopes at once to process them. 0 for all
-      delay: ${REUPLOAD_DELAY:1800000} # In milliseconds, 30min
-      enabled: ${REUPLOAD_ENABLED:false}
-      max_tries: ${REUPLOAD_MAX_TRIES:5}
+
     delete-rejected-files:
       enabled: ${DELETE_REJECTED_FILES_ENABLED:false}
       cron: ${DELETE_REJECTED_FILES_CRON}

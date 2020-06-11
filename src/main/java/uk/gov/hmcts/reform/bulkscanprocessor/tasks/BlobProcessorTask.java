@@ -5,6 +5,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetafileException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileProcessingFailedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -48,6 +51,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
@@ -215,8 +219,14 @@ public class BlobProcessorTask {
     }
 
     private ZipInputStream loadIntoMemory(CloudBlockBlob cloudBlockBlob, String zipFilename) throws StorageException {
+        log.info("Loading file {} into memory.", zipFilename);
         try (BlobInputStream blobInputStream = cloudBlockBlob.openInputStream()) {
             byte[] array = toByteArray(blobInputStream);
+            log.info(
+                "Finished loading file {} into memory. {} loaded.",
+                zipFilename,
+                FileUtils.byteCountToDisplaySize(array.length)
+            );
             return new ZipInputStream(new ByteArrayInputStream(array));
         } catch (IOException exception) {
             throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
@@ -233,6 +243,14 @@ public class BlobProcessorTask {
             ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
             InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
+
+            log.info(
+                "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
+                zipFilename,
+                containerName,
+                envelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
+                envelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
+            );
 
             EnvelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
             EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
@@ -264,7 +282,7 @@ public class BlobProcessorTask {
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (InvalidEnvelopeException ex) {
+        } catch (InvalidMetafileException | ZipFileProcessingFailedException | InvalidEnvelopeException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
@@ -307,7 +325,7 @@ public class BlobProcessorTask {
         );
 
         Optionals.ifPresentOrElse(
-            ErrorMapping.getFor(cause.getClass()),
+            ErrorMapping.getFor(cause),
             (errorCode) -> {
                 sendErrorMessage(
                     zipFilename,
@@ -320,6 +338,14 @@ public class BlobProcessorTask {
                 blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
             },
             () -> {
+                log.error(
+                    "Error notification not sent because Error code mapping not found for {}. "
+                        + "File name: {} Container: {} Reason: {}",
+                    cause.getClass().getName(),
+                    zipFilename,
+                    containerName,
+                    cause
+                );
                 throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
             }
         );

@@ -32,11 +32,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FO
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
 
 public class EnvelopeMapperTest {
-    private static final String METAFILE_BASE_PATH = "/metafiles/valid/";
 
     @Test
     public void should_map_zip_envelope_correctly() throws Exception {
-        InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "with-scannable-items.json");
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("/metafiles/valid/with-scannable-items.json");
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
             zipEnvelope.scannableItems.get(0).documentControlNumber,
@@ -65,7 +64,7 @@ public class EnvelopeMapperTest {
 
     @Test
     public void should_map_document_types_subtypes_and_ocr_data_correctly() throws Exception {
-        InputEnvelope zipEnvelope = getEnvelopeFromMetafile(METAFILE_BASE_PATH + "with-scannable-items.json");
+        InputEnvelope zipEnvelope = getEnvelopeFromMetafile("/metafiles/valid/with-scannable-items.json");
         String container = "container1";
 
         Envelope dbEnvelope = EnvelopeMapper.toDbEnvelope(zipEnvelope, container, Optional.empty());
@@ -91,7 +90,7 @@ public class EnvelopeMapperTest {
             WILL,
             SSCS1,
             null,
-            null
+            "PERSONAL"
         );
     }
 
