@@ -16,7 +16,4 @@ def channel = '#bsp-build-notices'
 withNightlyPipeline(type, product, component) {
   enableMutationTest()
   enableSlackNotifications(channel)
-  after('mutationTest') {
-    steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'functional-output/**/*'
-  }
 }
