@@ -55,18 +55,18 @@ public class InputScannableItem {
 
     @Override
     public String toString() {
-        return "InputScannableItem{" +
-            "documentControlNumber='" + documentControlNumber + '\'' +
-            ", scanningDate=" + scanningDate +
-            ", ocrAccuracy='" + ocrAccuracy + '\'' +
-            ", manualIntervention='" + manualIntervention + '\'' +
-            ", nextAction='" + nextAction + '\'' +
-            ", nextActionDate=" + nextActionDate +
-            ", ocrData=" + ocrData +
-            ", fileName='" + fileName + '\'' +
-            ", notes='" + notes + '\'' +
-            ", documentType=" + documentType +
-            ", documentSubtype='" + documentSubtype + '\'' +
-            '}';
+        return "InputScannableItem{"
+            + "documentControlNumber='" + documentControlNumber + '\''
+            + ", scanningDate=" + scanningDate
+            + ", ocrAccuracy='" + ocrAccuracy + '\''
+            + ", manualIntervention='" + manualIntervention + '\''
+            + ", nextAction='" + nextAction + '\''
+            + ", nextActionDate=" + nextActionDate
+            + ", ocrData=" + ocrData
+            + ", fileName='" + fileName + '\''
+            + ", notes='" + notes + '\''
+            + ", documentType=" + documentType
+            + ", documentSubtype='" + documentSubtype + '\''
+            + '}';
     }
 }

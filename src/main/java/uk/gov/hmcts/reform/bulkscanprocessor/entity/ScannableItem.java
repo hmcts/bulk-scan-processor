@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import java.util.Arrays;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -10,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -176,22 +176,22 @@ public class ScannableItem implements EnvelopeAssignable {
 
     @Override
     public String toString() {
-        return "ScannableItem{" +
-            "id=" + id +
-            ", documentControlNumber='" + documentControlNumber + '\'' +
-            ", scanningDate=" + scanningDate +
-            ", ocrAccuracy='" + ocrAccuracy + '\'' +
-            ", manualIntervention='" + manualIntervention + '\'' +
-            ", nextAction='" + nextAction + '\'' +
-            ", nextActionDate=" + nextActionDate +
-            ", ocrData=" + ocrData +
-            ", fileName='" + fileName + '\'' +
-            ", notes='" + notes + '\'' +
-            ", documentUuid='" + documentUuid + '\'' +
-            ", documentType=" + documentType +
-            ", documentSubtype='" + documentSubtype + '\'' +
-            ", envelope=" + envelope +
-            ", ocrValidationWarnings=" + Arrays.toString(ocrValidationWarnings) +
-            '}';
+        return "ScannableItem{"
+            + "id=" + id
+            + ", documentControlNumber='" + documentControlNumber + '\''
+            + ", scanningDate=" + scanningDate
+            + ", ocrAccuracy='" + ocrAccuracy + '\''
+            + ", manualIntervention='" + manualIntervention + '\''
+            + ", nextAction='" + nextAction + '\''
+            + ", nextActionDate=" + nextActionDate
+            + ", ocrData=" + ocrData
+            + ", fileName='" + fileName + '\''
+            + ", notes='" + notes + '\''
+            + ", documentUuid='" + documentUuid + '\''
+            + ", documentType=" + documentType
+            + ", documentSubtype='" + documentSubtype + '\''
+            + ", envelope=" + envelope
+            + ", ocrValidationWarnings=" + Arrays.toString(ocrValidationWarnings)
+            + '}';
     }
 }
