@@ -29,6 +29,7 @@ java:
     BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
     BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
+    FLYWAY_SKIP_MIGRATIONS: false
     FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
     FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
