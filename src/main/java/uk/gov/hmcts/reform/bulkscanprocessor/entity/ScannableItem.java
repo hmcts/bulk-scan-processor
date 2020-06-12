@@ -68,6 +68,8 @@ public class ScannableItem implements EnvelopeAssignable {
     @Column(name = "ocrValidationWarnings", columnDefinition = "varchar[]")
     private String[] ocrValidationWarnings;
 
+    private int documentOrder;
+
     private ScannableItem() {
         // For use by hibernate.
     }
@@ -84,7 +86,8 @@ public class ScannableItem implements EnvelopeAssignable {
         String notes,
         DocumentType documentType,
         String documentSubtype,
-        String[] ocrValidationWarnings
+        String[] ocrValidationWarnings,
+        int documentOrder
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -98,6 +101,7 @@ public class ScannableItem implements EnvelopeAssignable {
         this.documentType = documentType;
         this.documentSubtype = documentSubtype;
         this.ocrValidationWarnings = ocrValidationWarnings;
+        this.documentOrder = documentOrder;
     }
 
     public UUID getId() {
@@ -172,4 +176,9 @@ public class ScannableItem implements EnvelopeAssignable {
     public void setOcrValidationWarnings(String[] ocrValidationWarnings) {
         this.ocrValidationWarnings = ocrValidationWarnings;
     }
+
+    public int getDocumentOrder() {
+        return documentOrder;
+    }
+
 }

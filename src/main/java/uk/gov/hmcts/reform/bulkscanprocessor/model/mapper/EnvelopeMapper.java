@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -66,14 +67,12 @@ public class EnvelopeMapper {
         Optional<OcrValidationWarnings> ocrValidationWarnings
     ) {
         if (scannableItems != null) {
-            return scannableItems
-                .stream()
-                .map(item ->
-                    toDbScannableItem(
-                        item,
-                        ocrValidationWarningsForItem(ocrValidationWarnings, item)
-                    ))
-                .collect(toList());
+           return IntStream.range(0, scannableItems.size())
+                .mapToObj(i -> toDbScannableItem(
+                    scannableItems.get(i),
+                    ocrValidationWarningsForItem(ocrValidationWarnings, scannableItems.get(i)),
+                    i)
+                ).collect(toList());
         } else {
             return emptyList();
         }
@@ -91,7 +90,8 @@ public class EnvelopeMapper {
 
     public static ScannableItem toDbScannableItem(
         InputScannableItem scannableItem,
-        String[] ocrValidationWarnings
+        String[] ocrValidationWarnings,
+        int documentOrder
     ) {
         return new ScannableItem(
             scannableItem.documentControlNumber,
@@ -105,7 +105,8 @@ public class EnvelopeMapper {
             scannableItem.notes,
             mapDocumentType(scannableItem.documentType),
             extractDocumentSubtype(scannableItem.documentType, scannableItem.documentSubtype),
-            ocrValidationWarnings
+            ocrValidationWarnings,
+            documentOrder
         );
     }
 

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
@@ -217,6 +218,7 @@ public class EnvelopeFinaliserServiceTest {
         OcrData ocrData,
         String[] warnings
     ) {
+        AtomicInteger documentOrder = new AtomicInteger(0);
         return new ArrayList<>(Stream.generate(() -> {
             Instant instant = Instant.parse("2018-06-23T12:34:56.123Z");
 
@@ -232,7 +234,8 @@ public class EnvelopeFinaliserServiceTest {
                 "test",
                 DocumentType.CHERISHED,
                 null,
-                warnings
+                warnings,
+                documentOrder.incrementAndGet()
             );
 
             scannableItem.setDocumentUuid("0fa1ab60-f836-43aa-8c65-b07cc9bebceb");

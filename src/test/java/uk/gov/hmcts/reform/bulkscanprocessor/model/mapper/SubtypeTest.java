@@ -43,7 +43,7 @@ public class SubtypeTest {
             InputScannableItem item = inputScannableItem(tc.input.documentType, tc.input.docSubtype);
 
             // when
-            ScannableItem result = EnvelopeMapper.toDbScannableItem(item, null);
+            ScannableItem result = EnvelopeMapper.toDbScannableItem(item, null,1);
 
             // then
             SoftAssertions softly = new SoftAssertions();
