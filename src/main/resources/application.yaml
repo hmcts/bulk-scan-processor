@@ -195,9 +195,8 @@ envelope-access:
       readService: bulk_scan_processor_tests
 
 flyway:
-  skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
   noop:
-    strategy: "false"
+    strategy: ${FLYWAY_NOOP_STRATEGY}
 
 process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
