@@ -196,7 +196,7 @@ envelope-access:
 
 flyway:
   noop:
-    strategy: false
+    strategy: "false"
 
 process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
