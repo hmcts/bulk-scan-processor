@@ -67,11 +67,11 @@ public class EnvelopeMapper {
         Optional<OcrValidationWarnings> ocrValidationWarnings
     ) {
         if (scannableItems != null) {
-           return IntStream.range(0, scannableItems.size())
+            return IntStream.range(0, scannableItems.size())
                 .mapToObj(i -> toDbScannableItem(
                     scannableItems.get(i),
                     ocrValidationWarningsForItem(ocrValidationWarnings, scannableItems.get(i)),
-                    i)
+                    i + 1)
                 ).collect(toList());
         } else {
             return emptyList();
