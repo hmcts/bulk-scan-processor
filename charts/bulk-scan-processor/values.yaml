@@ -44,10 +44,6 @@ java:
     "bulk-scan":
       secrets:
         - processor-POSTGRES-PASS
-        - processor-POSTGRES-USER
-        - processor-POSTGRES-DATABASE
-        - processor-POSTGRES-HOST
-        - processor-POSTGRES-PORT
         - s2s-secret
         - flyway-password
         - envelopes-queue-send-connection-string
