@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 public class OcrValidationException extends InvalidMetafileException {
 
-    //might contain sensitive data
+    // might contain sensitive data
     private String detailMessage;
 
     public OcrValidationException(String message) {
