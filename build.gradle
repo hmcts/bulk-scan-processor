@@ -194,80 +194,80 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.12.0'
-  compile group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.12.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.12.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.12.0'
 
-  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.4'
-  compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.18', {
+  implementation group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.4'
+  implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.2.18', {
     exclude group: 'javax.mail', module: 'mail'
     exclude group: 'net.minidev', module: 'json-smart'
   }
 
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-json'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
-  compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.1.0', withoutSpringCloudContext
+  implementation group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.1.0', withoutSpringCloudContext
 
-  compile group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.13', withoutJavaxMailApi
+  implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.13', withoutJavaxMailApi
 
-  compile group: 'org.flywaydb', name: 'flyway-core', version: '6.4.4'
-  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.4.4'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
   // review following dependency after integrating db structure
-  compile group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.11'
+  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.11'
 
-  compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
-  compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
+  implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
+  implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
 
-  compile group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
-  compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
-  compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.3.RELEASE'
+  implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
+  implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.3.RELEASE'
 
-  compile group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.0'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.0'
 
-  compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
-  compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
+  implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
+  implementation group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
 
-  compile group: 'commons-io', name: 'commons-io', version: '2.7'
-  compile group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
+  implementation group: 'commons-io', name: 'commons-io', version: '2.7'
+  implementation group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
 
-  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
+  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junit
-  testCompile group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
-  testCompile group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
-  testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
-  testCompile group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junit
+  testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
+  testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
+  testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
+  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
 
-  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
-  testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
-  testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
+  testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
-  integrationTestCompile sourceSets.main.runtimeClasspath
-  integrationTestCompile sourceSets.test.runtimeClasspath
-  integrationTestCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.3.RELEASE', {
+  integrationTestImplementation sourceSets.main.runtimeClasspath
+  integrationTestImplementation sourceSets.test.runtimeClasspath
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.3.RELEASE', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
-  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
-  integrationTestCompile group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
+  integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
-  functionalTestCompile sourceSets.main.runtimeClasspath
-  functionalTestCompile sourceSets.test.runtimeClasspath
-  functionalTestCompile group: 'io.rest-assured', name: 'rest-assured'
-  functionalTestCompile group: 'com.typesafe', name: 'config', version: '1.4.0'
-  functionalTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  functionalTestImplementation sourceSets.main.runtimeClasspath
+  functionalTestImplementation sourceSets.test.runtimeClasspath
+  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
+  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 
-  smokeTestCompile sourceSets.main.runtimeClasspath
-  smokeTestCompile sourceSets.test.runtimeClasspath
-  smokeTestCompile sourceSets.functionalTest.runtimeClasspath
-  smokeTestCompile group: 'io.rest-assured', name: 'rest-assured'
+  smokeTestImplementation sourceSets.main.runtimeClasspath
+  smokeTestImplementation sourceSets.test.runtimeClasspath
+  smokeTestImplementation sourceSets.functionalTest.runtimeClasspath
+  smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
