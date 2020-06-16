@@ -1,12 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -24,7 +22,6 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class EnvelopeRetrieverTest {
 
     @Autowired private EnvelopeRepository envelopeRepo;
@@ -32,7 +29,7 @@ public class EnvelopeRetrieverTest {
 
     private EnvelopeRetrieverService service;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.service = new EnvelopeRetrieverService(envelopeRepo, accessService);
     }
@@ -146,7 +143,7 @@ public class EnvelopeRetrieverTest {
             .hasMessageContaining(envelopeForServiceB.getId().toString());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         envelopeRepo.deleteAll();
     }

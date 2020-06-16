@@ -1,12 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -25,7 +23,6 @@ import static org.mockito.Mockito.doThrow;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class OrchestratorNotificationTaskTest {
 
     @Autowired private EnvelopeRepository envelopeRepo;
@@ -35,7 +32,7 @@ public class OrchestratorNotificationTaskTest {
 
     private OrchestratorNotificationTask task;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.task = new OrchestratorNotificationTask(
             serviceBusHelper,
@@ -90,7 +87,7 @@ public class OrchestratorNotificationTaskTest {
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         processEventRepo.deleteAll();
         envelopeRepo.deleteAll();
