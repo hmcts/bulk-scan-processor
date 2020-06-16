@@ -12,10 +12,10 @@ plugins {
 }
 
 group = 'uk.gov.hmcts.reform'
-version = '0.0.1'
+version = '0.1.0' // all the time it was 0.0.1. 0.1.0 marks migration to java 11
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 sourceSets {
   functionalTest {
