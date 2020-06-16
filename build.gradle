@@ -285,8 +285,8 @@ dependencies {
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
   testCompile group: 'org.pitest', name: 'pitest', version: '1.5.1'
-  testCompile 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.1'
-  testCompile 'org.codehaus.sonar-plugins:sonar-pitest-plugin:0.5'
+  testCompile group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.5.1'
+  testCompile group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
