@@ -5,10 +5,6 @@ spring:
       paths: /mnt/secrets/bulk-scan
       aliases:
         processor-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
-        processor-POSTGRES-USER: BULK_SCANNING_DB_USER_NAME
-        processor-POSTGRES-DATABASE: BULK_SCANNING_DB_NAME
-        processor-POSTGRES-HOST: BULK_SCANNING_DB_HOST
-        processor-POSTGRES-PORT: BULK_SCANNING_DB_PORT
         processor-staging-db-password: BULK_SCANNING_DB_PASSWORD
         processor-staging-db-user: BULK_SCANNING_DB_USER_NAME
         processor-staging-db-name: BULK_SCANNING_DB_NAME
