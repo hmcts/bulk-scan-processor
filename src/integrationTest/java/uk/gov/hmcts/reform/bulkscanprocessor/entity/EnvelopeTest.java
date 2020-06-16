@@ -38,7 +38,9 @@ public class EnvelopeTest {
         Envelope readEnvelope = repository.getOne(envelopeId);
 
         // then
-        assertThat(readEnvelope).isEqualToComparingFieldByFieldRecursively(envelope);
+        assertThat(readEnvelope)
+            .usingRecursiveComparison()
+            .isEqualTo(envelope);
     }
 
     @Test
