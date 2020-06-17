@@ -6,18 +6,16 @@ import com.google.common.io.Resources;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -70,7 +68,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 })
 @AutoConfigureMockMvc
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class EnvelopeControllerTest {
 
     @Autowired private MockMvc mockMvc;
@@ -96,7 +93,7 @@ public class EnvelopeControllerTest {
 
     private static DockerComposeContainer dockerComposeContainer;
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() {
         File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
 
@@ -106,12 +103,12 @@ public class EnvelopeControllerTest {
         dockerComposeContainer.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownContainer() {
         dockerComposeContainer.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
@@ -136,7 +133,7 @@ public class EnvelopeControllerTest {
         testContainer.createIfNotExists();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws Exception {
         testContainer.deleteIfExists();
         envelopeRepository.deleteAll();

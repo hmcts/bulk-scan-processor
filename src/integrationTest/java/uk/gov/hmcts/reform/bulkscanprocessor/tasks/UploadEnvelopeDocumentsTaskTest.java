@@ -2,15 +2,13 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -34,7 +32,6 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class UploadEnvelopeDocumentsTaskTest {
 
     private static final TestStorageHelper STORAGE_HELPER = TestStorageHelper.getInstance();
@@ -47,24 +44,24 @@ public class UploadEnvelopeDocumentsTaskTest {
     @MockBean private AuthTokenGenerator tokenGenerator;
     @MockBean private DocumentManagementService documentManagementService;
 
-    @BeforeClass
+    @BeforeAll
     public static void initializeStorage() {
         TestStorageHelper.initialize();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownContainer() {
         TestStorageHelper.stopDocker();
     }
 
-    @Before
+    @BeforeEach
     public void prepare() {
         STORAGE_HELPER.createBulkscanContainer();
         envelopeRepository.deleteAll();
         eventRepository.deleteAll();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         STORAGE_HELPER.deleteBulkscanContainer();
         envelopeRepository.deleteAll();
