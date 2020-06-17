@@ -159,8 +159,6 @@ sonarqube {
     property "sonar.projectName", "Reform :: Bulk Scan Processor"
     property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.destination.path
     property "sonar.exclusions", "**/model/out/*,**/config/**"
-    property "sonar.pitest.mode", "reuseReport"
-    property "sonar.pitest.reportsDirectory", "build/reports/pitest"
   }
 }
 
