@@ -15,7 +15,6 @@ spring:
         envelopes-queue-send-connection-string: QUEUE_ENVELOPE_SEND
         envelopes-staging-queue-send-connection-string: QUEUE_ENVELOPE_SEND
         notifications-queue-send-connection-string: QUEUE_NOTIFICATIONS_SEND
-        notifications-staging-queue-send-connection-string: QUEUE_NOTIFICATIONS_SEND
         processed-envelopes-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
         processed-envelopes-staging-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
         storage-account-name: storage.account_name
