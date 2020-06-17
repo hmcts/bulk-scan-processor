@@ -2,12 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -28,7 +26,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @IntegrationTest
-@RunWith(SpringRunner.class)
 @SuppressWarnings("PMD")
 public class DeleteCompleteFilesTaskTest {
     @Mock
@@ -42,7 +39,7 @@ public class DeleteCompleteFilesTaskTest {
 
     private DeleteCompleteFilesTask task;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.task = new DeleteCompleteFilesTask(
             blobManager,
