@@ -2,10 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
@@ -23,10 +21,9 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<BlobProcessorTask> {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 

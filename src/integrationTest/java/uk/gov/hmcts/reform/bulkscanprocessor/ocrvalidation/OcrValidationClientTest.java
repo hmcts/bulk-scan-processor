@@ -2,12 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationContextInitializer;
@@ -39,7 +37,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 })
 @AutoConfigureWireMock
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class OcrValidationClientTest {
 
     @Autowired

@@ -72,6 +72,7 @@ task functional(type: Test, description: 'Runs the functional tests.', group: 'V
 task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath = sourceSets.integrationTest.runtimeClasspath
+  useJUnitPlatform()
 
   // set your environment variables here
    environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
@@ -255,7 +256,10 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.3', {
+    exclude group: 'junit', module: 'junit'
+  }
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.14.3'
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath

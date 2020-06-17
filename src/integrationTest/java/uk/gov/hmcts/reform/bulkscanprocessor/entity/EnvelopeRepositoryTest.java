@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,9 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
-@RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
+@ExtendWith(SpringExtension.class)
 public class EnvelopeRepositoryTest {
 
     @Autowired
@@ -29,7 +29,7 @@ public class EnvelopeRepositoryTest {
     @Autowired
     private EntityManager entityManager;
 
-    @After
+    @AfterEach
     public void cleanUp() {
         repo.deleteAll();
     }

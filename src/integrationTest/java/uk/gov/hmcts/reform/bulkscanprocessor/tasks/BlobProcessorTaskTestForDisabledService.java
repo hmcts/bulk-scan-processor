@@ -2,11 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -19,7 +17,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @IntegrationTest
-@RunWith(SpringRunner.class)
 @TestPropertySource(properties = {
     "containers.mappings[0].container=bulkscan",
     "containers.mappings[0].jurisdiction=BULKSCAN",
@@ -29,7 +26,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 })
 public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<BlobProcessorTask> {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
