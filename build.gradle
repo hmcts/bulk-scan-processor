@@ -284,10 +284,6 @@ dependencies {
   testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
-  testCompile group: 'org.pitest', name: 'pitest', version: '1.5.1'
-  testCompile group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: '1.5.1'
-  testCompile group: 'org.codehaus.sonar-plugins', name: 'sonar-pitest-plugin', version: '0.5'
-
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
   integrationTestCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.3.RELEASE', {
