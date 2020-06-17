@@ -3,13 +3,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
@@ -20,7 +18,6 @@ import java.io.File;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class CleanUpRejectedFilesTaskTest {
 
     @Autowired
@@ -31,7 +28,7 @@ public class CleanUpRejectedFilesTaskTest {
 
     private static DockerComposeContainer dockerComposeContainer;
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() {
         dockerComposeContainer =
             new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
@@ -40,12 +37,12 @@ public class CleanUpRejectedFilesTaskTest {
         dockerComposeContainer.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownContainer() {
         dockerComposeContainer.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();

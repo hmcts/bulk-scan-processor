@@ -7,14 +7,12 @@ import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.TimeoutException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -40,6 +38,7 @@ import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
@@ -48,7 +47,6 @@ import static org.mockito.Mockito.when;
 
 @EnableJpaRepositories(basePackages = "uk.gov.hmcts.reform.bulkscanprocessor.entity")
 @IntegrationTest
-@RunWith(SpringRunner.class)
 public class ServiceBusHelperTest {
 
     @Autowired
@@ -74,7 +72,7 @@ public class ServiceBusHelperTest {
 
     private ServiceBusHelper serviceBusHelper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         serviceBusHelper = new ServiceBusHelper(queueClient, this.objectMapper);
 
@@ -107,11 +105,12 @@ public class ServiceBusHelperTest {
             .contains(msg.getMsgId());
     }
 
-    @Test(expected = InvalidMessageException.class)
+    @Test
     public void should_throw_exception_for_empty_messageId() {
         when(envelope.getId()).thenReturn(null);
         Msg msg = new EnvelopeMsg(envelope);
-        serviceBusHelper.sendMessage(msg);
+        assertThatCode(() -> serviceBusHelper.sendMessage(msg))
+            .isInstanceOf(InvalidMessageException.class);
     }
 
     @Test

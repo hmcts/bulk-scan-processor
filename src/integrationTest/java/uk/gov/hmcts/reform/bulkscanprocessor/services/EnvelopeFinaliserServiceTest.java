@@ -1,14 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.fasterxml.jackson.databind.node.TextNode;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
@@ -35,9 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
-@RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
+@ExtendWith(SpringExtension.class)
 public class EnvelopeFinaliserServiceTest {
 
     @Autowired
@@ -48,7 +48,7 @@ public class EnvelopeFinaliserServiceTest {
 
     private EnvelopeFinaliserService envelopeFinaliserService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         envelopeFinaliserService = new EnvelopeFinaliserService(
             envelopeRepository,
@@ -56,7 +56,7 @@ public class EnvelopeFinaliserServiceTest {
         );
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
