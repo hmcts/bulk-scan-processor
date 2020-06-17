@@ -361,10 +361,10 @@ public class BlobProcessorTask {
         ErrorCode errorCode
     ) {
         try {
-            String message =
-                cause instanceof OcrValidationException
-                    ? ((OcrValidationException) cause).getDetailMessage()
-                    : cause.getMessage();
+            String message = cause.getMessage();
+            if (cause instanceof OcrValidationException) {
+                message = ((OcrValidationException) cause).getDetailMessage();
+            }
             sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, message);
         } catch (Exception exc) {
             final String msg = "Error sending error notification to the queue."
