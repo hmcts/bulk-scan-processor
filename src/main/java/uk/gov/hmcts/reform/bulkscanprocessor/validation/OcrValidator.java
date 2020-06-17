@@ -103,11 +103,12 @@ public class OcrValidator {
         log.info("Validation result for envelope {}: {}", envelope.zipFileName, res.status);
         switch (res.status) {
             case ERRORS:
+                String message = "OCR validation service returned OCR-specific errors. "
+                    + "Document control number: " + docWithOcr.documentControlNumber + ". "
+                    + "Envelope: " + envelope.zipFileName + ".";
                 throw new OcrValidationException(
-                    "OCR validation service returned OCR-specific errors. "
-                        + "Document control number: " + docWithOcr.documentControlNumber + ". "
-                        + "Envelope: " + envelope.zipFileName + ".",
-                    res.errors
+                    message,
+                    message + "Errors: " + res.errors
                 );
             case WARNINGS:
                 log.info(

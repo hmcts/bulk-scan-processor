@@ -102,7 +102,8 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         given(ocrValidator.assertOcrDataIsValid(any())).willThrow(
-            new OcrValidationException("Ocr Validation Error.", Arrays.asList("Error 1", "Error2")));
+            new OcrValidationException("Ocr Validation Error.", "Ocr Validation Error. Errors : [Error 1, Error2]")
+        );
 
         // when
         processor.processBlobs();

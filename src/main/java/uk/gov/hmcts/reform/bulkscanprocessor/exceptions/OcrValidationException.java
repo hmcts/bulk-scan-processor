@@ -1,26 +1,21 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-import org.springframework.util.CollectionUtils;
-
-import java.util.List;
-
 public class OcrValidationException extends InvalidMetafileException {
 
     // might contain sensitive data
-    private List errors;
+    private String detailMessage;
 
     public OcrValidationException(String message) {
         super(message);
+        detailMessage = message;
     }
 
-    public OcrValidationException(String message, List errors) {
+    public OcrValidationException(String message, String detailMessage) {
         super(message);
-        this.errors = errors;
+        this.detailMessage = detailMessage;
     }
 
     public String getDetailMessage() {
-        return CollectionUtils.isEmpty(errors)
-            ? (super.getMessage() + " Errors : ")
-            : (super.getMessage() + " Errors : " + errors);
+        return detailMessage;
     }
 }
