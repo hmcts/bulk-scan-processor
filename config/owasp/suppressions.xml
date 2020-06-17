@@ -32,16 +32,6 @@
     <cve>CVE-2018-9117</cve>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-   file name: gradle-pitest-plugin-1.5.1.jar
-   ]]></notes>
-      <sha1>a3708198f6ac6fadf387199c9db6e8f824de5e5a</sha1>
-      <cve>CVE-2019-11065</cve>
-      <cve>CVE-2019-15052</cve>
-      <cve>CVE-2019-16370</cve>
-    </suppress>
-
   <suppress until="2021-01-01">
     <notes><![CDATA[
    file name: wiremock-2.25.1.jar: jquery-3.4.1.min.js
