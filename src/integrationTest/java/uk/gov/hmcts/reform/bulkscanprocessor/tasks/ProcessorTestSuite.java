@@ -190,6 +190,10 @@ public abstract class ProcessorTestSuite<T> {
     }
 
     protected void errorWasSent(String zipFileName, ErrorCode code) {
+        errorWasSent(zipFileName, code, null);
+    }
+
+    protected void errorWasSent(String zipFileName, ErrorCode code, String errorMessage) {
         ArgumentCaptor<ErrorMsg> argument = ArgumentCaptor.forClass(ErrorMsg.class);
         verify(serviceBusHelper).sendMessage(argument.capture());
 
@@ -204,6 +208,9 @@ public abstract class ProcessorTestSuite<T> {
         assertThat(sentMsg.service).isEqualTo("bulk_scan_processor");
         assertThat(sentMsg.errorCode).isEqualTo(code);
         assertThat(sentMsg.errorDescription).isNotEmpty();
+        if (errorMessage != null) {
+            assertThat(sentMsg.errorDescription).isEqualTo(errorMessage);
+        }
     }
 
     protected void envelopeWasNotCreated() {
