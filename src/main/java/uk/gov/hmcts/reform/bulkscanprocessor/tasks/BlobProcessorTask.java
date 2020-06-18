@@ -27,7 +27,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileProcessingFailedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorMessageSender;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -79,7 +79,7 @@ public class BlobProcessorTask {
 
     private final OcrValidator ocrValidator;
 
-    private final ErrorMessageSender errorMessageSender;
+    private final ErrorNotificationSender errorNotificationSender;
 
     private final boolean paymentsEnabled;
 
@@ -89,7 +89,7 @@ public class BlobProcessorTask {
         ZipFileProcessor zipFileProcessor,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
-        ErrorMessageSender errorMessageSender,
+        ErrorNotificationSender errorNotificationSender,
         @Value("${process-payments.enabled}") boolean paymentsEnabled
     ) {
         this.blobManager = blobManager;
@@ -97,7 +97,7 @@ public class BlobProcessorTask {
         this.zipFileProcessor = zipFileProcessor;
         this.containerMappings = containerMappings;
         this.ocrValidator = ocrValidator;
-        this.errorMessageSender = errorMessageSender;
+        this.errorNotificationSender = errorNotificationSender;
         this.paymentsEnabled = paymentsEnabled;
     }
 
@@ -322,7 +322,7 @@ public class BlobProcessorTask {
         Optionals.ifPresentOrElse(
             ErrorMapping.getFor(cause),
             (errorCode) -> {
-                errorMessageSender.sendErrorMessage(
+                errorNotificationSender.sendErrorNotification(
                     zipFilename,
                     containerName,
                     cause,

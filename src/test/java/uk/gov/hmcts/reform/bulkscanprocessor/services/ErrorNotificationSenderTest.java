@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
-class ErrorMessageSenderTest {
+class ErrorNotificationSenderTest {
 
     private static final String VALIDATION_URL = "https://example.com/validate-ocr";
     private static final String PO_BOX = "sample PO box";
@@ -38,7 +38,7 @@ class ErrorMessageSenderTest {
     public static final String UNMAPPED_CONTAINER = "unmapped_container";
     public static final String DETAILED_MESSAGE = "detailed message";
 
-    private ErrorMessageSender errorMessageSender;
+    private ErrorNotificationSender errorNotificationSender;
 
     @Mock
     private ServiceBusHelper notificationsQueueHelper;
@@ -59,7 +59,7 @@ class ErrorMessageSenderTest {
                 new ContainerMappings.Mapping(CONTAINER, JURISDICTION, PO_BOX, VALIDATION_URL, true, true)
             ));
 
-        errorMessageSender = new ErrorMessageSender(
+        errorNotificationSender = new ErrorNotificationSender(
             notificationsQueueHelper,
             containerMappings
         );
@@ -70,7 +70,7 @@ class ErrorMessageSenderTest {
         // given
 
         // when
-        errorMessageSender.sendErrorMessage(
+        errorNotificationSender.sendErrorNotification(
             FILE_NAME,
             CONTAINER,
             new OcrPresenceException(MSG),
@@ -98,7 +98,7 @@ class ErrorMessageSenderTest {
         given(ocrValidationException.getDetailMessage()).willReturn(DETAILED_MESSAGE);
 
         // when
-        errorMessageSender.sendErrorMessage(
+        errorNotificationSender.sendErrorNotification(
             FILE_NAME,
             CONTAINER,
             ocrValidationException,
@@ -126,7 +126,7 @@ class ErrorMessageSenderTest {
 
         // when
         assertThatThrownBy(() ->
-                               errorMessageSender.sendErrorMessage(
+                               errorNotificationSender.sendErrorNotification(
                                    FILE_NAME,
                                    UNMAPPED_CONTAINER,
                                    new OcrPresenceException(MSG),

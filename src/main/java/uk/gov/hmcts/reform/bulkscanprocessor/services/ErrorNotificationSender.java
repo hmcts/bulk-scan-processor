@@ -17,14 +17,14 @@ import java.util.UUID;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-public class ErrorMessageSender {
-    private static final Logger log = LoggerFactory.getLogger(ErrorMessageSender.class);
+public class ErrorNotificationSender {
+    private static final Logger log = LoggerFactory.getLogger(ErrorNotificationSender.class);
 
     private final ServiceBusHelper notificationsQueueHelper;
 
     private final ContainerMappings containerMappings;
 
-    public ErrorMessageSender(
+    public ErrorNotificationSender(
         @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
         ContainerMappings containerMappings
     ) {
@@ -32,7 +32,7 @@ public class ErrorMessageSender {
         this.containerMappings = containerMappings;
     }
 
-    public void sendErrorMessage(
+    public void sendErrorNotification(
         String zipFilename,
         String containerName,
         Exception cause,

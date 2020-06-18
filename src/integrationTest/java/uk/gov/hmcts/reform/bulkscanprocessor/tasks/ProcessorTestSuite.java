@@ -22,7 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorMessageSender;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -73,7 +73,7 @@ public abstract class ProcessorTestSuite<T> {
     @Autowired
     protected ProcessEventRepository processEventRepository;
 
-    protected ErrorMessageSender errorMessageSender;
+    protected ErrorNotificationSender errorNotificationSender;
 
     protected DocumentProcessor documentProcessor;
 
@@ -122,7 +122,7 @@ public abstract class ProcessorTestSuite<T> {
             processEventRepository
         );
 
-        errorMessageSender = new ErrorMessageSender(
+        errorNotificationSender = new ErrorNotificationSender(
             serviceBusHelper,
             containerMappings
         );

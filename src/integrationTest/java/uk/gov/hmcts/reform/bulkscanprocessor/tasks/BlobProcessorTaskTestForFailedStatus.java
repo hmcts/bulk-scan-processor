@@ -28,7 +28,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            errorMessageSender,
+            errorNotificationSender,
             paymentsEnabled
         );
     }
