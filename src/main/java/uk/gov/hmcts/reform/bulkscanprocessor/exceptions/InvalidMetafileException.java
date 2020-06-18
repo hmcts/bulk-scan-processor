@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 /**
  * Base class for all exceptions that represent invalid metadata situation.
  */
-public abstract class InvalidMetafileException extends ProcessorRunTimeException {
+public abstract class InvalidMetafileException extends RejectionException {
 
     public InvalidMetafileException(String message) {
         super(message);
