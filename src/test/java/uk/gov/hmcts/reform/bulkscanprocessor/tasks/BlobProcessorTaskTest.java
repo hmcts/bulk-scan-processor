@@ -10,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorMessageSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -46,9 +46,6 @@ class BlobProcessorTaskTest {
     private OcrValidator ocrValidator;
 
     @Mock
-    private ServiceBusHelper notificationsQueueHelper;
-
-    @Mock
     private CloudBlobContainer container;
 
     @Mock
@@ -60,6 +57,9 @@ class BlobProcessorTaskTest {
     @Mock
     private BlobInputStream blobInputStream;
 
+    @Mock
+    private ErrorMessageSender errorMessageSender;
+
     @BeforeEach
     void setUp() {
         blobProcessorTask = new BlobProcessorTask(
@@ -68,7 +68,7 @@ class BlobProcessorTaskTest {
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            notificationsQueueHelper,
+            errorMessageSender,
             false
         );
     }

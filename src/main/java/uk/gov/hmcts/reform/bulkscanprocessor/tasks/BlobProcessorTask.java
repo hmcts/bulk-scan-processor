@@ -9,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,10 +18,8 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetafileException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
@@ -30,10 +27,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileProcessingFailedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorMessageSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
@@ -49,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static java.util.stream.Collectors.joining;
@@ -81,11 +75,11 @@ public class BlobProcessorTask {
 
     private final ZipFileProcessor zipFileProcessor;
 
-    private final ServiceBusHelper notificationsQueueHelper;
-
-    protected final ContainerMappings containerMappings;
+    private final ContainerMappings containerMappings;
 
     private final OcrValidator ocrValidator;
+
+    private final ErrorMessageSender errorMessageSender;
 
     private final boolean paymentsEnabled;
 
@@ -95,15 +89,15 @@ public class BlobProcessorTask {
         ZipFileProcessor zipFileProcessor,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
-        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
+        ErrorMessageSender errorMessageSender,
         @Value("${process-payments.enabled}") boolean paymentsEnabled
     ) {
         this.blobManager = blobManager;
         this.envelopeProcessor = envelopeProcessor;
         this.zipFileProcessor = zipFileProcessor;
-        this.notificationsQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
         this.ocrValidator = ocrValidator;
+        this.errorMessageSender = errorMessageSender;
         this.paymentsEnabled = paymentsEnabled;
     }
 
@@ -328,12 +322,11 @@ public class BlobProcessorTask {
         Optionals.ifPresentOrElse(
             ErrorMapping.getFor(cause),
             (errorCode) -> {
-                sendErrorMessage(
+                errorMessageSender.sendErrorMessage(
                     zipFilename,
                     containerName,
                     cause,
                     eventId,
-                    leaseId,
                     errorCode
                 );
                 blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
@@ -350,70 +343,6 @@ public class BlobProcessorTask {
                 throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
             }
         );
-    }
-
-    private void sendErrorMessage(
-        String zipFilename,
-        String containerName,
-        Exception cause,
-        Long eventId,
-        String leaseId,
-        ErrorCode errorCode
-    ) {
-        try {
-            String message = cause.getMessage();
-            if (cause instanceof OcrValidationException) {
-                message = ((OcrValidationException) cause).getDetailMessage();
-            }
-            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, message);
-        } catch (Exception exc) {
-            final String msg = "Error sending error notification to the queue."
-                + "File name: " + zipFilename + " "
-                + "Container: " + containerName;
-            throw new EnvelopeRejectingException(msg, exc);
-        }
-    }
-
-    private void sendErrorMessageToQueue(
-        String zipFilename,
-        String containerName,
-        Long eventId,
-        ErrorCode errorCode,
-        String message
-    ) {
-        String messageId = UUID.randomUUID().toString();
-
-        this.notificationsQueueHelper.sendMessage(
-            new ErrorMsg(
-                messageId,
-                eventId,
-                zipFilename,
-                containerName,
-                getPoBox(containerName),
-                null,
-                errorCode,
-                message,
-                "bulk_scan_processor",
-                containerName
-            )
-        );
-
-        log.info(
-            "Created error notification for file {} in container {}. Queue message ID: {}",
-            zipFilename,
-            containerName,
-            messageId
-        );
-    }
-
-    private String getPoBox(String containerName) {
-        return containerMappings
-            .getMappings()
-            .stream()
-            .filter(m -> m.getContainer().equals(containerName))
-            .map(ContainerMappings.Mapping::getPoBox)
-            .findFirst()
-            .orElseThrow(() -> new ConfigurationException("Mapping not found for container " + containerName));
     }
 
     private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {
