@@ -108,7 +108,7 @@ public class OcrValidator {
                     + "Envelope: " + envelope.zipFileName + ".";
                 throw new OcrValidationException(
                     message,
-                    message + "Errors: " + res.errors
+                    message + " Errors: " + res.errors
                 );
             case WARNINGS:
                 log.info(
