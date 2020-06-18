@@ -25,3 +25,7 @@ java:
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
     LEASE_ACQUIRE_DELAY_IN_SECONDS: "15"
     FLYWAY_NOOP_STRATEGY: "false"
+    BULK_SCANNING_DB_USER_NAME: bulk_scanner@bulk-scan-processor-staging-{{ .Values.global.environment }}
+    BULK_SCANNING_DB_NAME: bulk_scan
+    BULK_SCANNING_DB_HOST: bulk-scan-processor-staging-{{ .Values.global.environment }}.postgres.database.azure.com
+    BULK_SCANNING_DB_PORT: "5432"
