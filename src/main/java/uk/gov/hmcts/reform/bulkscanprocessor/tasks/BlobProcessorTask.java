@@ -22,9 +22,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetafileException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ProcessorRunTimeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileProcessingFailedException;
@@ -315,7 +315,7 @@ public class BlobProcessorTask {
         String containerName,
         String zipFilename,
         String leaseId,
-        Exception cause
+        ProcessorRunTimeException cause
     ) {
         Long eventId = envelopeProcessor.createEvent(
             fileValidationFailure,
@@ -355,17 +355,13 @@ public class BlobProcessorTask {
     private void sendErrorMessage(
         String zipFilename,
         String containerName,
-        Exception cause,
+        ProcessorRunTimeException cause,
         Long eventId,
         String leaseId,
         ErrorCode errorCode
     ) {
         try {
-            String message = cause.getMessage();
-            if (cause instanceof OcrValidationException) {
-                message = ((OcrValidationException) cause).getDetailMessage();
-            }
-            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, message);
+            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause.getDetailMessage());
         } catch (Exception exc) {
             final String msg = "Error sending error notification to the queue."
                 + "File name: " + zipFilename + " "
