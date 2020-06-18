@@ -15,9 +15,8 @@ def channel = '#bsp-build-notices'
 
 def combinedSecrets = [
   'bulk-scan-${env}': [
-    secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
-    secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-    secret('processed-envelopes-queue-send-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
+    secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+    secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME')
   ],
   's2s-${env}': [
     // to be removed later
@@ -51,7 +50,7 @@ withPipeline(type, product, component) {
   env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
   env.TEST_SCAN_DELAY = '4000'
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
-  env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscan.aat.platform.hmcts.net'
+  env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanaatstaging.blob.core.windows.net'
   env.PROXYOUT_ENABLED = true
 
   before('smoketest:preview') {
