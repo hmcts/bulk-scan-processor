@@ -3,10 +3,6 @@ java:
     "bulk-scan":
       secrets:
         - processor-staging-db-password
-        - processor-staging-db-user
-        - processor-staging-db-name
-        - processor-staging-db-host
-        - processor-staging-db-port
         - s2s-secret
         - flyway-password
         - envelopes-staging-queue-send-connection-string
