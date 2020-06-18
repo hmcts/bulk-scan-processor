@@ -24,7 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetafileException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ProcessorRunTimeException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileProcessingFailedException;
@@ -315,7 +315,7 @@ public class BlobProcessorTask {
         String containerName,
         String zipFilename,
         String leaseId,
-        ProcessorRunTimeException cause
+        RejectionException cause
     ) {
         Long eventId = envelopeProcessor.createEvent(
             fileValidationFailure,
@@ -355,7 +355,7 @@ public class BlobProcessorTask {
     private void sendErrorMessage(
         String zipFilename,
         String containerName,
-        ProcessorRunTimeException cause,
+        RejectionException cause,
         Long eventId,
         String leaseId,
         ErrorCode errorCode
