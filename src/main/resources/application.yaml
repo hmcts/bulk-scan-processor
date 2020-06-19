@@ -87,13 +87,13 @@ storage:
 queues:
   envelopes:
     connection-string: ${QUEUE_ENVELOPE_SEND}
-    queue-name: envelopes
+    queue-name: ${QUEUE_ENVELOPE_NAME}
   processed-envelopes:
     connection-string: ${QUEUE_PROCESSED_ENVELOPES_READ}
-    queue-name: processed-envelopes
+    queue-name: ${QUEUE_PROCESSED_ENVELOPES_NAME}
   notifications:
     connection-string: ${QUEUE_NOTIFICATIONS_SEND}
-    queue-name: notifications
+    queue-name: ${QUEUE_NOTIFICATIONS_NAME}
 
 accesstoken:
   serviceConfig:
