@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetafileException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
@@ -360,7 +361,11 @@ public class BlobProcessorTask {
         ErrorCode errorCode
     ) {
         try {
-            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause);
+            String message = cause.getMessage();
+            if (cause instanceof OcrValidationException) {
+                message = ((OcrValidationException) cause).getDetailMessage();
+            }
+            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, message);
         } catch (Exception exc) {
             final String msg = "Error sending error notification to the queue."
                 + "File name: " + zipFilename + " "
@@ -374,7 +379,7 @@ public class BlobProcessorTask {
         String containerName,
         Long eventId,
         ErrorCode errorCode,
-        Exception cause
+        String message
     ) {
         String messageId = UUID.randomUUID().toString();
 
@@ -387,7 +392,7 @@ public class BlobProcessorTask {
                 getPoBox(containerName),
                 null,
                 errorCode,
-                cause.getMessage(),
+                message,
                 "bulk_scan_processor",
                 containerName
             )
