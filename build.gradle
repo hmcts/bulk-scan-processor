@@ -241,7 +241,9 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
 
   implementation group: 'commons-io', name: 'commons-io', version: '2.7'
-  implementation group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
+  // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
+  // single import: io.vavr.control.Try
+  implementation group: 'io.vavr', name: 'vavr', version: '0.10.3'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
