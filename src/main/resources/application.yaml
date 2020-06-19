@@ -19,6 +19,10 @@ spring:
     name: Bulk Scan Processor
   autoconfigure:
     exclude: uk.gov.hmcts.reform.document.DocumentManagementClientAutoConfiguration
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: lazy
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5435}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
