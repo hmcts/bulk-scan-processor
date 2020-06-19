@@ -76,7 +76,6 @@ task integration(type: Test, description: 'Runs the integration tests.', group: 
 
   // set your environment variables here
    environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-  failFast = true
 
   testLogging {
     exceptionFormat = 'full'
