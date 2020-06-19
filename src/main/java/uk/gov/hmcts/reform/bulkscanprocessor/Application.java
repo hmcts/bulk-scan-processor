@@ -6,11 +6,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusHelpersConfiguration;
 
 @SpringBootApplication
 @EnableCircuitBreaker
 @EnableFeignClients
+@EnableJpaRepositories(basePackages = {
+    "uk.gov.hmcts.reform.bulkscanprocessor.entity",
+    "uk.gov.hmcts.reform.bulkscanprocessor.entity.reports"
+})
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
 public class Application {
 
