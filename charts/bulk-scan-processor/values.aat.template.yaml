@@ -27,3 +27,4 @@ java:
     QUEUE_ENVELOPE_NAME: "envelopes-staging"
     QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes-staging"
     QUEUE_NOTIFICATIONS_NAME: "notifications-staging"
+    STORAGE_URL: https://bulkscanstg.aat.platform.hmcts.net
