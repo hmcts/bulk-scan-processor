@@ -297,15 +297,12 @@ dependencies {
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
-  functionalTestImplementation sourceSets.test.runtimeClasspath
-  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured'
-  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
-  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  functionalTestImplementation sourceSets.smokeTest.runtimeClasspath
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
-  smokeTestImplementation sourceSets.functionalTest.runtimeClasspath
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
