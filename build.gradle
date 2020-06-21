@@ -210,6 +210,15 @@ repositories {
   jcenter()
 }
 
+ext.libraries = [
+  junit5: [
+    "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
+    "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
+    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
+  ]
+]
 ext["rest-assured.version"] = '4.2.0'
 
 dependencies {
@@ -264,17 +273,15 @@ dependencies {
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junit
-  testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
-  testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
-  testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
-  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
-
-  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testImplementation libraries.junit5
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+  }
   testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13', {
+    exclude group: 'junit', module: 'junit'
+  }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
