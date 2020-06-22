@@ -42,7 +42,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            serviceBusHelper,
+            errorNotificationSender,
             paymentsEnabled
         );
     }
