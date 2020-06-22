@@ -54,39 +54,33 @@ tasks.withType(JavaCompile) {
 
 test {
   failFast = true
-  useJUnitPlatform()
-
-  testLogging {
-    exceptionFormat = 'full'
-  }
 }
 
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
-  useJUnitPlatform()
-  testLogging {
-    exceptionFormat = 'full'
-  }
 }
 
 task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath = sourceSets.integrationTest.runtimeClasspath
-  useJUnitPlatform()
 
   // set your environment variables here
    environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-
-  testLogging {
-    exceptionFormat = 'full'
-  }
 }
 
 task smoke(type: Test) {
   description = "Runs Smoke Tests"
   testClassesDirs = sourceSets.smokeTest.output.classesDirs
   classpath = sourceSets.smokeTest.runtimeClasspath
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
 }
 
 checkstyle {
@@ -223,6 +217,15 @@ repositories {
   jcenter()
 }
 
+ext.libraries = [
+  junit5: [
+    "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
+    "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
+    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
+  ]
+]
 ext["rest-assured.version"] = '4.3.0'
 
 dependencies {
@@ -279,18 +282,18 @@ dependencies {
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junit
-  testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
-  testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
-  testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
-  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
-
-  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testImplementation libraries.junit5
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+  }
   testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13', {
+    exclude group: 'junit', module: 'junit'
+  }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
+  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '1.1.0'
+  testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
@@ -305,15 +308,12 @@ dependencies {
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
-  functionalTestImplementation sourceSets.test.runtimeClasspath
-  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured'
-  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
-  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  functionalTestImplementation sourceSets.smokeTest.runtimeClasspath
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
-  smokeTestImplementation sourceSets.functionalTest.runtimeClasspath
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
