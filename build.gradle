@@ -13,10 +13,10 @@ plugins {
 }
 
 group = 'uk.gov.hmcts.reform'
-version = '0.0.1'
+version = '0.1.0' // all the time it was 0.0.1. 0.1.0 marks migration to java 11
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 sourceSets {
   functionalTest {
@@ -93,7 +93,7 @@ checkstyle {
   maxWarnings = 0
   toolVersion = '8.29'
   // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
-  configDir = new File(rootDir, 'config/checkstyle')
+  configDirectory.set(new File(rootDir, 'config/checkstyle'))
 }
 
 pmd {
@@ -208,6 +208,13 @@ dependencyManagement {
     dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
       entry 'mockito-core'
     }
+    // force junit5 deps to use groovy v3 which fixes reflective call errors for java 11
+    // rest assured 4.2 -> 4.3 jumps to groovy v3. junit v5.6 still on v2.5
+    dependencySet(group: 'org.codehaus.groovy', version: '3.0.2') {
+      entry 'groovy'
+      entry 'groovy-json'
+      entry 'groovy-xml'
+    }
   }
 }
 
@@ -216,7 +223,7 @@ repositories {
   jcenter()
 }
 
-ext["rest-assured.version"] = '4.2.0'
+ext["rest-assured.version"] = '4.3.0'
 
 dependencies {
   // exclude spring-cloud-context as it is already included in spring-cloud-starter-netflix-hystrix
@@ -251,7 +258,7 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.4.4'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
   // review following dependency after integrating db structure
-  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.11'
+  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.12'
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
@@ -263,10 +270,12 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.0'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
-  implementation group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
+  implementation group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
 
   implementation group: 'commons-io', name: 'commons-io', version: '2.7'
-  implementation group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
+  // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
+  // single import: io.vavr.control.Try
+  implementation group: 'io.vavr', name: 'vavr', version: '0.10.3'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
