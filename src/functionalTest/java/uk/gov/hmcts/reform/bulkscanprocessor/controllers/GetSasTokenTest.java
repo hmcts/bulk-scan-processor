@@ -22,6 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import uk.gov.hmcts.reform.bulkscanprocessor.TestHelper;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.net.URI;

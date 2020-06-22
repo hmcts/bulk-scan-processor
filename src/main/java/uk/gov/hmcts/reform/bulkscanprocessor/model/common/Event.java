@@ -10,9 +10,7 @@ public enum Event {
     DOC_SIGNATURE_FAILURE, // Signature verification failure while processing zip file
     DOC_UPLOADED,
     DOC_UPLOAD_FAILURE,
-    DOC_PROCESSED, // when blob is successfully processed after storing all docs in DM. TODO remove when DB is cleaned
     DOC_CONSUMED, // client service handled the documents
-    BLOB_DELETE_FAILURE, // when blob is not successfully deleted after processing is complete
     DOC_PROCESSED_NOTIFICATION_SENT, // when document processed notification is posted (to servicebus queue)
     DOC_PROCESSED_NOTIFICATION_FAILURE, // when document processed notification fails
     DOC_PROCESSING_ABORTED, // when envelope processing cannot be completed (used manually to set the event with reason)
