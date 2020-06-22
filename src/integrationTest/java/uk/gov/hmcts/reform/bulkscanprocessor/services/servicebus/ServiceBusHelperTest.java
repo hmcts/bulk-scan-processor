@@ -266,9 +266,10 @@ public class ServiceBusHelperTest {
     }
 
     private void assertDateField(JsonNode jsonNode, String field, Instant expectedDate) {
+        // instants serialised with 6 digit precision by default
         String iso8601DateTime = ZonedDateTime
             .ofInstant(expectedDate, ZoneId.of("UTC"))
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"));
 
         assertThat(jsonNode.get(field).asText()).isEqualTo(iso8601DateTime);
     }
