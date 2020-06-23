@@ -6,10 +6,13 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class InvalidEnvelopeSchemaException extends InvalidMetafileException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
+
+public class InvalidEnvelopeSchemaException extends RejectionException {
 
     public InvalidEnvelopeSchemaException(ProcessingReport report, String zipFileName) {
         super(
+            ERR_METAFILE_INVALID,
             String.format("Failed validation for file %s against schema. Errors:%n\t%s",
                 zipFileName,
                 StreamSupport
@@ -21,6 +24,6 @@ public class InvalidEnvelopeSchemaException extends InvalidMetafileException {
     }
 
     public InvalidEnvelopeSchemaException(String message, Throwable cause) {
-        super(message, cause);
+        super(ERR_METAFILE_INVALID, message, cause);
     }
 }

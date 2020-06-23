@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-public class ContainerJurisdictionPoBoxMismatchException extends InvalidMetafileException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
+
+public class ContainerJurisdictionPoBoxMismatchException extends RejectionException {
     public ContainerJurisdictionPoBoxMismatchException(String message) {
-        super(message);
+        super(ERR_METAFILE_INVALID, message);
     }
 }
