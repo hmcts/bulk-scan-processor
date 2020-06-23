@@ -13,7 +13,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
@@ -102,17 +103,18 @@ class FileErrorHandlerTest {
             .willReturn(EVENT_ID);
 
         // when
+        var ex = catchThrowable(() ->
+                                    fileErrorHandler.handleInvalidFileError(
+                                        EVENT,
+                                        CONTAINER,
+                                        FILE_NAME,
+                                        LEASE_ID,
+                                        UNMAPPED_CAUSE
+                                    )
+        );
+
         // then
-        assertThatThrownBy(() ->
-                               fileErrorHandler.handleInvalidFileError(
-                                   EVENT,
-                                   CONTAINER,
-                                   FILE_NAME,
-                                   LEASE_ID,
-                                   UNMAPPED_CAUSE
-                               )
-        )
-            .isInstanceOf(ConfigurationException.class)
-            .hasMessageContaining("Error code mapping not found for " + UNMAPPED_CAUSE.getClass().getName());
+        assertThat(ex).isInstanceOf(ConfigurationException.class);
+        assertThat(ex).hasMessageContaining("Error code mapping not found for " + UNMAPPED_CAUSE.getClass().getName());
     }
 }
