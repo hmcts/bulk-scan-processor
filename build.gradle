@@ -13,10 +13,10 @@ plugins {
 }
 
 group = 'uk.gov.hmcts.reform'
-version = '0.0.1'
+version = '0.1.0' // all the time it was 0.0.1. 0.1.0 marks migration to java 11
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 sourceSets {
   functionalTest {
@@ -54,33 +54,19 @@ tasks.withType(JavaCompile) {
 
 test {
   failFast = true
-  useJUnitPlatform()
-
-  testLogging {
-    exceptionFormat = 'full'
-  }
 }
 
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
-  useJUnitPlatform()
-  testLogging {
-    exceptionFormat = 'full'
-  }
 }
 
 task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath = sourceSets.integrationTest.runtimeClasspath
-  useJUnitPlatform()
 
   // set your environment variables here
    environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
-
-  testLogging {
-    exceptionFormat = 'full'
-  }
 }
 
 task smoke(type: Test) {
@@ -89,11 +75,19 @@ task smoke(type: Test) {
   classpath = sourceSets.smokeTest.runtimeClasspath
 }
 
+tasks.withType(Test) {
+  useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
 checkstyle {
   maxWarnings = 0
   toolVersion = '8.29'
   // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
-  configDir = new File(rootDir, 'config/checkstyle')
+  configDirectory.set(new File(rootDir, 'config/checkstyle'))
 }
 
 pmd {
@@ -208,6 +202,13 @@ dependencyManagement {
     dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
       entry 'mockito-core'
     }
+    // force junit5 deps to use groovy v3 which fixes reflective call errors for java 11
+    // rest assured 4.2 -> 4.3 jumps to groovy v3. junit v5.6 still on v2.5
+    dependencySet(group: 'org.codehaus.groovy', version: '3.0.4') {
+      entry 'groovy'
+      entry 'groovy-json'
+      entry 'groovy-xml'
+    }
   }
 }
 
@@ -216,7 +217,16 @@ repositories {
   jcenter()
 }
 
-ext["rest-assured.version"] = '4.2.0'
+ext.libraries = [
+  junit5: [
+    "org.junit.jupiter:junit-jupiter-api:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
+    "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
+    "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
+    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
+  ]
+]
+ext["rest-assured.version"] = '4.3.0'
 
 dependencies {
   // exclude spring-cloud-context as it is already included in spring-cloud-starter-netflix-hystrix
@@ -251,7 +261,7 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.4.4'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
   // review following dependency after integrating db structure
-  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.11'
+  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.9.12'
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
@@ -263,25 +273,27 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.0'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '3.1.2'
-  implementation group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '6.0.0'
+  implementation group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
 
   implementation group: 'commons-io', name: 'commons-io', version: '2.7'
-  implementation group: 'io.vavr', name: 'vavr', version: '1.0.0-alpha-3'
+  // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
+  // single import: io.vavr.control.Try
+  implementation group: 'io.vavr', name: 'vavr', version: '0.10.3'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junit
-  testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
-  testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
-  testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: versions.mockitoJupiter
-  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
-
-  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testImplementation libraries.junit5
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+  }
   testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13', {
+    exclude group: 'junit', module: 'junit'
+  }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
+  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '1.1.0'
+  testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
@@ -296,15 +308,12 @@ dependencies {
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
-  functionalTestImplementation sourceSets.test.runtimeClasspath
-  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured'
-  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
-  functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  functionalTestImplementation sourceSets.smokeTest.runtimeClasspath
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
-  smokeTestImplementation sourceSets.functionalTest.runtimeClasspath
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'

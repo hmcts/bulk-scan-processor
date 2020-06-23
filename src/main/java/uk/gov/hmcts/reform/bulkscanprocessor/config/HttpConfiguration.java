@@ -5,11 +5,14 @@ import feign.httpclient.ApacheHttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.document.DocumentManagementClientAutoConfiguration;
 
+@AutoConfigureBefore(DocumentManagementClientAutoConfiguration.class)
 @Configuration
 public class HttpConfiguration {
 

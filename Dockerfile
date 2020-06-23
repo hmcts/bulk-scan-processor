@@ -8,7 +8,7 @@ RUN wget -P /tmp https://github.com/microsoft/ApplicationInsights-Java/releases/
 
 # Application image
 
-FROM hmctspublic.azurecr.io/base/java:openjdk-8-distroless-1.4
+FROM hmctspublic.azurecr.io/base/java:openjdk-11-distroless-1.4
 
 COPY --from=downloader /tmp/applicationinsights-agent-${APP_INSIGHTS_AGENT_VERSION}.jar /opt/app/
 
