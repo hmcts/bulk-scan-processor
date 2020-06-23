@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
@@ -35,12 +35,12 @@ public class ErrorNotificationSender {
     public void sendErrorNotification(
         String zipFilename,
         String containerName,
-        EnvelopeRejectionException cause,
+        RejectionException cause,
         Long eventId,
         ErrorCode errorCode
     ) {
         try {
-            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause.getErrorDescription());
+            sendErrorMessageToQueue(zipFilename, containerName, eventId, errorCode, cause.getDetailMessage());
         } catch (Exception exc) {
             final String msg = "Error sending error notification to the queue."
                 + "File name: " + zipFilename + " "
