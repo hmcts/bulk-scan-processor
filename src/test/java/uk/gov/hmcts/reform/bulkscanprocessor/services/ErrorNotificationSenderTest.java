@@ -35,8 +35,8 @@ class ErrorNotificationSenderTest {
     private static final long EVENT_ID = 2002L;
     private static final ErrorCode ERROR_CODE = ErrorCode.ERR_METAFILE_INVALID;
     private static final String BULK_SCAN_PROCESSOR = "bulk_scan_processor";
-    public static final String UNMAPPED_CONTAINER = "unmapped_container";
-    public static final String DETAILED_MESSAGE = "detailed message";
+    private static final String UNMAPPED_CONTAINER = "unmapped_container";
+    private static final String DETAILED_MESSAGE = "detailed message";
 
     private ErrorNotificationSender errorNotificationSender;
 
