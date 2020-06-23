@@ -32,7 +32,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -85,13 +85,14 @@ public class EnvelopeControllerTest {
     @MockBean private DocumentManagementService documentManagementService;
     @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
-    @MockBean private ErrorNotificationSender errorNotificationSender;
+    @MockBean private FileErrorHandler fileErrorHandler;
 
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
     private CloudBlobContainer testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
+
 
     @BeforeAll
     public static void initialize() {
@@ -124,7 +125,7 @@ public class EnvelopeControllerTest {
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            errorNotificationSender,
+            fileErrorHandler,
             paymentsEnabled
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
