@@ -64,7 +64,7 @@ test {
   failFast = true
 }
 
-task contract(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
+task contract(type: Test, description: 'Runs the contract tests.', group: 'Verification') {
   testClassesDirs = sourceSets.contractTest.output.classesDirs
   classpath = sourceSets.contractTest.runtimeClasspath
 }
@@ -331,7 +331,6 @@ dependencies {
   contractTestImplementation sourceSets.main.runtimeClasspath
   contractTestImplementation sourceSets.test.runtimeClasspath
   contractTestImplementation group: 'io.rest-assured', name: 'rest-assured'
-  contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-java8', version: '4.0.10'
   contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5', version: '4.0.10'
 }
 
