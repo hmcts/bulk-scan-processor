@@ -49,7 +49,7 @@ public class FileErrorHandler {
 
         Optionals.ifPresentOrElse(
             ErrorMapping.getFor(cause),
-            (errorCode) -> {
+            errorCode -> {
                 errorNotificationSender.sendErrorNotification(
                     zipFilename,
                     containerName,

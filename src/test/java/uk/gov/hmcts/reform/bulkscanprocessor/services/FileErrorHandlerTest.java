@@ -114,7 +114,8 @@ class FileErrorHandlerTest {
         );
 
         // then
-        assertThat(ex).isInstanceOf(ConfigurationException.class);
-        assertThat(ex).hasMessageContaining("Error code mapping not found for " + UNMAPPED_CAUSE.getClass().getName());
+        assertThat(ex)
+            .isInstanceOf(ConfigurationException.class)
+            .hasMessageContaining("Error code mapping not found for " + UNMAPPED_CAUSE.getClass().getName());
     }
 }
