@@ -12,13 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.util.Optionals;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectionException;
@@ -27,7 +24,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
@@ -276,7 +272,7 @@ public class BlobProcessorTask {
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (RejectionException | InvalidEnvelopeException ex) {
+        } catch (RejectionException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
@@ -308,7 +304,7 @@ public class BlobProcessorTask {
         String containerName,
         String zipFilename,
         String leaseId,
-        Exception cause
+        RejectionException cause
     ) {
         Long eventId = envelopeProcessor.createEvent(
             fileValidationFailure,
@@ -318,30 +314,15 @@ public class BlobProcessorTask {
             null
         );
 
-        Optionals.ifPresentOrElse(
-            ErrorMapping.getFor(cause),
-            (errorCode) -> {
-                errorNotificationSender.sendErrorNotification(
-                    zipFilename,
-                    containerName,
-                    (RejectionException)cause,
-                    eventId,
-                    errorCode
-                );
-                blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
-            },
-            () -> {
-                log.error(
-                    "Error notification not sent because Error code mapping not found for {}. "
-                        + "File name: {} Container: {} Reason: {}",
-                    cause.getClass().getName(),
-                    zipFilename,
-                    containerName,
-                    cause
-                );
-                throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
-            }
+        errorNotificationSender.sendErrorNotification(
+            zipFilename,
+            containerName,
+            cause,
+            eventId,
+            cause.getErrorCode()
         );
+        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+
     }
 
     private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {

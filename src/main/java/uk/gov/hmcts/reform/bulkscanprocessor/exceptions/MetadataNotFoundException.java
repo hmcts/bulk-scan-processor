@@ -1,9 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-public class MetadataNotFoundException extends ZipFileProcessingFailedException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_ZIP_PROCESSING_FAILED;
+
+public class MetadataNotFoundException extends RejectionException {
     private static final long serialVersionUID = 1395897001657755898L;
 
     public MetadataNotFoundException(String message) {
-        super(message);
+        super(ERR_ZIP_PROCESSING_FAILED, message);
     }
 }

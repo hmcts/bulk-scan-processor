@@ -1,13 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-@SuppressWarnings("squid:S110") // TODO: tidy up exceptions
-public class OcrValidationException extends InvalidMetafileException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
+
+public class OcrValidationException extends RejectionException {
 
     public OcrValidationException(String message) {
-        super(message);
+        super(ERR_METAFILE_INVALID, message);
     }
 
     public OcrValidationException(String message, String detailMessage) {
-        super(message, detailMessage);
+        super(ERR_METAFILE_INVALID, message, detailMessage);
     }
 }
