@@ -4,7 +4,7 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaExceptionEnvelope;
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
                 + "\n\terror: object has missing required properties"
             )
@@ -49,7 +49,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
                 + "\n\terror: object instance has properties which are not allowed by the schema: "
                 + "[\"invalid_field_name\"]"
@@ -68,7 +68,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: object has missing required properties"
             )
@@ -93,7 +93,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: object has missing required properties"
             )
@@ -117,7 +117,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
             .hasMessageContaining("2013-02-20 00:00:00.100000")
             .hasMessageContaining("instance: {\"pointer\":\"/delivery_date\"}")
@@ -138,7 +138,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
             .hasMessageContaining("1a_24-02-2017-00-00-00.zip")
             .hasMessageContaining("instance: {\"pointer\":\"/zip_file_name\"}");
@@ -154,7 +154,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
                     + "\n\terror: instance value (\"NEW_application\") not found in enum"
@@ -175,7 +175,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
                     + "\n\terror: instance value (\"CherIShed\") not found in enum"
@@ -195,7 +195,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
             .hasMessageContaining("1111001.gif")
             .hasMessageContaining("instance: {\"pointer\":\"/scannable_items/0/file_name\"}");
@@ -211,7 +211,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
                     + "\n\terror: object has missing required properties"
@@ -230,7 +230,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
                     + "\n\terror: object has missing required properties"
@@ -250,7 +250,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
 
         // then
         assertThat(exc)
-            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .isInstanceOf(InvalidEnvelopeSchemaExceptionEnvelope.class)
             .hasMessageStartingWith(
                 getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
                     + "\n\terror: array must not contain duplicate element"

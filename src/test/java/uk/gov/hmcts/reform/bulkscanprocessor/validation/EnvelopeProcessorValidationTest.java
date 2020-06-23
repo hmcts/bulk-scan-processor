@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
@@ -54,7 +54,7 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(throwable)
-            .isInstanceOf(FileNameIrregularitiesException.class)
+            .isInstanceOf(FileNameIrregularitiesExceptionEnvelope.class)
             .hasMessageMatching("Missing PDFs: world.pdf");
     }
 
@@ -81,7 +81,7 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(throwable)
-            .isInstanceOf(FileNameIrregularitiesException.class)
+            .isInstanceOf(FileNameIrregularitiesExceptionEnvelope.class)
             .hasMessageMatching("Not declared PDFs: extra.pdf");
     }
 
@@ -109,7 +109,7 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(throwable)
-            .isInstanceOf(FileNameIrregularitiesException.class)
+            .isInstanceOf(FileNameIrregularitiesExceptionEnvelope.class)
             .hasMessageContaining("Not declared PDFs: something_not_declared.pdf")
             .hasMessageContaining("Missing PDFs: zzz.pdf");
     }
@@ -137,7 +137,7 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(throwable)
-            .isInstanceOf(FileNameIrregularitiesException.class)
+            .isInstanceOf(FileNameIrregularitiesExceptionEnvelope.class)
             .hasMessage("Duplicate scanned items file names: yyy.pdf");
     }
 
@@ -162,7 +162,7 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(throwable)
-            .isInstanceOf(DuplicateDocumentControlNumbersInEnvelopeException.class)
+            .isInstanceOf(DuplicateDocumentControlNumbersInEnvelopeExceptionEnvelope.class)
             .hasMessage("Duplicate DCNs in envelope: bbb");
     }
 
@@ -182,7 +182,7 @@ public class EnvelopeProcessorValidationTest {
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
-        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
+        assertThat(throwable).isInstanceOf(OcrDataNotFoundExceptionEnvelope.class)
             .hasMessageContaining("No documents");
     }
 
@@ -206,7 +206,7 @@ public class EnvelopeProcessorValidationTest {
 
                 softly.assertThat(throwable)
                     .as("Expecting exception for doc type " + type)
-                    .isInstanceOf(OcrDataNotFoundException.class)
+                    .isInstanceOf(OcrDataNotFoundExceptionEnvelope.class)
                     .hasMessageContaining("Missing OCR");
             });
         softly.assertAll();
@@ -281,7 +281,7 @@ public class EnvelopeProcessorValidationTest {
 
         // then
         assertThat(throwable)
-            .isInstanceOf(ZipNameNotMatchingMetaDataException.class)
+            .isInstanceOf(ZipNameNotMatchingMetaDataExceptionEnvelope.class)
             .hasMessage("Name of the uploaded zip file does not match with field \"zip_file_name\" in the metadata");
     }
 
@@ -399,7 +399,7 @@ public class EnvelopeProcessorValidationTest {
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
-        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
+        assertThat(throwable).isInstanceOf(OcrDataNotFoundExceptionEnvelope.class)
             .hasMessageContaining("No documents of type Form found");
     }
 
@@ -418,7 +418,7 @@ public class EnvelopeProcessorValidationTest {
             EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
-        assertThat(throwable).isInstanceOf(OcrDataNotFoundException.class)
+        assertThat(throwable).isInstanceOf(OcrDataNotFoundExceptionEnvelope.class)
             .hasMessageContaining("Missing OCR data");
     }
 
@@ -437,13 +437,13 @@ public class EnvelopeProcessorValidationTest {
         );
 
         // then
-        assertThat(exception).isInstanceOf(ServiceDisabledException.class)
+        assertThat(exception).isInstanceOf(ServiceDisabledExceptionEnvelope.class)
             .hasMessageContaining("Envelope contains service that is not enabled");
     }
 
     private void verifyPaymentsDisabledException(InputEnvelope envelope, Throwable err) {
         assertThat(err)
-            .isInstanceOf(PaymentsDisabledException.class)
+            .isInstanceOf(PaymentsDisabledExceptionEnvelope.class)
             .hasMessageContaining("Envelope contains payment(s) that are not allowed for jurisdiction")
             .hasMessageContaining(envelope.jurisdiction)
             .hasMessageContaining(envelope.poBox)
@@ -452,7 +452,7 @@ public class EnvelopeProcessorValidationTest {
 
     private void verifyExceptionIsThrown(InputEnvelope envelope, String container, Throwable err) {
         assertThat(err)
-            .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
+            .isInstanceOf(ContainerJurisdictionPoBoxMismatchExceptionEnvelope.class)
             .hasMessageContaining(envelope.jurisdiction)
             .hasMessageContaining(envelope.poBox)
             .hasMessageContaining(container);

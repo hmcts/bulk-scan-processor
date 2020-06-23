@@ -16,10 +16,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectionException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -262,17 +262,17 @@ public class BlobProcessorTask {
             Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
 
             envelopeProcessor.saveEnvelope(dbEnvelope);
-        } catch (PaymentsDisabledException ex) {
+        } catch (PaymentsDisabledExceptionEnvelope ex) {
             log.error(
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (ServiceDisabledException ex) {
+        } catch (ServiceDisabledExceptionEnvelope ex) {
             log.error(
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
             handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (RejectionException ex) {
+        } catch (EnvelopeRejectionException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
@@ -304,7 +304,7 @@ public class BlobProcessorTask {
         String containerName,
         String zipFilename,
         String leaseId,
-        RejectionException cause
+        EnvelopeRejectionException cause
     ) {
         Long eventId = envelopeProcessor.createEvent(
             fileValidationFailure,

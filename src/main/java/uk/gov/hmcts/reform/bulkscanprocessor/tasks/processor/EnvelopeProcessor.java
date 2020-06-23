@@ -13,9 +13,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumberException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumberExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeSchemaExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataParseException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -52,7 +52,7 @@ public class EnvelopeProcessor {
         String zipFileName
     ) throws IOException, ProcessingException {
         if (Objects.isNull(metadataStream)) {
-            throw new MetadataNotFoundException("No metadata file found in the zip file");
+            throw new MetadataNotFoundExceptionEnvelope("No metadata file found in the zip file");
         }
 
         try {
@@ -61,7 +61,7 @@ public class EnvelopeProcessor {
             return schemaValidator.parseMetafile(metadataStream);
         } catch (JsonParseException | OcrDataParseException exception) {
             // invalid json files should also be reported to provider
-            throw new InvalidEnvelopeSchemaException("Error occurred while parsing metafile", exception);
+            throw new InvalidEnvelopeSchemaExceptionEnvelope("Error occurred while parsing metafile", exception);
         }
     }
 
@@ -168,7 +168,7 @@ public class EnvelopeProcessor {
     private void evaluateConstraintException(ConstraintViolationException exception) {
         // for further constraint issues can be replaced with switch statement
         if (exception.getConstraintName().equals("scannable_item_dcn")) {
-            throw new DuplicateDocumentControlNumberException(
+            throw new DuplicateDocumentControlNumberExceptionEnvelope(
                 "Received envelope with 'document_control_number' already present in the system",
                 exception
             );

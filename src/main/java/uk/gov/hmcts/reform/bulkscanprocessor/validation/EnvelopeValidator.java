@@ -4,14 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DuplicateDocumentControlNumbersInEnvelopeExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileNameIrregularitiesExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipNameNotMatchingMetaDataExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
@@ -108,7 +108,7 @@ public final class EnvelopeValidator {
 
             if (docsThatShouldHaveOcr.isEmpty()) {
                 String types = typesThatShouldHaveOcrData.stream().map(t -> t.toString()).collect(joining(", "));
-                throw new OcrDataNotFoundException("No documents of type " + types + " found");
+                throw new OcrDataNotFoundExceptionEnvelope("No documents of type " + types + " found");
             }
 
             if (docsThatShouldHaveOcr
@@ -117,7 +117,7 @@ public final class EnvelopeValidator {
                     doc -> isNull(doc.ocrData) || isEmpty(doc.ocrData.getFields())
                 )
             ) {
-                throw new OcrDataNotFoundException("Missing OCR data");
+                throw new OcrDataNotFoundExceptionEnvelope("Missing OCR data");
             }
         }
     }
@@ -164,7 +164,7 @@ public final class EnvelopeValidator {
         }
 
         if (!problems.isEmpty()) {
-            throw new FileNameIrregularitiesException(String.join(". ", problems));
+            throw new FileNameIrregularitiesExceptionEnvelope(String.join(". ", problems));
         }
     }
 
@@ -172,7 +172,7 @@ public final class EnvelopeValidator {
         List<String> dcns = envelope.scannableItems.stream().map(it -> it.documentControlNumber).collect(toList());
         List<String> duplicateDcns = getDuplicates(dcns);
         if (!duplicateDcns.isEmpty()) {
-            throw new DuplicateDocumentControlNumbersInEnvelopeException(
+            throw new DuplicateDocumentControlNumbersInEnvelopeExceptionEnvelope(
                 "Duplicate DCNs in envelope: " + String.join(", ", duplicateDcns)
             );
         }
@@ -180,7 +180,7 @@ public final class EnvelopeValidator {
 
     public static void assertZipFilenameMatchesWithMetadata(InputEnvelope envelope, String zipFileName) {
         if (!envelope.zipFileName.equals(zipFileName)) {
-            throw new ZipNameNotMatchingMetaDataException(
+            throw new ZipNameNotMatchingMetaDataExceptionEnvelope(
                 "Name of the uploaded zip file does not match with field \"zip_file_name\" in the metadata"
             );
         }
@@ -207,7 +207,7 @@ public final class EnvelopeValidator {
             );
 
         if (!isMatched) {
-            throw new ContainerJurisdictionPoBoxMismatchException(
+            throw new ContainerJurisdictionPoBoxMismatchExceptionEnvelope(
                 String.format(
                     "Container, PO Box and jurisdiction mismatch. Jurisdiction: %s, PO Box: %s, container: %s",
                     envelope.jurisdiction,
@@ -226,7 +226,7 @@ public final class EnvelopeValidator {
         if (!isEmpty(envelope.payments)
             && (!paymentsEnabled || !isPaymentsEnabledForContainer(mappings, envelope))
         ) {
-            throw new PaymentsDisabledException(
+            throw new PaymentsDisabledExceptionEnvelope(
                 String.format(
                     "Envelope contains payment(s) that are not allowed for jurisdiction '%s', poBox: '%s'",
                     envelope.jurisdiction,
@@ -251,7 +251,7 @@ public final class EnvelopeValidator {
             .orElse(false);
 
         if (!isServiceEnabled) {
-            throw new ServiceDisabledException(
+            throw new ServiceDisabledExceptionEnvelope(
                 String.format(
                     "Envelope contains service that is not enabled. Jurisdiction: '%s' POBox: '%s'",
                     envelope.jurisdiction,

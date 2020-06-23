@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 
@@ -32,19 +32,19 @@ public class OcrPresenceValidator {
     public Optional<InputScannableItem> assertHasProperlySetOcr(List<InputScannableItem> docs) {
 
         if (docs.stream().filter(doc -> doc.ocrData != null).count() > 1) {
-            throw new OcrPresenceException(MULTIPLE_OCR_MSG);
+            throw new OcrPresenceExceptionEnvelope(MULTIPLE_OCR_MSG);
         }
         if (docs.stream().anyMatch(doc -> !OCR_DOC_TYPES.contains(doc.documentType) && doc.ocrData != null)) {
-            throw new OcrPresenceException(MISPLACED_OCR_MSG);
+            throw new OcrPresenceExceptionEnvelope(MISPLACED_OCR_MSG);
         }
         if (docs.stream().anyMatch(doc -> OCR_DOC_TYPES.contains(doc.documentType) && doc.ocrData == null)) {
-            throw new OcrPresenceException(MISSING_OCR_MSG);
+            throw new OcrPresenceExceptionEnvelope(MISSING_OCR_MSG);
         }
         // TODO: For SSCS1 we don't receive document subtype as it follows a different contract
         if (docs.stream().anyMatch(
             doc -> doc.documentType != SSCS1 && doc.documentSubtype == null && doc.ocrData != null
         )) {
-            throw new OcrPresenceException(MISSING_DOC_SUBTYPE_MSG);
+            throw new OcrPresenceExceptionEnvelope(MISSING_DOC_SUBTYPE_MSG);
         }
 
         return docs
