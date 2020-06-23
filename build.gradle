@@ -19,6 +19,14 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 sourceSets {
+  contractTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/contractTest/java')
+    }
+    resources.srcDir file('src/contractTest/resources')
+  }
   functionalTest {
     java {
       compileClasspath += main.output
@@ -54,6 +62,11 @@ tasks.withType(JavaCompile) {
 
 test {
   failFast = true
+}
+
+task contract(type: Test, description: 'Runs the contract tests.', group: 'Verification') {
+  testClassesDirs = sourceSets.contractTest.output.classesDirs
+  classpath = sourceSets.contractTest.runtimeClasspath
 }
 
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
@@ -314,6 +327,11 @@ dependencies {
   smokeTestImplementation sourceSets.test.runtimeClasspath
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured'
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
+
+  contractTestImplementation sourceSets.main.runtimeClasspath
+  contractTestImplementation sourceSets.test.runtimeClasspath
+  contractTestImplementation group: 'io.rest-assured', name: 'rest-assured'
+  contractTestImplementation group: 'au.com.dius', name: 'pact-jvm-consumer-junit5', version: '4.0.10'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
