@@ -33,11 +33,7 @@ public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite
         processor = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            fileErrorHandler,
-            paymentsEnabled
+            fileContentProcessor
         );
     }
 

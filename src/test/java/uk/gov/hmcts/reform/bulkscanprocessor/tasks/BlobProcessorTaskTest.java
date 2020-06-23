@@ -9,12 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.IOException;
 import java.net.URI;
@@ -37,15 +34,6 @@ class BlobProcessorTaskTest {
     private EnvelopeProcessor envelopeProcessor;
 
     @Mock
-    private ZipFileProcessor zipFileProcessor;
-
-    @Mock
-    private ContainerMappings containerMappings;
-
-    @Mock
-    private OcrValidator ocrValidator;
-
-    @Mock
     private CloudBlobContainer container;
 
     @Mock
@@ -58,18 +46,14 @@ class BlobProcessorTaskTest {
     private BlobInputStream blobInputStream;
 
     @Mock
-    private FileErrorHandler fileErrorHandler;
+    private FileContentProcessor fileContentProcessor;
 
     @BeforeEach
     void setUp() {
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            fileErrorHandler,
-            false
+            fileContentProcessor
         );
     }
 
