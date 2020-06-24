@@ -3,11 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.util.Optionals;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -37,7 +35,7 @@ public class FileErrorHandler {
         String containerName,
         String zipFilename,
         String leaseId,
-        Exception cause
+        EnvelopeRejectionException cause
     ) {
         Long eventId = envelopeProcessor.createEvent(
             fileValidationFailure,
@@ -47,29 +45,13 @@ public class FileErrorHandler {
             null
         );
 
-        Optionals.ifPresentOrElse(
-            ErrorMapping.getFor(cause),
-            errorCode -> {
-                errorNotificationSender.sendErrorNotification(
-                    zipFilename,
-                    containerName,
-                    cause,
-                    eventId,
-                    errorCode
-                );
-                blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
-            },
-            () -> {
-                log.error(
-                    "Error notification not sent because Error code mapping not found for {}. "
-                        + "File name: {} Container: {} Reason: {}",
-                    cause.getClass().getName(),
-                    zipFilename,
-                    containerName,
-                    cause
-                );
-                throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
-            }
+        errorNotificationSender.sendErrorNotification(
+            zipFilename,
+            containerName,
+            cause,
+            eventId,
+            cause.getErrorCode()
         );
+        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
 }

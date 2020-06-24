@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
@@ -36,7 +36,7 @@ public class OcrPresenceValidatorTest {
                     doc(CHERISHED, null)
                 )
             ))
-            .isInstanceOf(OcrPresenceExceptionEnvelope.class)
+            .isInstanceOf(OcrPresenceException.class)
             .hasMessage(OcrPresenceValidator.MULTIPLE_OCR_MSG);
     }
 
@@ -51,7 +51,7 @@ public class OcrPresenceValidatorTest {
                     doc(CHERISHED, null)
                 )
             ))
-            .isInstanceOf(OcrPresenceExceptionEnvelope.class)
+            .isInstanceOf(OcrPresenceException.class)
             .hasMessage(OcrPresenceValidator.MISSING_OCR_MSG);
     }
 
@@ -71,7 +71,7 @@ public class OcrPresenceValidatorTest {
                             doc(CHERISHED, null)
                         )
                     ))
-                    .isInstanceOf(OcrPresenceExceptionEnvelope.class)
+                    .isInstanceOf(OcrPresenceException.class)
                     .hasMessage(OcrPresenceValidator.MISPLACED_OCR_MSG);
             });
     }
@@ -86,7 +86,7 @@ public class OcrPresenceValidatorTest {
                     doc(CHERISHED, "some-subtype-2", null)
                 )
             ))
-            .isInstanceOf(OcrPresenceExceptionEnvelope.class)
+            .isInstanceOf(OcrPresenceException.class)
             .hasMessage(OcrPresenceValidator.MISSING_DOC_SUBTYPE_MSG);
     }
 

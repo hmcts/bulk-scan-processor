@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
@@ -58,7 +58,7 @@ public class OcrValidator {
      *
      * @return Warnings for valid OCR data, to be displayed to the caseworker. Empty if
      *         no validation took place.
-     * @throws OcrValidationExceptionEnvelope if the OCR data is invalid
+     * @throws OcrValidationException if the OCR data is invalid
      */
     public Optional<OcrValidationWarnings> assertOcrDataIsValid(InputEnvelope envelope) {
         if (envelope.classification == EXCEPTION) {
@@ -106,7 +106,7 @@ public class OcrValidator {
                 String message = "OCR validation service returned OCR-specific errors. "
                     + "Document control number: " + docWithOcr.documentControlNumber + ". "
                     + "Envelope: " + envelope.zipFileName + ".";
-                throw new OcrValidationExceptionEnvelope(
+                throw new OcrValidationException(
                     message,
                     "OCR fields validation failed. Validation errors: " + res.errors
                 );
@@ -136,7 +136,7 @@ public class OcrValidator {
         );
 
         if (exc instanceof NotFound) {
-            throw new OcrValidationExceptionEnvelope("Unrecognised document subtype " + docWithOcr.documentSubtype);
+            throw new OcrValidationException("Unrecognised document subtype " + docWithOcr.documentSubtype);
         }
     }
 

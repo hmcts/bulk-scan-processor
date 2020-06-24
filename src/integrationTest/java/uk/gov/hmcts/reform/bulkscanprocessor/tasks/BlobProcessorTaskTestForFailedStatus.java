@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
 import java.util.Arrays;
@@ -100,7 +100,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
         given(ocrValidator.assertOcrDataIsValid(any())).willThrow(
-            new OcrValidationExceptionEnvelope(
+            new OcrValidationException(
                 "Ocr Validation Error.",
                 "Ocr Validation Error. Errors : [Error 1, Error2]")
         );

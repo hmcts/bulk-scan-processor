@@ -4,7 +4,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class ZipFileProcessor {
                     break;
                 default:
                     // contract breakage
-                    throw new NonPdfFileFoundExceptionEnvelope(zipFileName, zipEntry.getName());
+                    throw new NonPdfFileFoundException(zipFileName, zipEntry.getName());
             }
         }
 

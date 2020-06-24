@@ -10,8 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceExceptionEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
@@ -47,7 +47,7 @@ class ErrorNotificationSenderTest {
     private ContainerMappings containerMappings;
 
     @Mock
-    private OcrValidationExceptionEnvelope ocrValidationException;
+    private OcrValidationException ocrValidationException;
 
     @Captor
     private ArgumentCaptor<ErrorMsg> argCaptor;
@@ -73,7 +73,7 @@ class ErrorNotificationSenderTest {
         errorNotificationSender.sendErrorNotification(
             FILE_NAME,
             CONTAINER,
-            new OcrPresenceExceptionEnvelope(MSG),
+            new OcrPresenceException(MSG),
             EVENT_ID,
             ERROR_CODE
         );
@@ -129,7 +129,7 @@ class ErrorNotificationSenderTest {
                                errorNotificationSender.sendErrorNotification(
                                    FILE_NAME,
                                    UNMAPPED_CONTAINER,
-                                   new OcrPresenceExceptionEnvelope(MSG),
+                                   new OcrPresenceException(MSG),
                                    EVENT_ID,
                                    ERROR_CODE
                                )

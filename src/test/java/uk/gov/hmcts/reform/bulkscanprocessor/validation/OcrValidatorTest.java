@@ -15,8 +15,8 @@ import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceExceptionEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationExceptionEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
@@ -92,14 +92,14 @@ public class OcrValidatorTest {
                 docs
             );
         given(presenceValidator.assertHasProperlySetOcr(docs))
-            .willThrow(new OcrPresenceExceptionEnvelope("msg"));
+            .willThrow(new OcrPresenceException("msg"));
 
         // when
         Throwable exc = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope));
 
         // then
         assertThat(exc)
-            .isInstanceOf(OcrPresenceExceptionEnvelope.class)
+            .isInstanceOf(OcrPresenceException.class)
             .hasMessage("msg");
     }
 
@@ -315,7 +315,7 @@ public class OcrValidatorTest {
 
         // then
         assertThat(err)
-            .isInstanceOf(OcrValidationExceptionEnvelope.class)
+            .isInstanceOf(OcrValidationException.class)
             .hasMessageContaining("OCR validation service returned OCR-specific errors");
     }
 
@@ -350,7 +350,7 @@ public class OcrValidatorTest {
 
         // then
         assertThat(err)
-            .isInstanceOf(OcrValidationExceptionEnvelope.class);
+            .isInstanceOf(OcrValidationException.class);
     }
 
     @Test
