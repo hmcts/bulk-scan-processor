@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.IOException;
@@ -58,6 +59,9 @@ class BlobProcessorTaskTest {
     private BlobInputStream blobInputStream;
 
     @Mock
+    private EnvelopeValidator envelopeValidator;
+
+    @Mock
     private FileErrorHandler fileErrorHandler;
 
     @BeforeEach
@@ -68,6 +72,7 @@ class BlobProcessorTaskTest {
             zipFileProcessor,
             containerMappings,
             ocrValidator,
+            envelopeValidator,
             fileErrorHandler,
             false
         );
