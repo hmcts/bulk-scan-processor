@@ -42,6 +42,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
@@ -120,11 +121,13 @@ public class EnvelopeControllerTest {
             envelopeRepository,
             processEventRepository
         );
+        EnvelopeValidator envelopeValidator = new EnvelopeValidator();
         FileContentProcessor fileContentProcessor = new FileContentProcessor(
             envelopeProcessor,
             zipFileProcessor,
             containerMappings,
             ocrValidator,
+            envelopeValidator,
             fileErrorHandler,
             paymentsEnabled
         );

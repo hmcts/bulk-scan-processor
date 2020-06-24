@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
@@ -78,6 +79,8 @@ public abstract class ProcessorTestSuite<T> {
     protected ErrorNotificationSender errorNotificationSender;
 
     protected FileContentProcessor fileContentProcessor;
+
+    protected EnvelopeValidator envelopeValidator;
 
     protected FileErrorHandler fileErrorHandler;
 
@@ -133,6 +136,8 @@ public abstract class ProcessorTestSuite<T> {
             containerMappings
         );
 
+        envelopeValidator = new EnvelopeValidator();
+
         fileErrorHandler = new FileErrorHandler(
             blobManager,
             envelopeProcessor,
@@ -144,6 +149,7 @@ public abstract class ProcessorTestSuite<T> {
             zipFileProcessor,
             containerMappings,
             ocrValidator,
+            envelopeValidator,
             fileErrorHandler,
             paymentsEnabled
         );

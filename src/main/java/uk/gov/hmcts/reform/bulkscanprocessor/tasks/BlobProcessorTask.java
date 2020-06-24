@@ -164,8 +164,13 @@ public class BlobProcessorTask {
         if (envelope == null) {
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
-                envelopeProcessor.createEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null, null);
-
+                envelopeProcessor.createEvent(
+                    ZIPFILE_PROCESSING_STARTED,
+                    container.getName(),
+                    zipFilename,
+                    null,
+                    null
+                );
                 fileContentProcessor.processZipFileContent(zis, zipFilename, container.getName(), leaseId);
             }
         } else {
