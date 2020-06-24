@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfig
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -85,7 +86,7 @@ public class EnvelopeControllerTest {
     @MockBean private DocumentManagementService documentManagementService;
     @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
-    @MockBean private FileContentProcessor fileContentProcessor;
+    @MockBean private FileErrorHandler fileErrorHandler;
 
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
@@ -114,14 +115,23 @@ public class EnvelopeControllerTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
         BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
+            schemaValidator,
+            envelopeRepository,
+            processEventRepository
+        );
+        FileContentProcessor fileContentProcessor = new FileContentProcessor(
+            envelopeProcessor,
+            zipFileProcessor,
+            containerMappings,
+            ocrValidator,
+            fileErrorHandler,
+            paymentsEnabled
+        );
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
-            new EnvelopeProcessor(
-                schemaValidator,
-                envelopeRepository,
-                processEventRepository
-            ),
+            envelopeProcessor,
             fileContentProcessor
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);

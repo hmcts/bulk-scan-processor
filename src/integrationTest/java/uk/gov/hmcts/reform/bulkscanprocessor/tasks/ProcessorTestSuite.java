@@ -133,6 +133,12 @@ public abstract class ProcessorTestSuite<T> {
             containerMappings
         );
 
+        fileErrorHandler = new FileErrorHandler(
+            blobManager,
+            envelopeProcessor,
+            errorNotificationSender
+        );
+
         fileContentProcessor = new FileContentProcessor(
             envelopeProcessor,
             zipFileProcessor,
@@ -140,12 +146,6 @@ public abstract class ProcessorTestSuite<T> {
             ocrValidator,
             fileErrorHandler,
             paymentsEnabled
-        );
-
-        fileErrorHandler = new FileErrorHandler(
-            blobManager,
-            envelopeProcessor,
-            errorNotificationSender
         );
 
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
