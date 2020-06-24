@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation.envelope;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
@@ -18,6 +19,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
 
 public class DocumentTypesValidationTest {
+    private EnvelopeValidator envelopeValidator;
+
+    @BeforeEach
+    public void setUp() {
+        envelopeValidator = new EnvelopeValidator();
+    }
 
     @Test
     public void should_throw_exception_when_supplementary_evidence_envelope_contains_form() {
@@ -32,7 +39,7 @@ public class DocumentTypesValidationTest {
 
         // when
         Throwable throwable = catchThrowable(
-            () -> EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
         );
 
         // then
@@ -57,7 +64,7 @@ public class DocumentTypesValidationTest {
 
         // when
         Throwable throwable = catchThrowable(
-            () -> EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
         );
 
         // then
@@ -82,7 +89,7 @@ public class DocumentTypesValidationTest {
 
         // when
         assertThatCode(
-            () -> EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
         ).doesNotThrowAnyException();
     }
 
@@ -99,7 +106,7 @@ public class DocumentTypesValidationTest {
 
         // when
         assertThatCode(
-            () -> EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
         ).doesNotThrowAnyException();
     }
 
@@ -116,7 +123,7 @@ public class DocumentTypesValidationTest {
 
         // when
         assertThatCode(
-            () -> EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
         ).doesNotThrowAnyException();
     }
 
