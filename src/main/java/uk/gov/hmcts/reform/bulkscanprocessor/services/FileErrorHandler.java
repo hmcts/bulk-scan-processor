@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
@@ -12,7 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class FileErrorHandler {
-    private static final Logger log = LoggerFactory.getLogger(FileErrorHandler.class);
 
     private final BlobManager blobManager;
 
