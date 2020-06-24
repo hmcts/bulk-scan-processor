@@ -10,6 +10,7 @@ public abstract class EnvelopeRejectionException extends RuntimeException {
 
     public EnvelopeRejectionException(ErrorCode errorCode, String message) {
         super(message);
+        //use message as error description
         this.errorDescription = message;
         this.errorCode = errorCode;
     }
