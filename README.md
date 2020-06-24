@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/hmcts/bulk-scan-processor/branch/master/graph/badge.svg)](https://codecov.io/gh/hmcts/bulk-scan-processor)
 [![Known Vulnerabilities](https://snyk.io/test/github/hmcts/bulk-scan-processor/badge.svg)](https://snyk.io/test/github/hmcts/bulk-scan-processor)
 
-## Purpose
+## Purpose 
 
 Retrieve scanned documents along with information extracted with OCR engine. Store the images and let recipient
 services fetch the new data.
