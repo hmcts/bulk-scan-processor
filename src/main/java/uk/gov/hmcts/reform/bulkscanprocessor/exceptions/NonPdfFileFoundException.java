@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-public class NonPdfFileFoundException extends ZipFileProcessingFailedException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_ZIP_PROCESSING_FAILED;
+
+public class NonPdfFileFoundException extends EnvelopeRejectionException {
 
     private static final long serialVersionUID = 9143161748679833084L;
 
     public NonPdfFileFoundException(String zipFileName, String fileName) {
-        super("Zip '" + zipFileName + "' contains non-pdf file: " + fileName);
+        super(ERR_ZIP_PROCESSING_FAILED, "Zip '" + zipFileName + "' contains non-pdf file: " + fileName);
     }
 }
