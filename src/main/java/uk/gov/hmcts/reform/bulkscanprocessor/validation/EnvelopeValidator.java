@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchExceptionEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
@@ -35,6 +37,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+@Component
+@ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public final class EnvelopeValidator {
 
     private static final InputDocumentType defaultOcrDocumentType = InputDocumentType.FORM;
@@ -51,17 +55,13 @@ public final class EnvelopeValidator {
             Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR, emptyList()
         );
 
-    private EnvelopeValidator() {
-        // util class
-    }
-
     /**
      * Assert envelope contains only scannable items of types that are allowed for the envelope's classification.
      * Otherwise, throws an exception.
      *
      * @param envelope to assert against
      */
-    public static void assertEnvelopeContainsDocsOfAllowedTypesOnly(InputEnvelope envelope) {
+    public void assertEnvelopeContainsDocsOfAllowedTypesOnly(InputEnvelope envelope) {
         List<String> disallowedDocTypesFound =
             envelope
                 .scannableItems
@@ -88,7 +88,7 @@ public final class EnvelopeValidator {
      *
      * @param envelope to assert against
      */
-    public static void assertEnvelopeContainsOcrDataIfRequired(InputEnvelope envelope) {
+    public void assertEnvelopeContainsOcrDataIfRequired(InputEnvelope envelope) {
 
         if (envelope.classification == Classification.NEW_APPLICATION
             || envelope.classification == Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR) {
@@ -130,7 +130,7 @@ public final class EnvelopeValidator {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public static void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
+    public void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
         List<String> problems = new ArrayList<>();
 
         List<String> duplicateFileNames =
@@ -168,7 +168,7 @@ public final class EnvelopeValidator {
         }
     }
 
-    public static void assertDocumentControlNumbersAreUnique(InputEnvelope envelope) {
+    public void assertDocumentControlNumbersAreUnique(InputEnvelope envelope) {
         List<String> dcns = envelope.scannableItems.stream().map(it -> it.documentControlNumber).collect(toList());
         List<String> duplicateDcns = getDuplicates(dcns);
         if (!duplicateDcns.isEmpty()) {
@@ -178,7 +178,7 @@ public final class EnvelopeValidator {
         }
     }
 
-    public static void assertZipFilenameMatchesWithMetadata(InputEnvelope envelope, String zipFileName) {
+    public void assertZipFilenameMatchesWithMetadata(InputEnvelope envelope, String zipFileName) {
         if (!envelope.zipFileName.equals(zipFileName)) {
             throw new ZipNameNotMatchingMetaDataExceptionEnvelope(
                 "Name of the uploaded zip file does not match with field \"zip_file_name\" in the metadata"
@@ -194,7 +194,7 @@ public final class EnvelopeValidator {
      * @param envelope      to assert against
      * @param containerName container from which envelope was retrieved
      */
-    public static void assertContainerMatchesJurisdictionAndPoBox(
+    public void assertContainerMatchesJurisdictionAndPoBox(
         List<ContainerMappings.Mapping> mappings,
         InputEnvelope envelope,
         String containerName
@@ -218,7 +218,7 @@ public final class EnvelopeValidator {
         }
     }
 
-    public static void assertPaymentsEnabledForContainerIfPaymentsArePresent(
+    public void assertPaymentsEnabledForContainerIfPaymentsArePresent(
         InputEnvelope envelope,
         boolean paymentsEnabled,
         List<ContainerMappings.Mapping> mappings
@@ -236,7 +236,7 @@ public final class EnvelopeValidator {
         }
     }
 
-    public static void assertServiceEnabled(
+    public void assertServiceEnabled(
         InputEnvelope envelope,
         List<ContainerMappings.Mapping> mappings
     ) {
@@ -261,7 +261,7 @@ public final class EnvelopeValidator {
         }
     }
 
-    private static boolean isPaymentsEnabledForContainer(
+    private boolean isPaymentsEnabledForContainer(
         List<ContainerMappings.Mapping> mappings,
         InputEnvelope envelope
     ) {
@@ -276,7 +276,7 @@ public final class EnvelopeValidator {
             .orElse(false);
     }
 
-    private static List<String> getDuplicates(List<String> collection) {
+    private List<String> getDuplicates(List<String> collection) {
         return collection
             .stream()
             .collect(groupingBy(it -> it, counting()))

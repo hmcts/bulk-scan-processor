@@ -78,6 +78,8 @@ public class BlobProcessorTask {
 
     private final OcrValidator ocrValidator;
 
+    private final EnvelopeValidator envelopeValidator;
+
     private final FileErrorHandler fileErrorHandler;
 
     private final boolean paymentsEnabled;
@@ -88,6 +90,7 @@ public class BlobProcessorTask {
         ZipFileProcessor zipFileProcessor,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
+        EnvelopeValidator envelopeValidator,
         FileErrorHandler fileErrorHandler,
         @Value("${process-payments.enabled}") boolean paymentsEnabled
     ) {
@@ -96,6 +99,7 @@ public class BlobProcessorTask {
         this.zipFileProcessor = zipFileProcessor;
         this.containerMappings = containerMappings;
         this.ocrValidator = ocrValidator;
+        this.envelopeValidator = envelopeValidator;
         this.fileErrorHandler = fileErrorHandler;
         this.paymentsEnabled = paymentsEnabled;
     }
@@ -246,18 +250,18 @@ public class BlobProcessorTask {
                 envelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
             );
 
-            EnvelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
-            EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            envelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
+            envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
                 containerMappings.getMappings(), envelope, containerName
             );
-            EnvelopeValidator.assertServiceEnabled(envelope, containerMappings.getMappings());
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
-            EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
-            EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
-            EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+            envelopeValidator.assertServiceEnabled(envelope, containerMappings.getMappings());
+            envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
+            envelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
+            envelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
+            envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
                 envelope, paymentsEnabled, containerMappings.getMappings()
             );
-            EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
+            envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 

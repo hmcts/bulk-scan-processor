@@ -41,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
@@ -114,6 +115,7 @@ public class EnvelopeControllerTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
         BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        EnvelopeValidator envelopeValidator = new EnvelopeValidator();
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
@@ -125,6 +127,7 @@ public class EnvelopeControllerTest {
             zipFileProcessor,
             containerMappings,
             ocrValidator,
+            envelopeValidator,
             fileErrorHandler,
             paymentsEnabled
         );

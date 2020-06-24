@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchExceptionEnvelope;
@@ -29,11 +30,17 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.payment;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
-import static uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator.assertZipFilenameMatchesWithMetadata;
 
 public class EnvelopeProcessorValidationTest {
 
     private static final String SAMPLE_URL = "https://example.com/";
+
+    private EnvelopeValidator envelopeValidator;
+
+    @BeforeEach
+    public void setUp() {
+        envelopeValidator = new EnvelopeValidator();
+    }
 
     @Test
     public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
@@ -50,7 +57,7 @@ public class EnvelopeProcessorValidationTest {
         List<Pdf> pdfs = singletonList(new Pdf("hello.pdf", null));
 
         // when
-        Throwable throwable = catchThrowable(() -> EnvelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
+        Throwable throwable = catchThrowable(() -> envelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
 
         // then
         assertThat(throwable)
@@ -77,7 +84,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         // when
-        Throwable throwable = catchThrowable(() -> EnvelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
+        Throwable throwable = catchThrowable(() -> envelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
 
         // then
         assertThat(throwable)
@@ -105,7 +112,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         // when
-        Throwable throwable = catchThrowable(() -> EnvelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
+        Throwable throwable = catchThrowable(() -> envelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
 
         // then
         assertThat(throwable)
@@ -133,7 +140,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         // when
-        Throwable throwable = catchThrowable(() -> EnvelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
+        Throwable throwable = catchThrowable(() -> envelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
 
         // then
         assertThat(throwable)
@@ -157,7 +164,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable throwable = catchThrowable(
-            () -> EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope)
+            () -> envelopeValidator.assertDocumentControlNumbersAreUnique(envelope)
         );
 
         // then
@@ -179,7 +186,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundExceptionEnvelope.class)
@@ -201,7 +208,7 @@ public class EnvelopeProcessorValidationTest {
                 );
 
                 Throwable throwable = catchThrowable(
-                    () -> EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+                    () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
                 );
 
                 softly.assertThat(throwable)
@@ -225,7 +232,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isNull();
@@ -247,7 +254,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(
-            () -> EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isNull();
@@ -262,7 +269,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
         );
 
         // then
@@ -276,7 +283,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable throwable = catchThrowable(
-            () -> assertZipFilenameMatchesWithMetadata(envelope, "invalid-zip-filename.zip")
+            () -> envelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, "invalid-zip-filename.zip")
         );
 
         // then
@@ -294,7 +301,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
         );
 
         // then
@@ -312,7 +319,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
         );
 
         // then
@@ -330,7 +337,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
+            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(mappings, envelope, container)
         );
 
         // then
@@ -352,7 +359,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+            () -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
                 envelope, false, singletonList(new Mapping("abc", "ABC", "test_poBox", null, true, true))
             ));
 
@@ -375,7 +382,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable err = catchThrowable(
-            () -> EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+            () -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
                 envelope, true, singletonList(new Mapping("abc", "ABC", "test_poBox", null, false, true))
             ));
 
@@ -396,7 +403,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundExceptionEnvelope.class)
@@ -415,7 +422,7 @@ public class EnvelopeProcessorValidationTest {
         );
 
         Throwable throwable = catchThrowable(() ->
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         );
 
         assertThat(throwable).isInstanceOf(OcrDataNotFoundExceptionEnvelope.class)
@@ -433,7 +440,7 @@ public class EnvelopeProcessorValidationTest {
 
         // when
         Throwable exception = catchThrowable(
-            () -> EnvelopeValidator.assertServiceEnabled(envelope, mappings)
+            () -> envelopeValidator.assertServiceEnabled(envelope, mappings)
         );
 
         // then
