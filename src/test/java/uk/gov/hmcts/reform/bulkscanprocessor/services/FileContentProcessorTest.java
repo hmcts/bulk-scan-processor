@@ -9,9 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrDataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -37,7 +35,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 
 @ExtendWith(MockitoExtension.class)
@@ -249,44 +246,7 @@ class FileContentProcessorTest {
     }
 
     @Test
-    void should_handle_zip_file_processing_failure() throws Exception {
-        // given
-        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
-        given(result.getMetadata()).willReturn(metadata);
-        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
-        given(containerMappings.getMappings()).willReturn(mappings);
-
-        OcrDataNotFoundException ex = new OcrDataNotFoundException("msg");
-        doThrow(ex)
-            .when(envelopeValidator)
-            .assertEnvelopeContainsOcrDataIfRequired(
-                inputEnvelope
-            );
-
-        // when
-        fileContentProcessor.processZipFileContent(
-            zis,
-            FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
-        );
-
-        // then
-        verify(fileErrorHandler)
-            .handleInvalidFileError(
-                FILE_VALIDATION_FAILURE,
-                CONTAINER_NAME,
-                FILE_NAME,
-                LEASE_ID,
-                ex
-            );
-        verifyNoInteractions(ocrValidator);
-        verifyNoMoreInteractions(fileErrorHandler);
-        verifyNoMoreInteractions(envelopeProcessor);
-    }
-
-    @Test
-    void should_handle_invalid_metafile() throws Exception {
+    void should_handle_envelope_rejection_exception() throws Exception {
         // given
         given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
@@ -313,44 +273,6 @@ class FileContentProcessorTest {
         verifyNoInteractions(envelopeValidator);
         verifyNoInteractions(ocrValidator);
         verifyNoMoreInteractions(fileErrorHandler);
-        verifyNoMoreInteractions(envelopeProcessor);
-    }
-
-    @Test
-    void should_handle_previously_failed_to_upload_exception() throws Exception {
-        // given
-        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
-        given(result.getMetadata()).willReturn(metadata);
-        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
-        given(containerMappings.getMappings()).willReturn(mappings);
-
-        PreviouslyFailedToUploadException ex = new PreviouslyFailedToUploadException("msg");
-        doThrow(ex)
-            .when(envelopeProcessor)
-            .assertDidNotFailToUploadBefore(
-                FILE_NAME,
-                CONTAINER_NAME
-            );
-
-        // when
-        fileContentProcessor.processZipFileContent(
-            zis,
-            FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
-        );
-
-        // then
-        verify(envelopeProcessor)
-            .createEvent(
-                DOC_UPLOAD_FAILURE,
-                CONTAINER_NAME,
-                FILE_NAME,
-                ex.getMessage(),
-                null
-            );
-        verifyNoInteractions(ocrValidator);
-        verifyNoInteractions(fileErrorHandler);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 

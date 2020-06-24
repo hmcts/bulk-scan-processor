@@ -95,7 +95,7 @@ class ErrorNotificationSenderTest {
     @Test
     void should_send_for_ocr_validation_error() {
         // given
-        given(ocrValidationException.getDetailMessage()).willReturn(DETAILED_MESSAGE);
+        given(ocrValidationException.getErrorDescription()).willReturn(DETAILED_MESSAGE);
 
         // when
         errorNotificationSender.sendErrorNotification(
