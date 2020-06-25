@@ -28,6 +28,16 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
+/**
+ * This class is in charge of processing content of zip file as an InputStream.
+ * It will do below things:
+ * <ol>
+ * <li>Run necessary validations</li>
+ * <li>Transform metadata json to DB entities</li>
+ * <li>Save PDF files in document storage</li>
+ * <li>Update status and doc urls in DB</li>
+ * </ol>
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class FileContentProcessor {
