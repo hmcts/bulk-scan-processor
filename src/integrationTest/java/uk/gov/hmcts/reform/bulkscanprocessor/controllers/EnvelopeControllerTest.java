@@ -32,7 +32,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -116,26 +115,21 @@ public class EnvelopeControllerTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
         BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
-        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            envelopeRepository,
-            processEventRepository
-        );
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
-        FileContentProcessor fileContentProcessor = new FileContentProcessor(
-            envelopeProcessor,
+
+        blobProcessorTask = new BlobProcessorTask(
+            blobManager,
+            new EnvelopeProcessor(
+                schemaValidator,
+                envelopeRepository,
+                processEventRepository
+            ),
             zipFileProcessor,
             containerMappings,
             ocrValidator,
             envelopeValidator,
             fileErrorHandler,
             paymentsEnabled
-        );
-
-        blobProcessorTask = new BlobProcessorTask(
-            blobManager,
-            envelopeProcessor,
-            fileContentProcessor
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 
@@ -170,7 +164,7 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes?status=" + UPLOADED)
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
+                            .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
@@ -196,7 +190,7 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
+                            .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().string("{\"envelopes\":[]}"));
@@ -210,7 +204,7 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test");
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
+                                                    .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(400);

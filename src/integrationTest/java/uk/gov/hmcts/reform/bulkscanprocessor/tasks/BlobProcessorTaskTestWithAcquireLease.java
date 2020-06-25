@@ -30,7 +30,12 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
         processor = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            fileContentProcessor
+            zipFileProcessor,
+            containerMappings,
+            ocrValidator,
+            envelopeValidator,
+            fileErrorHandler,
+            paymentsEnabled
         );
     }
 

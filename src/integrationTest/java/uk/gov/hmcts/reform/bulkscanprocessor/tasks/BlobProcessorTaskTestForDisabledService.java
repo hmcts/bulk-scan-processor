@@ -33,7 +33,12 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<
         processor = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            fileContentProcessor
+            zipFileProcessor,
+            containerMappings,
+            ocrValidator,
+            envelopeValidator,
+            fileErrorHandler,
+            paymentsEnabled
         );
     }
 
