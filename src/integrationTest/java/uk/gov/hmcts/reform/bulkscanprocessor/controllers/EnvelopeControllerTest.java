@@ -164,7 +164,7 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes?status=" + UPLOADED)
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
+                            .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
@@ -190,7 +190,7 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
+                            .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().string("{\"envelopes\":[]}"));
@@ -204,7 +204,7 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test");
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
+                                                    .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
