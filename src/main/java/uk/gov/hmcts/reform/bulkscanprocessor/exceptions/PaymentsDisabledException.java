@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-public class PaymentsDisabledException extends RuntimeException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_PAYMENTS_DISABLED;
+
+public class PaymentsDisabledException extends EnvelopeRejectionException {
     public PaymentsDisabledException(String message) {
-        super(message);
+        super(ERR_PAYMENTS_DISABLED, message);
     }
 }

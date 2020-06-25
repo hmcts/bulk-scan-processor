@@ -35,8 +35,8 @@ class ErrorNotificationSenderTest {
     private static final long EVENT_ID = 2002L;
     private static final ErrorCode ERROR_CODE = ErrorCode.ERR_METAFILE_INVALID;
     private static final String BULK_SCAN_PROCESSOR = "bulk_scan_processor";
-    public static final String UNMAPPED_CONTAINER = "unmapped_container";
-    public static final String DETAILED_MESSAGE = "detailed message";
+    private static final String UNMAPPED_CONTAINER = "unmapped_container";
+    private static final String DETAILED_MESSAGE = "detailed message";
 
     private ErrorNotificationSender errorNotificationSender;
 
@@ -95,7 +95,7 @@ class ErrorNotificationSenderTest {
     @Test
     void should_send_for_ocr_validation_error() {
         // given
-        given(ocrValidationException.getDetailMessage()).willReturn(DETAILED_MESSAGE);
+        given(ocrValidationException.getErrorDescription()).willReturn(DETAILED_MESSAGE);
 
         // when
         errorNotificationSender.sendErrorNotification(

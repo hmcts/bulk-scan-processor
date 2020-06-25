@@ -12,23 +12,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.util.Optionals;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ConfigurationException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidEnvelopeException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMetafileException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileProcessingFailedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.errornotifications.ErrorMapping;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
@@ -48,6 +43,8 @@ import java.util.zip.ZipInputStream;
 
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.toByteArray;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
@@ -79,7 +76,9 @@ public class BlobProcessorTask {
 
     private final OcrValidator ocrValidator;
 
-    private final ErrorNotificationSender errorNotificationSender;
+    private final EnvelopeValidator envelopeValidator;
+
+    private final FileErrorHandler fileErrorHandler;
 
     private final boolean paymentsEnabled;
 
@@ -89,7 +88,8 @@ public class BlobProcessorTask {
         ZipFileProcessor zipFileProcessor,
         ContainerMappings containerMappings,
         OcrValidator ocrValidator,
-        ErrorNotificationSender errorNotificationSender,
+        EnvelopeValidator envelopeValidator,
+        FileErrorHandler fileErrorHandler,
         @Value("${process-payments.enabled}") boolean paymentsEnabled
     ) {
         this.blobManager = blobManager;
@@ -97,7 +97,8 @@ public class BlobProcessorTask {
         this.zipFileProcessor = zipFileProcessor;
         this.containerMappings = containerMappings;
         this.ocrValidator = ocrValidator;
-        this.errorNotificationSender = errorNotificationSender;
+        this.envelopeValidator = envelopeValidator;
+        this.fileErrorHandler = fileErrorHandler;
         this.paymentsEnabled = paymentsEnabled;
     }
 
@@ -247,18 +248,18 @@ public class BlobProcessorTask {
                 envelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
             );
 
-            EnvelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
-            EnvelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+            envelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
+            envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
                 containerMappings.getMappings(), envelope, containerName
             );
-            EnvelopeValidator.assertServiceEnabled(envelope, containerMappings.getMappings());
-            EnvelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
-            EnvelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
-            EnvelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
-            EnvelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+            envelopeValidator.assertServiceEnabled(envelope, containerMappings.getMappings());
+            envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
+            envelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
+            envelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
+            envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
                 envelope, paymentsEnabled, containerMappings.getMappings()
             );
-            EnvelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
+            envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
 
             envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
 
@@ -271,15 +272,15 @@ public class BlobProcessorTask {
             log.error(
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
             );
-            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
         } catch (ServiceDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
-            handleInvalidFileError(Event.DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (InvalidMetafileException | ZipFileProcessingFailedException | InvalidEnvelopeException ex) {
+            fileErrorHandler.handleInvalidFileError(DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
+        } catch (EnvelopeRejectionException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
-            handleInvalidFileError(Event.FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             createEvent(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
@@ -301,47 +302,6 @@ public class BlobProcessorTask {
             zipFilename,
             exception == null ? null : exception.getMessage(),
             null
-        );
-    }
-
-    private void handleInvalidFileError(
-        Event fileValidationFailure,
-        String containerName,
-        String zipFilename,
-        String leaseId,
-        Exception cause
-    ) {
-        Long eventId = envelopeProcessor.createEvent(
-            fileValidationFailure,
-            containerName,
-            zipFilename,
-            cause.getMessage(),
-            null
-        );
-
-        Optionals.ifPresentOrElse(
-            ErrorMapping.getFor(cause),
-            (errorCode) -> {
-                errorNotificationSender.sendErrorNotification(
-                    zipFilename,
-                    containerName,
-                    cause,
-                    eventId,
-                    errorCode
-                );
-                blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
-            },
-            () -> {
-                log.error(
-                    "Error notification not sent because Error code mapping not found for {}. "
-                        + "File name: {} Container: {} Reason: {}",
-                    cause.getClass().getName(),
-                    zipFilename,
-                    containerName,
-                    cause
-                );
-                throw new ConfigurationException("Error code mapping not found for " + cause.getClass().getName());
-            }
         );
     }
 
