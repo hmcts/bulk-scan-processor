@@ -26,11 +26,8 @@ public class BlobProcessorTaskTestForFailingNotification extends ProcessorTestSu
             blobManager,
             envelopeProcessor,
             zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
+            envelopeHandler,
+            fileErrorHandler
         );
     }
 

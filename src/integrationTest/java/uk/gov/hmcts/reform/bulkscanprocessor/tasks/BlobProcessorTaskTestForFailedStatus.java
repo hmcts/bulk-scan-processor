@@ -26,11 +26,8 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<Blo
             blobManager,
             envelopeProcessor,
             zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
+            envelopeHandler,
+            fileErrorHandler
         );
     }
 

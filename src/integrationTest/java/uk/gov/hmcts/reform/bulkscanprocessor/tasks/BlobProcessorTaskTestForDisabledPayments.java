@@ -34,11 +34,8 @@ public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite
             blobManager,
             envelopeProcessor,
             zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
+            envelopeHandler,
+            fileErrorHandler
         );
     }
 

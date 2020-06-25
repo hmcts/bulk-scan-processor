@@ -40,11 +40,8 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask>
             blobManager,
             envelopeProcessor,
             zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
+            envelopeHandler,
+            fileErrorHandler
         );
     }
 
