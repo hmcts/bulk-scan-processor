@@ -10,10 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.IOException;
@@ -58,7 +59,10 @@ class BlobProcessorTaskTest {
     private BlobInputStream blobInputStream;
 
     @Mock
-    private ErrorNotificationSender errorNotificationSender;
+    private EnvelopeValidator envelopeValidator;
+
+    @Mock
+    private FileErrorHandler fileErrorHandler;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +72,8 @@ class BlobProcessorTaskTest {
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            errorNotificationSender,
+            envelopeValidator,
+            fileErrorHandler,
             false
         );
     }

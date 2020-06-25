@@ -1,7 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-public class DuplicateDocumentControlNumbersInEnvelopeException extends InvalidMetafileException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
+
+public class DuplicateDocumentControlNumbersInEnvelopeException extends
+    EnvelopeRejectionException {
+
     public DuplicateDocumentControlNumbersInEnvelopeException(String message) {
-        super(message);
+        super(ERR_METAFILE_INVALID, message);
     }
 }

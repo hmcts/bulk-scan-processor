@@ -33,7 +33,8 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<Bl
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            errorNotificationSender,
+            envelopeValidator,
+            fileErrorHandler,
             paymentsEnabled
         );
     }

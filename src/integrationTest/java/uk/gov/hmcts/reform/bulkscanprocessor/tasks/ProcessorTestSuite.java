@@ -23,12 +23,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
@@ -74,6 +76,10 @@ public abstract class ProcessorTestSuite<T> {
     protected ProcessEventRepository processEventRepository;
 
     protected ErrorNotificationSender errorNotificationSender;
+
+    protected EnvelopeValidator envelopeValidator;
+
+    protected FileErrorHandler fileErrorHandler;
 
     protected DocumentProcessor documentProcessor;
 
@@ -125,6 +131,14 @@ public abstract class ProcessorTestSuite<T> {
         errorNotificationSender = new ErrorNotificationSender(
             serviceBusHelper,
             containerMappings
+        );
+
+        envelopeValidator = new EnvelopeValidator();
+
+        fileErrorHandler = new FileErrorHandler(
+            blobManager,
+            envelopeProcessor,
+            errorNotificationSender
         );
 
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);

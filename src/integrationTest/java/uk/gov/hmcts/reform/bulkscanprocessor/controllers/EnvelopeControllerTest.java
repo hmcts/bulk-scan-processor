@@ -32,7 +32,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -41,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
@@ -85,13 +86,14 @@ public class EnvelopeControllerTest {
     @MockBean private DocumentManagementService documentManagementService;
     @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
-    @MockBean private ErrorNotificationSender errorNotificationSender;
+    @MockBean private FileErrorHandler fileErrorHandler;
 
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
     private CloudBlobContainer testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
+
 
     @BeforeAll
     public static void initialize() {
@@ -113,6 +115,7 @@ public class EnvelopeControllerTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
         BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        EnvelopeValidator envelopeValidator = new EnvelopeValidator();
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
@@ -124,7 +127,8 @@ public class EnvelopeControllerTest {
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            errorNotificationSender,
+            envelopeValidator,
+            fileErrorHandler,
             paymentsEnabled
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);

@@ -1,21 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
-public class OcrValidationException extends InvalidMetafileException {
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
 
-    // might contain sensitive data
-    private final String detailMessage;
+public class OcrValidationException extends EnvelopeRejectionException {
 
     public OcrValidationException(String message) {
-        super(message);
-        detailMessage = message;
+        super(ERR_METAFILE_INVALID, message);
     }
 
     public OcrValidationException(String message, String detailMessage) {
-        super(message);
-        this.detailMessage = detailMessage;
-    }
-
-    public String getDetailMessage() {
-        return detailMessage;
+        super(ERR_METAFILE_INVALID, message, detailMessage);
     }
 }

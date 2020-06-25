@@ -36,7 +36,8 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<
             zipFileProcessor,
             containerMappings,
             ocrValidator,
-            errorNotificationSender,
+            envelopeValidator,
+            fileErrorHandler,
             paymentsEnabled
         );
     }
