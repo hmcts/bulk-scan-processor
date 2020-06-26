@@ -24,6 +24,16 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
+/**
+ * This class is in charge of handling input envelopes.
+ * It will do below things:
+ * <ol>
+ * <li>Validate input envelope</li>
+ * <li>Verify it did not fail to upload before</li>
+ * <li>Validate its OCR data</li>
+ * <li>Create DB envelope entity and save it to DB</li>
+ * </ol>
+ */
 @Component
 @EnableConfigurationProperties(ContainerMappings.class)
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
@@ -67,7 +77,6 @@ public class EnvelopeHandler {
         String leaseId
     ) {
         try {
-
             envelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
             envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
                 containerMappings.getMappings(), envelope, containerName
