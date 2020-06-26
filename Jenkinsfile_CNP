@@ -1,7 +1,7 @@
 #!groovy
-
 @Library("Infrastructure")
 
+import uk.gov.hmcts.contino.AppPipelineDsl
 import uk.gov.hmcts.contino.GradleBuilder
 import uk.gov.hmcts.contino.Kubectl
 import uk.gov.hmcts.contino.DockerImage
@@ -86,6 +86,7 @@ withPipeline(type, product, component) {
   enableSlackNotifications(channel)
   enableAksStagingDeployment()
   disableLegacyDeployment()
+  enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
 
   onPR() {
     loadVaultSecrets(commonSecrets)
