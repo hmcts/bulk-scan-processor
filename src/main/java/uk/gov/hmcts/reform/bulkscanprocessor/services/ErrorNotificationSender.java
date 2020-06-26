@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,7 +61,7 @@ public class ErrorNotificationSender {
 
         notificationsQueueHelper.sendMessage(
             new ErrorMsg(
-                messageId,
+                StringUtils.joinWith("_", containerName, zipFilename),
                 eventId,
                 zipFilename,
                 containerName,

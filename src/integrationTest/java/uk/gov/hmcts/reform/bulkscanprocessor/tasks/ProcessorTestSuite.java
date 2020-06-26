@@ -221,6 +221,7 @@ public abstract class ProcessorTestSuite<T> {
 
         ErrorMsg sentMsg = argument.getValue();
 
+        assertThat(sentMsg.id).isEqualTo(CONTAINER_NAME + "_" + zipFileName);
         assertThat(sentMsg.zipFileName).isEqualTo(zipFileName);
         assertThat(sentMsg.jurisdiction).isEqualTo(CONTAINER_NAME);
         assertThat(sentMsg.errorCode).isEqualTo(code);

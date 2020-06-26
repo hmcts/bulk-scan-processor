@@ -81,6 +81,7 @@ class ErrorNotificationSenderTest {
         // then
         verify(containerMappings).getMappings();
         verify(notificationsQueueHelper).sendMessage(argCaptor.capture());
+        assertThat(argCaptor.getValue().id).isEqualTo(CONTAINER + "_" + FILE_NAME);
         assertThat(argCaptor.getValue().eventId).isEqualTo(EVENT_ID);
         assertThat(argCaptor.getValue().zipFileName).isEqualTo(FILE_NAME);
         assertThat(argCaptor.getValue().jurisdiction).isEqualTo(CONTAINER);
@@ -109,6 +110,7 @@ class ErrorNotificationSenderTest {
         // then
         verify(containerMappings).getMappings();
         verify(notificationsQueueHelper).sendMessage(argCaptor.capture());
+        assertThat(argCaptor.getValue().id).isEqualTo(CONTAINER + "_" + FILE_NAME);
         assertThat(argCaptor.getValue().eventId).isEqualTo(EVENT_ID);
         assertThat(argCaptor.getValue().zipFileName).isEqualTo(FILE_NAME);
         assertThat(argCaptor.getValue().jurisdiction).isEqualTo(CONTAINER);
