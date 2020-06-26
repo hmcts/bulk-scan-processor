@@ -127,7 +127,6 @@ public class EnvelopeControllerTest {
             containerMappings,
             envelopeProcessor,
             ocrValidator,
-            fileErrorHandler,
             paymentsEnabled
         );
 

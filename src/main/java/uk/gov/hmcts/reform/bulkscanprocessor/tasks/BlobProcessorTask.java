@@ -14,7 +14,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
@@ -36,6 +38,7 @@ import java.util.zip.ZipInputStream;
 
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.toByteArray;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
@@ -216,23 +219,32 @@ public class BlobProcessorTask {
         try {
             ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
-            InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
+            InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
             log.info(
                 "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
                 zipFilename,
                 containerName,
-                envelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
-                envelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
+                inputEnvelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
+                inputEnvelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
             );
 
             envelopeHandler.handleEnvelope(
                 containerName,
                 zipFilename,
                 result.getPdfs(),
-                envelope,
-                leaseId
+                inputEnvelope
             );
+        } catch (PaymentsDisabledException ex) {
+            log.error(
+                "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
+            );
+            fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+        } catch (ServiceDisabledException ex) {
+            log.error(
+                "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
+            );
+            fileErrorHandler.handleInvalidFileError(DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
         } catch (EnvelopeRejectionException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);

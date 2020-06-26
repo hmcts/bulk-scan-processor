@@ -149,7 +149,6 @@ public abstract class ProcessorTestSuite<T> {
             containerMappings,
             envelopeProcessor,
             ocrValidator,
-            fileErrorHandler,
             paymentsEnabled
         );
 

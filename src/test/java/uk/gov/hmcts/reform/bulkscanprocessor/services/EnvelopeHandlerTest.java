@@ -8,8 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -24,13 +22,10 @@ import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeHandlerTest {
@@ -53,7 +48,7 @@ class EnvelopeHandlerTest {
     @Mock
     private EnvelopeProcessor envelopeProcessor;
 
-    private boolean paymentsEnabled;
+    private boolean paymentsEnabled = true;
 
     @Mock
     private OcrValidator ocrValidator;
@@ -79,7 +74,6 @@ class EnvelopeHandlerTest {
             containerMappings,
             envelopeProcessor,
             ocrValidator,
-            fileErrorHandler,
             paymentsEnabled
         );
         inputEnvelope = new InputEnvelope(
@@ -108,8 +102,7 @@ class EnvelopeHandlerTest {
             CONTAINER_NAME,
             FILE_NAME,
             pdfs,
-            inputEnvelope,
-            LEASE_ID
+            inputEnvelope
         );
 
         // then
@@ -145,79 +138,6 @@ class EnvelopeHandlerTest {
         assertThat(envelope.getValue().getContainer()).isEqualTo(CONTAINER_NAME);
 
         verifyNoInteractions(fileErrorHandler);
-        verifyNoMoreInteractions(envelopeProcessor);
-    }
-
-    @Test
-    void should_handle_payments_disabled() {
-        // given
-        given(containerMappings.getMappings()).willReturn(mappings);
-
-        PaymentsDisabledException ex = new PaymentsDisabledException("msg");
-        doThrow(ex)
-            .when(envelopeValidator)
-            .assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                inputEnvelope,
-                paymentsEnabled,
-                mappings
-            );
-
-        // when
-        envelopeHandler.handleEnvelope(
-            CONTAINER_NAME,
-            FILE_NAME,
-            pdfs,
-            inputEnvelope,
-            LEASE_ID
-        );
-
-        // then
-        verify(fileErrorHandler)
-            .handleInvalidFileError(
-                FILE_VALIDATION_FAILURE,
-                CONTAINER_NAME,
-                FILE_NAME,
-                LEASE_ID,
-                ex
-            );
-        verifyNoInteractions(ocrValidator);
-        verifyNoMoreInteractions(fileErrorHandler);
-        verifyNoMoreInteractions(envelopeProcessor);
-    }
-
-    @Test
-    void should_handle_service_disabled() {
-        // given
-        given(containerMappings.getMappings()).willReturn(mappings);
-
-        ServiceDisabledException ex = new ServiceDisabledException("msg");
-        doThrow(ex)
-            .when(envelopeValidator)
-            .assertServiceEnabled(
-                inputEnvelope,
-                mappings
-            );
-
-        // when
-        envelopeHandler.handleEnvelope(
-            CONTAINER_NAME,
-            FILE_NAME,
-            pdfs,
-            inputEnvelope,
-            LEASE_ID
-        );
-
-        // then
-        verify(fileErrorHandler)
-            .handleInvalidFileError(
-                DISABLED_SERVICE_FAILURE,
-                CONTAINER_NAME,
-                FILE_NAME,
-                LEASE_ID,
-                ex
-            );
-        verifyNoInteractions(ocrValidator);
-        verifyNoMoreInteractions(fileErrorHandler);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 }
