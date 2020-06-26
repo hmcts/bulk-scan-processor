@@ -14,8 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
-import java.util.UUID;
-
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class ErrorNotificationSender {
@@ -57,11 +55,11 @@ public class ErrorNotificationSender {
         ErrorCode errorCode,
         String message
     ) {
-        String messageId = UUID.randomUUID().toString();
+        String messageId = StringUtils.joinWith("_", containerName, zipFilename);
 
         notificationsQueueHelper.sendMessage(
             new ErrorMsg(
-                StringUtils.joinWith("_", containerName, zipFilename),
+                messageId,
                 eventId,
                 zipFilename,
                 containerName,
