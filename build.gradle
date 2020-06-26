@@ -180,7 +180,7 @@ sonarqube {
 
 pact {
   publish {
-    pactBrokerUrl = System.getProperty("PACT_BROKER_URL") ?: 'http://localhost:80'
+    pactBrokerUrl = 'https://pact-broker.platform.hmcts.net'
     version = '0.0.1'
   }
 }

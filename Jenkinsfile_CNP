@@ -53,7 +53,6 @@ withPipeline(type, product, component) {
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanaatstaging.blob.core.windows.net'
   env.PROXYOUT_ENABLED = false
-  env.PACT_BROKER_URL = 'https://pact-broker.platform.hmcts.net'
 
   before('smoketest:preview') {
     withAksClient('nonprod') {
