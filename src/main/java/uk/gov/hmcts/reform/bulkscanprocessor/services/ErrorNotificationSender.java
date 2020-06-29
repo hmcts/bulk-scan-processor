@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,8 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionExcepti
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
-
-import java.util.UUID;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
@@ -56,7 +55,7 @@ public class ErrorNotificationSender {
         ErrorCode errorCode,
         String message
     ) {
-        String messageId = UUID.randomUUID().toString();
+        String messageId = StringUtils.joinWith("_", containerName, zipFilename);
 
         notificationsQueueHelper.sendMessage(
             new ErrorMsg(
