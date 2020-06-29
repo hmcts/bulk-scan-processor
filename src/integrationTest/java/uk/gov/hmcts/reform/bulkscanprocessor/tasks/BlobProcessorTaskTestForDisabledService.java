@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
@@ -24,23 +23,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
     "containers.mappings[0].paymentsEnabled=false",
     "containers.mappings[0].enabled=false"
 })
-public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite<BlobProcessorTask> {
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-
-        processor = new BlobProcessorTask(
-            blobManager,
-            envelopeProcessor,
-            zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
-        );
-    }
+public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite {
 
     @Test
     public void should_reject_file_when_service_is_disabled() throws Exception {
