@@ -32,6 +32,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -116,20 +117,25 @@ public class EnvelopeControllerTest {
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
         BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
+        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
+            schemaValidator,
+            envelopeRepository,
+            processEventRepository
+        );
+        EnvelopeHandler envelopeHandler = new EnvelopeHandler(
+            envelopeValidator,
+            containerMappings,
+            envelopeProcessor,
+            ocrValidator,
+            paymentsEnabled
+        );
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
-            new EnvelopeProcessor(
-                schemaValidator,
-                envelopeRepository,
-                processEventRepository
-            ),
+            envelopeProcessor,
             zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
+            envelopeHandler,
+            fileErrorHandler
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 

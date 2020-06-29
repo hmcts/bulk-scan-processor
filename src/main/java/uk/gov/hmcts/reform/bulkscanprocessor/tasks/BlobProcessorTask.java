@@ -9,12 +9,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
@@ -23,14 +20,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -46,7 +41,6 @@ import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.toDbEnvelope;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -60,7 +54,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper.
  * </ol>
  */
 @Component
-@EnableConfigurationProperties(ContainerMappings.class)
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class BlobProcessorTask {
 
@@ -72,34 +65,22 @@ public class BlobProcessorTask {
 
     private final ZipFileProcessor zipFileProcessor;
 
-    private final ContainerMappings containerMappings;
-
-    private final OcrValidator ocrValidator;
-
-    private final EnvelopeValidator envelopeValidator;
+    private final EnvelopeHandler envelopeHandler;
 
     private final FileErrorHandler fileErrorHandler;
-
-    private final boolean paymentsEnabled;
 
     public BlobProcessorTask(
         BlobManager blobManager,
         EnvelopeProcessor envelopeProcessor,
         ZipFileProcessor zipFileProcessor,
-        ContainerMappings containerMappings,
-        OcrValidator ocrValidator,
-        EnvelopeValidator envelopeValidator,
-        FileErrorHandler fileErrorHandler,
-        @Value("${process-payments.enabled}") boolean paymentsEnabled
+        EnvelopeHandler envelopeHandler,
+        FileErrorHandler fileErrorHandler
     ) {
         this.blobManager = blobManager;
         this.envelopeProcessor = envelopeProcessor;
         this.zipFileProcessor = zipFileProcessor;
-        this.containerMappings = containerMappings;
-        this.ocrValidator = ocrValidator;
-        this.envelopeValidator = envelopeValidator;
+        this.envelopeHandler = envelopeHandler;
         this.fileErrorHandler = fileErrorHandler;
-        this.paymentsEnabled = paymentsEnabled;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
@@ -238,36 +219,22 @@ public class BlobProcessorTask {
         try {
             ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
 
-            InputEnvelope envelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
+            InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 
             log.info(
                 "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
                 zipFilename,
                 containerName,
-                envelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
-                envelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
+                inputEnvelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
+                inputEnvelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
             );
 
-            envelopeValidator.assertZipFilenameMatchesWithMetadata(envelope, zipFilename);
-            envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                containerMappings.getMappings(), envelope, containerName
+            envelopeHandler.handleEnvelope(
+                containerName,
+                zipFilename,
+                result.getPdfs(),
+                inputEnvelope
             );
-            envelopeValidator.assertServiceEnabled(envelope, containerMappings.getMappings());
-            envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope);
-            envelopeValidator.assertEnvelopeHasPdfs(envelope, result.getPdfs());
-            envelopeValidator.assertDocumentControlNumbersAreUnique(envelope);
-            envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                envelope, paymentsEnabled, containerMappings.getMappings()
-            );
-            envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope);
-
-            envelopeProcessor.assertDidNotFailToUploadBefore(envelope.zipFileName, containerName);
-
-            Optional<OcrValidationWarnings> ocrValidationWarnings = this.ocrValidator.assertOcrDataIsValid(envelope);
-
-            Envelope dbEnvelope = toDbEnvelope(envelope, containerName, ocrValidationWarnings);
-
-            envelopeProcessor.saveEnvelope(dbEnvelope);
         } catch (PaymentsDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
