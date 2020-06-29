@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfig
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -130,12 +131,17 @@ public class EnvelopeControllerTest {
             paymentsEnabled
         );
 
+        FileContentProcessor fileContentProcessor = new FileContentProcessor(
+            zipFileProcessor,
+            envelopeProcessor,
+            envelopeHandler,
+            fileErrorHandler
+        );
+
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            zipFileProcessor,
-            envelopeHandler,
-            fileErrorHandler
+            fileContentProcessor
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 
