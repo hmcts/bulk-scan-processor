@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 
-public abstract class ProcessorTestSuite<T> {
+public abstract class ProcessorTestSuite {
 
     protected static final String SAMPLE_ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
 
@@ -58,7 +58,7 @@ public abstract class ProcessorTestSuite<T> {
     protected static final String PO_BOX = "BULKSCANPO";
     protected static final String REJECTED_CONTAINER_NAME = "bulkscan-rejected";
 
-    protected T processor;
+    protected BlobProcessorTask processor;
 
     @Autowired
     protected ZipFileProcessor zipFileProcessor;
@@ -110,6 +110,7 @@ public abstract class ProcessorTestSuite<T> {
 
     private static DockerComposeContainer dockerComposeContainer;
 
+    @BeforeEach
     public void setUp() throws Exception {
 
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
@@ -146,6 +147,17 @@ public abstract class ProcessorTestSuite<T> {
 
         rejectedContainer = cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME);
         rejectedContainer.createIfNotExists();
+
+        processor = new BlobProcessorTask(
+            blobManager,
+            envelopeProcessor,
+            zipFileProcessor,
+            containerMappings,
+            ocrValidator,
+            envelopeValidator,
+            fileErrorHandler,
+            paymentsEnabled
+        );
     }
 
     @AfterEach

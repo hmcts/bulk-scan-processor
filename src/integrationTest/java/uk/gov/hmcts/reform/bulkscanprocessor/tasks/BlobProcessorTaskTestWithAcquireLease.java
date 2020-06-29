@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -21,23 +20,7 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
 @IntegrationTest
-public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite<BlobProcessorTask> {
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-
-        processor = new BlobProcessorTask(
-            blobManager,
-            envelopeProcessor,
-            zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
-        );
-    }
+public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite {
 
     @Test
     public void should_process_zip_file_only_once_by_processor_thread_which_acquires_lease_on_blob()

@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -30,23 +29,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDi
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @IntegrationTest
-public class BlobProcessorTaskTest extends ProcessorTestSuite<BlobProcessorTask> {
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-
-        processor = new BlobProcessorTask(
-            blobManager,
-            envelopeProcessor,
-            zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
-        );
-    }
+public class BlobProcessorTaskTest extends ProcessorTestSuite {
 
     @Test
     public void should_read_blob_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()

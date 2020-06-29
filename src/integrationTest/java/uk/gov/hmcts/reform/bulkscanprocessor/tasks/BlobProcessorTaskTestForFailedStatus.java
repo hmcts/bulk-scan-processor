@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
@@ -16,23 +15,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALI
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @IntegrationTest
-public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite<BlobProcessorTask> {
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-
-        processor = new BlobProcessorTask(
-            blobManager,
-            envelopeProcessor,
-            zipFileProcessor,
-            containerMappings,
-            ocrValidator,
-            envelopeValidator,
-            fileErrorHandler,
-            paymentsEnabled
-        );
-    }
+public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
 
     @Test
     public void should_record_validation_failure_when_zip_does_not_contain_metadata_json() throws Exception {
