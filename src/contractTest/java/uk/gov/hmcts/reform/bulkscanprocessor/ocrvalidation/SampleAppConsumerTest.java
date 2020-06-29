@@ -36,6 +36,20 @@ public class SampleAppConsumerTest {
             .toPact();
     }
 
+    @Pact(provider = "sample_app_ocr_validation", consumer = "bulk_scan_processor")
+    public RequestResponsePact invalidOcrPact(PactDslWithProvider builder) throws Exception {
+        return builder
+            .uponReceiving("Request to validate invalid OCR with missing mandatory field 'last_name' for type PERSONAL")
+            .path("/forms/PERSONAL/validate-ocr")
+            .method("POST")
+            .body(loadJson("sampleapp/ocr-with-missing-last-name.json"))
+            .headers(ImmutableMap.of("ServiceAuthorization", TEST_S2S_TOKEN))
+            .willRespondWith()
+            .status(200)
+            .body("{ 'status' : 'SUCCESS', 'errors': ['last_name is missing'], 'warnings': [] }".replace("'", "\""))
+            .toPact();
+    }
+
     @Test
     @PactTestFor(pactMethod = "validOcrPact")
     public void should_handle_valid_ocr(MockServer mockServer) throws Exception {
@@ -55,6 +69,28 @@ public class SampleAppConsumerTest {
 
         assertThat(response.getString("status")).isEqualTo("SUCCESS");
         assertThat(response.getList("errors")).isEmpty();
+        assertThat(response.getList("warnings")).isEmpty();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "invalidOcrPact")
+    public void should_handle_invalid_ocr(MockServer mockServer) throws Exception {
+        JsonPath response = RestAssured
+            .given()
+            .headers(ImmutableMap.of("ServiceAuthorization", TEST_S2S_TOKEN))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(loadJson("sampleapp/ocr-with-missing-last-name.json"))
+            .when()
+            .post(mockServer.getUrl() + "/forms/PERSONAL/validate-ocr")
+            .then()
+            .statusCode(200)
+            .and()
+            .extract()
+            .body()
+            .jsonPath();
+
+        assertThat(response.getString("status")).isEqualTo("SUCCESS");
+        assertThat(response.getList("errors")).containsExactly("last_name is missing");
         assertThat(response.getList("warnings")).isEmpty();
     }
 
