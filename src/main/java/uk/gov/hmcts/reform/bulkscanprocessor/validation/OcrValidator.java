@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrDataField;
@@ -73,7 +74,7 @@ public class OcrValidator {
                     .of(() -> client.validate(
                         validationUrl,
                         toFormData(docWithOcr),
-                        docWithOcr.documentSubtype,
+                        EnvelopeMapper.extractDocumentSubtype(docWithOcr.documentType, docWithOcr.documentSubtype), // to handle SSCS1
                         authTokenGenerator.generate()
                     ))
                     .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))

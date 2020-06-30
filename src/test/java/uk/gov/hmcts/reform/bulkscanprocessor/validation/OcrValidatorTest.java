@@ -17,11 +17,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status;
@@ -47,6 +49,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.OTHER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR;
@@ -81,8 +86,8 @@ public class OcrValidatorTest {
         // given
         List<InputScannableItem> docs =
             asList(
-                doc("other", sampleOcr()),
-                doc("other", null)
+                doc(OTHER,"other", sampleOcr()),
+                doc(OTHER,"other", null)
             );
         InputEnvelope envelope =
             inputEnvelope(
@@ -119,11 +124,11 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // and
-        InputScannableItem docWithOcr = doc("sample_document_subtype", sampleOcr());
+        InputScannableItem docWithOcr = doc(FORM,"sample_document_subtype", sampleOcr());
         List<InputScannableItem> docs =
             asList(
                 docWithOcr,
-                doc("other", null)
+                doc(OTHER,"other", null)
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -152,13 +157,53 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_not_call_rest_client_for_exception_journey_classification() {
+    public void should_handle_sscs1_forms_without_subtype() {
         // given
-        InputScannableItem docWithOcr = doc("sample_document_subtype", sampleOcr());
+        String url = VALIDATION_URL;
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", PO_BOX, url, true, true)
+            ));
+
+        given(client.validate(eq(url), any(), any(), any()))
+            .willReturn(new ValidationResponse(Status.SUCCESS, emptyList(), emptyList()));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        // and
+        InputScannableItem docWithOcr = doc(SSCS1, null, sampleOcr());
         List<InputScannableItem> docs =
             asList(
                 docWithOcr,
-                doc("other", null)
+                doc(OTHER,"other", null)
+            );
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            PO_BOX,
+            SUPPLEMENTARY_EVIDENCE,
+            docs
+        );
+        // and
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(docWithOcr));
+
+        // when
+        ocrValidator.assertOcrDataIsValid(envelope);
+
+        // then
+        // an appropriate subtype is being used (instead of null)
+        verify(client).validate(eq(url), any(), eq(DocumentSubtype.SSCS1), eq(S2S_TOKEN));
+    }
+
+    @Test
+    public void should_not_call_rest_client_for_exception_journey_classification() {
+        // given
+        InputScannableItem docWithOcr = doc(FORM,"sample_document_subtype", sampleOcr());
+        List<InputScannableItem> docs =
+            asList(
+                docWithOcr,
+                doc(OTHER,"other", null)
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -190,7 +235,7 @@ public class OcrValidatorTest {
 
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
-        InputScannableItem scannableItem = doc("subtype1", sampleOcr());
+        InputScannableItem scannableItem = doc(FORM, "subtype1", sampleOcr());
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(scannableItem),
@@ -224,12 +269,12 @@ public class OcrValidatorTest {
 
         InputEnvelope envelope = envelope(
             PO_BOX,
-            asList(doc("z", sampleOcr())),
+            asList(doc(FORM, "z", sampleOcr())),
             SUPPLEMENTARY_EVIDENCE
         );
 
         given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
-            .willReturn(Optional.of(doc("z", sampleOcr())));
+            .willReturn(Optional.of(doc(FORM, "z", sampleOcr())));
 
         // when
         Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
@@ -245,8 +290,8 @@ public class OcrValidatorTest {
         InputEnvelope envelope = envelope(
             "samplePoBox",
             asList(
-                doc("D8", sampleOcr()),
-                doc("other", null)
+                doc(FORM, "D8", sampleOcr()),
+                doc(OTHER, "other", null)
             ),
             SUPPLEMENTARY_EVIDENCE
         );
@@ -266,8 +311,8 @@ public class OcrValidatorTest {
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
-                doc("other", null),
-                doc("other", null)
+                doc(OTHER, "other", null),
+                doc(OTHER, "other", null)
             ),
             SUPPLEMENTARY_EVIDENCE
         );
@@ -290,14 +335,14 @@ public class OcrValidatorTest {
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
-                doc("y", sampleOcr()),
-                doc("other", null)
+                doc(FORM, "y", sampleOcr()),
+                doc(OTHER, "other", null)
             ),
             SUPPLEMENTARY_EVIDENCE
         );
 
         given(presenceValidator.assertHasProperlySetOcr(any()))
-            .willReturn(Optional.of(doc("y", sampleOcr())));
+            .willReturn(Optional.of(doc(FORM, "y", sampleOcr())));
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
@@ -325,14 +370,14 @@ public class OcrValidatorTest {
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
-                doc("x", sampleOcr()),
-                doc("other", null)
+                doc(FORM, "x", sampleOcr()),
+                doc(OTHER, "other", null)
             ),
             SUPPLEMENTARY_EVIDENCE
         );
 
         given(presenceValidator.assertHasProperlySetOcr(any()))
-            .willReturn(Optional.of(doc("x", sampleOcr())));
+            .willReturn(Optional.of(doc(FORM, "x", sampleOcr())));
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
@@ -356,12 +401,12 @@ public class OcrValidatorTest {
     @Test
     public void should_continue_if_calling_validation_endpoint_fails() {
         // given
-        InputScannableItem scannableItemWithOcr = doc("form", sampleOcr());
+        InputScannableItem scannableItemWithOcr = doc(FORM, "form", sampleOcr());
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
                 scannableItemWithOcr,
-                doc("other", null)
+                doc(OTHER, "other", null)
             ),
             SUPPLEMENTARY_EVIDENCE
         );
@@ -394,8 +439,8 @@ public class OcrValidatorTest {
         InputEnvelope envelope = envelope(
             PO_BOX,
             asList(
-                doc("form", sampleOcr()),
-                doc("other", null)
+                doc(FORM, "form", sampleOcr()),
+                doc(OTHER, "other", null)
             ),
             SUPPLEMENTARY_EVIDENCE
         );
@@ -431,7 +476,7 @@ public class OcrValidatorTest {
         );
     }
 
-    private InputScannableItem doc(String subtype, InputOcrData ocrData) {
+    private InputScannableItem doc(InputDocumentType docType, String subtype, InputOcrData ocrData) {
         return new InputScannableItem(
             UUID.randomUUID().toString(),
             Instant.now(),
@@ -442,7 +487,7 @@ public class OcrValidatorTest {
             ocrData,
             null,
             null,
-            null,
+            docType,
             subtype
         );
     }
