@@ -77,15 +77,18 @@ public class FileContentProcessor {
             log.error(
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
             );
-            fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
+            fileErrorHandler.handleInvalidFileError(eventId, containerName, zipFilename, leaseId, ex);
         } catch (ServiceDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
-            fileErrorHandler.handleInvalidFileError(DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
+            Long eventId = createEvent(DISABLED_SERVICE_FAILURE, containerName, zipFilename, ex.getMessage());
+            fileErrorHandler.handleInvalidFileError(eventId, containerName, zipFilename, leaseId, ex);
         } catch (EnvelopeRejectionException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
-            fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
+            Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
+            fileErrorHandler.handleInvalidFileError(eventId, containerName, zipFilename, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
@@ -95,13 +98,13 @@ public class FileContentProcessor {
         }
     }
 
-    private void createEvent(
+    private Long createEvent(
         Event event,
         String containerName,
         String zipFilename,
         String message
     ) {
-        envelopeProcessor.createEvent(
+        return envelopeProcessor.createEvent(
             event,
             containerName,
             zipFilename,

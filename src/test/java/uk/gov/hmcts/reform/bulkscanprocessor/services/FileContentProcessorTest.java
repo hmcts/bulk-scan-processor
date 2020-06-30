@@ -35,11 +35,12 @@ class FileContentProcessorTest {
     private static final String FILE_NAME = "file1.zip";
     private static final String CONTAINER_NAME = "container";
     private static final String LEASE_ID = "leaseID";
-    private static final String DCN = "dcn";
     private static final String POBOX = "pobox";
     private static final String BULKSCAN = "bulkscan";
     private static final String CASE_NUMBER = "case_number";
     private static final String CASE_REFERENCE = "case_reference";
+    private static final Long EVENT_ID = 1L;
+    public static final String MSG = "msg";
 
     @Mock
     private EnvelopeProcessor envelopeProcessor;
@@ -126,8 +127,11 @@ class FileContentProcessorTest {
         given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
+        given(envelopeProcessor
+                  .createEvent(FILE_VALIDATION_FAILURE, CONTAINER_NAME, FILE_NAME, MSG, null))
+            .willReturn(EVENT_ID);
 
-        PaymentsDisabledException ex = new PaymentsDisabledException("msg");
+        PaymentsDisabledException ex = new PaymentsDisabledException(MSG);
         doThrow(ex)
             .when(envelopeHandler)
             .handleEnvelope(
@@ -148,7 +152,7 @@ class FileContentProcessorTest {
         // then
         verify(fileErrorHandler)
             .handleInvalidFileError(
-                FILE_VALIDATION_FAILURE,
+                EVENT_ID,
                 CONTAINER_NAME,
                 FILE_NAME,
                 LEASE_ID,
@@ -164,6 +168,9 @@ class FileContentProcessorTest {
         given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
+        given(envelopeProcessor
+                  .createEvent(DISABLED_SERVICE_FAILURE, CONTAINER_NAME, FILE_NAME, MSG, null))
+            .willReturn(EVENT_ID);
 
         ServiceDisabledException ex = new ServiceDisabledException("msg");
         doThrow(ex)
@@ -186,7 +193,7 @@ class FileContentProcessorTest {
         // then
         verify(fileErrorHandler)
             .handleInvalidFileError(
-                DISABLED_SERVICE_FAILURE,
+                EVENT_ID,
                 CONTAINER_NAME,
                 FILE_NAME,
                 LEASE_ID,
@@ -203,6 +210,9 @@ class FileContentProcessorTest {
         given(result.getMetadata()).willReturn(metadata);
         MetadataNotFoundException ex = new MetadataNotFoundException("msg");
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
+        given(envelopeProcessor
+                  .createEvent(FILE_VALIDATION_FAILURE, CONTAINER_NAME, FILE_NAME, MSG, null))
+            .willReturn(EVENT_ID);
 
         // when
         fileContentProcessor.processZipFileContent(
@@ -215,7 +225,7 @@ class FileContentProcessorTest {
         // then
         verify(fileErrorHandler)
             .handleInvalidFileError(
-                FILE_VALIDATION_FAILURE,
+                EVENT_ID,
                 CONTAINER_NAME,
                 FILE_NAME,
                 LEASE_ID,

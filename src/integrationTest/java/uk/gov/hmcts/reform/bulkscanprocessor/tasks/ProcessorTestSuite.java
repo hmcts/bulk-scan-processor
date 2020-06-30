@@ -144,7 +144,6 @@ public abstract class ProcessorTestSuite {
 
         fileErrorHandler = new FileErrorHandler(
             blobManager,
-            envelopeProcessor,
             errorNotificationSender
         );
 
