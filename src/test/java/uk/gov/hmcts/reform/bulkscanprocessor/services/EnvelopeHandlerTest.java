@@ -54,7 +54,7 @@ class EnvelopeHandlerTest {
     private OcrValidator ocrValidator;
 
     @Mock
-    private FileErrorHandler fileErrorHandler;
+    private FileRejector fileRejector;
 
     private List<ContainerMappings.Mapping> mappings = emptyList();
 
@@ -137,7 +137,7 @@ class EnvelopeHandlerTest {
         assertThat(envelope.getValue().getNonScannableItems()).isEqualTo(inputEnvelope.nonScannableItems);
         assertThat(envelope.getValue().getContainer()).isEqualTo(CONTAINER_NAME);
 
-        verifyNoInteractions(fileErrorHandler);
+        verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 }
