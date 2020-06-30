@@ -86,8 +86,8 @@ public class OcrValidatorTest {
         // given
         List<InputScannableItem> docs =
             asList(
-                doc(OTHER,"other", sampleOcr()),
-                doc(OTHER,"other", null)
+                doc(OTHER, "other", sampleOcr()),
+                doc(OTHER, "other", null)
             );
         InputEnvelope envelope =
             inputEnvelope(
@@ -124,11 +124,11 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // and
-        InputScannableItem docWithOcr = doc(FORM,"sample_document_subtype", sampleOcr());
+        InputScannableItem docWithOcr = doc(FORM, "sample_document_subtype", sampleOcr());
         List<InputScannableItem> docs =
             asList(
                 docWithOcr,
-                doc(OTHER,"other", null)
+                doc(OTHER, "other", null)
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -176,7 +176,7 @@ public class OcrValidatorTest {
         List<InputScannableItem> docs =
             asList(
                 docWithOcr,
-                doc(OTHER,"other", null)
+                doc(OTHER, "other", null)
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -199,11 +199,11 @@ public class OcrValidatorTest {
     @Test
     public void should_not_call_rest_client_for_exception_journey_classification() {
         // given
-        InputScannableItem docWithOcr = doc(FORM,"sample_document_subtype", sampleOcr());
+        InputScannableItem docWithOcr = doc(FORM, "sample_document_subtype", sampleOcr());
         List<InputScannableItem> docs =
             asList(
                 docWithOcr,
-                doc(OTHER,"other", null)
+                doc(OTHER, "other", null)
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
