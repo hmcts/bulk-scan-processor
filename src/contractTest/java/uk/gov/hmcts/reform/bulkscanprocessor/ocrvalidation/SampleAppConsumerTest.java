@@ -46,7 +46,7 @@ public class SampleAppConsumerTest {
             .headers(ImmutableMap.of("ServiceAuthorization", TEST_S2S_TOKEN))
             .willRespondWith()
             .status(200)
-            .body("{ 'status' : 'SUCCESS', 'errors': ['last_name is missing'], 'warnings': [] }".replace("'", "\""))
+            .body("{ 'status' : 'ERRORS', 'errors': ['last_name is missing'], 'warnings': [] }".replace("'", "\""))
             .toPact();
     }
 
@@ -89,7 +89,7 @@ public class SampleAppConsumerTest {
             .body()
             .jsonPath();
 
-        assertThat(response.getString("status")).isEqualTo("SUCCESS");
+        assertThat(response.getString("status")).isEqualTo("ERRORS");
         assertThat(response.getList("errors")).containsExactly("last_name is missing");
         assertThat(response.getList("warnings")).isEmpty();
     }
