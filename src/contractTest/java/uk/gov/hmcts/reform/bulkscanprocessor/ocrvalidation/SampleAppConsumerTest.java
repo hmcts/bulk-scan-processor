@@ -89,7 +89,7 @@ public class SampleAppConsumerTest {
             .body()
             .jsonPath();
 
-        assertThat(response.getString("status")).isEqualTo("SUCCESS");
+        assertThat(response.getString("status")).isEqualTo("ERRORS");
         assertThat(response.getList("errors")).containsExactly("last_name is missing");
         assertThat(response.getList("warnings")).isEmpty();
     }
