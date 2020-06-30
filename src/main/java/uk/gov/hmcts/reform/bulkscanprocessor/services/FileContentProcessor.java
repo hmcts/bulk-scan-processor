@@ -34,18 +34,18 @@ public class FileContentProcessor {
 
     private final EnvelopeHandler envelopeHandler;
 
-    private final FileErrorHandler fileErrorHandler;
+    private final FileRejector fileRejector;
 
     public FileContentProcessor(
         ZipFileProcessor zipFileProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeHandler envelopeHandler,
-        FileErrorHandler fileErrorHandler
+        FileRejector fileRejector
     ) {
         this.zipFileProcessor = zipFileProcessor;
         this.envelopeProcessor = envelopeProcessor;
         this.envelopeHandler = envelopeHandler;
-        this.fileErrorHandler = fileErrorHandler;
+        this.fileRejector = fileRejector;
     }
 
     public void processZipFileContent(
@@ -78,17 +78,17 @@ public class FileContentProcessor {
                 "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
             );
             Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
-            fileErrorHandler.handleInvalidFileError(eventId, containerName, zipFilename, leaseId, ex);
+            fileRejector.handleInvalidFile(eventId, containerName, zipFilename, leaseId, ex);
         } catch (ServiceDisabledException ex) {
             log.error(
                 "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
             );
             Long eventId = createEvent(DISABLED_SERVICE_FAILURE, containerName, zipFilename, ex.getMessage());
-            fileErrorHandler.handleInvalidFileError(eventId, containerName, zipFilename, leaseId, ex);
+            fileRejector.handleInvalidFile(eventId, containerName, zipFilename, leaseId, ex);
         } catch (EnvelopeRejectionException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
-            fileErrorHandler.handleInvalidFileError(eventId, containerName, zipFilename, leaseId, ex);
+            fileRejector.handleInvalidFile(eventId, containerName, zipFilename, leaseId, ex);
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());

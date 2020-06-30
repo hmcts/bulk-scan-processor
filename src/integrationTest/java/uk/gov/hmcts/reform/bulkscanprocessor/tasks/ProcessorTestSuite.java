@@ -25,7 +25,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -81,7 +81,7 @@ public abstract class ProcessorTestSuite {
 
     protected EnvelopeValidator envelopeValidator;
 
-    protected FileErrorHandler fileErrorHandler;
+    protected FileRejector fileRejector;
 
     protected FileContentProcessor fileContentProcessor;
 
@@ -142,7 +142,7 @@ public abstract class ProcessorTestSuite {
 
         envelopeValidator = new EnvelopeValidator();
 
-        fileErrorHandler = new FileErrorHandler(
+        fileRejector = new FileRejector(
             blobManager,
             errorNotificationSender
         );
@@ -159,7 +159,7 @@ public abstract class ProcessorTestSuite {
             zipFileProcessor,
             envelopeProcessor,
             envelopeHandler,
-            fileErrorHandler
+            fileRejector
         );
 
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);

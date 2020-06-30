@@ -34,7 +34,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -88,7 +88,7 @@ public class EnvelopeControllerTest {
     @MockBean private DocumentManagementService documentManagementService;
     @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
-    @MockBean private FileErrorHandler fileErrorHandler;
+    @MockBean private FileRejector fileRejector;
 
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
@@ -135,7 +135,7 @@ public class EnvelopeControllerTest {
             zipFileProcessor,
             envelopeProcessor,
             envelopeHandler,
-            fileErrorHandler
+            fileRejector
         );
 
         blobProcessorTask = new BlobProcessorTask(

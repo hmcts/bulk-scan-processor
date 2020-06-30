@@ -49,7 +49,7 @@ class FileContentProcessorTest {
     private ZipFileProcessor zipFileProcessor;
 
     @Mock
-    private FileErrorHandler fileErrorHandler;
+    private FileRejector fileRejector;
 
     @Mock
     private EnvelopeHandler envelopeHandler;
@@ -76,7 +76,7 @@ class FileContentProcessorTest {
             zipFileProcessor,
             envelopeProcessor,
             envelopeHandler,
-            fileErrorHandler
+            fileRejector
         );
         inputEnvelope = new InputEnvelope(
             POBOX,
@@ -117,7 +117,7 @@ class FileContentProcessorTest {
             pdfs,
             inputEnvelope
         );
-        verifyNoInteractions(fileErrorHandler);
+        verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 
@@ -150,15 +150,15 @@ class FileContentProcessorTest {
         );
 
         // then
-        verify(fileErrorHandler)
-            .handleInvalidFileError(
+        verify(fileRejector)
+            .handleInvalidFile(
                 EVENT_ID,
                 CONTAINER_NAME,
                 FILE_NAME,
                 LEASE_ID,
                 ex
             );
-        verifyNoMoreInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 
@@ -191,15 +191,15 @@ class FileContentProcessorTest {
         );
 
         // then
-        verify(fileErrorHandler)
-            .handleInvalidFileError(
+        verify(fileRejector)
+            .handleInvalidFile(
                 EVENT_ID,
                 CONTAINER_NAME,
                 FILE_NAME,
                 LEASE_ID,
                 ex
             );
-        verifyNoMoreInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 
@@ -223,15 +223,15 @@ class FileContentProcessorTest {
         );
 
         // then
-        verify(fileErrorHandler)
-            .handleInvalidFileError(
+        verify(fileRejector)
+            .handleInvalidFile(
                 EVENT_ID,
                 CONTAINER_NAME,
                 FILE_NAME,
                 LEASE_ID,
                 ex
             );
-        verifyNoMoreInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 
@@ -259,7 +259,7 @@ class FileContentProcessorTest {
                 ex.getMessage(),
                 null
             );
-        verifyNoInteractions(fileErrorHandler);
+        verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 }

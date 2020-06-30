@@ -7,13 +7,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-public class FileErrorHandler {
+public class FileRejector {
 
     private final BlobManager blobManager;
 
     private final ErrorNotificationSender errorNotificationSender;
 
-    public FileErrorHandler(
+    public FileRejector(
         BlobManager blobManager,
         ErrorNotificationSender errorNotificationSender
     ) {
@@ -21,7 +21,7 @@ public class FileErrorHandler {
         this.errorNotificationSender = errorNotificationSender;
     }
 
-    public void handleInvalidFileError(
+    public void handleInvalidFile(
         Long eventId,
         String containerName,
         String zipFilename,

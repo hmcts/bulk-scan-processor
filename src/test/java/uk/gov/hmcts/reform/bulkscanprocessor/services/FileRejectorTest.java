@@ -12,14 +12,14 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_METAFILE_INVALID;
 
 @ExtendWith(MockitoExtension.class)
-class FileErrorHandlerTest {
+class FileRejectorTest {
     private static final long EVENT_ID = 1L;
     private static final String FILE_NAME = "file1.zip";
     private static final String LEASE_ID = "leaseID";
     private static final String MSG = "msg";
     private static final OcrPresenceException MAPPED_CAUSE = new OcrPresenceException(MSG);
 
-    private FileErrorHandler fileErrorHandler;
+    private FileRejector fileRejector;
 
     private static final String CONTAINER = "container";
 
@@ -31,18 +31,18 @@ class FileErrorHandlerTest {
 
     @BeforeEach
     void setUp() {
-        fileErrorHandler = new FileErrorHandler(
+        fileRejector = new FileRejector(
             blobManager,
             errorNotificationSender
         );
     }
 
     @Test
-    void should_handle_error_if_error_is_mapped() {
+    void should_handle_handle_invalid_file() {
         // given
 
         // when
-        fileErrorHandler.handleInvalidFileError(
+        fileRejector.handleInvalidFile(
             EVENT_ID,
             CONTAINER,
             FILE_NAME,
