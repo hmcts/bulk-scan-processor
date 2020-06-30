@@ -128,9 +128,11 @@ public class OcrValidator {
         InputScannableItem docWithOcr
     ) {
         log.error(
-            "Error calling validation endpoint. Url: {}, document: {}, envelope: {}",
+            "Error calling validation endpoint. Url: {}, DCN: {}, doc type: {}, doc subtype: {}, envelope: {}",
             validationUrl,
             docWithOcr.documentControlNumber,
+            docWithOcr.documentType,
+            docWithOcr.documentSubtype,
             envelope.zipFileName,
             exc
         );
