@@ -46,7 +46,7 @@ public class SampleAppConsumerTest {
             .headers(ImmutableMap.of("ServiceAuthorization", TEST_S2S_TOKEN))
             .willRespondWith()
             .status(200)
-            .body("{ 'status' : 'SUCCESS', 'errors': ['last_name is missing'], 'warnings': [] }".replace("'", "\""))
+            .body("{ 'status' : 'ERRORS', 'errors': ['last_name is missing'], 'warnings': [] }".replace("'", "\""))
             .toPact();
     }
 
