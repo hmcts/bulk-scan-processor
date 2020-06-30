@@ -118,15 +118,19 @@ public class BlobProcessorTask {
             envelopeProcessor.getEnvelopeIdByFileAndContainer(container.getName(), zipFilename);
 
         if (existingEnvelopeIdOpt.isPresent()) {
-            log.warn(
-                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
-                zipFilename,
-                container.getName(),
-                existingEnvelopeIdOpt.get()
-            );
+            abortProcessingEnvelope(container, zipFilename, existingEnvelopeIdOpt.get());
         } else {
             tryLeaseAndProcessZipFile(container, zipFilename, cloudBlockBlob);
         }
+    }
+
+    private void abortProcessingEnvelope(CloudBlobContainer container, String zipFilename, UUID existingEnvelopeId) {
+        log.warn(
+            "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
+            zipFilename,
+            container.getName(),
+            existingEnvelopeId
+        );
     }
 
     private void tryLeaseAndProcessZipFile(CloudBlobContainer container, String zipFilename, CloudBlockBlob cloudBlockBlob) throws StorageException, IOException {
@@ -166,12 +170,7 @@ public class BlobProcessorTask {
             envelopeProcessor.getEnvelopeIdByFileAndContainer(container.getName(), zipFilename);
 
         if (existingEnvelopeIdOpt.isPresent()) {
-            log.info(
-                "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
-                container.getName(),
-                zipFilename,
-                existingEnvelopeIdOpt.get()
-            );
+            abortProcessingEnvelope(container, zipFilename, existingEnvelopeIdOpt.get());
         } else {
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
