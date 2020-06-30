@@ -133,7 +133,11 @@ public class BlobProcessorTask {
         );
     }
 
-    private void tryLeaseAndProcessZipFile(CloudBlobContainer container, String zipFilename, CloudBlockBlob cloudBlockBlob) throws StorageException, IOException {
+    private void tryLeaseAndProcessZipFile(
+        CloudBlobContainer container,
+        String zipFilename,
+        CloudBlockBlob cloudBlockBlob
+    ) throws StorageException, IOException {
         if (!cloudBlockBlob.exists()) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
         } else {
