@@ -25,7 +25,6 @@ import java.util.Optional;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
-// TODO: make non-static
 public class EnvelopeMapper {
 
     // Maps metadata file document type to target ccd subtype.
@@ -134,7 +133,7 @@ public class EnvelopeMapper {
         }
     }
 
-    public static String extractDocumentSubtype(InputDocumentType inputDocumentType, String inputDocumentSubtype) {
+    private static String extractDocumentSubtype(InputDocumentType inputDocumentType, String inputDocumentSubtype) {
         switch (inputDocumentType) {
             case WILL:
             case SSCS1:

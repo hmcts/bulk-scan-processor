@@ -11,6 +11,7 @@ import org.springframework.web.client.HttpClientErrorException.NotFound;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
@@ -74,7 +75,7 @@ public class OcrValidator {
                     .of(() -> client.validate(
                         validationUrl,
                         toFormData(docWithOcr),
-                        EnvelopeMapper.extractDocumentSubtype(docWithOcr.documentType, docWithOcr.documentSubtype), // to handle SSCS1
+                        getFormType(docWithOcr),
                         authTokenGenerator.generate()
                     ))
                     .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))
@@ -172,5 +173,9 @@ public class OcrValidator {
                 .map(it -> new OcrDataField(it.name.asText(), it.value.textValue()))
                 .collect(toList())
         );
+    }
+
+    private String getFormType(InputScannableItem item) {
+        return item.documentType == InputDocumentType.SSCS1 ? "SSCS1" : item.documentSubtype;
     }
 }

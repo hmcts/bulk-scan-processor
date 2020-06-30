@@ -23,7 +23,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationClient;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status;
@@ -193,7 +192,7 @@ public class OcrValidatorTest {
 
         // then
         // an appropriate subtype is being used (instead of null)
-        verify(client).validate(eq(url), any(), eq(DocumentSubtype.SSCS1), eq(S2S_TOKEN));
+        verify(client).validate(eq(url), any(), eq("SSCS1"), eq(S2S_TOKEN));
     }
 
     @Test
