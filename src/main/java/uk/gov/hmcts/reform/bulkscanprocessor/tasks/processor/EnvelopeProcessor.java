@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
@@ -96,13 +95,15 @@ public class EnvelopeProcessor {
      * processing is complete and an envelope has already been created as
      * blob deletion is the last processing step.
      */
-    public Optional<UUID> getEnvelopeIdByFileAndContainer(String container, String zipFileName) {
+    public Envelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
         return envelopeRepository.findEnvelopesByFileAndContainer(
             container,
             zipFileName,
             PageRequest.of(0, 1)
         )
-            .stream().findFirst().map(Envelope::getId);
+            .stream()
+            .findFirst()
+            .orElse(null);
     }
 
     public void saveEnvelope(Envelope envelope) {

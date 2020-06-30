@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -24,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
@@ -114,27 +114,17 @@ public class BlobProcessorTask {
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
 
-        Optional<UUID> existingEnvelopeIdOpt =
-            envelopeProcessor.getEnvelopeIdByFileAndContainer(container.getName(), zipFilename);
+        Envelope existingEnvelope =
+            envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
 
-        if (existingEnvelopeIdOpt.isPresent()) {
+        if (existingEnvelope != null) {
             log.warn(
                 "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
                 zipFilename,
                 container.getName(),
-                existingEnvelopeIdOpt.get()
+                existingEnvelope.getId()
             );
-        } else {
-            tryLeaseAndProcessZipFile(container, zipFilename, cloudBlockBlob);
-        }
-    }
-
-    private void tryLeaseAndProcessZipFile(
-        CloudBlobContainer container,
-        String zipFilename,
-        CloudBlockBlob cloudBlockBlob
-    ) throws StorageException, IOException {
-        if (!cloudBlockBlob.exists()) {
+        } else if (!cloudBlockBlob.exists()) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getName());
         } else {
             cloudBlockBlob.downloadAttributes();
@@ -166,17 +156,9 @@ public class BlobProcessorTask {
         String zipFilename,
         String leaseId
     ) throws StorageException, IOException {
-        Optional<UUID> existingEnvelopeIdOpt =
-            envelopeProcessor.getEnvelopeIdByFileAndContainer(container.getName(), zipFilename);
+        Envelope envelope = envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
 
-        if (existingEnvelopeIdOpt.isPresent()) {
-            log.info(
-                "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
-                container.getName(),
-                zipFilename,
-                existingEnvelopeIdOpt.get()
-            );
-        } else {
+        if (envelope == null) {
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
                 envelopeProcessor.createEvent(
@@ -189,6 +171,13 @@ public class BlobProcessorTask {
 
                 fileContentProcessor.processZipFileContent(zis, zipFilename, container.getName(), leaseId);
             }
+        } else {
+            log.info(
+                "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
+                container.getName(),
+                zipFilename,
+                envelope.getId()
+            );
         }
     }
 
