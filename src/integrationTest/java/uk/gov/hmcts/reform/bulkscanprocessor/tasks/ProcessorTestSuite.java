@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
@@ -81,6 +82,8 @@ public abstract class ProcessorTestSuite {
     protected EnvelopeValidator envelopeValidator;
 
     protected FileErrorHandler fileErrorHandler;
+
+    protected FileContentProcessor fileContentProcessor;
 
     protected EnvelopeHandler envelopeHandler;
 
@@ -153,6 +156,13 @@ public abstract class ProcessorTestSuite {
             paymentsEnabled
         );
 
+        fileContentProcessor = new FileContentProcessor(
+            zipFileProcessor,
+            envelopeProcessor,
+            envelopeHandler,
+            fileErrorHandler
+        );
+
         testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
         testContainer.createIfNotExists();
 
@@ -162,9 +172,7 @@ public abstract class ProcessorTestSuite {
         processor = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            zipFileProcessor,
-            envelopeHandler,
-            fileErrorHandler
+            fileContentProcessor
         );
     }
 

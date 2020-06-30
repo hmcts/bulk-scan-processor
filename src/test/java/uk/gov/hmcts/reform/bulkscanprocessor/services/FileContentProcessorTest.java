@@ -1,0 +1,255 @@
+package uk.gov.hmcts.reform.bulkscanprocessor.services;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+
+import java.util.List;
+import java.util.zip.ZipInputStream;
+
+import static java.time.Instant.now;
+import static java.util.Collections.emptyList;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+
+@ExtendWith(MockitoExtension.class)
+class FileContentProcessorTest {
+    private static final String FILE_NAME = "file1.zip";
+    private static final String CONTAINER_NAME = "container";
+    private static final String LEASE_ID = "leaseID";
+    private static final String DCN = "dcn";
+    private static final String POBOX = "pobox";
+    private static final String BULKSCAN = "bulkscan";
+    private static final String CASE_NUMBER = "case_number";
+    private static final String CASE_REFERENCE = "case_reference";
+
+    @Mock
+    private EnvelopeProcessor envelopeProcessor;
+
+    @Mock
+    private ZipFileProcessor zipFileProcessor;
+
+    @Mock
+    private FileErrorHandler fileErrorHandler;
+
+    @Mock
+    private EnvelopeHandler envelopeHandler;
+
+    @Mock
+    private ZipInputStream zis;
+
+    @Mock
+    private ZipFileProcessingResult result;
+
+    private byte[] metadata = new byte[]{};
+
+    private List<ContainerMappings.Mapping> mappings = emptyList();
+
+    private List<Pdf> pdfs = emptyList();
+
+    private InputEnvelope inputEnvelope;
+
+    private FileContentProcessor fileContentProcessor;
+
+    @BeforeEach
+    void setUp() {
+        fileContentProcessor = new FileContentProcessor(
+            zipFileProcessor,
+            envelopeProcessor,
+            envelopeHandler,
+            fileErrorHandler
+        );
+        inputEnvelope = new InputEnvelope(
+            POBOX,
+            BULKSCAN,
+            now(),
+            now(),
+            now(),
+            FILE_NAME,
+            CASE_NUMBER,
+            CASE_REFERENCE,
+            NEW_APPLICATION,
+            emptyList(),
+            emptyList(),
+            emptyList()
+        );
+    }
+
+    @Test
+    void should_process_file_content_and_save_envelope() throws Exception {
+        // given
+        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(result.getMetadata()).willReturn(metadata);
+        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
+        given(result.getPdfs()).willReturn(pdfs);
+
+        // when
+        fileContentProcessor.processZipFileContent(
+            zis,
+            FILE_NAME,
+            CONTAINER_NAME,
+            LEASE_ID
+        );
+
+        // then
+        verify(envelopeHandler).handleEnvelope(
+            CONTAINER_NAME,
+            FILE_NAME,
+            pdfs,
+            inputEnvelope
+        );
+        verifyNoInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void should_handle_payments_disabled() throws Exception {
+        // given
+        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(result.getMetadata()).willReturn(metadata);
+        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
+
+        PaymentsDisabledException ex = new PaymentsDisabledException("msg");
+        doThrow(ex)
+            .when(envelopeHandler)
+            .handleEnvelope(
+                CONTAINER_NAME,
+                FILE_NAME,
+                pdfs,
+                inputEnvelope
+            );
+
+        // when
+        fileContentProcessor.processZipFileContent(
+            zis,
+            FILE_NAME,
+            CONTAINER_NAME,
+            LEASE_ID
+        );
+
+        // then
+        verify(fileErrorHandler)
+            .handleInvalidFileError(
+                FILE_VALIDATION_FAILURE,
+                CONTAINER_NAME,
+                FILE_NAME,
+                LEASE_ID,
+                ex
+            );
+        verifyNoMoreInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void should_handle_service_disabled() throws Exception {
+        // given
+        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(result.getMetadata()).willReturn(metadata);
+        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
+
+        ServiceDisabledException ex = new ServiceDisabledException("msg");
+        doThrow(ex)
+            .when(envelopeHandler)
+            .handleEnvelope(
+                CONTAINER_NAME,
+                FILE_NAME,
+                pdfs,
+                inputEnvelope
+            );
+
+        // when
+        fileContentProcessor.processZipFileContent(
+            zis,
+            FILE_NAME,
+            CONTAINER_NAME,
+            LEASE_ID
+        );
+
+        // then
+        verify(fileErrorHandler)
+            .handleInvalidFileError(
+                DISABLED_SERVICE_FAILURE,
+                CONTAINER_NAME,
+                FILE_NAME,
+                LEASE_ID,
+                ex
+            );
+        verifyNoMoreInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void should_handle_envelope_rejection_exception() throws Exception {
+        // given
+        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(result.getMetadata()).willReturn(metadata);
+        MetadataNotFoundException ex = new MetadataNotFoundException("msg");
+        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
+
+        // when
+        fileContentProcessor.processZipFileContent(
+            zis,
+            FILE_NAME,
+            CONTAINER_NAME,
+            LEASE_ID
+        );
+
+        // then
+        verify(fileErrorHandler)
+            .handleInvalidFileError(
+                FILE_VALIDATION_FAILURE,
+                CONTAINER_NAME,
+                FILE_NAME,
+                LEASE_ID,
+                ex
+            );
+        verifyNoMoreInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void should_handle_generic_exception() throws Exception {
+        // given
+        RuntimeException ex = new RuntimeException("msg");
+        given(zipFileProcessor.process(zis, FILE_NAME)).willThrow(ex);
+
+
+        // when
+        fileContentProcessor.processZipFileContent(
+            zis,
+            FILE_NAME,
+            CONTAINER_NAME,
+            LEASE_ID
+        );
+
+        // then
+        verify(envelopeProcessor)
+            .createEvent(
+                DOC_FAILURE,
+                CONTAINER_NAME,
+                FILE_NAME,
+                ex.getMessage(),
+                null
+            );
+        verifyNoInteractions(fileErrorHandler);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+}

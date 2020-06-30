@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -51,19 +50,14 @@ class BlobProcessorTaskTest {
     private BlobInputStream blobInputStream;
 
     @Mock
-    private EnvelopeHandler envelopeHandler;
-
-    @Mock
-    private FileErrorHandler fileErrorHandler;
+    private FileContentProcessor fileContentProcessor;
 
     @BeforeEach
     void setUp() {
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            zipFileProcessor,
-            envelopeHandler,
-            fileErrorHandler
+            fileContentProcessor
         );
     }
 

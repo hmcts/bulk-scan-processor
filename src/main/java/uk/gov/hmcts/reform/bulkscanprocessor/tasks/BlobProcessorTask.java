@@ -13,19 +13,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileErrorHandler;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,10 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
-import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.IOUtils.toByteArray;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 /**
@@ -63,24 +51,16 @@ public class BlobProcessorTask {
 
     private final EnvelopeProcessor envelopeProcessor;
 
-    private final ZipFileProcessor zipFileProcessor;
-
-    private final EnvelopeHandler envelopeHandler;
-
-    private final FileErrorHandler fileErrorHandler;
+    private final FileContentProcessor fileContentProcessor;
 
     public BlobProcessorTask(
         BlobManager blobManager,
         EnvelopeProcessor envelopeProcessor,
-        ZipFileProcessor zipFileProcessor,
-        EnvelopeHandler envelopeHandler,
-        FileErrorHandler fileErrorHandler
+        FileContentProcessor fileContentProcessor
     ) {
         this.blobManager = blobManager;
         this.envelopeProcessor = envelopeProcessor;
-        this.zipFileProcessor = zipFileProcessor;
-        this.envelopeHandler = envelopeHandler;
-        this.fileErrorHandler = fileErrorHandler;
+        this.fileContentProcessor = fileContentProcessor;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
@@ -181,9 +161,15 @@ public class BlobProcessorTask {
         if (envelope == null) {
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
-                createEvent(ZIPFILE_PROCESSING_STARTED, container.getName(), zipFilename, null);
+                envelopeProcessor.createEvent(
+                    ZIPFILE_PROCESSING_STARTED,
+                    container.getName(),
+                    zipFilename,
+                    null,
+                    null
+                );
 
-                processZipFileContent(zis, zipFilename, container.getName(), leaseId);
+                fileContentProcessor.processZipFileContent(zis, zipFilename, container.getName(), leaseId);
             }
         } else {
             log.info(
@@ -208,68 +194,6 @@ public class BlobProcessorTask {
         } catch (IOException exception) {
             throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
         }
-    }
-
-    private void processZipFileContent(
-        ZipInputStream zis,
-        String zipFilename,
-        String containerName,
-        String leaseId
-    ) {
-        try {
-            ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
-
-            InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
-
-            log.info(
-                "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
-                zipFilename,
-                containerName,
-                inputEnvelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
-                inputEnvelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
-            );
-
-            envelopeHandler.handleEnvelope(
-                containerName,
-                zipFilename,
-                result.getPdfs(),
-                inputEnvelope
-            );
-        } catch (PaymentsDisabledException ex) {
-            log.error(
-                "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
-            );
-            fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (ServiceDisabledException ex) {
-            log.error(
-                "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
-            );
-            fileErrorHandler.handleInvalidFileError(DISABLED_SERVICE_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (EnvelopeRejectionException ex) {
-            log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
-            fileErrorHandler.handleInvalidFileError(FILE_VALIDATION_FAILURE, containerName, zipFilename, leaseId, ex);
-        } catch (PreviouslyFailedToUploadException ex) {
-            log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
-            createEvent(Event.DOC_UPLOAD_FAILURE, containerName, zipFilename, ex);
-        } catch (Exception ex) {
-            log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
-            createEvent(Event.DOC_FAILURE, containerName, zipFilename, ex);
-        }
-    }
-
-    private void createEvent(
-        Event event,
-        String containerName,
-        String zipFilename,
-        Exception exception
-    ) {
-        envelopeProcessor.createEvent(
-            event,
-            containerName,
-            zipFilename,
-            exception == null ? null : exception.getMessage(),
-            null
-        );
     }
 
     private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {
