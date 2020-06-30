@@ -69,8 +69,8 @@ class BlobProcessorTaskTest {
         given(blob.getUri()).willReturn(URI.create("file.zip"));
         given(container.getBlockBlobReference("file.zip")).willReturn(cloudBlockBlob);
         given(container.getName()).willReturn("cont");
-        given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
-            .willReturn(null);
+        given(envelopeProcessor.getEnvelopeIdByFileAndContainer("cont", "file.zip"))
+            .willReturn(Optional.empty());
         given(cloudBlockBlob.exists()).willReturn(true);
         given(blobManager.acquireLease(any(CloudBlockBlob.class), anyString(), anyString()))
             .willReturn(Optional.of("lease"));
