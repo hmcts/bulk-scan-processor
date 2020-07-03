@@ -22,7 +22,7 @@ public class SampleAppConsumerTest {
 
     private static final String TEST_S2S_TOKEN = "pact-test-s2s-token";
 
-    @Pact(provider = "sample_app_ocr_validation", consumer = "bulk_scan_processor")
+    @Pact(provider = "bulk_scan_sample_app", consumer = "bulk_scan_processor")
     public RequestResponsePact validOcrPact(PactDslWithProvider builder) throws Exception {
         return builder
             .uponReceiving("Request to validate valid OCR for type PERSONAL")
@@ -36,7 +36,7 @@ public class SampleAppConsumerTest {
             .toPact();
     }
 
-    @Pact(provider = "sample_app_ocr_validation", consumer = "bulk_scan_processor")
+    @Pact(provider = "bulk_scan_sample_app", consumer = "bulk_scan_processor")
     public RequestResponsePact invalidOcrPact(PactDslWithProvider builder) throws Exception {
         return builder
             .uponReceiving("Request to validate invalid OCR with missing mandatory field 'last_name' for type PERSONAL")
