@@ -93,7 +93,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private String uploadEnvelope() {
-        String zipFilename = testHelper.getRandomFilename("12-02-2019-00-00-00.test.zip");
+        String zipFilename = testHelper.getRandomFilename();
 
         testHelper.uploadZipFile(
             inputContainer,
