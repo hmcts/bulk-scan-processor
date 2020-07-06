@@ -43,8 +43,6 @@ public class GetSasTokenTest {
 
     private String destZipFilename;
 
-    private static final String zipFilename = "24-06-2018-00-00-00.test.zip";
-
     @BeforeEach
     public void setUp() {
         this.testUrl = conf.getString("test-url");
@@ -101,7 +99,7 @@ public class GetSasTokenTest {
         CloudBlobContainer testSasContainer =
             testHelper.getCloudContainer(sasToken, testContainerName, this.blobContainerUrl);
 
-        destZipFilename = testHelper.getRandomFilename(zipFilename);
+        destZipFilename = testHelper.getRandomFilename();
         testHelper.uploadAndLeaseZipFile(
             testSasContainer,
             Arrays.asList(
@@ -120,7 +118,7 @@ public class GetSasTokenTest {
         CloudBlobContainer testSasContainer =
             testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
 
-        destZipFilename = testHelper.getRandomFilename(zipFilename);
+        destZipFilename = testHelper.getRandomFilename();
         assertThrows(
             StorageException.class,
             () -> testHelper.uploadAndLeaseZipFile(

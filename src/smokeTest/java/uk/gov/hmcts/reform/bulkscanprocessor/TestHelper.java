@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.microsoft.azure.storage.OperationContext;
@@ -26,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +44,9 @@ public class TestHelper {
 
     private static final String TEST_SOURCE_NAME = "Bulk Scan Processor tests";
     private static final Random RANDOM = new Random();
+
+    private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMAT =
+        DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
 
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
@@ -133,13 +137,12 @@ public class TestHelper {
         return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
     }
 
-    public String getRandomFilename(String suffix) {
-        StringBuilder strBuffer = new StringBuilder();
-        strBuffer
-            .append(ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE))
-            .append(Strings.isNullOrEmpty(suffix) ? "" : "_")
-            .append(Strings.isNullOrEmpty(suffix) ? "" : suffix);
-        return strBuffer.toString();
+    public String getRandomFilename() {
+        return String.format(
+            "%s_%s.test.zip",
+            ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE),
+            LocalDateTime.now().format(FILE_NAME_DATE_TIME_FORMAT)
+        );
     }
 
     public byte[] createZipArchiveWithRandomName(
