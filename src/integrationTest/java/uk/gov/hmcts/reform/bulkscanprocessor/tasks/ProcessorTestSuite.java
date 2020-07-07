@@ -116,6 +116,7 @@ public abstract class ProcessorTestSuite {
     protected CloudBlobContainer rejectedContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
+
     private FileNamesExtractor fileNamesExtractor;
 
     @BeforeEach
@@ -126,7 +127,7 @@ public abstract class ProcessorTestSuite {
 
         blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
 
-        fileNamesExtractor = new FileNamesExtractor();
+        //fileNamesExtractor = new FileNamesExtractor();
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,

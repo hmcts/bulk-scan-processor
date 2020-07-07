@@ -54,7 +54,8 @@ public class BlobProcessorTask {
 
     public BlobProcessorTask(
         BlobManager blobManager,
-        FileNamesExtractor fileNamesExtractor, EnvelopeProcessor envelopeProcessor,
+        FileNamesExtractor fileNamesExtractor,
+        EnvelopeProcessor envelopeProcessor,
         FileContentProcessor fileContentProcessor
     ) {
         this.blobManager = blobManager;

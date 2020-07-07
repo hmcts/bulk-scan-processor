@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.URI;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -40,7 +39,7 @@ class FileNamesExtractorTest {
         given(blob.getUri()).willReturn(URI.create("file.zip"));
 
         // when
-        List<String> zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
 
         // then
         assertThat(zipFileNames).containsExactly("file.zip");
@@ -53,7 +52,7 @@ class FileNamesExtractorTest {
         given(blob.getUri()).willReturn(URI.create(""));
 
         // when
-        List<String> zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
 
         // then
         assertThat(zipFileNames).isEmpty();
@@ -62,25 +61,25 @@ class FileNamesExtractorTest {
     @Test
     void should_shuffle_multiple_file_names() {
         // given
-        ListBlobItem blob0 = mock(ListBlobItem.class);
-        ListBlobItem blob1 = mock(ListBlobItem.class);
-        ListBlobItem blob2 = mock(ListBlobItem.class);
-        ListBlobItem blob3 = mock(ListBlobItem.class);
-        ListBlobItem blob4 = mock(ListBlobItem.class);
-        List<ListBlobItem> blobs = asList(blob0, blob1, blob2, blob3, blob4);
+        var blob0 = mock(ListBlobItem.class);
+        var blob1 = mock(ListBlobItem.class);
+        var blob2 = mock(ListBlobItem.class);
+        var blob3 = mock(ListBlobItem.class);
+        var blob4 = mock(ListBlobItem.class);
+        var blobs = asList(blob0, blob1, blob2, blob3, blob4);
         given(container.listBlobs()).willReturn(blobs);
-        for (int i = 0; i < blobs.size(); i++) {
+        for (var i = 0; i < blobs.size(); i++) {
             given(blobs.get(i).getUri()).willReturn(URI.create("file" + i + ".zip"));
         }
 
         // when
-        List<String> zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
 
         // then
         assertThat(zipFileNames).hasSize(blobs.size());
-        boolean isShuffled = false;
+        var isShuffled = false;
         // ensure resulting file names are not in the same order as file names of original blobs
-        for (int i = 0; i < blobs.size(); i++) {
+        for (var i = 0; i < blobs.size(); i++) {
             if (!zipFileNames.get(i).equals("file" + i + ".zip")) {
                 isShuffled = true;
                 break;
