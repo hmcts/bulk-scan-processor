@@ -34,6 +34,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
@@ -117,6 +118,7 @@ public class EnvelopeControllerTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
         BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        FileNamesExtractor fileNamesExtractor = new FileNamesExtractor();
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
         EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,
@@ -140,6 +142,7 @@ public class EnvelopeControllerTest {
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
+            fileNamesExtractor,
             envelopeProcessor,
             fileContentProcessor
         );
