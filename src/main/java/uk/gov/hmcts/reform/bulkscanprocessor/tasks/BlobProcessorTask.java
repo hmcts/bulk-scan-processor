@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.google.common.base.Strings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,13 +15,14 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
@@ -46,19 +49,16 @@ public class BlobProcessorTask {
 
     private final BlobManager blobManager;
 
-    private final FileNamesExtractor fileNamesExtractor;
-
     private final EnvelopeProcessor envelopeProcessor;
 
     private final FileContentProcessor fileContentProcessor;
 
     public BlobProcessorTask(
         BlobManager blobManager,
-        FileNamesExtractor fileNamesExtractor, EnvelopeProcessor envelopeProcessor,
+        EnvelopeProcessor envelopeProcessor,
         FileContentProcessor fileContentProcessor
     ) {
         this.blobManager = blobManager;
-        this.fileNamesExtractor = fileNamesExtractor;
         this.envelopeProcessor = envelopeProcessor;
         this.fileContentProcessor = fileContentProcessor;
     }
@@ -76,8 +76,22 @@ public class BlobProcessorTask {
 
     private void processZipFiles(CloudBlobContainer container) {
         log.info("Processing blobs for container {}", container.getName());
-        List<String> zipFilenames = fileNamesExtractor.getZipFileNamesFromContainer(container);
 
+        // Randomise iteration order to minimise lease acquire contention
+        // For this purpose it's more efficient to have a collection that
+        // implements RandomAccess (e.g. ArrayList)
+        List<String> zipFilenames = new ArrayList<>();
+        container
+            .listBlobs()
+            .forEach(b -> {
+                String fileName = FilenameUtils.getName(b.getUri().toString());
+                if (Strings.isNullOrEmpty(fileName)) {
+                    log.error("Cannot extract filename from list blob item. URI: {}", b.getUri());
+                } else {
+                    zipFilenames.add(fileName);
+                }
+            });
+        Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
         }
