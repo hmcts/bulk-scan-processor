@@ -23,7 +23,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
     public void should_process_zipfile_after_upload_and_set_status() {
         List<String> files = asList("1111006.pdf", "1111002.pdf");
         String metadataFile = "exception_with_ocr_metadata.json";
-        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
+        String destZipFilename = testHelper.getRandomFilename();
 
         // valid zip file
         uploadZipFile(files, metadataFile, destZipFilename);
@@ -40,7 +40,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
     public void should_process_zipfile_with_supplementary_evidence_with_oce_classification() {
         List<String> files = Collections.singletonList("1111006.pdf");
         String metadataFile = "supplementary_evidence_with_ocr_metadata.json";
-        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
+        String destZipFilename = testHelper.getRandomFilename();
 
         uploadZipFile(files, metadataFile, destZipFilename);
         EnvelopeResponse envelope = waitForEnvelopeToBeInStatus(

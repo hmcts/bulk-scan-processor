@@ -47,7 +47,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
 
     @Test
     public void should_move_invalid_zip_file_to_rejected_container() throws Exception {
-        String destZipFilename = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
+        String destZipFilename = testHelper.getRandomFilename();
 
         testHelper.uploadZipFile(
             inputContainer,
@@ -73,7 +73,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         // given
         final int numberOfUploads = 2;
 
-        String fileName = testHelper.getRandomFilename("24-06-2018-00-00-00.test.zip");
+        String fileName = testHelper.getRandomFilename();
         filesToDeleteAfterTest.add(fileName);
 
         // when
