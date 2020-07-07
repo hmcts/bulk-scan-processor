@@ -127,7 +127,7 @@ public abstract class ProcessorTestSuite {
 
         blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
 
-        //fileNamesExtractor = new FileNamesExtractor();
+        fileNamesExtractor = new FileNamesExtractor();
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
