@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -20,12 +19,12 @@ import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTaskTest {
-    private BlobProcessorTask blobProcessorTask;
-
     @Mock
     private BlobManager blobManager;
 
@@ -44,24 +43,25 @@ class BlobProcessorTaskTest {
     @Mock
     private FileContentProcessor fileContentProcessor;
 
-    @Mock
-    private FileNamesExtractor fileNamesExtractor;
+    private BlobProcessorTask blobProcessorTask;
+
+    private BlobProcessorTask blobProcessorTaskSpy;
 
     @BeforeEach
     void setUp() {
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
-            fileNamesExtractor,
             envelopeProcessor,
             fileContentProcessor
         );
+        blobProcessorTaskSpy = spy(blobProcessorTask);
     }
 
     @Test
     void processBlobs_should_not_call_envelopeProcessor_if_failed_to_load_file() throws Exception {
         // given
         given(blobManager.listInputContainers()).willReturn(singletonList(container));
-        given(fileNamesExtractor.getZipFileNamesFromContainer(container)).willReturn(singletonList(("file.zip")));
+        doReturn(singletonList("file.zip")).when(blobProcessorTaskSpy).getFileNames(container);
         given(container.getBlockBlobReference("file.zip")).willReturn(cloudBlockBlob);
         given(container.getName()).willReturn("cont");
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
@@ -73,7 +73,7 @@ class BlobProcessorTaskTest {
         given(blobInputStream.read(any())).willThrow(new IOException());
 
         // when
-        blobProcessorTask.processBlobs();
+        blobProcessorTaskSpy.processBlobs();
 
         // then
         verifyNoMoreInteractions(envelopeProcessor);

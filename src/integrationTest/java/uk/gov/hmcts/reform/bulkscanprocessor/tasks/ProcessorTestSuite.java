@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
@@ -117,8 +116,6 @@ public abstract class ProcessorTestSuite {
 
     private static DockerComposeContainer dockerComposeContainer;
 
-    private FileNamesExtractor fileNamesExtractor;
-
     @BeforeEach
     public void setUp() throws Exception {
 
@@ -126,8 +123,6 @@ public abstract class ProcessorTestSuite {
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
         blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
-
-        fileNamesExtractor = new FileNamesExtractor();
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
@@ -175,7 +170,6 @@ public abstract class ProcessorTestSuite {
 
         processor = new BlobProcessorTask(
             blobManager,
-            fileNamesExtractor,
             envelopeProcessor,
             fileContentProcessor
         );

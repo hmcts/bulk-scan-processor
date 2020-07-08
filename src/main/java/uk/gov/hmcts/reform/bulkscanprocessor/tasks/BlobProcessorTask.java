@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -26,6 +25,7 @@ import java.util.zip.ZipInputStream;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor.getZipFileNamesFromContainer;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -46,20 +46,16 @@ public class BlobProcessorTask {
 
     private final BlobManager blobManager;
 
-    private final FileNamesExtractor fileNamesExtractor;
-
     private final EnvelopeProcessor envelopeProcessor;
 
     private final FileContentProcessor fileContentProcessor;
 
     public BlobProcessorTask(
         BlobManager blobManager,
-        FileNamesExtractor fileNamesExtractor,
         EnvelopeProcessor envelopeProcessor,
         FileContentProcessor fileContentProcessor
     ) {
         this.blobManager = blobManager;
-        this.fileNamesExtractor = fileNamesExtractor;
         this.envelopeProcessor = envelopeProcessor;
         this.fileContentProcessor = fileContentProcessor;
     }
@@ -77,13 +73,17 @@ public class BlobProcessorTask {
 
     private void processZipFiles(CloudBlobContainer container) {
         log.info("Processing blobs for container {}", container.getName());
-        List<String> zipFilenames = fileNamesExtractor.getZipFileNamesFromContainer(container);
+        List<String> zipFilenames = getFileNames(container);
 
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
         }
 
         log.info("Finished processing blobs for container {}", container.getName());
+    }
+
+    List<String> getFileNames(CloudBlobContainer container) {
+        return getZipFileNamesFromContainer(container);
     }
 
     private void tryProcessZipFile(CloudBlobContainer container, String zipFilename) {

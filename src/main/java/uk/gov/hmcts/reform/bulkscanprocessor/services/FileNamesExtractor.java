@@ -17,7 +17,11 @@ import java.util.List;
 public class FileNamesExtractor {
     private static final Logger log = LoggerFactory.getLogger(FileNamesExtractor.class);
 
-    public List<String> getZipFileNamesFromContainer(CloudBlobContainer container) {
+    private FileNamesExtractor() {
+        // Utility class
+    }
+
+    public static List<String> getZipFileNamesFromContainer(CloudBlobContainer container) {
         // Randomise iteration order to minimise lease acquire contention
         // For this purpose it's more efficient to have a collection that
         // implements RandomAccess (e.g. ArrayList)

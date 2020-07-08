@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -25,13 +24,6 @@ class FileNamesExtractorTest {
     @Mock
     private ListBlobItem blob;
 
-    private FileNamesExtractor fileNamesExtractor;
-
-    @BeforeEach
-    void setUp() {
-        fileNamesExtractor = new FileNamesExtractor();
-    }
-
     @Test
     void should_extract_single_file_name() {
         // given
@@ -39,7 +31,7 @@ class FileNamesExtractorTest {
         given(blob.getUri()).willReturn(URI.create("file.zip"));
 
         // when
-        var zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = FileNamesExtractor.getZipFileNamesFromContainer(container);
 
         // then
         assertThat(zipFileNames).containsExactly("file.zip");
@@ -52,7 +44,7 @@ class FileNamesExtractorTest {
         given(blob.getUri()).willReturn(URI.create(""));
 
         // when
-        var zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = FileNamesExtractor.getZipFileNamesFromContainer(container);
 
         // then
         assertThat(zipFileNames).isEmpty();
@@ -73,7 +65,7 @@ class FileNamesExtractorTest {
         }
 
         // when
-        var zipFileNames = fileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = FileNamesExtractor.getZipFileNamesFromContainer(container);
 
         // then
         assertThat(zipFileNames).hasSize(blobs.size());
