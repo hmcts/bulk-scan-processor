@@ -31,7 +31,7 @@ class FileNamesExtractorTest {
         given(blob.getUri()).willReturn(URI.create("file.zip"));
 
         // when
-        var zipFileNames = FileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = FileNamesExtractor.getShuffledZipFileNames(container);
 
         // then
         assertThat(zipFileNames).containsExactly("file.zip");
@@ -44,7 +44,7 @@ class FileNamesExtractorTest {
         given(blob.getUri()).willReturn(URI.create(""));
 
         // when
-        var zipFileNames = FileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = FileNamesExtractor.getShuffledZipFileNames(container);
 
         // then
         assertThat(zipFileNames).isEmpty();
@@ -65,7 +65,7 @@ class FileNamesExtractorTest {
         }
 
         // when
-        var zipFileNames = FileNamesExtractor.getZipFileNamesFromContainer(container);
+        var zipFileNames = FileNamesExtractor.getShuffledZipFileNames(container);
 
         // then
         assertThat(zipFileNames).hasSize(blobs.size());

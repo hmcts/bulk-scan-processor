@@ -25,7 +25,7 @@ import java.util.zip.ZipInputStream;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor.getZipFileNamesFromContainer;
+import static uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor.getShuffledZipFileNames;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -83,7 +83,7 @@ public class BlobProcessorTask {
     }
 
     List<String> getFileNames(CloudBlobContainer container) {
-        return getZipFileNamesFromContainer(container);
+        return getShuffledZipFileNames(container);
     }
 
     private void tryProcessZipFile(CloudBlobContainer container, String zipFilename) {
