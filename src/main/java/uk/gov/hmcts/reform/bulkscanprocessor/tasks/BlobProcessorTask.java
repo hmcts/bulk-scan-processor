@@ -73,17 +73,13 @@ public class BlobProcessorTask {
 
     private void processZipFiles(CloudBlobContainer container) {
         log.info("Processing blobs for container {}", container.getName());
-        List<String> zipFilenames = getFileNames(container);
+        List<String> zipFilenames = getShuffledZipFileNames(container);
 
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
         }
 
         log.info("Finished processing blobs for container {}", container.getName());
-    }
-
-    List<String> getFileNames(CloudBlobContainer container) {
-        return getShuffledZipFileNames(container);
     }
 
     private void tryProcessZipFile(CloudBlobContainer container, String zipFilename) {
