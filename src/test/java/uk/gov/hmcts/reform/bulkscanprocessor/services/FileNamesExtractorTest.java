@@ -69,10 +69,18 @@ class FileNamesExtractorTest {
 
         // then
         assertThat(zipFileNames).hasSize(blobs.size());
+
+        String[] fileNames = new String[blobs.size()];
+        for (var i = 0; i < blobs.size(); i++) {
+            fileNames[i] = "file" + i + ".zip";
+        }
+        // ensure all file names are present in the result
+        assertThat(zipFileNames).containsExactlyInAnyOrder(fileNames);
+
         var isShuffled = false;
         // ensure resulting file names are not in the same order as file names of original blobs
         for (var i = 0; i < blobs.size(); i++) {
-            if (!zipFileNames.get(i).equals("file" + i + ".zip")) {
+            if (!zipFileNames.get(i).equals(fileNames[i])) {
                 isShuffled = true;
                 break;
             }
