@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,16 +25,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTaskTest {
-    private BlobProcessorTask blobProcessorTask;
-
     @Mock
     private BlobManager blobManager;
 
     @Mock
     private EnvelopeProcessor envelopeProcessor;
-
-    @Mock
-    private ZipFileProcessor zipFileProcessor;
 
     @Mock
     private CloudBlobContainer container;
@@ -51,6 +45,8 @@ class BlobProcessorTaskTest {
 
     @Mock
     private FileContentProcessor fileContentProcessor;
+
+    private BlobProcessorTask blobProcessorTask;
 
     @BeforeEach
     void setUp() {
