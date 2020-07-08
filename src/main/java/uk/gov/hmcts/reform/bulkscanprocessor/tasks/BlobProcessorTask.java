@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EligibilityChecker;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -48,15 +49,19 @@ public class BlobProcessorTask {
 
     private final EnvelopeProcessor envelopeProcessor;
 
+    private final EligibilityChecker eligibilityChecker;
+
     private final FileContentProcessor fileContentProcessor;
 
     public BlobProcessorTask(
-        BlobManager blobManager,
-        EnvelopeProcessor envelopeProcessor,
-        FileContentProcessor fileContentProcessor
+            BlobManager blobManager,
+            EnvelopeProcessor envelopeProcessor,
+            EligibilityChecker eligibilityChecker,
+            FileContentProcessor fileContentProcessor
     ) {
         this.blobManager = blobManager;
         this.envelopeProcessor = envelopeProcessor;
+        this.eligibilityChecker = eligibilityChecker;
         this.fileContentProcessor = fileContentProcessor;
     }
 
@@ -97,19 +102,7 @@ public class BlobProcessorTask {
 
         CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
 
-        Envelope existingEnvelope =
-            envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
-
-        if (existingEnvelope != null) {
-            log.warn(
-                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
-                zipFilename,
-                container.getName(),
-                existingEnvelope.getId()
-            );
-        } else if (!cloudBlockBlob.exists()) {
-            logAbortedProcessingNonExistingFile(zipFilename, container.getName());
-        } else {
+        if (eligibilityChecker.isEligibleForProcessing(cloudBlockBlob, container.getName(), zipFilename)) {
             cloudBlockBlob.downloadAttributes();
             leaseAndProcessZipFile(container, cloudBlockBlob, zipFilename);
         }
@@ -177,13 +170,5 @@ public class BlobProcessorTask {
         } catch (IOException exception) {
             throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
         }
-    }
-
-    private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {
-        log.info(
-            "Aborted processing of zip file {} from container {} - doesn't exist anymore.",
-            zipFilename,
-            containerName
-        );
     }
 }

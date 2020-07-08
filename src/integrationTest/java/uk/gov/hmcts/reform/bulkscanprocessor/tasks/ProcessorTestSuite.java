@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EligibilityChecker;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
@@ -83,6 +84,8 @@ public abstract class ProcessorTestSuite {
 
     protected FileRejector fileRejector;
 
+    private EligibilityChecker eligibilityChecker;
+
     protected FileContentProcessor fileContentProcessor;
 
     protected EnvelopeHandler envelopeHandler;
@@ -142,6 +145,8 @@ public abstract class ProcessorTestSuite {
 
         envelopeValidator = new EnvelopeValidator();
 
+        eligibilityChecker = new EligibilityChecker(envelopeProcessor);
+
         fileRejector = new FileRejector(
             blobManager,
             errorNotificationSender
@@ -171,6 +176,7 @@ public abstract class ProcessorTestSuite {
         processor = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
+            eligibilityChecker,
             fileContentProcessor
         );
     }

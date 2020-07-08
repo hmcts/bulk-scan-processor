@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EligibilityChecker;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -46,6 +47,9 @@ class BlobProcessorTaskTest {
     @Mock
     private FileContentProcessor fileContentProcessor;
 
+    @Mock
+    private EligibilityChecker eligibilityChecker;
+
     private BlobProcessorTask blobProcessorTask;
 
     @BeforeEach
@@ -53,6 +57,7 @@ class BlobProcessorTaskTest {
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
+            eligibilityChecker,
             fileContentProcessor
         );
     }
@@ -67,7 +72,7 @@ class BlobProcessorTaskTest {
         given(container.getName()).willReturn("cont");
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
             .willReturn(null);
-        given(cloudBlockBlob.exists()).willReturn(true);
+        given(eligibilityChecker.isEligibleForProcessing(cloudBlockBlob, "cont", "file.zip")).willReturn(true);
         given(blobManager.acquireLease(any(CloudBlockBlob.class), anyString(), anyString()))
             .willReturn(Optional.of("lease"));
         given(cloudBlockBlob.openInputStream()).willReturn(blobInputStream);

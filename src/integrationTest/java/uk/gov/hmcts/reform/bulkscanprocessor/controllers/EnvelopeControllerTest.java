@@ -32,6 +32,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EligibilityChecker;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
@@ -123,6 +124,7 @@ public class EnvelopeControllerTest {
             envelopeRepository,
             processEventRepository
         );
+        EligibilityChecker eligibilityChecker = new EligibilityChecker(envelopeProcessor);
         EnvelopeHandler envelopeHandler = new EnvelopeHandler(
             envelopeValidator,
             containerMappings,
@@ -141,6 +143,7 @@ public class EnvelopeControllerTest {
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
+            eligibilityChecker,
             fileContentProcessor
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
