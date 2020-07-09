@@ -21,32 +21,30 @@ public class EligibilityChecker {
     }
 
     public boolean isEligibleForProcessing(
-            CloudBlockBlob cloudBlockBlob,
-            String containerName,
-            String zipFilename
+        CloudBlockBlob cloudBlockBlob,
+        String containerName,
+        String zipFilename
     ) throws StorageException {
         Envelope existingEnvelope =
                 envelopeProcessor.getEnvelopeByFileAndContainer(containerName, zipFilename);
 
         if (existingEnvelope != null) {
             log.warn(
-                    "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
-                    zipFilename,
-                    containerName,
-                    existingEnvelope.getId()
+                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
+                zipFilename,
+                containerName,
+                existingEnvelope.getId()
             );
             return false;
-        }
-
-        if (!cloudBlockBlob.exists()) {
+        } else if (!cloudBlockBlob.exists()) {
             log.info(
-                    "Aborted processing of zip file {} from container {} - doesn't exist anymore.",
-                    zipFilename,
-                    containerName
+                "Aborted processing of zip file {} from container {} - doesn't exist anymore.",
+                zipFilename,
+                containerName
             );
             return false;
+        } else {
+           return true;
         }
-
-        return true;
     }
 }

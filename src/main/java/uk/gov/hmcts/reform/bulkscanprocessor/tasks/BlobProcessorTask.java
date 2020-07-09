@@ -54,10 +54,10 @@ public class BlobProcessorTask {
     private final FileContentProcessor fileContentProcessor;
 
     public BlobProcessorTask(
-            BlobManager blobManager,
-            EnvelopeProcessor envelopeProcessor,
-            EligibilityChecker eligibilityChecker,
-            FileContentProcessor fileContentProcessor
+        BlobManager blobManager,
+        EnvelopeProcessor envelopeProcessor,
+        EligibilityChecker eligibilityChecker,
+        FileContentProcessor fileContentProcessor
     ) {
         this.blobManager = blobManager;
         this.envelopeProcessor = envelopeProcessor;

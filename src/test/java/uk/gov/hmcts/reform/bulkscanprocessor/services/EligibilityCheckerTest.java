@@ -52,7 +52,7 @@ class EligibilityCheckerTest {
     }
 
     @Test
-    void should_accept_otherwise() throws Exception {
+    void should_accept_if_no_envelope_and_blob_exists() throws Exception {
         // given
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file1.zip")).willReturn(null);
         given(cloudBlockBlob.exists()).willReturn(true);
