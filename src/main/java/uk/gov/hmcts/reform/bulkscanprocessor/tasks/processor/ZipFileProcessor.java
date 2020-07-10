@@ -30,7 +30,12 @@ public class ZipFileProcessor {
         ZipInputStream zis,
         String zipFileName
     ) throws IOException {
+        log.info("Processing zip file {}", zipFileName);
+
         ZipInputStream extractedZis = zipExtractor.extract(zis);
+
+        log.info("Extracted zip entries from {}", zipFileName);
+
         ZipEntry zipEntry;
 
         List<Pdf> pdfs = new ArrayList<>();
