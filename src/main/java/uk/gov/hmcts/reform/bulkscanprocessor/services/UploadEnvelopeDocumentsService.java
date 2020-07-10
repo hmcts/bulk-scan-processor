@@ -88,6 +88,8 @@ public class UploadEnvelopeDocumentsService {
         CloudBlockBlob blob = null;
         Optional<String> leaseId = Optional.empty();
 
+        log.info("Processing envelope. Container {}, File {}", containerName, zipFileName);
+
         try {
             blob = getCloudBlockBlob(blobContainer, zipFileName, envelopeId);
             leaseId = blobManager.acquireLease(blob, containerName, envelope.getZipFileName());
@@ -100,6 +102,8 @@ public class UploadEnvelopeDocumentsService {
 
                 envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
             }
+
+            log.info("Processed envelope. Container {}, File {}", containerName, zipFileName);
         } catch (Exception exception) {
             log.error(
                 "An error occurred when trying to upload documents. Container: {}, File: {}, Envelope ID: {}",
