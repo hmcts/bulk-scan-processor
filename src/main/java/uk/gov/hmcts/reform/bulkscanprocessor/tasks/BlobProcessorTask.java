@@ -1,12 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.google.common.base.Strings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobInputStream;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,14 +19,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor.getShuffledZipFileNames;
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
@@ -76,22 +73,8 @@ public class BlobProcessorTask {
 
     private void processZipFiles(CloudBlobContainer container) {
         log.info("Processing blobs for container {}", container.getName());
+        List<String> zipFilenames = getShuffledZipFileNames(container);
 
-        // Randomise iteration order to minimise lease acquire contention
-        // For this purpose it's more efficient to have a collection that
-        // implements RandomAccess (e.g. ArrayList)
-        List<String> zipFilenames = new ArrayList<>();
-        container
-            .listBlobs()
-            .forEach(b -> {
-                String fileName = FilenameUtils.getName(b.getUri().toString());
-                if (Strings.isNullOrEmpty(fileName)) {
-                    log.error("Cannot extract filename from list blob item. URI: {}", b.getUri());
-                } else {
-                    zipFilenames.add(fileName);
-                }
-            });
-        Collections.shuffle(zipFilenames);
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
         }
