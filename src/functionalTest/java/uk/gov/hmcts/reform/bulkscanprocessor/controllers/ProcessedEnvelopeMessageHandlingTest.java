@@ -58,10 +58,12 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
-
-        boolean pipelineTest = "pipeline-function-test".equals(testEnv);
-        if (pipelineTest) {
-            sendProcessedEnvelopeMessage(envelopeId, "ccd-id", "ccd-action");
+        String ccdAction;
+        if (fluxFuncTest) {
+            ccdAction = "EXCEPTION_RECORD";
+        } else {
+            ccdAction = "ccd-action";
+            sendProcessedEnvelopeMessage(envelopeId, "ccd-id", ccdAction);
         }
         // then
         await("File " + zipFilename + " should change status to 'COMPLETED'")
@@ -72,13 +74,13 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
-        if (pipelineTest) {
-            assertThat(updatedEnvelope.getCcdId()).isEqualTo("ccd-id");
-            assertThat(updatedEnvelope.getEnvelopeCcdAction()).isEqualTo("ccd-action");
-        } else {
+
+        if (fluxFuncTest) {
             assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
-            assertThat(updatedEnvelope.getEnvelopeCcdAction()).isEqualTo("EXCEPTION_RECORD");
+        } else {
+            assertThat(updatedEnvelope.getCcdId()).isEqualTo("ccd-id");
         }
+        assertThat(updatedEnvelope.getEnvelopeCcdAction()).isEqualTo(ccdAction);
 
 
         await("File " + zipFilename + " should be deleted")

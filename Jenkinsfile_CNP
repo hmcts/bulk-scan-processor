@@ -53,7 +53,7 @@ withPipeline(type, product, component) {
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanaatstaging.blob.core.windows.net'
   env.PROXYOUT_ENABLED = false
-  env.TEST_ENV = "pipeline-function-test"
+  env.FLUX_FUNC_TEST = false
 
   before('smoketest:preview') {
     withAksClient('nonprod') {
