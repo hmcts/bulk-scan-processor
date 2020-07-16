@@ -117,7 +117,7 @@ variable "reports_cron" {
 # region incomplete envelopes monitoring
 
 variable "incomplete_envelopes_cron" {
-  default     = "0 0 9 ? * MON-FRI"
+  default     = "0 0 * * * *"
   description = "Cron signature for job to log amount of incomplete envelopes currently present in service"
 }
 
