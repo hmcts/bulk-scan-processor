@@ -128,7 +128,7 @@ public class EnvelopeRepositoryTest {
         ).executeUpdate();
 
         // when
-        var incompleteCount = repo.getIncompleteEnvelopesCountBefore(now().minusHours(1));
+        int incompleteCount = repo.getIncompleteEnvelopesCountBefore(now().minusHours(1));
 
         // then
         assertThat(incompleteCount).isEqualTo(1);
