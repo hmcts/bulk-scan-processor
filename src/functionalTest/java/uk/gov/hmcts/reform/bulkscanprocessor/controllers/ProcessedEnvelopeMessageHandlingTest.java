@@ -58,11 +58,8 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
-        String ccdAction;
-        if (fluxFuncTest) {
-            ccdAction = "EXCEPTION_RECORD";
-        } else {
-            ccdAction = "ccd-action";
+        String ccdAction = fluxFuncTest ? "EXCEPTION_RECORD" : "ccd-action";
+        if (!fluxFuncTest) {
             sendProcessedEnvelopeMessage(envelopeId, "ccd-id", ccdAction);
         }
         // then
