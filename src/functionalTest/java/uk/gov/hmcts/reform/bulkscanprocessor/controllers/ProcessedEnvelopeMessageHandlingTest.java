@@ -58,10 +58,10 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
-        String ccdId = "ccd-id";
-        String ccdAction = "ccd-action";
-        sendProcessedEnvelopeMessage(envelopeId, ccdId, ccdAction);
-
+        String ccdAction = fluxFuncTest ? "EXCEPTION_RECORD" : "ccd-action";
+        if (!fluxFuncTest) {
+            sendProcessedEnvelopeMessage(envelopeId, "ccd-id", ccdAction);
+        }
         // then
         await("File " + zipFilename + " should change status to 'COMPLETED'")
             .atMost(ENVELOPE_FINALISATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
@@ -71,8 +71,14 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
-        assertThat(updatedEnvelope.getCcdId()).isEqualTo(ccdId);
+
+        if (fluxFuncTest) {
+            assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
+        } else {
+            assertThat(updatedEnvelope.getCcdId()).isEqualTo("ccd-id");
+        }
         assertThat(updatedEnvelope.getEnvelopeCcdAction()).isEqualTo(ccdAction);
+
 
         await("File " + zipFilename + " should be deleted")
             .atMost(DELETE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)

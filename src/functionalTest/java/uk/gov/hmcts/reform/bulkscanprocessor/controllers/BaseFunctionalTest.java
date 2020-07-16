@@ -36,6 +36,7 @@ public abstract class BaseFunctionalTest {
     protected TestHelper testHelper = new TestHelper();
     protected Config config;
     protected OperationContext operationContext;
+    protected boolean fluxFuncTest;
 
     public void setUp() throws Exception {
         this.config = ConfigFactory.load();
@@ -47,6 +48,7 @@ public abstract class BaseFunctionalTest {
         this.proxyHost = config.getString("storage-proxy-host");
         this.proxyPort = config.getString("storage-proxy-port");
         this.isProxyEnabled = Boolean.valueOf(config.getString("proxyout.enabled"));
+        this.fluxFuncTest = config.getBoolean("flux-func-test");
 
         StorageCredentialsAccountAndKey storageCredentials =
             new StorageCredentialsAccountAndKey(
