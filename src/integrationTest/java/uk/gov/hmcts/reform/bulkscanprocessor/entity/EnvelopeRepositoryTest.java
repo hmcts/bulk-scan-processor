@@ -122,13 +122,16 @@ public class EnvelopeRepositoryTest {
             envelope("D.zip", "Z", Status.COMPLETED)
         );
 
-        // and update createAt to yesterday
+        // and update createAt to 2h ago
         entityManager.createNativeQuery(
             "UPDATE envelopes SET createdat = '" + now().minusHours(2) + "' WHERE zipfilename IN ('A.zip', 'B.zip')"
         ).executeUpdate();
 
+        // when
+        var incompleteCount = repo.getIncompleteEnvelopesCountBefore(now().minusHours(1));
+
         // then
-        assertThat(repo.getIncompleteEnvelopesCountBefore(now().minusHours(1))).isEqualTo(1);
+        assertThat(incompleteCount).isEqualTo(1);
     }
 
     @Test
