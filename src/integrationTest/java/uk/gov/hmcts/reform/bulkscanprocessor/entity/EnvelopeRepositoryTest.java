@@ -95,8 +95,8 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void should_get_0_when_no_incomplete_envelopes_are_there_from_yesterday_backwards() {
-        assertThat(repo.getIncompleteEnvelopesCountBefore(now().toLocalDate())).isEqualTo(0);
+    public void should_get_0_when_no_incomplete_envelopes_are_there_in_db() {
+        assertThat(repo.getIncompleteEnvelopesCountBefore(now())).isEqualTo(0);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void should_get_1_incomplete_envelope_from_yesterday() {
+    public void should_find_incomplete_envelopes() {
         // given
         dbHas(
             envelope("A.zip", "X", Status.UPLOADED),
@@ -122,13 +122,16 @@ public class EnvelopeRepositoryTest {
             envelope("D.zip", "Z", Status.COMPLETED)
         );
 
-        // and update createAt to yesterday
+        // and update createAt to 2h ago
         entityManager.createNativeQuery(
-            "UPDATE envelopes SET createdat = '" + now().minusDays(1) + "' WHERE zipfilename IN ('A.zip', 'B.zip')"
+            "UPDATE envelopes SET createdat = '" + now().minusHours(2) + "' WHERE zipfilename IN ('A.zip', 'B.zip')"
         ).executeUpdate();
 
+        // when
+        int incompleteCount = repo.getIncompleteEnvelopesCountBefore(now().minusHours(1));
+
         // then
-        assertThat(repo.getIncompleteEnvelopesCountBefore(now().toLocalDate())).isEqualTo(1);
+        assertThat(incompleteCount).isEqualTo(1);
     }
 
     @Test
