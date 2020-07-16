@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.is;
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private static final long MESSAGE_PROCESSING_TIMEOUT_MILLIS = 40_000;
-    private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 10_000;
+    private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 40_000;
     private static final int DELETE_TIMEOUT_MILLIS = 40_000;
 
     private String s2sToken;
