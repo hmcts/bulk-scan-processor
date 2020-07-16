@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -84,9 +85,9 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         nativeQuery = true,
         value = "SELECT COUNT(1) AS incomplete\n"
             + "FROM envelopes\n"
-            + "WHERE DATE(createdat) < :date AND status != 'COMPLETED'"
+            + "WHERE createdat < :datetime AND status != 'COMPLETED'"
     )
-    int getIncompleteEnvelopesCountBefore(@Param("date") LocalDate date);
+    int getIncompleteEnvelopesCountBefore(@Param("datetime") LocalDateTime dateTime);
 
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 }
