@@ -20,6 +20,8 @@ public class QueueClientConfig {
     private String connString;
     @Value("${test.sb.access-key")
     private String accessKey;
+    @Value("${test.sb.namespace")
+    private String namespace;
 
     @Bean("envelopes-client")
     public IQueueClient envelopesQueueClient(
@@ -60,5 +62,6 @@ public class QueueClientConfig {
         var log = org.slf4j.LoggerFactory.getLogger(QueueClientConfig.class);
         log.warn("Connection String: {}", connString);
         log.warn("Access Key: {}", accessKey);
+        log.warn("Namespace: {}", namespace);
     }
 }

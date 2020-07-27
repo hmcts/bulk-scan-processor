@@ -214,3 +214,4 @@ test:
   sb:
     conn-string: ${SB_CONN_STRING:}
     access-key: ${SB_ACCESS_KEY:}
+    namespace: ${SB_NAMESPACE:}
