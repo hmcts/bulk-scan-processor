@@ -16,11 +16,11 @@ import javax.annotation.PostConstruct;
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class QueueClientConfig {
 
-    @Value("${test.sb.conn-string")
+    @Value("${test.sb.conn-string}")
     private String connString;
-    @Value("${test.sb.access-key")
+    @Value("${test.sb.access-key}")
     private String accessKey;
-    @Value("${test.sb.namespace")
+    @Value("${test.sb.namespace}")
     private String namespace;
 
     @Bean("envelopes-client")
