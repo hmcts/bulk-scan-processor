@@ -10,9 +10,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import javax.annotation.PostConstruct;
+
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class QueueClientConfig {
+
+    @Value("${test.sb.conn-string")
+    private String connString;
+    @Value("${test.sb.access-key")
+    private String accessKey;
 
     @Bean("envelopes-client")
     public IQueueClient envelopesQueueClient(
@@ -46,5 +53,12 @@ public class QueueClientConfig {
             new ConnectionStringBuilder(connectionString, queueName),
             ReceiveMode.PEEKLOCK
         );
+    }
+
+    @PostConstruct
+    private void init() {
+        var log = org.slf4j.LoggerFactory.getLogger(QueueClientConfig.class);
+        log.warn("Connection String: {}", connString);
+        log.warn("Access Key: {}", accessKey);
     }
 }

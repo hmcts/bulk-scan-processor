@@ -209,3 +209,8 @@ process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
 
 use-wrapping-zip: true
+
+test:
+  sb:
+    conn-string: ${SB_CONN_STRING:}
+    access-key: ${SB_ACCESS_KEY:}

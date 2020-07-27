@@ -3,6 +3,9 @@ java:
     SB_CONN_STRING:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: connectionString
+    SB_ACCESS_KEY:
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      key: accessKey
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-{{ .Release.Name }}
       key: storageAccountName
