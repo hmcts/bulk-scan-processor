@@ -4,8 +4,6 @@ java:
   aadIdentityName: bsp
   readinessPath: '/health/readiness'
   environment:
-    LOGBACK_REQUIRE_ALERT_LEVEL: "false"
-    LOGBACK_REQUIRE_ERROR_CODE: "false"
     S2S_NAME: "bulk_scan_processor"
     SMTP_HOST: "false"
     S2S_URL: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
@@ -40,9 +38,13 @@ java:
     NO_NEW_ENVELOPES_TASK_ENABLED: "false"
     DELETE_COMPLETE_FILES_ENABLED: "true"
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
+    QUEUE_ACCESS_KEY_LISTEN_NAME: "ListenSharedAccessKey"
+    QUEUE_ACCESS_KEY_SEND_NAME: "SendSharedAccessKey"
+    QUEUE_NAMESPACE: bulk-scan-servicebus-{{ .Values.global.environment }}
     QUEUE_ENVELOPE_NAME: "envelopes"
     QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes"
     QUEUE_NOTIFICATIONS_NAME: "notifications"
+    QUEUE_NOTIFICATIONS_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
   keyVaults:
     "bulk-scan":
       secrets:
@@ -52,6 +54,9 @@ java:
         - envelopes-queue-send-connection-string
         - notifications-queue-send-connection-string
         - processed-envelopes-queue-listen-connection-string
+        - envelopes-queue-send-shared-access-key
+#        - notification-queue-send-shared-access-key # not yet available
+        - processed-envelopes-queue-listen-shared-access-key
         - storage-account-name
         - storage-account-primary-key
         - app-insights-instrumentation-key
