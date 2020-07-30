@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.monitoring;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,14 +21,16 @@ public class IncompleteEnvelopesTask {
     private static final Logger log = LoggerFactory.getLogger(IncompleteEnvelopesTask.class);
 
     private static final String TASK_NAME = "incomplete-envelopes-monitoring";
-    private static final Duration STALE_AFTER = Duration.ofHours(1);
 
     private final EnvelopeRepository envelopeRepository;
+    private final Duration staleAfter;
 
     public IncompleteEnvelopesTask(
-        EnvelopeRepository envelopeRepository
+        EnvelopeRepository envelopeRepository,
+        @Value("${monitoring.incomplete-envelopes.stale-after}") Duration staleAfter
     ) {
         this.envelopeRepository = envelopeRepository;
+        this.staleAfter = staleAfter;
     }
 
     @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}", zone = EUROPE_LONDON)
@@ -35,7 +38,7 @@ public class IncompleteEnvelopesTask {
     public void run() {
         log.info("Started {} job", TASK_NAME);
 
-        int incompleteEnvelopes = envelopeRepository.getIncompleteEnvelopesCountBefore(now().minus(STALE_AFTER));
+        int incompleteEnvelopes = envelopeRepository.getIncompleteEnvelopesCountBefore(now().minus(staleAfter));
 
         if (incompleteEnvelopes > 0) {
             // warning as to not mix up with existing alerting on all exception
