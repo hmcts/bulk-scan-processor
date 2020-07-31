@@ -8,6 +8,9 @@ java:
         - envelopes-staging-queue-send-connection-string
         - notifications-queue-send-connection-string
         - processed-envelopes-staging-queue-listen-connection-string
+        - envelopes-staging-queue-send-shared-access-key
+#        - notification-staging-queue-send-shared-access-key # not yet available
+        - processed-envelopes-staging-queue-listen-shared-access-key
         - storage-account-staging-name
         - storage-account-staging-primary-key
         - app-insights-instrumentation-key

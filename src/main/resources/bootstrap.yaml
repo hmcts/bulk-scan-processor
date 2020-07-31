@@ -9,10 +9,14 @@ spring:
         s2s-secret: S2S_SECRET
         flyway-password: flyway.password
         envelopes-queue-send-connection-string: QUEUE_ENVELOPE_SEND
+        envelopes-queue-send-shared-access-key: QUEUE_ENVELOPE_SEND_ACCESS_KEY
         envelopes-staging-queue-send-connection-string: QUEUE_ENVELOPE_SEND
+        envelopes-staging-queue-send-shared-access-key: QUEUE_ENVELOPE_SEND_ACCESS_KEY
         notifications-queue-send-connection-string: QUEUE_NOTIFICATIONS_SEND
         processed-envelopes-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
+        processed-envelopes-queue-listen-shared-access-key: QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY
         processed-envelopes-staging-queue-listen-connection-string: QUEUE_PROCESSED_ENVELOPES_READ
+        processed-envelopes-staging-queue-listen-shared-access-key: QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY
         storage-account-name: storage.account_name
         storage-account-staging-name: storage.account_name
         storage-account-primary-key: storage.key
