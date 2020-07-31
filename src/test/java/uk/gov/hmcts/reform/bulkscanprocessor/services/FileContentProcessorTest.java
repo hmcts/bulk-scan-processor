@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
@@ -207,6 +208,38 @@ class FileContentProcessorTest {
         given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         MetadataNotFoundException ex = new MetadataNotFoundException("msg");
+        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
+        given(envelopeProcessor
+                  .createEvent(FILE_VALIDATION_FAILURE, CONTAINER_NAME, FILE_NAME, "msg", null))
+            .willReturn(1L);
+
+        // when
+        fileContentProcessor.processZipFileContent(
+            zis,
+            FILE_NAME,
+            CONTAINER_NAME,
+            LEASE_ID
+        );
+
+        // then
+        verify(fileRejector)
+            .handleInvalidFile(
+                1L,
+                CONTAINER_NAME,
+                FILE_NAME,
+                LEASE_ID,
+                ex
+            );
+        verifyNoMoreInteractions(fileRejector);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void should_handle_envelope_disallowed_document_type_exception() throws Exception {
+        // given
+        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(result.getMetadata()).willReturn(metadata);
+        DisallowedDocumentTypesException ex = new DisallowedDocumentTypesException("msg");
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
         given(envelopeProcessor
                   .createEvent(FILE_VALIDATION_FAILURE, CONTAINER_NAME, FILE_NAME, "msg", null))
