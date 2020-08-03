@@ -60,6 +60,7 @@ monitoring:
   incomplete-envelopes:
     cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 0 * * * *}
     enabled: ${INCOMPLETE_ENVELOPES_TASK_ENABLED:true}
+    stale-after: PT1H #ISO-8601
   no-new-envelopes:
     enabled: ${NO_NEW_ENVELOPES_TASK_ENABLED}
 

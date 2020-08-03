@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 
+import java.time.Duration;
+
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -21,7 +23,7 @@ public class IncompleteEnvelopesTaskTest {
 
     @BeforeEach
     public void setUp() {
-        task = new IncompleteEnvelopesTask(envelopeRepository);
+        task = new IncompleteEnvelopesTask(envelopeRepository, Duration.ofHours(1));
     }
 
     @Test
