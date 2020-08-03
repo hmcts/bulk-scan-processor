@@ -5,60 +5,73 @@ import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
 @Configuration
-@EnableConfigurationProperties(QueueConfigurationProperties.class)
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
-public class QueueClientConfig implements ImportBeanDefinitionRegistrar {
+public class QueueClientConfig {
 
-    QueueConfigurationProperties queueConfigurations;
+    @Value("${queues.default-namespace}")
+    private String defaultNamespace;
 
-    public QueueClientConfig(QueueConfigurationProperties queueConfigurations) {
-        this.queueConfigurations = queueConfigurations;
+    @Bean("envelopes-config")
+    @ConfigurationProperties(prefix = "queues.envelopes")
+    protected QueueConfigurationProperties envelopesQueueConfig() {
+        return new QueueConfigurationProperties();
     }
 
-    @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        queueConfigurations.getQueues().forEach((queuePrefix, queueItem) -> {
-            // once notification secrets are set this ternary can be removed
-            var connectionStringBuilder = StringUtils.isEmpty(queueItem.getAccessKey())
-                ? new ConnectionStringBuilder(queueItem.getConnectionString())
-                : new ConnectionStringBuilder(
-                    queueItem.getNamespaceOverride().orElse(queueConfigurations.getDefaultNamespace()),
-                    queueItem.getQueueName(),
-                    queueItem.getAccessKeyName(),
-                    queueItem.getAccessKey()
-                );
-
-            register(registry, connectionStringBuilder, queuePrefix);
-        });
+    @Bean("envelopes-client")
+    public IQueueClient envelopesQueueClient(
+        @Qualifier("envelopes-config") QueueConfigurationProperties queueProperties
+    ) throws InterruptedException, ServiceBusException {
+        return createQueueClient(queueProperties);
     }
 
-    private void register(
-        BeanDefinitionRegistry registry,
-        ConnectionStringBuilder connectionStringBuilder,
-        String beanPrefix
-    ) {
-        BeanDefinition beanDefinition = new RootBeanDefinition(IQueueClient.class, () -> {
-            try {
-                return new QueueClient(connectionStringBuilder, ReceiveMode.PEEKLOCK);
-            } catch (InterruptedException exception) {
-                Thread.interrupted();
-                throw new RuntimeException("Unable to create QueueClient for " + beanPrefix, exception);
-            } catch (ServiceBusException exception) {
-                throw new RuntimeException("Unable to create QueueClient for " + beanPrefix, exception);
-            }
-        });
+    @Bean("processed-envelopes-config")
+    @ConfigurationProperties(prefix = "queues.processed-envelopes")
+    protected QueueConfigurationProperties processedEnvelopesQueueConfig() {
+        return new QueueConfigurationProperties();
+    }
 
-        registry.registerBeanDefinition(beanPrefix + "-client", beanDefinition);
+    @Bean("processed-envelopes-client")
+    public IQueueClient processedEnvelopesQueueClient(
+        @Qualifier("processed-envelopes-config") QueueConfigurationProperties queueProperties
+    ) throws InterruptedException, ServiceBusException {
+        return createQueueClient(queueProperties);
+    }
+
+    @Bean("notifications-config")
+    @ConfigurationProperties(prefix = "queues.notifications")
+    protected QueueConfigurationProperties notificationsQueueConfig() {
+        return new QueueConfigurationProperties();
+    }
+
+    @Bean("notifications-client")
+    public IQueueClient notificationsQueueClient(
+        @Qualifier("notifications-config") QueueConfigurationProperties queueProperties
+    ) throws InterruptedException, ServiceBusException {
+        return createQueueClient(queueProperties);
+    }
+
+    private QueueClient createQueueClient(
+        QueueConfigurationProperties queueProperties
+    ) throws ServiceBusException, InterruptedException {
+        // once notification secrets are set this ternary can be removed
+        var connectionStringBuilder = StringUtils.isEmpty(queueProperties.getAccessKey())
+            ? new ConnectionStringBuilder(queueProperties.getConnectionString(), queueProperties.getQueueName())
+            : new ConnectionStringBuilder(
+                queueProperties.getNamespaceOverride().orElse(defaultNamespace),
+                queueProperties.getQueueName(),
+                queueProperties.getAccessKeyName(),
+                queueProperties.getAccessKey()
+            );
+
+        return new QueueClient(connectionStringBuilder, ReceiveMode.PEEKLOCK);
     }
 }
