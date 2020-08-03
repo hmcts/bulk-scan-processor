@@ -1,50 +1,58 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
-import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
-import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.StringUtils;
 
 @Configuration
+@EnableConfigurationProperties(QueueConfigurationProperties.class)
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
-public class QueueClientConfig {
+public class QueueClientConfig implements ImportBeanDefinitionRegistrar {
 
-    @Bean("envelopes-client")
-    public IQueueClient envelopesQueueClient(
-        @Value("${queues.envelopes.connection-string}") String connectionString,
-        @Value("${queues.envelopes.queue-name}") String queueName
-    ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(connectionString, queueName);
+    QueueConfigurationProperties queueConfigurations;
+
+    public QueueClientConfig(QueueConfigurationProperties queueConfigurations) {
+        this.queueConfigurations = queueConfigurations;
     }
 
-    @Bean("processed-envelopes-client")
-    public IQueueClient processedEnvelopesQueueClient(
-        @Value("${queues.processed-envelopes.connection-string}") String connectionString,
-        @Value("${queues.processed-envelopes.queue-name}") String queueName
-    ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(connectionString, queueName);
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        queueConfigurations.getQueues().forEach((queuePrefix, queueItem) -> {
+            // once notification secrets are set this ternary can be removed
+            var connectionStringBuilder = StringUtils.isEmpty(queueItem.getAccessKey())
+                ? new ConnectionStringBuilder(queueItem.getConnectionString())
+                : new ConnectionStringBuilder(
+                    queueItem.getNamespaceOverride().orElse(queueConfigurations.getDefaultNamespace()),
+                    queueItem.getQueueName(),
+                    queueItem.getAccessKeyName(),
+                    queueItem.getAccessKey()
+                );
+
+            register(registry, connectionStringBuilder, queuePrefix);
+        });
     }
 
-    @Bean("notifications-client")
-    public IQueueClient notificationsQueueClient(
-        @Value("${queues.notifications.connection-string}") String connectionString,
-        @Value("${queues.notifications.queue-name}") String queueName
-    ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(connectionString, queueName);
-    }
+    private void register(
+        BeanDefinitionRegistry registry,
+        ConnectionStringBuilder connectionStringBuilder,
+        String beanPrefix
+    ) {
+        BeanDefinition beanDefinition = new RootBeanDefinition(QueueClient.class);
+        ConstructorArgumentValues constructorArguments = beanDefinition.getConstructorArgumentValues();
 
-    private QueueClient createQueueClient(
-        String connectionString,
-        String queueName
-    ) throws ServiceBusException, InterruptedException {
-        return new QueueClient(
-            new ConnectionStringBuilder(connectionString, queueName),
-            ReceiveMode.PEEKLOCK
-        );
+        constructorArguments.addGenericArgumentValue(connectionStringBuilder);
+        constructorArguments.addGenericArgumentValue(ReceiveMode.PEEKLOCK);
+
+        registry.registerBeanDefinition(beanPrefix + "-client", beanDefinition);
     }
 }
