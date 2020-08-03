@@ -3,6 +3,12 @@ java:
     SB_CONN_STRING:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: connectionString
+    QUEUE_ENVELOPE_SEND_ACCESS_KEY:
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      key: primaryKey
+    QUEUE_NAMESPACE:
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-{{ .Release.Name }}
       key: storageAccountName
@@ -21,9 +27,14 @@ java:
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
+    QUEUE_ACCESS_KEY_LISTEN_NAME: "RootManageSharedAccessKey"
+    QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     QUEUE_ENVELOPE_SEND: "$(SB_CONN_STRING);EntityPath=envelopes"
+    QUEUE_NOTIFICATIONS_NAMESPACE: "${QUEUE_NAMESPACE}"
     QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
+    QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY: "${QUEUE_ENVELOPE_SEND_ACCESS_KEY}"
     QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
+    QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY: "${QUEUE_ENVELOPE_SEND_ACCESS_KEY}"
     PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING: "${SB_CONN_STRING};EntityPath=processed-envelopes"
     BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.postgresqlUsername}}"
     BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
