@@ -1,10 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
+import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -47,11 +48,16 @@ public class QueueClientConfig implements ImportBeanDefinitionRegistrar {
         ConnectionStringBuilder connectionStringBuilder,
         String beanPrefix
     ) {
-        BeanDefinition beanDefinition = new RootBeanDefinition(QueueClient.class);
-        ConstructorArgumentValues constructorArguments = beanDefinition.getConstructorArgumentValues();
-
-        constructorArguments.addGenericArgumentValue(connectionStringBuilder);
-        constructorArguments.addGenericArgumentValue(ReceiveMode.PEEKLOCK);
+        BeanDefinition beanDefinition = new RootBeanDefinition(IQueueClient.class, () -> {
+            try {
+                return new QueueClient(connectionStringBuilder, ReceiveMode.PEEKLOCK);
+            } catch (InterruptedException exception) {
+                Thread.interrupted();
+                throw new RuntimeException("Unable to create QueueClient for " + beanPrefix, exception);
+            } catch (ServiceBusException exception) {
+                throw new RuntimeException("Unable to create QueueClient for " + beanPrefix, exception);
+            }
+        });
 
         registry.registerBeanDefinition(beanPrefix + "-client", beanDefinition);
     }
