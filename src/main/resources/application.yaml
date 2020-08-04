@@ -58,7 +58,7 @@ spring:
 # setting env vars + defaults as env vars will be overridden otherwise
 monitoring:
   incomplete-envelopes:
-    cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 0 * * * *}
+    cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 */15 * * * *}
     enabled: ${INCOMPLETE_ENVELOPES_TASK_ENABLED:true}
     stale-after: PT1H #ISO-8601
   no-new-envelopes:

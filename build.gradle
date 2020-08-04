@@ -276,8 +276,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.12.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.12.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.13.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.13.0'
 
   implementation group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.5'
   implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.4.0', {
