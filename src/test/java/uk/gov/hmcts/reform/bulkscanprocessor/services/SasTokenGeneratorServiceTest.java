@@ -1,10 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentials;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.common.StorageSharedKeyCredential;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.core.PathUtility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -29,15 +27,19 @@ public class SasTokenGeneratorServiceTest {
     private SasTokenGeneratorService tokenGeneratorService;
 
     @BeforeEach
-    public void setUp() throws URISyntaxException {
-        StorageCredentials storageCredentials = new StorageCredentialsAccountAndKey("testAccountName", "dGVzdGtleQ==");
+    public void setUp() {
+        StorageSharedKeyCredential storageCredentials =
+            new StorageSharedKeyCredential("testAccountName", "dGVzdGtleQ==");
 
-        CloudBlobClient cloudBlobClient = new CloudStorageAccount(storageCredentials, true).createCloudBlobClient();
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+            .credential(storageCredentials)
+            .endpoint("http://test.account")
+            .buildClient();
 
         createAccessTokenConfig();
 
         tokenGeneratorService = new SasTokenGeneratorService(
-            cloudBlobClient,
+            blobServiceClient,
             accessTokenProperties
         );
     }
@@ -52,7 +54,7 @@ public class SasTokenGeneratorServiceTest {
 
         assertThat(queryParams.get("sig")).isNotNull();//this is a generated hash of the resource string
         assertThat(queryParams.get("se")[0]).startsWith(currentDate);//the expiry date/time for the signature
-        assertThat(queryParams.get("sv")).contains("2019-02-02");//azure api version is latest
+        assertThat(queryParams.get("sv")).contains("2019-07-07");//azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
     }
 
