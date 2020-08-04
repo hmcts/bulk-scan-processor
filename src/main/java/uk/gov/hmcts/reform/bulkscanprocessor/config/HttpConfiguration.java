@@ -72,7 +72,7 @@ public class HttpConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "proxy", name = "proxy_enabled", havingValue = "false")
+    @ConditionalOnProperty(prefix = "storage", name = "proxy_enabled", havingValue = "false")
     public HttpClient azureHttpClientWithoutProxy() {
         return new NettyAsyncHttpClientBuilder().build();
     }
