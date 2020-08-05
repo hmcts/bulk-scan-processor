@@ -8,8 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import static java.util.stream.Collectors.toList;
 
 @Component
 @Profile(Profiles.NOT_STORAGE_STUB)
@@ -25,9 +24,10 @@ public class BlobContainerInfoContributor implements InfoContributor {
     public void contribute(Builder builder) {
         builder.withDetail(
             "containers",
-            StreamSupport.stream(client.listBlobContainers().spliterator(), false)
+            client.listBlobContainers()
+                .stream()
                 .map(BlobContainerItem::getName)
-                .collect(Collectors.toList())
+                .collect(toList())
         );
     }
 }
