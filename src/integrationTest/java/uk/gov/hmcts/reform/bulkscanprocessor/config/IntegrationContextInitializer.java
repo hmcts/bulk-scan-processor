@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -54,5 +56,13 @@ public class IntegrationContextInitializer implements ApplicationContextInitiali
         return CloudStorageAccount
             .parse("UseDevelopmentStorage=true")
             .createCloudBlobClient();
+    }
+
+    @Bean
+    @Profile(STORAGE_STUB)
+    public BlobServiceClient getBlobServiceClient() {
+        return new BlobServiceClientBuilder()
+            .connectionString("UseDevelopmentStorage=true")
+            .buildClient();
     }
 }

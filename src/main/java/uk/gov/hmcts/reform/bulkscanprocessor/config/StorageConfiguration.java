@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.azure.core.http.HttpClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
@@ -45,5 +48,25 @@ public class StorageConfiguration {
             null
         )
             .createCloudBlobClient();
+    }
+
+    @Bean
+    public BlobServiceClient getStorageClient(
+        @Value("${storage.account_name}") String accountName,
+        @Value("${storage.key}") String key,
+        @Value("${storage.url}") String url,
+        HttpClient httpClient
+    ) {
+        String connectionString = String.format(
+            "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",
+            url,
+            accountName,
+            key
+        );
+
+        return new BlobServiceClientBuilder()
+            .connectionString(connectionString)
+            .httpClient(httpClient)
+            .buildClient();
     }
 }
