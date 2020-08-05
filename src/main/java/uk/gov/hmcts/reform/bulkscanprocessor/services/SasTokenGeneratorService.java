@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundExc
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @EnableConfigurationProperties(AccessTokenProperties.class)
 @Service
@@ -49,7 +50,7 @@ public class SasTokenGeneratorService {
     private BlobServiceSasSignatureValues createSharedAccessPolicy(TokenConfig config) {
 
         return new BlobServiceSasSignatureValues(
-            OffsetDateTime.now().plusSeconds(config.getValidity()),
+            OffsetDateTime.now(ZoneOffset.UTC).plusSeconds(config.getValidity()),
             BlobContainerSasPermission.parse(PERMISSION_WRITE_LIST)
         );
     }
