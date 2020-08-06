@@ -36,7 +36,7 @@ public class RejectedFilesReportService {
 
     private Stream<BlobItem> getBlobs(BlobContainerClient container) {
         ListBlobsOptions listOptions = new ListBlobsOptions();
-        listOptions.getDetails().setRetrieveSnapshots(false);
+        listOptions.getDetails().setRetrieveSnapshots(true);
         return container
                 .listBlobs(listOptions, null).stream();
     }
