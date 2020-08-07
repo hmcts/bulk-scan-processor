@@ -20,9 +20,14 @@ public class LeaseAcquirer {
     private static final Logger logger = getLogger(LeaseAcquirer.class);
 
     private final LeaseClientProvider leaseClientProvider;
+    private final LeaseMetaDataChecker leaseMetaDataChecker;
 
-    public LeaseAcquirer(LeaseClientProvider leaseClientProvider) {
+    public LeaseAcquirer(
+        LeaseClientProvider leaseClientProvider,
+        LeaseMetaDataChecker leaseMetaDataChecker
+    ) {
         this.leaseClientProvider = leaseClientProvider;
+        this.leaseMetaDataChecker = leaseMetaDataChecker;
     }
 
     /**
@@ -42,10 +47,15 @@ public class LeaseAcquirer {
             var leaseClient = leaseClientProvider.get(blobClient);
             var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
 
-            onLeaseSuccess.accept(leaseId);
+            boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
 
-            if (releaseLease) {
+            if (!isReady) {
                 release(leaseClient, blobClient);
+            } else {
+                onLeaseSuccess.accept(leaseId);
+                if (releaseLease) {
+                    release(leaseClient, blobClient);
+                }
             }
         } catch (BlobStorageException exc) {
             if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
@@ -74,4 +84,5 @@ public class LeaseAcquirer {
             );
         }
     }
+
 }

@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.time.Duration;
@@ -33,9 +34,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 public class CleanUpRejectedFilesTaskTest {
 
     @Mock private BlobManager blobManager;
+    @Mock private LeaseMetaDataChecker leaseMetaDataChecker;
+
     @Mock private BlobContainerClient containerClient;
 
     @Mock private BlobLeaseClient leaseClient;
@@ -51,7 +55,6 @@ public class CleanUpRejectedFilesTaskTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void should_remove_only_old_files() {
 
         String ttlString = "PT1H";
@@ -85,14 +88,20 @@ public class CleanUpRejectedFilesTaskTest {
         given(blobClientToDelete.getBlobName()).willReturn(OLD_REJECTED_BLOB);
         given(blobClientToDelete.getContainerName()).willReturn(REJECTED_CONTAINER);
 
-
         given(rejectedContainerBlobItems.stream()).willReturn(Stream.of(newRejectedBlob, oldRejectedBlob));
 
         var leaseId = UUID.randomUUID().toString();
         given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS)).willReturn(leaseId);
 
+        given(leaseMetaDataChecker.isReadyToUse(blobClientToDelete, leaseId)).willReturn(true);
+
         CleanUpRejectedFilesTask task =
-            new CleanUpRejectedFilesTask(blobManager, new LeaseAcquirer(blobClient -> leaseClient), ttlString);
+            new CleanUpRejectedFilesTask(
+                blobManager,
+                new LeaseAcquirer(blobClient -> leaseClient, leaseMetaDataChecker),
+                ttlString
+
+            );
         // when
         task.run();
 
@@ -104,5 +113,7 @@ public class CleanUpRejectedFilesTaskTest {
         assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
 
     }
+
+
 
 }

@@ -292,6 +292,7 @@ public class BlobManager {
         );
     }
 
+
     private boolean readyToAcquireLease(CloudBlockBlob cloudBlockBlob, String fileName, String container) {
         // TODO: remove filename and container params and logging when the lease issue is resolved
         String leaseExpirationTime = cloudBlockBlob.getMetadata().get(LEASE_EXPIRATION_TIME);

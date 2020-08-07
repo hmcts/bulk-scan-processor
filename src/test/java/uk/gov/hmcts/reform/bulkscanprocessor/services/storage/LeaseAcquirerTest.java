@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -24,15 +25,17 @@ import static org.mockito.Mockito.verify;
 @SuppressWarnings("unchecked")
 class LeaseAcquirerTest {
 
-    @Mock BlobClient blobClient;
-    @Mock BlobLeaseClient leaseClient;
-    @Mock BlobStorageException blobStorageException;
+    @Mock private BlobClient blobClient;
+    @Mock private BlobLeaseClient leaseClient;
+    @Mock private BlobStorageException blobStorageException;
+
+    @Mock private LeaseMetaDataChecker leaseMetaDataChecker;
 
     private LeaseAcquirer leaseAcquirer;
 
     @BeforeEach
     void setUp() {
-        leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
+        leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient, leaseMetaDataChecker);
     }
 
     @Test
@@ -40,6 +43,8 @@ class LeaseAcquirerTest {
         // given
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
+
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
@@ -79,10 +84,31 @@ class LeaseAcquirerTest {
 
     @Test
     void should_call_release_when_successfully_processed_blob() {
+        //given
+
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
 
         // then
         verify(leaseClient).releaseLease();
     }
+
+
+    @Test
+    void should_not_run_provided_action_when_metadata_lease_was_not_ready() {
+        // given
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
+
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(false);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
+
+        // then
+        verify(leaseClient).releaseLease();
+        verify(onSuccess, never()).accept(anyString());
+        verify(onFailure, never()).accept(any());
+    }
+
 }
