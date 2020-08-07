@@ -1,8 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +24,14 @@ public class CleanUpRejectedFilesTaskTest {
     @Autowired
     private BlobManagementProperties blobManagementProperties;
 
-    private CloudBlobContainer rejectedContainer;
+    @Autowired
+    private LeaseAcquirer leaseAcquirer;
+
+    @Autowired
+    private BlobServiceClient blobServiceClient;
+
+    private BlobContainerClient rejectedContainer;
+
     private BlobManager blobManager;
 
     private static DockerComposeContainer dockerComposeContainer;
@@ -44,31 +52,34 @@ public class CleanUpRejectedFilesTaskTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
-        CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        this.blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
+        this.blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
 
-        this.rejectedContainer = cloudBlobClient.getContainerReference("test-rejected");
-        this.rejectedContainer.createIfNotExists();
+        this.rejectedContainer = blobServiceClient.getBlobContainerClient(("test-rejected"));
+        if (!this.rejectedContainer.exists()) {
+            this.rejectedContainer.create();
+        }
     }
 
     @Test
     public void should_delete_old_files() throws Exception {
         // given
         // there are two files in rejected container
-        rejectedContainer.getBlockBlobReference("foo.zip").uploadText("some content");
-        rejectedContainer.getBlockBlobReference("bar.zip").uploadText("some content");
+        rejectedContainer.getBlobClient("foo.zip")
+            .upload(new ByteArrayInputStream("some content".getBytes()),"some content".getBytes().length);
+        rejectedContainer.getBlobClient("bar.zip")
+            .upload(new ByteArrayInputStream("some content".getBytes()),"some content".getBytes().length);
+
 
         assertThat(rejectedContainer.listBlobs()).hasSize(2); // sanity check
 
         // one of them has a snapshot
         rejectedContainer
-            .getBlockBlobReference("bar.zip")
+            .getBlobClient("bar.zip")
             .createSnapshot();
 
         // when
-        new CleanUpRejectedFilesTask(blobManager, "PT0H").run();
+        new CleanUpRejectedFilesTask(blobManager, leaseAcquirer, "PT0H").run();
 
         // then
         assertThat(rejectedContainer.listBlobs()).isEmpty();

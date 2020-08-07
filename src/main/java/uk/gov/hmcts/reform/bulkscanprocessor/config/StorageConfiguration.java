@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -68,5 +70,10 @@ public class StorageConfiguration {
             .connectionString(connectionString)
             .httpClient(httpClient)
             .buildClient();
+    }
+
+    @Bean
+    public LeaseClientProvider getLeaseClientProvider() {
+        return blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
     }
 }
