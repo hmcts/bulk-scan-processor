@@ -70,7 +70,7 @@ reports:
 
 info:
   app:
-    name: Bulk Scanning
+    name: Bulk Scan Processor
     description: Ingest scanned documents.
 
 storage:

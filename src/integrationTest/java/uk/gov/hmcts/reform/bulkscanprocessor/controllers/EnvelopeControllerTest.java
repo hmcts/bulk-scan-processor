@@ -116,7 +116,7 @@ public class EnvelopeControllerTest {
     public void setup() throws Exception {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
-        BlobManager blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        BlobManager blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
         EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,

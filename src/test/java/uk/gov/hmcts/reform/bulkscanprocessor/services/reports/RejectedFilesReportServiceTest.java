@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,14 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
-import java.net.URI;
-import java.util.EnumSet;
 import java.util.List;
 
-import static com.microsoft.azure.storage.blob.BlobListingDetails.SNAPSHOTS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -25,14 +25,14 @@ import static org.mockito.Mockito.mock;
 public class RejectedFilesReportServiceTest {
 
     @Mock private BlobManager blobManager;
-    @Mock private CloudBlobContainer containerA;
-    @Mock private CloudBlobContainer containerB;
+    @Mock private BlobContainerClient containerA;
+    @Mock private BlobContainerClient containerB;
 
     private RejectedFilesReportService service;
 
     @BeforeEach
     public void setUp() throws Exception {
-        given(blobManager.listRejectedContainers())
+        given(blobManager.getRejectedContainers())
             .willReturn(asList(containerA, containerB));
 
         service = new RejectedFilesReportService(blobManager);
@@ -54,8 +54,8 @@ public class RejectedFilesReportServiceTest {
     @Test
     public void should_get_files_from_rejected_containers() {
         // given
-        given(containerA.getName()).willReturn("A");
-        given(containerB.getName()).willReturn("B");
+        given(containerA.getBlobContainerName()).willReturn("A");
+        given(containerB.getBlobContainerName()).willReturn("B");
 
         setUpContainer(containerA, asList(mockItem("a1.zip"), mockItem("a2.zip")));
         setUpContainer(containerB, asList(mockItem("b1.zip"), mockItem("b2.zip"), mockItem("b3.zip")));
@@ -75,14 +75,19 @@ public class RejectedFilesReportServiceTest {
             );
     }
 
-    private ListBlobItem mockItem(String filename) {
-        ListBlobItem item = mock(ListBlobItem.class);
-        given(item.getUri()).willReturn(URI.create(filename));
+    private BlobItem mockItem(String filename) {
+        BlobItem item = mock(BlobItem.class);
+        given(item.getName()).willReturn(filename);
         return item;
     }
 
-    private void setUpContainer(CloudBlobContainer container, List<ListBlobItem> listBlobItems) {
-        given(container.listBlobs(null, true, EnumSet.of(SNAPSHOTS), null, null))
-            .willReturn(listBlobItems);
+    @SuppressWarnings("unchecked")
+    private void setUpContainer(BlobContainerClient container, List<BlobItem> listBlobItems) {
+        PagedIterable pagedIterable = mock(PagedIterable.class);
+        given(pagedIterable.stream())
+            .willReturn(listBlobItems.stream());
+
+        given(container.listBlobs(any(), eq(null)))
+            .willReturn(pagedIterable);
     }
 }

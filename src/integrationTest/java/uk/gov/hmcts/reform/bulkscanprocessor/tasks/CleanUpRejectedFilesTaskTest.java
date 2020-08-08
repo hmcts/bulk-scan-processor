@@ -47,7 +47,7 @@ public class CleanUpRejectedFilesTaskTest {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        this.blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        this.blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
 
         this.rejectedContainer = cloudBlobClient.getContainerReference("test-rejected");
         this.rejectedContainer.createIfNotExists();

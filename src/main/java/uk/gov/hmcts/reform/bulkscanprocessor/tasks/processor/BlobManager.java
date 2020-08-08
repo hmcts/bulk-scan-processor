@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
@@ -43,12 +45,16 @@ public class BlobManager {
     public static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 
     private final CloudBlobClient cloudBlobClient;
+    private final BlobServiceClient blobServiceClient;
+
     private final BlobManagementProperties properties;
 
     public BlobManager(
+        BlobServiceClient blobServiceClient,
         CloudBlobClient cloudBlobClient,
         BlobManagementProperties properties
     ) {
+        this.blobServiceClient = blobServiceClient;
         this.cloudBlobClient = cloudBlobClient;
         this.properties = properties;
     }
@@ -165,6 +171,14 @@ public class BlobManager {
         return StreamSupport
             .stream(cloudBlobClient.listContainers().spliterator(), false)
             .filter(c -> c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
+            .collect(toList());
+    }
+
+    public List<BlobContainerClient> getRejectedContainers() {
+        return blobServiceClient.listBlobContainers()
+            .stream()
+            .filter(c -> c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
+            .map(c -> blobServiceClient.getBlobContainerClient(c.getName()))
             .collect(toList());
     }
 

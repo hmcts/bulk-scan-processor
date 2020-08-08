@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class RejectedFilesReportServiceTest {
     @Autowired
     private BlobManagementProperties blobManagementProperties;
 
-    private CloudBlobContainer rejectedContainer;
+    private BlobContainerClient rejectedContainer;
     private BlobManager blobManager;
 
     private static DockerComposeContainer dockerComposeContainer;
@@ -44,21 +45,27 @@ public class RejectedFilesReportServiceTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
-        CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        this.blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+            .connectionString("UseDevelopmentStorage=true")
+            .buildClient();
 
-        this.rejectedContainer = cloudBlobClient.getContainerReference("test-rejected");
-        this.rejectedContainer.createIfNotExists();
+        this.blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
+
+        this.rejectedContainer = blobServiceClient.getBlobContainerClient("test-rejected");
+        if (!this.rejectedContainer.exists()) {
+            this.rejectedContainer.create();
+        }
     }
 
     @Test
     public void should_read_files_from_rejected_container() throws Exception {
         // given
         // there are two files in rejected container
-        rejectedContainer.getBlockBlobReference("foo.zip").uploadText("some content");
-        rejectedContainer.getBlockBlobReference("bar.zip").uploadText("some content");
+        rejectedContainer.getBlobClient("foo.zip")
+            .upload(new ByteArrayInputStream("some content".getBytes()),"some content".getBytes().length);
+        rejectedContainer.getBlobClient("bar.zip")
+            .upload(new ByteArrayInputStream("some content".getBytes()),"some content".getBytes().length);
 
         assertThat(rejectedContainer.listBlobs()).hasSize(2); // sanity check
 

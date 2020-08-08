@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.azure.storage.blob.BlobServiceClient;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
@@ -59,6 +60,9 @@ public class BlobManagerTest {
     private CloudBlobClient cloudBlobClient;
 
     @Mock
+    private BlobServiceClient blobServiceClient;
+
+    @Mock
     private CloudBlockBlob inputBlob;
 
     @Mock
@@ -83,7 +87,7 @@ public class BlobManagerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        blobManager = new BlobManager(blobServiceClient, cloudBlobClient, blobManagementProperties);
     }
 
     @Test

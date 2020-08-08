@@ -122,7 +122,7 @@ public abstract class ProcessorTestSuite {
         CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        blobManager = new BlobManager(cloudBlobClient, blobManagementProperties);
+        blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
