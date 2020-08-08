@@ -55,7 +55,7 @@ class LeaseAcquirerTest {
     }
 
     @Test
-    void should_run_provided_action_when_lease_was_not_acquired() {
+    void should_run_onFailure_action_when_there_is_error() {
         // given
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
@@ -85,6 +85,7 @@ class LeaseAcquirerTest {
     @Test
     void should_call_release_when_successfully_processed_blob() {
         //given
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
