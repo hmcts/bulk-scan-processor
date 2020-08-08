@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,11 @@ public class CleanUpRejectedFilesTaskTest {
         if (!this.rejectedContainer.exists()) {
             this.rejectedContainer.create();
         }
+    }
+
+    @AfterEach
+    protected void deleteAllContainers() {
+        this.rejectedContainer.delete();
     }
 
     @Test
