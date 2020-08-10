@@ -98,6 +98,5 @@ class LeaseMetaDataCheckerTest {
         verify(blobClient).setMetadataWithResponse(any(),conditionCapturer.capture(), any(), any());
         assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
 
-
     }
 }

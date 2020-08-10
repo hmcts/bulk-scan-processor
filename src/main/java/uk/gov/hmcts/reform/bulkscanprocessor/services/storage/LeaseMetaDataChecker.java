@@ -72,5 +72,4 @@ public class LeaseMetaDataChecker {
                 .isBefore(LocalDateTime.now(EUROPE_LONDON_ZONE_ID)); // check if lease expired
         }
     }
-
 }

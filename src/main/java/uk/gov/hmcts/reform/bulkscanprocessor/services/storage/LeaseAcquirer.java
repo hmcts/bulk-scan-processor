@@ -46,12 +46,23 @@ public class LeaseAcquirer {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
             var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
+            boolean isReady = false;
 
-            boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+            try {
+                isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+            } catch (Exception ex) {
+                logger.warn(
+                    "Could not check meta data for lease expiration on file {} in container {}",
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName()
+                );
+            } finally {
+                if (!isReady) {
+                    release(leaseClient, blobClient);
+                }
+            }
 
-            if (!isReady) {
-                release(leaseClient, blobClient);
-            } else {
+            if (isReady) {
                 onLeaseSuccess.accept(leaseId);
                 if (releaseLease) {
                     release(leaseClient, blobClient);

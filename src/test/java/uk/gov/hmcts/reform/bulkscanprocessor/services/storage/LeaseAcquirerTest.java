@@ -112,4 +112,23 @@ class LeaseAcquirerTest {
         verify(onFailure, never()).accept(any());
     }
 
+
+    @Test
+    void should_release_lease_when_metadata_lease_check_was_throw_exception() {
+        // given
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
+
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willThrow(new RuntimeException("Can not write to Metadata"));
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
+
+        // then
+        verify(leaseClient).releaseLease();
+        verify(onSuccess, never()).accept(anyString());
+        verify(onFailure, never()).accept(any());
+
+    }
+
 }
