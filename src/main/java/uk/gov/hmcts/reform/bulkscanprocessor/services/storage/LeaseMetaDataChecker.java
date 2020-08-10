@@ -40,7 +40,7 @@ public class LeaseMetaDataChecker {
             leaseExpirationTime
         );
 
-        if (readyToLock(leaseExpirationTime)) {
+        if (isMetaDataLeaseExpired(leaseExpirationTime)) {
             blobMetaData.put(
                 LEASE_EXPIRATION_TIME,
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
@@ -63,7 +63,7 @@ public class LeaseMetaDataChecker {
         }
     }
 
-    private boolean readyToLock(String leaseExpirationTime) {
+    private boolean isMetaDataLeaseExpired(String leaseExpirationTime) {
         if (StringUtils.isBlank(leaseExpirationTime)) {
             return true; // lease not acquired on file
         } else {

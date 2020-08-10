@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobContainerItem;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
@@ -38,6 +41,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.atLeast;
@@ -49,6 +53,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager.
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 public class BlobManagerTest {
 
     private static final String INPUT_CONTAINER_NAME = "container-name";
@@ -265,20 +270,28 @@ public class BlobManagerTest {
     @Test
     public void listRejectedContainers_retrieves_rejected_containers_only() {
         // given
-        List<CloudBlobContainer> allContainers = Arrays.asList(
-            mockContainer("test1"),
-            mockContainer("test1-rejected"),
-            mockContainer("test2"),
-            mockContainer("test2-rejected")
+        List<BlobContainerItem> allContainers = Arrays.asList(
+            mockBlobContainerItem("test1"),
+            mockBlobContainerItem("test1-rejected"),
+            mockBlobContainerItem("test2"),
+            mockBlobContainerItem("test2-rejected")
         );
-        given(cloudBlobClient.listContainers()).willReturn(allContainers);
+
+        PagedIterable pagedIterable = mock(PagedIterable.class);
+        given(blobServiceClient.listBlobContainers()).willReturn(pagedIterable);
+        given(pagedIterable.stream()).willReturn(allContainers.stream());
+        given(blobServiceClient.getBlobContainerClient(anyString()))
+            .willReturn(mock(BlobContainerClient.class));
+
 
         // when
-        List<CloudBlobContainer> rejectedContainers = blobManager.listRejectedContainers();
+        List<BlobContainerClient> rejectedContainers = blobManager.getRejectedContainers();
 
         // then
-        assertThat(rejectedContainers)
-            .extracting(c -> c.getName())
+        assertThat(rejectedContainers.size()).isEqualTo(2);
+        var conditionCapturer = ArgumentCaptor.forClass(String.class);
+        verify(blobServiceClient, times(2)).getBlobContainerClient(conditionCapturer.capture());
+        assertThat(conditionCapturer.getAllValues())
             .hasSameElementsAs(Arrays.asList(
                 "test1-rejected",
                 "test2-rejected"
@@ -443,6 +456,12 @@ public class BlobManagerTest {
 
     private CloudBlobContainer mockContainer(String name) {
         CloudBlobContainer container = mock(CloudBlobContainer.class);
+        given(container.getName()).willReturn(name);
+        return container;
+    }
+
+    private BlobContainerItem mockBlobContainerItem(String name) {
+        BlobContainerItem container = mock(BlobContainerItem.class);
         given(container.getName()).willReturn(name);
         return container;
     }
