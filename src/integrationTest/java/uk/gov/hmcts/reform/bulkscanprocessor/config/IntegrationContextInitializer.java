@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -64,5 +66,11 @@ public class IntegrationContextInitializer implements ApplicationContextInitiali
         return new BlobServiceClientBuilder()
             .connectionString("UseDevelopmentStorage=true")
             .buildClient();
+    }
+
+    @Bean
+    @Profile(STORAGE_STUB)
+    public LeaseClientProvider getLeaseClientProvider() {
+        return blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
     }
 }
