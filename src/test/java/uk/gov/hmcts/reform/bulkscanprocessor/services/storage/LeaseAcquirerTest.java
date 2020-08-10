@@ -119,7 +119,8 @@ class LeaseAcquirerTest {
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
 
-        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willThrow(new RuntimeException("Can not write to Metadata"));
+        given(leaseMetaDataChecker.isReadyToUse(any(),any()))
+            .willThrow(new RuntimeException("Can not write to Metadata"));
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
