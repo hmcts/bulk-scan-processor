@@ -5,46 +5,73 @@ import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class QueueClientConfig {
 
+    @Value("${queues.default-namespace}")
+    private String defaultNamespace;
+
+    @Bean("envelopes-config")
+    @ConfigurationProperties(prefix = "queues.envelopes")
+    protected QueueConfigurationProperties envelopesQueueConfig() {
+        return new QueueConfigurationProperties();
+    }
+
     @Bean("envelopes-client")
     public IQueueClient envelopesQueueClient(
-        @Value("${queues.envelopes.connection-string}") String connectionString,
-        @Value("${queues.envelopes.queue-name}") String queueName
+        @Qualifier("envelopes-config") QueueConfigurationProperties queueProperties
     ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(connectionString, queueName);
+        return createQueueClient(queueProperties);
+    }
+
+    @Bean("processed-envelopes-config")
+    @ConfigurationProperties(prefix = "queues.processed-envelopes")
+    protected QueueConfigurationProperties processedEnvelopesQueueConfig() {
+        return new QueueConfigurationProperties();
     }
 
     @Bean("processed-envelopes-client")
     public IQueueClient processedEnvelopesQueueClient(
-        @Value("${queues.processed-envelopes.connection-string}") String connectionString,
-        @Value("${queues.processed-envelopes.queue-name}") String queueName
+        @Qualifier("processed-envelopes-config") QueueConfigurationProperties queueProperties
     ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(connectionString, queueName);
+        return createQueueClient(queueProperties);
+    }
+
+    @Bean("notifications-config")
+    @ConfigurationProperties(prefix = "queues.notifications")
+    protected QueueConfigurationProperties notificationsQueueConfig() {
+        return new QueueConfigurationProperties();
     }
 
     @Bean("notifications-client")
     public IQueueClient notificationsQueueClient(
-        @Value("${queues.notifications.connection-string}") String connectionString,
-        @Value("${queues.notifications.queue-name}") String queueName
+        @Qualifier("notifications-config") QueueConfigurationProperties queueProperties
     ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(connectionString, queueName);
+        return createQueueClient(queueProperties);
     }
 
     private QueueClient createQueueClient(
-        String connectionString,
-        String queueName
+        QueueConfigurationProperties queueProperties
     ) throws ServiceBusException, InterruptedException {
-        return new QueueClient(
-            new ConnectionStringBuilder(connectionString, queueName),
-            ReceiveMode.PEEKLOCK
-        );
+        // once notification secrets are set this ternary can be removed
+        var connectionStringBuilder = StringUtils.isEmpty(queueProperties.getAccessKey())
+            ? new ConnectionStringBuilder(queueProperties.getConnectionString(), queueProperties.getQueueName())
+            : new ConnectionStringBuilder(
+                queueProperties.getNamespaceOverride().orElse(defaultNamespace),
+                queueProperties.getQueueName(),
+                queueProperties.getAccessKeyName(),
+                queueProperties.getAccessKey()
+            );
+
+        return new QueueClient(connectionStringBuilder, ReceiveMode.PEEKLOCK);
     }
 }
