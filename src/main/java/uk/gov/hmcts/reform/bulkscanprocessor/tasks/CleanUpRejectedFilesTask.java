@@ -105,14 +105,11 @@ public class CleanUpRejectedFilesTask {
     }
 
     private boolean canBeDeleted(BlobItem blobItem) {
-
-
         log.info(
             "Blob's last modified: {}, now time: {}",
             blobItem.getProperties().getLastModified(),
             now(UTC)
         );
-
         return blobItem
             .getProperties()
             .getLastModified()
