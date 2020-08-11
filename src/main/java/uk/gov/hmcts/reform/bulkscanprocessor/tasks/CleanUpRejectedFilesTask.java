@@ -8,6 +8,7 @@ import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
+import java.time.OffsetDateTime;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,16 +105,18 @@ public class CleanUpRejectedFilesTask {
         }
     }
 
+    //ToDo remove log
     private boolean canBeDeleted(BlobItem blobItem) {
+        OffsetDateTime lastModified = blobItem.getProperties().getLastModified();
+        OffsetDateTime now = now(UTC);
+        OffsetDateTime lastTimeToStay = lastModified.plus(ttl);
         log.info(
-            "Blob's last modified: {}, now time: {}",
-            blobItem.getProperties().getLastModified(),
-            now(UTC)
+            "Blob's last modified: {}, now time: {}, lastTimeToStay: {}",
+            lastModified,
+            now,
+            lastTimeToStay
         );
-        return blobItem
-            .getProperties()
-            .getLastModified()
-            .plus(ttl)
+        return lastTimeToStay
             .isBefore(now(UTC));
     }
 }
