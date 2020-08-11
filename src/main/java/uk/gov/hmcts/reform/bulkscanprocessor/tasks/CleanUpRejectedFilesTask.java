@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import java.time.Duration;
 
 import static java.time.OffsetDateTime.now;
+import static java.time.ZoneOffset.UTC;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
 @Service
@@ -104,10 +105,18 @@ public class CleanUpRejectedFilesTask {
     }
 
     private boolean canBeDeleted(BlobItem blobItem) {
+
+
+        log.info(
+            "Blob's last modified: {}, now time: {}",
+            blobItem.getProperties().getLastModified(),
+            now(UTC)
+        );
+
         return blobItem
             .getProperties()
             .getLastModified()
             .plus(ttl)
-            .isBefore(now());
+            .isBefore(now(UTC));
     }
 }
