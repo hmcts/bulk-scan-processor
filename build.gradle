@@ -10,7 +10,7 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.29.0'
   id 'org.sonarqube' version '3.0'
   id "info.solidsoft.pitest" version '1.5.1'
-  id 'au.com.dius.pact' version '4.1.6'
+  id 'au.com.dius.pact' version '4.1.7'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -238,7 +238,7 @@ dependencyManagement {
       entry 'groovy-xml'
     }
     //CVE-2019-14900
-    dependencySet(group: 'org.hibernate', version: '5.4.19.Final') {
+    dependencySet(group: 'org.hibernate', version: '5.4.20.Final') {
       entry 'hibernate-core'
     }
     // CVE-2020-13934, CVE-2020-13935 until 9.0.36 (inclusive)
