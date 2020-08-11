@@ -35,8 +35,8 @@ public class LeaseMetaDataChecker {
 
         logger.info(
             "Checking if lease acquired on file {} in container {}. Lease Expiration Time: {}",
-            blobClient.getBlobName(),
-            blobClient.getContainerName(),
+            zipFilename,
+            containerName,
             leaseExpirationTime
         );
 
