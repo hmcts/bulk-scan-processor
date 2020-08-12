@@ -167,13 +167,6 @@ public class BlobManager {
             || selectedContainer.equals(container.getName());
     }
 
-    public List<CloudBlobContainer> listRejectedContainers() {
-        return StreamSupport
-            .stream(cloudBlobClient.listContainers().spliterator(), false)
-            .filter(c -> c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
-            .collect(toList());
-    }
-
     public List<BlobContainerClient> getRejectedContainers() {
         return blobServiceClient.listBlobContainers()
             .stream()
@@ -291,6 +284,7 @@ public class BlobManager {
             exception
         );
     }
+
 
     private boolean readyToAcquireLease(CloudBlockBlob cloudBlockBlob, String fileName, String container) {
         // TODO: remove filename and container params and logging when the lease issue is resolved

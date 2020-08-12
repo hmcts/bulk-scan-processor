@@ -69,13 +69,15 @@ public class LeaseAcquirer {
                 }
             }
         } catch (BlobStorageException exc) {
+
+            String logContext = "Error acquiring lease for blob. "
+                + "File name: " + blobClient.getBlobName()
+                + ", Container: " + blobClient.getContainerName();
+
             if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
-                logger.error(
-                    "Error acquiring lease for blob. File name: {}, Container: {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName(),
-                    exc
-                );
+                logger.error(logContext, exc);
+            } else {
+                logger.info(logContext, exc);
             }
 
             onFailure.accept(exc.getErrorCode());
