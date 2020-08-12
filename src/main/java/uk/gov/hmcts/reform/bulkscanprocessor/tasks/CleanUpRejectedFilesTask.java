@@ -57,12 +57,12 @@ public class CleanUpRejectedFilesTask {
 
         blobManager
             .getRejectedContainers()
-            .forEach(this::cleanUpContainer);
+            .forEach(this::deleteFilesInRejectedContainer);
 
         log.info("Finished {} job", TASK_NAME);
     }
 
-    private void cleanUpContainer(BlobContainerClient containerClient) {
+    private void deleteFilesInRejectedContainer(BlobContainerClient containerClient) {
 
         var containerName = containerClient.getBlobContainerName();
         log.info("Looking for rejected files to delete. Container: {}", containerName);
@@ -74,7 +74,7 @@ public class CleanUpRejectedFilesTask {
             .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
             .forEach(blobClient -> leaseAcquirer.ifAcquiredOrElse(
                 blobClient,
-                leaseId -> delete(blobClient, leaseId),
+                leaseId -> deleteBlob(blobClient, leaseId),
                 errorCode -> {}, // nothing to do if blob not found in rejected container
                 false
             ));
@@ -82,7 +82,7 @@ public class CleanUpRejectedFilesTask {
         log.info("Finished removing rejected files. Container: {}", containerName);
     }
 
-    private void delete(BlobClient blobClient, String leaseId) {
+    private void deleteBlob(BlobClient blobClient, String leaseId) {
         try {
             blobClient.deleteWithResponse(
                 DeleteSnapshotsOptionType.INCLUDE,
@@ -109,14 +109,14 @@ public class CleanUpRejectedFilesTask {
     private boolean canBeDeleted(BlobItem blobItem) {
         OffsetDateTime lastModified = blobItem.getProperties().getLastModified();
         OffsetDateTime now = now(UTC);
-        OffsetDateTime lastTimeToStay = lastModified.plus(ttl);
+        OffsetDateTime cutoff = lastModified.plus(ttl);
         log.info(
-            "Blob's last modified: {}, now time: {}, lastTimeToStay: {}",
+            "Blob's last modified: {}, now time: {}, cutoff time: {}",
             lastModified,
             now,
-            lastTimeToStay
+            cutoff
         );
-        return lastTimeToStay
-            .isBefore(now(UTC));
+
+        return cutoff.isBefore(now(UTC));
     }
 }

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
@@ -85,14 +84,15 @@ public class CleanUpRejectedFilesTaskTest {
 
         assertThat(rejectedContainer.listBlobs()).hasSize(2); // sanity check
 
-        // one of them has a snapshot and expired lease metadata
-        BlobClient blobClient = rejectedContainer
-            .getBlobClient("bar.zip");
-
-        blobClient.createSnapshot();
         Map<String, String> blobMetaData = new HashMap<>();
+        // add expired leaseExpirationTime to metadata
         blobMetaData.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).minusSeconds(10).toString());
-        blobClient.setMetadata(blobMetaData);
+        // one of them has a snapshot and expired lease metadata
+        rejectedContainer
+            .getBlobClient("bar.zip")
+            .createSnapshot()
+            .setMetadata(blobMetaData);
+
 
         // when
         new CleanUpRejectedFilesTask(blobManager, leaseAcquirer, "PT0H").run();
@@ -110,13 +110,14 @@ public class CleanUpRejectedFilesTaskTest {
 
         assertThat(rejectedContainer.listBlobs()).hasSize(2); // sanity check
 
-        // one of them has vslid lease metadata
-        BlobClient blobClient = rejectedContainer
-            .getBlobClient("bar.zip");
-
         Map<String, String> blobMetaData = new HashMap<>();
+        // add non-expired leaseExpirationTime to metadata
         blobMetaData.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).plusSeconds(90).toString());
-        blobClient.setMetadata(blobMetaData);
+
+        // one of them has vslid lease metadata
+        rejectedContainer
+            .getBlobClient("bar.zip")
+            .setMetadata(blobMetaData);
 
         // when
         new CleanUpRejectedFilesTask(blobManager, leaseAcquirer, "PT0H").run();
