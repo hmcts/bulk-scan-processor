@@ -19,12 +19,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
 
 import static java.time.OffsetDateTime.now;
 import static java.time.ZoneOffset.UTC;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
-import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Service
 @ConditionalOnProperty(value = "scheduling.task.delete-rejected-files.enabled")
