@@ -66,7 +66,7 @@ public class ReportSenderTest {
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
         assertThat(msg.getAttachmentList()).hasSize(1);
-        LocalDate yesterday = getYesterday();
+        LocalDate yesterday = LocalDate.now().minusDays(1);
         assertThat(msg.getAttachmentList().get(0).getName())
             .isEqualTo(ReportSender.ATTACHMENT_PREFIX + yesterday + ".csv");
 
@@ -107,9 +107,5 @@ public class ReportSenderTest {
         props.put("mail.transport.protocol", ServerSetupTest.SMTP.getProtocol());
 
         return mailSender;
-    }
-
-    private LocalDate getYesterday() {
-        return LocalDate.now().minusDays(1);
     }
 }
