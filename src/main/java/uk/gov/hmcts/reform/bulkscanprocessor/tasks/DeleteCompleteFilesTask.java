@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.AccessCondition;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.azure.core.http.rest.Response;
+import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobRequestConditions;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +14,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.util.List;
-import java.util.Optional;
 
-import static com.microsoft.azure.storage.AccessCondition.generateLeaseCondition;
-import static com.microsoft.azure.storage.blob.DeleteSnapshotsOption.NONE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
@@ -30,13 +31,16 @@ public class DeleteCompleteFilesTask {
 
     private final BlobManager blobManager;
     private final EnvelopeRepository envelopeRepository;
+    private final LeaseAcquirer leaseAcquirer;
 
     public DeleteCompleteFilesTask(
         BlobManager blobManager,
-        EnvelopeRepository envelopeRepository
+        EnvelopeRepository envelopeRepository,
+        LeaseAcquirer leaseAcquirer
     ) {
         this.blobManager = blobManager;
         this.envelopeRepository = envelopeRepository;
+        this.leaseAcquirer = leaseAcquirer;
     }
 
     @Scheduled(cron = "${scheduling.task.delete-complete-files.cron}", zone = EUROPE_LONDON)
@@ -44,13 +48,13 @@ public class DeleteCompleteFilesTask {
     public void run() {
         log.info("Started {} job", TASK_NAME);
 
-        for (CloudBlobContainer container : blobManager.listInputContainers()) {
+        for (BlobContainerClient container : blobManager.getInputContainerClients()) {
             try {
                 processCompleteFiles(container);
             } catch (Exception ex) {
                 log.error(
                     "Failed to process files from container {}",
-                    container.getName(),
+                    container.getBlobContainerName(),
                     ex
                 );
             }
@@ -60,11 +64,11 @@ public class DeleteCompleteFilesTask {
     }
 
     @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-    private void processCompleteFiles(CloudBlobContainer container) {
-        log.info("Started deleting complete files in container {}", container.getName());
+    private void processCompleteFiles(BlobContainerClient container) {
+        log.info("Started deleting complete files in container {}", container.getBlobContainerName());
 
         List<Envelope> envelopes = envelopeRepository.findByContainerAndStatusAndZipDeleted(
-            container.getName(),
+            container.getBlobContainerName(),
             COMPLETED,
             false
         );
@@ -80,58 +84,70 @@ public class DeleteCompleteFilesTask {
 
         log.info(
             "Finished deleting complete files in container {}, deleted {} files, failed to delete {} files",
-            container.getName(),
+            container.getBlobContainerName(),
             successCount,
             failureCount
         );
     }
 
-    private boolean tryProcessCompleteEnvelope(CloudBlobContainer container, Envelope envelope) {
-        boolean deleted = false;
+    private boolean tryProcessCompleteEnvelope(BlobContainerClient container, Envelope envelope) {
 
-        String loggingContext = "File name: " + envelope.getZipFileName() + ", Container: " + container.getName();
+        String loggingContext = "File name: " + envelope.getZipFileName()
+            + ", Container: " + container.getBlobContainerName();
 
         try {
             log.info("Deleting file. {}", loggingContext);
 
-            CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(envelope.getZipFileName());
+            BlobClient blobClient = container.getBlobClient(envelope.getZipFileName());
 
-            if (cloudBlockBlob.exists()) {
-                Optional<String> leaseId = blobManager.acquireLease(
-                    cloudBlockBlob,
-                    container.getName(),
-                    envelope.getZipFileName()
+            if (blobClient.exists()) {
+
+                leaseAcquirer.ifAcquiredOrElse(
+                    blobClient,
+                    leaseId -> delete(blobClient, leaseId),
+                    errorCode -> {
+                        throw new RuntimeException("Acquiring Lease failed, " + errorCode.toString());
+                    },
+                    false
                 );
-                if (leaseId.isPresent()) {
-                    AccessCondition accessCondition = generateLeaseCondition(leaseId.get());
-                    deleted = cloudBlockBlob.deleteIfExists(
-                        NONE,
-                        accessCondition,
-                        null,
-                        null
-                    );
-                    if (deleted) {
-                        log.info("File deleted. {}", loggingContext);
-                    } else {
-                        log.info("File has not been deleted. {}", loggingContext);
-                    }
-                }
+
             } else {
-                deleted = true;
                 log.info("File has already been deleted. {}", loggingContext);
             }
 
-            if (deleted) {
-                envelope.setZipDeleted(true);
-                envelopeRepository.saveAndFlush(envelope);
-                log.info("Marked envelope as deleted. {}", loggingContext);
-            }
+            envelope.setZipDeleted(true);
+            envelopeRepository.saveAndFlush(envelope);
+            log.info("Marked envelope as deleted. {}", loggingContext);
 
-            return deleted;
+            return true;
 
         } catch (Exception ex) {
             log.error("Failed to process file. {}", loggingContext, ex);
             return false;
+        }
+    }
+
+    private void delete(BlobClient blobClient, String leaseId) {
+        try {
+            Response<Void> r = blobClient.deleteWithResponse(
+                DeleteSnapshotsOptionType.INCLUDE,
+                new BlobRequestConditions().setLeaseId(leaseId),
+                null,
+                Context.NONE
+            );
+
+            log.info(
+                "Deleted completed file {} from container {}",
+                blobClient.getBlobName(),
+                blobClient.getContainerName()
+            );
+        } catch (Exception ex) {
+            log.error(
+                "Unable to delete completed file {} from container {}",
+                blobClient.getBlobName(),
+                blobClient.getContainerName(),
+                ex
+            );
         }
     }
 }

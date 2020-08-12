@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobContainerItem;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
@@ -161,7 +162,26 @@ public class BlobManager {
         return cloudBlobContainerList;
     }
 
+    public List<BlobContainerClient> getInputContainerClients() {
+        List<BlobContainerClient> blobContainerClientList =
+            blobServiceClient.listBlobContainers().stream()
+                .filter(c -> !c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
+                .filter(this::filterBySelectedContainer)
+                .map(c -> blobServiceClient.getBlobContainerClient(c.getName()))
+                .collect(toList());
+        if (blobContainerClientList.isEmpty()) {
+            log.error("Container not found for configured container name : {}", properties.getBlobSelectedContainer());
+        }
+        return blobContainerClientList;
+    }
+
     private boolean filterBySelectedContainer(CloudBlobContainer container) {
+        String selectedContainer = properties.getBlobSelectedContainer();
+        return SELECT_ALL_CONTAINER.equalsIgnoreCase(selectedContainer)
+            || selectedContainer.equals(container.getName());
+    }
+
+    private boolean filterBySelectedContainer(BlobContainerItem container) {
         String selectedContainer = properties.getBlobSelectedContainer();
         return SELECT_ALL_CONTAINER.equalsIgnoreCase(selectedContainer)
             || selectedContainer.equals(container.getName());
