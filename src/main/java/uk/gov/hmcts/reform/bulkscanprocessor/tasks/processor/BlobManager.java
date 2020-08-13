@@ -164,7 +164,9 @@ public class BlobManager {
 
     public List<BlobContainerClient> getInputContainerClients() {
         List<BlobContainerClient> blobContainerClientList =
-            blobServiceClient.listBlobContainers().stream()
+            blobServiceClient
+                .listBlobContainers()
+                .stream()
                 .filter(c -> !c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
                 .filter(this::filterBySelectedContainer)
                 .map(c -> blobServiceClient.getBlobContainerClient(c.getName()))

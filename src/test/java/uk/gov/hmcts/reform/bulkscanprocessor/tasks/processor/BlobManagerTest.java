@@ -49,6 +49,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager.LEASE_EXPIRATION_TIME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
@@ -226,6 +227,35 @@ public class BlobManagerTest {
 
         assertThat(containerNames).hasSameElementsAs(Arrays.asList("test1", "test2"));
         verify(cloudBlobClient).listContainers();
+    }
+
+    @Test
+    public void getInputContainers_retrieves_input_containers_from_client() {
+        List<BlobContainerItem> allContainers = Arrays.asList(
+            mockBlobContainerItem("test1"),
+            mockBlobContainerItem("test1-rejected"),
+            mockBlobContainerItem("test2")
+        );
+
+        PagedIterable pagedIterable = mock(PagedIterable.class);
+        given(blobServiceClient.listBlobContainers()).willReturn(pagedIterable);
+        given(pagedIterable.stream()).willReturn(allContainers.stream());
+
+        given(blobManagementProperties.getBlobSelectedContainer()).willReturn("all");
+
+        BlobContainerClient test1ContainerClient = mock(BlobContainerClient.class);
+        BlobContainerClient test2ContainerClient = mock(BlobContainerClient.class);
+
+        given(blobServiceClient.getBlobContainerClient("test1"))
+            .willReturn(test1ContainerClient);
+        given(blobServiceClient.getBlobContainerClient("test2"))
+            .willReturn(test2ContainerClient);
+
+        List<BlobContainerClient> containers = blobManager.getInputContainerClients();
+
+        assertThat(containers).hasSameElementsAs(Arrays.asList(test1ContainerClient, test2ContainerClient));
+        verify(blobServiceClient, times(2)).getBlobContainerClient(anyString());
+        verifyNoMoreInteractions(blobServiceClient);
     }
 
     @Test

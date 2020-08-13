@@ -127,27 +127,18 @@ public class DeleteCompleteFilesTask {
     }
 
     private void delete(BlobClient blobClient, String leaseId) {
-        try {
-            blobClient.deleteWithResponse(
-                DeleteSnapshotsOptionType.INCLUDE,
-                new BlobRequestConditions().setLeaseId(leaseId),
-                null,
-                Context.NONE
-            );
+        blobClient.deleteWithResponse(
+            DeleteSnapshotsOptionType.INCLUDE,
+            new BlobRequestConditions().setLeaseId(leaseId),
+            null,
+            Context.NONE
+        );
 
-            log.info(
-                "Deleted completed file {} from container {}",
-                blobClient.getBlobName(),
-                blobClient.getContainerName()
-            );
-        } catch (Exception ex) {
-            log.error(
-                "Unable to delete completed file {} from container {}",
-                blobClient.getBlobName(),
-                blobClient.getContainerName(),
-                ex
-            );
-        }
+        log.info(
+            "Deleted completed file {} from container {}",
+            blobClient.getBlobName(),
+            blobClient.getContainerName()
+        );
     }
 
     private static void throwBlobDeleteException(BlobErrorCode errorCode) {

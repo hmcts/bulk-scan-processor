@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.azure.core.http.rest.Response;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import org.bouncycastle.util.StoreException;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +23,7 @@ import java.util.function.Consumer;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -139,20 +139,28 @@ class DeleteCompleteFilesTaskTest {
         // given
         final BlobClient blobClient = mock(BlobClient.class);
 
-        final Envelope envelope11 = prepareEnvelope("X", blobClient, container1);
+        String zipFileName = randomUUID() + ".zip";
+        Envelope envelope = mock(Envelope.class);
+        given(envelope.getZipFileName()).willReturn(zipFileName);
+
+        given(envelopeRepository
+            .findByContainerAndStatusAndZipDeleted(container1.getBlobContainerName(), COMPLETED,
+                false))
+            .willReturn(singletonList(envelope));
+
+        given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
+
         given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
         given(blobClient.exists()).willReturn(true);
+
+        doThrow(mock(BlobStorageException.class))
+            .when(blobClient).deleteWithResponse(any(),any(), any(), any());
 
         doAnswer(invocation -> {
             var okAction = (Consumer) invocation.getArgument(1);
             okAction.accept(UUID.randomUUID().toString());
-
-            var errorAction = (Consumer) invocation.getArgument(2);
-            errorAction.accept(BlobErrorCode.LEASE_LOST);
             return null;
         }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
-
-        assertThat(envelope11.isZipDeleted()).isFalse();
 
 
         // when
@@ -161,25 +169,27 @@ class DeleteCompleteFilesTaskTest {
         // then
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
-
+        verify(envelope, never()).setZipDeleted(anyBoolean());
+        verifyNoMoreInteractions(envelope);
         verifyNoMoreInteractions(blobManager);
 
         verify(blobClient).exists();
         verify(blobClient).deleteWithResponse(any(), any(), any(), any());
-        verify(blobClient).getBlobName();
-        verify(blobClient).getContainerName();
         verifyNoMoreInteractions(blobClient);
     }
 
     @Test
     void should_not_delete_file_if_exception_thrown() {
         // given
-        final Envelope envelope11 = EnvelopeCreator.envelope("X", COMPLETED, CONTAINER_NAME_1);
+
+        String zipFileName = randomUUID() + ".zip";
+        Envelope envelope = mock(Envelope.class);
+        given(envelope.getZipFileName()).willReturn(zipFileName);
 
         given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
         given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false))
-            .willReturn(singletonList(envelope11));
-        given(container1.getBlobClient(envelope11.getZipFileName()))
+            .willReturn(singletonList(envelope));
+        given(container1.getBlobClient(zipFileName))
             .willThrow(new StoreException("msg", new RuntimeException()));
 
         // when
@@ -188,6 +198,8 @@ class DeleteCompleteFilesTaskTest {
         // then
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
+        verify(envelope, never()).setZipDeleted(anyBoolean());
+        verifyNoMoreInteractions(envelope);
     }
 
     @Test
@@ -207,13 +219,12 @@ class DeleteCompleteFilesTaskTest {
         prepareGivensForEnvelope(container2, blobClient21, envelope21);
         assertThat(envelope21.isZipDeleted()).isFalse();
 
-
         leaseCanBeAcquired();
 
+        // then
         deleteCompleteFilesTask.run();
 
         // then
-
         verifyNoMoreInteractions(blobManager);
 
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
@@ -271,14 +282,22 @@ class DeleteCompleteFilesTaskTest {
         // given
         final BlobClient blobClient = mock(BlobClient.class);
 
-        final Envelope envelope11 = prepareEnvelope("X", blobClient, container1);
+        String zipFileName = randomUUID() + ".zip";
+        Envelope envelope = mock(Envelope.class);
+        given(envelope.getZipFileName()).willReturn(zipFileName);
+
+        given(envelopeRepository
+            .findByContainerAndStatusAndZipDeleted(container1.getBlobContainerName(), COMPLETED,
+                false))
+            .willReturn(singletonList(envelope));
+
+        given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
+
         given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
         given(blobClient.exists()).willReturn(true);
 
         doThrow(mock(BlobStorageException.class))
             .when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
-
-        assertThat(envelope11.isZipDeleted()).isFalse();
 
         // when
         deleteCompleteFilesTask.run();
@@ -286,7 +305,8 @@ class DeleteCompleteFilesTaskTest {
         // then
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
         verifyNoMoreInteractions(envelopeRepository);
-
+        verify(envelope, never()).setZipDeleted(anyBoolean());
+        verifyNoMoreInteractions(envelope);
         verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());;
         verifyNoMoreInteractions(blobManager);
 
@@ -301,11 +321,9 @@ class DeleteCompleteFilesTaskTest {
         BlobContainerClient container
     ) {
         final Envelope envelope = EnvelopeCreator.envelope(jurisdiction, COMPLETED, container.getBlobContainerName());
-
         given(envelopeRepository
             .findByContainerAndStatusAndZipDeleted(container.getBlobContainerName(), COMPLETED, false))
             .willReturn(singletonList(envelope));
-
         given(container.getBlobClient(envelope.getZipFileName())).willReturn(blobClient);
 
         return envelope;
