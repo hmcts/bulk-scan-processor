@@ -12,11 +12,11 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import uk.gov.hmcts.reform.bulkscanprocessor.jupiter.GreenMailExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
+import java.time.LocalDate;
 import java.util.Properties;
 import javax.mail.Address;
 import javax.mail.internet.MimeMessage;
 
-import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,9 +66,11 @@ public class ReportSenderTest {
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
         assertThat(msg.getAttachmentList()).hasSize(1);
-        assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + now() + ".csv");
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        assertThat(msg.getAttachmentList().get(0).getName())
+            .isEqualTo(ReportSender.ATTACHMENT_PREFIX + yesterday + ".csv");
 
-        verify(reportsService).getZipFilesSummary(now(), null);
+        verify(reportsService).getZipFilesSummary(yesterday, null);
     }
 
     @Test

@@ -69,7 +69,7 @@ public class ReportSender {
             helper.setTo(this.recipients);
             helper.setSubject(EMAIL_SUBJECT);
             helper.setText(EMAIL_BODY);
-            helper.addAttachment(ATTACHMENT_PREFIX + LocalDate.now() + ".csv", getCsvReport());
+            helper.addAttachment(ATTACHMENT_PREFIX + getPreviousDay() + ".csv", getCsvReport());
 
             mailSender.send(msg);
 
@@ -79,7 +79,11 @@ public class ReportSender {
     }
 
     private File getCsvReport() throws IOException {
-        List<ZipFileSummaryResponse> reportDate = reportsService.getZipFilesSummary(LocalDate.now(), null);
+        List<ZipFileSummaryResponse> reportDate = reportsService.getZipFilesSummary(getPreviousDay(), null);
         return CsvWriter.writeZipFilesSummaryToCsv(reportDate);
+    }
+
+    private LocalDate getPreviousDay() {
+        return LocalDate.now().minusDays(1);
     }
 }
