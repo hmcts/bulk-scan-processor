@@ -105,7 +105,7 @@ public class DeleteCompleteFilesTask {
 
                 leaseAcquirer.ifAcquiredOrElse(
                     blobClient,
-                    leaseId -> delete(blobClient, leaseId),
+                    leaseId -> deleteBlob(blobClient, leaseId),
                     DeleteCompleteFilesTask::throwBlobDeleteException,
                     false
                 );
@@ -126,7 +126,7 @@ public class DeleteCompleteFilesTask {
         }
     }
 
-    private void delete(BlobClient blobClient, String leaseId) {
+    private void deleteBlob(BlobClient blobClient, String leaseId) {
         blobClient.deleteWithResponse(
             DeleteSnapshotsOptionType.INCLUDE,
             new BlobRequestConditions().setLeaseId(leaseId),
