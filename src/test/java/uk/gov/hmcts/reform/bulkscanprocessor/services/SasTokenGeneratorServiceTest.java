@@ -12,10 +12,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,7 +49,7 @@ public class SasTokenGeneratorServiceTest {
     public void should_generate_sas_token_when_service_configuration_is_available() throws StorageException {
         String sasToken = tokenGeneratorService.generateSasToken("sscs");
 
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String currentDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(OffsetDateTime.now(UTC));
 
         Map<String, String[]> queryParams = PathUtility.parseQueryString(sasToken);
 
