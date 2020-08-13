@@ -19,11 +19,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
 
 import static java.time.OffsetDateTime.now;
+import static java.time.ZoneOffset.UTC;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
-import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Service
 @ConditionalOnProperty(value = "scheduling.task.delete-rejected-files.enabled")
@@ -105,18 +104,12 @@ public class CleanUpRejectedFilesTask {
         }
     }
 
-    //ToDo remove log
     private boolean canBeDeleted(BlobItem blobItem) {
-        OffsetDateTime lastModified = blobItem.getProperties().getLastModified();
-        OffsetDateTime now = now(EUROPE_LONDON_ZONE_ID);
-        OffsetDateTime cutoff = lastModified.plus(ttl);
-        log.info(
-            "Blob's last modified: {}, now time: {}, cutoff time: {}",
-            lastModified,
-            now,
-            cutoff
-        );
-
-        return cutoff.isBefore(now);
+        // getLastModified method returns time in UTC so use UTC time
+        return blobItem
+            .getProperties()
+            .getLastModified()
+            .plus(ttl)
+            .isBefore(now(UTC));
     }
 }
