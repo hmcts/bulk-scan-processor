@@ -230,7 +230,7 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void getInputContainers_retrieves_input_containers_from_client() {
+    void getInputContainers_retrieves_input_containers_from_client() {
         List<BlobContainerItem> allContainers = Arrays.asList(
             mockBlobContainerItem("test1"),
             mockBlobContainerItem("test1-rejected"),
