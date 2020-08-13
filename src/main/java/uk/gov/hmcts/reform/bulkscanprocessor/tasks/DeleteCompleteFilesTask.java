@@ -101,7 +101,7 @@ public class DeleteCompleteFilesTask {
 
             BlobClient blobClient = container.getBlobClient(envelope.getZipFileName());
 
-            if (Boolean.TRUE.equals(blobClient.exists())) {
+            if (Boolean.TRUE == blobClient.exists()) {
 
                 leaseAcquirer.ifAcquiredOrElse(
                     blobClient,
