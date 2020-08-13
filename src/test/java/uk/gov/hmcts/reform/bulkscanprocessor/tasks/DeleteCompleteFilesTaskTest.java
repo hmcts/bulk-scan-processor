@@ -4,6 +4,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobStorageException;
 import org.bouncycastle.util.StoreException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -70,7 +73,7 @@ class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    void should_delete_single_existing_file() throws Exception {
+    void should_delete_single_existing_file() {
         // given
         final BlobClient blobClient = mock(BlobClient.class);
 
@@ -111,7 +114,7 @@ class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    void should_mark_as_deleted_single_non_existing_file() throws Exception {
+    void should_mark_as_deleted_single_non_existing_file() {
         // given
         final BlobClient blobClient = mock(BlobClient.class);
 
@@ -132,7 +135,7 @@ class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    void should_handle_not_deleting_existing_file() throws Exception {
+    void should_handle_not_deleting_existing_file() {
         // given
         final BlobClient blobClient = mock(BlobClient.class);
 
@@ -169,7 +172,7 @@ class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    void should_not_delete_file_if_exception_thrown() throws Exception {
+    void should_not_delete_file_if_exception_thrown() {
         // given
         final Envelope envelope11 = EnvelopeCreator.envelope("X", COMPLETED, CONTAINER_NAME_1);
 
@@ -188,7 +191,7 @@ class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    void should_process_second_container_if_processing_the_first_container_throws() throws Exception {
+    void should_process_second_container_if_processing_the_first_container_throws() {
         // given
         final BlobClient blobClient21 = mock(BlobClient.class);
 
@@ -220,7 +223,7 @@ class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    void should_delete_multiple_existing_files_in_multiple_containers() throws Exception {
+    void should_delete_multiple_existing_files_in_multiple_containers() {
         // given
         final BlobContainerClient container2 = mock(BlobContainerClient.class);
         final BlobClient blobClient11 = mock(BlobClient.class);
@@ -244,8 +247,8 @@ class DeleteCompleteFilesTaskTest {
         prepareGivensForEnvelope(container2, blobClient21, envelope21);
         prepareGivensForEnvelope(container2, blobClient22, envelope22);
 
-
         leaseCanBeAcquired();
+
         // when
         deleteCompleteFilesTask.run();
 
@@ -261,6 +264,35 @@ class DeleteCompleteFilesTaskTest {
         verifyBlobClientInteractions(blobClient22);
 
         verifyNoMoreInteractions(blobManager);
+    }
+
+    @Test
+    void should_handle_lease_acquire_exception() {
+        // given
+        final BlobClient blobClient = mock(BlobClient.class);
+
+        final Envelope envelope11 = prepareEnvelope("X", blobClient, container1);
+        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobClient.exists()).willReturn(true);
+
+        doThrow(mock(BlobStorageException.class))
+            .when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+
+        assertThat(envelope11.isZipDeleted()).isFalse();
+
+        // when
+        deleteCompleteFilesTask.run();
+
+        // then
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
+        verifyNoMoreInteractions(envelopeRepository);
+
+        verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());;
+        verifyNoMoreInteractions(blobManager);
+
+        verify(blobClient).exists();
+        verify(blobClient, never()).deleteWithResponse(any(), any(), any(), any());
+        verifyNoMoreInteractions(blobClient);
     }
 
     private Envelope prepareEnvelope(

@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.azure.core.http.rest.Response;
 import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
@@ -100,14 +101,12 @@ public class DeleteCompleteFilesTask {
 
             BlobClient blobClient = container.getBlobClient(envelope.getZipFileName());
 
-            if (blobClient.exists()) {
+            if (Boolean.TRUE.equals(blobClient.exists())) {
 
                 leaseAcquirer.ifAcquiredOrElse(
                     blobClient,
                     leaseId -> delete(blobClient, leaseId),
-                    errorCode -> {
-                        throw new RuntimeException("Acquiring Lease failed, " + errorCode.toString());
-                    },
+                    DeleteCompleteFilesTask::throwBlobDeleteException,
                     false
                 );
 
@@ -129,7 +128,7 @@ public class DeleteCompleteFilesTask {
 
     private void delete(BlobClient blobClient, String leaseId) {
         try {
-            Response<Void> r = blobClient.deleteWithResponse(
+            blobClient.deleteWithResponse(
                 DeleteSnapshotsOptionType.INCLUDE,
                 new BlobRequestConditions().setLeaseId(leaseId),
                 null,
@@ -149,5 +148,9 @@ public class DeleteCompleteFilesTask {
                 ex
             );
         }
+    }
+
+    private static void throwBlobDeleteException(BlobErrorCode errorCode) {
+        throw new BlobDeleteException("Deleting blob failed. ErrorCode: " + errorCode.toString());
     }
 }
