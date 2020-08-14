@@ -280,7 +280,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.14.0'
 
   implementation group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.5'
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.7.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.8.0'
 
   implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.4.0', {
     exclude group: 'javax.mail', module: 'mail'
