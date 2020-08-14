@@ -34,16 +34,17 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     public void tearDown() throws Exception {
         for (String filename : filesToDeleteAfterTest) {
             BlobClient inBlobClient = inputContainer.getBlobClient(filename);
-            if (inBlobClient.exists()){
+            if (inBlobClient.exists()) {
                 leaseClientProvider.get(inBlobClient).releaseLease();
                 inBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             }
 
             BlobClient rejBlobClient = rejectedContainer.getBlobClient(filename);
 
-            if (rejBlobClient.exists()){
+            if (rejBlobClient.exists()) {
                 leaseClientProvider.get(rejBlobClient).releaseLease();
-                rejBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
+                rejBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null,
+                    Context.NONE);
             }
         }
     }

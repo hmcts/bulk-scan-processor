@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipExtractor;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -124,12 +123,11 @@ public class TestHelper {
     public BlobContainerClient getContainerClient(
         String sasToken, String containerName, String containerUrl
     ) {
-       return new BlobServiceClientBuilder()
-           .sasToken(sasToken)
-           .endpoint(containerUrl)
-           .buildClient()
-           .getBlobContainerClient(containerName);
-
+        return new BlobServiceClientBuilder()
+            .sasToken(sasToken)
+            .endpoint(containerUrl)
+            .buildClient()
+            .getBlobContainerClient(containerName);
     }
 
     public String getRandomFilename() {

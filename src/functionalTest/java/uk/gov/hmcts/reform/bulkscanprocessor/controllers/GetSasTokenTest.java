@@ -10,8 +10,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import java.nio.charset.Charset;
-import java.util.stream.Collectors;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.assertj.core.util.DateUtil;
@@ -25,9 +23,11 @@ import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.TestHelper;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
