@@ -85,7 +85,7 @@ public class TestHelper {
         }
     }
 
-    public BlobClient uploadAndLeaseZipFile(
+    public String uploadAndLeaseZipFile(
         BlobContainerClient container,
         List<String> files,
         String metadataFile,
@@ -94,8 +94,7 @@ public class TestHelper {
         byte[] zipFile = createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
         BlobClient blobClient = container.getBlobClient(destZipFilename);
         blobClient.upload(new ByteArrayInputStream(zipFile), zipFile.length);
-        new BlobLeaseClientBuilder().blobClient(blobClient).buildClient().acquireLease(20);
-        return blobClient;
+        return new BlobLeaseClientBuilder().blobClient(blobClient).buildClient().acquireLease(20);
     }
 
     public boolean storageHasFile(BlobContainerClient container, String fileName) {

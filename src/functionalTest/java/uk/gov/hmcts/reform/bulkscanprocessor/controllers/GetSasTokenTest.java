@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
@@ -41,6 +44,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
     private TestHelper testHelper;
 
     private String destZipFilename;
+    private String leaseId;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -49,6 +53,8 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
         this.blobContainerUrl = conf.getString("test-storage-account-url") + "/";
 
         this.testHelper = new TestHelper();
+        this.leaseId = null;
+
     }
 
     @AfterEach
@@ -57,7 +63,16 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
         if (!Strings.isNullOrEmpty(destZipFilename)) {
             BlobClient blobClient = inputContainer.getBlobClient(destZipFilename);
             if (blobClient.exists()) {
-                blobClient.delete();
+                if(!Strings.isNullOrEmpty(leaseId)){
+                    blobClient.deleteWithResponse(
+                        DeleteSnapshotsOptionType.INCLUDE,
+                        new BlobRequestConditions().setLeaseId(leaseId),
+                        null,
+                        Context.NONE);
+                }
+                else{
+                    blobClient.delete();
+                }
             }
         }
     }
@@ -84,7 +99,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
             testHelper.getContainerClient(sasToken, testContainerName, this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename();
-        testHelper.uploadAndLeaseZipFile(
+        this.leaseId = testHelper.uploadAndLeaseZipFile(
             testSasContainer,
             Arrays.asList(
                 "1111006.pdf"
