@@ -56,8 +56,11 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
         // cleanup previous runs
         if (!Strings.isNullOrEmpty(destZipFilename)) {
             BlobClient blobClient = inputContainer.getBlobClient(destZipFilename);
-            leaseClientProvider.get(blobClient).releaseLease();
-            blobClient.delete();
+            if (blobClient.exists()) {
+                System.out.println("releaseLease");
+                leaseClientProvider.get(blobClient).releaseLease();
+                blobClient.delete();
+            }
         }
     }
 
