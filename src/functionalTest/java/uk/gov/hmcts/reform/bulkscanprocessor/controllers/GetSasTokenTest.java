@@ -54,7 +54,6 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
 
         this.testHelper = new TestHelper();
         this.leaseId = null;
-
     }
 
     @AfterEach
@@ -63,14 +62,13 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
         if (!Strings.isNullOrEmpty(destZipFilename)) {
             BlobClient blobClient = inputContainer.getBlobClient(destZipFilename);
             if (blobClient.exists()) {
-                if(!Strings.isNullOrEmpty(leaseId)){
+                if (!Strings.isNullOrEmpty(leaseId)) {
                     blobClient.deleteWithResponse(
                         DeleteSnapshotsOptionType.INCLUDE,
                         new BlobRequestConditions().setLeaseId(leaseId),
                         null,
                         Context.NONE);
-                }
-                else{
+                } else {
                     blobClient.delete();
                 }
             }
