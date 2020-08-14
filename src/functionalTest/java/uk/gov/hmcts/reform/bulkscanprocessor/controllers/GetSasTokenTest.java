@@ -52,13 +52,13 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         // cleanup previous runs
         if (!Strings.isNullOrEmpty(destZipFilename)) {
             BlobClient blobClient = inputContainer.getBlobClient(destZipFilename);
             if (blobClient.exists()) {
                 System.out.println("releaseLease");
-                leaseClientProvider.get(blobClient).releaseLease();
+                leaseClientProvider.get(blobClient).breakLease();
                 blobClient.delete();
             }
         }
