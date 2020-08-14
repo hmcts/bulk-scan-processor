@@ -8,6 +8,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
+import com.azure.storage.common.StorageSharedKeyCredential;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.TestHelper;
@@ -51,15 +52,17 @@ public abstract class BaseFunctionalTest {
         this.isProxyEnabled = Boolean.valueOf(config.getString("proxyout.enabled"));
         this.fluxFuncTest = config.getBoolean("flux-func-test");
 
-        String connectionString = String.format(
-            "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",
-            config.getString("test-storage-account-url"),
-            config.getString("test-storage-account-name"),
-            config.getString("test-storage-account-key")
-        );
         leaseClientProvider =  blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
+
+        StorageSharedKeyCredential storageCredentials =
+            new StorageSharedKeyCredential(
+                config.getString("test-storage-account-name"),
+                config.getString("test-storage-account-key")
+            );
+
         BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder()
-            .connectionString(connectionString);
+            .credential(storageCredentials)
+            .endpoint(config.getString("test-storage-account-url"));
 
         // Apply proxy for functional tests for all environments except preview
         // as due to NSG config it has to go through outbound proxy

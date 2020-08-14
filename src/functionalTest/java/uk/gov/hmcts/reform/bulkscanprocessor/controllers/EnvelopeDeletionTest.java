@@ -106,9 +106,9 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     private List<BlobItem> searchByName(BlobContainerClient container, String fileName) {
         ListBlobsOptions listOptions = new ListBlobsOptions();
         listOptions.getDetails().setRetrieveSnapshots(true);
-        return    container.listBlobs(listOptions,null, null)
+        listOptions.setPrefix(fileName);
+        return container.listBlobs(listOptions, null, null)
             .stream()
-                .filter(b -> b.getName().equals(fileName))
-                .collect(toList());
+            .collect(toList());
     }
 }
