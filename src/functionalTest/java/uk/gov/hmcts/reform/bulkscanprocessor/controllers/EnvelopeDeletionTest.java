@@ -1,24 +1,23 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.storage.blob.models.ListBlobsOptions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import static com.jayway.awaitility.Awaitility.await;
-import static com.microsoft.azure.storage.blob.BlobListingDetails.SNAPSHOTS;
-import static com.microsoft.azure.storage.blob.DeleteSnapshotsOption.INCLUDE_SNAPSHOTS;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -34,14 +33,18 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     @AfterEach
     public void tearDown() throws Exception {
         for (String filename : filesToDeleteAfterTest) {
-            try {
-                inputContainer.getBlockBlobReference(filename).breakLease(0);
-            } catch (StorageException e) {
-                // Do nothing as the file was not leased
+            BlobClient inBlobClient = inputContainer.getBlobClient(filename);
+            if (inBlobClient.exists()){
+                leaseClientProvider.get(inBlobClient).releaseLease();
+                inBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             }
 
-            inputContainer.getBlockBlobReference(filename).deleteIfExists(INCLUDE_SNAPSHOTS, null, null, null);
-            rejectedContainer.getBlockBlobReference(filename).deleteIfExists(INCLUDE_SNAPSHOTS, null, null, null);
+            BlobClient rejBlobClient = rejectedContainer.getBlobClient(filename);
+
+            if (rejBlobClient.exists()){
+                leaseClientProvider.get(rejBlobClient).releaseLease();
+                rejBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
+            }
         }
     }
 
@@ -53,8 +56,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
             inputContainer,
             Arrays.asList("1111006.pdf"),
             null, // missing metadata file
-            destZipFilename,
-            operationContext
+            destZipFilename
         );
 
         filesToDeleteAfterTest.add(destZipFilename);
@@ -83,8 +85,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
                 inputContainer,
                 Arrays.asList("1111006.pdf"),
                 null, // missing metadata file
-                fileName,
-                operationContext
+                fileName
             );
 
             await("file should be deleted")
@@ -103,11 +104,12 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         IntStream.range(0, times).forEach(index -> actionToRun.run());
     }
 
-    private List<ListBlobItem> searchByName(CloudBlobContainer container, String fileName) {
-        Iterable<ListBlobItem> blobs = container.listBlobs(null, true, EnumSet.of(SNAPSHOTS), null, null);
-
-        return stream(blobs.spliterator(), false)
-            .filter(b -> b.getUri().getPath().contains(fileName))
-            .collect(toList());
+    private List<BlobItem> searchByName(BlobContainerClient container, String fileName) {
+        ListBlobsOptions listOptions = new ListBlobsOptions();
+        listOptions.getDetails().setRetrieveSnapshots(true);
+        return    container.listBlobs(listOptions,null, null)
+            .stream()
+                .filter(b -> b.getName().equals(fileName))
+                .collect(toList());
     }
 }

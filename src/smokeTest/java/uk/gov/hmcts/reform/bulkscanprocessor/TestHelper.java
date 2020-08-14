@@ -1,13 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.OperationContext;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.core.PathUtility;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
@@ -21,9 +21,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipExtractor;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,7 +35,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -72,45 +72,36 @@ public class TestHelper {
     }
 
     public void uploadZipFile(
-        CloudBlobContainer container,
+        BlobContainerClient container,
         List<String> files,
         String metadataFile,
-        final String destZipFilename,
-        OperationContext operationContext
-    ) {
+        final String destZipFilename) {
         try {
             byte[] zipFile =
                 createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
-            CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-            blockBlobReference.uploadFromByteArray(
-                zipFile,
-                0,
-                zipFile.length,
-                null,
-                null,
-                operationContext
-            );
+            BlobClient blockBlobReference = container.getBlobClient(destZipFilename);
+            blockBlobReference.upload(new ByteArrayInputStream(zipFile), zipFile.length);
         } catch (Exception exc) {
             throw new RuntimeException(exc);
         }
     }
 
-    public CloudBlockBlob uploadAndLeaseZipFile(
-        CloudBlobContainer container,
+    public BlobClient uploadAndLeaseZipFile(
+        BlobContainerClient container,
         List<String> files,
         String metadataFile,
         String destZipFilename
     ) throws Exception {
         byte[] zipFile = createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
-        CloudBlockBlob blockBlobReference = container.getBlockBlobReference(destZipFilename);
-        blockBlobReference.uploadFromByteArray(zipFile, 0, zipFile.length);
-        blockBlobReference.acquireLease();
-        return blockBlobReference;
+        BlobClient blobClient = container.getBlobClient(destZipFilename);
+        blobClient.upload(new ByteArrayInputStream(zipFile), zipFile.length);
+        new BlobLeaseClientBuilder().blobClient(blobClient).buildClient().acquireLease(20);
+        return blobClient;
     }
 
-    public boolean storageHasFile(CloudBlobContainer container, String fileName) {
-        return StreamSupport.stream(container.listBlobs().spliterator(), false)
-            .anyMatch(listBlobItem -> listBlobItem.getUri().getPath().contains(fileName));
+    public boolean storageHasFile(BlobContainerClient container, String fileName) {
+        return container.listBlobs().stream()
+            .anyMatch(listBlobItem -> listBlobItem.getName().equals(fileName));
     }
 
     public String getSasToken(String containerName, String testUrl) throws Exception {
@@ -130,11 +121,15 @@ public class TestHelper {
         return node.get("sas_token").asText();
     }
 
-    public CloudBlobContainer getCloudContainer(
+    public BlobContainerClient getContainerClient(
         String sasToken, String containerName, String containerUrl
-    ) throws Exception {
-        URI containerUri = new URI(containerUrl + containerName);
-        return new CloudBlobContainer(PathUtility.addToQuery(containerUri, sasToken));
+    ) {
+       return new BlobServiceClientBuilder()
+           .sasToken(sasToken)
+           .endpoint(containerUrl)
+           .buildClient()
+           .getBlobContainerClient(containerName);
+
     }
 
     public String getRandomFilename() {

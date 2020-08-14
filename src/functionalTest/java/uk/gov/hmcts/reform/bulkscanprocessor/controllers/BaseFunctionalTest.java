@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.OperationContext;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageUri;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.ProxyOptions;
+import com.azure.core.http.ProxyOptions.Type;
+import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.TestHelper;
@@ -13,10 +15,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,15 +29,15 @@ public abstract class BaseFunctionalTest {
     protected String s2sUrl;
     protected String s2sName;
     protected String s2sSecret;
-    protected CloudBlobContainer inputContainer;
-    protected CloudBlobContainer rejectedContainer;
+    protected BlobContainerClient inputContainer;
+    protected BlobContainerClient rejectedContainer;
     protected String proxyHost;
     protected String proxyPort;
     protected boolean isProxyEnabled;
     protected TestHelper testHelper = new TestHelper();
     protected Config config;
-    protected OperationContext operationContext;
     protected boolean fluxFuncTest;
+    protected LeaseClientProvider leaseClientProvider;
 
     public void setUp() throws Exception {
         this.config = ConfigFactory.load();
@@ -50,44 +51,41 @@ public abstract class BaseFunctionalTest {
         this.isProxyEnabled = Boolean.valueOf(config.getString("proxyout.enabled"));
         this.fluxFuncTest = config.getBoolean("flux-func-test");
 
-        StorageCredentialsAccountAndKey storageCredentials =
-            new StorageCredentialsAccountAndKey(
-                config.getString("test-storage-account-name"),
-                config.getString("test-storage-account-key")
-            );
+        String connectionString = String.format(
+            "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",
+            config.getString("test-storage-account-url"),
+            config.getString("test-storage-account-name"),
+            config.getString("test-storage-account-key")
+        );
+        leaseClientProvider =  blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
+        BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder()
+            .connectionString(connectionString);
 
         // Apply proxy for functional tests for all environments except preview
         // as due to NSG config it has to go through outbound proxy
         if (isProxyEnabled) {
-            Proxy proxy = new Proxy(
-                Proxy.Type.HTTP,
-                new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort))
-            );
+            HttpClient httpClient = new NettyAsyncHttpClientBuilder()
+                .proxy(
+                    new ProxyOptions(
+                        Type.HTTP,
+                        new InetSocketAddress(
+                            proxyHost,
+                            Integer.parseInt(proxyPort)
+                        )
+                    )
+                )
+                .build();
 
-            operationContext = new OperationContext();
-            operationContext.setProxy(proxy);
-
-            // This is set temporary and will be removed/modified in subsequent PRs
-            System.setProperty("http.proxyHost", proxyHost);
-            System.setProperty("http.proxyPort", proxyPort);
-
-            System.setProperty("https.proxyHost", proxyHost);
-            System.setProperty("https.proxyPort", proxyPort);
+            blobServiceClientBuilder.httpClient(httpClient);
         }
 
-        CloudBlobClient cloudBlobClient = new CloudStorageAccount(
-            storageCredentials,
-            new StorageUri(new URI(config.getString("test-storage-account-url")), null),
-            null,
-            null
-        )
-            .createCloudBlobClient();
+        BlobServiceClient blobServiceClient = blobServiceClientBuilder.buildClient();
 
         String inputContainerName = config.getString("test-storage-container-name");
         String rejectedContainerName = inputContainerName + "-rejected";
 
-        inputContainer = cloudBlobClient.getContainerReference(inputContainerName);
-        rejectedContainer = cloudBlobClient.getContainerReference(rejectedContainerName);
+        inputContainer = blobServiceClient.getBlobContainerClient(inputContainerName);
+        rejectedContainer = blobServiceClient.getBlobContainerClient(rejectedContainerName);
     }
 
     protected void uploadZipFile(List<String> files, String metadataFile, String destZipFilename) {
@@ -96,8 +94,7 @@ public abstract class BaseFunctionalTest {
             inputContainer,
             files,
             metadataFile,
-            destZipFilename,
-            operationContext
+            destZipFilename
         );
     }
 
