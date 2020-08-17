@@ -3,8 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.core.PathUtility;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,9 +12,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
+import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.singletonList;
@@ -46,15 +48,18 @@ public class SasTokenGeneratorServiceTest {
     }
 
     @Test
-    public void should_generate_sas_token_when_service_configuration_is_available() throws StorageException {
+    public void should_generate_sas_token_when_service_configuration_is_available() {
         String sasToken = tokenGeneratorService.generateSasToken("sscs");
 
         String currentDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(OffsetDateTime.now(UTC));
 
-        Map<String, String[]> queryParams = PathUtility.parseQueryString(sasToken);
+        Map<String, String> queryParams = URLEncodedUtils
+            .parse(sasToken, Charset.forName("UTF-8")).stream()
+            .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+
 
         assertThat(queryParams.get("sig")).isNotNull();//this is a generated hash of the resource string
-        assertThat(queryParams.get("se")[0]).startsWith(currentDate);//the expiry date/time for the signature
+        assertThat(queryParams.get("se")).startsWith(currentDate);//the expiry date/time for the signature
         assertThat(queryParams.get("sv")).contains("2019-12-12");//azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
     }
