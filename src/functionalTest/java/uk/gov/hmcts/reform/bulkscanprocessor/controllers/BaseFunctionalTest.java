@@ -10,7 +10,6 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import uk.gov.hmcts.reform.bulkscanprocessor.TestHelper;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.Configs;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
@@ -32,6 +31,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOU
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_URL;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_CONTAINER_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.TEST_URL;
 
 public abstract class BaseFunctionalTest {
 
@@ -98,12 +98,12 @@ public abstract class BaseFunctionalTest {
             .atMost(SCAN_DELAY + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() ->
-                       testHelper.getEnvelopeByZipFileName(Configs.TEST_URL, s2sToken, fileName)
+                       testHelper.getEnvelopeByZipFileName(TEST_URL, s2sToken, fileName)
                            .filter(env -> awaitedStatuses.contains(env.getStatus()))
                            .isPresent()
             );
 
-        EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(Configs.TEST_URL, s2sToken, fileName).get();
+        EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(TEST_URL, s2sToken, fileName).get();
         assertThat(envelope.getStatus()).isIn(awaitedStatuses);
 
         return envelope;
