@@ -9,10 +9,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import javax.persistence.EntityManager;
 
 import static java.time.LocalDateTime.now;
+import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -200,6 +204,34 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void should_find_received_envelopes_by_date() {
+        // given
+        final String container1 = "container1";
+        dbHas(
+            envelope(2020, 3, 18, 14, 32, 41),
+            envelope(2020, 3, 17, 15, 33, 42),
+            envelope(2020, 3, 19, 16, 34, 43),
+            envelope(2020, 3, 18, 17, 35, 44),
+            envelope(2020, 3, 18, 18, 36, 45)
+        );
+
+        // when
+        Instant from = LocalDateTime.of(2020, 3, 18, 0, 0, 1).toInstant(UTC);
+        Instant to = LocalDateTime.of(2020, 3, 19, 0, 0, 0).toInstant(UTC);
+        final List<Envelope> result = repo.getReceivedEnvelopes(from, to);
+
+        // then
+        assertThat(result)
+            .hasSize(3)
+            .extracting(Envelope::getZipFileCreateddate)
+            .containsExactlyInAnyOrder(
+                LocalDateTime.of(2020, 3, 18, 14, 32,41).toInstant(UTC),
+                LocalDateTime.of(2020, 3, 18, 17, 35,44).toInstant(UTC),
+                LocalDateTime.of(2020, 3, 18, 18, 36,45).toInstant(UTC)
+            );
     }
 
     private Envelope envelopeWithFailureCount(int failCount) {

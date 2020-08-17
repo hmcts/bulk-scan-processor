@@ -89,4 +89,12 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     int getIncompleteEnvelopesCountBefore(@Param("datetime") LocalDateTime dateTime);
 
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
+
+    @Query("select e from Envelope e\n"
+        + "where e.zipFileCreateddate between :fromDateTime AND :toDateTime"
+    )
+    List<Envelope> getReceivedEnvelopes(
+        @Param("fromDateTime") Instant fromDateTime,
+        @Param("toDateTime") Instant toDateTime
+    );
 }

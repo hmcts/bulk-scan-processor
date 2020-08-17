@@ -79,6 +79,11 @@ public final class EnvelopeCreator {
         return envelope("SSCS", Status.UPLOADED);
     }
 
+    public static Envelope envelope(int year, int month, int day, int hour, int minute, int second) {
+        Instant timestamp = getInstant(year, month, day, hour, minute, second);
+        return envelope(randomUUID() + ".zip", "SSCS", Status.UPLOADED, scannableItems(), "SSCS", timestamp);
+    }
+
     public static Envelope envelope(String jurisdiction, Status status) {
         return envelope(randomUUID() + ".zip", jurisdiction, status);
     }
@@ -122,14 +127,29 @@ public final class EnvelopeCreator {
         List<ScannableItem> scannableItems,
         String container
     ) {
-        Instant timestamp = getInstant();
+        return envelope(
+            zipFileName,
+            jurisdiction,
+            status, scannableItems,
+            container,
+            getInstant()
+        );
+    }
 
+    public static Envelope envelope(
+        String zipFileName,
+        String jurisdiction,
+        Status status,
+        List<ScannableItem> scannableItems,
+        String container,
+        Instant zipFileCreateddate
+    ) {
         Envelope envelope = new Envelope(
             "SSCSPO",
             jurisdiction,
-            timestamp,
-            timestamp,
-            timestamp,
+            zipFileCreateddate,
+            zipFileCreateddate,
+            zipFileCreateddate,
             zipFileName,
             "1111222233334446",
             "123654789",
@@ -235,5 +255,9 @@ public final class EnvelopeCreator {
 
     private static Instant getInstant() {
         return Instant.parse("2018-06-23T12:34:56.123Z");
+    }
+
+    private static Instant getInstant(int year, int month, int day, int hour, int minute, int second) {
+        return Instant.parse(String.format("%d-%02d-%02dT%02d:%02d:%02d.000Z", year, month, day, hour, minute, second));
     }
 }
