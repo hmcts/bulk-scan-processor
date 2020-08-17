@@ -1,19 +1,20 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobRequestConditions;
+import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.StorageUri;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.core.PathUtility;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,15 +26,16 @@ import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.TestHelper;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
-import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class GetSasTokenTest {
+public class GetSasTokenTest extends BaseFunctionalTest  {
 
     private Config conf = ConfigFactory.load();
 
@@ -42,38 +44,33 @@ public class GetSasTokenTest {
     private TestHelper testHelper;
 
     private String destZipFilename;
+    private String leaseId;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         this.testUrl = conf.getString("test-url");
         this.blobContainerUrl = conf.getString("test-storage-account-url") + "/";
 
         this.testHelper = new TestHelper();
+        this.leaseId = null;
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         // cleanup previous runs
         if (!Strings.isNullOrEmpty(destZipFilename)) {
-            StorageCredentialsAccountAndKey storageCredentials =
-                new StorageCredentialsAccountAndKey(
-                    conf.getString("test-storage-account-name"),
-                    conf.getString("test-storage-account-key")
-                );
-
-            CloudBlobContainer testContainer = new CloudStorageAccount(
-                storageCredentials,
-                new StorageUri(new URI(conf.getString("test-storage-account-url")), null),
-                null,
-                null
-            )
-                .createCloudBlobClient()
-                .getContainerReference(conf.getString("test-storage-container-name"));
-
-            CloudBlockBlob blob = testContainer.getBlockBlobReference(destZipFilename);
-            if (blob.exists()) {
-                blob.breakLease(0);
-                blob.deleteIfExists();
+            BlobClient blobClient = inputContainer.getBlobClient(destZipFilename);
+            if (blobClient.exists()) {
+                if (!Strings.isNullOrEmpty(leaseId)) {
+                    blobClient.deleteWithResponse(
+                        DeleteSnapshotsOptionType.INCLUDE,
+                        new BlobRequestConditions().setLeaseId(leaseId),
+                        null,
+                        Context.NONE);
+                } else {
+                    blobClient.delete();
+                }
             }
         }
     }
@@ -96,11 +93,11 @@ public class GetSasTokenTest {
     public void sas_token_should_have_read_and_write_capabilities_for_service() throws Exception {
         String testContainerName = conf.getString("test-storage-container-name");
         String sasToken = testHelper.getSasToken(testContainerName, this.testUrl);
-        CloudBlobContainer testSasContainer =
-            testHelper.getCloudContainer(sasToken, testContainerName, this.blobContainerUrl);
+        BlobContainerClient testSasContainer =
+            testHelper.getContainerClient(sasToken, testContainerName, this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename();
-        testHelper.uploadAndLeaseZipFile(
+        this.leaseId = testHelper.uploadAndLeaseZipFile(
             testSasContainer,
             Arrays.asList(
                 "1111006.pdf"
@@ -115,12 +112,12 @@ public class GetSasTokenTest {
     @Test
     public void sas_token_should_not_have_read_and_write_capabilities_for_other_service() throws Exception {
         String sasToken = testHelper.getSasToken("sscs", this.testUrl);
-        CloudBlobContainer testSasContainer =
-            testHelper.getCloudContainer(sasToken, "test", this.blobContainerUrl);
+        BlobContainerClient testSasContainer =
+            testHelper.getContainerClient(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename();
         assertThrows(
-            StorageException.class,
+            BlobStorageException.class,
             () -> testHelper.uploadAndLeaseZipFile(
                     testSasContainer,
                     Arrays.asList(
@@ -132,13 +129,17 @@ public class GetSasTokenTest {
         );
     }
 
-    private void verifySasTokenProperties(Response tokenResponse) throws java.io.IOException, StorageException {
+    private void verifySasTokenProperties(Response tokenResponse) throws java.io.IOException {
         assertThat(tokenResponse.getStatusCode()).isEqualTo(200);
 
         final ObjectNode node = new ObjectMapper().readValue(tokenResponse.getBody().asString(), ObjectNode.class);
-        Map<String, String[]> queryParams = PathUtility.parseQueryString(node.get("sas_token").asText());
 
-        Date tokenExpiry = DateUtil.parseDatetime(queryParams.get("se")[0]);
+        Map<String, String> queryParams = URLEncodedUtils
+            .parse(node.get("sas_token").asText(), Charset.forName("UTF-8")).stream()
+            .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+
+
+        Date tokenExpiry = DateUtil.parseDatetime(queryParams.get("se"));
         assertThat(tokenExpiry).isNotNull();
         assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
         assertThat(queryParams.get("sv")).contains("2019-12-12"); //azure api version is latest
