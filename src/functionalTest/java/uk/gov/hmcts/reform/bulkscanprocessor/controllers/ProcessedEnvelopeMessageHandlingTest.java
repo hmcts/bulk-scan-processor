@@ -18,6 +18,13 @@ import java.util.concurrent.TimeUnit;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.PROCESSED_ENVELOPES_QUEUE_CONN_STRING;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.TEST_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.FLUX_FUNC_TEST;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_SECRET;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.SCAN_DELAY;
 
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
@@ -32,12 +39,10 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        this.s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
+        this.s2sToken = testHelper.s2sSignIn(S2S_NAME, S2S_SECRET, S2S_URL);
 
         this.queueClient = new QueueClient(
-            new ConnectionStringBuilder(
-                config.getString("processed-envelopes-queue-conn-string")
-            ),
+            new ConnectionStringBuilder(PROCESSED_ENVELOPES_QUEUE_CONN_STRING),
             ReceiveMode.PEEKLOCK
         );
     }
@@ -45,20 +50,20 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     @Test
     public void should_complete_envelope_referenced_by_queue_message() throws Exception {
         // given
-        String zipFilename = uploadEnvelope();
+        var zipFilename = uploadEnvelope();
 
         await(
             "File " + zipFilename + " should be created in the service and notification should be put on the queue"
         )
-            .atMost(scanDelay + MESSAGE_PROCESSING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+            .atMost(SCAN_DELAY + MESSAGE_PROCESSING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> hasNotificationBeenSent(zipFilename));
 
         UUID envelopeId = getEnvelope(zipFilename).getId();
 
         // when
-        String ccdAction = fluxFuncTest ? "EXCEPTION_RECORD" : "ccd-action";
-        if (!fluxFuncTest) {
+        var ccdAction = FLUX_FUNC_TEST ? "EXCEPTION_RECORD" : "ccd-action";
+        if (!FLUX_FUNC_TEST) {
             sendProcessedEnvelopeMessage(envelopeId, "ccd-id", ccdAction);
         }
         // then
@@ -67,11 +72,11 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
 
-        EnvelopeResponse updatedEnvelope = getEnvelope(zipFilename);
+        var updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
         assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
 
-        if (fluxFuncTest) {
+        if (FLUX_FUNC_TEST) {
             assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
         } else {
             assertThat(updatedEnvelope.getCcdId()).isEqualTo("ccd-id");
@@ -86,7 +91,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private Boolean hasNotificationBeenSent(String zipFilename) {
-        return testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, zipFilename)
+        return testHelper.getEnvelopeByZipFileName(TEST_URL, s2sToken, zipFilename)
             .map(envelope ->
                 // Ideally, we'd like to wait until the envelope is in NOTIFICATION_SENT status,
                 // but there's a risk of it becoming completed if there's an orchestrator working
@@ -111,7 +116,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private EnvelopeResponse getEnvelope(String zipFilename) {
-        return testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, zipFilename)
+        return testHelper.getEnvelopeByZipFileName(TEST_URL, s2sToken, zipFilename)
             .orElseThrow(() ->
                 new AssertionError(
                     String.format("The envelope for file %s couldn't be found", zipFilename)

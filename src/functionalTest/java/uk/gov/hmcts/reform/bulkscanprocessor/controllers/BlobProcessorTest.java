@@ -27,7 +27,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
 
         // valid zip file
         uploadZipFile(files, metadataFile, destZipFilename);
-        EnvelopeResponse envelope = waitForEnvelopeToBeInStatus(
+        var envelope = waitForEnvelopeToBeInStatus(
             destZipFilename,
             asList(Status.NOTIFICATION_SENT, Status.COMPLETED)
         );
@@ -43,7 +43,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         String destZipFilename = testHelper.getRandomFilename();
 
         uploadZipFile(files, metadataFile, destZipFilename);
-        EnvelopeResponse envelope = waitForEnvelopeToBeInStatus(
+        var envelope = waitForEnvelopeToBeInStatus(
             destZipFilename,
             asList(Status.NOTIFICATION_SENT, Status.COMPLETED)
         );

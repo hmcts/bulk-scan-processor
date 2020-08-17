@@ -9,9 +9,8 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import uk.gov.hmcts.reform.bulkscanprocessor.TestHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.Configs;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
@@ -22,58 +21,42 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_KEY;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.*;
 
 public abstract class BaseFunctionalTest {
 
-    protected String testUrl;
-    protected long scanDelay;
-    protected String s2sUrl;
-    protected String s2sName;
-    protected String s2sSecret;
     protected BlobContainerClient inputContainer;
     protected BlobContainerClient rejectedContainer;
-    protected String proxyHost;
-    protected String proxyPort;
-    protected boolean isProxyEnabled;
     protected TestHelper testHelper = new TestHelper();
-    protected Config config;
-    protected boolean fluxFuncTest;
     protected LeaseClientProvider leaseClientProvider;
 
     public void setUp() throws Exception {
-        this.config = ConfigFactory.load();
-        this.testUrl = config.getString("test-url");
-        this.scanDelay = Long.parseLong(config.getString("test-scan-delay"));
-        this.s2sUrl = config.getString("test-s2s-url");
-        this.s2sName = config.getString("test-s2s-name");
-        this.s2sSecret = config.getString("test-s2s-secret");
-        this.proxyHost = config.getString("storage-proxy-host");
-        this.proxyPort = config.getString("storage-proxy-port");
-        this.isProxyEnabled = Boolean.valueOf(config.getString("proxyout.enabled"));
-        this.fluxFuncTest = config.getBoolean("flux-func-test");
 
         leaseClientProvider =  blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
 
         StorageSharedKeyCredential storageCredentials =
             new StorageSharedKeyCredential(
-                config.getString("test-storage-account-name"),
-                config.getString("test-storage-account-key")
+                STORAGE_ACCOUNT_NAME,
+                STORAGE_ACCOUNT_KEY
             );
 
         BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder()
             .credential(storageCredentials)
-            .endpoint(config.getString("test-storage-account-url"));
+            .endpoint(STORAGE_ACCOUNT_URL);
 
         // Apply proxy for functional tests for all environments except preview
         // as due to NSG config it has to go through outbound proxy
-        if (isProxyEnabled) {
+        if (IS_PROXY_ENABLED) {
             HttpClient httpClient = new NettyAsyncHttpClientBuilder()
                 .proxy(
                     new ProxyOptions(
                         Type.HTTP,
                         new InetSocketAddress(
-                            proxyHost,
-                            Integer.parseInt(proxyPort)
+                            PROXY_HOST,
+                            Integer.parseInt(PROXY_PORT)
                         )
                     )
                 )
@@ -84,7 +67,7 @@ public abstract class BaseFunctionalTest {
 
         BlobServiceClient blobServiceClient = blobServiceClientBuilder.buildClient();
 
-        String inputContainerName = config.getString("test-storage-container-name");
+        String inputContainerName = STORAGE_CONTAINER_NAME;
         String rejectedContainerName = inputContainerName + "-rejected";
 
         inputContainer = blobServiceClient.getBlobContainerClient(inputContainerName);
@@ -102,18 +85,18 @@ public abstract class BaseFunctionalTest {
     }
 
     protected EnvelopeResponse waitForEnvelopeToBeInStatus(String fileName, List<Status> awaitedStatuses) {
-        String s2sToken = testHelper.s2sSignIn(this.s2sName, this.s2sSecret, this.s2sUrl);
+        String s2sToken = testHelper.s2sSignIn(S2S_NAME, S2S_SECRET, S2S_URL);
 
         await("File " + fileName + " should be processed")
-            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .atMost(SCAN_DELAY + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() ->
-                       testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName)
+                       testHelper.getEnvelopeByZipFileName(Configs.TEST_URL, s2sToken, fileName)
                            .filter(env -> awaitedStatuses.contains(env.getStatus()))
                            .isPresent()
             );
 
-        EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(testUrl, s2sToken, fileName).get();
+        EnvelopeResponse envelope = testHelper.getEnvelopeByZipFileName(Configs.TEST_URL, s2sToken, fileName).get();
         assertThat(envelope.getStatus()).isIn(awaitedStatuses);
 
         return envelope;
