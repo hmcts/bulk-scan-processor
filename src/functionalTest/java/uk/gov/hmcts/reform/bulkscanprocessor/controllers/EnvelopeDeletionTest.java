@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.ListBlobsOptions;

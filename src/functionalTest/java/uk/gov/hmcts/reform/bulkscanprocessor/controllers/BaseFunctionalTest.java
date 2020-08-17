@@ -21,10 +21,17 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.IS_PROXY_ENABLED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.PROXY_HOST;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.PROXY_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_SECRET;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.SCAN_DELAY;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_KEY;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_URL;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.*;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_CONTAINER_NAME;
 
 public abstract class BaseFunctionalTest {
 

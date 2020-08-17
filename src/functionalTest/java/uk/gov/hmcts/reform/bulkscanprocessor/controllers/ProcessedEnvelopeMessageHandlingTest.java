@@ -18,13 +18,13 @@ import java.util.concurrent.TimeUnit;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.PROCESSED_ENVELOPES_QUEUE_CONN_STRING;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.TEST_URL;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.FLUX_FUNC_TEST;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.PROCESSED_ENVELOPES_QUEUE_CONN_STRING;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_SECRET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_URL;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.SCAN_DELAY;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.TEST_URL;
 
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
