@@ -513,7 +513,8 @@ public class BlobManagerTest {
 
         String url = "http://bulk-scan/test.file.txt";
         given(inputBlobClient.getBlobUrl()).willReturn(url);
-        given(rejectedBlobClient.copyFromUrl(anyString())).willThrow(new BlobStorageException("can not copy", null, null));
+        given(rejectedBlobClient.copyFromUrl(anyString()))
+            .willThrow(new BlobStorageException("can not copy", null, null));
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);

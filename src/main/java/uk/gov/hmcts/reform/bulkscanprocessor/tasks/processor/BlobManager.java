@@ -303,8 +303,14 @@ public class BlobManager {
         String leaseId
     ) throws BlobStorageException {
         log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
-        BlobClient inputBlob = blobServiceClient.getBlobContainerClient(inputContainerName).getBlobClient(fileName);
-        BlobClient rejectedBlob = blobServiceClient.getBlobContainerClient(rejectedContainerName).getBlobClient(fileName);
+        BlobClient inputBlob = blobServiceClient
+            .getBlobContainerClient(inputContainerName)
+            .getBlobClient(fileName);
+
+        BlobClient rejectedBlob = blobServiceClient
+            .getBlobContainerClient(rejectedContainerName)
+            .getBlobClient(fileName);
+
         if (rejectedBlob.exists()) {
             // next steps will overwrite the file, create a snapshot of current version
             rejectedBlob.createSnapshot();
