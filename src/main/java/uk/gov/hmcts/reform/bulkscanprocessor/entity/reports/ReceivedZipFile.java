@@ -9,7 +9,7 @@ public interface ReceivedZipFile {
 
     Instant getProcessingStartedEventDate();
 
-    String getScannableItemDCN();
+    String getScannableItemDcn();
 
-    String getPaymentDCN();
+    String getPaymentDcn();
 }

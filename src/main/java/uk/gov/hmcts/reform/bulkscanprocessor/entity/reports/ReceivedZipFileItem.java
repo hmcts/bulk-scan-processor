@@ -6,21 +6,21 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
     private final String zipFileName;
     private final String container;
     private final Instant processingStartedEventDate;
-    private final String scannableItemDCN;
-    private final String paymentDCN;
+    private final String scannableItemDcn;
+    private final String paymentDcn;
 
     public ReceivedZipFileItem(
         String zipFileName,
         String container,
         Instant processingStartedEventDate,
-        String scannableItemDCN,
-        String paymentDCN
+        String scannableItemDcn,
+        String paymentDcn
     ) {
         this.zipFileName = zipFileName;
         this.container = container;
         this.processingStartedEventDate = processingStartedEventDate;
-        this.scannableItemDCN = scannableItemDCN;
-        this.paymentDCN = paymentDCN;
+        this.scannableItemDcn = scannableItemDcn;
+        this.paymentDcn = paymentDcn;
     }
 
     @Override
@@ -39,12 +39,12 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
     }
 
     @Override
-    public String getScannableItemDCN() {
-        return scannableItemDCN;
+    public String getScannableItemDcn() {
+        return scannableItemDcn;
     }
 
     @Override
-    public String getPaymentDCN() {
-        return paymentDCN;
+    public String getPaymentDcn() {
+        return paymentDcn;
     }
 }
