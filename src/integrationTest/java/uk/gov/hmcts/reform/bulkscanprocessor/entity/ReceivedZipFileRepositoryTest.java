@@ -158,7 +158,10 @@ public class ReceivedZipFileRepositoryTest {
         Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
         dbHasEnvelope(envelope);
 
-        dbHasScannableItems(scannableItem(envelope, "dcn1"), scannableItem(envelope, "dcn2"));
+        dbHasScannableItems(
+            scannableItem(envelope, "dcn1"),
+            scannableItem(envelope, "dcn2")
+        );
 
         // when
         List<ReceivedZipFile> result = reportRepo.getReceivedZipFilesReportFor(LocalDate.of(2019, 2, 15));
@@ -198,7 +201,10 @@ public class ReceivedZipFileRepositoryTest {
         Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
         dbHasEnvelope(envelope);
 
-        dbHasPayments(payment(envelope, "dcn3"),payment(envelope, "dcn4"));
+        dbHasPayments(
+            payment(envelope, "dcn3"),
+            payment(envelope, "dcn4")
+        );
 
         // when
         List<ReceivedZipFile> result = reportRepo.getReceivedZipFilesReportFor(LocalDate.of(2019, 2, 15));
@@ -238,8 +244,14 @@ public class ReceivedZipFileRepositoryTest {
         Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
         dbHasEnvelope(envelope);
 
-        dbHasScannableItems(scannableItem(envelope, "dcn1"), scannableItem(envelope, "dcn2"));
-        dbHasPayments(payment(envelope, "dcn3"),payment(envelope, "dcn4"));
+        dbHasScannableItems(
+            scannableItem(envelope, "dcn1"),
+            scannableItem(envelope, "dcn2")
+        );
+        dbHasPayments(
+            payment(envelope, "dcn3"),
+            payment(envelope, "dcn4")
+        );
 
         // when
         List<ReceivedZipFile> result = reportRepo.getReceivedZipFilesReportFor(LocalDate.of(2019, 2, 15));
@@ -276,6 +288,103 @@ public class ReceivedZipFileRepositoryTest {
                         createdDate,
                         "dcn2",
                         "dcn4"
+                    )
+                )
+            );
+    }
+
+    @Test
+    void should_return_multiple_events_if_envelopes_exist_with_multiple_payments_and_scannable_items() {
+        // given
+        Instant createdDate1 = Instant.parse("2019-02-15T14:15:23.456Z");
+        Instant createdDate2 = Instant.parse("2019-02-15T15:15:23.456Z");
+
+        dbHasEvents(
+            event("c1", "test1.zip", createdDate1, ZIPFILE_PROCESSING_STARTED),
+            event("c2", "test2.zip", createdDate2, ZIPFILE_PROCESSING_STARTED)
+        );
+
+        Envelope envelope1 = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        dbHasEnvelope(envelope1);
+        Envelope envelope2 = envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        dbHasEnvelope(envelope2);
+
+        dbHasScannableItems(
+            scannableItem(envelope1, "dcn1"),
+            scannableItem(envelope1, "dcn2"),
+            scannableItem(envelope2, "dcn3"),
+            scannableItem(envelope2, "dcn4")
+        );
+        dbHasPayments(
+            payment(envelope1, "dcn5"),
+            payment(envelope1, "dcn6"),
+            payment(envelope2, "dcn7"),
+            payment(envelope2, "dcn8")
+        );
+
+        // when
+        List<ReceivedZipFile> result = reportRepo.getReceivedZipFilesReportFor(LocalDate.of(2019, 2, 15));
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrderElementsOf(
+                asList(
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate1,
+                        "dcn1",
+                        "dcn5"
+                    ),
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate1,
+                        "dcn1",
+                        "dcn6"
+                    ),
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate1,
+                        "dcn2",
+                        "dcn5"
+                    ),
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate1,
+                        "dcn2",
+                        "dcn6"
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "dcn3",
+                        "dcn7"
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "dcn3",
+                        "dcn8"
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "dcn4",
+                        "dcn7"
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "dcn4",
+                        "dcn8"
                     )
                 )
             );
