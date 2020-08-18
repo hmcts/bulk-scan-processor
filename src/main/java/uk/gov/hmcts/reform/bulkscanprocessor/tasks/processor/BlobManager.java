@@ -301,7 +301,7 @@ public class BlobManager {
         String inputContainerName,
         String rejectedContainerName,
         String leaseId
-    ) throws BlobStorageException {
+    ) {
         log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
         BlobClient inputBlob = blobServiceClient
             .getBlobContainerClient(inputContainerName)

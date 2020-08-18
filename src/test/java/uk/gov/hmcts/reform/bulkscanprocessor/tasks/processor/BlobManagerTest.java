@@ -484,7 +484,7 @@ public class BlobManagerTest {
     //Start NEW  tryMoveFileToRejectedContainer
 
     @Test
-    public void newTryMoveFileToRejectedContainer_copies_and_deletes_original_blob() throws Exception {
+    void newTryMoveFileToRejectedContainer_copies_and_deletes_original_blob() throws Exception {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -504,7 +504,7 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_copying_failed() throws Exception {
+    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_copying_failed() throws Exception {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -526,7 +526,7 @@ public class BlobManagerTest {
 
 
     @Test
-    public void newTryMoveFileToRejectedContainer_retry_delete_when_lease_lost() throws Exception {
+    void newTryMoveFileToRejectedContainer_retry_delete_when_lease_lost() throws Exception {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -557,7 +557,7 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void newTryMoveFileToRejectedContainer_do_not_retry_delete_when_error_different_than_lease_lost()
+    void newTryMoveFileToRejectedContainer_do_not_retry_delete_when_error_different_than_lease_lost()
         throws Exception {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
