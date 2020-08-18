@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
+import com.azure.core.http.rest.Response;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRequestConditions;
@@ -17,12 +18,15 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class LeaseMetaDataCheckerTest {
 
     @Mock private BlobClient blobClient;
@@ -98,5 +102,23 @@ class LeaseMetaDataCheckerTest {
         verify(blobClient).setMetadataWithResponse(any(),conditionCapturer.capture(), any(), any());
         assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
 
+    }
+
+    @Test
+    void should_clear_blob_metadata_when_clear_successful() {
+        //given
+        given(blobClient.setMetadataWithResponse(any(), any(), any(), any()))
+            .willReturn(mock(Response.class));
+
+        //when
+        leaseMetaDataChecker.clearMetaData(blobClient, leaseId);
+
+        //then
+        var conditionCaptor = ArgumentCaptor.forClass(BlobRequestConditions.class);
+        var metaDataCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(blobClient)
+            .setMetadataWithResponse(isNull(), conditionCaptor.capture(), any(), any());
+
+        assertThat(conditionCaptor.getValue().getLeaseId()).isEqualTo(leaseId);
     }
 }
