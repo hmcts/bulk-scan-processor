@@ -210,11 +210,11 @@ public class EnvelopeRepositoryTest {
         // given
         final String container1 = "container1";
         dbHas(
-            envelope(2020, 3, 18, 14, 32, 41),
-            envelope(2020, 3, 17, 15, 33, 42),
-            envelope(2020, 3, 19, 16, 34, 43),
-            envelope(2020, 3, 18, 17, 35, 44),
-            envelope(2020, 3, 18, 18, 36, 45)
+            envelope(LocalDateTime.of(2020, 3, 18, 14, 32, 41).toInstant(UTC)),
+            envelope(LocalDateTime.of(2020, 3, 17, 15, 33, 42).toInstant(UTC)),
+            envelope(LocalDateTime.of(2020, 3, 19, 16, 34, 43).toInstant(UTC)),
+            envelope(LocalDateTime.of(2020, 3, 18, 17, 35, 44).toInstant(UTC)),
+            envelope(LocalDateTime.of(2020, 3, 18, 18, 36, 45).toInstant(UTC))
         );
 
         // when
@@ -225,9 +225,9 @@ public class EnvelopeRepositoryTest {
             .hasSize(3)
             .extracting(Envelope::getZipFileCreateddate)
             .containsExactlyInAnyOrder(
-                LocalDateTime.of(2020, 3, 18, 14, 32,41).toInstant(UTC),
-                LocalDateTime.of(2020, 3, 18, 17, 35,44).toInstant(UTC),
-                LocalDateTime.of(2020, 3, 18, 18, 36,45).toInstant(UTC)
+                LocalDateTime.of(2020, 3, 18, 14, 32, 41).toInstant(UTC),
+                LocalDateTime.of(2020, 3, 18, 17, 35, 44).toInstant(UTC),
+                LocalDateTime.of(2020, 3, 18, 18, 36, 45).toInstant(UTC)
             );
     }
 

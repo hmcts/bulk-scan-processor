@@ -79,8 +79,7 @@ public final class EnvelopeCreator {
         return envelope("SSCS", Status.UPLOADED);
     }
 
-    public static Envelope envelope(int year, int month, int day, int hour, int minute, int second) {
-        Instant timestamp = getInstant(year, month, day, hour, minute, second);
+    public static Envelope envelope(Instant timestamp) {
         return envelope(randomUUID() + ".zip", "SSCS", Status.UPLOADED, scannableItems(), "SSCS", timestamp);
     }
 
@@ -255,9 +254,5 @@ public final class EnvelopeCreator {
 
     private static Instant getInstant() {
         return Instant.parse("2018-06-23T12:34:56.123Z");
-    }
-
-    private static Instant getInstant(int year, int month, int day, int hour, int minute, int second) {
-        return Instant.parse(String.format("%d-%02d-%02dT%02d:%02d:%02d.000Z", year, month, day, hour, minute, second));
     }
 }
