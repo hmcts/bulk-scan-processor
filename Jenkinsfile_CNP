@@ -1,5 +1,5 @@
 #!groovy
-@Library("Infrastructure")
+@Library("Infrastructure@docker-agent-build-default-true")
 
 import uk.gov.hmcts.contino.AppPipelineDsl
 import uk.gov.hmcts.contino.GradleBuilder
