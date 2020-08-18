@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -217,9 +218,7 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        Instant from = LocalDateTime.of(2020, 3, 18, 0, 0, 1).toInstant(UTC);
-        Instant to = LocalDateTime.of(2020, 3, 19, 0, 0, 0).toInstant(UTC);
-        final List<Envelope> result = repo.getReceivedEnvelopes(from, to);
+        final List<Envelope> result = repo.getReceivedEnvelopes(LocalDate.of(2020, 3, 18));
 
         // then
         assertThat(result)

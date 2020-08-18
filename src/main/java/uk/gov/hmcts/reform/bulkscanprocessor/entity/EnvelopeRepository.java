@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -91,10 +92,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 
     @Query("select e from Envelope e\n"
-        + "where e.zipFileCreateddate between :fromDateTime AND :toDateTime"
+        + "where DATE(e.zipFileCreateddate) = :date"
     )
-    List<Envelope> getReceivedEnvelopes(
-        @Param("fromDateTime") Instant fromDateTime,
-        @Param("toDateTime") Instant toDateTime
-    );
+    List<Envelope> getReceivedEnvelopes(@Param("date") LocalDate date);
 }
