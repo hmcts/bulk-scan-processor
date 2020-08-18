@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,13 +35,13 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         for (String filename : filesToDeleteAfterTest) {
             var inBlobClient = inputContainer.getBlobClient(filename);
             if (inBlobClient.exists()) {
-                inBlobClient.delete();
+                inBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             }
 
             var rejBlobClient = rejectedContainer.getBlobClient(filename);
 
             if (rejBlobClient.exists()) {
-                rejBlobClient.delete();
+                rejBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             }
         }
     }
