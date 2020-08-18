@@ -72,4 +72,12 @@ public class LeaseMetaDataChecker {
                 .isBefore(LocalDateTime.now(EUROPE_LONDON_ZONE_ID)); // check if lease expired
         }
     }
+
+    public void clearMetaData(BlobClient blobClient, String leaseId) {
+        blobClient.setMetadataWithResponse(
+            null,
+            new BlobRequestConditions().setLeaseId(leaseId),
+            null, Context.NONE
+        );
+    }
 }

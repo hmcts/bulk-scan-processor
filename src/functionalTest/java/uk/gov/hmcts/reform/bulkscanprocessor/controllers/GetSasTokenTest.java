@@ -1,16 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
-import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.apache.http.NameValuePair;
@@ -34,26 +28,23 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_ACCOUNT_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_CONTAINER_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.TEST_URL;
 
 public class GetSasTokenTest extends BaseFunctionalTest  {
 
-    private Config conf = ConfigFactory.load();
-
-    private String testUrl;
     private String blobContainerUrl;
     private TestHelper testHelper;
 
     private String destZipFilename;
-    private String leaseId;
+
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        this.testUrl = conf.getString("test-url");
-        this.blobContainerUrl = conf.getString("test-storage-account-url") + "/";
-
+        this.blobContainerUrl = STORAGE_ACCOUNT_URL + "/";
         this.testHelper = new TestHelper();
-        this.leaseId = null;
     }
 
     @AfterEach
@@ -62,15 +53,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
         if (!Strings.isNullOrEmpty(destZipFilename)) {
             BlobClient blobClient = inputContainer.getBlobClient(destZipFilename);
             if (blobClient.exists()) {
-                if (!Strings.isNullOrEmpty(leaseId)) {
-                    blobClient.deleteWithResponse(
-                        DeleteSnapshotsOptionType.INCLUDE,
-                        new BlobRequestConditions().setLeaseId(leaseId),
-                        null,
-                        Context.NONE);
-                } else {
-                    blobClient.delete();
-                }
+                blobClient.delete();
             }
         }
     }
@@ -82,7 +65,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
     }
 
     @Test
-    public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
+    public void should_throw_exception_when_requested_service_is_not_configured() {
         Response tokenResponse = sendSasTokenRequest("doesnotexist");
         assertThat(tokenResponse.getStatusCode()).isEqualTo(400);
         assertThat(tokenResponse.getBody().asString())
@@ -91,13 +74,12 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
 
     @Test
     public void sas_token_should_have_read_and_write_capabilities_for_service() throws Exception {
-        String testContainerName = conf.getString("test-storage-container-name");
-        String sasToken = testHelper.getSasToken(testContainerName, this.testUrl);
-        BlobContainerClient testSasContainer =
-            testHelper.getContainerClient(sasToken, testContainerName, this.blobContainerUrl);
+        String sasToken = testHelper.getSasToken(STORAGE_CONTAINER_NAME, TEST_URL);
+        var testSasContainer =
+            testHelper.getContainerClient(sasToken, STORAGE_CONTAINER_NAME, this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename();
-        this.leaseId = testHelper.uploadAndLeaseZipFile(
+        testHelper.uploadZipFile(
             testSasContainer,
             Arrays.asList(
                 "1111006.pdf"
@@ -111,8 +93,8 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
 
     @Test
     public void sas_token_should_not_have_read_and_write_capabilities_for_other_service() throws Exception {
-        String sasToken = testHelper.getSasToken("sscs", this.testUrl);
-        BlobContainerClient testSasContainer =
+        String sasToken = testHelper.getSasToken("sscs", TEST_URL);
+        var testSasContainer =
             testHelper.getContainerClient(sasToken, "test", this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename();
@@ -150,7 +132,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
         return RestAssured
                 .given()
                 .relaxedHTTPSValidation()
-                .baseUri(this.testUrl)
+                .baseUri(TEST_URL)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Bulk Scan Processor functional test")
                 .when().get("/token/" + container)
