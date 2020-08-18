@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -75,10 +74,8 @@ public class LeaseMetaDataChecker {
     }
 
     public void clearMetaData(BlobClient blobClient, String leaseId) {
-        Map<String, String> blobMetaData = new HashMap<>();
-        blobMetaData.put(LEASE_EXPIRATION_TIME, null);
         blobClient.setMetadataWithResponse(
-            blobMetaData,
+            null,
             new BlobRequestConditions().setLeaseId(leaseId),
             null, Context.NONE
         );

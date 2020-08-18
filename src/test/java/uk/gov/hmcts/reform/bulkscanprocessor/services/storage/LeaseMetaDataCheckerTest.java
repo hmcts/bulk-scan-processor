@@ -18,6 +18,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -116,11 +117,8 @@ class LeaseMetaDataCheckerTest {
         var conditionCaptor = ArgumentCaptor.forClass(BlobRequestConditions.class);
         var metaDataCaptor = ArgumentCaptor.forClass(Map.class);
         verify(blobClient)
-            .setMetadataWithResponse(metaDataCaptor.capture(), conditionCaptor.capture(), any(), any());
+            .setMetadataWithResponse(isNull(), conditionCaptor.capture(), any(), any());
 
-        Map<String, String> metaDataMap = metaDataCaptor.getValue();
-        assertThat(metaDataMap.size()).isEqualTo(1);
-        assertThat(metaDataMap.get(LEASE_EXPIRATION_TIME)).isNull();
         assertThat(conditionCaptor.getValue().getLeaseId()).isEqualTo(leaseId);
     }
 }
