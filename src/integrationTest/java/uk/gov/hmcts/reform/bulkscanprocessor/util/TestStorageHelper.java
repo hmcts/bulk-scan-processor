@@ -39,7 +39,8 @@ public class TestStorageHelper {
     private static void createDocker() {
         dockerContainer = new DockerComposeContainer<>(
             new File("src/integrationTest/resources/docker-compose.yml")
-        ).withExposedService("azure-storage", 10000);
+        ).withExposedService("azure-storage", 10000)
+        .withLocalCompose(true);
         dockerContainer.start();
     }
 

@@ -102,7 +102,8 @@ public class EnvelopeControllerTest {
         File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
 
         dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000);
+            .withExposedService("azure-storage", 10000)
+            .withLocalCompose(true);
 
         dockerComposeContainer.start();
     }
