@@ -65,13 +65,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem(
-                        "test2.zip",
-                        "c2",
-                        createdDate2,
-                        null,
-                        null
-                    )
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, null, null)
                 )
             );
     }
@@ -127,7 +121,7 @@ public class ReceivedZipFileRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrderElementsOf(
+            .containsExactlyElementsOf(
                 singletonList(
                     new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1")
                 )
@@ -157,10 +151,10 @@ public class ReceivedZipFileRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrderElementsOf(
+            .containsExactlyElementsOf(
                 asList(
                     new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null)
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", null)
                 )
             );
     }
@@ -188,7 +182,7 @@ public class ReceivedZipFileRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrderElementsOf(
+            .containsExactlyElementsOf(
                 asList(
                     new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-1"),
                     new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-2")
@@ -223,7 +217,7 @@ public class ReceivedZipFileRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrderElementsOf(
+            .containsExactlyElementsOf(
                 asList(
                     new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1"),
                     new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-2"),
@@ -256,10 +250,10 @@ public class ReceivedZipFileRepositoryTest {
             scannableItem(envelope2, "doc-4")
         );
         dbHasPayments(
-            payment(envelope1, "pcn1"),
-            payment(envelope1, "pcn2"),
-            payment(envelope2, "pcn3"),
-            payment(envelope2, "pcn4")
+            payment(envelope1, "pay-1"),
+            payment(envelope1, "pay-2"),
+            payment(envelope2, "pay-3"),
+            payment(envelope2, "pay-4")
         );
 
         // when
@@ -268,16 +262,16 @@ public class ReceivedZipFileRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrderElementsOf(
+            .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "doc-1"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "doc-2"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "doc-1"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "doc-2"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "doc-3"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "doc-4"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "doc-3"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "doc-4")
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-1"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-2"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-1"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-2"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-3"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-4"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-3"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-4")
                 )
             );
     }
