@@ -65,7 +65,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
     }
 
     @Test
-    public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
+    public void should_throw_exception_when_requested_service_is_not_configured() {
         Response tokenResponse = sendSasTokenRequest("doesnotexist");
         assertThat(tokenResponse.getStatusCode()).isEqualTo(400);
         assertThat(tokenResponse.getBody().asString())

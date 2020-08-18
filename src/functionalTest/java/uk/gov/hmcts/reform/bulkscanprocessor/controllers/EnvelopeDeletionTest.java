@@ -31,7 +31,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         for (String filename : filesToDeleteAfterTest) {
             var inBlobClient = inputContainer.getBlobClient(filename);
             if (inBlobClient.exists()) {
@@ -47,7 +47,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     }
 
     @Test
-    public void should_move_invalid_zip_file_to_rejected_container() throws Exception {
+    public void should_move_invalid_zip_file_to_rejected_container() {
         String destZipFilename = testHelper.getRandomFilename();
 
         testHelper.uploadZipFile(
@@ -69,7 +69,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     }
 
     @Test
-    public void should_create_a_snapshot_of_previously_rejected_file_if_its_sent_again() throws Exception {
+    public void should_create_a_snapshot_of_previously_rejected_file_if_its_sent_again()  {
         // given
         final int numberOfUploads = 2;
 
