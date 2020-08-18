@@ -1,9 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.BlobInputStream;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobStorageException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,17 +12,16 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
-import static org.apache.commons.io.IOUtils.toByteArray;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor.getShuffledZipFileNames;
 
@@ -50,124 +48,128 @@ public class BlobProcessorTask {
 
     private final FileContentProcessor fileContentProcessor;
 
+    private final  LeaseAcquirer leaseAcquirer;
+
     public BlobProcessorTask(
         BlobManager blobManager,
         EnvelopeProcessor envelopeProcessor,
-        FileContentProcessor fileContentProcessor
+        FileContentProcessor fileContentProcessor,
+        LeaseAcquirer leaseAcquirer
     ) {
         this.blobManager = blobManager;
         this.envelopeProcessor = envelopeProcessor;
         this.fileContentProcessor = fileContentProcessor;
+        this.leaseAcquirer = leaseAcquirer;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() {
         log.info("Started blob processing job");
 
-        for (CloudBlobContainer container : blobManager.listInputContainers()) {
+        for (BlobContainerClient container : blobManager.getInputContainerClients()) {
             processZipFiles(container);
         }
 
         log.info("Finished blob processing job");
     }
 
-    private void processZipFiles(CloudBlobContainer container) {
-        log.info("Processing blobs for container {}", container.getName());
+    private void processZipFiles(BlobContainerClient container) {
+        log.info("Processing blobs for container {}", container.getBlobContainerName());
         List<String> zipFilenames = getShuffledZipFileNames(container);
 
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
         }
 
-        log.info("Finished processing blobs for container {}", container.getName());
+        log.info("Finished processing blobs for container {}", container.getBlobContainerName());
     }
 
-    private void tryProcessZipFile(CloudBlobContainer container, String zipFilename) {
+    private void tryProcessZipFile(BlobContainerClient container, String zipFilename) {
         try {
             processZipFileIfEligible(container, zipFilename);
         } catch (Exception ex) {
-            log.error("Failed to process file {} from container {}", zipFilename, container.getName(), ex);
+            log.error("Failed to process file {} from container {}", zipFilename, container.getBlobContainerName(), ex);
         }
     }
 
-    private void processZipFileIfEligible(CloudBlobContainer container, String zipFilename)
-        throws IOException, StorageException, URISyntaxException {
+    private void processZipFileIfEligible(BlobContainerClient container, String zipFilename)
+        throws BlobStorageException {
         // this log entry is used in alerting. Ticket: BPS-541
-        log.info("Processing zip file {} from container {}", zipFilename, container.getName());
+        log.info("Processing zip file {} from container {}", zipFilename, container.getBlobContainerName());
 
-        CloudBlockBlob cloudBlockBlob = container.getBlockBlobReference(zipFilename);
+        BlobClient blobClient = container.getBlobClient(zipFilename);
 
         Envelope existingEnvelope =
-            envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
+            envelopeProcessor.getEnvelopeByFileAndContainer(container.getBlobContainerName(), zipFilename);
 
         if (existingEnvelope != null) {
             log.warn(
                 "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
                 zipFilename,
-                container.getName(),
+                container.getBlobContainerName(),
                 existingEnvelope.getId()
             );
-        } else if (!cloudBlockBlob.exists()) {
-            logAbortedProcessingNonExistingFile(zipFilename, container.getName());
+        } else if (!blobClient.exists()) {
+            logAbortedProcessingNonExistingFile(zipFilename, container.getBlobContainerName());
         } else {
-            cloudBlockBlob.downloadAttributes();
-            leaseAndProcessZipFile(container, cloudBlockBlob, zipFilename);
+            leaseAndProcessZipFile(container, blobClient, zipFilename);
         }
     }
 
     private void leaseAndProcessZipFile(
-        CloudBlobContainer container,
-        CloudBlockBlob cloudBlockBlob,
+        BlobContainerClient container,
+        BlobClient cloudBlockBlob,
         String zipFilename
-    ) throws StorageException, IOException {
-        Optional<String> leaseIdOption = blobManager.acquireLease(cloudBlockBlob, container.getName(), zipFilename);
+    ) throws BlobStorageException {
 
-        if (leaseIdOption.isPresent()) {
-            String leaseId = leaseIdOption.get();
+        leaseAcquirer.ifAcquiredOrElse(
+            cloudBlockBlob,
+            leaseId -> processZipFile(container, cloudBlockBlob, zipFilename, leaseId),
+            s -> {},
+            true
+        );
 
-            try {
-                processZipFile(container, cloudBlockBlob, zipFilename, leaseId);
-            } finally {
-                blobManager.tryReleaseLease(cloudBlockBlob, container.getName(), zipFilename, leaseId);
-            }
-        }
     }
 
     private void processZipFile(
-        CloudBlobContainer container,
-        CloudBlockBlob cloudBlockBlob,
+        BlobContainerClient container,
+        BlobClient cloudBlockBlob,
         String zipFilename,
         String leaseId
-    ) throws StorageException, IOException {
-        Envelope envelope = envelopeProcessor.getEnvelopeByFileAndContainer(container.getName(), zipFilename);
+    ) throws BlobStorageException {
+        Envelope envelope = envelopeProcessor
+            .getEnvelopeByFileAndContainer(container.getBlobContainerName(), zipFilename);
 
         if (envelope == null) {
             // Zip file will include metadata.json and collection of pdf documents
             try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
                 envelopeProcessor.createEvent(
                     ZIPFILE_PROCESSING_STARTED,
-                    container.getName(),
+                    container.getBlobContainerName(),
                     zipFilename,
                     null,
                     null
                 );
 
-                fileContentProcessor.processZipFileContent(zis, zipFilename, container.getName(), leaseId);
+                fileContentProcessor.processZipFileContent(zis, zipFilename, container.getBlobContainerName(), leaseId);
+            } catch (IOException exception) {
+                throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
             }
         } else {
             log.info(
                 "Envelope already exists for container {} and file {} - aborting its processing. Envelope ID: {}",
-                container.getName(),
+                container.getBlobContainerName(),
                 zipFilename,
                 envelope.getId()
             );
         }
     }
 
-    private ZipInputStream loadIntoMemory(CloudBlockBlob cloudBlockBlob, String zipFilename) throws StorageException {
+    private ZipInputStream loadIntoMemory(BlobClient blobClient, String zipFilename) throws BlobStorageException {
         log.info("Loading file {} into memory.", zipFilename);
-        try (BlobInputStream blobInputStream = cloudBlockBlob.openInputStream()) {
-            byte[] array = toByteArray(blobInputStream);
+        try (var outputStream = new ByteArrayOutputStream()) {
+            blobClient.download(outputStream);
+            byte[] array = outputStream.toByteArray();
             log.info(
                 "Finished loading file {} into memory. {} loaded.",
                 zipFilename,
@@ -175,7 +177,7 @@ public class BlobProcessorTask {
             );
             return new ZipInputStream(new ByteArrayInputStream(array));
         } catch (IOException exception) {
-            throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
+            throw new ZipFileLoadException("Error loading into memory, blob file " + zipFilename, exception);
         }
     }
 
