@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_URL;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_CONTAINER_NAME;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.TEST_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_ACCOUNT_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_CONTAINER_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.TEST_URL;
 
 public class GetSasTokenTest extends BaseFunctionalTest  {
 
@@ -74,10 +74,9 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
 
     @Test
     public void sas_token_should_have_read_and_write_capabilities_for_service() throws Exception {
-        String testContainerName = STORAGE_CONTAINER_NAME;
-        String sasToken = testHelper.getSasToken(testContainerName, TEST_URL);
+        String sasToken = testHelper.getSasToken(STORAGE_CONTAINER_NAME, TEST_URL);
         var testSasContainer =
-            testHelper.getContainerClient(sasToken, testContainerName, this.blobContainerUrl);
+            testHelper.getContainerClient(sasToken, STORAGE_CONTAINER_NAME, this.blobContainerUrl);
 
         destZipFilename = testHelper.getRandomFilename();
         testHelper.uploadZipFile(

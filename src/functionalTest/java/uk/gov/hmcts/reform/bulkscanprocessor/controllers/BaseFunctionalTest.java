@@ -20,18 +20,18 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.IS_PROXY_ENABLED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.PROXY_HOST;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.PROXY_PORT;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_NAME;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_SECRET;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.S2S_URL;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.SCAN_DELAY;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_KEY;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_NAME;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_ACCOUNT_URL;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.STORAGE_CONTAINER_NAME;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.TEST_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.IS_PROXY_ENABLED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROXY_HOST;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROXY_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_SECRET;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.SCAN_DELAY;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_ACCOUNT_KEY;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_ACCOUNT_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_ACCOUNT_URL;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_CONTAINER_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.TEST_URL;
 
 public abstract class BaseFunctionalTest {
 
@@ -74,11 +74,8 @@ public abstract class BaseFunctionalTest {
 
         BlobServiceClient blobServiceClient = blobServiceClientBuilder.buildClient();
 
-        String inputContainerName = STORAGE_CONTAINER_NAME;
-        String rejectedContainerName = inputContainerName + "-rejected";
-
-        inputContainer = blobServiceClient.getBlobContainerClient(inputContainerName);
-        rejectedContainer = blobServiceClient.getBlobContainerClient(rejectedContainerName);
+        inputContainer = blobServiceClient.getBlobContainerClient(STORAGE_CONTAINER_NAME);
+        rejectedContainer = blobServiceClient.getBlobContainerClient(STORAGE_CONTAINER_NAME + "-rejected");
     }
 
     protected void uploadZipFile(List<String> files, String metadataFile, String destZipFilename) {

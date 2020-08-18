@@ -19,7 +19,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.Configs.SCAN_DELAY;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.SCAN_DELAY;
 
 public class EnvelopeDeletionTest extends BaseFunctionalTest {
 

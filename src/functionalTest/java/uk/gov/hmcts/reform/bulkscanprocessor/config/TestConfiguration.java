@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Configs {
+public class TestConfiguration {
 
     private static final Config config;
 
@@ -53,6 +53,6 @@ public class Configs {
         PROCESSED_ENVELOPES_QUEUE_CONN_STRING = config.getString("processed-envelopes-queue-conn-string");
     }
 
-    private Configs() {
+    private TestConfiguration() {
     }
 }
