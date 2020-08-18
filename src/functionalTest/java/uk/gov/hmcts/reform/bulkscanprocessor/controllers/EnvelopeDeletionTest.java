@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.azure.core.util.Context;
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
@@ -20,6 +19,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.SCAN_DELAY;
 
 public class EnvelopeDeletionTest extends BaseFunctionalTest {
 
@@ -31,24 +31,23 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         for (String filename : filesToDeleteAfterTest) {
-            BlobClient inBlobClient = inputContainer.getBlobClient(filename);
+            var inBlobClient = inputContainer.getBlobClient(filename);
             if (inBlobClient.exists()) {
                 inBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             }
 
-            BlobClient rejBlobClient = rejectedContainer.getBlobClient(filename);
+            var rejBlobClient = rejectedContainer.getBlobClient(filename);
 
             if (rejBlobClient.exists()) {
-                rejBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null,
-                    Context.NONE);
+                rejBlobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             }
         }
     }
 
     @Test
-    public void should_move_invalid_zip_file_to_rejected_container() throws Exception {
+    public void should_move_invalid_zip_file_to_rejected_container() {
         String destZipFilename = testHelper.getRandomFilename();
 
         testHelper.uploadZipFile(
@@ -61,7 +60,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         filesToDeleteAfterTest.add(destZipFilename);
 
         await("file should be deleted")
-            .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+            .atMost(SCAN_DELAY + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
 
@@ -70,11 +69,11 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
     }
 
     @Test
-    public void should_create_a_snapshot_of_previously_rejected_file_if_its_sent_again() throws Exception {
+    public void should_create_a_snapshot_of_previously_rejected_file_if_its_sent_again()  {
         // given
         final int numberOfUploads = 2;
 
-        String fileName = testHelper.getRandomFilename();
+        var fileName = testHelper.getRandomFilename();
         filesToDeleteAfterTest.add(fileName);
 
         // when
@@ -88,7 +87,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
             );
 
             await("file should be deleted")
-                .atMost(scanDelay + 40_000, TimeUnit.MILLISECONDS)
+                .atMost(SCAN_DELAY + 40_000, TimeUnit.MILLISECONDS)
                 .pollInterval(2, TimeUnit.SECONDS)
                 .until(() -> testHelper.storageHasFile(inputContainer, fileName), is(false));
         });
