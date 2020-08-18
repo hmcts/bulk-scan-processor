@@ -65,7 +65,7 @@ public class LeaseAcquirer {
             if (isReady) {
                 onLeaseSuccess.accept(leaseId);
                 if (releaseLease) {
-                    releaseAll(leaseClient, blobClient);
+                    clearMetadataAndReleaseLease(leaseClient, blobClient);
                 }
             }
         } catch (BlobStorageException exc) {
@@ -98,13 +98,13 @@ public class LeaseAcquirer {
         }
     }
 
-    private void releaseAll(BlobLeaseClient leaseClient, BlobClient blobClient) {
+    private void clearMetadataAndReleaseLease(BlobLeaseClient leaseClient, BlobClient blobClient) {
         try {
             leaseMetaDataChecker.clearMetaData(blobClient, leaseClient.getLeaseId());
-            leaseClient.releaseLease();
+            release(leaseClient, blobClient);
         } catch (BlobStorageException exc) {
             logger.warn(
-                "Could not release lease or clear metadata, lease with ID {}. Blob: {}, container: {}",
+                "Could not clear metadata, lease with ID {}. Blob: {}, container: {}",
                 leaseClient.getLeaseId(),
                 blobClient.getBlobName(),
                 blobClient.getContainerName(),
