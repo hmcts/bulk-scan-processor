@@ -17,9 +17,11 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -141,6 +143,34 @@ class LeaseAcquirerTest {
         verify(onSuccess, never()).accept(anyString());
         verify(onFailure, never()).accept(any());
         verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
+        verifyNoMoreInteractions(leaseMetaDataChecker);
+
+    }
+
+    @Test
+    void should_catch_exception_when_metadata_lease_clear_throw_exception() {
+        // given
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
+        willThrow(new BlobStorageException("Can not clear metadata", null, null))
+            .given(leaseMetaDataChecker).clearMetaData(any(),any());
+        given(leaseClient.getLeaseId()).willReturn(leaseId);
+        given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
+
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
+
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
+
+        // then
+        verify(onSuccess).accept(anyString());
+        verify(onFailure, never()).accept(any());
+        verify(leaseClient).acquireLease(anyInt());
+        verify(leaseClient, times(2)).getLeaseId();
+        verifyNoMoreInteractions(leaseClient);
+        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
+        verify(leaseMetaDataChecker).clearMetaData(eq(blobClient), eq(leaseId));
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
     }

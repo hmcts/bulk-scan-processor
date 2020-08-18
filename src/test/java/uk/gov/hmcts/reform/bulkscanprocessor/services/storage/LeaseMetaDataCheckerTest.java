@@ -106,7 +106,8 @@ class LeaseMetaDataCheckerTest {
     @Test
     void should_clear_blob_metadata_when_clear_successful() {
         //given
-        given(blobClient.setMetadataWithResponse(any(), any(), any(), any())).willReturn(mock(Response.class));
+        given(blobClient.setMetadataWithResponse(any(), any(), any(), any()))
+            .willReturn(mock(Response.class));
 
         //when
         leaseMetaDataChecker.clearMetaData(blobClient, leaseId);
@@ -114,7 +115,9 @@ class LeaseMetaDataCheckerTest {
         //then
         var conditionCaptor = ArgumentCaptor.forClass(BlobRequestConditions.class);
         var metaDataCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(blobClient).setMetadataWithResponse(metaDataCaptor.capture(),conditionCaptor.capture(), any(), any());
+        verify(blobClient)
+            .setMetadataWithResponse(metaDataCaptor.capture(), conditionCaptor.capture(), any(), any());
+
         Map<String, String> metaDataMap = metaDataCaptor.getValue();
         assertThat(metaDataMap.size()).isEqualTo(1);
         assertThat(metaDataMap.get(LEASE_EXPIRATION_TIME)).isNull();
