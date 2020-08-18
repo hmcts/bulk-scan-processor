@@ -101,13 +101,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem(
-                        "test2.zip",
-                        "c2",
-                        createdDate2,
-                        null,
-                        null
-                    )
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, null, null)
                 )
             );
     }
@@ -124,8 +118,8 @@ public class ReceivedZipFileRepositoryTest {
         Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
         dbHasEnvelope(envelope);
 
-        dbHasScannableItems(scannableItem(envelope, "dcn1"));
-        dbHasPayments(payment(envelope, "dcn2"));
+        dbHasScannableItems(scannableItem(envelope, "doc-1"));
+        dbHasPayments(payment(envelope, "pay-1"));
 
         // when
         List<ReceivedZipFile> result = reportRepo.getReceivedZipFilesReportFor(LocalDate.of(2019, 2, 15));
@@ -135,13 +129,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        "dcn1",
-                        "dcn2"
-                    )
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1")
                 )
             );
     }
@@ -159,8 +147,8 @@ public class ReceivedZipFileRepositoryTest {
         dbHasEnvelope(envelope);
 
         dbHasScannableItems(
-            scannableItem(envelope, "dcn1"),
-            scannableItem(envelope, "dcn2")
+            scannableItem(envelope, "doc-1"),
+            scannableItem(envelope, "doc-2")
         );
 
         // when
@@ -171,20 +159,8 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(
                 asList(
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        "dcn1",
-                        null
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        "dcn1",
-                        null
-                    )
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null)
                 )
             );
     }
@@ -202,8 +178,8 @@ public class ReceivedZipFileRepositoryTest {
         dbHasEnvelope(envelope);
 
         dbHasPayments(
-            payment(envelope, "dcn3"),
-            payment(envelope, "dcn4")
+            payment(envelope, "pay-1"),
+            payment(envelope, "pay-2")
         );
 
         // when
@@ -214,20 +190,8 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(
                 asList(
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        null,
-                        "dcn3"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        null,
-                        "dcn4"
-                    )
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-1"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-2")
                 )
             );
     }
@@ -245,12 +209,12 @@ public class ReceivedZipFileRepositoryTest {
         dbHasEnvelope(envelope);
 
         dbHasScannableItems(
-            scannableItem(envelope, "dcn1"),
-            scannableItem(envelope, "dcn2")
+            scannableItem(envelope, "doc-1"),
+            scannableItem(envelope, "doc-2")
         );
         dbHasPayments(
-            payment(envelope, "dcn3"),
-            payment(envelope, "dcn4")
+            payment(envelope, "pay-1"),
+            payment(envelope, "pay-2")
         );
 
         // when
@@ -261,34 +225,10 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(
                 asList(
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        "dcn1",
-                        "dcn3"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        "dcn1",
-                        "dcn4"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        "dcn2",
-                        "dcn3"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate,
-                        "dcn2",
-                        "dcn4"
-                    )
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-2"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-1"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-2")
                 )
             );
     }
@@ -310,16 +250,16 @@ public class ReceivedZipFileRepositoryTest {
         dbHasEnvelope(envelope2);
 
         dbHasScannableItems(
-            scannableItem(envelope1, "dcn1"),
-            scannableItem(envelope1, "dcn2"),
-            scannableItem(envelope2, "dcn3"),
-            scannableItem(envelope2, "dcn4")
+            scannableItem(envelope1, "doc-1"),
+            scannableItem(envelope1, "doc-2"),
+            scannableItem(envelope2, "doc-3"),
+            scannableItem(envelope2, "doc-4")
         );
         dbHasPayments(
-            payment(envelope1, "dcn5"),
-            payment(envelope1, "dcn6"),
-            payment(envelope2, "dcn7"),
-            payment(envelope2, "dcn8")
+            payment(envelope1, "pcn1"),
+            payment(envelope1, "pcn2"),
+            payment(envelope2, "pcn3"),
+            payment(envelope2, "pcn4")
         );
 
         // when
@@ -330,62 +270,14 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(
                 asList(
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate1,
-                        "dcn1",
-                        "dcn5"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate1,
-                        "dcn1",
-                        "dcn6"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate1,
-                        "dcn2",
-                        "dcn5"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test1.zip",
-                        "c1",
-                        createdDate1,
-                        "dcn2",
-                        "dcn6"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test2.zip",
-                        "c2",
-                        createdDate2,
-                        "dcn3",
-                        "dcn7"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test2.zip",
-                        "c2",
-                        createdDate2,
-                        "dcn3",
-                        "dcn8"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test2.zip",
-                        "c2",
-                        createdDate2,
-                        "dcn4",
-                        "dcn7"
-                    ),
-                    new ReceivedZipFileItem(
-                        "test2.zip",
-                        "c2",
-                        createdDate2,
-                        "dcn4",
-                        "dcn8"
-                    )
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "doc-1"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "doc-2"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "doc-1"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "doc-2"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "doc-3"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "doc-4"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "doc-3"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "doc-4")
                 )
             );
     }
