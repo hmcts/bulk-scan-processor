@@ -4,7 +4,6 @@ import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +26,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
 
         // valid zip file
         uploadZipFile(files, metadataFile, destZipFilename);
-        EnvelopeResponse envelope = waitForEnvelopeToBeInStatus(
+        var envelope = waitForEnvelopeToBeInStatus(
             destZipFilename,
             asList(Status.NOTIFICATION_SENT, Status.COMPLETED)
         );
@@ -43,7 +42,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         String destZipFilename = testHelper.getRandomFilename();
 
         uploadZipFile(files, metadataFile, destZipFilename);
-        EnvelopeResponse envelope = waitForEnvelopeToBeInStatus(
+        var envelope = waitForEnvelopeToBeInStatus(
             destZipFilename,
             asList(Status.NOTIFICATION_SENT, Status.COMPLETED)
         );
