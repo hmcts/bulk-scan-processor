@@ -322,10 +322,10 @@ public class BlobManager {
             rejectedBlob.createSnapshot();
         }
         log.info(
-            "Moving file from url: {}, inputBlob.exists: {}",
+            "Moving file from url: {}, inputBlob.exists: {}, rejectedBlob.getBlobUrl: {}",
             inputBlob.getBlobUrl(),
-            inputBlob.exists()
-
+            inputBlob.exists(),
+            rejectedBlob.getBlobUrl()
         );
         String copyId = rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
 
