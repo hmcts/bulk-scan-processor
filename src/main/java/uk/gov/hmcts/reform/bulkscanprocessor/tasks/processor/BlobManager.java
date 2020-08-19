@@ -9,6 +9,8 @@ import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
@@ -31,6 +33,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyExceptio
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -327,7 +330,13 @@ public class BlobManager {
             inputBlob.exists(),
             rejectedBlob.getBlobUrl()
         );
-        String copyId = rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
+
+        String copyId = rejectedBlob.copyFromUrl(
+            inputBlob.getBlobUrl() + "?" + inputBlob.generateSas(
+                new BlobServiceSasSignatureValues(OffsetDateTime.now().plusSeconds(50),
+                    BlobContainerSasPermission.parse("rd"))
+            )
+        );
 
         log.info("Rejected file copied to rejected container: {}, copyId: {}",
             rejectedContainerName, copyId);
