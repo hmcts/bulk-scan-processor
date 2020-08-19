@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -13,9 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.testcontainers.containers.FixedHostPortGenericContainer;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -39,6 +36,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
+import java.io.File;
 import java.util.List;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -116,12 +114,16 @@ public abstract class ProcessorTestSuite {
     protected CloudBlobContainer testContainer;
     protected CloudBlobContainer rejectedContainer;
 
-    private static GenericContainer<?> dockerContainer;
+    private static DockerComposeContainer dockerComposeContainer;
+    private static String dockerHost;
+    private static final String DOCKER_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+        + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
+        + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
 
     @BeforeEach
     public void setUp() throws Exception {
 
-        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
+        CloudStorageAccount account = CloudStorageAccount.parse(String.format(DOCKER_CONN_STRING, dockerHost, 10000));
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
         blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
@@ -193,16 +195,19 @@ public abstract class ProcessorTestSuite {
 
     @BeforeAll
     public static void initialize() {
-        dockerContainer = new FixedHostPortGenericContainer<>(new DockerImageName("arafato/azurite", "2.6.5").toString())
-            .withEnv(ImmutableMap.of("executable", "blob"))
-            .withFixedExposedPort(10000, 10000);
+        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
 
-        dockerContainer.start();
+        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
+            .withExposedService("azure-storage", 10000)
+            .withLocalCompose(true);
+
+        dockerComposeContainer.start();
+        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
     }
 
     @AfterAll
     public static void tearDownContainer() {
-        dockerContainer.stop();
+        dockerComposeContainer.stop();
     }
 
     public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {
