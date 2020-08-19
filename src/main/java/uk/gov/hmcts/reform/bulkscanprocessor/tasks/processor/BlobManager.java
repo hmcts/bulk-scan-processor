@@ -150,8 +150,8 @@ public class BlobManager {
         }
     }
 
-    public CloudBlobContainer getContainer(String containerName) throws URISyntaxException, StorageException {
-        return cloudBlobClient.getContainerReference(containerName);
+    public BlobContainerClient getContainerClient(String containerName) {
+        return blobServiceClient.getBlobContainerClient(containerName);
     }
 
     public List<CloudBlobContainer> listInputContainers() {
