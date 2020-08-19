@@ -37,4 +37,21 @@ public class FileRejector {
         );
         blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
+
+    public void handleInvalidBlob(
+        Long eventId,
+        String containerName,
+        String zipFilename,
+        String leaseId,
+        EnvelopeRejectionException cause
+    ) {
+        errorNotificationSender.sendErrorNotification(
+            zipFilename,
+            containerName,
+            cause,
+            eventId,
+            cause.getErrorCode()
+        );
+        blobManager.newTryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+    }
 }
