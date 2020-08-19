@@ -10,7 +10,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidStatusChangeException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
@@ -54,12 +53,6 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Void> handleEnvelopeNotFound(EnvelopeNotFoundException exc) {
         log.error(exc.getMessage(), exc);
         return status(HttpStatus.NOT_FOUND).build();
-    }
-
-    @ExceptionHandler(InvalidStatusChangeException.class)
-    protected ResponseEntity<ErrorResponse> handleInvalidStatusChange(InvalidStatusChangeException exc) {
-        log.error(exc.getMessage(), exc);
-        return status(HttpStatus.FORBIDDEN).body(new ErrorResponse(exc.getMessage()));
     }
 
     @ExceptionHandler(InvalidTokenException.class)
