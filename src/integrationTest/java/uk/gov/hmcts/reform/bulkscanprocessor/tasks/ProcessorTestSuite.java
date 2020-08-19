@@ -124,11 +124,11 @@ public abstract class ProcessorTestSuite {
     @BeforeEach
     public void setUp() throws Exception {
 
-        BlobServiceClient cloudBlobClient = new BlobServiceClientBuilder()
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
             .connectionString("UseDevelopmentStorage=true")
             .buildClient();
 
-        blobManager = new BlobManager(cloudBlobClient, null, blobManagementProperties);
+        blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
@@ -168,12 +168,12 @@ public abstract class ProcessorTestSuite {
             fileRejector
         );
 
-        testContainer = cloudBlobClient.getBlobContainerClient(CONTAINER_NAME);
+        testContainer = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
         if (!testContainer.exists()) {
             testContainer.create();
         }
 
-        rejectedContainer = cloudBlobClient.getBlobContainerClient(REJECTED_CONTAINER_NAME);
+        rejectedContainer = blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME);
         if (!rejectedContainer.exists()) {
             rejectedContainer.create();
         }

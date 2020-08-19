@@ -302,7 +302,13 @@ public class BlobManager {
         String rejectedContainerName,
         String leaseId
     ) {
-        log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
+        log.info(
+            "Moving rejected file {} from container {} to {}",
+            fileName,
+            inputContainerName,
+            rejectedContainerName
+        );
+
         BlobClient inputBlob = blobServiceClient
             .getBlobContainerClient(inputContainerName)
             .getBlobClient(fileName);
@@ -322,7 +328,7 @@ public class BlobManager {
 
         try {
             inputBlob.deleteWithResponse(
-                DeleteSnapshotsOptionType.ONLY,
+                DeleteSnapshotsOptionType.INCLUDE,
                 new BlobRequestConditions().setLeaseId(leaseId),
                 null,
                 Context.NONE
