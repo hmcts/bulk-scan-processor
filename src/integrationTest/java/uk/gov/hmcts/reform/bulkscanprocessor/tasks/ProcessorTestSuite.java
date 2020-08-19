@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -12,7 +13,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.FixedHostPortGenericContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -36,7 +39,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
-import java.io.File;
 import java.util.List;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -114,7 +116,7 @@ public abstract class ProcessorTestSuite {
     protected CloudBlobContainer testContainer;
     protected CloudBlobContainer rejectedContainer;
 
-    private static DockerComposeContainer dockerComposeContainer;
+    private static GenericContainer<?> dockerContainer;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -191,18 +193,16 @@ public abstract class ProcessorTestSuite {
 
     @BeforeAll
     public static void initialize() {
-        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
+        dockerContainer = new FixedHostPortGenericContainer<>(new DockerImageName("arafato/azurite", "2.6.5").toString())
+            .withEnv(ImmutableMap.of("executable", "blob"))
+            .withFixedExposedPort(10000, 10000);
 
-        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000)
-            .withLocalCompose(true);
-
-        dockerComposeContainer.start();
+        dockerContainer.start();
     }
 
     @AfterAll
     public static void tearDownContainer() {
-        dockerComposeContainer.stop();
+        dockerContainer.stop();
     }
 
     public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {

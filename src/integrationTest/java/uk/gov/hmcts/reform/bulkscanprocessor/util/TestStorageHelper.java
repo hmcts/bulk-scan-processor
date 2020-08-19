@@ -1,13 +1,15 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
+import com.google.common.collect.ImmutableMap;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.FixedHostPortGenericContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 
-import java.io.File;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
@@ -20,7 +22,7 @@ public class TestStorageHelper {
     public static final String CONTAINER_NAME = "bulkscan";
     public static final String ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
 
-    private static DockerComposeContainer<?> dockerContainer;
+    private static GenericContainer<?> dockerContainer;
     public static CloudBlobClient cloudBlobClient;
     private CloudBlobContainer testContainer;
 
@@ -37,10 +39,10 @@ public class TestStorageHelper {
     }
 
     private static void createDocker() {
-        dockerContainer = new DockerComposeContainer<>(
-            new File("src/integrationTest/resources/docker-compose.yml")
-        ).withExposedService("azure-storage", 10000)
-        .withLocalCompose(true);
+        dockerContainer = new FixedHostPortGenericContainer<>(new DockerImageName("arafato/azurite", "2.6.5").toString())
+            .withEnv(ImmutableMap.of("executable", "blob"))
+            .withFixedExposedPort(10000, 10000);
+
         dockerContainer.start();
     }
 

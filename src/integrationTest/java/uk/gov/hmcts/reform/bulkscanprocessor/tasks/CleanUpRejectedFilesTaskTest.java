@@ -3,20 +3,22 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.FixedHostPortGenericContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -43,21 +45,20 @@ public class CleanUpRejectedFilesTaskTest {
 
     private BlobManager blobManager;
 
-    private static DockerComposeContainer dockerComposeContainer;
+    private static GenericContainer<?> dockerContainer;
 
     @BeforeAll
     public static void initialize() {
-        dockerComposeContainer =
-            new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
-                .withExposedService("azure-storage", 10000)
-                .withLocalCompose(true);
+        dockerContainer = new FixedHostPortGenericContainer<>(new DockerImageName("arafato/azurite", "2.6.5").toString())
+            .withEnv(ImmutableMap.of("executable", "blob"))
+            .withFixedExposedPort(10000, 10000);
 
-        dockerComposeContainer.start();
+        dockerContainer.start();
     }
 
     @AfterAll
     public static void tearDownContainer() {
-        dockerComposeContainer.stop();
+        dockerContainer.stop();
     }
 
     @BeforeEach

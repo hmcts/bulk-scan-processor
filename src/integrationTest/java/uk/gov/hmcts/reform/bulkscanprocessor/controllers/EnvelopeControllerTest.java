@@ -19,7 +19,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.FixedHostPortGenericContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -47,7 +49,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
-import java.io.File;
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
@@ -94,23 +95,20 @@ public class EnvelopeControllerTest {
     private UploadEnvelopeDocumentsTask uploadTask;
     private CloudBlobContainer testContainer;
 
-    private static DockerComposeContainer dockerComposeContainer;
-
+    private static GenericContainer<?> dockerContainer;
 
     @BeforeAll
     public static void initialize() {
-        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
+        dockerContainer = new FixedHostPortGenericContainer<>(new DockerImageName("arafato/azurite", "2.6.5").toString())
+            .withEnv(ImmutableMap.of("executable", "blob"))
+            .withFixedExposedPort(10000, 10000);
 
-        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000)
-            .withLocalCompose(true);
-
-        dockerComposeContainer.start();
+        dockerContainer.start();
     }
 
     @AfterAll
     public static void tearDownContainer() {
-        dockerComposeContainer.stop();
+        dockerContainer.stop();
     }
 
     @BeforeEach
