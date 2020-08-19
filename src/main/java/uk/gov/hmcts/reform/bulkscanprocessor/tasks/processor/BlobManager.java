@@ -59,6 +59,9 @@ public class BlobManager {
 
     private final BlobManagementProperties properties;
 
+    private static final BlobContainerSasPermission SAS_READ_PERMISSION =
+        new BlobContainerSasPermission().setReadPermission(true);
+
     public BlobManager(
         BlobServiceClient blobServiceClient,
         CloudBlobClient cloudBlobClient,
@@ -324,17 +327,10 @@ public class BlobManager {
             // next steps will overwrite the file, create a snapshot of current version
             rejectedBlob.createSnapshot();
         }
-        log.info(
-            "Moving file from url: {}, inputBlob.exists: {}, rejectedBlob.getBlobUrl: {}",
-            inputBlob.getBlobUrl(),
-            inputBlob.exists(),
-            rejectedBlob.getBlobUrl()
-        );
 
         String copyId = rejectedBlob.copyFromUrl(
             inputBlob.getBlobUrl() + "?" + inputBlob.generateSas(
-                new BlobServiceSasSignatureValues(OffsetDateTime.now().plusSeconds(50),
-                    BlobContainerSasPermission.parse("rd"))
+                new BlobServiceSasSignatureValues(OffsetDateTime.now().plusSeconds(50), SAS_READ_PERMISSION)
             )
         );
 
