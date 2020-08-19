@@ -221,15 +221,15 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void getContainer_retrieves_container_from_client() throws Exception {
-        CloudBlobContainer expectedContainer = mock(CloudBlobContainer.class);
+    public void getContainer_retrieves_container_from_client() {
+        BlobContainerClient expectedContainer = mock(BlobContainerClient.class);
         String containerName = "container-name";
 
-        given(cloudBlobClient.getContainerReference(any())).willReturn(expectedContainer);
-        CloudBlobContainer actualContainer = blobManager.getContainer(containerName);
+        given(blobServiceClient.getBlobContainerClient(any())).willReturn(expectedContainer);
+        BlobContainerClient actualContainer = blobManager.getContainerClient(containerName);
 
         assertThat(actualContainer).isSameAs(expectedContainer);
-        verify(cloudBlobClient).getContainerReference(containerName);
+        verify(blobServiceClient).getBlobContainerClient(containerName);
     }
 
     @Test
