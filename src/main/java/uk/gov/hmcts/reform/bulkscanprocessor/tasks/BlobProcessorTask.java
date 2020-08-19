@@ -92,8 +92,7 @@ public class BlobProcessorTask {
         }
     }
 
-    private void processZipFileIfEligible(BlobContainerClient container, String zipFilename)
-        throws BlobStorageException {
+    private void processZipFileIfEligible(BlobContainerClient container, String zipFilename) {
         // this log entry is used in alerting. Ticket: BPS-541
         log.info("Processing zip file {} from container {}", zipFilename, container.getBlobContainerName());
 
@@ -109,7 +108,7 @@ public class BlobProcessorTask {
                 container.getBlobContainerName(),
                 existingEnvelope.getId()
             );
-        } else if (!blobClient.exists()) {
+        } else if (Boolean.FALSE.equals(blobClient.exists())) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getBlobContainerName());
         } else {
             leaseAndProcessZipFile(container, blobClient, zipFilename);
@@ -120,7 +119,7 @@ public class BlobProcessorTask {
         BlobContainerClient container,
         BlobClient cloudBlockBlob,
         String zipFilename
-    ) throws BlobStorageException {
+    ) {
 
         leaseAcquirer.ifAcquiredOrElse(
             cloudBlockBlob,
@@ -136,7 +135,7 @@ public class BlobProcessorTask {
         BlobClient cloudBlockBlob,
         String zipFilename,
         String leaseId
-    ) throws BlobStorageException {
+    ) {
         Envelope envelope = envelopeProcessor
             .getEnvelopeByFileAndContainer(container.getBlobContainerName(), zipFilename);
 
@@ -165,7 +164,7 @@ public class BlobProcessorTask {
         }
     }
 
-    private ZipInputStream loadIntoMemory(BlobClient blobClient, String zipFilename) throws BlobStorageException {
+    private ZipInputStream loadIntoMemory(BlobClient blobClient, String zipFilename) {
         log.info("Loading file {} into memory.", zipFilename);
         try (var outputStream = new ByteArrayOutputStream()) {
             blobClient.download(outputStream);

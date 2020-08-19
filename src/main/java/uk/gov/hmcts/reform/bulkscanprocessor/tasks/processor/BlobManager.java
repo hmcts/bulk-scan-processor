@@ -321,6 +321,10 @@ public class BlobManager {
             // next steps will overwrite the file, create a snapshot of current version
             rejectedBlob.createSnapshot();
         }
+        log.info(
+            "Moving file from url: {}",
+            inputBlob.getBlobUrl()
+        );
         String copyId = rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
 
         log.info("Rejected file copied to rejected container: {}, copyId: {}",
