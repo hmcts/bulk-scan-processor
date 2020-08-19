@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,6 +17,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -31,8 +31,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
 public class ReceivedZipFileRepositoryTest {
-    private static final Logger log = LoggerFactory.getLogger(ReceivedZipFileRepositoryTest.class);
-
     @Autowired
     private ReceivedZipFileRepository reportRepo;
     @Autowired
@@ -73,13 +71,13 @@ public class ReceivedZipFileRepositoryTest {
     @Test
     void should_return_single_event_by_date_if_envelope_exists() {
         // given
-        Instant createdDate1 = Instant.parse("2019-02-14T14:15:23.456Z");
-        Instant createdDate2 = Instant.parse("2019-02-15T14:15:23.456Z");
-        Instant createdDate3 = Instant.parse("2019-02-16T14:15:23.456Z");
+        Instant createdDate1 = Instant.parse("2019-02-15T14:15:23.456Z");
+        Instant createdDate2 = createdDate1.minus(1, DAYS);
+        Instant createdDate3 = createdDate1.plus(1, DAYS);
 
         dbHasEvents(
-            event("c1", "test1.zip", createdDate1, ZIPFILE_PROCESSING_STARTED),
-            event("c2", "test2.zip", createdDate2, ZIPFILE_PROCESSING_STARTED),
+            event("c1", "test1.zip", createdDate2, ZIPFILE_PROCESSING_STARTED),
+            event("c2", "test2.zip", createdDate1, ZIPFILE_PROCESSING_STARTED),
             event("c3", "test3.zip", createdDate3, ZIPFILE_PROCESSING_STARTED)
         );
 
@@ -95,7 +93,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, null, null)
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate1, null, null)
                 )
             );
     }
@@ -129,7 +127,7 @@ public class ReceivedZipFileRepositoryTest {
     }
 
     @Test
-    void should_return_single_event_if_envelope_exists_with_multiple_scannable_items() {
+    void should_return_multiple_events_if_envelope_exists_with_multiple_scannable_items() {
         // given
         Instant createdDate = Instant.parse("2019-02-15T14:15:23.456Z");
 
@@ -160,7 +158,7 @@ public class ReceivedZipFileRepositoryTest {
     }
 
     @Test
-    void should_return_single_event_if_envelope_exists_with_multiple_payments() {
+    void should_return_multiple_events_if_envelope_exists_with_multiple_payments() {
         // given
         Instant createdDate = Instant.parse("2019-02-15T14:15:23.456Z");
 
@@ -191,7 +189,7 @@ public class ReceivedZipFileRepositoryTest {
     }
 
     @Test
-    void should_return_single_event_if_envelope_exists_with_multiple_payments_and_scannable_items() {
+    void should_return_multiple_events_if_envelope_exists_with_multiple_payments_and_scannable_items() {
         // given
         Instant createdDate = Instant.parse("2019-02-15T14:15:23.456Z");
 
@@ -231,7 +229,7 @@ public class ReceivedZipFileRepositoryTest {
     void should_return_multiple_events_if_envelopes_exist_with_multiple_payments_and_scannable_items() {
         // given
         Instant createdDate1 = Instant.parse("2019-02-15T14:15:23.456Z");
-        Instant createdDate2 = Instant.parse("2019-02-15T15:15:23.456Z");
+        Instant createdDate2 = createdDate1.plus(1, HOURS);
 
         dbHasEvents(
             event("c1", "test1.zip", createdDate1, ZIPFILE_PROCESSING_STARTED),

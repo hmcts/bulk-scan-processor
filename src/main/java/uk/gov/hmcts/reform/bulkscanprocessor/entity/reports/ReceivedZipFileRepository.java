@@ -14,11 +14,11 @@ public interface ReceivedZipFileRepository extends JpaRepository<Envelope, UUID>
     @Query(
         nativeQuery = true,
         value = "SELECT "
-            + "process_events.container, "
-            + "process_events.zipfilename, "
-            + "process_events.createdat AS processingStartedEventDate, "
-            + "scannable_items.documentControlNumber AS scannableItemDCN, "
-            + "payments.documentControlNumber AS paymentDCN "
+            + "  process_events.container, "
+            + "  process_events.zipfilename, "
+            + "  process_events.createdat AS processingStartedEventDate, "
+            + "  scannable_items.documentControlNumber AS scannableItemDCN, "
+            + "  payments.documentControlNumber AS paymentDCN "
             + "FROM process_events "
             + "LEFT OUTER JOIN envelopes "
             + "  ON envelopes.container = process_events.container "
@@ -27,7 +27,8 @@ public interface ReceivedZipFileRepository extends JpaRepository<Envelope, UUID>
             + "  ON envelopes.id = scannable_items.envelope_id "
             + "LEFT OUTER JOIN payments "
             + "  ON envelopes.id = payments.envelope_id "
-            + "WHERE process_events.event='ZIPFILE_PROCESSING_STARTED' AND date(process_events.createdat)=:date"
+            + "WHERE process_events.event = 'ZIPFILE_PROCESSING_STARTED'"
+            + "  AND date(process_events.createdat) = :date"
     )
     List<ReceivedZipFile> getReceivedZipFilesReportFor(@Param("date") LocalDate date);
 }
