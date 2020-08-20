@@ -1,15 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.util;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import org.testcontainers.containers.DockerComposeContainer;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
@@ -25,8 +23,8 @@ public class TestStorageHelper {
     private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
-    public static CloudBlobClient cloudBlobClient;
-    private CloudBlobContainer testContainer;
+    public static BlobServiceClient blobServiceClient;
+    private BlobContainerClient testContainer;
 
     private TestStorageHelper() {
         // empty constructor
@@ -50,13 +48,9 @@ public class TestStorageHelper {
     }
 
     private static void initializeStorage() {
-        try {
-            cloudBlobClient =
-                CloudStorageAccount.parse(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
-                .createCloudBlobClient();
-        } catch (InvalidKeyException | URISyntaxException exception) {
-            throw new RuntimeException("Unable to initialize storage", exception);
-        }
+        blobServiceClient = new BlobServiceClientBuilder()
+            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
+            .buildClient();
     }
 
     public static void initialize() {
@@ -69,35 +63,26 @@ public class TestStorageHelper {
     }
 
     public void createBulkscanContainer() {
-        try {
-            testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
-            testContainer.createIfNotExists();
-        } catch (URISyntaxException | StorageException exception) {
-            throw new RuntimeException("Unable to create container", exception);
-        }
+        testContainer = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
+        testContainer.create();
     }
 
     public void deleteBulkscanContainer() {
-        try {
-            testContainer.deleteIfExists();
-        } catch (StorageException exception) {
-            throw new RuntimeException("Unable to delete container", exception);
-        }
+        testContainer.delete();
     }
 
     public void upload(String directory) {
         try {
-            CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(ZIP_FILE_NAME);
+            BlobClient blobClient = testContainer.getBlobClient(ZIP_FILE_NAME);
 
             // Blob need to be deleted as same blob may exists if previously uploaded blob was not deleted
             // due to doc upload failure
-            if (blockBlobReference.exists()) {
-                blockBlobReference.breakLease(0);
-                blockBlobReference.delete();
+            if (blobClient.exists()) {
+                blobClient.delete();
             }
 
             byte[] fileContent = zipDir(directory);
-            blockBlobReference.uploadFromByteArray(fileContent, 0, fileContent.length);
+            blobClient.upload(new ByteArrayInputStream(fileContent), fileContent.length, true);
         } catch (Exception exception) {
             throw new RuntimeException("Unable to upload zip to test container", exception);
         }

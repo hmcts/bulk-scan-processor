@@ -1,24 +1,24 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.BlobInputStream;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
@@ -48,17 +48,20 @@ public class UploadEnvelopeDocumentsService {
     private final ZipFileProcessor zipFileProcessor;
     private final DocumentProcessor documentProcessor;
     private final EnvelopeProcessor envelopeProcessor;
+    private final LeaseAcquirer leaseAcquirer;
 
     public UploadEnvelopeDocumentsService(
         BlobManager blobManager,
         ZipFileProcessor zipFileProcessor,
         DocumentProcessor documentProcessor,
-        EnvelopeProcessor envelopeProcessor
+        EnvelopeProcessor envelopeProcessor,
+        LeaseAcquirer leaseAcquirer
     ) {
         this.blobManager = blobManager;
         this.zipFileProcessor = zipFileProcessor;
         this.documentProcessor = documentProcessor;
         this.envelopeProcessor = envelopeProcessor;
+        this.leaseAcquirer = leaseAcquirer;
     }
 
     public void processByContainer(String containerName, List<Envelope> envelopes) {
@@ -69,7 +72,7 @@ public class UploadEnvelopeDocumentsService {
         );
 
         try {
-            CloudBlobContainer blobContainer = blobManager.getContainer(containerName);
+            BlobContainerClient blobContainer = blobManager.getContainerClient(containerName);
 
             envelopes.forEach(envelope -> processEnvelope(blobContainer, envelope));
         } catch (Exception exception) {
@@ -81,25 +84,28 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private void processEnvelope(CloudBlobContainer blobContainer, Envelope envelope) {
-        String containerName = blobContainer.getName();
+    private void processEnvelope(BlobContainerClient blobContainer, Envelope envelope) {
+        String containerName = blobContainer.getBlobContainerName();
         String zipFileName = envelope.getZipFileName();
         UUID envelopeId = envelope.getId();
-        CloudBlockBlob blob = null;
-        Optional<String> leaseId = Optional.empty();
 
         try {
-            blob = getCloudBlockBlob(blobContainer, zipFileName, envelopeId);
-            leaseId = blobManager.acquireLease(blob, containerName, envelope.getZipFileName());
+            BlobClient blobClient = blobContainer.getBlobClient(zipFileName);
 
-            if (leaseId.isPresent()) {
-                BlobInputStream bis = getBlobInputStream(blob, containerName, zipFileName, envelopeId);
-                ZipFileProcessingResult result = processInputStream(bis, containerName, zipFileName, envelopeId);
+            leaseAcquirer.ifAcquiredOrElse(
+                blobClient,
+                leaseId -> uploadDocs(blobClient, envelope),
+                blobErrorCode -> {},
+                true
+            );
 
-                uploadParsedZipFileName(envelope, result.getPdfs());
+            log.info(
+                "Finished processing docs for upload. File: {}, container: {}, EnvelopeId: {}",
+                zipFileName,
+                containerName,
+                envelopeId
+            );
 
-                envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
-            }
         } catch (Exception exception) {
             log.error(
                 "An error occurred when trying to upload documents. Container: {}, File: {}, Envelope ID: {}",
@@ -108,59 +114,47 @@ public class UploadEnvelopeDocumentsService {
                 envelopeId,
                 exception
             );
-        } finally {
-            if (leaseId.isPresent()) {
-                blobManager.tryReleaseLease(blob, containerName, zipFileName, leaseId.get());
-            }
         }
     }
 
-    private CloudBlockBlob getCloudBlockBlob(
-        CloudBlobContainer blobContainer,
-        String zipFileName,
-        UUID envelopeId
-    ) {
-        try {
-            return blobContainer.getBlockBlobReference(zipFileName);
-        } catch (URISyntaxException | StorageException exception) {
+    private void uploadDocs(BlobClient blobClient, Envelope envelope) {
+        String zipFileName = envelope.getZipFileName();
+        UUID envelopeId = envelope.getId();
+        String containerName = blobClient.getContainerName();
+
+        byte[] rawBlob =  downloadBlob(blobClient, envelopeId);
+
+        ZipFileProcessingResult result = processBlobContent(rawBlob, containerName, zipFileName, envelopeId);
+
+        uploadParsedZipFileName(envelope, result.getPdfs());
+
+        envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
+    }
+
+    private byte[] downloadBlob(BlobClient blobClient, UUID envelopeId) {
+        try (var outputStream = new ByteArrayOutputStream()) {
+            blobClient.download(outputStream);
+
+            return outputStream.toByteArray();
+        } catch (Exception exc) {
             String message = String.format(
-                "Unable to get blob client. Container: %s, Blob: %s, Envelope ID: %s",
-                blobContainer.getName(),
-                zipFileName,
+                "Unable to download blob. Container: %s, Blob: %s, Envelope ID: %s",
+                blobClient.getContainerName(),
+                blobClient.getBlobName(),
                 envelopeId
             );
 
-            throw new FailedUploadException(message, exception);
+            throw new FailedUploadException(message, exc);
         }
     }
 
-    private BlobInputStream getBlobInputStream(
-        CloudBlockBlob blobClient,
+    private ZipFileProcessingResult processBlobContent(
+        byte[] rawBlob,
         String containerName,
         String zipFileName,
         UUID envelopeId
     ) {
-        try {
-            return blobClient.openInputStream();
-        } catch (StorageException exception) {
-            String message = String.format(
-                "Unable to get blob input stream. Container: %s, Blob: %s, Envelope ID: %s",
-                containerName,
-                zipFileName,
-                envelopeId
-            );
-
-            throw new FailedUploadException(message, exception);
-        }
-    }
-
-    private ZipFileProcessingResult processInputStream(
-        BlobInputStream blobInputStream,
-        String containerName,
-        String zipFileName,
-        UUID envelopeId
-    ) {
-        try (ZipInputStream zis = new ZipInputStream(blobInputStream)) {
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
             return zipFileProcessor.process(zis, zipFileName);
         } catch (Exception exception) {
             String message = String.format(
@@ -171,7 +165,6 @@ public class UploadEnvelopeDocumentsService {
             );
 
             createDocUploadFailureEvent(containerName, zipFileName, exception.getMessage(), envelopeId);
-
             throw new FailedUploadException(message, exception);
         }
     }

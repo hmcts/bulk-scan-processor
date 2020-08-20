@@ -1,8 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
+import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobRequestConditions;
+import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
@@ -144,8 +150,8 @@ public class BlobManager {
         }
     }
 
-    public CloudBlobContainer getContainer(String containerName) throws URISyntaxException, StorageException {
-        return cloudBlobClient.getContainerReference(containerName);
+    public BlobContainerClient getContainerClient(String containerName) {
+        return blobServiceClient.getBlobContainerClient(containerName);
     }
 
     public List<CloudBlobContainer> listInputContainers() {
@@ -267,6 +273,84 @@ public class BlobManager {
 
         CloudBlobContainer inputContainer = cloudBlobClient.getContainerReference(inputContainerName);
         return inputContainer.getBlockBlobReference(fileName);
+    }
+
+    public void newTryMoveFileToRejectedContainer(String fileName, String inputContainerName, String leaseId) {
+        String rejectedContainerName = getRejectedContainerName(inputContainerName);
+
+        try {
+            newMoveFileToRejectedContainer(
+                fileName,
+                inputContainerName,
+                rejectedContainerName,
+                leaseId
+            );
+        } catch (Exception ex) {
+            log.error(
+                "An error occurred when moving rejected file {} from container {} to rejected files' container {}",
+                fileName,
+                inputContainerName,
+                rejectedContainerName,
+                ex
+            );
+        }
+    }
+
+    private void newMoveFileToRejectedContainer(
+        String fileName,
+        String inputContainerName,
+        String rejectedContainerName,
+        String leaseId
+    ) {
+        log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
+        BlobClient inputBlob = blobServiceClient
+            .getBlobContainerClient(inputContainerName)
+            .getBlobClient(fileName);
+
+        BlobClient rejectedBlob = blobServiceClient
+            .getBlobContainerClient(rejectedContainerName)
+            .getBlobClient(fileName);
+
+        if (rejectedBlob.exists()) {
+            // next steps will overwrite the file, create a snapshot of current version
+            rejectedBlob.createSnapshot();
+        }
+        String copyId = rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
+
+        log.info("Rejected file copied to rejected container: {}, copyId: {}",
+            rejectedContainerName, copyId);
+
+        try {
+            inputBlob.deleteWithResponse(
+                DeleteSnapshotsOptionType.ONLY,
+                new BlobRequestConditions().setLeaseId(leaseId),
+                null,
+                Context.NONE
+            );
+        } catch (BlobStorageException e) {
+            //if lease lost retry
+            log.warn(
+                "Deleting File {} got error, Error code {}, Http status {} ",
+                fileName,
+                e.getErrorCode(),
+                e.getStatusCode(),
+                e
+            );
+
+            if (e.getStatusCode() == HttpURLConnection.HTTP_PRECON_FAILED
+                && BlobErrorCode.LEASE_LOST.equals(e.getErrorCode())) {
+                log.info("Deleting File {} got error, retrying...", fileName);
+                inputBlob.deleteWithResponse(
+                    DeleteSnapshotsOptionType.ONLY,
+                    null,
+                    null,
+                    Context.NONE
+                );
+            } else {
+                throw e;
+            }
+        }
+        log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
     }
 
     private void waitUntilBlobIsCopied(CloudBlockBlob blob) throws StorageException {

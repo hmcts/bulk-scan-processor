@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -46,6 +47,7 @@ public class UploadEnvelopeDocumentsTaskTest {
     @Autowired private ZipFileProcessor zipFileProcessor;
     @Autowired private DocumentProcessor documentProcessor;
     @Autowired private BlobManagementProperties blobManagementProperties;
+    @Autowired private LeaseAcquirer leaseAcquirer;
 
     @MockBean private AuthTokenGenerator tokenGenerator;
     @MockBean private DocumentManagementService documentManagementService;
@@ -101,9 +103,9 @@ public class UploadEnvelopeDocumentsTaskTest {
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
-        BlobManager blobManager = new BlobManager(null, STORAGE_HELPER.cloudBlobClient, blobManagementProperties);
+        BlobManager blobManager = new BlobManager(STORAGE_HELPER.blobServiceClient, null, blobManagementProperties);
         UploadEnvelopeDocumentsService uploadService =
-            new UploadEnvelopeDocumentsService(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor);
+            new UploadEnvelopeDocumentsService(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor, leaseAcquirer);
         new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1).run();
 
         // then
