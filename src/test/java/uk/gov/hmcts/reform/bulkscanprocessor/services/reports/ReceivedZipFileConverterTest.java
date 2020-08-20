@@ -36,8 +36,8 @@ class ReceivedZipFileConverterTest {
         assertThat(res)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new ReceivedZipFileData(new Tuple2<>("file1", "c1"), emptyList(), emptyList()),
-                new ReceivedZipFileData(new Tuple2<>("file2", "c2"), emptyList(), emptyList())
+                new ReceivedZipFileData("file1", "c1", emptyList(), emptyList()),
+                new ReceivedZipFileData("file2", "c2", emptyList(), emptyList())
             );
     }
 

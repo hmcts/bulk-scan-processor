@@ -9,8 +9,13 @@ public class ReceivedZipFileData {
     public final List<String> scannableItemDcns;
     public final List<String> paymentDcns;
 
-    public ReceivedZipFileData(Tuple2 zipFileIdentifier, List<String> scannableItemDcns, List<String> paymentDcns) {
-        this.zipFileIdentifier = zipFileIdentifier;
+    public ReceivedZipFileData(
+        String zipFileName,
+        String container,
+        List<String> scannableItemDcns,
+        List<String> paymentDcns
+    ) {
+        this.zipFileIdentifier = new Tuple2<>(zipFileName, container);
         this.scannableItemDcns = scannableItemDcns;
         this.paymentDcns = paymentDcns;
     }

@@ -38,10 +38,8 @@ public class ReceivedZipFileConverter {
             }
         );
         return new ReceivedZipFileData(
-            new Tuple2<>(
-                receivedZipFilesList.get(0).getZipFileName(),
-                receivedZipFilesList.get(0).getContainer()
-            ),
+            receivedZipFilesList.get(0).getZipFileName(),
+            receivedZipFilesList.get(0).getContainer(),
             new ArrayList<>(scannableItemDcns),
             new ArrayList<>(paymentDcns)
         );
