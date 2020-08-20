@@ -150,7 +150,7 @@ class FileContentProcessorTest {
 
         // then
         verify(fileRejector)
-            .handleInvalidFile(
+            .handleInvalidBlob(
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
@@ -191,7 +191,7 @@ class FileContentProcessorTest {
 
         // then
         verify(fileRejector)
-            .handleInvalidFile(
+            .handleInvalidBlob(
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
@@ -223,7 +223,7 @@ class FileContentProcessorTest {
 
         // then
         verify(fileRejector)
-            .handleInvalidFile(
+            .handleInvalidBlob(
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
@@ -255,7 +255,7 @@ class FileContentProcessorTest {
 
         // then
         verify(fileRejector)
-            .handleInvalidFile(
+            .handleInvalidBlob(
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
