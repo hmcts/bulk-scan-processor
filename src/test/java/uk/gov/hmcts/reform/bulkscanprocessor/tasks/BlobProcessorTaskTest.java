@@ -1,29 +1,33 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.microsoft.azure.storage.blob.BlobInputStream;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class BlobProcessorTaskTest {
     @Mock
     private BlobManager blobManager;
@@ -32,19 +36,19 @@ class BlobProcessorTaskTest {
     private EnvelopeProcessor envelopeProcessor;
 
     @Mock
-    private CloudBlobContainer container;
+    private BlobContainerClient container;
 
     @Mock
-    private CloudBlockBlob cloudBlockBlob;
+    private BlobClient blobClient;
 
     @Mock
-    private ListBlobItem blob;
-
-    @Mock
-    private BlobInputStream blobInputStream;
+    private BlobItem blob;
 
     @Mock
     private FileContentProcessor fileContentProcessor;
+
+    @Mock
+    private LeaseAcquirer leaseAcquirer;
 
     private BlobProcessorTask blobProcessorTask;
 
@@ -53,25 +57,34 @@ class BlobProcessorTaskTest {
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            fileContentProcessor
+            fileContentProcessor,
+            leaseAcquirer
         );
     }
 
     @Test
     void processBlobs_should_not_call_envelopeProcessor_if_failed_to_load_file() throws Exception {
         // given
-        given(blobManager.listInputContainers()).willReturn(singletonList(container));
-        given(container.listBlobs()).willReturn(singletonList(blob));
-        given(blob.getUri()).willReturn(URI.create("file.zip"));
-        given(container.getBlockBlobReference("file.zip")).willReturn(cloudBlockBlob);
-        given(container.getName()).willReturn("cont");
+        given(blobManager.getInputContainerClients()).willReturn(singletonList(container));
+
+        PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
+        given(container.listBlobs()).willReturn(pagedIterable);
+        given(pagedIterable.stream()).willReturn(singletonList(blob).stream());
+
+        given(blob.getName()).willReturn("file.zip");
+        given(container.getBlobClient("file.zip")).willReturn(blobClient);
+        given(container.getBlobContainerName()).willReturn("cont");
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
             .willReturn(null);
-        given(cloudBlockBlob.exists()).willReturn(true);
-        given(blobManager.acquireLease(any(CloudBlockBlob.class), anyString(), anyString()))
-            .willReturn(Optional.of("lease"));
-        given(cloudBlockBlob.openInputStream()).willReturn(blobInputStream);
-        given(blobInputStream.read(any())).willThrow(new IOException());
+        given(blobClient.exists()).willReturn(true);
+
+        doAnswer(invocation -> {
+            var okAction = (Consumer) invocation.getArgument(1);
+            okAction.accept(UUID.randomUUID().toString());
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+
+        willThrow(new RuntimeException("Can't download")).given(blobClient).download(any());
 
         // when
         blobProcessorTask.processBlobs();

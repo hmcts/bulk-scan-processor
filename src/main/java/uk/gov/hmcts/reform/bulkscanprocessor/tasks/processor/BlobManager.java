@@ -9,6 +9,8 @@ import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
@@ -31,10 +33,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyExceptio
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
@@ -55,6 +59,9 @@ public class BlobManager {
     private final BlobServiceClient blobServiceClient;
 
     private final BlobManagementProperties properties;
+
+    private static final BlobContainerSasPermission SAS_READ_PERMISSION =
+        new BlobContainerSasPermission().setReadPermission(true);
 
     public BlobManager(
         BlobServiceClient blobServiceClient,
@@ -302,7 +309,13 @@ public class BlobManager {
         String rejectedContainerName,
         String leaseId
     ) {
-        log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
+        log.info(
+            "Moving rejected file {} from container {} to {}",
+            fileName,
+            inputContainerName,
+            rejectedContainerName
+        );
+
         BlobClient inputBlob = blobServiceClient
             .getBlobContainerClient(inputContainerName)
             .getBlobClient(fileName);
@@ -315,14 +328,19 @@ public class BlobManager {
             // next steps will overwrite the file, create a snapshot of current version
             rejectedBlob.createSnapshot();
         }
-        String copyId = rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
+
+        String copyId = rejectedBlob.copyFromUrl(
+            inputBlob.getBlobUrl() + "?" + inputBlob.generateSas(
+                new BlobServiceSasSignatureValues(OffsetDateTime.now(UTC).plusSeconds(50), SAS_READ_PERMISSION)
+            )
+        );
 
         log.info("Rejected file copied to rejected container: {}, copyId: {}",
             rejectedContainerName, copyId);
 
         try {
             inputBlob.deleteWithResponse(
-                DeleteSnapshotsOptionType.ONLY,
+                DeleteSnapshotsOptionType.INCLUDE,
                 new BlobRequestConditions().setLeaseId(leaseId),
                 null,
                 Context.NONE
