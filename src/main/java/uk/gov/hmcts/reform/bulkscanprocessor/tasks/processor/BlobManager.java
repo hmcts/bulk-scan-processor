@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
@@ -330,7 +331,7 @@ public class BlobManager {
 
         String copyId = rejectedBlob.copyFromUrl(
             inputBlob.getBlobUrl() + "?" + inputBlob.generateSas(
-                new BlobServiceSasSignatureValues(OffsetDateTime.now().plusSeconds(50), SAS_READ_PERMISSION)
+                new BlobServiceSasSignatureValues(OffsetDateTime.now(UTC).plusSeconds(50), SAS_READ_PERMISSION)
             )
         );
 
