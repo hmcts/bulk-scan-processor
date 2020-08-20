@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,6 +38,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -47,6 +50,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
@@ -82,6 +86,8 @@ public class EnvelopeControllerTest {
     @Autowired private ProcessEventRepository processEventRepository;
     @Autowired private BlobManagementProperties blobManagementProperties;
     @Autowired private UploadEnvelopeDocumentsService uploadService;
+    @Autowired private LeaseClientProvider leaseClientProvider;
+    @Autowired private LeaseMetaDataChecker leaseMetaDataChecker;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
@@ -92,7 +98,7 @@ public class EnvelopeControllerTest {
 
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
-    private CloudBlobContainer testContainer;
+    private BlobContainerClient testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
 
@@ -114,9 +120,12 @@ public class EnvelopeControllerTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
-        CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
-        BlobManager blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
+
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+                .connectionString("UseDevelopmentStorage=true")
+                .buildClient();
+
+        BlobManager blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
         EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,
@@ -138,20 +147,30 @@ public class EnvelopeControllerTest {
             fileRejector
         );
 
+        LeaseAcquirer leaseAcquirer = new LeaseAcquirer(
+            leaseClientProvider,
+            leaseMetaDataChecker
+        );
+
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            fileContentProcessor
+            fileContentProcessor,
+            leaseAcquirer
         );
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 
-        testContainer = cloudBlobClient.getContainerReference("bulkscan");
-        testContainer.createIfNotExists();
+        testContainer = blobServiceClient.getBlobContainerClient("bulkscan");
+        if (!testContainer.exists()) {
+            testContainer.create();
+        }
     }
 
     @AfterEach
     public void cleanUp() throws Exception {
-        testContainer.deleteIfExists();
+        if (testContainer.exists()) {
+            testContainer.delete();
+        }
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
     }
@@ -241,7 +260,7 @@ public class EnvelopeControllerTest {
         byte[] zipFile = DirectoryZipper.zipDir(dirToZip);
 
         testContainer
-            .getBlockBlobReference(zipFilename)
-            .uploadFromByteArray(zipFile, 0, zipFile.length);
+            .getBlobClient(zipFilename)
+            .upload(new ByteArrayInputStream(zipFile), zipFile.length);
     }
 }
