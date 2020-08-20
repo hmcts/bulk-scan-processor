@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -19,7 +20,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 
 import java.util.Optional;
@@ -39,7 +43,9 @@ public class UploadEnvelopeDocumentsTaskTest {
     @Autowired private EnvelopeProcessor envelopeProcessor;
     @Autowired private EnvelopeRepository envelopeRepository;
     @Autowired private ProcessEventRepository eventRepository;
-    @Autowired private UploadEnvelopeDocumentsService uploadService;
+    @Autowired private ZipFileProcessor zipFileProcessor;
+    @Autowired private DocumentProcessor documentProcessor;
+    @Autowired private BlobManagementProperties blobManagementProperties;
 
     @MockBean private AuthTokenGenerator tokenGenerator;
     @MockBean private DocumentManagementService documentManagementService;
@@ -95,6 +101,9 @@ public class UploadEnvelopeDocumentsTaskTest {
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
+        BlobManager blobManager = new BlobManager(null, STORAGE_HELPER.cloudBlobClient, blobManagementProperties);
+        UploadEnvelopeDocumentsService uploadService =
+            new UploadEnvelopeDocumentsService(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor);
         new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1).run();
 
         // then

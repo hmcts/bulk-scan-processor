@@ -22,7 +22,7 @@ public class TestStorageHelper {
 
     private static DockerComposeContainer<?> dockerComposeContainer;
     private static String dockerHost;
-    private static final String DOCKER_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
     public static CloudBlobClient cloudBlobClient;
@@ -52,7 +52,7 @@ public class TestStorageHelper {
     private static void initializeStorage() {
         try {
             cloudBlobClient =
-                CloudStorageAccount.parse(String.format(DOCKER_CONN_STRING, dockerHost, 10000))
+                CloudStorageAccount.parse(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
                 .createCloudBlobClient();
         } catch (InvalidKeyException | URISyntaxException exception) {
             throw new RuntimeException("Unable to initialize storage", exception);

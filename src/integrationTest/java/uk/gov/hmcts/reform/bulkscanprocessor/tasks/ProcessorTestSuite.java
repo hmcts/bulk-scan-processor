@@ -116,14 +116,14 @@ public abstract class ProcessorTestSuite {
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
-    private static final String DOCKER_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
 
     @BeforeEach
     public void setUp() throws Exception {
 
-        CloudStorageAccount account = CloudStorageAccount.parse(String.format(DOCKER_CONN_STRING, dockerHost, 10000));
+        CloudStorageAccount account = CloudStorageAccount.parse(String.format(STORAGE_CONN_STRING, dockerHost, 10000));
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
         blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);

@@ -45,7 +45,7 @@ public class CleanUpRejectedFilesTaskTest {
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
-    private static final String DOCKER_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
 
@@ -68,7 +68,7 @@ public class CleanUpRejectedFilesTaskTest {
     @BeforeEach
     public void setUp() throws Exception {
         blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(DOCKER_CONN_STRING, dockerHost, 10000))
+            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
             .buildClient();
 
         this.blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);

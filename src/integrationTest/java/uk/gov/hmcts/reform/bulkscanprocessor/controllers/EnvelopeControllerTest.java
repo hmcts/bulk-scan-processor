@@ -41,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
@@ -81,7 +82,7 @@ public class EnvelopeControllerTest {
     @Autowired private EnvelopeRepository envelopeRepository;
     @Autowired private ProcessEventRepository processEventRepository;
     @Autowired private BlobManagementProperties blobManagementProperties;
-    @Autowired private UploadEnvelopeDocumentsService uploadService;
+    @Autowired private DocumentProcessor documentProcessor;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
@@ -96,7 +97,7 @@ public class EnvelopeControllerTest {
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
-    private static final String DOCKER_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
 
@@ -120,7 +121,7 @@ public class EnvelopeControllerTest {
     @BeforeEach
     public void setup() throws Exception {
         CloudStorageAccount account =
-            CloudStorageAccount.parse(String.format(DOCKER_CONN_STRING, dockerHost, 10000));
+            CloudStorageAccount.parse(String.format(STORAGE_CONN_STRING, dockerHost, 10000));
         CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
         BlobManager blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
@@ -149,6 +150,8 @@ public class EnvelopeControllerTest {
             envelopeProcessor,
             fileContentProcessor
         );
+        UploadEnvelopeDocumentsService uploadService =
+            new UploadEnvelopeDocumentsService(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor);
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 
         testContainer = cloudBlobClient.getContainerReference("bulkscan");
