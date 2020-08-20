@@ -99,6 +99,13 @@ public class UploadEnvelopeDocumentsService {
                 true
             );
 
+            log.info(
+                "Finished processing docs for upload. File: {}, container: {}, EnvelopeId: {}",
+                zipFileName,
+                containerName,
+                envelopeId
+            );
+
         } catch (Exception exception) {
             log.error(
                 "An error occurred when trying to upload documents. Container: {}, File: {}, Envelope ID: {}",
