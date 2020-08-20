@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import io.vavr.Tuple2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
@@ -57,22 +56,15 @@ class ReceivedZipFileConverterTest {
         assertThat(res)
             .extracting(file ->
                             tuple(
-                                file.zipFileIdentifier,
+                                file.zipFileName,
+                                file.container,
                                 file.scannableItemDcns.stream().sorted().collect(toList()),
                                 file.paymentDcns.stream().sorted().collect(toList())
                             )
             )
             .containsExactlyInAnyOrder(
-                tuple(
-                    new Tuple2<>("file1", "c1"),
-                    asList("doc-1", "doc-2"),
-                    emptyList()
-                ),
-                tuple(
-                    new Tuple2<>("file2", "c2"),
-                    asList("doc-3", "doc-4"),
-                    emptyList()
-                )
+                tuple("file1", "c1", asList("doc-1", "doc-2"), emptyList()),
+                tuple("file2", "c2", asList("doc-3", "doc-4"), emptyList())
             );
     }
 
@@ -92,22 +84,15 @@ class ReceivedZipFileConverterTest {
         assertThat(res)
             .extracting(file ->
                             tuple(
-                                file.zipFileIdentifier,
+                                file.zipFileName,
+                                file.container,
                                 file.scannableItemDcns.stream().sorted().collect(toList()),
                                 file.paymentDcns.stream().sorted().collect(toList())
                             )
             )
             .containsExactlyInAnyOrder(
-                tuple(
-                    new Tuple2<>("file1", "c1"),
-                    emptyList(),
-                    asList("pay-1", "pay-2")
-                ),
-                tuple(
-                    new Tuple2<>("file2", "c2"),
-                    emptyList(),
-                    asList("pay-3", "pay-4")
-                )
+                tuple("file1", "c1", emptyList(), asList("pay-1", "pay-2")),
+                tuple("file2", "c2", emptyList(), asList("pay-3", "pay-4"))
             );
     }
 
@@ -137,22 +122,15 @@ class ReceivedZipFileConverterTest {
         assertThat(res)
             .extracting(file ->
                             tuple(
-                                file.zipFileIdentifier,
+                                file.zipFileName,
+                                file.container,
                                 file.scannableItemDcns.stream().sorted().collect(toList()),
                                 file.paymentDcns.stream().sorted().collect(toList())
                             )
             )
             .containsExactlyInAnyOrder(
-                tuple(
-                    new Tuple2<>("file1", "c1"),
-                    asList("doc-1", "doc-2"),
-                    asList("pay-1", "pay-2")
-                ),
-                tuple(
-                    new Tuple2<>("file2", "c2"),
-                    asList("doc-3", "doc-4"),
-                    asList("pay-3", "pay-4")
-                )
+                tuple("file1", "c1", asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
+                tuple("file2", "c2", asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
             );
     }
 }
