@@ -17,12 +17,7 @@ public class ReceivedZipFileConverter {
     public List<ReceivedZipFileData> convertReceivedZipFiles(List<ReceivedZipFile> receivedZipFiles) {
         return receivedZipFiles
             .stream()
-            .collect(groupingBy(file ->
-                                    new Tuple2<>(
-                                        file.getZipFileName(),
-                                        file.getContainer()
-                                    )
-            ))
+            .collect(groupingBy(file -> new Tuple2<>(file.getZipFileName(), file.getContainer())))
             .values()
             .stream()
             .map(this::getReceivedZipFileData)
