@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import io.vavr.Tuple2;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedZipFileData;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileIdentifier;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,14 +15,16 @@ import static java.util.stream.Collectors.toList;
 public class ReceivedZipFileConverter {
 
     public List<ReceivedZipFileData> convertReceivedZipFiles(List<ReceivedZipFile> receivedZipFiles) {
-        return receivedZipFiles.stream()
+        return receivedZipFiles
+            .stream()
             .collect(groupingBy(file ->
-                                    new ZipFileIdentifier(
+                                    new Tuple2<>(
                                         file.getZipFileName(),
                                         file.getContainer()
                                     )
             ))
-            .values().stream()
+            .values()
+            .stream()
             .map(this::getReceivedZipFileData)
             .collect(toList());
     }
@@ -41,7 +43,7 @@ public class ReceivedZipFileConverter {
             }
         );
         return new ReceivedZipFileData(
-            new ZipFileIdentifier(
+            new Tuple2<>(
                 receivedZipFilesList.get(0).getZipFileName(),
                 receivedZipFilesList.get(0).getContainer()
             ),

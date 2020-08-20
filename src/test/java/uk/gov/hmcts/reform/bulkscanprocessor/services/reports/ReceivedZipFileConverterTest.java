@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import io.vavr.Tuple2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedZipFileData;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileIdentifier;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,7 +19,7 @@ class ReceivedZipFileConverterTest {
     private ReceivedZipFileConverter receivedZipFileConverter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         receivedZipFileConverter = new ReceivedZipFileConverter();
     }
 
@@ -36,8 +36,8 @@ class ReceivedZipFileConverterTest {
         assertThat(res)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new ReceivedZipFileData(new ZipFileIdentifier("file1", "c1"), emptyList(), emptyList()),
-                new ReceivedZipFileData(new ZipFileIdentifier("file2", "c2"), emptyList(), emptyList())
+                new ReceivedZipFileData(new Tuple2<>("file1", "c1"), emptyList(), emptyList()),
+                new ReceivedZipFileData(new Tuple2<>("file2", "c2"), emptyList(), emptyList())
             );
     }
 
@@ -64,12 +64,12 @@ class ReceivedZipFileConverterTest {
             )
             .containsExactlyInAnyOrder(
                 tuple(
-                    new ZipFileIdentifier("file1", "c1"),
+                    new Tuple2<>("file1", "c1"),
                     asList("doc-1", "doc-2"),
                     emptyList()
                 ),
                 tuple(
-                    new ZipFileIdentifier("file2", "c2"),
+                    new Tuple2<>("file2", "c2"),
                     asList("doc-3", "doc-4"),
                     emptyList()
                 )
@@ -99,12 +99,12 @@ class ReceivedZipFileConverterTest {
             )
             .containsExactlyInAnyOrder(
                 tuple(
-                    new ZipFileIdentifier("file1", "c1"),
+                    new Tuple2<>("file1", "c1"),
                     emptyList(),
                     asList("pay-1", "pay-2")
                 ),
                 tuple(
-                    new ZipFileIdentifier("file2", "c2"),
+                    new Tuple2<>("file2", "c2"),
                     emptyList(),
                     asList("pay-3", "pay-4")
                 )
@@ -144,12 +144,12 @@ class ReceivedZipFileConverterTest {
             )
             .containsExactlyInAnyOrder(
                 tuple(
-                    new ZipFileIdentifier("file1", "c1"),
+                    new Tuple2<>("file1", "c1"),
                     asList("doc-1", "doc-2"),
                     asList("pay-1", "pay-2")
                 ),
                 tuple(
-                    new ZipFileIdentifier("file2", "c2"),
+                    new Tuple2<>("file2", "c2"),
                     asList("doc-3", "doc-4"),
                     asList("pay-3", "pay-4")
                 )
