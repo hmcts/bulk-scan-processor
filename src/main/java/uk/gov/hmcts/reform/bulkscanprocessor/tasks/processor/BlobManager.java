@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
@@ -8,9 +9,6 @@ import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
-import com.azure.storage.blob.sas.BlobContainerSasPermission;
-import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
-import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
@@ -33,12 +31,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyExceptio
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
@@ -59,9 +55,6 @@ public class BlobManager {
     private final BlobServiceClient blobServiceClient;
 
     private final BlobManagementProperties properties;
-
-    private static final BlobContainerSasPermission SAS_READ_PERMISSION =
-        new BlobContainerSasPermission().setReadPermission(true);
 
     public BlobManager(
         BlobServiceClient blobServiceClient,
@@ -309,40 +302,27 @@ public class BlobManager {
         String rejectedContainerName,
         String leaseId
     ) {
-        log.info(
-            "Moving rejected file {} from container {} to {}",
-            fileName,
-            inputContainerName,
-            rejectedContainerName
-        );
-
-        BlockBlobClient inputBlob = blobServiceClient
+        log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
+        BlobClient inputBlob = blobServiceClient
             .getBlobContainerClient(inputContainerName)
-            .getBlobClient(fileName)
-            .getBlockBlobClient();
+            .getBlobClient(fileName);
 
-        BlockBlobClient rejectedBlob = blobServiceClient
+        BlobClient rejectedBlob = blobServiceClient
             .getBlobContainerClient(rejectedContainerName)
-            .getBlobClient(fileName)
-            .getBlockBlobClient();
+            .getBlobClient(fileName);
 
         if (rejectedBlob.exists()) {
             // next steps will overwrite the file, create a snapshot of current version
             rejectedBlob.createSnapshot();
         }
-
-        String copyId = rejectedBlob.copyFromUrl(
-            inputBlob.getBlobUrl() + "?" + inputBlob.generateSas(
-                new BlobServiceSasSignatureValues(OffsetDateTime.now(UTC).plusMinutes(5), SAS_READ_PERMISSION)
-            )
-        );
+        String copyId = rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
 
         log.info("Rejected file copied to rejected container: {}, copyId: {}",
             rejectedContainerName, copyId);
 
         try {
             inputBlob.deleteWithResponse(
-                DeleteSnapshotsOptionType.INCLUDE,
+                DeleteSnapshotsOptionType.ONLY,
                 new BlobRequestConditions().setLeaseId(leaseId),
                 null,
                 Context.NONE

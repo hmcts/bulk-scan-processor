@@ -10,7 +10,6 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
-import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
@@ -492,22 +491,16 @@ public class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        BlockBlobClient inputBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(inputBlobClient.getBlockBlobClient()).willReturn(inputBlockBlobClient);
-        BlockBlobClient rejectedBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(rejectedBlobClient.getBlockBlobClient()).willReturn(rejectedBlockBlobClient);
-
         // and
         String url = "http://bulk-scan/test.file.txt";
-        given(inputBlockBlobClient.getBlobUrl()).willReturn(url);
-        given(inputBlockBlobClient.generateSas(any())).willReturn("sas=12321321");
+        given(inputBlobClient.getBlobUrl()).willReturn(url);
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlockBlobClient).copyFromUrl(url + "?sas=12321321");
-        verify(inputBlockBlobClient).deleteWithResponse(any(), any(), any(), any());
+        verify(rejectedBlobClient).copyFromUrl(url);
+        verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
@@ -518,24 +511,17 @@ public class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        BlockBlobClient inputBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(inputBlobClient.getBlockBlobClient()).willReturn(inputBlockBlobClient);
-        BlockBlobClient rejectedBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(rejectedBlobClient.getBlockBlobClient()).willReturn(rejectedBlockBlobClient);
-
         String url = "http://bulk-scan/test.file.txt";
-        given(inputBlockBlobClient.getBlobUrl()).willReturn(url);
-        given(inputBlockBlobClient.generateSas(any())).willReturn("sas=12321321");
-
-        given(rejectedBlockBlobClient.copyFromUrl(anyString()))
+        given(inputBlobClient.getBlobUrl()).willReturn(url);
+        given(rejectedBlobClient.copyFromUrl(anyString()))
             .willThrow(new BlobStorageException("can not copy", null, null));
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlockBlobClient).copyFromUrl(url + "?sas=12321321");
-        verify(inputBlockBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
+        verify(rejectedBlobClient).copyFromUrl(url);
+        verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
     }
 
 
@@ -547,13 +533,7 @@ public class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        BlockBlobClient inputBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(inputBlobClient.getBlockBlobClient()).willReturn(inputBlockBlobClient);
-        BlockBlobClient rejectedBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(rejectedBlobClient.getBlockBlobClient()).willReturn(rejectedBlockBlobClient);
-
-
-        given(rejectedBlockBlobClient.exists()).willReturn(Boolean.FALSE);
+        given(rejectedBlobClient.exists()).willReturn(Boolean.FALSE);
 
         HttpResponse response = mock(HttpResponse.class);
         given(response.getStatusCode()).willReturn(412);
@@ -561,19 +541,19 @@ public class BlobManagerTest {
         given(response.getHeaders()).willReturn(httpHeaders);
         given(httpHeaders.getValue(ERROR_CODE)).willReturn(BlobErrorCode.LEASE_LOST.toString());
 
-        given(inputBlockBlobClient.deleteWithResponse(any(), any(), any(), any()))
+        given(inputBlobClient.deleteWithResponse(any(), any(), any(), any()))
             .willThrow(new BlobStorageException(BlobErrorCode.LEASE_LOST.toString(), response, null))
             .willReturn(mock(Response.class));
 
         String url = "http://bulk-scan/test.file.txt";
-        given(inputBlockBlobClient.getBlobUrl()).willReturn(url);
+        given(inputBlobClient.getBlobUrl()).willReturn(url);
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlockBlobClient).copyFromUrl(anyString());
-        verify(inputBlockBlobClient,times(2)).deleteWithResponse(any(), any(), any(), any());
+        verify(rejectedBlobClient).copyFromUrl(anyString());
+        verify(inputBlobClient,times(2)).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
@@ -585,25 +565,20 @@ public class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        BlockBlobClient inputBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(inputBlobClient.getBlockBlobClient()).willReturn(inputBlockBlobClient);
-        BlockBlobClient rejectedBlockBlobClient = mock(com.azure.storage.blob.specialized.BlockBlobClient.class);
-        given(rejectedBlobClient.getBlockBlobClient()).willReturn(rejectedBlockBlobClient);
-
-
         String url = "http://bulk-scan/test.file.txt";
-        given(inputBlockBlobClient.getBlobUrl()).willReturn(url);
+        given(inputBlobClient.getBlobUrl()).willReturn(url);
 
-        given(inputBlockBlobClient.deleteWithResponse(any(), any(), any(), any()))
+        given(inputBlobClient.deleteWithResponse(any(), any(), any(), any()))
             .willThrow(new RuntimeException("Does not work"));
 
+        // and
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlockBlobClient).copyFromUrl(anyString());
-        verify(inputBlockBlobClient).deleteWithResponse(any(), any(), any(), any());
+        verify(rejectedBlobClient).copyFromUrl(anyString());
+        verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
     // END NEW  tryMoveFileToRejectedContainer

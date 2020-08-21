@@ -60,7 +60,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         filesToDeleteAfterTest.add(destZipFilename);
 
         await(destZipFilename + " file should be deleted")
-            .atMost(SCAN_DELAY + 60_000, TimeUnit.MILLISECONDS)
+            .atMost(SCAN_DELAY + 40_000, TimeUnit.MILLISECONDS)
             .pollInterval(2, TimeUnit.SECONDS)
             .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
 
@@ -87,7 +87,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
             );
 
             await(fileName + " file should be deleted")
-                .atMost(SCAN_DELAY + 60_000, TimeUnit.MILLISECONDS)
+                .atMost(SCAN_DELAY + 40_000, TimeUnit.MILLISECONDS)
                 .pollInterval(2, TimeUnit.SECONDS)
                 .until(() -> testHelper.storageHasFile(inputContainer, fileName), is(false));
         });
