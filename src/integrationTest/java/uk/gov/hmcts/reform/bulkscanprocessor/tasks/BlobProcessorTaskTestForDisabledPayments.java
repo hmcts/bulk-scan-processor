@@ -25,7 +25,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 })
 public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite {
 
-
     @Test
     public void should_reject_file_with_payments_when_payments_are_disabled() throws Exception {
         // given

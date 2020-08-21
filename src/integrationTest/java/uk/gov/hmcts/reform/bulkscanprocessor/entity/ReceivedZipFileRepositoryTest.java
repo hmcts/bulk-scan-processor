@@ -7,10 +7,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFileItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFileRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedZipFileItem;
 
 import java.time.Instant;
 import java.time.LocalDate;

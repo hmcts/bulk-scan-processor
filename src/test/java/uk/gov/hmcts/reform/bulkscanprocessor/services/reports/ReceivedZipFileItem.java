@@ -1,4 +1,6 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.entity.reports;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
+
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 
 import java.time.Instant;
 
