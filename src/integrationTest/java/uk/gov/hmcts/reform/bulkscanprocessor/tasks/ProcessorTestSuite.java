@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +28,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -37,7 +36,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 
@@ -101,9 +99,6 @@ public abstract class ProcessorTestSuite {
     @Autowired
     private BlobManagementProperties blobManagementProperties;
 
-    @Autowired
-    private LeaseAcquirer leaseAcquirer;
-
     @Mock
     protected DocumentManagementService documentManagementService;
 
@@ -116,19 +111,18 @@ public abstract class ProcessorTestSuite {
     @Value("${process-payments.enabled}")
     protected boolean paymentsEnabled;
 
-    protected BlobContainerClient testContainer;
-    protected BlobContainerClient rejectedContainer;
+    protected CloudBlobContainer testContainer;
+    protected CloudBlobContainer rejectedContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
 
     @BeforeEach
     public void setUp() throws Exception {
 
-        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString("UseDevelopmentStorage=true")
-            .buildClient();
+        CloudStorageAccount account = CloudStorageAccount.parse("UseDevelopmentStorage=true");
+        CloudBlobClient cloudBlobClient = account.createCloudBlobClient();
 
-        blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
+        blobManager = new BlobManager(null, cloudBlobClient, blobManagementProperties);
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
@@ -168,32 +162,23 @@ public abstract class ProcessorTestSuite {
             fileRejector
         );
 
-        testContainer = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
-        if (!testContainer.exists()) {
-            testContainer.create();
-        }
+        testContainer = cloudBlobClient.getContainerReference(CONTAINER_NAME);
+        testContainer.createIfNotExists();
 
-        rejectedContainer = blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME);
-        if (!rejectedContainer.exists()) {
-            rejectedContainer.create();
-        }
+        rejectedContainer = cloudBlobClient.getContainerReference(REJECTED_CONTAINER_NAME);
+        rejectedContainer.createIfNotExists();
 
         processor = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
-            fileContentProcessor,
-            leaseAcquirer
+            fileContentProcessor
         );
     }
 
     @AfterEach
     public void cleanUp() throws Exception {
-        if (testContainer.exists()) {
-            testContainer.delete();
-        }
-        if (rejectedContainer.exists()) {
-            rejectedContainer.delete();
-        }
+        testContainer.deleteIfExists();
+        rejectedContainer.deleteIfExists();
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
     }
@@ -220,17 +205,18 @@ public abstract class ProcessorTestSuite {
     }
 
     public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {
-        var blockBlobReference = testContainer.getBlobClient(fileName);
+        CloudBlockBlob blockBlobReference = testContainer.getBlockBlobReference(fileName);
 
         // Blob need to be deleted as same blob may exists if previously uploaded blob was not deleted
         // due to doc upload failure
         if (blockBlobReference.exists()) {
+            blockBlobReference.breakLease(0);
             blockBlobReference.delete();
         }
 
         // A Put Blob operation may succeed against a blob that exists in the storage emulator with an active lease,
         // even if the lease ID has not been specified in the request.
-        blockBlobReference.upload(new ByteArrayInputStream(fileContent), fileContent.length);
+        blockBlobReference.uploadFromByteArray(fileContent, 0, fileContent.length);
     }
 
     // TODO: add repo method to read single envelope by zip file name and jurisdiction.
@@ -247,8 +233,8 @@ public abstract class ProcessorTestSuite {
             .hasSize(2)
             .extracting(e -> tuple(e.getContainer(), e.getEvent()))
             .containsExactlyInAnyOrder(
-                tuple(testContainer.getBlobContainerName(), event1),
-                tuple(testContainer.getBlobContainerName(), event2)
+                tuple(testContainer.getName(), event1),
+                tuple(testContainer.getName(), event2)
             );
     }
 
@@ -282,8 +268,8 @@ public abstract class ProcessorTestSuite {
         assertThat(envelopesInDb).isEmpty();
     }
 
-    protected void fileWasDeleted(String fileName) {
-        BlobClient blobClient = testContainer.getBlobClient(fileName);
-        await("file should be deleted").timeout(2, SECONDS).until(blobClient::exists, is(false));
+    protected void fileWasDeleted(String fileName) throws Exception {
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(fileName);
+        await("file should be deleted").timeout(2, SECONDS).until(blob::exists, is(false));
     }
 }
