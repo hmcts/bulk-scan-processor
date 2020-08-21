@@ -494,13 +494,12 @@ public class BlobManagerTest {
         // and
         String url = "http://bulk-scan/test.file.txt";
         given(inputBlobClient.getBlobUrl()).willReturn(url);
-        given(inputBlobClient.generateSas(any())).willReturn("sas=12321321");
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(url + "?sas=12321321");
+        verify(rejectedBlobClient).copyFromUrl(url);
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
@@ -514,8 +513,6 @@ public class BlobManagerTest {
 
         String url = "http://bulk-scan/test.file.txt";
         given(inputBlobClient.getBlobUrl()).willReturn(url);
-        given(inputBlobClient.generateSas(any())).willReturn("sas=12321321");
-
         given(rejectedBlobClient.copyFromUrl(anyString()))
             .willThrow(new BlobStorageException("can not copy", null, null));
 
@@ -523,7 +520,7 @@ public class BlobManagerTest {
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(url + "?sas=12321321");
+        verify(rejectedBlobClient).copyFromUrl(url);
         verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
     }
 

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -32,7 +33,7 @@ public class BlobProcessorTaskTestForFailingNotification extends ProcessorTestSu
         envelopeWasNotCreated();
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
-        var blob = testContainer.getBlobClient(SAMPLE_ZIP_FILE_NAME);
+        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
         assertThat(blob.exists()).isTrue();
         verify(serviceBusHelper).sendMessage(any(ErrorMsg.class));
     }
