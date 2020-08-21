@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.azure.core.util.Context;
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
@@ -11,6 +10,7 @@ import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
@@ -316,13 +316,15 @@ public class BlobManager {
             rejectedContainerName
         );
 
-        BlobClient inputBlob = blobServiceClient
+        BlockBlobClient inputBlob = blobServiceClient
             .getBlobContainerClient(inputContainerName)
-            .getBlobClient(fileName);
+            .getBlobClient(fileName)
+            .getBlockBlobClient();
 
-        BlobClient rejectedBlob = blobServiceClient
+        BlockBlobClient rejectedBlob = blobServiceClient
             .getBlobContainerClient(rejectedContainerName)
-            .getBlobClient(fileName);
+            .getBlobClient(fileName)
+            .getBlockBlobClient();
 
         if (rejectedBlob.exists()) {
             // next steps will overwrite the file, create a snapshot of current version
@@ -331,7 +333,7 @@ public class BlobManager {
 
         String copyId = rejectedBlob.copyFromUrl(
             inputBlob.getBlobUrl() + "?" + inputBlob.generateSas(
-                new BlobServiceSasSignatureValues(OffsetDateTime.now(UTC).plusSeconds(50), SAS_READ_PERMISSION)
+                new BlobServiceSasSignatureValues(OffsetDateTime.now(UTC).plusMinutes(5), SAS_READ_PERMISSION)
             )
         );
 
