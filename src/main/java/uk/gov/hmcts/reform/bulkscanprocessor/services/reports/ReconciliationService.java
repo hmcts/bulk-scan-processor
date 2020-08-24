@@ -39,31 +39,31 @@ public class ReconciliationService {
 
         List<Discrepancy> discrepancies = new ArrayList<>();
 
-        Map<ZipFileData, ZipFileData> envelopesMap =
+        Map<ZipFileData, ZipFileData> reportedZipFilesMap =
             reconciliationStatement.envelopes.stream().collect(toMap(envelope -> envelope, envelope -> envelope));
         receivedZipFileDataList
-            .forEach(file -> {
-                if (envelopesMap.containsKey(file)) {
-                    ZipFileData reportedZipFile = envelopesMap.get(file);
+            .forEach(receivedZipFile -> {
+                if (reportedZipFilesMap.containsKey(receivedZipFile)) {
+                    ZipFileData reportedZipFile = reportedZipFilesMap.get(receivedZipFile);
                     compareLists(
                         discrepancies,
-                        file,
+                        receivedZipFile,
                         reportedZipFile.paymentDcns,
-                        file.paymentDcns,
+                        receivedZipFile.paymentDcns,
                         PAYMENT_DCNS_MISMATCH
                     );
                     compareLists(
                         discrepancies,
-                        file,
+                        receivedZipFile,
                         reportedZipFile.scannableItemDcns,
-                        file.scannableItemDcns,
+                        receivedZipFile.scannableItemDcns,
                         SCANNABLE_DOCUMENT_DCNS_MISMATCH
                     );
                 } else {
                     discrepancies.add(
                         new Discrepancy(
-                            file.zipFileName,
-                            file.container,
+                            receivedZipFile.zipFileName,
+                            receivedZipFile.container,
                             RECEIVED_BUT_NOT_REPORTED.text
                         )
                     );
