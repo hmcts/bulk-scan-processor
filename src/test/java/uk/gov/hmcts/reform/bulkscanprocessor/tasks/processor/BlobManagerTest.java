@@ -48,10 +48,13 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -495,35 +498,57 @@ public class BlobManagerTest {
         String url = "http://bulk-scan/test.file.txt";
         given(inputBlobClient.getBlobUrl()).willReturn(url);
 
+        doNothing().when(inputBlobClient).download(any());
+        doNothing().when(rejectedBlobClient).upload(any(), anyLong());
+
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(url);
+        verify(inputBlobClient).download(any());
+        verify(rejectedBlobClient).upload(any(), anyLong());
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
-    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_copying_failed() throws Exception {
+    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_downloading_fails_while_copy() throws Exception {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        String url = "http://bulk-scan/test.file.txt";
-        given(inputBlobClient.getBlobUrl()).willReturn(url);
-        given(rejectedBlobClient.copyFromUrl(anyString()))
-            .willThrow(new BlobStorageException("can not copy", null, null));
+        doThrow(new BlobStorageException("can not download", null, null)).when(inputBlobClient).download(any());
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(url);
+        verify(inputBlobClient).download(any());
+        verify(rejectedBlobClient, never()).upload(any(), anyLong());
         verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
     }
 
+    @Test
+    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_uploading_fails_while_copy() throws Exception {
+        // given
+        given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
+        given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
+        given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
+        given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
+
+        doNothing().when(inputBlobClient).download(any());
+        doThrow(new BlobStorageException("can not upload", null, null))
+            .when(rejectedBlobClient).upload(any(), anyLong());
+
+        // when
+        blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+
+        // then
+        verify(inputBlobClient).download(any());
+        verify(rejectedBlobClient).upload(any(), anyLong());
+        verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
+    }
 
     @Test
     void newTryMoveFileToRejectedContainer_retry_delete_when_lease_lost() throws Exception {
@@ -545,14 +570,15 @@ public class BlobManagerTest {
             .willThrow(new BlobStorageException(BlobErrorCode.LEASE_LOST.toString(), response, null))
             .willReturn(mock(Response.class));
 
-        String url = "http://bulk-scan/test.file.txt";
-        given(inputBlobClient.getBlobUrl()).willReturn(url);
+        doNothing().when(inputBlobClient).download(any());
+        doNothing().when(rejectedBlobClient).upload(any(), anyLong());
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(anyString());
+        verify(inputBlobClient).download(any());
+        verify(rejectedBlobClient).upload(any(), anyLong());
         verify(inputBlobClient,times(2)).deleteWithResponse(any(), any(), any(), any());
     }
 
@@ -565,8 +591,8 @@ public class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        String url = "http://bulk-scan/test.file.txt";
-        given(inputBlobClient.getBlobUrl()).willReturn(url);
+        doNothing().when(inputBlobClient).download(any());
+        doNothing().when(rejectedBlobClient).upload(any(), anyLong());;
 
         given(inputBlobClient.deleteWithResponse(any(), any(), any(), any()))
             .willThrow(new RuntimeException("Does not work"));
@@ -577,7 +603,8 @@ public class BlobManagerTest {
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(anyString());
+        verify(inputBlobClient).download(any());
+        verify(rejectedBlobClient).upload(any(), anyLong());
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
