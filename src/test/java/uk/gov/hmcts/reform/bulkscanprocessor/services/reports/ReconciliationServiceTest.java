@@ -180,6 +180,31 @@ class ReconciliationServiceTest {
     }
 
     @Test
+    void should_return_no_discrepancies_if_no_differences_in_dcns_with_different_order() {
+        // given
+        LocalDate date = LocalDate.now();
+
+        final List<ReceivedZipFileData> receivedZipFileDataList = asList(
+            new ReceivedZipFileData("file1", "c1", asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
+            new ReceivedZipFileData("file2", "c2", asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+        );
+
+        prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
+
+        List<ReportedZipFile> envelopes = asList(
+            new ReportedZipFile("file1", "c1", null, asList("doc-2", "doc-1"), asList("pay-2", "pay-1")),
+            new ReportedZipFile("file2", "c2", null, asList("doc-4", "doc-3"), asList("pay-4", "pay-3"))
+        );
+        ReconciliationStatement statement = new ReconciliationStatement(date, envelopes);
+
+        // when
+        List<Discrepancy> discrepancies = reconciliationService.getReconciliationReport(statement);
+
+        // then
+        assertThat(discrepancies).isEmpty();
+    }
+
+    @Test
     void should_return_no_discrepancies_if_different_scannable_document_dcns() {
         // given
         LocalDate date = LocalDate.now();

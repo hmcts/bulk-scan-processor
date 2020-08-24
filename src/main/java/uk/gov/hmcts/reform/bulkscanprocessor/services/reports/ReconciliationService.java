@@ -11,11 +11,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Reconciliat
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReportedZipFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.PAYMENT_DCNS_MISMATCH;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.RECEIVED_BUT_NOT_REPORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.REPORTED_BUT_NOT_RECEIVED;
@@ -48,14 +51,11 @@ public class ReconciliationService {
             receivedZipFileRepository.getReceivedZipFilesReportFor(reconciliationStatement.date);
         List<ReceivedZipFileData> receivedZipFileDataList =
             receivedZipFileConverter.convertReceivedZipFiles(receivedZipFiles);
-        Map<Pair<String, String>, ReceivedZipFileData> receivedZipFilesMap =
+        Set<Pair<String, String>> receivedZipFilesSet =
             receivedZipFileDataList
                 .stream()
-                .collect(
-                    toMap(
-                        receivedZipFile -> Pair.of(receivedZipFile.zipFileName, receivedZipFile.container), identity()
-                    )
-                );
+                .map(receivedZipFile -> Pair.of(receivedZipFile.zipFileName, receivedZipFile.container))
+                .collect(toSet());
 
         List<Discrepancy> discrepancies = new ArrayList<>();
 
@@ -91,7 +91,7 @@ public class ReconciliationService {
             });
         reportedZipFilesMap.keySet()
             .stream()
-            .filter(reportedZipFileKey -> !receivedZipFilesMap.containsKey(reportedZipFileKey))
+            .filter(reportedZipFileKey -> !receivedZipFilesSet.contains(reportedZipFileKey))
             .forEach(reportedZipFileKey -> {
                 final ReportedZipFile reportedZipFile = reportedZipFilesMap.get(reportedZipFileKey);
                 discrepancies.add(
@@ -115,7 +115,7 @@ public class ReconciliationService {
     ) {
         if (reportedList == null && receivedList != null
             || reportedList != null
-            && !reportedList.equals(receivedList)) {
+            && !new HashSet<>(reportedList).equals(new HashSet<>(receivedList))) {
             discrepancies.add(
                 new Discrepancy(
                     receivedZipFile.zipFileName,
