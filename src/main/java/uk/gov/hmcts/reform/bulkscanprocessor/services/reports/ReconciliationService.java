@@ -1,17 +1,20 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import io.vavr.Tuple2;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFileRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReportedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.PAYMENT_DCNS_MISMATCH;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.RECEIVED_BUT_NOT_REPORTED;
@@ -39,12 +42,19 @@ public class ReconciliationService {
 
         List<Discrepancy> discrepancies = new ArrayList<>();
 
-        Map<ZipFileData, ZipFileData> reportedZipFilesMap =
-            reconciliationStatement.envelopes.stream().collect(toMap(envelope -> envelope, envelope -> envelope));
+        Map<Tuple2<String, String>, ReportedZipFile> reportedZipFilesMap =
+            reconciliationStatement.envelopes
+                .stream()
+                .collect(
+                    toMap(
+                        envelope -> new Tuple2<>(envelope.zipFileName, envelope.container), identity()
+                    )
+                );
         receivedZipFileDataList
             .forEach(receivedZipFile -> {
-                if (reportedZipFilesMap.containsKey(receivedZipFile)) {
-                    ZipFileData reportedZipFile = reportedZipFilesMap.get(receivedZipFile);
+                final Tuple2<String, String> key = new Tuple2<>(receivedZipFile.zipFileName, receivedZipFile.container);
+                if (reportedZipFilesMap.containsKey(key)) {
+                    ReportedZipFile reportedZipFile = reportedZipFilesMap.get(key);
                     compareLists(
                         discrepancies,
                         receivedZipFile,
@@ -88,7 +98,7 @@ public class ReconciliationService {
 
     private void compareLists(
         List<Discrepancy> discrepancies,
-        ZipFileData file,
+        ZipFileData receivedZipFile,
         List<String> reportedList,
         List<String> receivedList,
         DiscrepancyType discrepancyType
@@ -98,8 +108,8 @@ public class ReconciliationService {
             && !reportedList.equals(receivedList)) {
             discrepancies.add(
                 new Discrepancy(
-                    file.zipFileName,
-                    file.container,
+                    receivedZipFile.zipFileName,
+                    receivedZipFile.container,
                     discrepancyType.text,
                     printList(reportedList),
                     printList(receivedList)
