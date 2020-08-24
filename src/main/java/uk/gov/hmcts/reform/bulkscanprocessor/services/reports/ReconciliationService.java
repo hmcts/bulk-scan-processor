@@ -51,11 +51,6 @@ public class ReconciliationService {
             receivedZipFileRepository.getReceivedZipFilesReportFor(reconciliationStatement.date);
         List<ReceivedZipFileData> receivedZipFileDataList =
             receivedZipFileConverter.convertReceivedZipFiles(receivedZipFiles);
-        Set<Pair<String, String>> receivedZipFilesSet =
-            receivedZipFileDataList
-                .stream()
-                .map(receivedZipFile -> Pair.of(receivedZipFile.zipFileName, receivedZipFile.container))
-                .collect(toSet());
 
         List<Discrepancy> discrepancies = new ArrayList<>();
 
@@ -89,6 +84,18 @@ public class ReconciliationService {
                     );
                 }
             });
+
+        findReportedButNotReceived(reportedZipFilesMap, receivedZipFileDataList, discrepancies);
+
+        return discrepancies;
+    }
+
+    private void findReportedButNotReceived(Map<Pair<String, String>, ReportedZipFile> reportedZipFilesMap, List<ReceivedZipFileData> receivedZipFileDataList, List<Discrepancy> discrepancies) {
+        Set<Pair<String, String>> receivedZipFilesSet =
+            receivedZipFileDataList
+                .stream()
+                .map(receivedZipFile -> Pair.of(receivedZipFile.zipFileName, receivedZipFile.container))
+                .collect(toSet());
         reportedZipFilesMap.keySet()
             .stream()
             .filter(reportedZipFileKey -> !receivedZipFilesSet.contains(reportedZipFileKey))
@@ -102,8 +109,6 @@ public class ReconciliationService {
                     )
                 );
             });
-
-        return discrepancies;
     }
 
     private void compareLists(
