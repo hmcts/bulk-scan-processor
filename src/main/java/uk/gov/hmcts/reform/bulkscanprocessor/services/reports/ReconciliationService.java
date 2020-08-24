@@ -90,7 +90,11 @@ public class ReconciliationService {
         return discrepancies;
     }
 
-    private void findReportedButNotReceived(Map<Pair<String, String>, ReportedZipFile> reportedZipFilesMap, List<ReceivedZipFileData> receivedZipFileDataList, List<Discrepancy> discrepancies) {
+    private void findReportedButNotReceived(
+        Map<Pair<String, String>, ReportedZipFile> reportedZipFilesMap,
+        List<ReceivedZipFileData> receivedZipFileDataList,
+        List<Discrepancy> discrepancies
+    ) {
         Set<Pair<String, String>> receivedZipFilesSet =
             receivedZipFileDataList
                 .stream()
