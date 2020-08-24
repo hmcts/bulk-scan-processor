@@ -100,11 +100,10 @@ public class ReconciliationService {
             .stream()
             .filter(reportedZipFileKey -> !receivedZipFilesSet.contains(reportedZipFileKey))
             .forEach(reportedZipFileKey -> {
-                final ReportedZipFile reportedZipFile = reportedZipFilesMap.get(reportedZipFileKey);
                 discrepancies.add(
                     new Discrepancy(
-                        reportedZipFile.zipFileName,
-                        reportedZipFile.container,
+                        reportedZipFileKey.getFirst(),
+                        reportedZipFileKey.getSecond(),
                         REPORTED_BUT_NOT_RECEIVED.text
                     )
                 );
