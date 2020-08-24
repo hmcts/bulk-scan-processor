@@ -52,9 +52,10 @@ public class ReconciliationService {
                 );
         receivedZipFileDataList
             .forEach(receivedZipFile -> {
-                final Tuple2<String, String> key = new Tuple2<>(receivedZipFile.zipFileName, receivedZipFile.container);
-                if (reportedZipFilesMap.containsKey(key)) {
-                    ReportedZipFile reportedZipFile = reportedZipFilesMap.get(key);
+                final Tuple2<String, String> receivedZipFileKey =
+                    new Tuple2<>(receivedZipFile.zipFileName, receivedZipFile.container);
+                if (reportedZipFilesMap.containsKey(receivedZipFileKey)) {
+                    ReportedZipFile reportedZipFile = reportedZipFilesMap.get(receivedZipFileKey);
                     compareLists(
                         discrepancies,
                         receivedZipFile,
@@ -82,7 +83,7 @@ public class ReconciliationService {
         );
         reconciliationStatement.envelopes
             .stream()
-            .filter(file -> !receivedZipFileDataList.contains(file))
+            .filter(reportedZipFile -> !receivedZipFileDataList.contains(reportedZipFile))
             .forEach(
                 file -> discrepancies.add(
                     new Discrepancy(
