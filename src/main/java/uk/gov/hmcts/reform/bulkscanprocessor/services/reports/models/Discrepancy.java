@@ -21,6 +21,14 @@ public class Discrepancy {
     public Discrepancy(
         String zipFileName,
         String container,
+        String type
+    ) {
+        this(zipFileName, container, type, null, null);
+    }
+
+    public Discrepancy(
+        String zipFileName,
+        String container,
         String type,
         String stated,
         String actual

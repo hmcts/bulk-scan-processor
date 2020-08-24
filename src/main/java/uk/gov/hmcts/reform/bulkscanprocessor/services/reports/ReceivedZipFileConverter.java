@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
 import io.vavr.Tuple2;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedZipFileData;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
+@Component
 public class ReceivedZipFileConverter {
 
     public List<ReceivedZipFileData> convertReceivedZipFiles(List<ReceivedZipFile> receivedZipFiles) {
