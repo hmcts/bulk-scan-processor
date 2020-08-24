@@ -5,8 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class ReportedZipFile extends ZipFileData {
+public class ReportedZipFile {
+    public final String zipFileName;
+    public final String container;
     public final String rescanFor;
+    public final List<String> scannableItemDcns;
+    public final List<String> paymentDcns;
 
     @JsonCreator
     public ReportedZipFile(
@@ -16,7 +20,10 @@ public class ReportedZipFile extends ZipFileData {
         @JsonProperty("scannable_item_dcns") List<String> scannableItemDcns,
         @JsonProperty("payment_dcns") List<String> paymentDcns
     ) {
-        super(zipFileName, container, scannableItemDcns, paymentDcns);
+        this.zipFileName = zipFileName;
+        this.container = container;
         this.rescanFor = rescanFor;
+        this.scannableItemDcns = scannableItemDcns;
+        this.paymentDcns = paymentDcns;
     }
 }
