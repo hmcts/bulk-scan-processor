@@ -5,9 +5,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFileRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedZipFileData;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReportedZipFile;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,17 +34,17 @@ public class ReconciliationService {
     public List<Discrepancy> getReconciliationReport(ReconciliationStatement reconciliationStatement) {
         List<ReceivedZipFile> receivedZipFiles =
             receivedZipFileRepository.getReceivedZipFilesReportFor(reconciliationStatement.date);
-        List<ReceivedZipFileData> receivedZipFileDataList =
-            receivedZipFileConverter.convertReceivedZipFiles(receivedZipFiles);
+        List<ZipFileData> receivedZipFileDataList =
+            new ArrayList<>(receivedZipFileConverter.convertReceivedZipFiles(receivedZipFiles));
 
         List<Discrepancy> discrepancies = new ArrayList<>();
 
-        Map<ReportedZipFile, ReportedZipFile> envelopesMap =
+        Map<ZipFileData, ZipFileData> envelopesMap =
             reconciliationStatement.envelopes.stream().collect(toMap(envelope -> envelope, envelope -> envelope));
         receivedZipFileDataList
             .forEach(file -> {
                 if (envelopesMap.containsKey(file)) {
-                    ReportedZipFile reportedZipFile = envelopesMap.get(file);
+                    ZipFileData reportedZipFile = envelopesMap.get(file);
                     compareLists(
                         discrepancies,
                         file,
@@ -89,7 +88,7 @@ public class ReconciliationService {
 
     private void compareLists(
         List<Discrepancy> discrepancies,
-        ReceivedZipFileData file,
+        ZipFileData file,
         List<String> reportedList,
         List<String> receivedList,
         DiscrepancyType discrepancyType
