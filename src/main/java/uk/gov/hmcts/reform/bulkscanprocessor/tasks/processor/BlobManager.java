@@ -326,7 +326,7 @@ public class BlobManager {
 
         try {
             inputBlob.deleteWithResponse(
-                DeleteSnapshotsOptionType.ONLY,
+                DeleteSnapshotsOptionType.INCLUDE,
                 new BlobRequestConditions().setLeaseId(leaseId),
                 null,
                 Context.NONE
