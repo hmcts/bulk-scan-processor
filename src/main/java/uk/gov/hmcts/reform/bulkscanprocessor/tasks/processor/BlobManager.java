@@ -362,27 +362,28 @@ public class BlobManager {
         String sourceBlobUrl = sourceBlobClient.getBlobUrl();
         String targetBlobUrl = targetBlobClient.getBlobUrl();
         log.info("Copying from {} to {}", sourceBlobUrl, targetBlobUrl);
-
+        byte[] rawBlob;
         try (var outputStream = new ByteArrayOutputStream()) {
             sourceBlobClient.download(outputStream);
-            byte[] rawBlob = outputStream.toByteArray();
-
-            try (var uploadContent = new ByteArrayInputStream(rawBlob)) {
-                targetBlobClient.upload(uploadContent, rawBlob.length);
-            } catch (Exception ex) {
-                throw new BlobCopyException(
-                    "Copy blob failed in Upload, Upload  target: " + targetBlobUrl,
-                    ex
-                );
-            }
-
+            rawBlob = outputStream.toByteArray();
         } catch (Exception e) {
             throw new BlobCopyException(
                 "Copy blob failed in download, Downloading from : " + sourceBlobUrl,
                 e
             );
         }
+
+        try (var uploadContent = new ByteArrayInputStream(rawBlob)) {
+            targetBlobClient.upload(uploadContent, rawBlob.length, true);
+        } catch (Exception ex) {
+            throw new BlobCopyException(
+                "Copy blob failed in Upload, Upload  target: " + targetBlobUrl,
+                ex
+            );
+        }
     }
+
+
 
     private void waitUntilBlobIsCopied(CloudBlockBlob blob) throws StorageException {
 

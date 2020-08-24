@@ -48,8 +48,10 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.atLeast;
@@ -487,7 +489,7 @@ public class BlobManagerTest {
     //Start NEW  tryMoveFileToRejectedContainer
 
     @Test
-    void newTryMoveFileToRejectedContainer_copies_and_deletes_original_blob() throws Exception {
+    void newTryMoveFileToRejectedContainer_copies_and_deletes_original_blob() {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -499,19 +501,19 @@ public class BlobManagerTest {
         given(inputBlobClient.getBlobUrl()).willReturn(url);
 
         doNothing().when(inputBlobClient).download(any());
-        doNothing().when(rejectedBlobClient).upload(any(), anyLong());
+        doNothing().when(rejectedBlobClient).upload(any(), anyLong(), anyBoolean());
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
         verify(inputBlobClient).download(any());
-        verify(rejectedBlobClient).upload(any(), anyLong());
+        verify(rejectedBlobClient).upload(any(), anyLong(), eq(true));
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
-    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_downloading_fails_while_copy() throws Exception {
+    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_downloading_fails_while_copy() {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -525,12 +527,12 @@ public class BlobManagerTest {
 
         // then
         verify(inputBlobClient).download(any());
-        verify(rejectedBlobClient, never()).upload(any(), anyLong());
+        verify(rejectedBlobClient, never()).upload(any(), anyLong(), eq(true));
         verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
-    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_uploading_fails_while_copy() throws Exception {
+    void newTryMoveFileToRejectedContainer_does_not_delete_blob_when_uploading_fails_while_copy() {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -539,19 +541,19 @@ public class BlobManagerTest {
 
         doNothing().when(inputBlobClient).download(any());
         doThrow(new BlobStorageException("can not upload", null, null))
-            .when(rejectedBlobClient).upload(any(), anyLong());
+            .when(rejectedBlobClient).upload(any(), anyLong(),  anyBoolean());
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
         verify(inputBlobClient).download(any());
-        verify(rejectedBlobClient).upload(any(), anyLong());
+        verify(rejectedBlobClient).upload(any(), anyLong(), eq(true));
         verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
-    void newTryMoveFileToRejectedContainer_retry_delete_when_lease_lost() throws Exception {
+    void newTryMoveFileToRejectedContainer_retry_delete_when_lease_lost() {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -571,20 +573,19 @@ public class BlobManagerTest {
             .willReturn(mock(Response.class));
 
         doNothing().when(inputBlobClient).download(any());
-        doNothing().when(rejectedBlobClient).upload(any(), anyLong());
+        doNothing().when(rejectedBlobClient).upload(any(), anyLong(), anyBoolean());
 
         // when
         blobManager.newTryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
         verify(inputBlobClient).download(any());
-        verify(rejectedBlobClient).upload(any(), anyLong());
+        verify(rejectedBlobClient).upload(any(), anyLong(), eq(true));
         verify(inputBlobClient,times(2)).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
-    void newTryMoveFileToRejectedContainer_do_not_retry_delete_when_error_different_than_lease_lost()
-        throws Exception {
+    void newTryMoveFileToRejectedContainer_do_not_retry_delete_when_error_different_than_lease_lost() {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
@@ -592,7 +593,7 @@ public class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
         doNothing().when(inputBlobClient).download(any());
-        doNothing().when(rejectedBlobClient).upload(any(), anyLong());;
+        doNothing().when(rejectedBlobClient).upload(any(), anyLong(), anyBoolean());;
 
         given(inputBlobClient.deleteWithResponse(any(), any(), any(), any()))
             .willThrow(new RuntimeException("Does not work"));
@@ -604,7 +605,7 @@ public class BlobManagerTest {
 
         // then
         verify(inputBlobClient).download(any());
-        verify(rejectedBlobClient).upload(any(), anyLong());
+        verify(rejectedBlobClient).upload(any(), anyLong(), eq(true));
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
