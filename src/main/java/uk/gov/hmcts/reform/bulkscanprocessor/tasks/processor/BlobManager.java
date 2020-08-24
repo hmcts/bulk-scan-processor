@@ -26,8 +26,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobCopyException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.RejectedBlobCopyException;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -315,10 +318,11 @@ public class BlobManager {
             // next steps will overwrite the file, create a snapshot of current version
             rejectedBlob.createSnapshot();
         }
-        String copyId = rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
 
-        log.info("Rejected file copied to rejected container: {}, copyId: {}",
-            rejectedContainerName, copyId);
+        // Blob Api provides `copyFromUrl` but it did not work with bulk-scan staging app gateway.
+        copyBlob(inputBlob, rejectedBlob);
+
+        log.info("Rejected file copied to rejected container: {} ", rejectedContainerName);
 
         try {
             inputBlob.deleteWithResponse(
@@ -351,6 +355,33 @@ public class BlobManager {
             }
         }
         log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
+    }
+
+    private void copyBlob(BlobClient sourceBlobClient, BlobClient targetBlobClient) {
+
+        String sourceBlobUrl = sourceBlobClient.getBlobUrl();
+        String targetBlobUrl = targetBlobClient.getBlobUrl();
+        log.info("Copying from {} to {}", sourceBlobUrl, targetBlobUrl);
+
+        try (var outputStream = new ByteArrayOutputStream()) {
+            sourceBlobClient.download(outputStream);
+            byte[] rawBlob = outputStream.toByteArray();
+
+            try (var uploadContent = new ByteArrayInputStream(rawBlob)) {
+                targetBlobClient.upload(uploadContent, rawBlob.length);
+            } catch (Exception ex) {
+                throw new BlobCopyException(
+                    "Copy blob failed in Upload, Upload  target: " + targetBlobUrl,
+                    ex
+                );
+            }
+
+        } catch (Exception e) {
+            throw new BlobCopyException(
+                "Copy blob failed in download, Downloading from : " + sourceBlobUrl,
+                e
+            );
+        }
     }
 
     private void waitUntilBlobIsCopied(CloudBlockBlob blob) throws StorageException {
