@@ -47,7 +47,7 @@ public class ReconciliationService {
         List<ReceivedZipFile> receivedZipFiles =
             receivedZipFileRepository.getReceivedZipFilesReportFor(reconciliationStatement.date);
         List<ReceivedZipFileData> receivedZipFileDataList =
-            new ArrayList<>(receivedZipFileConverter.convertReceivedZipFiles(receivedZipFiles));
+            receivedZipFileConverter.convertReceivedZipFiles(receivedZipFiles);
         Map<Pair<String, String>, ReceivedZipFileData> receivedZipFilesMap =
             receivedZipFileDataList
                 .stream()
