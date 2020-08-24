@@ -115,10 +115,6 @@ class ReceivedZipFileConverterTest {
             );
 
         // then
-        assertThat(res.get(1).scannableItemDcns).containsExactlyInAnyOrder("doc-1", "doc-2");
-        assertThat(res.get(0).scannableItemDcns).containsExactlyInAnyOrder("doc-3", "doc-4");
-        assertThat(res.get(1).paymentDcns).containsExactlyInAnyOrder("pay-1", "pay-2");
-        assertThat(res.get(0).paymentDcns).containsExactlyInAnyOrder("pay-3", "pay-4");
         assertThat(res)
             .extracting(file ->
                             tuple(
