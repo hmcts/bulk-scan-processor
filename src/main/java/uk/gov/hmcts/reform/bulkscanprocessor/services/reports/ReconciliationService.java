@@ -59,9 +59,10 @@ public class ReconciliationService {
 
         List<Discrepancy> discrepancies = new ArrayList<>();
 
-        receivedZipFilesMap.keySet()
-            .forEach(receivedZipFileKey -> {
-                final ReceivedZipFileData receivedZipFile = receivedZipFilesMap.get(receivedZipFileKey);
+        receivedZipFileDataList
+            .forEach(receivedZipFile -> {
+                Pair<String, String> receivedZipFileKey =
+                    Pair.of(receivedZipFile.zipFileName, receivedZipFile.container);
                 if (reportedZipFilesMap.containsKey(receivedZipFileKey)) {
                     ReportedZipFile reportedZipFile = reportedZipFilesMap.get(receivedZipFileKey);
                     compareLists(
