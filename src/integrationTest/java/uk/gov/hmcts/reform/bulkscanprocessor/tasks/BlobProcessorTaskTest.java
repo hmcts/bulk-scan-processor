@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -157,7 +156,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
         processor.processBlobs();
 
         // then
-        CloudBlockBlob blob = testContainer.getBlockBlobReference(SAMPLE_ZIP_FILE_NAME);
+        var blob = testContainer.getBlobClient(SAMPLE_ZIP_FILE_NAME);
         await("file should not be deleted")
             .atMost(5, SECONDS)
             .until(blob::exists, is(true));
@@ -166,7 +165,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
     private void dbContainsEnvelopeThatWasNotYetDeleted(String zipFileName, Status status) throws Exception {
         Envelope existingEnvelope = EnvelopeCreator.envelope("A", status);
         existingEnvelope.setZipFileName(zipFileName);
-        existingEnvelope.setContainer(testContainer.getName());
+        existingEnvelope.setContainer(testContainer.getBlobContainerName());
         existingEnvelope.setZipDeleted(false);
         envelopeRepository.saveAndFlush(existingEnvelope);
     }
