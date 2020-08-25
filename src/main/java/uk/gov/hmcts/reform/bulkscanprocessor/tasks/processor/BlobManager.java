@@ -30,9 +30,6 @@ public class BlobManager {
     private static final Logger log = LoggerFactory.getLogger(BlobManager.class);
     private static final String REJECTED_CONTAINER_NAME_SUFFIX = "-rejected";
     private static final String SELECT_ALL_CONTAINER = "ALL";
-    private static final String LEASE_ALREADY_ACQUIRED_MESSAGE =
-        "Can't acquire lease on file {} in container {} - already acquired";
-    public static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 
     private final BlobServiceClient blobServiceClient;
 
