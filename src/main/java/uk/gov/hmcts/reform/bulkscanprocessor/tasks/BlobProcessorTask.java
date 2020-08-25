@@ -153,8 +153,8 @@ public class BlobProcessorTask {
 
                 log.info(
                     "Zip content processed for file {}, container {}, envelope ID: {}",
-                    container.getBlobContainerName(),
                     zipFilename,
+                    container.getBlobContainerName(),
                     envelope.getId()
                 );
 
