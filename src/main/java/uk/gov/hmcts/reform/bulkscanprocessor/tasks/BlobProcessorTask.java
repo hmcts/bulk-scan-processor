@@ -116,13 +116,13 @@ public class BlobProcessorTask {
 
     private void leaseAndProcessZipFile(
         BlobContainerClient container,
-        BlobClient cloudBlockBlob,
+        BlobClient blobClient,
         String zipFilename
     ) {
 
         leaseAcquirer.ifAcquiredOrElse(
-            cloudBlockBlob,
-            leaseId -> processZipFile(container, cloudBlockBlob, zipFilename, leaseId),
+            blobClient,
+            leaseId -> processZipFile(container, blobClient, zipFilename, leaseId),
             s -> {},
             true
         );
@@ -131,7 +131,7 @@ public class BlobProcessorTask {
 
     private void processZipFile(
         BlobContainerClient container,
-        BlobClient cloudBlockBlob,
+        BlobClient blobClient,
         String zipFilename,
         String leaseId
     ) {
@@ -140,7 +140,7 @@ public class BlobProcessorTask {
 
         if (envelope == null) {
             // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis = loadIntoMemory(cloudBlockBlob, zipFilename)) {
+            try (ZipInputStream zis = loadIntoMemory(blobClient, zipFilename)) {
                 envelopeProcessor.createEvent(
                     ZIPFILE_PROCESSING_STARTED,
                     container.getBlobContainerName(),
