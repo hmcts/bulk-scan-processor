@@ -65,7 +65,7 @@ class BlobProcessorTaskTest {
     @Test
     void processBlobs_should_not_call_envelopeProcessor_if_failed_to_load_file() throws Exception {
         // given
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container));
 
         PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
         given(container.listBlobs()).willReturn(pagedIterable);

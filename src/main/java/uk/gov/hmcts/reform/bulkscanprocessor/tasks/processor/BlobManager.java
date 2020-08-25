@@ -43,11 +43,11 @@ public class BlobManager {
         this.properties = properties;
     }
 
-    public BlobContainerClient getContainerClient(String containerName) {
+    public BlobContainerClient listContainerClient(String containerName) {
         return blobServiceClient.getBlobContainerClient(containerName);
     }
 
-    public List<BlobContainerClient> getInputContainerClients() {
+    public List<BlobContainerClient> listInputContainerClients() {
         List<BlobContainerClient> blobContainerClientList =
             blobServiceClient
                 .listBlobContainers()
@@ -68,7 +68,7 @@ public class BlobManager {
             || selectedContainer.equals(container.getName());
     }
 
-    public List<BlobContainerClient> getRejectedContainers() {
+    public List<BlobContainerClient> listRejectedContainers() {
         return blobServiceClient.listBlobContainers()
             .stream()
             .filter(c -> c.getName().endsWith(REJECTED_CONTAINER_NAME_SUFFIX))
@@ -76,11 +76,11 @@ public class BlobManager {
             .collect(toList());
     }
 
-    public void newTryMoveFileToRejectedContainer(String fileName, String inputContainerName, String leaseId) {
+    public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName, String leaseId) {
         String rejectedContainerName = getRejectedContainerName(inputContainerName);
 
         try {
-            newMoveFileToRejectedContainer(
+            moveFileToRejectedContainer(
                 fileName,
                 inputContainerName,
                 rejectedContainerName,
@@ -97,7 +97,7 @@ public class BlobManager {
         }
     }
 
-    private void newMoveFileToRejectedContainer(
+    private void moveFileToRejectedContainer(
         String fileName,
         String inputContainerName,
         String rejectedContainerName,
