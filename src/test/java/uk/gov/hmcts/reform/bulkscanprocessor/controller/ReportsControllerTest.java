@@ -276,8 +276,6 @@ public class ReportsControllerTest {
     @Test
     public void should_return_discrepancies_for_a_given_date() throws Exception {
         // given
-        String requestBody = "{\"date': '2020-08-20', 'envelopes': []}";
-
         given(reconciliationService.getReconciliationReport(any(ReconciliationStatement.class)))
             .willReturn(
                 singletonList(
