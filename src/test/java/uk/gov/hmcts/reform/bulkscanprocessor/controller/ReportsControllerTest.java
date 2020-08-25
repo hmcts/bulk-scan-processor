@@ -302,9 +302,9 @@ public class ReportsControllerTest {
             .andExpect(content().json(Resources.toString(getResource("reconciliation/discrepancies.json"), UTF_8)));
 
         // then
-        ArgumentCaptor<ReconciliationStatement> argument = ArgumentCaptor.forClass(ReconciliationStatement.class);
+        var argument = ArgumentCaptor.forClass(ReconciliationStatement.class);
         verify(reconciliationService).getReconciliationReport(argument.capture());
-        ReconciliationStatement reconciliationStatement = argument.getValue();
+        var reconciliationStatement = argument.getValue();
 
         assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
     }
