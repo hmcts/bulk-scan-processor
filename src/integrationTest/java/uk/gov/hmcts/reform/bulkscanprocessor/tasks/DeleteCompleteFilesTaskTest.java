@@ -57,7 +57,7 @@ public class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    public void should_mark_as_deleted_complete_envelope() throws Exception {
+    public void should_mark_as_deleted_complete_envelope() {
         // given
         final String containerName1 = "container1";
         final Envelope envelope = envelope("X", COMPLETED, containerName1, false);

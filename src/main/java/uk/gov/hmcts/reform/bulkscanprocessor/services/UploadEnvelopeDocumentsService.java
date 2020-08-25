@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.microsoft.azure.storage.StorageException;
+import com.azure.storage.blob.models.BlobStorageException;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -33,7 +33,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOA
  * <p></p>
  * All the validations have been accomplished and {@link Envelope} saved in DB.
  * Therefore no need to go through the same set of validation steps/rules and just re-extract zip file and upload.
- * In case some {@link StorageException} or {@link IOException} experienced during zip extraction
+ * In case some {@link BlobStorageException} or {@link IOException} experienced during zip extraction
  * the envelope state will not be changed and left for a retry on the next run.
  * {@link Event#DOC_UPLOAD_FAILURE} can be treated as stuck envelope and be re-uploaded by same service here.
  * There is an upload retry counter/limit which may be used as well

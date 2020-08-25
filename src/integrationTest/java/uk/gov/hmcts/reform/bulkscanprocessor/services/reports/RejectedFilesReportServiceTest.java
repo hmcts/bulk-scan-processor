@@ -44,13 +44,13 @@ public class RejectedFilesReportServiceTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
             .connectionString("UseDevelopmentStorage=true")
             .buildClient();
 
-        this.blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
+        this.blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
 
         this.rejectedContainer = blobServiceClient.getBlobContainerClient("test-rejected");
         if (!this.rejectedContainer.exists()) {
@@ -59,7 +59,7 @@ public class RejectedFilesReportServiceTest {
     }
 
     @Test
-    public void should_read_files_from_rejected_container() throws Exception {
+    public void should_read_files_from_rejected_container() {
         // given
         // there are two files in rejected container
         rejectedContainer.getBlobClient("foo.zip")

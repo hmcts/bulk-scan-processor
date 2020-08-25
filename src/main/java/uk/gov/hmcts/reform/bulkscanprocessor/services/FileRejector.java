@@ -21,23 +21,6 @@ public class FileRejector {
         this.errorNotificationSender = errorNotificationSender;
     }
 
-    public void handleInvalidFile(
-        Long eventId,
-        String containerName,
-        String zipFilename,
-        String leaseId,
-        EnvelopeRejectionException cause
-    ) {
-        errorNotificationSender.sendErrorNotification(
-            zipFilename,
-            containerName,
-            cause,
-            eventId,
-            cause.getErrorCode()
-        );
-        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
-    }
-
     public void handleInvalidBlob(
         Long eventId,
         String containerName,

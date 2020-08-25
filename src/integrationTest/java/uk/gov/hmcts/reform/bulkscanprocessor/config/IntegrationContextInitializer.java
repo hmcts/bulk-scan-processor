@@ -6,8 +6,6 @@ import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -17,9 +15,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 
 import static org.mockito.Mockito.mock;
 import static org.springframework.util.SocketUtils.findAvailableTcpPort;
@@ -50,14 +45,6 @@ public class IntegrationContextInitializer implements ApplicationContextInitiali
     @Profile(SERVICE_BUS_STUB)
     public MessageAutoCompletor processedEnvelopesCompletor() {
         return mock(MessageAutoCompletor.class);
-    }
-
-    @Bean
-    @Profile(STORAGE_STUB)
-    public CloudBlobClient getCloudBlobClient() throws InvalidKeyException, URISyntaxException {
-        return CloudStorageAccount
-            .parse("UseDevelopmentStorage=true")
-            .createCloudBlobClient();
     }
 
     @Bean
