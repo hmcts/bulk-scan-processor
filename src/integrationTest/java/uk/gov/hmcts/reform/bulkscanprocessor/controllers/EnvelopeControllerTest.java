@@ -204,9 +204,12 @@ public class EnvelopeControllerTest {
 
         List<Envelope> envelopes = envelopeRepository.findEnvelopesToUpload(10);
         assertThat(envelopes).hasSize(1);
+
+        uploadTask.run();
+
         envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
-        uploadTask.run();
+        assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
