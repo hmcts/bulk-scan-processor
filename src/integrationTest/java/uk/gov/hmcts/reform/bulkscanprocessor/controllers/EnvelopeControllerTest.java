@@ -125,7 +125,7 @@ public class EnvelopeControllerTest {
                 .connectionString("UseDevelopmentStorage=true")
                 .buildClient();
 
-        BlobManager blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
+        BlobManager blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
         EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,

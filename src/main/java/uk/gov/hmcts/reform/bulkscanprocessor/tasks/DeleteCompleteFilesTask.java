@@ -49,7 +49,7 @@ public class DeleteCompleteFilesTask {
     public void run() {
         log.info("Started {} job", TASK_NAME);
 
-        for (BlobContainerClient container : blobManager.getInputContainerClients()) {
+        for (BlobContainerClient container : blobManager.listInputContainerClients()) {
             try {
                 processCompleteFiles(container);
             } catch (Exception ex) {

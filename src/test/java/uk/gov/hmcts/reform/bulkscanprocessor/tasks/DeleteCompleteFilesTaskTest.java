@@ -79,7 +79,7 @@ class DeleteCompleteFilesTaskTest {
 
         final Envelope envelope11 = EnvelopeCreator.envelope("X", COMPLETED, CONTAINER_NAME_1);
 
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
         given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false))
             .willReturn(singletonList(envelope11));
         prepareGivensForEnvelope(container1, blobClient, envelope11);
@@ -101,7 +101,7 @@ class DeleteCompleteFilesTaskTest {
     @Test
     void should_handle_zero_complete_files() {
         // given
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
         given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false))
             .willReturn(emptyList());
 
@@ -119,7 +119,7 @@ class DeleteCompleteFilesTaskTest {
         final BlobClient blobClient = mock(BlobClient.class);
 
         final Envelope envelope11 = prepareEnvelope("X", blobClient, container1);
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
         given(blobClient.exists()).willReturn(false);
         assertThat(envelope11.isZipDeleted()).isFalse();
 
@@ -150,7 +150,7 @@ class DeleteCompleteFilesTaskTest {
 
         given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
 
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
         given(blobClient.exists()).willReturn(true);
 
         doThrow(mock(BlobStorageException.class))
@@ -186,7 +186,7 @@ class DeleteCompleteFilesTaskTest {
         Envelope envelope = mock(Envelope.class);
         given(envelope.getZipFileName()).willReturn(zipFileName);
 
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
         given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false))
             .willReturn(singletonList(envelope));
         given(container1.getBlobClient(zipFileName))
@@ -210,7 +210,7 @@ class DeleteCompleteFilesTaskTest {
         final BlobContainerClient container2 = mock(BlobContainerClient.class);
         given(container2.getBlobContainerName()).willReturn(CONTAINER_NAME_2);
 
-        given(blobManager.getInputContainerClients()).willReturn(asList(container1, container2));
+        given(blobManager.listInputContainerClients()).willReturn(asList(container1, container2));
         given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false))
             .willThrow(new RuntimeException("msg"));
 
@@ -247,7 +247,7 @@ class DeleteCompleteFilesTaskTest {
         final Envelope envelope21 = EnvelopeCreator.envelope("Y", COMPLETED, CONTAINER_NAME_2);
         final Envelope envelope22 = EnvelopeCreator.envelope("Y", COMPLETED, CONTAINER_NAME_2);
 
-        given(blobManager.getInputContainerClients()).willReturn(asList(container1, container2));
+        given(blobManager.listInputContainerClients()).willReturn(asList(container1, container2));
         given(container2.getBlobContainerName()).willReturn(CONTAINER_NAME_2);
         given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false))
             .willReturn(asList(envelope11, envelope12));
@@ -293,7 +293,7 @@ class DeleteCompleteFilesTaskTest {
 
         given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
 
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
         given(blobClient.exists()).willReturn(true);
 
         doThrow(mock(BlobStorageException.class))
