@@ -2,17 +2,19 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
@@ -20,12 +22,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSumm
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -232,7 +235,7 @@ public class ReportsControllerTest {
     @Test
     public void should_return_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
-            .willReturn(Arrays.asList(
+            .willReturn(asList(
                 new RejectedFile("a.zip", "A"),
                 new RejectedFile("b.zip", "B")
             ));
@@ -271,28 +274,40 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
-        throws Exception {
+    public void should_return_discrepancies_for_a_given_date() throws Exception {
+        // given
+        String requestBody = "{\"date': '2020-08-20', 'envelopes': []}";
 
-        String requestBody = "{'date': '2020-08-20', 'envelopes': []}";
-//        String requestBody = Resources.toString(
-//            getResource("reconciliation/valid-supplier-statement-report.json"),
-//            UTF_8
-//        );
+        given(reconciliationService.getReconciliationReport(any(ReconciliationStatement.class)))
+            .willReturn(
+                singletonList(
+                    new Discrepancy(
+                        "file1",
+                        "c1",
+                        DiscrepancyType.PAYMENT_DCNS_MISMATCH.text,
+                        "[12345, 23456]",
+                        "[12345]"
+                    )
+                )
+            );
 
-        given(reconciliationService.getReconciliationReport(any(ReconciliationStatement.class))).willReturn(emptyList());
-
+        // when
         mockMvc
             .perform(
                 post("/reports/reconciliation")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .content(requestBody)
+                    .content(Resources.toString(getResource("reconciliation/envelopes.json"), UTF_8))
             )
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
-            // Envelope id is checked explicitly as it is dynamically generated.
-            .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
+            .andExpect(content().json(Resources.toString(getResource("reconciliation/discrepancies.json"), UTF_8)));
+
+        // then
+        ArgumentCaptor<ReconciliationStatement> argument = ArgumentCaptor.forClass(ReconciliationStatement.class);
+        verify(reconciliationService).getReconciliationReport(argument.capture());
+        ReconciliationStatement reconciliationStatement = argument.getValue();
+
+        assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
     }
 }

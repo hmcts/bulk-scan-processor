@@ -133,7 +133,7 @@ public class ReportsController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @ApiOperation("Retrieves envelope count summary report")
+    @ApiOperation("Retrieves reconciliation report")
     public ReconciliationReportResponse getReconciliationReport(
         @RequestBody ReconciliationStatement statement
     ) {
