@@ -8,8 +8,5 @@
             <JDBC enabled="true"/>
         </BuiltIn>
 
-        <Class name="com.microsoft.azure.servicebus.QueueClient">
-            <Method name="send"/>
-        </Class>
     </Instrumentation>
 </ApplicationInsightsAgent>
