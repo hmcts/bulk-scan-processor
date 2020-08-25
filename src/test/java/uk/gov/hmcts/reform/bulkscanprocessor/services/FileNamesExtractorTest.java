@@ -1,13 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.net.URI;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -19,16 +18,20 @@ import static org.mockito.Mockito.mock;
 class FileNamesExtractorTest {
 
     @Mock
-    private CloudBlobContainer container;
+    private BlobContainerClient container;
 
     @Mock
-    private ListBlobItem blob;
+    private BlobItem blobItem;
+
+    @Mock
+    private PagedIterable<BlobItem> pagedIterable;
 
     @Test
     void should_extract_single_file_name() {
         // given
-        given(container.listBlobs()).willReturn(singletonList(blob));
-        given(blob.getUri()).willReturn(URI.create("file.zip"));
+        given(container.listBlobs()).willReturn(pagedIterable);
+        given(pagedIterable.stream()).willReturn(singletonList(blobItem).stream());
+        given(blobItem.getName()).willReturn("file.zip");
 
         // when
         var zipFileNames = FileNamesExtractor.getShuffledZipFileNames(container);
@@ -40,9 +43,9 @@ class FileNamesExtractorTest {
     @Test
     void should_handle_empty_file_name() {
         // given
-        given(container.listBlobs()).willReturn(singletonList(blob));
-        given(blob.getUri()).willReturn(URI.create(""));
-
+        given(container.listBlobs()).willReturn(pagedIterable);
+        given(pagedIterable.stream()).willReturn(singletonList(blobItem).stream());
+        given(blobItem.getName()).willReturn("");
         // when
         var zipFileNames = FileNamesExtractor.getShuffledZipFileNames(container);
 
@@ -53,15 +56,18 @@ class FileNamesExtractorTest {
     @Test
     void should_shuffle_multiple_file_names() {
         // given
-        var blob0 = mock(ListBlobItem.class);
-        var blob1 = mock(ListBlobItem.class);
-        var blob2 = mock(ListBlobItem.class);
-        var blob3 = mock(ListBlobItem.class);
-        var blob4 = mock(ListBlobItem.class);
+        var blob0 = mock(BlobItem.class);
+        var blob1 = mock(BlobItem.class);
+        var blob2 = mock(BlobItem.class);
+        var blob3 = mock(BlobItem.class);
+        var blob4 = mock(BlobItem.class);
         var blobs = asList(blob0, blob1, blob2, blob3, blob4);
-        given(container.listBlobs()).willReturn(blobs);
+
+        given(container.listBlobs()).willReturn(pagedIterable);
+        given(pagedIterable.stream()).willReturn(blobs.stream());
+
         for (var i = 0; i < blobs.size(); i++) {
-            given(blobs.get(i).getUri()).willReturn(URI.create("file" + i + ".zip"));
+            given(blobs.get(i).getName()).willReturn("file" + i + ".zip");
         }
 
         // when
