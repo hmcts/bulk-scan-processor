@@ -30,12 +30,12 @@ public class EnvelopeRetrieverTest {
     private EnvelopeRetrieverService service;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         this.service = new EnvelopeRetrieverService(envelopeRepo, accessService);
     }
 
     @Test
-    public void should_retrieve_envelopes_by_status_and_jurisdiction() throws Exception {
+    public void should_retrieve_envelopes_by_status_and_jurisdiction() {
         // given
         dbContains(
             envelope("A", Status.UPLOADED),
@@ -58,8 +58,7 @@ public class EnvelopeRetrieverTest {
     }
 
     @Test
-    public void should_return_empty_list_if_no_envelopes_for_given_jurisdiction_and_status_are_found()
-        throws Exception {
+    public void should_return_empty_list_if_no_envelopes_for_given_jurisdiction_and_status_are_found() {
 
         // given
         dbContains(
@@ -80,7 +79,7 @@ public class EnvelopeRetrieverTest {
     }
 
     @Test
-    public void should_retrieve_all_envelopes_for_given_jurisdiction_if_passed_status_is_null() throws Exception {
+    public void should_retrieve_all_envelopes_for_given_jurisdiction_if_passed_status_is_null() {
         // given
         dbContains(
             envelope("X", Status.UPLOAD_FAILURE),
@@ -102,7 +101,7 @@ public class EnvelopeRetrieverTest {
     }
 
     @Test
-    public void should_retrieve_single_envelope_by_id() throws Exception {
+    public void should_retrieve_single_envelope_by_id() {
         // given
         Envelope envelopeIdDb = envelopeRepo.saveAndFlush(envelope("X", Status.UPLOADED));
         serviceCanReadFromJurisdiction("service_X", "X");
@@ -115,7 +114,7 @@ public class EnvelopeRetrieverTest {
     }
 
     @Test
-    public void should_return_empty_optional_if_envelope_is_not_found() throws Exception {
+    public void should_return_empty_optional_if_envelope_is_not_found() {
         // given
         envelopeRepo.saveAndFlush(envelope("X", Status.UPLOADED));
         serviceCanReadFromJurisdiction("service_X", "X");
@@ -128,7 +127,7 @@ public class EnvelopeRetrieverTest {
     }
 
     @Test
-    public void should_throw_an_exception_if_service_cannot_read_existing_envelope() throws Exception {
+    public void should_throw_an_exception_if_service_cannot_read_existing_envelope() {
         // given
         Envelope envelopeForServiceB = envelopeRepo.saveAndFlush(envelope("B", Status.UPLOADED));
         serviceCanReadFromJurisdiction("service_A", "A");

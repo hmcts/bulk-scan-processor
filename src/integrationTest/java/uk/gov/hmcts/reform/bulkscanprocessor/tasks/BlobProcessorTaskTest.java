@@ -162,7 +162,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
             .until(blob::exists, is(true));
     }
 
-    private void dbContainsEnvelopeThatWasNotYetDeleted(String zipFileName, Status status) throws Exception {
+    private void dbContainsEnvelopeThatWasNotYetDeleted(String zipFileName, Status status) {
         Envelope existingEnvelope = EnvelopeCreator.envelope("A", status);
         existingEnvelope.setZipFileName(zipFileName);
         existingEnvelope.setContainer(testContainer.getBlobContainerName());

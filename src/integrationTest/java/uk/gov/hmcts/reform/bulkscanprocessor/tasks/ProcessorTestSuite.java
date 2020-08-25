@@ -122,13 +122,13 @@ public abstract class ProcessorTestSuite {
     private static DockerComposeContainer dockerComposeContainer;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
             .connectionString("UseDevelopmentStorage=true")
             .buildClient();
 
-        blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
+        blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
 
         documentProcessor = new DocumentProcessor(
             documentManagementService,
@@ -187,7 +187,7 @@ public abstract class ProcessorTestSuite {
     }
 
     @AfterEach
-    public void cleanUp() throws Exception {
+    public void cleanUp() {
         if (testContainer.exists()) {
             testContainer.delete();
         }
@@ -199,7 +199,7 @@ public abstract class ProcessorTestSuite {
     }
 
     @BeforeEach
-    public void prepare() throws Exception {
+    public void prepare() {
         envelopeRepository.deleteAll();
         processEventRepository.deleteAll();
     }
@@ -219,7 +219,7 @@ public abstract class ProcessorTestSuite {
         dockerComposeContainer.stop();
     }
 
-    public void uploadToBlobStorage(String fileName, byte[] fileContent) throws Exception {
+    public void uploadToBlobStorage(String fileName, byte[] fileContent) {
         var blockBlobReference = testContainer.getBlobClient(fileName);
 
         // Blob need to be deleted as same blob may exists if previously uploaded blob was not deleted
