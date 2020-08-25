@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import io.vavr.Tuple2;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedZipFileData;
@@ -19,7 +19,7 @@ public class ReceivedZipFileConverter {
     public List<ReceivedZipFileData> convertReceivedZipFiles(List<ReceivedZipFile> receivedZipFiles) {
         return receivedZipFiles
             .stream()
-            .collect(groupingBy(file -> new Tuple2<>(file.getZipFileName(), file.getContainer())))
+            .collect(groupingBy(file -> Pair.of(file.getZipFileName(), file.getContainer())))
             .values()
             .stream()
             .map(this::getReceivedZipFileData)
