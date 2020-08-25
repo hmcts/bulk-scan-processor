@@ -7,17 +7,24 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.DiscrepancyItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
@@ -38,14 +45,17 @@ public class ReportsController {
 
     private final ReportsService reportsService;
     private final RejectedFilesReportService rejectedFilesReportService;
+    private final ReconciliationService reconciliationService;
 
     // region constructor
     public ReportsController(
         ReportsService reportsService,
-        RejectedFilesReportService rejectedFilesReportService
+        RejectedFilesReportService rejectedFilesReportService,
+        ReconciliationService reconciliationService
     ) {
         this.reportsService = reportsService;
         this.rejectedFilesReportService = rejectedFilesReportService;
+        this.reconciliationService = reconciliationService;
     }
     // endregion
 
@@ -116,5 +126,29 @@ public class ReportsController {
     public RejectedFilesResponse getRejectedFiles() {
         List<RejectedFile> rejectedEnvs = this.rejectedFilesReportService.getRejectedFiles();
         return new RejectedFilesResponse(rejectedEnvs.size(), rejectedEnvs);
+    }
+
+    @PostMapping(
+        path = "/reconciliation",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ApiOperation("Retrieves envelope count summary report")
+    public ReconciliationReportResponse getReconciliationReport(
+        @RequestBody ReconciliationStatement statement
+    ) {
+        List<Discrepancy> result = reconciliationService.getReconciliationReport(statement);
+        return new ReconciliationReportResponse(
+            result
+                .stream()
+                .map(item -> new DiscrepancyItem(
+                    item.zipFileName,
+                    item.container,
+                    item.type,
+                    item.stated,
+                    item.actual
+                ))
+                .collect(toList())
+        );
     }
 }

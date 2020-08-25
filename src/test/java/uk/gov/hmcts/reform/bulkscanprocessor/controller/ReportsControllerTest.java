@@ -1,15 +1,20 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
+import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
@@ -17,13 +22,18 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 
+import static com.google.common.io.Resources.getResource;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,6 +51,9 @@ public class ReportsControllerTest {
 
     @MockBean
     private RejectedFilesReportService rejectedFilesReportService;
+
+    @MockBean
+    private ReconciliationService reconciliationService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -257,4 +270,29 @@ public class ReportsControllerTest {
             ));
     }
 
+    @Test
+    public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
+        throws Exception {
+
+        String requestBody = "{'date': '2020-08-20', 'envelopes': []}";
+//        String requestBody = Resources.toString(
+//            getResource("reconciliation/valid-supplier-statement-report.json"),
+//            UTF_8
+//        );
+
+        given(reconciliationService.getReconciliationReport(any(ReconciliationStatement.class))).willReturn(emptyList());
+
+        mockMvc
+            .perform(
+                post("/reports/reconciliation")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .content(requestBody)
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
+            // Envelope id is checked explicitly as it is dynamically generated.
+            .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
+    }
 }
