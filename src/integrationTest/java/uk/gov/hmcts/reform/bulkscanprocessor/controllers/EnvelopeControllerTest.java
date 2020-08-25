@@ -200,16 +200,7 @@ public class EnvelopeControllerTest {
             );
 
         blobProcessorTask.processBlobs();
-
-
-        List<Envelope> envelopes = envelopeRepository.findEnvelopesToUpload(10);
-        assertThat(envelopes).hasSize(1);
-
         uploadTask.run();
-
-        envelopes = envelopeRepository.findAll();
-        assertThat(envelopes).hasSize(1);
-        assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
 
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
@@ -222,7 +213,7 @@ public class EnvelopeControllerTest {
             // Envelope id is checked explicitly as it is dynamically generated.
             .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
 
-        envelopes = envelopeRepository.findAll();
+        List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
         assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
 

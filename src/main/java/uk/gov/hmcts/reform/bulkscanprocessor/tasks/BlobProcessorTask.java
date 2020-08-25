@@ -152,10 +152,9 @@ public class BlobProcessorTask {
                 fileContentProcessor.processZipFileContent(zis, zipFilename, container.getBlobContainerName(), leaseId);
 
                 log.info(
-                    "Zip content processed for file {}, container {}, envelope ID: {}",
+                    "Zip content processed for file {}, container: {}",
                     zipFilename,
-                    container.getBlobContainerName(),
-                    envelope.getId()
+                    container.getBlobContainerName()
                 );
 
             } catch (IOException exception) {
