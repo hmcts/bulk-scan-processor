@@ -66,7 +66,7 @@ public class DeleteCompleteFilesTaskTest {
         final BlobContainerClient container1 = mock(BlobContainerClient.class);
         final BlobClient blobClient = mock(BlobClient.class);
         given(container1.getBlobContainerName()).willReturn(containerName1);
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
 
         doAnswer(invocation -> {
             var okAction = (Consumer) invocation.getArgument(1);

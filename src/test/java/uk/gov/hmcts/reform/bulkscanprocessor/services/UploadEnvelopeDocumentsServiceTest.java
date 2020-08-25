@@ -74,7 +74,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @Test
     void should_do_nothing_when_blob_manager_fails_to_retrieve_container_representation() throws Exception {
         // given
-        willThrow(new RuntimeException("i failed")).given(blobManager).getContainerClient(CONTAINER_1);
+        willThrow(new RuntimeException("i failed")).given(blobManager).listContainerClient(CONTAINER_1);
 
         // when
         uploadService.processByContainer(CONTAINER_1, getEnvelopes());
@@ -90,7 +90,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @Test
     void should_do_nothing_when_failing_to_get_block_blob_reference() throws Exception {
         // given
-        given(blobManager.getContainerClient(CONTAINER_1)).willReturn(blobContainer);
+        given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
 
         // and
         willThrow(new RuntimeException("Error getting BlobClient"))
@@ -106,7 +106,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @Test
     void should_do_nothing_when_failing_to_acquire_lease() throws Exception {
         // given
-        given(blobManager.getContainerClient(CONTAINER_1)).willReturn(blobContainer);
+        given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
 
@@ -124,7 +124,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @Test
     void should_do_nothing_when_failing_to_download_blob() throws Exception {
         // given
-        given(blobManager.getContainerClient(CONTAINER_1)).willReturn(blobContainer);
+        given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
 
@@ -143,7 +143,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @Test
     void should_do_nothing_when_failing_to_read_blob_input_stream() throws Exception {
         // given
-        given(blobManager.getContainerClient(CONTAINER_1)).willReturn(blobContainer);
+        given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
         leaseAcquired();
@@ -173,7 +173,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @Test
     void should_mark_as_doc_upload_failure_when_unable_to_upload_pdfs() throws Exception {
         // given
-        given(blobManager.getContainerClient(CONTAINER_1)).willReturn(blobContainer);
+        given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
         leaseAcquired();
@@ -209,7 +209,7 @@ class UploadEnvelopeDocumentsServiceTest {
     @Test
     void should_mark_as_uploaded_when_everything_went_well() throws Exception {
         // given
-        given(blobManager.getContainerClient(CONTAINER_1)).willReturn(blobContainer);
+        given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
         leaseAcquired();

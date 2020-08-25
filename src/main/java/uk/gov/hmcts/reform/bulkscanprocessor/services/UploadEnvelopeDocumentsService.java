@@ -72,7 +72,7 @@ public class UploadEnvelopeDocumentsService {
         );
 
         try {
-            BlobContainerClient blobContainer = blobManager.getContainerClient(containerName);
+            BlobContainerClient blobContainer = blobManager.listContainerClient(containerName);
 
             envelopes.forEach(envelope -> processEnvelope(blobContainer, envelope));
         } catch (Exception exception) {

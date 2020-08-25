@@ -60,7 +60,7 @@ class FileRejectorTest {
                 ERR_METAFILE_INVALID
             );
         verify(blobManager)
-            .newTryMoveFileToRejectedContainer(
+            .tryMoveFileToRejectedContainer(
                 FILE_NAME,
                 CONTAINER,
                 LEASE_ID
