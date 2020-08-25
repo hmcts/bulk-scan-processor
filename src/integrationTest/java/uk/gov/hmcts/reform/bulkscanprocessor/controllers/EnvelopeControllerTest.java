@@ -44,6 +44,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataCheck
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
@@ -85,9 +86,9 @@ public class EnvelopeControllerTest {
     @Autowired private EnvelopeRepository envelopeRepository;
     @Autowired private ProcessEventRepository processEventRepository;
     @Autowired private BlobManagementProperties blobManagementProperties;
-    @Autowired private UploadEnvelopeDocumentsService uploadService;
     @Autowired private LeaseClientProvider leaseClientProvider;
     @Autowired private LeaseMetaDataChecker leaseMetaDataChecker;
+    @Autowired private DocumentProcessor documentProcessor;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
@@ -119,7 +120,7 @@ public class EnvelopeControllerTest {
     }
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .connectionString("UseDevelopmentStorage=true")
@@ -158,6 +159,15 @@ public class EnvelopeControllerTest {
             fileContentProcessor,
             leaseAcquirer
         );
+
+        UploadEnvelopeDocumentsService uploadService =  new UploadEnvelopeDocumentsService(
+            blobManager,
+            zipFileProcessor,
+            documentProcessor,
+            envelopeProcessor,
+            leaseAcquirer
+        );
+
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 
         testContainer = blobServiceClient.getBlobContainerClient("bulkscan");
@@ -167,7 +177,7 @@ public class EnvelopeControllerTest {
     }
 
     @AfterEach
-    public void cleanUp() throws Exception {
+    public void cleanUp() {
         if (testContainer.exists()) {
             testContainer.delete();
         }
