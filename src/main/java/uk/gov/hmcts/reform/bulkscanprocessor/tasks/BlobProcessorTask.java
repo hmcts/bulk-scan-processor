@@ -65,7 +65,7 @@ public class BlobProcessorTask {
     public void processBlobs() {
         log.info("Started blob processing job");
 
-        for (BlobContainerClient container : blobManager.getInputContainerClients()) {
+        for (BlobContainerClient container : blobManager.listInputContainerClients()) {
             processZipFiles(container);
         }
 

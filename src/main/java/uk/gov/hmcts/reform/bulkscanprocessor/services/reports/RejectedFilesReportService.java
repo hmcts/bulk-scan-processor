@@ -23,7 +23,7 @@ public class RejectedFilesReportService {
 
     public List<RejectedFile> getRejectedFiles() {
         return blobManager
-            .getRejectedContainers()
+            .listRejectedContainers()
             .stream()
             .flatMap(container ->
                 getBlobs(container)

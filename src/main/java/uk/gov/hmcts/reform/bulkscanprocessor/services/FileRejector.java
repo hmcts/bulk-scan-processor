@@ -35,6 +35,6 @@ public class FileRejector {
             eventId,
             cause.getErrorCode()
         );
-        blobManager.newTryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
     }
 }
