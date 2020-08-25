@@ -150,6 +150,14 @@ public class BlobProcessorTask {
                 );
 
                 fileContentProcessor.processZipFileContent(zis, zipFilename, container.getBlobContainerName(), leaseId);
+
+                log.info(
+                    "Zip content processed for file {}, container {}, envelope ID: {}",
+                    container.getBlobContainerName(),
+                    zipFilename,
+                    envelope.getId()
+                );
+
             } catch (IOException exception) {
                 throw new ZipFileLoadException("Error loading blob file " + zipFilename, exception);
             }
