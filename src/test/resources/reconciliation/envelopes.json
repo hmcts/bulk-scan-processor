@@ -1,0 +1,14 @@
+{
+  "date": "2020-08-20",
+  "envelopes": [
+    {
+      "zip_file_name": "file1",
+      "container": "c1",
+      "scannable_item_dcns": [
+        12345,
+        23456
+      ],
+      "payment_dcns": []
+    }
+  ]
+}
