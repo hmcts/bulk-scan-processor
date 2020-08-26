@@ -20,7 +20,7 @@ public class TestStorageHelper {
 
     private static DockerComposeContainer<?> dockerComposeContainer;
     private static String dockerHost;
-    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+    public static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
     public static BlobServiceClient blobServiceClient;

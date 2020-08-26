@@ -33,6 +33,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
@@ -121,15 +122,12 @@ public abstract class ProcessorTestSuite {
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
-    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
-        + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
-        + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
 
     @BeforeEach
     public void setUp() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
             .buildClient();
 
         blobManager = new BlobManager(blobServiceClient, blobManagementProperties);

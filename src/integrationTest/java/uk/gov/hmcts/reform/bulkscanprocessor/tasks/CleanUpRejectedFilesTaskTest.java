@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -45,9 +46,6 @@ public class CleanUpRejectedFilesTaskTest {
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
-    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
-        + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
-        + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
 
     @BeforeAll
     public static void initialize() {
@@ -68,7 +66,7 @@ public class CleanUpRejectedFilesTaskTest {
     @BeforeEach
     public void setUp() throws Exception {
         blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
             .buildClient();
 
         this.blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
