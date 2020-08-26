@@ -92,7 +92,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file2", "c2", REPORTED_BUT_NOT_RECEIVED.text)
+                new Discrepancy("file2", "c2", REPORTED_BUT_NOT_RECEIVED)
             );
     }
 
@@ -120,7 +120,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file2", "c2", RECEIVED_BUT_NOT_REPORTED.text)
+                new Discrepancy("file2", "c2", RECEIVED_BUT_NOT_REPORTED)
             );
     }
 
@@ -149,8 +149,8 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", REPORTED_BUT_NOT_RECEIVED.text),
-                new Discrepancy("file3", "c3", RECEIVED_BUT_NOT_REPORTED.text)
+                new Discrepancy("file1", "c1", REPORTED_BUT_NOT_RECEIVED),
+                new Discrepancy("file3", "c3", RECEIVED_BUT_NOT_REPORTED)
             );
     }
 
@@ -229,7 +229,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH.text, "[doc-1]", "[doc-1, doc-2]")
+                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH, "[doc-1]", "[doc-1, doc-2]")
             );
     }
 
@@ -258,7 +258,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH.text, "[pay-1]", "[pay-1, pay-2]")
+                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH, "[pay-1]", "[pay-1, pay-2]")
             );
     }
 
@@ -287,7 +287,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH.text, null, "[doc-1, doc-2]")
+                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH, null, "[doc-1, doc-2]")
             );
     }
 
@@ -316,7 +316,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH.text, "[]", "[doc-1, doc-2]")
+                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH, "[]", "[doc-1, doc-2]")
             );
     }
 
@@ -345,7 +345,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH.text, "[doc-1, doc-2]", "[]")
+                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH, "[doc-1, doc-2]", "[]")
             );
     }
 
@@ -374,7 +374,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH.text, null, "[pay-1, pay-2]")
+                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH, null, "[pay-1, pay-2]")
             );
     }
 
@@ -403,7 +403,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH.text, "[]", "[pay-1, pay-2]")
+                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH, "[]", "[pay-1, pay-2]")
             );
     }
 
@@ -431,7 +431,7 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH.text, "[pay-1, pay-2]", "[]")
+                new Discrepancy("file1", "c1", PAYMENT_DCNS_MISMATCH, "[pay-1, pay-2]", "[]")
             );
     }
 

@@ -144,7 +144,7 @@ public class ReportsController {
                 .map(item -> new DiscrepancyItem(
                     item.zipFileName,
                     item.container,
-                    item.type,
+                    item.type.text,
                     item.stated,
                     item.actual
                 ))

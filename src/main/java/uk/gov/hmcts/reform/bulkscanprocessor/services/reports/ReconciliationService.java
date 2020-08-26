@@ -79,7 +79,7 @@ public class ReconciliationService {
                         new Discrepancy(
                             receivedZipFile.zipFileName,
                             receivedZipFile.container,
-                            RECEIVED_BUT_NOT_REPORTED.text
+                            RECEIVED_BUT_NOT_REPORTED
                         )
                     );
                 }
@@ -108,7 +108,7 @@ public class ReconciliationService {
                     new Discrepancy(
                         reportedZipFileKey.getFirst(),
                         reportedZipFileKey.getSecond(),
-                        REPORTED_BUT_NOT_RECEIVED.text
+                        REPORTED_BUT_NOT_RECEIVED
                     )
                 );
             });
@@ -128,7 +128,7 @@ public class ReconciliationService {
                 new Discrepancy(
                     receivedZipFile.zipFileName,
                     receivedZipFile.container,
-                    discrepancyType.text,
+                    discrepancyType,
                     printList(reportedList),
                     printList(receivedList)
                 )
