@@ -57,7 +57,7 @@ public class DeleteCompleteFilesTaskTest {
     }
 
     @Test
-    public void should_mark_as_deleted_complete_envelope() throws Exception {
+    public void should_mark_as_deleted_complete_envelope() {
         // given
         final String containerName1 = "container1";
         final Envelope envelope = envelope("X", COMPLETED, containerName1, false);
@@ -66,7 +66,7 @@ public class DeleteCompleteFilesTaskTest {
         final BlobContainerClient container1 = mock(BlobContainerClient.class);
         final BlobClient blobClient = mock(BlobClient.class);
         given(container1.getBlobContainerName()).willReturn(containerName1);
-        given(blobManager.getInputContainerClients()).willReturn(singletonList(container1));
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
 
         doAnswer(invocation -> {
             var okAction = (Consumer) invocation.getArgument(1);

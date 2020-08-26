@@ -32,7 +32,7 @@ public class RejectedFilesReportServiceTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        given(blobManager.getRejectedContainers())
+        given(blobManager.listRejectedContainers())
             .willReturn(asList(containerA, containerB));
 
         service = new RejectedFilesReportService(blobManager);

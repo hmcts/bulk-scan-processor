@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.microsoft.azure.storage.StorageException;
+import com.azure.storage.blob.models.BlobStorageException;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -33,7 +33,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOA
  * <p></p>
  * All the validations have been accomplished and {@link Envelope} saved in DB.
  * Therefore no need to go through the same set of validation steps/rules and just re-extract zip file and upload.
- * In case some {@link StorageException} or {@link IOException} experienced during zip extraction
+ * In case some {@link BlobStorageException} or {@link IOException} experienced during zip extraction
  * the envelope state will not be changed and left for a retry on the next run.
  * {@link Event#DOC_UPLOAD_FAILURE} can be treated as stuck envelope and be re-uploaded by same service here.
  * There is an upload retry counter/limit which may be used as well
@@ -72,7 +72,7 @@ public class UploadEnvelopeDocumentsService {
         );
 
         try {
-            BlobContainerClient blobContainer = blobManager.getContainerClient(containerName);
+            BlobContainerClient blobContainer = blobManager.listContainerClient(containerName);
 
             envelopes.forEach(envelope -> processEnvelope(blobContainer, envelope));
         } catch (Exception exception) {
@@ -99,13 +99,6 @@ public class UploadEnvelopeDocumentsService {
                 true
             );
 
-            log.info(
-                "Finished processing docs for upload. File: {}, container: {}, EnvelopeId: {}",
-                zipFileName,
-                containerName,
-                envelopeId
-            );
-
         } catch (Exception exception) {
             log.error(
                 "An error occurred when trying to upload documents. Container: {}, File: {}, Envelope ID: {}",
@@ -129,6 +122,13 @@ public class UploadEnvelopeDocumentsService {
         uploadParsedZipFileName(envelope, result.getPdfs());
 
         envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
+
+        log.info(
+            "Finished processing docs for upload. File: {}, container: {}, EnvelopeId: {}",
+            zipFileName,
+            containerName,
+            envelopeId
+        );
     }
 
     private byte[] downloadBlob(BlobClient blobClient, UUID envelopeId) {

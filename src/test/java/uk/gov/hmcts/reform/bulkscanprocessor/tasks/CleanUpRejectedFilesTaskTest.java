@@ -51,7 +51,7 @@ public class CleanUpRejectedFilesTaskTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        given(blobManager.getRejectedContainers()).willReturn(singletonList(containerClient));
+        given(blobManager.listRejectedContainers()).willReturn(singletonList(containerClient));
     }
 
     @Test

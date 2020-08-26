@@ -86,10 +86,10 @@ public class EnvelopeControllerTest {
     @Autowired private EnvelopeRepository envelopeRepository;
     @Autowired private ProcessEventRepository processEventRepository;
     @Autowired private BlobManagementProperties blobManagementProperties;
-    @Autowired private DocumentProcessor documentProcessor;
-    @Autowired private LeaseAcquirer leaseAcquirer;
     @Autowired private LeaseClientProvider leaseClientProvider;
     @Autowired private LeaseMetaDataChecker leaseMetaDataChecker;
+    @Autowired private DocumentProcessor documentProcessor;
+    @Autowired private LeaseAcquirer leaseAcquirer;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
@@ -126,13 +126,13 @@ public class EnvelopeControllerTest {
     }
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
                 .buildClient();
 
-        BlobManager blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
+        BlobManager blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
         EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
             schemaValidator,
@@ -165,8 +165,15 @@ public class EnvelopeControllerTest {
             fileContentProcessor,
             leaseAcquirer
         );
-        UploadEnvelopeDocumentsService uploadService =
-            new UploadEnvelopeDocumentsService(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor, leaseAcquirer);
+
+        UploadEnvelopeDocumentsService uploadService =  new UploadEnvelopeDocumentsService(
+            blobManager,
+            zipFileProcessor,
+            documentProcessor,
+            envelopeProcessor,
+            leaseAcquirer
+        );
+
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
 
         testContainer = blobServiceClient.getBlobContainerClient("bulkscan");
@@ -176,7 +183,7 @@ public class EnvelopeControllerTest {
     }
 
     @AfterEach
-    public void cleanUp() throws Exception {
+    public void cleanUp() {
         if (testContainer.exists()) {
             testContainer.delete();
         }

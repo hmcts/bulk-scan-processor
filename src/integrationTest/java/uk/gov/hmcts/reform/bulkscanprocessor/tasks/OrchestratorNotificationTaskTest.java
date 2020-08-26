@@ -88,7 +88,7 @@ public class OrchestratorNotificationTaskTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         processEventRepo.deleteAll();
         envelopeRepo.deleteAll();
     }

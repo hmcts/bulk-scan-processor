@@ -71,7 +71,7 @@ public class CleanUpRejectedFilesTaskTest {
             .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
             .buildClient();
 
-        this.blobManager = new BlobManager(blobServiceClient, null, blobManagementProperties);
+        this.blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
 
         this.rejectedContainer = blobServiceClient.getBlobContainerClient(("test-rejected"));
         if (!this.rejectedContainer.exists()) {
@@ -85,7 +85,7 @@ public class CleanUpRejectedFilesTaskTest {
     }
 
     @Test
-    public void should_delete_old_files_with_snapshots() throws Exception {
+    public void should_delete_old_files_with_snapshots() {
         // given
         // there are two files in rejected container
         uploadFile(rejectedContainer, "foo.zip", "content_foo_1");
@@ -111,7 +111,7 @@ public class CleanUpRejectedFilesTaskTest {
     }
 
     @Test
-    public void should_not_delete_old_file_if_metadata_lease_not_expired() throws Exception {
+    public void should_not_delete_old_file_if_metadata_lease_not_expired() {
         // given
         // there are two files in rejected container
         uploadFile(rejectedContainer, "foo.zip", "content_foo");

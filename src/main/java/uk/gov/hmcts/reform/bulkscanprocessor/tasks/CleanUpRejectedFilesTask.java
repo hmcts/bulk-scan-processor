@@ -55,7 +55,7 @@ public class CleanUpRejectedFilesTask {
         log.info("Started {} job", TASK_NAME);
 
         blobManager
-            .getRejectedContainers()
+            .listRejectedContainers()
             .forEach(this::deleteFilesInRejectedContainer);
 
         log.info("Finished {} job", TASK_NAME);

@@ -38,36 +38,6 @@ class FileRejectorTest {
     }
 
     @Test
-    void should_handle_handle_invalid_file() {
-        // given
-
-        // when
-        fileRejector.handleInvalidFile(
-            EVENT_ID,
-            CONTAINER,
-            FILE_NAME,
-            LEASE_ID,
-            MAPPED_CAUSE
-        );
-
-        // then
-        verify(errorNotificationSender)
-            .sendErrorNotification(
-                FILE_NAME,
-                CONTAINER,
-                MAPPED_CAUSE,
-                EVENT_ID,
-                ERR_METAFILE_INVALID
-            );
-        verify(blobManager)
-            .tryMoveFileToRejectedContainer(
-                FILE_NAME,
-                CONTAINER,
-                LEASE_ID
-            );
-    }
-
-    @Test
     void should_handle_handle_invalid_blob() {
         // given
 
@@ -90,7 +60,7 @@ class FileRejectorTest {
                 ERR_METAFILE_INVALID
             );
         verify(blobManager)
-            .newTryMoveFileToRejectedContainer(
+            .tryMoveFileToRejectedContainer(
                 FILE_NAME,
                 CONTAINER,
                 LEASE_ID
