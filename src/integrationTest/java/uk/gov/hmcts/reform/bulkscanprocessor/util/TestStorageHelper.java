@@ -18,7 +18,11 @@ public class TestStorageHelper {
     public static final String CONTAINER_NAME = "bulkscan";
     public static final String ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
 
-    private static DockerComposeContainer<?> dockerContainer;
+    private static DockerComposeContainer<?> dockerComposeContainer;
+    private static String dockerHost;
+    public static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+        + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
+        + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
     public static BlobServiceClient blobServiceClient;
     private BlobContainerClient testContainer;
 
@@ -35,17 +39,18 @@ public class TestStorageHelper {
     }
 
     private static void createDocker() {
-        dockerContainer = new DockerComposeContainer<>(
+        dockerComposeContainer = new DockerComposeContainer<>(
             new File("src/integrationTest/resources/docker-compose.yml")
-        ).withExposedService("azure-storage", 10000);
-        dockerContainer.start();
+        ).withExposedService("azure-storage", 10000)
+        .withLocalCompose(true);
+        dockerComposeContainer.start();
+        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
     }
 
     private static void initializeStorage() {
         blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString("UseDevelopmentStorage=true")
+            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
             .buildClient();
-
     }
 
     public static void initialize() {
@@ -54,7 +59,7 @@ public class TestStorageHelper {
     }
 
     public static void stopDocker() {
-        dockerContainer.stop();
+        dockerComposeContainer.stop();
     }
 
     public void createBulkscanContainer() {
