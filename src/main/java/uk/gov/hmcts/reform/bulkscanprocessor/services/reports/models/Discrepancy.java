@@ -1,35 +1,27 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class Discrepancy {
-    @JsonProperty("zip_file_name")
     public final String zipFileName;
-
-    @JsonProperty("container")
     public final String container;
-
-    @JsonProperty("type")
-    public final String type;
-
-    @JsonProperty("stated")
+    public final DiscrepancyType type;
     public final String stated;
-
-    @JsonProperty("actual")
     public final String actual;
 
+    // region constructor
     public Discrepancy(
         String zipFileName,
         String container,
-        String type
+        DiscrepancyType type
     ) {
         this(zipFileName, container, type, null, null);
     }
+    // endregion
 
+    // region constructor
     public Discrepancy(
         String zipFileName,
         String container,
-        String type,
+        DiscrepancyType type,
         String stated,
         String actual
     ) {
@@ -39,4 +31,5 @@ public class Discrepancy {
         this.stated = stated;
         this.actual = actual;
     }
+    // endregion
 }

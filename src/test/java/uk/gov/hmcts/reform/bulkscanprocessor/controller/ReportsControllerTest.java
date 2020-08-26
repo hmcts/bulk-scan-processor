@@ -1,29 +1,42 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
+import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 
+import static com.google.common.io.Resources.getResource;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,6 +54,9 @@ public class ReportsControllerTest {
 
     @MockBean
     private RejectedFilesReportService rejectedFilesReportService;
+
+    @MockBean
+    private ReconciliationService reconciliationService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -219,7 +235,7 @@ public class ReportsControllerTest {
     @Test
     public void should_return_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
-            .willReturn(Arrays.asList(
+            .willReturn(asList(
                 new RejectedFile("a.zip", "A"),
                 new RejectedFile("b.zip", "B")
             ));
@@ -257,4 +273,39 @@ public class ReportsControllerTest {
             ));
     }
 
+    @Test
+    public void should_return_discrepancies_for_a_given_date() throws Exception {
+        // given
+        given(reconciliationService.getReconciliationReport(any(ReconciliationStatement.class)))
+            .willReturn(
+                singletonList(
+                    new Discrepancy(
+                        "file1",
+                        "c1",
+                        DiscrepancyType.PAYMENT_DCNS_MISMATCH,
+                        "[12345, 23456]",
+                        "[12345]"
+                    )
+                )
+            );
+
+        // when
+        mockMvc
+            .perform(
+                post("/reports/reconciliation")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .content(Resources.toString(getResource("reconciliation/envelopes.json"), UTF_8))
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(content().json(Resources.toString(getResource("reconciliation/discrepancies.json"), UTF_8)));
+
+        // then
+        var argument = ArgumentCaptor.forClass(ReconciliationStatement.class);
+        verify(reconciliationService).getReconciliationReport(argument.capture());
+        var reconciliationStatement = argument.getValue();
+
+        assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
+    }
 }
