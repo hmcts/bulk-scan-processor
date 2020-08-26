@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models;
 public class Discrepancy {
     public final String zipFileName;
     public final String container;
-    public final String type;
+    public final DiscrepancyType type;
     public final String stated;
     public final String actual;
 
@@ -11,7 +11,7 @@ public class Discrepancy {
     public Discrepancy(
         String zipFileName,
         String container,
-        String type
+        DiscrepancyType type
     ) {
         this(zipFileName, container, type, null, null);
     }
@@ -21,7 +21,7 @@ public class Discrepancy {
     public Discrepancy(
         String zipFileName,
         String container,
-        String type,
+        DiscrepancyType type,
         String stated,
         String actual
     ) {

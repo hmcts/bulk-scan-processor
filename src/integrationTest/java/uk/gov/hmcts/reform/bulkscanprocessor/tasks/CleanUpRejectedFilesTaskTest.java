@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -36,7 +38,6 @@ public class CleanUpRejectedFilesTaskTest {
     @Autowired
     private LeaseAcquirer leaseAcquirer;
 
-    @Autowired
     private BlobServiceClient blobServiceClient;
 
     private BlobContainerClient rejectedContainer;
@@ -44,14 +45,17 @@ public class CleanUpRejectedFilesTaskTest {
     private BlobManager blobManager;
 
     private static DockerComposeContainer dockerComposeContainer;
+    private static String dockerHost;
 
     @BeforeAll
     public static void initialize() {
         dockerComposeContainer =
             new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
-                .withExposedService("azure-storage", 10000);
+                .withExposedService("azure-storage", 10000)
+                .withLocalCompose(true);
 
         dockerComposeContainer.start();
+        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
     }
 
     @AfterAll
@@ -61,6 +65,9 @@ public class CleanUpRejectedFilesTaskTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        blobServiceClient = new BlobServiceClientBuilder()
+            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
+            .buildClient();
 
         this.blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
 

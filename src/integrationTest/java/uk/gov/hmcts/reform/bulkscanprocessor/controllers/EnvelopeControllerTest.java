@@ -47,6 +47,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
@@ -89,6 +90,7 @@ public class EnvelopeControllerTest {
     @Autowired private LeaseClientProvider leaseClientProvider;
     @Autowired private LeaseMetaDataChecker leaseMetaDataChecker;
     @Autowired private DocumentProcessor documentProcessor;
+    @Autowired private LeaseAcquirer leaseAcquirer;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
@@ -102,16 +104,18 @@ public class EnvelopeControllerTest {
     private BlobContainerClient testContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
-
+    private static String dockerHost;
 
     @BeforeAll
     public static void initialize() {
         File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
 
         dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000);
+            .withExposedService("azure-storage", 10000)
+            .withLocalCompose(true);
 
         dockerComposeContainer.start();
+        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
     }
 
     @AfterAll
@@ -123,7 +127,7 @@ public class EnvelopeControllerTest {
     public void setup() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-                .connectionString("UseDevelopmentStorage=true")
+                .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
                 .buildClient();
 
         BlobManager blobManager = new BlobManager(blobServiceClient, blobManagementProperties);

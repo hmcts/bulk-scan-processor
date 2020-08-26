@@ -282,7 +282,7 @@ public class ReportsControllerTest {
                     new Discrepancy(
                         "file1",
                         "c1",
-                        DiscrepancyType.PAYMENT_DCNS_MISMATCH.text,
+                        DiscrepancyType.PAYMENT_DCNS_MISMATCH,
                         "[12345, 23456]",
                         "[12345]"
                     )
