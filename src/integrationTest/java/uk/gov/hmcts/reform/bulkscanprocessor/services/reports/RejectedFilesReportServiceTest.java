@@ -12,6 +12,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -28,14 +29,17 @@ public class RejectedFilesReportServiceTest {
     private BlobManager blobManager;
 
     private static DockerComposeContainer dockerComposeContainer;
+    private static String dockerHost;
 
     @BeforeAll
     public static void initialize() {
         dockerComposeContainer =
             new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
-                .withExposedService("azure-storage", 10000);
+                .withExposedService("azure-storage", 10000)
+                .withLocalCompose(true);
 
         dockerComposeContainer.start();
+        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
     }
 
     @AfterAll
@@ -47,7 +51,7 @@ public class RejectedFilesReportServiceTest {
     public void setUp() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString("UseDevelopmentStorage=true")
+            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
             .buildClient();
 
         this.blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
