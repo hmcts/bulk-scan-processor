@@ -104,8 +104,13 @@ public class UploadEnvelopeDocumentsTaskTest {
 
         // when
         BlobManager blobManager = new BlobManager(STORAGE_HELPER.blobServiceClient, blobManagementProperties);
-        UploadEnvelopeDocumentsService uploadService =
-            new UploadEnvelopeDocumentsService(blobManager, zipFileProcessor, documentProcessor, envelopeProcessor, leaseAcquirer);
+        UploadEnvelopeDocumentsService uploadService = new UploadEnvelopeDocumentsService(
+            blobManager,
+            zipFileProcessor,
+            documentProcessor,
+            envelopeProcessor,
+            leaseAcquirer
+        );
         new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1).run();
 
         // then
