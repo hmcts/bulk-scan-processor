@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
 
 public class DiscrepancyItem {
     @JsonProperty("zip_file_name")
@@ -10,7 +11,7 @@ public class DiscrepancyItem {
     public final String container;
 
     @JsonProperty("type")
-    public final String type;
+    public final DiscrepancyType type;
 
     @JsonProperty("stated")
     public final String stated;
@@ -22,7 +23,7 @@ public class DiscrepancyItem {
     public DiscrepancyItem(
         String zipFileName,
         String container,
-        String type,
+        DiscrepancyType type,
         String stated,
         String actual
     ) {
