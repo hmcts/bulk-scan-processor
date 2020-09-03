@@ -52,8 +52,7 @@ public class StaleBlobFinder {
     }
 
     private boolean isStale(BlobItem blobItem, int staleTime) {
-        return
-            Instant.now().isAfter(
+        return Instant.now().isAfter(
                 blobItem
                     .getProperties()
                     .getCreationTime()
