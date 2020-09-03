@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -121,7 +122,7 @@ class LeaseAcquirerTest {
         // then
         verify(leaseClient).releaseLease();
         verify(onSuccess, never()).accept(anyString());
-        verify(onFailure, never()).accept(any());
+        verify(onFailure).accept(any());
     }
 
 
@@ -141,7 +142,7 @@ class LeaseAcquirerTest {
         // then
         verify(leaseClient).releaseLease();
         verify(onSuccess, never()).accept(anyString());
-        verify(onFailure, never()).accept(any());
+        verify(onFailure).accept(any());
         verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
@@ -171,6 +172,32 @@ class LeaseAcquirerTest {
         verifyNoMoreInteractions(leaseClient);
         verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
         verify(leaseMetaDataChecker).clearMetaData(eq(blobClient), eq(leaseId));
+        verifyNoMoreInteractions(leaseMetaDataChecker);
+
+    }
+
+    @Test
+    void should_run_onFailure_when_metadata_lease_can_not_acquired() {
+        // given
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(false);
+        given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
+
+        var onSuccess = mock(Consumer.class);
+        Consumer<BlobErrorCode> onFailure = errorCode -> {
+            throw new RuntimeException("Metadata Lease failed. ErrorCode: " + errorCode.toString());
+        };
+
+        // when
+        assertThrows(
+            RuntimeException.class,
+            () -> leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true));
+
+        // then
+        verify(onSuccess, never()).accept(anyString());
+        verify(leaseClient).acquireLease(anyInt());
+        verify(leaseClient).releaseLease();
+        verifyNoMoreInteractions(leaseClient);
+        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
     }
