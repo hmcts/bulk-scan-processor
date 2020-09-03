@@ -59,6 +59,8 @@ public class LeaseAcquirer {
             } finally {
                 if (!isReady) {
                     release(leaseClient, blobClient);
+                    //it means lease did not acquired let the failure function decide
+                    onFailure.accept(LEASE_ALREADY_PRESENT);
                 }
             }
 
