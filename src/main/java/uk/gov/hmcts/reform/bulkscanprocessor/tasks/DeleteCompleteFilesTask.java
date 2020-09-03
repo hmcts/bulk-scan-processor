@@ -106,6 +106,7 @@ public class DeleteCompleteFilesTask {
                 leaseAcquirer.ifAcquiredOrElse(
                     blobClient,
                     leaseId -> deleteBlob(blobClient, leaseId),
+                    //should throw this if deletion or lease acquiring fails envelope should not be marked as deleted
                     DeleteCompleteFilesTask::throwBlobDeleteException,
                     false
                 );
