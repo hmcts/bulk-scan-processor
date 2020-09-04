@@ -67,14 +67,16 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getContainer(),
                     envelopes.get(0).getStatus().name(),
                     envelopes.get(0).getCcdId(),
-                    envelopes.get(0).getEnvelopeCcdAction()
+                    envelopes.get(0).getEnvelopeCcdAction(),
+                    envelopes.get(0).isZipDeleted()
                 ),
                 new ZipFileEnvelope(
                     envelopes.get(1).getId().toString(),
                     envelopes.get(1).getContainer(),
                     envelopes.get(1).getStatus().name(),
                     envelopes.get(1).getCcdId(),
-                    envelopes.get(1).getEnvelopeCcdAction()
+                    envelopes.get(1).getEnvelopeCcdAction(),
+                    envelopes.get(1).isZipDeleted()
                 )
             );
 
