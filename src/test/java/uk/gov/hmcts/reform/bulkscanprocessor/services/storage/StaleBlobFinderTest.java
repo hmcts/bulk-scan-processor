@@ -54,21 +54,21 @@ class StaleBlobFinderTest {
         given(storageClient.getBlobContainerClient("cmc")).willReturn(cmcBlobClient);
         given(storageClient.getBlobContainerClient("sscs")).willReturn(sscsBlobClient);
 
-        OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
+        OffsetDateTime creationTime = now().minus(3, ChronoUnit.HOURS);
 
         mockStorageList(
             bulkscanBlobClient,
             Stream.of(
-                blob("bulk_scan_file_new", false, expectedCreationTime),
-                blob("bulk_scan_file_stale", true, expectedCreationTime)
+                blob("bulk_scan_file_new", false, creationTime),
+                blob("bulk_scan_file_stale", true, creationTime)
             )
         );
 
         mockStorageList(
             cmcBlobClient,
             Stream.of(
-                blob("cmc_scan_file_new_1", false, expectedCreationTime),
-                blob("cmc_scan_file_new_2", false, expectedCreationTime)
+                blob("cmc_scan_file_new_1", false, creationTime),
+                blob("cmc_scan_file_new_2", false, creationTime)
             )
         );
 
@@ -81,7 +81,7 @@ class StaleBlobFinderTest {
         assertThat(blobInfos.get(0).fileName).isEqualTo("bulk_scan_file_stale");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         var expectedTime =
-            dateTimeFormatter.format(ZonedDateTime.ofInstant(expectedCreationTime.toInstant(), EUROPE_LONDON_ZONE_ID));
+            dateTimeFormatter.format(ZonedDateTime.ofInstant(creationTime.toInstant(), EUROPE_LONDON_ZONE_ID));
 
         assertThat(blobInfos.get(0).createdAt).isEqualTo(expectedTime);
     }
@@ -94,13 +94,13 @@ class StaleBlobFinderTest {
 
     }
 
-    private BlobItem blob(String name, boolean staleFile, OffsetDateTime expectedCreationTime) {
+    private BlobItem blob(String name, boolean staleFile, OffsetDateTime creationTime) {
         var blobItem = mock(BlobItem.class);
         var properties = mock(BlobItemProperties.class);
 
         given(blobItem.getProperties()).willReturn(properties);
         if (staleFile) {
-            given(properties.getCreationTime()).willReturn(expectedCreationTime);
+            given(properties.getCreationTime()).willReturn(creationTime);
             given(blobItem.getName()).willReturn(name);
         } else {
             given(properties.getCreationTime()).willReturn(now());
