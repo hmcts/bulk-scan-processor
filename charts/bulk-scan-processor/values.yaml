@@ -55,7 +55,7 @@ java:
         - notifications-queue-send-connection-string
         - processed-envelopes-queue-listen-connection-string
         - envelopes-queue-send-shared-access-key
-#        - notification-queue-send-shared-access-key # not yet available
+        - notifications-queue-send-shared-access-key
         - processed-envelopes-queue-listen-shared-access-key
         - storage-account-name
         - storage-account-primary-key
