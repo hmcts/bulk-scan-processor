@@ -45,7 +45,8 @@ public class ZipFileStatusService {
             envelope.getContainer(),
             envelope.getStatus().name(),
             envelope.getCcdId(),
-            envelope.getEnvelopeCcdAction()
+            envelope.getEnvelopeCcdAction(),
+            envelope.isZipDeleted()
         );
     }
 
