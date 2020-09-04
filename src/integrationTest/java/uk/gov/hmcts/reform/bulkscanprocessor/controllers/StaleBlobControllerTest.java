@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.StaleBlobFinder;
@@ -22,13 +20,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
-
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(StaleBlobController.class)
 public class StaleBlobControllerTest {
 
@@ -55,7 +50,6 @@ public class StaleBlobControllerTest {
                 get("/stale-blobs")
                     .queryParam("stale_time", "1")
             )
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(2))
             .andExpect(jsonPath("$.data", hasSize(2)))
@@ -79,7 +73,6 @@ public class StaleBlobControllerTest {
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.data", hasSize(1)))
@@ -97,7 +90,6 @@ public class StaleBlobControllerTest {
         given(staleBlobFinder.findStaleBlobs(2)).willReturn(Collections.emptyList());
         mockMvc
             .perform(get("/stale-blobs"))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(0))
             .andExpect(jsonPath("$.data").isEmpty());
@@ -110,7 +102,6 @@ public class StaleBlobControllerTest {
     void should_return_400_for_invalid_time() throws Exception {
         mockMvc
             .perform(get("/stale-blobs").queryParam("stale_time", "1x"))
-            .andDo(print())
             .andExpect(status().isBadRequest());
         verifyNoMoreInteractions(staleBlobFinder);
     }
