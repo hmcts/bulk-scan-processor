@@ -40,8 +40,6 @@ class StaleBlobFinderTest {
     @InjectMocks
     private StaleBlobFinder staleBlobFinder;
 
-    private OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
-
     @Test
     void should_find_stale_blobs() {
         given(containerMappings.getMappings())
@@ -56,19 +54,21 @@ class StaleBlobFinderTest {
         given(storageClient.getBlobContainerClient("cmc")).willReturn(cmcBlobClient);
         given(storageClient.getBlobContainerClient("sscs")).willReturn(sscsBlobClient);
 
+        OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
+
         mockStorageList(
             bulkscanBlobClient,
             Stream.of(
-                blob("bulk_scan_file_new", false),
-                blob("bulk_scan_file_stale", true)
+                blob("bulk_scan_file_new", false, expectedCreationTime),
+                blob("bulk_scan_file_stale", true, expectedCreationTime)
             )
         );
 
         mockStorageList(
             cmcBlobClient,
             Stream.of(
-                blob("cmc_scan_file_new_1", false),
-                blob("cmc_scan_file_new_2", false)
+                blob("cmc_scan_file_new_1", false, expectedCreationTime),
+                blob("cmc_scan_file_new_2", false, expectedCreationTime)
             )
         );
 
@@ -94,7 +94,7 @@ class StaleBlobFinderTest {
 
     }
 
-    private BlobItem blob(String name, boolean staleFile) {
+    private BlobItem blob(String name, boolean staleFile, OffsetDateTime expectedCreationTime) {
         var blobItem = mock(BlobItem.class);
         var properties = mock(BlobItemProperties.class);
 
