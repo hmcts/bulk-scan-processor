@@ -221,6 +221,12 @@ resource "azurerm_key_vault_secret" "notifications_queue_send_conn_string" {
   value        = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
 }
 
+resource "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "notifications-queue-send-shared-access-key"
+  value        = "${data.azurerm_key_vault_secret.notifications_queue_send_access_key.value}"
+}
+
 data "azurerm_key_vault_secret" "s2s_secret" {
   key_vault_id = "${data.azurerm_key_vault.s2s_key_vault.id}"
   name         = "microservicekey-bulk-scan-processor"
@@ -244,6 +250,11 @@ data "azurerm_key_vault_secret" "envelopes_queue_send_conn_str" {
 data "azurerm_key_vault_secret" "notifications_queue_send_conn_str" {
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   name         = "notifications-queue-send-connection-string"
+}
+
+data "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  name         = "notification-queue-shared-access-key"
 }
 
 data "azurerm_key_vault_secret" "processed_envelopes_queue_listen_conn_str" {
