@@ -218,3 +218,7 @@ process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
 
 use-wrapping-zip: true
+
+service-config:
+  ocr-validation:
+    retry-count: 2
