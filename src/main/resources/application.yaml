@@ -219,6 +219,5 @@ process-payments:
 
 use-wrapping-zip: true
 
-service-config:
-  ocr-validation:
-    retry-count: 2
+ocr-validation:
+  retry-count: 2
