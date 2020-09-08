@@ -219,4 +219,4 @@ process-payments:
 
 use-wrapping-zip: true
 
-ocr-validation-max-tries: 2
+ocr-validation-max-retries: 2
