@@ -218,5 +218,3 @@ process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
 
 use-wrapping-zip: true
-
-ocr-validation-max-retries: 2

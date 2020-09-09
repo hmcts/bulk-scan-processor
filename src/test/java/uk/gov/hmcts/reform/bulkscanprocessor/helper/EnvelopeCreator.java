@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.UUID.randomUUID;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 
 public final class EnvelopeCreator {
 
@@ -114,35 +113,6 @@ public final class EnvelopeCreator {
             status, scannableItems,
             "SSCS"
         );
-    }
-
-    public static Envelope envelope(
-        String jurisdiction,
-        String poBox,
-        Classification classification,
-        List<ScannableItem> scannableItems
-    ) {
-        Instant timestamp = getInstant();
-
-        Envelope envelope = new Envelope(
-            poBox,
-            jurisdiction,
-            timestamp,
-            timestamp,
-            timestamp,
-            "file1.zip",
-            "1111222233334446",
-            "123654789",
-            classification,
-            scannableItems,
-            payments(),
-            nonScannableItems(),
-            "cont"
-        );
-
-        envelope.setStatus(CREATED);
-
-        return envelope;
     }
 
     public static Envelope envelope(
