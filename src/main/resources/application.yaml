@@ -221,4 +221,4 @@ process-payments:
 use-wrapping-zip: true
 
 ocr-validation-max-retries: 2
-ocr-validation-delay-retry-ms: 120000
+ocr-validation-delay-retry-sec: 120
