@@ -5,9 +5,6 @@ java:
         - processor-staging-db-password
         - s2s-secret
         - flyway-password
-        - envelopes-staging-queue-send-connection-string
-        - notifications-queue-send-connection-string
-        - processed-envelopes-staging-queue-listen-connection-string
         - envelopes-staging-queue-send-shared-access-key
         - notifications-queue-send-shared-access-key
         - processed-envelopes-staging-queue-listen-shared-access-key
