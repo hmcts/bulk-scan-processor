@@ -51,10 +51,10 @@ public class OcrValidationRetryManager {
     /**
      * Check if number of retries is exceeding ocrValidationMaxRetries,
      * if not set new retry delay expiration time, increment retryCount and return true,
-     * otherwise return false which means no more retries are possible
+     * otherwise return false which means no more retries are possible.
      *
      * @return true if retry is possible and new retry delay expiration time has been set,
-     * false if no more retries are possible
+     *         false if no more retries are possible
      */
     public boolean setRetryDelayIfPossible(BlobClient blobClient) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
