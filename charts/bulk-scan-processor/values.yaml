@@ -51,9 +51,6 @@ java:
         - processor-POSTGRES-PASS
         - s2s-secret
         - flyway-password
-        - envelopes-queue-send-connection-string
-        - notifications-queue-send-connection-string
-        - processed-envelopes-queue-listen-connection-string
         - envelopes-queue-send-shared-access-key
         - notifications-queue-send-shared-access-key
         - processed-envelopes-queue-listen-shared-access-key
