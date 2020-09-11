@@ -1,17 +1,21 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker.LEASE_EXPIRATION_TIME;
 
 @Component
 public class LeaseAcquirer {
@@ -32,10 +36,11 @@ public class LeaseAcquirer {
 
     /**
      * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
+     *
      * @param blobClient Represents blob
      * @param onLeaseSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
      * @param onFailure Extra step to execute in case an error occurred
-     * @param releaseLease Flag weather to release the lease or not
+     * @param releaseLease Flag whether to release the lease or not
      */
     public void ifAcquiredOrElse(
         BlobClient blobClient,
@@ -67,7 +72,7 @@ public class LeaseAcquirer {
             if (isReady) {
                 onLeaseSuccess.accept(leaseId);
                 if (releaseLease) {
-                    clearMetadataAndReleaseLease(leaseClient, blobClient);
+                    clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
                 }
             }
         } catch (BlobStorageException exc) {
@@ -100,9 +105,20 @@ public class LeaseAcquirer {
         }
     }
 
-    private void clearMetadataAndReleaseLease(BlobLeaseClient leaseClient, BlobClient blobClient) {
+    private void clearMetadataAndReleaseLease(
+        BlobLeaseClient leaseClient,
+        BlobClient blobClient,
+        String leaseId
+    ) {
         try {
-            leaseMetaDataChecker.clearMetaData(blobClient, leaseClient.getLeaseId());
+            Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
+            blobMetaData.remove(LEASE_EXPIRATION_TIME);
+            blobClient.setMetadataWithResponse(
+                blobMetaData,
+                new BlobRequestConditions().setLeaseId(leaseId),
+                null,
+                Context.NONE
+            );
             release(leaseClient, blobClient);
         } catch (BlobStorageException exc) {
             logger.warn(
