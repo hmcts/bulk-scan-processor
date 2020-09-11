@@ -177,14 +177,14 @@ class LeaseAcquirerTest {
         given(leaseClient.getLeaseId()).willReturn(leaseId);
         given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
 
-        var onSuccess = mock(Consumer.class);
-        var onFailure = mock(Consumer.class);
-
         given(blobClient.getProperties()).willReturn(blobProperties);
         final Map<String, String> metadata = new HashMap<>();
         metadata.put(LEASE_EXPIRATION_TIME, "time");
         metadata.put("someProperty", "someValue");
         given(blobProperties.getMetadata()).willReturn(metadata);
+
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
