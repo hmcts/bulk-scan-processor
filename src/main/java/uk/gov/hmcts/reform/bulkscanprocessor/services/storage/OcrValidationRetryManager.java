@@ -19,8 +19,9 @@ public class OcrValidationRetryManager {
 
     private static final Logger logger = getLogger(OcrValidationRetryManager.class);
 
-    private static final String RETRY_COUNT = "ocrValidationRetryCount";
-    private static final String RETRY_DELAY_EXPIRATION_TIME = "ocrValidationRetryDelayExpirationTime";
+    private static final String RETRY_COUNT_METADATA_PROPERTY = "ocrValidationRetryCount";
+    private static final String RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY =
+        "ocrValidationRetryDelayExpirationTime";
 
     private final int ocrValidationMaxRetries;
     private final int ocrValidationRetryDelaySec;
@@ -35,7 +36,7 @@ public class OcrValidationRetryManager {
 
     public boolean isReadyToRetry(BlobClient blobClient) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
-        String retryDelayExpirationTime = blobMetaData.get(RETRY_DELAY_EXPIRATION_TIME);
+        String retryDelayExpirationTime = blobMetaData.get(RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY);
         var zipFilename = blobClient.getBlobName();
         var containerName = blobClient.getContainerName();
 
@@ -63,9 +64,9 @@ public class OcrValidationRetryManager {
         if (retryCount >= ocrValidationMaxRetries) {
             return false;
         } else {
-            blobMetaData.put(RETRY_COUNT, Integer.toString(retryCount + 1));
+            blobMetaData.put(RETRY_COUNT_METADATA_PROPERTY, Integer.toString(retryCount + 1));
             blobMetaData.put(
-                RETRY_DELAY_EXPIRATION_TIME,
+                RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY,
                 now(EUROPE_LONDON_ZONE_ID).plusSeconds(ocrValidationRetryDelaySec).toString()
             );
             blobClient.setMetadata(blobMetaData);
@@ -83,7 +84,7 @@ public class OcrValidationRetryManager {
     }
 
     private int getRetryCount(Map<String, String> blobMetaData) {
-        String retryCountStr = blobMetaData.get(RETRY_COUNT);
+        String retryCountStr = blobMetaData.get(RETRY_COUNT_METADATA_PROPERTY);
 
         if (StringUtils.isBlank(retryCountStr)) {
             return 0;

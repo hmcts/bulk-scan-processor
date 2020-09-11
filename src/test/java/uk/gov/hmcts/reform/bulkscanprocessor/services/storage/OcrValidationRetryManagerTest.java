@@ -23,6 +23,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON
 
 @ExtendWith(MockitoExtension.class)
 class OcrValidationRetryManagerTest {
+    private static final int OCR_VALIDATION_MAX_RETRIES = 2;
+    private static final int OCR_VALIDATION_RETRY_DELAY_SEC = 120;
+
     private OcrValidationRetryManager ocrValidationRetryManager;
 
     @Mock
@@ -31,19 +34,20 @@ class OcrValidationRetryManagerTest {
     @Mock
     private BlobProperties blobProperties;
 
-    private Map<String, String> metadata;
-
     @BeforeEach
     void setUp() {
-        ocrValidationRetryManager = new OcrValidationRetryManager(2, 120);
+        ocrValidationRetryManager = new OcrValidationRetryManager(
+            OCR_VALIDATION_MAX_RETRIES,
+            OCR_VALIDATION_RETRY_DELAY_SEC
+        );
 
         given(blobClient.getProperties()).willReturn(blobProperties);
     }
 
     @Test
-    void isReadyToRetry_should_return_true_if_delay_expiration_not_set() {
+    void isReadyToRetry_should_return_true_if_delay_expiration_has_not_been_set() {
         // given
-        metadata = emptyMap();
+        final Map<String, String> metadata = emptyMap();
         given(blobProperties.getMetadata()).willReturn(metadata);
 
         // when
@@ -52,13 +56,13 @@ class OcrValidationRetryManagerTest {
     }
 
     @Test
-    void isReadyToRetry_should_return_false_if_delay_expiration_time_not_passed() {
+    void isReadyToRetry_should_return_false_if_delay_expiration_time_has_not_passed() {
         // given
-        metadata = Map.of(
+        final var metadata = Map.of(
             "ocrValidationRetryCount",
             "1",
             "ocrValidationRetryDelayExpirationTime",
-                now(EUROPE_LONDON_ZONE_ID).plusSeconds(10).toString()
+            now(EUROPE_LONDON_ZONE_ID).plusSeconds(10).toString()
         );
         given(blobProperties.getMetadata()).willReturn(metadata);
 
@@ -68,13 +72,13 @@ class OcrValidationRetryManagerTest {
     }
 
     @Test
-    void isReadyToRetry_should_return_true_if_delay_expiration_time_passed() {
+    void isReadyToRetry_should_return_true_if_delay_expiration_time_has_passed() {
         // given
-        metadata = Map.of(
+        final var metadata = Map.of(
             "ocrValidationRetryCount",
             "1",
             "ocrValidationRetryDelayExpirationTime",
-                now(EUROPE_LONDON_ZONE_ID).minusSeconds(1).toString()
+            now(EUROPE_LONDON_ZONE_ID).minusSeconds(1).toString()
         );
         given(blobProperties.getMetadata()).willReturn(metadata);
 
@@ -86,7 +90,7 @@ class OcrValidationRetryManagerTest {
     @Test
     void setRetryDelayIfPossible_should_return_true_if_first_retry() {
         // given
-        metadata = new HashMap<>();
+        final Map<String, String> metadata = new HashMap<>();
         given(blobProperties.getMetadata()).willReturn(metadata);
 
         // when
@@ -103,7 +107,7 @@ class OcrValidationRetryManagerTest {
     @Test
     void setRetryDelayIfPossible_should_return_true_if_second_retry() {
         // given
-        metadata = new HashMap<>();
+        final Map<String, String> metadata = new HashMap<>();
         metadata.put("ocrValidationRetryCount", "1");
         metadata.put("ocrValidationRetryDelayExpirationTime", now(EUROPE_LONDON_ZONE_ID).minusSeconds(1).toString());
         given(blobProperties.getMetadata()).willReturn(metadata);
@@ -123,7 +127,7 @@ class OcrValidationRetryManagerTest {
     @Test
     void setRetryDelayIfPossible_should_return_false_if_max_number_of_retries_exceeded() {
         // given
-        metadata = new HashMap<>();
+        final Map<String, String> metadata = new HashMap<>();
         metadata.put("ocrValidationRetryCount", "2");
         metadata.put("ocrValidationRetryDelayExpirationTime", now(EUROPE_LONDON_ZONE_ID).minusSeconds(1).toString());
         given(blobProperties.getMetadata()).willReturn(metadata);
