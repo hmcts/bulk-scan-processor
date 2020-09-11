@@ -107,6 +107,38 @@ class LeaseAcquirerTest {
         verifyNoMoreInteractions(leaseMetaDataChecker);
     }
 
+    @Test
+    void should_call_release_without_clearing_metadata_when_successfully_processed_blob_and_clearMetadata_false() {
+        //given
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
+        given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true, false);
+
+        // then
+        verify(leaseClient).releaseLease();
+        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
+        verifyNoMoreInteractions(leaseMetaDataChecker);
+    }
+
+    @Test
+    void should_call_release_with_clearing_metadata_when_successfully_processed_blob_and_clearMetadata_true() {
+        //given
+        given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
+        given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
+        given(leaseClient.getLeaseId()).willReturn(leaseId);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true, true);
+
+        // then
+        verify(leaseClient).releaseLease();
+        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
+        verify(leaseMetaDataChecker).clearMetaData(eq(blobClient), eq(leaseId));
+        verifyNoMoreInteractions(leaseMetaDataChecker);
+    }
+
 
     @Test
     void should_not_run_provided_action_when_metadata_lease_was_not_ready() {

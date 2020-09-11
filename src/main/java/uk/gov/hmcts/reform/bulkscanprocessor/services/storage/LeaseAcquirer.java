@@ -32,16 +32,36 @@ public class LeaseAcquirer {
 
     /**
      * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
+     *
      * @param blobClient Represents blob
      * @param onLeaseSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
      * @param onFailure Extra step to execute in case an error occurred
-     * @param releaseLease Flag weather to release the lease or not
+     * @param releaseLease Flag whether to release the lease or not
      */
     public void ifAcquiredOrElse(
         BlobClient blobClient,
         Consumer<String> onLeaseSuccess,
         Consumer<BlobErrorCode> onFailure,
         boolean releaseLease
+    ) {
+        ifAcquiredOrElse(blobClient, onLeaseSuccess, onFailure, releaseLease, true);
+    }
+
+    /**
+     * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
+     *
+     * @param blobClient Represents blob
+     * @param onLeaseSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
+     * @param onFailure Extra step to execute in case an error occurred
+     * @param releaseLease Flag whether to release the lease or not
+     * @param clearMetadata Flag whether to clear metadata along with releasing lease or not
+     */
+    public void ifAcquiredOrElse(
+        BlobClient blobClient,
+        Consumer<String> onLeaseSuccess,
+        Consumer<BlobErrorCode> onFailure,
+        boolean releaseLease,
+        boolean clearMetadata
     ) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
@@ -67,7 +87,11 @@ public class LeaseAcquirer {
             if (isReady) {
                 onLeaseSuccess.accept(leaseId);
                 if (releaseLease) {
-                    clearMetadataAndReleaseLease(leaseClient, blobClient);
+                    if (clearMetadata) {
+                        clearMetadataAndReleaseLease(leaseClient, blobClient);
+                    } else {
+                        release(leaseClient, blobClient);
+                    }
                 }
             }
         } catch (BlobStorageException exc) {
