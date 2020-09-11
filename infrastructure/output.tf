@@ -23,10 +23,6 @@ output "TEST_STORAGE_ACCOUNT_URL" {
   value = "${local.storage_account_url}"
 }
 
-output "PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING" {
-  value = "${data.azurerm_key_vault_secret.processed_envelopes_queue_send_conn_str.value}"
-}
-
 output "test_storage_container_name" {
   value = "bulkscan"
 }

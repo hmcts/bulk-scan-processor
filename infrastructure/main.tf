@@ -111,10 +111,6 @@ module "bulk-scan" {
 
     STORAGE_BLOB_SELECTED_CONTAINER = "${var.blob_selected_container}"
 
-    QUEUE_ENVELOPE_SEND            = "${data.azurerm_key_vault_secret.envelopes_queue_send_conn_str.value}"
-    QUEUE_NOTIFICATIONS_SEND       = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
-    QUEUE_PROCESSED_ENVELOPES_READ = "${data.azurerm_key_vault_secret.processed_envelopes_queue_listen_conn_str.value}"
-
     SMTP_HOST          = "${var.smtp_host}"
     SMTP_USERNAME      = "${data.azurerm_key_vault_secret.smtp_username.value}"
     SMTP_PASSWORD      = "${data.azurerm_key_vault_secret.smtp_password.value}"
@@ -215,12 +211,6 @@ resource "azurerm_key_vault_secret" "staging_db_name" {
 }
 # endregion
 
-resource "azurerm_key_vault_secret" "notifications_queue_send_conn_string" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "notifications-queue-send-connection-string"
-  value        = "${data.azurerm_key_vault_secret.notifications_queue_send_conn_str.value}"
-}
-
 resource "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "notifications-queue-send-shared-access-key"
@@ -242,29 +232,9 @@ data "azurerm_key_vault_secret" "storage_account_primary_key" {
   name         = "storage-account-primary-key"
 }
 
-data "azurerm_key_vault_secret" "envelopes_queue_send_conn_str" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "envelopes-queue-send-connection-string"
-}
-
-data "azurerm_key_vault_secret" "notifications_queue_send_conn_str" {
-  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
-  name         = "notifications-queue-send-connection-string"
-}
-
 data "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   name         = "notification-queue-send-shared-access-key"
-}
-
-data "azurerm_key_vault_secret" "processed_envelopes_queue_listen_conn_str" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "processed-envelopes-queue-listen-connection-string"
-}
-
-data "azurerm_key_vault_secret" "processed_envelopes_queue_send_conn_str" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "processed-envelopes-queue-send-connection-string"
 }
 
 data "azurerm_key_vault_secret" "reports_recipients" {
