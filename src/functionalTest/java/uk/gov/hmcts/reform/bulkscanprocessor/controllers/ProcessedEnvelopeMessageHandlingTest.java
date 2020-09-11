@@ -5,7 +5,6 @@ import com.microsoft.azure.servicebus.IMessage;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
-import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -19,7 +18,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.FLUX_FUNC_TEST;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROCESSED_ENVELOPES_QUEUE_CONN_STRING;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROCESSED_ENVELOPES_QUEUE_CONN_STRING_BUILDER;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_SECRET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_URL;
@@ -42,7 +41,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         this.s2sToken = testHelper.s2sSignIn(S2S_NAME, S2S_SECRET, S2S_URL);
 
         this.queueClient = new QueueClient(
-            new ConnectionStringBuilder(PROCESSED_ENVELOPES_QUEUE_CONN_STRING),
+            PROCESSED_ENVELOPES_QUEUE_CONN_STRING_BUILDER,
             ReceiveMode.PEEKLOCK
         );
     }

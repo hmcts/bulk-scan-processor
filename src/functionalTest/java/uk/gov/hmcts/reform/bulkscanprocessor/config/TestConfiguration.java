@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -33,7 +34,7 @@ public class TestConfiguration {
 
     public static final String STORAGE_CONTAINER_NAME;
 
-    public static final String PROCESSED_ENVELOPES_QUEUE_CONN_STRING;
+    public static final ConnectionStringBuilder PROCESSED_ENVELOPES_QUEUE_CONN_STRING_BUILDER;
 
     static {
         config = ConfigFactory.load();
@@ -50,7 +51,12 @@ public class TestConfiguration {
         STORAGE_ACCOUNT_NAME = config.getString("test-storage-account-name");
         STORAGE_ACCOUNT_KEY = config.getString("test-storage-account-key");
         STORAGE_CONTAINER_NAME = config.getString("test-storage-container-name");
-        PROCESSED_ENVELOPES_QUEUE_CONN_STRING = config.getString("processed-envelopes-queue-conn-string");
+        PROCESSED_ENVELOPES_QUEUE_CONN_STRING_BUILDER = new ConnectionStringBuilder(
+            config.getString("processed-envelopes-queue-namespace"),
+            config.getString("processed-envelopes-queue-name"),
+            config.getString("processed-envelopes-queue-access-key-name"),
+            config.getString("processed-envelopes-queue-access-key")
+        );
     }
 
     private TestConfiguration() {
