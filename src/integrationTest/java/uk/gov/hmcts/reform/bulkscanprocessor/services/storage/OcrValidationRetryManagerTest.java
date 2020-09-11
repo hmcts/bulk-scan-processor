@@ -2,10 +2,12 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import static java.time.LocalDateTime.now;
 import static java.time.LocalDateTime.parse;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,8 +30,17 @@ class OcrValidationRetryManagerTest {
     @Autowired
     private OcrValidationRetryManager ocrValidationRetryManager;
 
+    @MockBean
+    private LeaseClientProvider leaseClientProvider;
+
+    @MockBean
+    private LeaseMetaDataChecker leaseMetaDataChecker;
+
     @Mock
     private BlobClient blobClient;
+
+    @Mock
+    private BlobLeaseClient blobLeaseClient;
 
     @Mock
     private BlobProperties blobProperties;
@@ -86,13 +98,15 @@ class OcrValidationRetryManagerTest {
         // given
         final Map<String, String> metadata = new HashMap<>();
         given(blobProperties.getMetadata()).willReturn(metadata);
+        given(leaseClientProvider.get(blobClient)).willReturn(blobLeaseClient);
+        given(blobLeaseClient.acquireLease(anyInt())).willReturn("leaseId");
+        given(leaseMetaDataChecker.isReadyToUse(blobClient,"leaseId")).willReturn(true);
 
         // when
         boolean res = ocrValidationRetryManager.setRetryDelayIfPossible(blobClient);
 
         // then
         assertThat(res).isTrue();
-        verify(blobClient).setMetadata(metadata);
         assertThat(metadata.get("ocrValidationRetryCount")).isEqualTo("1");
         LocalDateTime retryDelayExpiresAt = parse(metadata.get("ocrValidationRetryDelayExpirationTime"));
         assertThat(retryDelayExpiresAt.isAfter(now(EUROPE_LONDON_ZONE_ID))).isTrue();
@@ -105,14 +119,15 @@ class OcrValidationRetryManagerTest {
         metadata.put("ocrValidationRetryCount", "1");
         metadata.put("ocrValidationRetryDelayExpirationTime", now(EUROPE_LONDON_ZONE_ID).minusSeconds(1).toString());
         given(blobProperties.getMetadata()).willReturn(metadata);
+        given(leaseClientProvider.get(blobClient)).willReturn(blobLeaseClient);
+        given(blobLeaseClient.acquireLease(anyInt())).willReturn("leaseId");
+        given(leaseMetaDataChecker.isReadyToUse(blobClient,"leaseId")).willReturn(true);
 
         // when
         boolean res = ocrValidationRetryManager.setRetryDelayIfPossible(blobClient);
 
         // then
         assertThat(res).isTrue();
-
-        verify(blobClient).setMetadata(metadata);
         assertThat(metadata.get("ocrValidationRetryCount")).isEqualTo("2");
         LocalDateTime retryDelayExpiresAt = parse(metadata.get("ocrValidationRetryDelayExpirationTime"));
         assertThat(retryDelayExpiresAt.isAfter(now(EUROPE_LONDON_ZONE_ID))).isTrue();

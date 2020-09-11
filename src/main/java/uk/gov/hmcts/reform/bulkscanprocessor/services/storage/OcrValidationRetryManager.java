@@ -23,13 +23,16 @@ public class OcrValidationRetryManager {
     private static final String RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY =
         "ocrValidationRetryDelayExpirationTime";
 
+    private final LeaseAcquirer leaseAcquirer;
     private final int ocrValidationMaxRetries;
     private final int ocrValidationRetryDelaySec;
 
     public OcrValidationRetryManager(
+        LeaseAcquirer leaseAcquirer,
         @Value("${ocr-validation-max-retries}") int ocrValidationMaxRetries,
         @Value("${ocr-validation-delay-retry-sec}") int ocrValidationRetryDelaySec
     ) {
+        this.leaseAcquirer = leaseAcquirer;
         this.ocrValidationMaxRetries = ocrValidationMaxRetries;
         this.ocrValidationRetryDelaySec = ocrValidationRetryDelaySec;
     }
@@ -64,14 +67,23 @@ public class OcrValidationRetryManager {
         if (retryCount >= ocrValidationMaxRetries) {
             return false;
         } else {
-            blobMetaData.put(RETRY_COUNT_METADATA_PROPERTY, Integer.toString(retryCount + 1));
-            blobMetaData.put(
-                RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY,
-                now(EUROPE_LONDON_ZONE_ID).plusSeconds(ocrValidationRetryDelaySec).toString()
+            leaseAcquirer.ifAcquiredOrElse(
+                blobClient,
+                leaseId -> prepareNextRetry(blobClient, blobMetaData, retryCount),
+                blobErrorCode -> {},
+                true
             );
-            blobClient.setMetadata(blobMetaData);
             return true;
         }
+    }
+
+    private void prepareNextRetry(BlobClient blobClient, Map<String, String> blobMetaData, int retryCount) {
+        blobMetaData.put(RETRY_COUNT_METADATA_PROPERTY, Integer.toString(retryCount + 1));
+        blobMetaData.put(
+            RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY,
+            now(EUROPE_LONDON_ZONE_ID).plusSeconds(ocrValidationRetryDelaySec).toString()
+        );
+        blobClient.setMetadata(blobMetaData);
     }
 
     private boolean isRetryDelayExpired(String retryDelayExpirationTime) {
