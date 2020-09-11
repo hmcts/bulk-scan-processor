@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -22,15 +28,16 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker.LEASE_EXPIRATION_TIME;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
 class LeaseAcquirerTest {
 
     @Mock private BlobClient blobClient;
+    @Mock private BlobProperties blobProperties;
     @Mock private BlobLeaseClient leaseClient;
     @Mock private BlobStorageException blobStorageException;
 
@@ -95,7 +102,12 @@ class LeaseAcquirerTest {
         //given
         given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
         given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
-        given(leaseClient.getLeaseId()).willReturn(leaseId);
+
+        given(blobClient.getProperties()).willReturn(blobProperties);
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put(LEASE_EXPIRATION_TIME, "time");
+        metadata.put("someProperty", "someValue");
+        given(blobProperties.getMetadata()).willReturn(metadata);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
@@ -103,7 +115,15 @@ class LeaseAcquirerTest {
         // then
         verify(leaseClient).releaseLease();
         verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
-        verify(leaseMetaDataChecker).clearMetaData(eq(blobClient), eq(leaseId));
+        verify(blobClient).setMetadataWithResponse(
+            eq(metadata),
+            any(BlobRequestConditions.class),
+            eq(null),
+            eq(Context.NONE)
+        );
+        assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
+        assertThat(metadata.containsKey("someProperty")).isTrue();
+        assertThat(metadata.get("someProperty")).isEqualTo("someValue");
         verifyNoMoreInteractions(leaseMetaDataChecker);
     }
 
@@ -153,13 +173,18 @@ class LeaseAcquirerTest {
         // given
         given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
         willThrow(new BlobStorageException("Can not clear metadata", null, null))
-            .given(leaseMetaDataChecker).clearMetaData(any(),any());
+            .given(blobClient).setMetadataWithResponse(any(), any(), any(), any());
         given(leaseClient.getLeaseId()).willReturn(leaseId);
         given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
 
+        given(blobClient.getProperties()).willReturn(blobProperties);
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put(LEASE_EXPIRATION_TIME, "time");
+        metadata.put("someProperty", "someValue");
+        given(blobProperties.getMetadata()).willReturn(metadata);
+
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
-
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
@@ -168,10 +193,17 @@ class LeaseAcquirerTest {
         verify(onSuccess).accept(anyString());
         verify(onFailure, never()).accept(any());
         verify(leaseClient).acquireLease(anyInt());
-        verify(leaseClient, times(2)).getLeaseId();
         verifyNoMoreInteractions(leaseClient);
         verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
-        verify(leaseMetaDataChecker).clearMetaData(eq(blobClient), eq(leaseId));
+        verify(blobClient).setMetadataWithResponse(
+            eq(metadata),
+            any(BlobRequestConditions.class),
+            eq(null),
+            eq(Context.NONE)
+        );
+        assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
+        assertThat(metadata.containsKey("someProperty")).isTrue();
+        assertThat(metadata.get("someProperty")).isEqualTo("someValue");
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
     }
