@@ -106,6 +106,7 @@ class LeaseAcquirerTest {
         given(blobClient.getProperties()).willReturn(blobProperties);
         final Map<String, String> metadata = new HashMap<>();
         metadata.put(LEASE_EXPIRATION_TIME, "time");
+        metadata.put("someProperty", "someValue");
         given(blobProperties.getMetadata()).willReturn(metadata);
 
         // when
@@ -121,6 +122,8 @@ class LeaseAcquirerTest {
             eq(Context.NONE)
         );
         assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
+        assertThat(metadata.containsKey("someProperty")).isTrue();
+        assertThat(metadata.get("someProperty")).isEqualTo("someValue");
         verifyNoMoreInteractions(leaseMetaDataChecker);
     }
 
@@ -179,6 +182,8 @@ class LeaseAcquirerTest {
 
         given(blobClient.getProperties()).willReturn(blobProperties);
         final Map<String, String> metadata = new HashMap<>();
+        metadata.put(LEASE_EXPIRATION_TIME, "time");
+        metadata.put("someProperty", "someValue");
         given(blobProperties.getMetadata()).willReturn(metadata);
 
         // when
@@ -197,6 +202,8 @@ class LeaseAcquirerTest {
             eq(Context.NONE)
         );
         assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
+        assertThat(metadata.containsKey("someProperty")).isTrue();
+        assertThat(metadata.get("someProperty")).isEqualTo("someValue");
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
     }
