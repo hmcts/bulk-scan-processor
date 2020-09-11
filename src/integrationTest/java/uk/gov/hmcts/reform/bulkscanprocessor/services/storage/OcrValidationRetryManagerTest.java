@@ -4,9 +4,9 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -21,11 +21,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
-@ExtendWith(MockitoExtension.class)
+@IntegrationTest
 class OcrValidationRetryManagerTest {
-    private static final int OCR_VALIDATION_MAX_RETRIES = 2;
-    private static final int OCR_VALIDATION_RETRY_DELAY_SEC = 120;
 
+    @Autowired
     private OcrValidationRetryManager ocrValidationRetryManager;
 
     @Mock
@@ -36,11 +35,6 @@ class OcrValidationRetryManagerTest {
 
     @BeforeEach
     void setUp() {
-        ocrValidationRetryManager = new OcrValidationRetryManager(
-            OCR_VALIDATION_MAX_RETRIES,
-            OCR_VALIDATION_RETRY_DELAY_SEC
-        );
-
         given(blobClient.getProperties()).willReturn(blobProperties);
     }
 
@@ -139,4 +133,5 @@ class OcrValidationRetryManagerTest {
         assertThat(res).isFalse();
         verify(blobClient, never()).setMetadata(metadata);
     }
+
 }
