@@ -17,7 +17,7 @@ def combinedSecrets = [
   'bulk-scan-${env}': [
     secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-    secret('processed-envelopes-staging-queue-send-connection-string', 'PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING')
+    secret('processed-envelopes-staging-queue-send-shared-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY')
   ],
   's2s-${env}': [
     // to be removed later
@@ -54,6 +54,9 @@ withPipeline(type, product, component) {
   env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanaatstaging.blob.core.windows.net'
   env.PROXYOUT_ENABLED = false
   env.FLUX_FUNC_TEST = false
+  env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes-staging'
+  env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = 'bulk-scan-servicebus-aat'
+  env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'SendSharedAccessKey'
 
   before('smoketest:preview') {
     withAksClient('nonprod', product) {
@@ -73,8 +76,11 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
 
       // Get envelopes queue connection string
-      def sbConnectionStr = kubectl.getSecret(serviceBusSecret, namespace, "{.data.connectionString}")
-      env.PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING = "${sbConnectionStr};EntityPath=processed-envelopes"
+      env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes'
+      env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = kubectl.getSecret(serviceBusSecret, namespace, "{.data.namespaceName}")
+      env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY = kubectl.getSecret(serviceBusSecret, namespace, "{.data.primaryKey}")
+      env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'RootManageSharedAccessKey'
+
       env.PROXYOUT_ENABLED = false
 
     }
