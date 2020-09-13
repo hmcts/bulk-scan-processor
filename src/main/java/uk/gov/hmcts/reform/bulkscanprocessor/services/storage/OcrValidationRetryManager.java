@@ -43,13 +43,17 @@ public class OcrValidationRetryManager {
         var zipFilename = blobClient.getBlobName();
         var containerName = blobClient.getContainerName();
 
-        logger.info(
-            "Checking if retry delay expired on file {} in container {}",
-            zipFilename,
-            containerName
-        );
+        final boolean retryDelayExpired = isRetryDelayExpired(retryDelayExpirationTime);
 
-        return isRetryDelayExpired(retryDelayExpirationTime);
+        if (!retryDelayExpired) {
+            logger.info(
+                "Retry delay not yet expired on file {} in container {}",
+                zipFilename,
+                containerName
+            );
+        }
+
+        return retryDelayExpired;
     }
 
     /**
