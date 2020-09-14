@@ -213,7 +213,7 @@ dependencyCheck {
 // enforces it's own (older) version which is not recommended.
 def versions = [
   junit: '5.6.2',
-  junitPlatform: '1.6.2',
+  junitPlatform: '1.7.0',
   mockitoJupiter: '3.3.3',
   springfoxSwagger: '2.9.2',
   reformLogging: '5.1.5'
