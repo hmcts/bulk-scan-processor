@@ -40,16 +40,14 @@ public class OcrValidationRetryManager {
     public boolean isReadyToRetry(BlobClient blobClient) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         String retryDelayExpirationTime = blobMetaData.get(RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY);
-        var zipFilename = blobClient.getBlobName();
-        var containerName = blobClient.getContainerName();
 
         final boolean retryDelayExpired = isRetryDelayExpired(retryDelayExpirationTime);
 
         if (!retryDelayExpired) {
             logger.info(
                 "Retry delay not yet expired on file {} in container {}",
-                zipFilename,
-                containerName
+                blobClient.getBlobName(),
+                blobClient.getContainerName()
             );
         }
 
