@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -58,18 +61,18 @@ class OcrValidationRetryManagerTest {
     }
 
     @Test
-    void isReadyToRetry_should_return_true_if_delay_expiration_has_not_been_set() {
+    void isRetryDelayNotSetOrExpired_should_return_true_if_delay_expiration_has_not_been_set() {
         // given
         final Map<String, String> metadata = emptyMap();
         given(blobProperties.getMetadata()).willReturn(metadata);
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.isRetryDelayNotSetOrExpired(blobClient)).isTrue();
     }
 
     @Test
-    void isReadyToRetry_should_return_false_if_delay_expiration_time_has_not_passed() {
+    void isRetryDelayNotSetOrExpired_should_return_false_if_delay_expiration_time_has_not_passed() {
         // given
         final var metadata = Map.of(
             "ocrValidationRetryCount",
@@ -81,11 +84,11 @@ class OcrValidationRetryManagerTest {
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
+        assertThat(ocrValidationRetryManager.isRetryDelayNotSetOrExpired(blobClient)).isFalse();
     }
 
     @Test
-    void isReadyToRetry_should_return_true_if_delay_expiration_time_has_passed() {
+    void isRetryDelayNotSetOrExpired_should_return_true_if_delay_expiration_time_has_passed() {
         // given
         final var metadata = Map.of(
             "ocrValidationRetryCount",
@@ -97,11 +100,11 @@ class OcrValidationRetryManagerTest {
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.isRetryDelayNotSetOrExpired(blobClient)).isTrue();
     }
 
     @Test
-    void setRetryDelayIfPossible_should_return_true_if_first_retry() {
+    void setRetryDelayIfPossible_should_return_true_if_no_retry() {
         // given
         final Map<String, String> metadata = new HashMap<>();
         given(blobProperties.getMetadata()).willReturn(metadata);
@@ -123,7 +126,7 @@ class OcrValidationRetryManagerTest {
     }
 
     @Test
-    void setRetryDelayIfPossible_should_return_true_if_second_retry() {
+    void setRetryDelayIfPossible_should_return_true_if_first_retry() {
         // given
         final Map<String, String> metadata = new HashMap<>();
         metadata.put("ocrValidationRetryCount", "1");
@@ -144,14 +147,51 @@ class OcrValidationRetryManagerTest {
         assertThat(metadata.get("ocrValidationRetryCount")).isEqualTo("2");
         LocalDateTime retryDelayExpiresAt = parse(metadata.get("ocrValidationRetryDelayExpirationTime"));
         assertThat(retryDelayExpiresAt.isAfter(now(EUROPE_LONDON_ZONE_ID))).isTrue();
-        verify(blobClient).setMetadata(metadata);
+        verify(blobClient)
+            .setMetadataWithResponse(
+                eq(metadata),
+                any(BlobRequestConditions.class),
+                eq(null),
+                eq(Context.NONE)
+            );
+    }
+
+    @Test
+    void setRetryDelayIfPossible_should_return_true_if_second_retry() {
+        // given
+        final Map<String, String> metadata = new HashMap<>();
+        metadata.put("ocrValidationRetryCount", "2");
+        metadata.put("ocrValidationRetryDelayExpirationTime", now(EUROPE_LONDON_ZONE_ID).minusSeconds(1).toString());
+        given(blobProperties.getMetadata()).willReturn(metadata);
+
+        doAnswer(invocation -> {
+            var okAction = (Consumer) invocation.getArgument(1);
+            okAction.accept(UUID.randomUUID().toString());
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+
+        // when
+        boolean res = ocrValidationRetryManager.setRetryDelayIfPossible(blobClient);
+
+        // then
+        assertThat(res).isTrue();
+        assertThat(metadata.get("ocrValidationRetryCount")).isEqualTo("3");
+        LocalDateTime retryDelayExpiresAt = parse(metadata.get("ocrValidationRetryDelayExpirationTime"));
+        assertThat(retryDelayExpiresAt.isAfter(now(EUROPE_LONDON_ZONE_ID))).isTrue();
+        verify(blobClient)
+            .setMetadataWithResponse(
+                eq(metadata),
+                any(BlobRequestConditions.class),
+                eq(null),
+                eq(Context.NONE)
+            );
     }
 
     @Test
     void setRetryDelayIfPossible_should_return_false_if_max_number_of_retries_exceeded() {
         // given
         final Map<String, String> metadata = new HashMap<>();
-        metadata.put("ocrValidationRetryCount", "2");
+        metadata.put("ocrValidationRetryCount", "3");
         metadata.put("ocrValidationRetryDelayExpirationTime", now(EUROPE_LONDON_ZONE_ID).minusSeconds(1).toString());
         given(blobProperties.getMetadata()).willReturn(metadata);
 
@@ -160,7 +200,7 @@ class OcrValidationRetryManagerTest {
 
         // then
         assertThat(res).isFalse();
-        verify(blobClient, never()).setMetadata(metadata);
+        verify(blobClient, never()).setMetadataWithResponse(any(), any(), any(), any());
     }
 
     @Test
@@ -180,6 +220,6 @@ class OcrValidationRetryManagerTest {
             () -> ocrValidationRetryManager.setRetryDelayIfPossible(blobClient));
 
         // then
-        verify(blobClient, never()).setMetadata(metadata);
+        verify(blobClient, never()).setMetadataWithResponse(any(), any(), any(), any());
     }
 }

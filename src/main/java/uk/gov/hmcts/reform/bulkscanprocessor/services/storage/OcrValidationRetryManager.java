@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +39,7 @@ public class OcrValidationRetryManager {
         this.ocrValidationRetryDelaySec = ocrValidationRetryDelaySec;
     }
 
-    public boolean isReadyToRetry(BlobClient blobClient) {
+    public boolean isRetryDelayNotSetOrExpired(BlobClient blobClient) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         String retryDelayExpirationTime = blobMetaData.get(RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY);
 
@@ -66,12 +68,12 @@ public class OcrValidationRetryManager {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         int retryCount = getRetryCount(blobMetaData);
 
-        if (retryCount >= ocrValidationMaxRetries) {
+        if (retryCount > ocrValidationMaxRetries) {
             return false;
         } else {
             leaseAcquirer.ifAcquiredOrElse(
                 blobClient,
-                leaseId -> prepareNextRetry(blobClient, blobMetaData, retryCount),
+                leaseId -> prepareNextRetry(blobClient, blobMetaData, retryCount, leaseId),
                 blobErrorCode -> {},
                 true
             );
@@ -79,13 +81,23 @@ public class OcrValidationRetryManager {
         }
     }
 
-    private void prepareNextRetry(BlobClient blobClient, Map<String, String> blobMetaData, int retryCount) {
+    private void prepareNextRetry(
+        BlobClient blobClient,
+        Map<String, String> blobMetaData,
+        int retryCount,
+        String leaseId
+    ) {
         blobMetaData.put(RETRY_COUNT_METADATA_PROPERTY, Integer.toString(retryCount + 1));
         blobMetaData.put(
             RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY,
             now(EUROPE_LONDON_ZONE_ID).plusSeconds(ocrValidationRetryDelaySec).toString()
         );
-        blobClient.setMetadata(blobMetaData);
+        blobClient.setMetadataWithResponse(
+            blobMetaData,
+            new BlobRequestConditions().setLeaseId(leaseId),
+            null,
+            Context.NONE
+        );
     }
 
     private boolean isRetryDelayExpired(String retryDelayExpirationTime) {
