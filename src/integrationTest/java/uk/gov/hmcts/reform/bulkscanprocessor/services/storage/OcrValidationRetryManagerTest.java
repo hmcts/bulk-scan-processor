@@ -29,6 +29,9 @@ class OcrValidationRetryManagerTest {
     @Autowired
     private OcrValidationRetryManager ocrValidationRetryManager;
 
+    @Autowired
+    private LeaseAcquirer leaseAcquirer;
+
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
 
@@ -79,45 +82,50 @@ class OcrValidationRetryManagerTest {
 
         BlobClient blobClient = testContainer.getBlobClient(SAMPLE_ZIP_FILE_NAME);
 
-        // when
-        // then
-        // retry is possible if ocrValidationRetryDelayExpirationTime metadata property is not set
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        leaseAcquirer.ifAcquiredOrElse(
+            blobClient,
+            leaseId -> {
 
-        assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient)).isTrue();
+                // when
+                // then
+                // retry is possible if ocrValidationRetryDelayExpirationTime metadata property is not set
+                assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
 
-        Thread.sleep(1000L);
-        // retry is not possible if retry delay (2 sec) has not expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
+                assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)).isTrue();
 
-        Thread.sleep(5000L);
-        // retry is possible if retry delay (2 sec) has expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+                doSleep(1000L);
+                // retry is not possible if retry delay (2 sec) has not expired
+                assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
 
-        // and ocrValidationRetryCount metadata property is not exceeding 2 (as defined in application.properties)
-        assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient)).isTrue();
+                doSleep(5000L);
+                // retry is possible if retry delay (2 sec) has expired
+                assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
 
-        Thread.sleep(1000L);
-        // retry is not possible if retry delay (3 sec as defined in application.properties) has not expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
+                // and ocrValidationRetryCount metadata property is not exceeding 1
+                assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)).isTrue();
 
-        Thread.sleep(5000L);
-        // retry is possible if retry delay (3 sec) has expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+                doSleep(1000L);
+                // retry is not possible if retry delay (3 sec) has not expired
+                assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
 
-        // and ocrValidationRetryCount metadata property is not exceeding 2
-        assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient)).isTrue();
+                doSleep(5000L);
+                // retry is possible if retry delay (3 sec) has expired
+                assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
 
-        Thread.sleep(1000L);
-        // retry is not possible if retry delay (3 sec) has not expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
+                // but ocrValidationRetryCount metadata property is now exceeding 1 and result is false
+                assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)).isFalse();
+            },
+            blobErrorCode -> {},
+            true
+        );
+    }
 
-        Thread.sleep(5000L);
-        // retry is possible if retry delay (3 sec) has expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
-
-        // but ocrValidationRetryCount metadata property is now exceeding 2 and result is false
-        assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient)).isFalse();
+    private void doSleep(long l) {
+        try {
+            Thread.sleep(l);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void uploadToBlobStorage(String fileName, byte[] fileContent) {

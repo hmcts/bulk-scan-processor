@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.time.LocalDateTime.now;
 import static java.time.LocalDateTime.parse;
@@ -26,16 +25,13 @@ public class OcrValidationRetryManager {
     private static final String RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY =
         "ocrValidationRetryDelayExpirationTime";
 
-    private final LeaseAcquirer leaseAcquirer;
     private final int ocrValidationMaxRetries;
     private final int ocrValidationRetryDelaySec;
 
     public OcrValidationRetryManager(
-        LeaseAcquirer leaseAcquirer,
         @Value("${ocr-validation-max-retries}") int ocrValidationMaxRetries,
         @Value("${ocr-validation-delay-retry-sec}") int ocrValidationRetryDelaySec
     ) {
-        this.leaseAcquirer = leaseAcquirer;
         this.ocrValidationMaxRetries = ocrValidationMaxRetries;
         this.ocrValidationRetryDelaySec = ocrValidationRetryDelaySec;
     }
@@ -62,32 +58,21 @@ public class OcrValidationRetryManager {
      * if not set new retry delay expiration time, increment retryCount and return true,
      * otherwise return false which means no more retries are possible.
      *
+     * The lease of the file MUST be already acquired and leaseId should be provided
+     * as the value of the second parameter.
+     *
      * @return true if retry is possible and new retry delay expiration time has been set,
      *         false if no more retries are possible
      */
-    public boolean setRetryDelayIfPossible(BlobClient blobClient) {
-        final AtomicBoolean res = new AtomicBoolean();
-
-        leaseAcquirer.ifAcquiredOrElse(
-            blobClient,
-            leaseId -> trySetRetryDelayIfPossible(blobClient, leaseId, res),
-            blobErrorCode -> {
-            },
-            true
-        );
-
-        return res.get();
-    }
-
-    private void trySetRetryDelayIfPossible(BlobClient blobClient, String leaseId, AtomicBoolean res) {
+    public boolean setRetryDelayIfPossible(BlobClient blobClient, String leaseId) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         int retryCount = getRetryCount(blobMetaData);
 
         if (retryCount > ocrValidationMaxRetries) {
-            res.set(false);
+            return false;
         } else {
             prepareNextRetry(blobClient, blobMetaData, retryCount, leaseId);
-            res.set(true);
+            return true;
         }
     }
 
