@@ -61,18 +61,18 @@ class OcrValidationRetryManagerTest {
     }
 
     @Test
-    void isRetryDelayNotSetOrExpired_should_return_true_if_delay_expiration_has_not_been_set() {
+    void isReadyToRetry_should_return_true_if_delay_expiration_has_not_been_set() {
         // given
         final Map<String, String> metadata = emptyMap();
         given(blobProperties.getMetadata()).willReturn(metadata);
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isRetryDelayNotSetOrExpired(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
     }
 
     @Test
-    void isRetryDelayNotSetOrExpired_should_return_false_if_delay_expiration_time_has_not_passed() {
+    void isReadyToRetry_should_return_false_if_delay_expiration_time_has_not_passed() {
         // given
         final var metadata = Map.of(
             "ocrValidationRetryCount",
@@ -84,11 +84,11 @@ class OcrValidationRetryManagerTest {
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isRetryDelayNotSetOrExpired(blobClient)).isFalse();
+        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
     }
 
     @Test
-    void isRetryDelayNotSetOrExpired_should_return_true_if_delay_expiration_time_has_passed() {
+    void isReadyToRetry_should_return_true_if_delay_expiration_time_has_passed() {
         // given
         final var metadata = Map.of(
             "ocrValidationRetryCount",
@@ -100,7 +100,7 @@ class OcrValidationRetryManagerTest {
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isRetryDelayNotSetOrExpired(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
     }
 
     @Test

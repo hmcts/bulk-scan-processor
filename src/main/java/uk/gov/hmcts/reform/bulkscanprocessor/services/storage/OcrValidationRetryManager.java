@@ -39,7 +39,7 @@ public class OcrValidationRetryManager {
         this.ocrValidationRetryDelaySec = ocrValidationRetryDelaySec;
     }
 
-    public boolean isRetryDelayNotSetOrExpired(BlobClient blobClient) {
+    public boolean isReadyToRetry(BlobClient blobClient) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         String retryDelayExpirationTime = blobMetaData.get(RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY);
 
