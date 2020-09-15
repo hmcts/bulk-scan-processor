@@ -31,9 +31,6 @@ class OcrValidationRetryManagerTest {
     @Autowired
     private OcrValidationRetryManager ocrValidationRetryManager;
 
-    @Autowired
-    private LeaseAcquirer leaseAcquirer;
-
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
 
