@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.time.LocalDateTime.now;
 import static java.time.LocalDateTime.parse;
@@ -65,19 +66,28 @@ public class OcrValidationRetryManager {
      *         false if no more retries are possible
      */
     public boolean setRetryDelayIfPossible(BlobClient blobClient) {
+        final AtomicBoolean res = new AtomicBoolean();
+
+        leaseAcquirer.ifAcquiredOrElse(
+            blobClient,
+            leaseId -> trySetRetryDelayIfPossible(blobClient, leaseId, res),
+            blobErrorCode -> {
+            },
+            true
+        );
+
+        return res.get();
+    }
+
+    private void trySetRetryDelayIfPossible(BlobClient blobClient, String leaseId, AtomicBoolean res) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         int retryCount = getRetryCount(blobMetaData);
 
         if (retryCount > ocrValidationMaxRetries) {
-            return false;
+            res.set(false);
         } else {
-            leaseAcquirer.ifAcquiredOrElse(
-                blobClient,
-                leaseId -> prepareNextRetry(blobClient, blobMetaData, retryCount, leaseId),
-                blobErrorCode -> {},
-                true
-            );
-            return true;
+            prepareNextRetry(blobClient, blobMetaData, retryCount, leaseId);
+            res.set(true);
         }
     }
 
