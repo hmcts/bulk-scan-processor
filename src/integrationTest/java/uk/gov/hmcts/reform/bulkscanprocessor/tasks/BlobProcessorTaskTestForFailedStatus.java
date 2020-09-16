@@ -1,14 +1,17 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.azure.storage.blob.BlobClient;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
@@ -83,11 +86,17 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
-        given(ocrValidator.assertOcrDataIsValid(any())).willThrow(
-            new OcrValidationException(
-                "Ocr Validation Error.",
-                "Ocr Validation Error. Errors : [Error 1, Error2]")
-        );
+        given(ocrValidator.assertOcrDataIsValid(
+            any(InputEnvelope.class),
+            any(BlobClient.class),
+            anyString()
+        ))
+            .willThrow(
+                new OcrValidationException(
+                    "Ocr Validation Error.",
+                    "Ocr Validation Error. Errors : [Error 1, Error2]"
+                )
+            );
 
         // when
         processor.processBlobs();

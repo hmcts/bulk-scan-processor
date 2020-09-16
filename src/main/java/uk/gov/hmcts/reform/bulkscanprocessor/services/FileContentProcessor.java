@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import com.azure.storage.blob.BlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationServerSideException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUploadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
@@ -52,6 +54,7 @@ public class FileContentProcessor {
         ZipInputStream zis,
         String zipFilename,
         String containerName,
+        BlobClient blobClient,
         String leaseId
     ) {
         try {
@@ -71,7 +74,9 @@ public class FileContentProcessor {
                 containerName,
                 zipFilename,
                 result.getPdfs(),
-                inputEnvelope
+                inputEnvelope,
+                blobClient,
+                leaseId
             );
         } catch (PaymentsDisabledException ex) {
             log.error(
@@ -92,6 +97,14 @@ public class FileContentProcessor {
         } catch (PreviouslyFailedToUploadException ex) {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
+        } catch (OcrValidationServerSideException ex) {
+            log.error("Failed to process file {} from container {}, "
+                          + "message from OCR validation endpoint {} - will retry",
+                      zipFilename,
+                      containerName,
+                      ex.getMessage(),
+                      ex
+            );
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
             createEvent(DOC_FAILURE, containerName, zipFilename, ex.getMessage());

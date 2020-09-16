@@ -73,7 +73,7 @@ class OcrValidationRetryManagerTest {
     }
 
     @Test
-    void should_read_blob_and_save_metadata_in_database_when_zip_contains_metadata_and_pdfs()
+    void should_set_retry_delay_2_times_and_then_return_false()
         throws Exception {
         //Given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
