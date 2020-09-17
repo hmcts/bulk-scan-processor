@@ -1,7 +1,7 @@
 resource "azurerm_key_vault_secret" "test_storage_account_key" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "test-storage-account-key"
-  value        = "${local.storage_account_primary_key}"
+  value        = "${data.azurerm_key_vault_secret.storage_account_primary_key.value}"
 }
 
 data "azurerm_key_vault_secret" "source_test_s2s_secret" {
