@@ -55,6 +55,7 @@ public final class InputEnvelopeCreator {
             null,
             null,
             "file.zip",
+            null,
             "case_number",
             "previous_service_case_ref",
             classification,

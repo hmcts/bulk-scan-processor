@@ -258,6 +258,22 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("instance: {\"pointer\":\"/payments\"}");
     }
 
+    @Test
+    public void should_not_parse_envelope_with_invalid_zip_file_name_in_rescan_for_property() throws IOException {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/invalid-rescan-for-zip-file-name-format.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME) + "\n\terror: ECMA 262 regex ")
+            .hasMessageContaining("1a_24-02-2017-00-00-00.zip")
+            .hasMessageContaining("instance: {\"pointer\":\"/rescan_for\"}");
+    }
+
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));
     }
