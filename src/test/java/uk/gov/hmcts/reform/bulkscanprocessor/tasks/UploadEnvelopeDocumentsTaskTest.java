@@ -95,7 +95,8 @@ class UploadEnvelopeDocumentsTaskTest {
             emptyList(),
             emptyList(),
             emptyList(),
-            containerName
+            containerName,
+            null
         );
         envelope.setUploadFailureCount(uploadFailures);
 

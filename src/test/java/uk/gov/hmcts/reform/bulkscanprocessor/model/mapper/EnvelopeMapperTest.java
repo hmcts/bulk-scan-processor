@@ -53,6 +53,7 @@ public class EnvelopeMapperTest {
         assertThat(dbEnvelope.getZipFileCreateddate()).isEqualTo(zipEnvelope.zipFileCreateddate);
         assertThat(dbEnvelope.getZipFileName()).isEqualTo(zipEnvelope.zipFileName);
         assertThat(dbEnvelope.getClassification()).isEqualTo(zipEnvelope.classification);
+        assertThat(dbEnvelope.getRescanFor()).isEqualTo(zipEnvelope.rescanFor);
 
         assertSamePayments(dbEnvelope, zipEnvelope);
         assertSameScannableItems(dbEnvelope, zipEnvelope);

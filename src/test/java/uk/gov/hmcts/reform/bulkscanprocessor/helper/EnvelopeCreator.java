@@ -67,11 +67,11 @@ public final class EnvelopeCreator {
         return EnvelopeResponseMapper.toEnvelopesResponse(envelopes());
     }
 
-    public static EnvelopeResponse envelopeResponse() throws Exception {
+    public static EnvelopeResponse envelopeResponse() {
         return EnvelopeResponseMapper.toEnvelopeResponse(envelope());
     }
 
-    public static List<Envelope> envelopes() throws Exception {
+    public static List<Envelope> envelopes() {
         return ImmutableList.of(envelope());
     }
 
@@ -137,7 +137,8 @@ public final class EnvelopeCreator {
             scannableItems,
             payments(),
             nonScannableItems(),
-            container
+            container,
+            "file1.zip"
         );
 
         envelope.setStatus(status);

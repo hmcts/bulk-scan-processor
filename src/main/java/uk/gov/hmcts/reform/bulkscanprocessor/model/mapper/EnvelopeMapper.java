@@ -57,7 +57,8 @@ public class EnvelopeMapper {
             toDbScannableItems(envelope.scannableItems, ocrValidationWarnings),
             toDbPayments(envelope.payments),
             toDbNonScannableItems(envelope.nonScannableItems),
-            containerName
+            containerName,
+            envelope.rescanFor
         );
     }
 
