@@ -49,6 +49,22 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
     }
 
     @Test
+    public void should_record_validation_failure_when_metadata_parsing_fails_with_invalid_rescan_for()
+        throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/invalid_rescan_for"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
+    @Test
     public void should_record_validation_failure_when_metadata_parsing_fails_on_invalid_json_format() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/invalid_json"));

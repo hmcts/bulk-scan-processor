@@ -53,6 +53,26 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
+    public void should_parse_envelope_data_with_no_rescan_for() throws IOException {
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/no-rescan-for.json");
+
+        assertThat(envelope.rescanFor).isNull();
+        assertThat(envelope.nonScannableItems).hasSize(0);
+        assertThat(envelope.scannableItems).hasSize(1);
+        assertThat(envelope.payments).hasSize(0);
+    }
+
+    @Test
+    public void should_parse_envelope_data_with_null_rescan_for() throws IOException {
+        InputEnvelope envelope = getEnvelope("/metafiles/valid/null-rescan-for.json");
+
+        assertThat(envelope.rescanFor).isNull();
+        assertThat(envelope.nonScannableItems).hasSize(0);
+        assertThat(envelope.scannableItems).hasSize(1);
+        assertThat(envelope.payments).hasSize(0);
+    }
+
+    @Test
     public void should_parse_envelope_data_with_no_previous_service_case_reference() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/no-previous-service-case-reference.json");
         assertThat(envelope.previousServiceCaseReference).isNull();
