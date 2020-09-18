@@ -2,23 +2,6 @@ provider "azurerm" {
   features {}
 }
 
-locals {
-  local_env = (var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env
-
-  s2s_rg       = "rpe-service-auth-provider-${local.local_env}"
-  s2s_url      = "http://${local.s2s_rg}.service.core-compute-${local.local_env}.internal"
-  dm_store_url = "http://dm-store-${local.local_env}.service.core-compute-${local.local_env}.internal"
-
-  db_connection_options = "?sslmode=require"
-
-  sku_size                    = var.env == "prod" || var.env == "sprod" || var.env == "aat" ? "I2" : "I1"
-  storage_account_name        = data.azurerm_key_vault_secret.storage_account_name.value
-  storage_account_primary_key = data.azurerm_key_vault_secret.storage_account_primary_key.value
-  storage_account_url_prod    = "https://bulkscan.platform.hmcts.net"
-  storage_account_url_notprod = "https://bulkscan.${var.env}.platform.hmcts.net"
-  storage_account_url         = var.env == "prod" ? local.storage_account_url_prod : local.storage_account_url_notprod
-}
-
 module "bulk-scan-db" {
   source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
   product            = "${var.product}-${var.component}"
@@ -46,85 +29,6 @@ module "bulk-scan-staging-db" {
   sku_tier           = "GeneralPurpose"
   common_tags        = var.common_tags
   subscription       = var.subscription
-}
-
-module "bulk-scan" {
-  source                          = "git@github.com:hmcts/cnp-module-webapp?ref=master"
-  product                         = "${var.product}-${var.component}"
-  location                        = var.location
-  env                             = var.env
-  ilbIp                           = var.ilbIp
-  subscription                    = var.subscription
-  is_frontend                     = "false"
-  capacity                        = var.capacity
-  common_tags                     = var.common_tags
-  appinsights_instrumentation_key = var.appinsights_instrumentation_key
-  instance_size                   = local.sku_size
-  asp_name                        = "${var.product}-${var.env}"
-  asp_rg                          = "${var.product}-${var.env}"
-  java_container_version          = "9.0"
-  enable_ase                      = var.enable_ase
-
-  app_settings = {
-    // db
-    BULK_SCANNING_DB_HOST         = module.bulk-scan-db.host_name
-    BULK_SCANNING_DB_PORT         = module.bulk-scan-db.postgresql_listen_port
-    BULK_SCANNING_DB_USER_NAME    = module.bulk-scan-db.user_name
-    BULK_SCANNING_DB_PASSWORD     = module.bulk-scan-db.postgresql_password
-    BULK_SCANNING_DB_NAME         = module.bulk-scan-db.postgresql_database
-    BULK_SCANNING_DB_CONN_OPTIONS = local.db_connection_options
-    FLYWAY_URL                    = "jdbc:postgresql://${module.bulk-scan-db.host_name}:${module.bulk-scan-db.postgresql_listen_port}/${module.bulk-scan-db.postgresql_database}${local.db_connection_options}"
-    FLYWAY_USER                   = module.bulk-scan-db.user_name
-    FLYWAY_PASSWORD               = module.bulk-scan-db.postgresql_password
-    FLYWAY_NOOP_STRATEGY          = "true"
-
-    STORAGE_ACCOUNT_NAME  = local.storage_account_name
-    STORAGE_KEY           = local.storage_account_primary_key
-    STORAGE_URL           = local.storage_account_url
-    STORAGE_PROXY_ENABLED = var.storage_proxy_enabled
-    SAS_TOKEN_VALIDITY    = var.token_validity
-
-    DOCUMENT_MANAGEMENT_URL = local.dm_store_url
-
-    S2S_URL    = local.s2s_url
-    S2S_NAME   = var.s2s_name
-    S2S_SECRET = data.azurerm_key_vault_secret.s2s_secret.value
-
-    SCAN_DELAY         = var.scan_delay
-    SCAN_ENABLED       = var.scan_enabled
-
-    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED = var.orchestrator_notifications_task_enabled
-    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY   = var.orchestrator_notifications_task_delay
-
-    DELETE_REJECTED_FILES_ENABLED = var.delete_rejected_files_enabled
-    DELETE_REJECTED_FILES_CRON    = var.delete_rejected_files_cron
-    DELETE_REJECTED_FILES_TTL     = var.delete_rejected_files_ttl
-
-    STORAGE_BLOB_LEASE_TIMEOUT               = var.blob_lease_timeout               // In seconds
-
-    STORAGE_BLOB_SELECTED_CONTAINER = var.blob_selected_container
-
-    SMTP_HOST          = var.smtp_host
-    SMTP_USERNAME      = data.azurerm_key_vault_secret.smtp_username.value
-    SMTP_PASSWORD      = data.azurerm_key_vault_secret.smtp_password.value
-    REPORTS_CRON       = var.reports_cron
-    REPORTS_RECIPIENTS = data.azurerm_key_vault_secret.reports_recipients.value
-
-    INCOMPLETE_ENVELOPES_TASK_CRON    = var.incomplete_envelopes_cron
-    INCOMPLETE_ENVELOPES_TASK_ENABLED = var.incomplete_envelopes_enabled
-
-    PROCESS_PAYMENTS_ENABLED          = var.process_payments_enabled
-
-    OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP = var.ocr_validation_url_bulkscan_sample_app
-    OCR_VALIDATION_URL_PROBATE             = var.ocr_validation_url_probate
-
-    NO_NEW_ENVELOPES_TASK_ENABLED     = "false"
-    PUBLICLAW_ENABLED                 = "true"
-
-    // silence the "bad implementation" logs
-    LOGBACK_REQUIRE_ALERT_LEVEL = "false"
-    LOGBACK_REQUIRE_ERROR_CODE  = "false"
-  }
 }
 
 data "azurerm_key_vault" "key_vault" {
@@ -215,11 +119,6 @@ data "azurerm_key_vault_secret" "s2s_secret" {
   name         = "microservicekey-bulk-scan-processor"
 }
 
-data "azurerm_key_vault_secret" "storage_account_name" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "storage-account-name"
-}
-
 data "azurerm_key_vault_secret" "storage_account_primary_key" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "storage-account-primary-key"
@@ -228,21 +127,6 @@ data "azurerm_key_vault_secret" "storage_account_primary_key" {
 data "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   name         = "notification-queue-send-shared-access-key"
-}
-
-data "azurerm_key_vault_secret" "reports_recipients" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "reports-recipients"
-}
-
-data "azurerm_key_vault_secret" "smtp_username" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "reports-email-username"
-}
-
-data "azurerm_key_vault_secret" "smtp_password" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "reports-email-password"
 }
 
 # Copy postgres password for flyway migration
