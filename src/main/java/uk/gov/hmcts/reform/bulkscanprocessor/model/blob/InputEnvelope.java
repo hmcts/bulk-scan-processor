@@ -21,6 +21,7 @@ public class InputEnvelope {
     public final Instant openingDate;
     public final Instant zipFileCreateddate;
     public final String zipFileName;
+    public final String rescanFor;
     public final Classification classification;
     public final List<InputScannableItem> scannableItems;
     public final List<InputPayment> payments;
@@ -37,6 +38,7 @@ public class InputEnvelope {
         @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("zip_file_createddate") Instant zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
+        @JsonProperty("rescan_for") String rescanFor,
         @JsonProperty("case_number") String caseNumber,
         @JsonProperty("previous_service_case_reference") String previousServiceCaseReference,
         @JsonProperty("envelope_classification") Classification classification,
@@ -50,6 +52,7 @@ public class InputEnvelope {
         this.openingDate = openingDate;
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
+        this.rescanFor = rescanFor;
         this.caseNumber = caseNumber;
         this.previousServiceCaseReference = previousServiceCaseReference;
         this.classification = classification;

@@ -36,7 +36,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
     }
 
     @Test
-    public void should_process_zipfile_with_supplementary_evidence_with_oce_classification() {
+    public void should_process_zipfile_with_supplementary_evidence_with_ocr_classification() {
         List<String> files = Collections.singletonList("1111006.pdf");
         String metadataFile = "supplementary_evidence_with_ocr_metadata.json";
         String destZipFilename = testHelper.getRandomFilename();

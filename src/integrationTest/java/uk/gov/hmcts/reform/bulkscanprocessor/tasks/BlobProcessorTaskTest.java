@@ -73,6 +73,14 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
         testBlobFileProcessed();
     }
 
+    @Test
+    public void should_read_blob_and_save_metadata_in_database_when_zip_contains_rescan_for_value_null()
+        throws Exception {
+        //Given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/null_rescan_for"));
+        testBlobFileProcessed();
+    }
+
     private void testBlobFileProcessed() throws Exception {
         // when
         processor.processBlobs();

@@ -7,7 +7,7 @@
   "opening_date": "2018-06-23T00:00:00.000Z",
   "zip_file_createddate": "2018-06-23T00:00:00.000Z",
   "zip_file_name": "1_24-06-2018-00-00-00.zip",
-  "rescan_for": "2_24-06-2018-00-00-00.zip",
+  "rescan_for": null,
   "envelope_classification": "exception",
   "scannable_items": [
       {

@@ -89,6 +89,7 @@ class FileContentProcessorTest {
             now(),
             now(),
             FILE_NAME,
+            null,
             CASE_NUMBER,
             CASE_REFERENCE,
             NEW_APPLICATION,
