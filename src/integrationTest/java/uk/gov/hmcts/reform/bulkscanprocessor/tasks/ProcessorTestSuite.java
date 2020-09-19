@@ -29,6 +29,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -79,6 +80,9 @@ public abstract class ProcessorTestSuite {
 
     @Autowired
     protected ProcessEventRepository processEventRepository;
+
+    @Autowired
+    OcrValidationRetryManager ocrValidationRetryManager;
 
     protected ErrorNotificationSender errorNotificationSender;
 
@@ -184,7 +188,8 @@ public abstract class ProcessorTestSuite {
             blobManager,
             envelopeProcessor,
             fileContentProcessor,
-            leaseAcquirer
+            leaseAcquirer,
+            ocrValidationRetryManager
         );
     }
 

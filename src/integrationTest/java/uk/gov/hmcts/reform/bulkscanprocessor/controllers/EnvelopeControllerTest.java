@@ -41,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -157,11 +158,14 @@ public class EnvelopeControllerTest {
             leaseMetaDataChecker
         );
 
+        OcrValidationRetryManager ocrValidationRetryManager = new OcrValidationRetryManager(2, 300);
+
         blobProcessorTask = new BlobProcessorTask(
             blobManager,
             envelopeProcessor,
             fileContentProcessor,
-            leaseAcquirer
+            leaseAcquirer,
+            ocrValidationRetryManager
         );
 
         UploadEnvelopeDocumentsService uploadService =  new UploadEnvelopeDocumentsService(
