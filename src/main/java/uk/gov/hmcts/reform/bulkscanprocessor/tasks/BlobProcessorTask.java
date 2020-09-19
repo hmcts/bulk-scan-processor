@@ -149,7 +149,13 @@ public class BlobProcessorTask {
                     null
                 );
 
-                fileContentProcessor.processZipFileContent(zis, zipFilename, container.getBlobContainerName(), leaseId);
+                fileContentProcessor.processZipFileContent(
+                    zis,
+                    zipFilename,
+                    container.getBlobContainerName(),
+                    blobClient,
+                    leaseId
+                );
 
                 log.info(
                     "Zip content processed for file {}, container: {}",
