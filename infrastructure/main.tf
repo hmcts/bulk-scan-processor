@@ -72,6 +72,14 @@ module "bulk-scan" {
   java_container_version          = "9.0"
   enable_ase                      = "${var.enable_ase}"
 
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to appinsights as otherwise upgrading to the Azure provider 2.x
+      # destroys and re-creates this appinsights instance
+      azurerm_application_insights.appinsights[0],
+    ]
+  }
+
   app_settings = {
     // db
     BULK_SCANNING_DB_HOST         = "${module.bulk-scan-db.host_name}"
@@ -132,6 +140,7 @@ module "bulk-scan" {
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
     LOGBACK_REQUIRE_ERROR_CODE  = "false"
   }
+
 }
 
 data "azurerm_key_vault" "key_vault" {
