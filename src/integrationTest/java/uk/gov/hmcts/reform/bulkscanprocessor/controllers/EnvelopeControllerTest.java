@@ -92,6 +92,7 @@ public class EnvelopeControllerTest {
     @Autowired private LeaseMetaDataChecker leaseMetaDataChecker;
     @Autowired private DocumentProcessor documentProcessor;
     @Autowired private LeaseAcquirer leaseAcquirer;
+    @Autowired private OcrValidationRetryManager ocrValidationRetryManager;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
@@ -103,6 +104,7 @@ public class EnvelopeControllerTest {
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
     private BlobContainerClient testContainer;
+
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
@@ -157,8 +159,6 @@ public class EnvelopeControllerTest {
             leaseClientProvider,
             leaseMetaDataChecker
         );
-
-        OcrValidationRetryManager ocrValidationRetryManager = new OcrValidationRetryManager(2, 300);
 
         blobProcessorTask = new BlobProcessorTask(
             blobManager,

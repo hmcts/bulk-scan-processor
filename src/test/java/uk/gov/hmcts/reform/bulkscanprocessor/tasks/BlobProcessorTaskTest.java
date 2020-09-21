@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
@@ -70,17 +69,17 @@ class BlobProcessorTaskTest {
     }
 
     @Test
-    void processBlobs_should_not_call_envelopeProcessor_if_failed_to_load_file() {
+    void processBlobs_should_not_call_envelopeProcessor_if_failed_to_load_file() throws Exception {
         // given
         given(blobManager.listInputContainerClients()).willReturn(singletonList(container));
 
         PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
         given(container.listBlobs()).willReturn(pagedIterable);
-        given(pagedIterable.stream()).willReturn(Stream.of(blob));
+        given(pagedIterable.stream()).willReturn(singletonList(blob).stream());
 
         given(blob.getName()).willReturn("file.zip");
         given(container.getBlobClient("file.zip")).willReturn(blobClient);
-        given(ocrValidationRetryManager.isReadyToRetry(blobClient)).willReturn(true);
+        given(ocrValidationRetryManager.canProcess(blobClient)).willReturn(true);
         given(container.getBlobContainerName()).willReturn("cont");
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
             .willReturn(null);
@@ -108,11 +107,11 @@ class BlobProcessorTaskTest {
 
         PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
         given(container.listBlobs()).willReturn(pagedIterable);
-        given(pagedIterable.stream()).willReturn(Stream.of(blob));
+        given(pagedIterable.stream()).willReturn(singletonList(blob).stream());
 
         given(blob.getName()).willReturn("file.zip");
         given(container.getBlobClient("file.zip")).willReturn(blobClient);
-        given(ocrValidationRetryManager.isReadyToRetry(blobClient)).willReturn(false);
+        given(ocrValidationRetryManager.canProcess(blobClient)).willReturn(false);
         given(container.getBlobContainerName()).willReturn("cont");
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
             .willReturn(null);

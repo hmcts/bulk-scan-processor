@@ -128,7 +128,7 @@ public class BlobProcessorTask {
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
             leaseId -> {
-                if (ocrValidationRetryManager.isReadyToRetry(blobClient)) {
+                if (ocrValidationRetryManager.canProcess(blobClient)) {
                     processZipFile(container, blobClient, zipFilename, leaseId);
                 }
             },
