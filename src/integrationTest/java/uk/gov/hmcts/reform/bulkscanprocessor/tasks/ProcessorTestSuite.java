@@ -82,7 +82,7 @@ public abstract class ProcessorTestSuite {
     protected ProcessEventRepository processEventRepository;
 
     @Autowired
-    OcrValidationRetryManager ocrValidationRetryManager;
+    protected OcrValidationRetryManager ocrValidationRetryManager;
 
     protected ErrorNotificationSender errorNotificationSender;
 
