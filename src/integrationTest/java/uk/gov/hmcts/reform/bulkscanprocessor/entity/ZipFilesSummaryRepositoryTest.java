@@ -197,7 +197,8 @@ public class ZipFilesSummaryRepositoryTest {
             emptyList(),
             emptyList(),
             emptyList(),
-            container
+            container,
+            null
         );
 
         envelope.setStatus(status);

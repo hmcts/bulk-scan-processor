@@ -31,6 +31,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 class EnvelopeHandlerTest {
 
     private static final String FILE_NAME = "file1.zip";
+    private static final String RESCAN_FOR_FILE_NAME = "file2.zip";
     private static final String CONTAINER_NAME = "container";
     private static final String LEASE_ID = "leaseID";
     private static final String DCN = "dcn";
@@ -83,7 +84,7 @@ class EnvelopeHandlerTest {
             now(),
             now(),
             FILE_NAME,
-            null,
+            RESCAN_FOR_FILE_NAME,
             CASE_NUMBER,
             CASE_REFERENCE,
             NEW_APPLICATION,
@@ -137,6 +138,7 @@ class EnvelopeHandlerTest {
         assertThat(envelope.getValue().getPayments()).isEqualTo(inputEnvelope.payments);
         assertThat(envelope.getValue().getNonScannableItems()).isEqualTo(inputEnvelope.nonScannableItems);
         assertThat(envelope.getValue().getContainer()).isEqualTo(CONTAINER_NAME);
+        assertThat(envelope.getValue().getRescanFor()).isEqualTo(RESCAN_FOR_FILE_NAME);
 
         verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
