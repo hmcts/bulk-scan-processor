@@ -46,6 +46,9 @@ public class EnvelopeResponse {
     @JsonProperty("zip_file_name")
     private final String zipFileName;
 
+    @JsonProperty("rescan_for")
+    private final String rescanFor;
+
     @JsonProperty("status")
     private final Status status;
 
@@ -81,6 +84,7 @@ public class EnvelopeResponse {
         @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("zip_file_createddate") Instant zipFileCreateddate,
         @JsonProperty("zip_file_name") String zipFileName,
+        @JsonProperty("rescan_for") String rescanFor,
         @JsonProperty("status") Status status,
         @JsonProperty("classification") String classification,
         @JsonProperty("scannable_items") List<ScannableItemResponse> scannableItems,
@@ -98,6 +102,7 @@ public class EnvelopeResponse {
         this.openingDate = openingDate;
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
+        this.rescanFor = rescanFor;
         this.status = status;
         this.classification = classification;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
@@ -171,6 +176,10 @@ public class EnvelopeResponse {
         return envelopeCcdAction;
     }
 
+    public String getRescanFor() {
+        return rescanFor;
+    }
+
     @Override
     public String toString() {
         return "EnvelopeResponse{"
@@ -183,6 +192,7 @@ public class EnvelopeResponse {
             + ", openingDate=" + openingDate
             + ", zipFileCreateddate=" + zipFileCreateddate
             + ", zipFileName='" + zipFileName + '\''
+            + ", rescanFor='" + rescanFor + '\''
             + ", status=" + status
             + ", classification=" + classification
             + ", scannableItems=" + scannableItems

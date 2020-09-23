@@ -147,6 +147,7 @@ public class ReadEnvelopesControllerTest {
             ImmutableList.of(item1, item2)
         );
         envelope.setZipFileName("7_24-06-2018-00-00-00.zip"); // matches expected response file
+        envelope.setRescanFor("1_24-06-2018-00-00-00.zip");
         envelope.setCcdId("ccd-id");
         envelope.setEnvelopeCcdAction("ccd-action");
 
