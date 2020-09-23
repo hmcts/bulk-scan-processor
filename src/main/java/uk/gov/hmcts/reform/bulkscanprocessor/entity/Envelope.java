@@ -68,6 +68,8 @@ public class Envelope {
 
     private String envelopeCcdAction;
 
+    private String rescanFor;
+
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(FetchMode.SUBSELECT)
@@ -101,7 +103,8 @@ public class Envelope {
         List<ScannableItem> scannableItems,
         List<Payment> payments,
         List<NonScannableItem> nonScannableItems,
-        String container
+        String container,
+        String rescanFor
     ) {
         this.poBox = poBox;
         this.jurisdiction = jurisdiction;
@@ -116,6 +119,7 @@ public class Envelope {
         this.payments = payments;
         this.nonScannableItems = nonScannableItems;
         this.container = container;
+        this.rescanFor = rescanFor;
 
         assignSelfToChildren(this.scannableItems);
         assignSelfToChildren(this.payments);
@@ -212,6 +216,14 @@ public class Envelope {
 
     public void setZipDeleted(boolean zipDeleted) {
         this.zipDeleted = zipDeleted;
+    }
+
+    public String getRescanFor() {
+        return rescanFor;
+    }
+
+    public void setRescanFor(String rescanFor) {
+        this.rescanFor = rescanFor;
     }
 
     public boolean isTestOnly() {

@@ -7,6 +7,7 @@
       "delivery_date": "2018-06-23T12:34:56.123Z",
       "opening_date": "2018-06-23T12:34:56.123Z",
       "zip_file_name": "7_24-06-2018-00-00-00.zip",
+      "rescan_for": "1_24-06-2018-00-00-00.zip",
       "classification": "exception",
       "scannable_items": [
         {

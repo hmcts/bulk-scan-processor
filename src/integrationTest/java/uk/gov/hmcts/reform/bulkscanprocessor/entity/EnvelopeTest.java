@@ -44,6 +44,24 @@ public class EnvelopeTest {
     }
 
     @Test
+    public void should_insert_into_db_with_rescan_for_value_null() {
+        // given
+        Envelope envelope = EnvelopeCreator.envelope();
+        envelope.setRescanFor(null);
+
+        // and
+        UUID envelopeId = repository.saveAndFlush(envelope).getId();
+
+        // when
+        Envelope readEnvelope = repository.getOne(envelopeId);
+
+        // then
+        assertThat(readEnvelope)
+            .usingRecursiveComparison()
+            .isEqualTo(envelope);
+    }
+
+    @Test
     public void should_log_a_warning_when_container_is_not_set() {
         // given
         Envelope envelope = EnvelopeCreator.envelope();

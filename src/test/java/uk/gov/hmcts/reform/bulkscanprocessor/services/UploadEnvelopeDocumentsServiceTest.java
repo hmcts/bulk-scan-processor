@@ -72,7 +72,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_blob_manager_fails_to_retrieve_container_representation() throws Exception {
+    void should_do_nothing_when_blob_manager_fails_to_retrieve_container_representation() {
         // given
         willThrow(new RuntimeException("i failed")).given(blobManager).listContainerClient(CONTAINER_1);
 
@@ -88,7 +88,7 @@ class UploadEnvelopeDocumentsServiceTest {
 
 
     @Test
-    void should_do_nothing_when_failing_to_get_block_blob_reference() throws Exception {
+    void should_do_nothing_when_failing_to_get_block_blob_reference() {
         // given
         given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
 
@@ -104,7 +104,7 @@ class UploadEnvelopeDocumentsServiceTest {
     }
 
     @Test
-    void should_do_nothing_when_failing_to_acquire_lease() throws Exception {
+    void should_do_nothing_when_failing_to_acquire_lease() {
         // given
         given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
@@ -122,7 +122,7 @@ class UploadEnvelopeDocumentsServiceTest {
 
 
     @Test
-    void should_do_nothing_when_failing_to_download_blob() throws Exception {
+    void should_do_nothing_when_failing_to_download_blob() {
         // given
         given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
@@ -255,7 +255,8 @@ class UploadEnvelopeDocumentsServiceTest {
             emptyList(),
             emptyList(),
             emptyList(),
-            CONTAINER_1
+            CONTAINER_1,
+            null
         ));
     }
 }
