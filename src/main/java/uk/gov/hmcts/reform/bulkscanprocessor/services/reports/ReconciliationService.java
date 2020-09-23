@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
@@ -60,6 +61,7 @@ public class ReconciliationService {
                     Pair.of(receivedZipFile.zipFileName, receivedZipFile.container);
                 if (reportedZipFilesMap.containsKey(receivedZipFileKey)) {
                     ReportedZipFile reportedZipFile = reportedZipFilesMap.get(receivedZipFileKey);
+                    compareRescanFor(discrepancies, reportedZipFile, receivedZipFile);
                     compareLists(
                         discrepancies,
                         receivedZipFile,
@@ -131,6 +133,24 @@ public class ReconciliationService {
                     discrepancyType,
                     printList(reportedList),
                     printList(receivedList)
+                )
+            );
+        }
+    }
+
+    private void compareRescanFor(
+        List<Discrepancy> discrepancies,
+        ReportedZipFile reportedZipFile,
+        ReceivedZipFileData receivedZipFile
+    ) {
+        if (!StringUtils.equals(reportedZipFile.rescanFor, receivedZipFile.rescanFor)) {
+            discrepancies.add(
+                new Discrepancy(
+                    receivedZipFile.zipFileName,
+                    receivedZipFile.container,
+                    DiscrepancyType.RESCAN_FOR_MISMATCH,
+                    reportedZipFile.rescanFor,
+                    receivedZipFile.rescanFor
                 )
             );
         }
