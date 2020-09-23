@@ -22,6 +22,9 @@ public class ZipFileEnvelope {
     @JsonProperty("zip_deleted")
     public final boolean zipDeleted;
 
+    @JsonProperty("rescan_for")
+    public final String rescanFor;
+
     // region constructor
     public ZipFileEnvelope(
         String id,
@@ -29,7 +32,8 @@ public class ZipFileEnvelope {
         String status,
         String ccdId,
         String envelopeCcdAction,
-        boolean zipDeleted
+        boolean zipDeleted,
+        String rescanFor
     ) {
         this.id = id;
         this.container = container;
@@ -37,6 +41,7 @@ public class ZipFileEnvelope {
         this.ccdId = ccdId;
         this.envelopeCcdAction = envelopeCcdAction;
         this.zipDeleted = zipDeleted;
+        this.rescanFor = rescanFor;
     }
     // endregion
 }

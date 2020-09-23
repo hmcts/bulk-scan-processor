@@ -35,7 +35,7 @@ public class ZipFileStatusServiceTest {
     private ZipFileStatusService service;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         this.service = new ZipFileStatusService(eventRepo, envelopeRepo);
     }
 
@@ -68,7 +68,8 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getStatus().name(),
                     envelopes.get(0).getCcdId(),
                     envelopes.get(0).getEnvelopeCcdAction(),
-                    envelopes.get(0).isZipDeleted()
+                    envelopes.get(0).isZipDeleted(),
+                    envelopes.get(0).getRescanFor()
                 ),
                 new ZipFileEnvelope(
                     envelopes.get(1).getId().toString(),
@@ -76,7 +77,8 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getStatus().name(),
                     envelopes.get(1).getCcdId(),
                     envelopes.get(1).getEnvelopeCcdAction(),
-                    envelopes.get(1).isZipDeleted()
+                    envelopes.get(1).isZipDeleted(),
+                    envelopes.get(1).getRescanFor()
                 )
             );
 
@@ -124,6 +126,7 @@ public class ZipFileStatusServiceTest {
         given(envelope.getId()).willReturn(UUID.randomUUID());
         given(envelope.getContainer()).willReturn(container);
         given(envelope.getStatus()).willReturn(Status.UPLOADED);
+        given(envelope.getRescanFor()).willReturn("envelope1.zip");
         return envelope;
     }
 
