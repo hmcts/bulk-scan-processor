@@ -38,8 +38,12 @@ public class ZipStatusControllerTest {
     public void should_return_data_returned_from_the_service() throws Exception {
 
         List<ZipFileEnvelope> envelopes = asList(
-            new ZipFileEnvelope("0", "container0", "status0", "9832132131312", "AUTO_ATTACHED_TO_CASE", false),
-            new ZipFileEnvelope("1", "container1", "status1", "3210329752313", "EXCEPTION_RECORD", true)
+            new ZipFileEnvelope(
+                "0", "container0", "status0", "9832132131312", "AUTO_ATTACHED_TO_CASE", false, "envelope11.zip"
+            ),
+            new ZipFileEnvelope(
+                "1", "container1", "status1", "3210329752313", "EXCEPTION_RECORD", true, null
+            )
         );
 
         List<ZipFileEvent> events = asList(
@@ -61,12 +65,14 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].ccd_id").value(envelopes.get(0).ccdId))
             .andExpect(jsonPath("$.envelopes[0].envelope_ccd_action").value(envelopes.get(0).envelopeCcdAction))
             .andExpect(jsonPath("$.envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
+            .andExpect(jsonPath("$.envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
             .andExpect(jsonPath("$.envelopes[1].id").value(envelopes.get(1).id))
             .andExpect(jsonPath("$.envelopes[1].container").value(envelopes.get(1).container))
             .andExpect(jsonPath("$.envelopes[1].status").value(envelopes.get(1).status))
             .andExpect(jsonPath("$.envelopes[1].ccd_id").value(envelopes.get(1).ccdId))
             .andExpect(jsonPath("$.envelopes[1].envelope_ccd_action").value(envelopes.get(1).envelopeCcdAction))
             .andExpect(jsonPath("$.envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
+            .andExpect(jsonPath("$.envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
             .andExpect(jsonPath("$.events", hasSize(2)))
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
             .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))
