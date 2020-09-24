@@ -63,7 +63,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, null, null)
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, null, null, null)
                 )
             );
     }
@@ -81,9 +81,9 @@ public class ReceivedZipFileRepositoryTest {
             event("c3", "test3.zip", createdDate3, ZIPFILE_PROCESSING_STARTED)
         );
 
-        dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1"));
-        dbHasEnvelope(envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1"));
-        dbHasEnvelope(envelope("c3", "test3.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1"));
+        dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null));
+        dbHasEnvelope(envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test5"));
+        dbHasEnvelope(envelope("c3", "test3.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null));
 
         // when
         List<ReceivedZipFile> result = reportRepo.getReceivedZipFilesReportFor(LocalDate.of(2019, 2, 15));
@@ -93,7 +93,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate1, null, null)
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate1, null, null, "test5")
                 )
             );
     }
@@ -107,7 +107,8 @@ public class ReceivedZipFileRepositoryTest {
             event("c1", "test1.zip", createdDate, ZIPFILE_PROCESSING_STARTED)
         );
 
-        Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        Envelope envelope =
+            envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test4.zip");
         dbHasEnvelope(envelope);
 
         dbHasScannableItems(scannableItem(envelope, "doc-1"));
@@ -121,7 +122,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1")
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1",  "test4.zip")
                 )
             );
     }
@@ -135,7 +136,7 @@ public class ReceivedZipFileRepositoryTest {
             event("c1", "test1.zip", createdDate, ZIPFILE_PROCESSING_STARTED)
         );
 
-        Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
         dbHasEnvelope(envelope);
 
         dbHasScannableItems(
@@ -151,8 +152,8 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", null)
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null,  null),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", null,  null)
                 )
             );
     }
@@ -166,7 +167,8 @@ public class ReceivedZipFileRepositoryTest {
             event("c1", "test1.zip", createdDate, ZIPFILE_PROCESSING_STARTED)
         );
 
-        Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        Envelope envelope =
+            envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test5.zip");
         dbHasEnvelope(envelope);
 
         dbHasPayments(
@@ -182,8 +184,8 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-1"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-2")
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-1",  "test5.zip"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-2",  "test5.zip")
                 )
             );
     }
@@ -197,7 +199,7 @@ public class ReceivedZipFileRepositoryTest {
             event("c1", "test1.zip", createdDate, ZIPFILE_PROCESSING_STARTED)
         );
 
-        Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
         dbHasEnvelope(envelope);
 
         dbHasScannableItems(
@@ -217,10 +219,10 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-2"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-1"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-2")
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1",  null),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-2", null),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-1", null),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-2",  null)
                 )
             );
     }
@@ -236,9 +238,10 @@ public class ReceivedZipFileRepositoryTest {
             event("c2", "test2.zip", createdDate2, ZIPFILE_PROCESSING_STARTED)
         );
 
-        Envelope envelope1 = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        Envelope envelope1 =
+            envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test5.zip");
         dbHasEnvelope(envelope1);
-        Envelope envelope2 = envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1");
+        Envelope envelope2 = envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
         dbHasEnvelope(envelope2);
 
         dbHasScannableItems(
@@ -262,14 +265,14 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-1"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-2"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-1"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-2"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-3"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-4"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-3"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-4")
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-1",  "test5.zip"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-2",  "test5.zip"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-1",  "test5.zip"),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-2",  "test5.zip"),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-3",  null),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-4",  null),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-3",  null),
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-4",  null)
                 )
             );
     }
@@ -303,7 +306,8 @@ public class ReceivedZipFileRepositoryTest {
         Status status,
         Classification classification,
         String ccdId,
-        String ccdAction
+        String ccdAction,
+        String rescanFor
     ) {
         Envelope envelope = new Envelope(
             UUID.randomUUID().toString(),
@@ -319,7 +323,7 @@ public class ReceivedZipFileRepositoryTest {
             emptyList(),
             emptyList(),
             container,
-            null
+            rescanFor
         );
 
         envelope.setStatus(status);

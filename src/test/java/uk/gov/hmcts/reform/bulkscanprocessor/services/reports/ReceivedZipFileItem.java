@@ -10,19 +10,22 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
     private final Instant processingStartedEventDate;
     private final String scannableItemDcn;
     private final String paymentDcn;
+    private final String rescanFor;
 
     public ReceivedZipFileItem(
         String zipFileName,
         String container,
         Instant processingStartedEventDate,
         String scannableItemDcn,
-        String paymentDcn
+        String paymentDcn,
+        String rescanFor
     ) {
         this.zipFileName = zipFileName;
         this.container = container;
         this.processingStartedEventDate = processingStartedEventDate;
         this.scannableItemDcn = scannableItemDcn;
         this.paymentDcn = paymentDcn;
+        this.rescanFor = rescanFor;
     }
 
     @Override
@@ -48,5 +51,10 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
     @Override
     public String getPaymentDcn() {
         return paymentDcn;
+    }
+
+    @Override
+    public String getRescanFor() {
+        return rescanFor;
     }
 }
