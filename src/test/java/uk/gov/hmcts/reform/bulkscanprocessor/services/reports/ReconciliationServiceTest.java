@@ -437,7 +437,7 @@ class ReconciliationServiceTest {
     }
 
     @Test
-    void should_return_discrepancies_if_rescan_for_different() {
+    void should_return_rescan_for_discrepancy_when_rescan_for_filename_mismatches() {
         // given
         LocalDate date = LocalDate.now();
 
