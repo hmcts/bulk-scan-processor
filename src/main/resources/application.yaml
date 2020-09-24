@@ -23,7 +23,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5435}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
     username: ${BULK_SCANNING_DB_USER_NAME:bulkscans}
-    password: ${BULK_SCANNING_DB_PASSWORD:}
+    password: pass
+#    password: ${BULK_SCANNING_DB_PASSWORD:}
     properties:
       charSet: UTF-8
     hikari:
