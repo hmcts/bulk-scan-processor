@@ -7,7 +7,7 @@ management:
       show-details: always
       group:
         readiness:
-          include: customCheck, db
+          include: readinessState, db
   endpoints:
     web:
       base-path: /
