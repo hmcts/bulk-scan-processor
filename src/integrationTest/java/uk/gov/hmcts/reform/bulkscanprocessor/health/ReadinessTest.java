@@ -18,7 +18,7 @@ public class ReadinessTest {
     private MockMvc mockMvc;
 
     @Test
-    void should_contain_readinessState() throws Exception {
+    void should_readiness_contain_db_status() throws Exception {
         mockMvc
             .perform(
                 get("/health/readiness")
