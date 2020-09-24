@@ -11,6 +11,8 @@ management:
   health:
     mail:
       enabled: false
+    readiness:
+      include: readinessState, db
 
 # liveness alert settings depend on application name, if it is changed alert configuration must also be adjusted
 # https://github.com/hmcts/bulk-scan-shared-infrastructure/blob/master/liveness-alert.tf
