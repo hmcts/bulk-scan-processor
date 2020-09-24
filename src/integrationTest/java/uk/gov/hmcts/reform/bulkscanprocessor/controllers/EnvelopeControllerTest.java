@@ -41,6 +41,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.UploadEnvelopeDocumentsTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -91,6 +92,7 @@ public class EnvelopeControllerTest {
     @Autowired private LeaseMetaDataChecker leaseMetaDataChecker;
     @Autowired private DocumentProcessor documentProcessor;
     @Autowired private LeaseAcquirer leaseAcquirer;
+    @Autowired private OcrValidationRetryManager ocrValidationRetryManager;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
@@ -102,6 +104,7 @@ public class EnvelopeControllerTest {
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
     private BlobContainerClient testContainer;
+
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
@@ -161,7 +164,8 @@ public class EnvelopeControllerTest {
             blobManager,
             envelopeProcessor,
             fileContentProcessor,
-            leaseAcquirer
+            leaseAcquirer,
+            ocrValidationRetryManager
         );
 
         UploadEnvelopeDocumentsService uploadService =  new UploadEnvelopeDocumentsService(

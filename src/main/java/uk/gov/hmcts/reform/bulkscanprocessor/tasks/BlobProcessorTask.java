@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -49,16 +50,20 @@ public class BlobProcessorTask {
 
     private final  LeaseAcquirer leaseAcquirer;
 
+    private final OcrValidationRetryManager ocrValidationRetryManager;
+
     public BlobProcessorTask(
         BlobManager blobManager,
         EnvelopeProcessor envelopeProcessor,
         FileContentProcessor fileContentProcessor,
-        LeaseAcquirer leaseAcquirer
+        LeaseAcquirer leaseAcquirer,
+        OcrValidationRetryManager ocrValidationRetryManager
     ) {
         this.blobManager = blobManager;
         this.envelopeProcessor = envelopeProcessor;
         this.fileContentProcessor = fileContentProcessor;
         this.leaseAcquirer = leaseAcquirer;
+        this.ocrValidationRetryManager = ocrValidationRetryManager;
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
@@ -122,11 +127,14 @@ public class BlobProcessorTask {
 
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
-            leaseId -> processZipFile(container, blobClient, zipFilename, leaseId),
+            leaseId -> {
+                if (ocrValidationRetryManager.canProcess(blobClient)) {
+                    processZipFile(container, blobClient, zipFilename, leaseId);
+                }
+            },
             s -> {},
             true
         );
-
     }
 
     private void processZipFile(

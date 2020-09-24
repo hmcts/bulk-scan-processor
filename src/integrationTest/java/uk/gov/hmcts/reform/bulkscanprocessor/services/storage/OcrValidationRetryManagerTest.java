@@ -86,28 +86,28 @@ class OcrValidationRetryManagerTest {
         // when
         // then
         // retry is possible if ocrValidationRetryDelayExpirationTime metadata property is not set
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isTrue();
 
         assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)).isTrue();
 
         doSleep(1000L);
         // retry is not possible if retry delay (2 sec) has not expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isFalse();
 
         doSleep(5000L);
         // retry is possible if retry delay (2 sec) has expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isTrue();
 
         // and ocrValidationRetryCount metadata property is not exceeding 1
         assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)).isTrue();
 
         doSleep(1000L);
         // retry is not possible if retry delay (3 sec) has not expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isFalse();
 
         doSleep(5000L);
         // retry is possible if retry delay (3 sec) has expired
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isTrue();
 
         // but ocrValidationRetryCount metadata property is now exceeding 1 and result is false
         assertThat(ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)).isFalse();
