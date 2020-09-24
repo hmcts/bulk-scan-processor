@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
+import com.azure.storage.blob.BlobClient;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableList;
 import io.github.netmikey.logunit.api.LogCapturer;
@@ -61,6 +62,7 @@ public class OcrValidatorTest {
     private static final String VALIDATION_URL = "https://example.com/validate-ocr";
     private static final String S2S_TOKEN = "sample-s2s-token";
     private static final String PO_BOX = "sample PO box";
+    private static final String LEASE_ID = "leaseID";
 
     @RegisterExtension
     public LogCapturer capturer = LogCapturer.create().captureForType(OcrValidator.class);
@@ -69,6 +71,7 @@ public class OcrValidatorTest {
     @Mock private OcrPresenceValidator presenceValidator;
     @Mock private ContainerMappings containerMappings;
     @Mock private AuthTokenGenerator authTokenGenerator;
+    @Mock private BlobClient blobClient;
 
     @Captor
     private ArgumentCaptor<FormData> argCaptor;
@@ -99,7 +102,7 @@ public class OcrValidatorTest {
             .willThrow(new OcrPresenceException("msg"));
 
         // when
-        Throwable exc = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope));
+        Throwable exc = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID));
 
         // then
         assertThat(exc)
@@ -140,7 +143,7 @@ public class OcrValidatorTest {
             .willReturn(Optional.of(docWithOcr));
 
         // when
-        ocrValidator.assertOcrDataIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         verify(client).validate(eq(url), argCaptor.capture(), eq(docWithOcr.documentSubtype), eq(S2S_TOKEN));
@@ -188,7 +191,7 @@ public class OcrValidatorTest {
             .willReturn(Optional.of(docWithOcr));
 
         // when
-        ocrValidator.assertOcrDataIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         // an appropriate subtype is being used (instead of null)
@@ -212,7 +215,7 @@ public class OcrValidatorTest {
         );
 
         // when
-        Optional<OcrValidationWarnings> res = ocrValidator.assertOcrDataIsValid(envelope);
+        Optional<OcrValidationWarnings> res = ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         verifyNoInteractions(client);
@@ -245,7 +248,7 @@ public class OcrValidatorTest {
             .willReturn(Optional.of(scannableItem));
 
         // when
-        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         assertThat(warnings).isPresent();
@@ -276,7 +279,7 @@ public class OcrValidatorTest {
             .willReturn(Optional.of(doc(FORM, "z", sampleOcr())));
 
         // when
-        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         assertThat(warnings).isPresent();
@@ -298,7 +301,7 @@ public class OcrValidatorTest {
         given(containerMappings.getMappings()).willReturn(emptyList()); // url not configured
 
         // when
-        ocrValidator.assertOcrDataIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         verify(client, never()).validate(any(), any(), any(), any());
@@ -322,7 +325,7 @@ public class OcrValidatorTest {
             ));
 
         // when
-        ocrValidator.assertOcrDataIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         verify(client, never()).validate(any(), any(), any(), any());
@@ -354,7 +357,7 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // when
-        Throwable err = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope));
+        Throwable err = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID));
 
 
         // then
@@ -389,7 +392,7 @@ public class OcrValidatorTest {
             .willThrow(NotFound.class);
 
         // when
-        Throwable err = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope));
+        Throwable err = catchThrowable(() -> ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID));
 
 
         // then
@@ -423,7 +426,7 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         // when
-        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         assertThat(warnings).isPresent();
@@ -447,7 +450,7 @@ public class OcrValidatorTest {
         given(containerMappings.getMappings()).willReturn(emptyList());
 
         // when
-        ocrValidator.assertOcrDataIsValid(envelope);
+        ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
 
         // then
         capturer.assertContains("OCR validation URL for po box " + envelope.poBox + " not configured");

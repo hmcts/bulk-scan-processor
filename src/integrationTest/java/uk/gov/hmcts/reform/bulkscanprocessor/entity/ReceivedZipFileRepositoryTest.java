@@ -318,7 +318,8 @@ public class ReceivedZipFileRepositoryTest {
             emptyList(),
             emptyList(),
             emptyList(),
-            container
+            container,
+            null
         );
 
         envelope.setStatus(status);

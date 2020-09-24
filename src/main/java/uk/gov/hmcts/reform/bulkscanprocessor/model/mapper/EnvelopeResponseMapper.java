@@ -42,6 +42,7 @@ public final class EnvelopeResponseMapper {
             envelope.getOpeningDate(),
             envelope.getZipFileCreateddate(),
             envelope.getZipFileName(),
+            envelope.getRescanFor(),
             envelope.getStatus(),
             envelope.getClassification().toString(),
             toScannableItemsResponse(envelope.getScannableItems()),

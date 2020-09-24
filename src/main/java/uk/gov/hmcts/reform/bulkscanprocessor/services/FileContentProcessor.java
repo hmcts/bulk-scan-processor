@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import com.azure.storage.blob.BlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -52,6 +53,7 @@ public class FileContentProcessor {
         ZipInputStream zis,
         String zipFilename,
         String containerName,
+        BlobClient blobClient,
         String leaseId
     ) {
         try {
@@ -71,7 +73,9 @@ public class FileContentProcessor {
                 containerName,
                 zipFilename,
                 result.getPdfs(),
-                inputEnvelope
+                inputEnvelope,
+                blobClient,
+                leaseId
             );
         } catch (PaymentsDisabledException ex) {
             log.error(
