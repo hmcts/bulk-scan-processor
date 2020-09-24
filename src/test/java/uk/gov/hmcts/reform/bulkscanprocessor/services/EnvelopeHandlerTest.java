@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import com.azure.storage.blob.BlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,9 @@ class EnvelopeHandlerTest {
     @Mock
     private FileRejector fileRejector;
 
+    @Mock
+    private BlobClient blobClient;
+
     private List<ContainerMappings.Mapping> mappings = emptyList();
 
     private List<Pdf> pdfs = emptyList();
@@ -96,7 +100,7 @@ class EnvelopeHandlerTest {
 
     @Test
     void should_handle_and_save_envelope() {
-        given(ocrValidator.assertOcrDataIsValid(inputEnvelope)).willReturn(warnings);
+        given(ocrValidator.assertOcrDataIsValid(inputEnvelope, blobClient, LEASE_ID)).willReturn(warnings);
         given(containerMappings.getMappings()).willReturn(mappings);
 
         // when
@@ -104,7 +108,9 @@ class EnvelopeHandlerTest {
             CONTAINER_NAME,
             FILE_NAME,
             pdfs,
-            inputEnvelope
+            inputEnvelope,
+            blobClient,
+            LEASE_ID
         );
 
         // then
