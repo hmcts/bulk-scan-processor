@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @IntegrationTest
-public class ReadinessTest {
+class ReadinessTest {
     @Autowired
     private MockMvc mockMvc;
 
