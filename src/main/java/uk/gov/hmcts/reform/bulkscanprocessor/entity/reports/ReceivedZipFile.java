@@ -12,4 +12,6 @@ public interface ReceivedZipFile {
     String getScannableItemDcn();
 
     String getPaymentDcn();
+
+    String getRescanFor();
 }

@@ -42,6 +42,7 @@ public class ReceivedZipFileConverter {
         return new ReceivedZipFileData(
             receivedZipFilesList.get(0).getZipFileName(),
             receivedZipFilesList.get(0).getContainer(),
+            receivedZipFilesList.get(0).getRescanFor(),
             new ArrayList<>(scannableItemDcns),
             new ArrayList<>(paymentDcns)
         );
