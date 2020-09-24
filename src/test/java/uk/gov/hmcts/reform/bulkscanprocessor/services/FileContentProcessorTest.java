@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationServerSideException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
@@ -169,6 +170,39 @@ class FileContentProcessorTest {
                 ex
             );
         verifyNoMoreInteractions(fileRejector);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void should_handle_ocr_validation_server_side_exception() throws Exception {
+        // given
+        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(result.getMetadata()).willReturn(metadata);
+        given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
+
+        OcrValidationServerSideException ex = new OcrValidationServerSideException("msg");
+        doThrow(ex)
+            .when(envelopeHandler)
+            .handleEnvelope(
+                CONTAINER_NAME,
+                FILE_NAME,
+                pdfs,
+                inputEnvelope,
+                blobClient,
+                LEASE_ID
+            );
+
+        // when
+        fileContentProcessor.processZipFileContent(
+            zis,
+            FILE_NAME,
+            CONTAINER_NAME,
+            blobClient,
+            LEASE_ID
+        );
+
+        // then
+        verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
     }
 

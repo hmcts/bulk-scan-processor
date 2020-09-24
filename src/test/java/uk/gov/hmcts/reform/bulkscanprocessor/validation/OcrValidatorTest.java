@@ -12,12 +12,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
+import org.springframework.web.client.HttpServerErrorException;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationServerSideException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
@@ -28,6 +32,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationC
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.time.Instant;
@@ -41,8 +46,10 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -71,6 +78,7 @@ public class OcrValidatorTest {
     @Mock private OcrPresenceValidator presenceValidator;
     @Mock private ContainerMappings containerMappings;
     @Mock private AuthTokenGenerator authTokenGenerator;
+    @Mock private OcrValidationRetryManager ocrValidationRetryManager;
     @Mock private BlobClient blobClient;
 
     @Captor
@@ -79,8 +87,15 @@ public class OcrValidatorTest {
     private OcrValidator ocrValidator;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        this.ocrValidator = new OcrValidator(client, presenceValidator, containerMappings, authTokenGenerator);
+    public void setUp() {
+        this.ocrValidator = new OcrValidator(
+            client,
+            presenceValidator,
+            containerMappings,
+            authTokenGenerator,
+            ocrValidationRetryManager
+
+        );
     }
 
     @Test
@@ -454,6 +469,107 @@ public class OcrValidatorTest {
 
         // then
         capturer.assertContains("OCR validation URL for po box " + envelope.poBox + " not configured");
+    }
+
+    @Test
+    void should_throw_exception_if_service_responded_with_500_and_retry_delay_is_possible() {
+        // given
+        InputEnvelope envelope = envelope(
+            PO_BOX,
+            asList(
+                doc(FORM, "x", sampleOcr()),
+                doc(OTHER, "other", null)
+            ),
+            SUPPLEMENTARY_EVIDENCE
+        );
+
+        given(presenceValidator.assertHasProperlySetOcr(any()))
+            .willReturn(Optional.of(doc(FORM, "x", sampleOcr())));
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true, true)
+            ));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        given(client.validate(anyString(), any(FormData.class), anyString(), anyString()))
+            .willThrow(HttpServerErrorException.create(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "internal server error message",
+                HttpHeaders.EMPTY,
+                null,
+                null
+            ));
+        given(ocrValidationRetryManager
+                  .setRetryDelayIfPossible(
+                      any(BlobClient.class),
+                      anyString()
+                  ))
+            .willReturn(true);
+
+        // when
+        OcrValidationServerSideException exception = catchThrowableOfType(
+            () -> ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID),
+            OcrValidationServerSideException.class
+        );
+
+        // then
+        assertThat(exception.getMessage().matches(
+            "Error calling validation endpoint. Url: https://example.com/validate-ocr, "
+                + "DCN: (.*), doc type: Form, doc subtype: x, "
+                + "envelope: file.zip. Error message: 500 internal server error message, "
+                + "status code: 500 INTERNAL_SERVER_ERROR, status text: internal server error message")
+        )
+            .isTrue();
+    }
+
+    @Test
+    void should_throw_exception_if_service_responded_with_500_and_retry_delay_is_not_possible() {
+        // given
+        InputScannableItem scannableItemWithOcr = doc(FORM, "form", sampleOcr());
+        InputEnvelope envelope = envelope(
+            PO_BOX,
+            asList(
+                scannableItemWithOcr,
+                doc(OTHER, "other", null)
+            ),
+            SUPPLEMENTARY_EVIDENCE
+        );
+
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(scannableItemWithOcr));
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("c", "j", envelope.poBox, VALIDATION_URL, true, true)
+            ));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        given(client.validate(anyString(), any(FormData.class), anyString(), anyString()))
+            .willThrow(HttpServerErrorException.create(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "internal server error message",
+                HttpHeaders.EMPTY,
+                null,
+                null
+            ));
+        given(ocrValidationRetryManager
+                  .setRetryDelayIfPossible(
+                      any(BlobClient.class),
+                      anyString()
+                  ))
+            .willReturn(false);
+
+        // when
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
+
+        // then
+        assertThat(warnings).isPresent();
+        assertThat(warnings.get().documentControlNumber).isEqualTo(scannableItemWithOcr.documentControlNumber);
+        assertThat(warnings.get().warnings).containsExactly("OCR validation was not performed due to errors");
+        verify(client).validate(anyString(), any(FormData.class), anyString(), anyString());
     }
 
     private InputOcrData sampleOcr() {

@@ -9,9 +9,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.data.util.Optionals;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
+import org.springframework.web.client.HttpServerErrorException;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationServerSideException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
@@ -19,6 +21,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.OcrValidationC
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.OcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.util.List;
@@ -40,18 +43,21 @@ public class OcrValidator {
     private final OcrPresenceValidator presenceValidator;
     private final ContainerMappings containerMappings;
     private final AuthTokenGenerator authTokenGenerator;
+    private final OcrValidationRetryManager ocrValidationRetryManager;
 
     //region constructor
     public OcrValidator(
         OcrValidationClient client,
         OcrPresenceValidator presenceValidator,
         ContainerMappings containerMappings,
-        AuthTokenGenerator authTokenGenerator
+        AuthTokenGenerator authTokenGenerator,
+        OcrValidationRetryManager ocrValidationRetryManager
     ) {
         this.client = client;
         this.presenceValidator = presenceValidator;
         this.containerMappings = containerMappings;
         this.authTokenGenerator = authTokenGenerator;
+        this.ocrValidationRetryManager = ocrValidationRetryManager;
     }
     //endregion
 
@@ -83,14 +89,54 @@ public class OcrValidator {
                         authTokenGenerator.generate()
                     ))
                     .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))
-                    .onFailure(exc -> handleRestClientException(exc, validationUrl, envelope, docWithOcr))
+                    .onFailure(exc -> handleRestClientException(
+                        exc,
+                        validationUrl,
+                        envelope,
+                        docWithOcr
+                    ))
                     .map(response -> ocrValidationWarnings(docWithOcr, response.warnings))
-                    .getOrElseGet(exc ->
-                        ocrValidationWarnings(
-                            docWithOcr,
-                            singletonList("OCR validation was not performed due to errors")
-                        )
+                    .getOrElseGet(exc -> handleOcrValidationError(
+                        exc,
+                        blobClient,
+                        leaseId,
+                        docWithOcr,
+                        validationUrl,
+                        envelope.zipFileName
+                    ))
+        );
+    }
+
+    private OcrValidationWarnings handleOcrValidationError(
+        Throwable ex,
+        BlobClient blobClient,
+        String leaseId,
+        InputScannableItem docWithOcr,
+        String validationUrl,
+        String zipFileName
+    ) {
+        if (ex instanceof HttpServerErrorException) {
+            if (ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)) {
+                throw new OcrValidationServerSideException(
+                    String.format(
+                        "Error calling validation endpoint. "
+                            + "Url: %s, DCN: %s, doc type: %s, doc subtype: %s, envelope: %s. "
+                            + "Error message: %s, status code: %s, status text: %s",
+                        validationUrl,
+                        docWithOcr.documentControlNumber,
+                        docWithOcr.documentType,
+                        docWithOcr.documentSubtype,
+                        zipFileName,
+                        ex.getMessage(),
+                        ((HttpServerErrorException) ex).getStatusCode().toString(),
+                        ((HttpServerErrorException) ex).getStatusText()
                     )
+                );
+            }
+        }
+        return ocrValidationWarnings(
+            docWithOcr,
+            singletonList("OCR validation was not performed due to errors")
         );
     }
 
@@ -145,6 +191,16 @@ public class OcrValidator {
 
         if (exc instanceof NotFound) {
             throw new OcrValidationException("Unrecognised document subtype " + docWithOcr.documentSubtype);
+        } else {
+            log.info(
+                "Error calling validation endpoint. Url: {}, DCN: {}, doc type: {}, doc subtype: {}, envelope: {}",
+                validationUrl,
+                docWithOcr.documentControlNumber,
+                docWithOcr.documentType,
+                docWithOcr.documentSubtype,
+                envelope.zipFileName,
+                exc
+            );
         }
     }
 

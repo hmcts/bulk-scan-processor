@@ -22,6 +22,7 @@ import java.util.Optional;
 import static java.time.Instant.now;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -144,7 +145,47 @@ class EnvelopeHandlerTest {
         assertThat(envelope.getValue().getPayments()).isEqualTo(inputEnvelope.payments);
         assertThat(envelope.getValue().getNonScannableItems()).isEqualTo(inputEnvelope.nonScannableItems);
         assertThat(envelope.getValue().getContainer()).isEqualTo(CONTAINER_NAME);
-        assertThat(envelope.getValue().getRescanFor()).isEqualTo(RESCAN_FOR_FILE_NAME);
+
+        verifyNoInteractions(fileRejector);
+        verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void should_retrow_exception_from_ocr_validator() {
+        // given
+        given(ocrValidator.assertOcrDataIsValid(inputEnvelope, blobClient, LEASE_ID))
+            .willThrow(new RuntimeException("msg"));
+        given(containerMappings.getMappings()).willReturn(mappings);
+
+        // when
+        RuntimeException exception = catchThrowableOfType(
+            () -> envelopeHandler.handleEnvelope(
+                CONTAINER_NAME,
+                FILE_NAME,
+                pdfs,
+                inputEnvelope,
+                blobClient,
+                LEASE_ID
+            ),
+            RuntimeException.class
+        );
+
+        // then
+        verify(envelopeValidator).assertZipFilenameMatchesWithMetadata(inputEnvelope, FILE_NAME);
+        verify(envelopeValidator).assertContainerMatchesJurisdictionAndPoBox(
+            containerMappings.getMappings(), inputEnvelope, CONTAINER_NAME
+        );
+        verify(envelopeValidator).assertServiceEnabled(inputEnvelope, containerMappings.getMappings());
+        verify(envelopeValidator).assertEnvelopeContainsOcrDataIfRequired(inputEnvelope);
+        verify(envelopeValidator).assertEnvelopeHasPdfs(inputEnvelope, pdfs);
+        verify(envelopeValidator).assertDocumentControlNumbersAreUnique(inputEnvelope);
+        verify(envelopeValidator).assertPaymentsEnabledForContainerIfPaymentsArePresent(
+            inputEnvelope, paymentsEnabled, containerMappings.getMappings()
+        );
+        verify(envelopeValidator).assertEnvelopeContainsDocsOfAllowedTypesOnly(inputEnvelope);
+        verify(envelopeProcessor).assertDidNotFailToUploadBefore(inputEnvelope.zipFileName, CONTAINER_NAME);
+
+        assertThat(exception.getMessage()).isEqualTo("msg");
 
         verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
