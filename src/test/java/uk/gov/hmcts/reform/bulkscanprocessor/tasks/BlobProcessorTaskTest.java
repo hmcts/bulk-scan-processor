@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
@@ -24,6 +25,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,6 +52,9 @@ class BlobProcessorTaskTest {
     @Mock
     private LeaseAcquirer leaseAcquirer;
 
+    @Mock
+    private OcrValidationRetryManager ocrValidationRetryManager;
+
     private BlobProcessorTask blobProcessorTask;
 
     @BeforeEach
@@ -58,7 +63,8 @@ class BlobProcessorTaskTest {
             blobManager,
             envelopeProcessor,
             fileContentProcessor,
-            leaseAcquirer
+            leaseAcquirer,
+            ocrValidationRetryManager
         );
     }
 
@@ -73,6 +79,7 @@ class BlobProcessorTaskTest {
 
         given(blob.getName()).willReturn("file.zip");
         given(container.getBlobClient("file.zip")).willReturn(blobClient);
+        given(ocrValidationRetryManager.canProcess(blobClient)).willReturn(true);
         given(container.getBlobContainerName()).willReturn("cont");
         given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
             .willReturn(null);
@@ -91,5 +98,37 @@ class BlobProcessorTaskTest {
 
         // then
         verifyNoMoreInteractions(envelopeProcessor);
+    }
+
+    @Test
+    void processBlobs_should_not_process_file_if_not_ready_to_retry() {
+        // given
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container));
+
+        PagedIterable<BlobItem> pagedIterable = mock(PagedIterable.class);
+        given(container.listBlobs()).willReturn(pagedIterable);
+        given(pagedIterable.stream()).willReturn(singletonList(blob).stream());
+
+        given(blob.getName()).willReturn("file.zip");
+        given(container.getBlobClient("file.zip")).willReturn(blobClient);
+        given(ocrValidationRetryManager.canProcess(blobClient)).willReturn(false);
+        given(container.getBlobContainerName()).willReturn("cont");
+        given(envelopeProcessor.getEnvelopeByFileAndContainer("cont", "file.zip"))
+            .willReturn(null);
+        given(blobClient.exists()).willReturn(true);
+
+        doAnswer(invocation -> {
+            var okAction = (Consumer) invocation.getArgument(1);
+            okAction.accept(UUID.randomUUID().toString());
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+
+        // when
+        blobProcessorTask.processBlobs();
+
+        // then
+        verifyNoMoreInteractions(envelopeProcessor);
+        verifyNoMoreInteractions(blobClient);
+        verifyNoInteractions(fileContentProcessor);
     }
 }

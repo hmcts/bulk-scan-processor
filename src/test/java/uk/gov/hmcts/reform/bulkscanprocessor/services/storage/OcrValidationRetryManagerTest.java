@@ -55,7 +55,7 @@ class OcrValidationRetryManagerTest {
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isTrue();
     }
 
     @Test
@@ -72,7 +72,7 @@ class OcrValidationRetryManagerTest {
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isFalse();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isFalse();
     }
 
     @Test
@@ -89,7 +89,7 @@ class OcrValidationRetryManagerTest {
 
         // when
         // then
-        assertThat(ocrValidationRetryManager.isReadyToRetry(blobClient)).isTrue();
+        assertThat(ocrValidationRetryManager.canProcess(blobClient)).isTrue();
     }
 
     @Test
