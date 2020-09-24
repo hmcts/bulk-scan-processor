@@ -12,7 +12,8 @@ management:
     mail:
       enabled: false
     readiness:
-      include: readinessState, db
+      include: db
+#      include: readinessState, db
 
 # liveness alert settings depend on application name, if it is changed alert configuration must also be adjusted
 # https://github.com/hmcts/bulk-scan-shared-infrastructure/blob/master/liveness-alert.tf
@@ -23,8 +24,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5435}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
     username: ${BULK_SCANNING_DB_USER_NAME:bulkscans}
-    password: pass
-#    password: ${BULK_SCANNING_DB_PASSWORD:}
+    password: ${BULK_SCANNING_DB_PASSWORD:}
     properties:
       charSet: UTF-8
     hikari:
