@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
+import com.azure.storage.blob.BlobClient;
 import io.vavr.control.Try;
 import joptsimple.internal.Strings;
 import org.slf4j.Logger;
@@ -61,7 +62,11 @@ public class OcrValidator {
      *         no validation took place.
      * @throws OcrValidationException if the OCR data is invalid
      */
-    public Optional<OcrValidationWarnings> assertOcrDataIsValid(InputEnvelope envelope) {
+    public Optional<OcrValidationWarnings> assertOcrDataIsValid(
+        InputEnvelope envelope,
+        BlobClient blobClient,
+        String leaseId
+    ) {
         if (envelope.classification == EXCEPTION) {
             return Optional.empty();
         }

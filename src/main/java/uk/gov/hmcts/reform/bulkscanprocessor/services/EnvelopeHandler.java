@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import com.azure.storage.blob.BlobClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,7 +66,9 @@ public class EnvelopeHandler {
         String containerName,
         String zipFilename,
         List<Pdf> pdfs,
-        InputEnvelope inputEnvelope
+        InputEnvelope inputEnvelope,
+        BlobClient blobClient,
+        String leaseId
     ) {
         envelopeValidator.assertZipFilenameMatchesWithMetadata(inputEnvelope, zipFilename);
         envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
@@ -82,7 +85,11 @@ public class EnvelopeHandler {
 
         envelopeProcessor.assertDidNotFailToUploadBefore(inputEnvelope.zipFileName, containerName);
 
-        Optional<OcrValidationWarnings> ocrValidationWarnings = ocrValidator.assertOcrDataIsValid(inputEnvelope);
+        Optional<OcrValidationWarnings> ocrValidationWarnings = ocrValidator.assertOcrDataIsValid(
+            inputEnvelope,
+            blobClient,
+            leaseId
+        );
 
         Envelope dbEnvelope = toDbEnvelope(inputEnvelope, containerName, ocrValidationWarnings);
 
