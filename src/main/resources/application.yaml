@@ -4,10 +4,10 @@ server:
 management:
   endpoint:
     health:
-      show-details: always
       group:
         readiness:
           include: readinessState, db
+      show-details: always
   endpoints:
     web:
       base-path: /
