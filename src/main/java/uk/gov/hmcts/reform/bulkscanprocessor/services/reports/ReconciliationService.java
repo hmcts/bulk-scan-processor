@@ -156,7 +156,9 @@ public class ReconciliationService {
     }
 
     private static boolean equalStrEmptyInsensitive(String str1, String str2) {
-        return str1 == null || str1.isEmpty() ? str2 == null || str2.isEmpty() : str1.equals(str2);
+        return (str1 == null || str1.isEmpty())
+            ? (str2 == null || str2.isEmpty())
+            : str1.equals(str2);
     }
 
     private String printList(List<String> list) {
