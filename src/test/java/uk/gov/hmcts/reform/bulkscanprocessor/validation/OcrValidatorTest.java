@@ -94,7 +94,6 @@ public class OcrValidatorTest {
             containerMappings,
             authTokenGenerator,
             ocrValidationRetryManager
-
         );
     }
 
@@ -515,13 +514,10 @@ public class OcrValidatorTest {
         );
 
         // then
-        assertThat(exception.getMessage().matches(
+        assertThat(exception.getMessage()).matches(
             "Error calling validation endpoint. Url: https://example.com/validate-ocr, "
                 + "DCN: (.*), doc type: Form, doc subtype: x, "
-                + "envelope: file.zip. Error message: 500 internal server error message, "
-                + "status code: 500 INTERNAL_SERVER_ERROR, status text: internal server error message")
-        )
-            .isTrue();
+                + "envelope: file.zip.");
     }
 
     @Test

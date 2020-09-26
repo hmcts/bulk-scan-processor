@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationServerSideException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
@@ -99,10 +100,15 @@ public class FileContentProcessor {
             createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
         } catch (OcrValidationServerSideException ex) {
             log.error("Failed to process file {} from container {}, "
-                          + "message from OCR validation endpoint {} - will retry",
+                          + "message from OCR validation endpoint {}. "
+                          + "Error message: {}, status code: {}, status text: {}"
+                          + " - will retry",
                       zipFilename,
                       containerName,
                       ex.getMessage(),
+                      ex.getCause().getMessage(),
+                      ((HttpServerErrorException) ex.getCause()).getStatusCode().toString(),
+                      ((HttpServerErrorException) ex.getCause()).getStatusText(),
                       ex
             );
         } catch (Exception ex) {

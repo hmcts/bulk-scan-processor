@@ -120,17 +120,14 @@ public class OcrValidator {
                 throw new OcrValidationServerSideException(
                     String.format(
                         "Error calling validation endpoint. "
-                            + "Url: %s, DCN: %s, doc type: %s, doc subtype: %s, envelope: %s. "
-                            + "Error message: %s, status code: %s, status text: %s",
+                            + "Url: %s, DCN: %s, doc type: %s, doc subtype: %s, envelope: %s.",
                         validationUrl,
                         docWithOcr.documentControlNumber,
                         docWithOcr.documentType,
                         docWithOcr.documentSubtype,
-                        zipFileName,
-                        ex.getMessage(),
-                        ((HttpServerErrorException) ex).getStatusCode().toString(),
-                        ((HttpServerErrorException) ex).getStatusText()
-                    )
+                        zipFileName
+                    ),
+                    (HttpServerErrorException)ex
                 );
             }
         }
@@ -191,16 +188,6 @@ public class OcrValidator {
 
         if (exc instanceof NotFound) {
             throw new OcrValidationException("Unrecognised document subtype " + docWithOcr.documentSubtype);
-        } else {
-            log.info(
-                "Error calling validation endpoint. Url: {}, DCN: {}, doc type: {}, doc subtype: {}, envelope: {}",
-                validationUrl,
-                docWithOcr.documentControlNumber,
-                docWithOcr.documentType,
-                docWithOcr.documentSubtype,
-                envelope.zipFileName,
-                exc
-            );
         }
     }
 

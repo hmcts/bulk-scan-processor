@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpServerErrorException;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
@@ -180,7 +183,14 @@ class FileContentProcessorTest {
         given(result.getMetadata()).willReturn(metadata);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
 
-        OcrValidationServerSideException ex = new OcrValidationServerSideException("msg");
+        HttpServerErrorException cause = HttpServerErrorException.create(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "internal server error message",
+            HttpHeaders.EMPTY,
+            null,
+            null
+        );
+        OcrValidationServerSideException ex = new OcrValidationServerSideException("msg", cause);
         doThrow(ex)
             .when(envelopeHandler)
             .handleEnvelope(
