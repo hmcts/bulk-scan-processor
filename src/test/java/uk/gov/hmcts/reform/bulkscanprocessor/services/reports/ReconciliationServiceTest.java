@@ -444,7 +444,9 @@ class ReconciliationServiceTest {
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
             new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
             new ReceivedZipFileData("file2", "c2", "file4", asList("doc-3", "doc-4"), asList("pay-3", "pay-4")),
-            new ReceivedZipFileData("file3", "c3", "file5", null, null)
+            new ReceivedZipFileData("file3", "c3", "file5", null, null),
+            new ReceivedZipFileData("file4", "c4", "", null, null),
+            new ReceivedZipFileData("file5", "c5", null, null, null)
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -452,7 +454,9 @@ class ReconciliationServiceTest {
         List<ReportedZipFile> envelopes = asList(
             new ReportedZipFile("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
             new ReportedZipFile("file2", "c2", "file6", asList("doc-3", "doc-4"), asList("pay-3", "pay-4")),
-            new ReportedZipFile("file3", "c3", null, null, null)
+            new ReportedZipFile("file3", "c3", null, null, null),
+            new ReportedZipFile("file4", "c4", null, null, null),
+            new ReportedZipFile("file5", "c5", "", null, null)
         );
         ReconciliationStatement statement = new ReconciliationStatement(date, envelopes);
 
