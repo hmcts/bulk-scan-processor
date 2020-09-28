@@ -89,12 +89,7 @@ public class OcrValidator {
                         authTokenGenerator.generate()
                     ))
                     .onSuccess(res -> handleValidationResponse(res, envelope, docWithOcr))
-                    .onFailure(exc -> handleRestClientException(
-                        exc,
-                        validationUrl,
-                        envelope,
-                        docWithOcr
-                    ))
+                    .onFailure(exc -> handleRestClientException(exc, validationUrl, envelope, docWithOcr))
                     .map(response -> ocrValidationWarnings(docWithOcr, response.warnings))
                     .getOrElseGet(exc -> handleOcrValidationError(
                         exc,

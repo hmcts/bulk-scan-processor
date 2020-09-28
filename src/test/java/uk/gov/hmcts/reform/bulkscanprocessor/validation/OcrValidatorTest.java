@@ -521,7 +521,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    void should_throw_exception_if_service_responded_with_500_and_retry_delay_is_not_possible() {
+    void should_raise_ocr_validation_warnings_if_service_responded_with_500_and_retry_delay_is_not_possible() {
         // given
         InputScannableItem scannableItemWithOcr = doc(FORM, "form", sampleOcr());
         InputEnvelope envelope = envelope(
