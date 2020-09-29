@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-  id 'org.flywaydb.flyway' version '6.5.7'
+  id 'org.flywaydb.flyway' version '7.0.0'
   id 'org.springframework.boot' version '2.3.3.RELEASE'
   id 'org.owasp.dependencycheck' version '5.3.2.1'
   id 'com.github.ben-manes.versions' version '0.33.0'
@@ -326,7 +326,7 @@ dependencies {
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.3.RELEASE', {
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.4.RELEASE', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
