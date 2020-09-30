@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity.reports;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public interface ReceivedZipFile {
     String getZipFileName();
@@ -14,4 +15,7 @@ public interface ReceivedZipFile {
     String getPaymentDcn();
 
     String getRescanFor();
+
+    UUID getEnvelopeId();
+
 }

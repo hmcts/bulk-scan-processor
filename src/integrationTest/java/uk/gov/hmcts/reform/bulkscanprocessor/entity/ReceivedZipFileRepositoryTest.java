@@ -63,7 +63,7 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, null, null, null)
+                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, null, null, null, null)
                 )
             );
     }
@@ -81,8 +81,11 @@ public class ReceivedZipFileRepositoryTest {
             event("c3", "test3.zip", createdDate3, ZIPFILE_PROCESSING_STARTED)
         );
 
+        Envelope existingEnvelope;
         dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null));
-        dbHasEnvelope(envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test5"));
+        existingEnvelope
+            = envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test5");
+        dbHasEnvelope(existingEnvelope);
         dbHasEnvelope(envelope("c3", "test3.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null));
 
         // when
@@ -93,7 +96,15 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate1, null, null, "test5")
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate1,
+                        null,
+                        null,
+                        "test5",
+                        existingEnvelope.getId()
+                    )
                 )
             );
     }
@@ -122,7 +133,14 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 singletonList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1",  "test4.zip")
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1", createdDate,
+                        "doc-1",
+                        "pay-1",
+                        "test4.zip",
+                        envelope.getId()
+                    )
                 )
             );
     }
@@ -152,8 +170,8 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null,  null),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", null,  null)
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", null,  null, envelope.getId()),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", null,  null, envelope.getId())
                 )
             );
     }
@@ -184,8 +202,24 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-1",  "test5.zip"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, null, "pay-2",  "test5.zip")
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate,
+                        null,
+                        "pay-1",
+                        "test5.zip",
+                        envelope.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate,
+                        null,
+                        "pay-2",
+                        "test5.zip",
+                        envelope.getId()
+                    )
                 )
             );
     }
@@ -199,7 +233,8 @@ public class ReceivedZipFileRepositoryTest {
             event("c1", "test1.zip", createdDate, ZIPFILE_PROCESSING_STARTED)
         );
 
-        Envelope envelope = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
+        Envelope envelope
+            = envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
         dbHasEnvelope(envelope);
 
         dbHasScannableItems(
@@ -219,10 +254,10 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1",  null),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-2", null),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-1", null),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-2",  null)
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-1",  null, envelope.getId()),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-1", "pay-2", null, envelope.getId()),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-1", null, envelope.getId()),
+                    new ReceivedZipFileItem("test1.zip", "c1", createdDate, "doc-2", "pay-2",  null, envelope.getId())
                 )
             );
     }
@@ -265,14 +300,77 @@ public class ReceivedZipFileRepositoryTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyElementsOf(
                 asList(
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-1",  "test5.zip"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-1", "pay-2",  "test5.zip"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-1",  "test5.zip"),
-                    new ReceivedZipFileItem("test1.zip", "c1", createdDate1, "doc-2", "pay-2",  "test5.zip"),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-3",  null),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-3", "pay-4",  null),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-3",  null),
-                    new ReceivedZipFileItem("test2.zip", "c2", createdDate2, "doc-4", "pay-4",  null)
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate1,
+                        "doc-1",
+                        "pay-1",
+                        "test5.zip",
+                        envelope1.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate1,
+                        "doc-1",
+                        "pay-2",
+                        "test5.zip",
+                        envelope1.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1", createdDate1,
+                        "doc-2",
+                        "pay-1",
+                        "test5.zip",
+                        envelope1.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test1.zip",
+                        "c1",
+                        createdDate1,
+                        "doc-2",
+                        "pay-2",
+                        "test5.zip",
+                        envelope1.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "doc-3",
+                        "pay-3",
+                        null,
+                        envelope2.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "doc-3",
+                        "pay-4",
+                        null,
+                        envelope2.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "doc-4",
+                        "pay-3",
+                        null,
+                        envelope2.getId()
+                    ),
+                    new ReceivedZipFileItem(
+                        "test2.zip",
+                        "c2",
+                        createdDate2,
+                        "doc-4",
+                        "pay-4",
+                        null,
+                        envelope2.getId()
+                    )
                 )
             );
     }
