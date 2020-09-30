@@ -18,10 +18,12 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.PAYMENT_DCNS_MISMATCH;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.RECEIVED_BUT_NOT_REPORTED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.REJECTED_ENVELOPE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.REPORTED_BUT_NOT_RECEIVED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.RESCAN_FOR_MISMATCH;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.SCANNABLE_DOCUMENT_DCNS_MISMATCH;
@@ -50,8 +52,8 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", "file4", null, null),
-            new ReceivedZipFileData("file2", "c2", null, null, null)
+            new ReceivedZipFileData("file1", "c1", "file4", null, null, randomUUID()),
+            new ReceivedZipFileData("file2", "c2", null, null, null, randomUUID())
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -75,7 +77,7 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = singletonList(
-            new ReceivedZipFileData("file1", "c1", null, null, null)
+            new ReceivedZipFileData("file1", "c1", null, null, null, randomUUID())
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -103,8 +105,8 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", "file4",null, null),
-            new ReceivedZipFileData("file2", "c2", null,null, null)
+            new ReceivedZipFileData("file1", "c1", "file4",null, null, randomUUID()),
+            new ReceivedZipFileData("file2", "c2", null,null, null, randomUUID())
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -131,8 +133,8 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file2", "c2", "file4", null, null),
-            new ReceivedZipFileData("file3", "c3", null, null, null)
+            new ReceivedZipFileData("file2", "c2", "file4", null, null, randomUUID()),
+            new ReceivedZipFileData("file3", "c3", null, null, null, randomUUID())
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -161,8 +163,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", "file4", asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                "file4",
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -186,8 +202,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                null,
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -211,8 +241,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                null,
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -240,8 +284,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                null,
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -269,8 +327,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                null,
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -298,8 +370,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                null,
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -327,8 +413,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, emptyList(), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", "file4", asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                emptyList(),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                "file4",
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -356,8 +456,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", "file4", asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                "file4",
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -385,8 +499,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                null,
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -414,8 +542,22 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), emptyList()),
-            new ReceivedZipFileData("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                emptyList(),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                null,
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            )
         );
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
 
@@ -442,11 +584,46 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
 
         final List<ReceivedZipFileData> receivedZipFileDataList = asList(
-            new ReceivedZipFileData("file1", "c1", null, asList("doc-1", "doc-2"), asList("pay-1", "pay-2")),
-            new ReceivedZipFileData("file2", "c2", "file4", asList("doc-3", "doc-4"), asList("pay-3", "pay-4")),
-            new ReceivedZipFileData("file3", "c3", "file5", null, null),
-            new ReceivedZipFileData("file4", "c4", "", null, null),
-            new ReceivedZipFileData("file5", "c5", null, null, null)
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1", "pay-2"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                "file4",
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file3",
+                "c3",
+                "file5",
+                null,
+                null,
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file4",
+                "c4",
+                "",
+                null,
+                null,
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file5",
+                "c5",
+                null,
+                null,
+                null,
+                randomUUID()
+            )
         );
 
         prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
@@ -469,6 +646,88 @@ class ReconciliationServiceTest {
             .containsExactlyInAnyOrder(
                 new Discrepancy("file2", "c2", RESCAN_FOR_MISMATCH, "file6", "file4"),
                 new Discrepancy("file3", "c3", RESCAN_FOR_MISMATCH, null, "file5")
+            );
+    }
+
+    @Test
+    void should_only_return_rejected_discrepancy_when_envelope_is_rejected() {
+        // given
+        LocalDate date = LocalDate.now();
+
+        final List<ReceivedZipFileData> receivedZipFileDataList = asList(
+            new ReceivedZipFileData(
+                "file1",
+                "c1",
+                null,
+                asList("doc-1", "doc-2"),
+                asList("pay-1"),
+                null
+            ),
+            new ReceivedZipFileData(
+                "file2",
+                "c2",
+                "",
+                asList("doc-3", "doc-4"),
+                asList("pay-3", "pay-4"),
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file3",
+                "c3",
+                "file5",
+                null,
+                null,
+                null
+            )
+        );
+
+        prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
+
+        List<ReportedZipFile> envelopes = asList(
+            new ReportedZipFile("file1", "c1", null, emptyList(), asList("pay-2")),
+            new ReportedZipFile("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4")),
+            new ReportedZipFile("file3", "c3", null, asList("doc-4"), null)
+        );
+        ReconciliationStatement statement = new ReconciliationStatement(date, envelopes);
+
+        // when
+        List<Discrepancy> discrepancies = reconciliationService.getReconciliationReport(statement);
+
+        // then
+        assertThat(discrepancies)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
+                new Discrepancy("file1", "c1", REJECTED_ENVELOPE),
+                new Discrepancy("file3", "c3", REJECTED_ENVELOPE)
+            );
+    }
+
+
+    @Test
+    void should_return_received_but_not_reported_even_envelope_rejected_when_envelope_not_reported() {
+        // given
+        LocalDate date = LocalDate.now();
+
+        final List<ReceivedZipFileData> receivedZipFileDataList = asList(
+            new ReceivedZipFileData("file1", "c1", null, asList("doc-2"), asList("pay-1"), null),
+            new ReceivedZipFileData("file2", "c2", "", asList("doc-3", "doc-4"), asList("pay-4"), randomUUID())
+        );
+
+        prepareReconciliationServiceBehaviour(date, receivedZipFileDataList);
+
+        List<ReportedZipFile> envelopes = asList(
+            new ReportedZipFile("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-4"))
+        );
+        ReconciliationStatement statement = new ReconciliationStatement(date, envelopes);
+
+        // when
+        List<Discrepancy> discrepancies = reconciliationService.getReconciliationReport(statement);
+
+        // then
+        assertThat(discrepancies)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
+                new Discrepancy("file1", "c1", RECEIVED_BUT_NOT_REPORTED)
             );
     }
 

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.util.function.Function.identity;
@@ -60,21 +61,22 @@ public class ReconciliationService {
                     Pair.of(receivedZipFile.zipFileName, receivedZipFile.container);
                 if (reportedZipFilesMap.containsKey(receivedZipFileKey)) {
                     ReportedZipFile reportedZipFile = reportedZipFilesMap.get(receivedZipFileKey);
-                    compareRescanFor(discrepancies, reportedZipFile, receivedZipFile);
-                    compareLists(
-                        discrepancies,
-                        receivedZipFile,
-                        reportedZipFile.paymentDcns,
-                        receivedZipFile.paymentDcns,
-                        PAYMENT_DCNS_MISMATCH
-                    );
-                    compareLists(
-                        discrepancies,
-                        receivedZipFile,
-                        reportedZipFile.scannableItemDcns,
-                        receivedZipFile.scannableItemDcns,
-                        SCANNABLE_DOCUMENT_DCNS_MISMATCH
-                    );
+
+                    if (Objects.isNull(receivedZipFile.envelopeId)) {
+                        discrepancies.add(
+                            new Discrepancy(
+                                receivedZipFile.zipFileName,
+                                receivedZipFile.container,
+                                DiscrepancyType.REJECTED_ENVELOPE
+                            )
+                        );
+                    } else {
+                        compareForNonRejectedEnvelope(
+                            discrepancies,
+                            receivedZipFile,
+                            reportedZipFile
+                        );
+                    }
                 } else {
                     discrepancies.add(
                         new Discrepancy(
@@ -113,6 +115,28 @@ public class ReconciliationService {
                     )
                 );
             });
+    }
+
+    private void compareForNonRejectedEnvelope(
+        List<Discrepancy> discrepancies,
+        ReceivedZipFileData receivedZipFile,
+        ReportedZipFile reportedZipFile
+    ) {
+        compareRescanFor(discrepancies, reportedZipFile, receivedZipFile);
+        compareLists(
+            discrepancies,
+            receivedZipFile,
+            reportedZipFile.paymentDcns,
+            receivedZipFile.paymentDcns,
+            PAYMENT_DCNS_MISMATCH
+        );
+        compareLists(
+            discrepancies,
+            receivedZipFile,
+            reportedZipFile.scannableItemDcns,
+            receivedZipFile.scannableItemDcns,
+            SCANNABLE_DOCUMENT_DCNS_MISMATCH
+        );
     }
 
     private void compareLists(

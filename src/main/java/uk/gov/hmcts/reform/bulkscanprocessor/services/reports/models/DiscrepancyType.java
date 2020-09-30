@@ -8,7 +8,8 @@ public enum DiscrepancyType {
     RECEIVED_BUT_NOT_REPORTED("received but not reported"),
     PAYMENT_DCNS_MISMATCH("payment dcns mismatch"),
     SCANNABLE_DOCUMENT_DCNS_MISMATCH("scannable document dcns mismatch"),
-    RESCAN_FOR_MISMATCH("rescan for file name mismatch");
+    RESCAN_FOR_MISMATCH("rescan for file name mismatch"),
+    REJECTED_ENVELOPE("envelope rejected");
 
     @JsonValue
     public final String text;
