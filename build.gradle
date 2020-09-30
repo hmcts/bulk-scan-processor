@@ -232,7 +232,7 @@ dependencyManagement {
     }
     // force junit5 deps to use groovy v3 which fixes reflective call errors for java 11
     // rest assured 4.2 -> 4.3 jumps to groovy v3. junit v5.6 still on v2.5
-    dependencySet(group: 'org.codehaus.groovy', version: '3.0.5') {
+    dependencySet(group: 'org.codehaus.groovy', version: '3.0.6') {
       entry 'groovy'
       entry 'groovy-json'
       entry 'groovy-xml'
