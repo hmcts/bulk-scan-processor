@@ -19,7 +19,9 @@ public interface ReceivedZipFileRepository extends JpaRepository<Envelope, UUID>
             + "  process_events.createdat AS processingStartedEventDate, "
             + "  scannable_items.documentControlNumber AS scannableItemDCN, "
             + "  payments.documentControlNumber AS paymentDCN, "
-            + "  envelopes.rescanFor "
+            + "  envelopes.rescanFor, "
+            + "  Cast(envelopes.id as varchar) as envelopeId " // null means no envelope
+            // UUID by default it translates to a JDBC Binary type so cast to varchar
             + "FROM process_events "
             + "LEFT OUTER JOIN envelopes "
             + "  ON envelopes.container = process_events.container "

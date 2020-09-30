@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedZipFile;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public class ReceivedZipFileItem implements ReceivedZipFile {
     private final String zipFileName;
@@ -11,6 +12,7 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
     private final String scannableItemDcn;
     private final String paymentDcn;
     private final String rescanFor;
+    private final UUID envelopeId;
 
     public ReceivedZipFileItem(
         String zipFileName,
@@ -18,7 +20,8 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
         Instant processingStartedEventDate,
         String scannableItemDcn,
         String paymentDcn,
-        String rescanFor
+        String rescanFor,
+        UUID envelopeId
     ) {
         this.zipFileName = zipFileName;
         this.container = container;
@@ -26,6 +29,7 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
         this.scannableItemDcn = scannableItemDcn;
         this.paymentDcn = paymentDcn;
         this.rescanFor = rescanFor;
+        this.envelopeId = envelopeId;
     }
 
     @Override
@@ -56,5 +60,10 @@ public class ReceivedZipFileItem implements ReceivedZipFile {
     @Override
     public String getRescanFor() {
         return rescanFor;
+    }
+
+    @Override
+    public UUID getEnvelopeId() {
+        return envelopeId;
     }
 }
