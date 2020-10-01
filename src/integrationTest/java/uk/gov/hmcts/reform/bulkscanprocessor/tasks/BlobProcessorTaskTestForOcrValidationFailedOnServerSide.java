@@ -41,8 +41,10 @@ class BlobProcessorTaskTestForOcrValidationFailedOnServerSide extends ProcessorT
         // when
         processor.processBlobs();
 
+        // one unsuccessful retry is allowed by ocr-validation-max-retries property ( = 1)
         retryAfterDelay();
 
+        // after second unsuccessful retry causes - no more retries and warning raised
         retryAfterDelay();
 
         // then

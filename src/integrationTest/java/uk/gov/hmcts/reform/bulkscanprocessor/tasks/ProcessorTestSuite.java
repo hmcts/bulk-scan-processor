@@ -125,7 +125,7 @@ public abstract class ProcessorTestSuite {
     protected BlobContainerClient rejectedContainer;
 
     private static DockerComposeContainer dockerComposeContainer;
-    static String dockerHost;
+    private static String dockerHost;
 
     @BeforeEach
     public void setUp() {

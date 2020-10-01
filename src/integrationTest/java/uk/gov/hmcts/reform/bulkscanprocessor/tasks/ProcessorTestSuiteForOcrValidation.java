@@ -33,10 +33,10 @@ abstract class ProcessorTestSuiteForOcrValidation extends ProcessorTestSuite {
     BlobProcessorTask processor;
 
     @Autowired
-    OcrValidationRetryManager ocrValidationRetryManager;
+    private OcrValidationRetryManager ocrValidationRetryManager;
 
     @Autowired
-    OcrPresenceValidator ocrPresenceValidator;
+    private OcrPresenceValidator ocrPresenceValidator;
 
     @MockBean
     AuthTokenGenerator authTokenGenerator;
@@ -44,7 +44,7 @@ abstract class ProcessorTestSuiteForOcrValidation extends ProcessorTestSuite {
     @MockBean
     OcrValidationClient ocrValidationClient;
 
-    OcrValidator ocrValidator;
+    private OcrValidator ocrValidator;
 
     @BeforeEach
     public void setUp() {
@@ -71,7 +71,7 @@ abstract class ProcessorTestSuiteForOcrValidation extends ProcessorTestSuite {
     }
 
     private void assertNoEnvelopesInDb() {
-        // We expect only one envelope which was uploaded
+        // We expect no envelopes uploaded
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(0);
     }

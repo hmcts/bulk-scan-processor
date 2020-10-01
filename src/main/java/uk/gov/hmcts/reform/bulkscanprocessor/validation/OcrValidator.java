@@ -110,21 +110,20 @@ public class OcrValidator {
         String validationUrl,
         String zipFileName
     ) {
-        if (ex instanceof HttpServerErrorException) {
-            if (ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)) {
-                throw new OcrValidationServerSideException(
-                    String.format(
-                        "Error calling validation endpoint. "
-                            + "Url: %s, DCN: %s, doc type: %s, doc subtype: %s, envelope: %s.",
-                        validationUrl,
-                        docWithOcr.documentControlNumber,
-                        docWithOcr.documentType,
-                        docWithOcr.documentSubtype,
-                        zipFileName
-                    ),
-                    (HttpServerErrorException)ex
-                );
-            }
+        if (ex instanceof HttpServerErrorException
+            && ocrValidationRetryManager.setRetryDelayIfPossible(blobClient, leaseId)) {
+            throw new OcrValidationServerSideException(
+                String.format(
+                    "Error calling validation endpoint. "
+                        + "Url: %s, DCN: %s, doc type: %s, doc subtype: %s, envelope: %s.",
+                    validationUrl,
+                    docWithOcr.documentControlNumber,
+                    docWithOcr.documentType,
+                    docWithOcr.documentSubtype,
+                    zipFileName
+                ),
+                (HttpServerErrorException) ex
+            );
         }
         return ocrValidationWarnings(
             docWithOcr,
