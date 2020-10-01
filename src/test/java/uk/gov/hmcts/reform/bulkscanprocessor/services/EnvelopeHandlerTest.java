@@ -145,6 +145,7 @@ class EnvelopeHandlerTest {
         assertThat(envelope.getValue().getPayments()).isEqualTo(inputEnvelope.payments);
         assertThat(envelope.getValue().getNonScannableItems()).isEqualTo(inputEnvelope.nonScannableItems);
         assertThat(envelope.getValue().getContainer()).isEqualTo(CONTAINER_NAME);
+        assertThat(envelope.getValue().getRescanFor()).isEqualTo(RESCAN_FOR_FILE_NAME);
 
         verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
