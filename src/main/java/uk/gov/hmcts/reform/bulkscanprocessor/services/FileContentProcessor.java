@@ -99,17 +99,18 @@ public class FileContentProcessor {
             log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
             createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
         } catch (OcrValidationServerSideException ex) {
-            log.error("Failed to process file {} from container {}, "
-                          + "message from OCR validation endpoint {}. "
-                          + "Error message: {}, status code: {}, status text: {}"
-                          + " - will retry",
-                      zipFilename,
-                      containerName,
-                      ex.getMessage(),
-                      ex.getCause().getMessage(),
-                      ((HttpServerErrorException) ex.getCause()).getStatusCode().toString(),
-                      ((HttpServerErrorException) ex.getCause()).getStatusText(),
-                      ex
+            log.error(
+                "Failed to process file {} from container {}, "
+                    + "message from OCR validation endpoint {}. "
+                    + "Error message: {}, status code: {}, status text: {}"
+                    + " - will retry",
+                zipFilename,
+                containerName,
+                ex.getMessage(),
+                ex.getCause().getMessage(),
+                ((HttpServerErrorException) ex.getCause()).getStatusCode().toString(),
+                ((HttpServerErrorException) ex.getCause()).getStatusText(),
+                ex
             );
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
