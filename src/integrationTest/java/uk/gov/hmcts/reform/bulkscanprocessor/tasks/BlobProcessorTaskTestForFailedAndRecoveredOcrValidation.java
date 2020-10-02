@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.OCR_VALIDATION_SERVER_SIDE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Status.SUCCESS;
 
@@ -66,8 +67,9 @@ class BlobProcessorTaskTestForFailedAndRecoveredOcrValidation extends ProcessorT
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
-            .containsExactlyInAnyOrder(
+            .containsExactly(
                 ZIPFILE_PROCESSING_STARTED,
+                OCR_VALIDATION_SERVER_SIDE_FAILURE,
                 ZIPFILE_PROCESSING_STARTED
             );
 
