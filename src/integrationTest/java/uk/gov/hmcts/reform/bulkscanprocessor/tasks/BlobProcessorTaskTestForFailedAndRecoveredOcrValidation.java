@@ -72,7 +72,5 @@ class BlobProcessorTaskTestForFailedAndRecoveredOcrValidation extends ProcessorT
                 OCR_VALIDATION_SERVER_SIDE_FAILURE,
                 ZIPFILE_PROCESSING_STARTED
             );
-
-        assertThat(processEvents).allMatch(pe -> pe.getReason() == null);
     }
 }

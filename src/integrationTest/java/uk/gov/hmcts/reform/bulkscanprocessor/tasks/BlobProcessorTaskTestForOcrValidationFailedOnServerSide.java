@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.OCR_VALIDATION_SERVER_SIDE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
@@ -60,7 +60,7 @@ class BlobProcessorTaskTestForOcrValidationFailedOnServerSide extends ProcessorT
             parse(originalMetaFile),
             "id", "amount", "amount_in_pence", "configuration", "json"
         );
-        assertThat(actualEnvelope.getStatus()).isEqualTo(CREATED);
+        assertThat(actualEnvelope.getStatus()).isEqualTo(UPLOADED);
         assertThat(actualEnvelope.getScannableItems()).hasSize(1);
         assertThat(actualEnvelope.getScannableItems().get(0).getOcrValidationWarnings().length).isEqualTo(1);
         assertThat(actualEnvelope.getScannableItems().get(0).getOcrValidationWarnings()[0])
