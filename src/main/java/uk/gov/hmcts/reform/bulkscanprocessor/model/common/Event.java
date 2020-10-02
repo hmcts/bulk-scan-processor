@@ -13,6 +13,7 @@ public enum Event {
     DOC_CONSUMED, // client service handled the documents
     DOC_PROCESSED_NOTIFICATION_SENT, // when document processed notification is posted (to servicebus queue)
     DOC_PROCESSED_NOTIFICATION_FAILURE, // when document processed notification fails
+    OCR_VALIDATION_SERVER_SIDE_FAILURE, // when OCR validation fails due to server side error
     DOC_PROCESSING_ABORTED, // when envelope processing cannot be completed (used manually to set the event with reason)
     COMPLETED, // the processing of the envelope completed successfully
     // when envelope status needs to be updated for reprocessing (used manually to set the event with reason)

@@ -35,6 +35,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.OCR_VALIDATION_SERVER_SIDE_FAILURE;
 
 @ExtendWith(MockitoExtension.class)
 class FileContentProcessorTest {
@@ -182,6 +183,9 @@ class FileContentProcessorTest {
         given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
+        given(envelopeProcessor
+                  .createEvent(OCR_VALIDATION_SERVER_SIDE_FAILURE, CONTAINER_NAME, FILE_NAME, "msg", null))
+            .willReturn(1L);
 
         HttpServerErrorException cause = HttpServerErrorException.create(
             HttpStatus.INTERNAL_SERVER_ERROR,

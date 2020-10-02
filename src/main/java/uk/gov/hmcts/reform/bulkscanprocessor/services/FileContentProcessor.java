@@ -25,6 +25,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.OCR_VALIDATION_SERVER_SIDE_FAILURE;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
@@ -112,6 +113,7 @@ public class FileContentProcessor {
                 ((HttpServerErrorException) ex.getCause()).getStatusText(),
                 ex
             );
+            createEvent(OCR_VALIDATION_SERVER_SIDE_FAILURE, containerName, zipFilename, ex.getMessage());
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
             createEvent(DOC_FAILURE, containerName, zipFilename, ex.getMessage());
