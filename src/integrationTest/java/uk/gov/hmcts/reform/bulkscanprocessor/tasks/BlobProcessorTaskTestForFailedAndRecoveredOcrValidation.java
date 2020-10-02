@@ -67,7 +67,7 @@ class BlobProcessorTaskTestForFailedAndRecoveredOcrValidation extends ProcessorT
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
-            .containsExactly(
+            .containsExactlyInAnyOrder(
                 ZIPFILE_PROCESSING_STARTED,
                 OCR_VALIDATION_SERVER_SIDE_FAILURE,
                 ZIPFILE_PROCESSING_STARTED
