@@ -69,7 +69,7 @@ class BlobProcessorTaskTestForOcrValidationFailedOnServerSide extends ProcessorT
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents.stream().map(ProcessEvent::getEvent).collect(toList()))
-            .containsExactlyInAnyOrder(
+            .containsExactly(
                 ZIPFILE_PROCESSING_STARTED,
                 OCR_VALIDATION_SERVER_SIDE_FAILURE,
                 ZIPFILE_PROCESSING_STARTED,
@@ -77,6 +77,15 @@ class BlobProcessorTaskTestForOcrValidationFailedOnServerSide extends ProcessorT
                 ZIPFILE_PROCESSING_STARTED
             );
 
-        assertThat(processEvents).allMatch(pe -> pe.getReason() == null);
+        assertThat(processEvents.stream().map(ProcessEvent::getReason))
+            .containsExactly(
+                null,
+                "Error calling validation endpoint. Url: http://bulkscan/validation, DCN: 1111002, doc type: Form, "
+                    + "doc subtype: PERSONAL, envelope: 1_24-06-2018-00-00-00.zip.",
+                null,
+                "Error calling validation endpoint. Url: http://bulkscan/validation, DCN: 1111002, doc type: Form, "
+                    + "doc subtype: PERSONAL, envelope: 1_24-06-2018-00-00-00.zip.",
+                null
+            );
     }
 }
