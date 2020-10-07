@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableMap;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -55,11 +54,10 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite {
         // and
         List<ProcessEvent> processEvents = processEventRepository.findAll();
         assertThat(processEvents)
-            .extracting(event -> event.getEvent())
+            .extracting(ProcessEvent::getEvent)
             .containsExactlyInAnyOrder(Event.ZIPFILE_PROCESSING_STARTED);
     }
 
-    @NotNull
     private List<Future<Void>> processBlobUsingExecutor() {
         List<Future<Void>> tasks = new ArrayList<>();
 
