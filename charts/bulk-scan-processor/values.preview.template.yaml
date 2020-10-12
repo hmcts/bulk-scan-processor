@@ -46,7 +46,7 @@ java:
     UPLOAD_TASK_DELAY: "2000"
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
   keyVaults:
-    "bulk-scan":
+    "bulk-scan-v2":
       secrets:
         - s2s-secret
   # Don't modify below here
