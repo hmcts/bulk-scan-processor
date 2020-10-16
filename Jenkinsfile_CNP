@@ -51,11 +51,11 @@ withPipeline(type, product, component) {
   env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
   env.TEST_SCAN_DELAY = '4000'
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
-  env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanaatstaging.blob.core.windows.net'
+  env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanv2aatstaging.blob.core.windows.net'
   env.PROXYOUT_ENABLED = false
   env.FLUX_FUNC_TEST = false
   env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes-staging'
-  env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = 'bulk-scan-servicebus-aat'
+  env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = 'bulk-scan-v2-servicebus-aat'
   env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'SendSharedAccessKey'
 
   before('smoketest:preview') {
