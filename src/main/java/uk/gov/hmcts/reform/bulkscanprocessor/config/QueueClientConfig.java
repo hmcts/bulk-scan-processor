@@ -5,8 +5,6 @@ import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
 import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,8 +16,6 @@ import org.springframework.util.StringUtils;
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class QueueClientConfig {
-
-    public static final Logger log = LoggerFactory.getLogger(QueueClientConfig.class);
 
     @Value("${queues.default-namespace}")
     private String defaultNamespace;
@@ -66,9 +62,6 @@ public class QueueClientConfig {
     private QueueClient createQueueClient(
         QueueConfigurationProperties queueProperties
     ) throws ServiceBusException, InterruptedException {
-        log.info("getAccessKey: {}", queueProperties.getAccessKey());
-        log.info("getQueueName :{}", queueProperties.getQueueName());
-        log.info("getAccessKeyName: {}", queueProperties.getAccessKeyName());
         // once notification secrets are set this ternary can be removed
         var connectionStringBuilder = StringUtils.isEmpty(queueProperties.getAccessKey())
             ? new ConnectionStringBuilder(queueProperties.getConnectionString(), queueProperties.getQueueName())
