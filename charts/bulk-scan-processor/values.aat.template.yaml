@@ -26,4 +26,4 @@ java:
     BULK_SCANNING_DB_HOST: bulk-scan-processor-staging-aat.postgres.database.azure.com
     QUEUE_ENVELOPE_NAME: "envelopes-staging"
     QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes-staging"
-    STORAGE_URL: https://bulkscanstg.aat.platform.hmcts.net
+    STORAGE_URL: https://v2-bulkscanstg.aat.platform.hmcts.net
