@@ -40,14 +40,6 @@
     <cve>CVE-2018-9117</cve>
   </suppress>
 
-  <suppress until="2020-10-07">
-    <notes><![CDATA[
-     Spring boot starter includes kotlin 1.3.*. This is resolved with 1.4. Suppressing because sounds like serious dependency + it's RC atm
-   ]]></notes>
-    <cpe>cpe:/a:jetbrains:kotlin</cpe>
-    <cve>CVE-2020-15824</cve>
-  </suppress>
-
   <suppress until="2021-01-01">
     <notes><![CDATA[
    file name: wiremock-2.25.1.jar: jquery-3.4.1.min.js
@@ -74,6 +66,22 @@
     <notes><![CDATA[ used by PACT in tests ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.alpn/alpn\-api@.*$</packageUrl>
     <cve>CVE-2007-5615</cve>
+  </suppress>
+
+  <suppress until="2021-03-01">
+    <notes><![CDATA[
+   file name: tomcat-embed-core-9.0.38.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
+    <cve>CVE-2020-13943</cve>
+  </suppress>
+
+  <suppress until="2021-03-01">
+    <notes><![CDATA[
+   file name: tomcat-embed-websocket-9.0.38.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
+    <cve>CVE-2020-13943</cve>
   </suppress>
 
 </suppressions>
