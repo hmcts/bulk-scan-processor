@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor;
 
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
