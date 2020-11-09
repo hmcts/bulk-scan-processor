@@ -30,7 +30,7 @@ public class ApplicationHealthTest {
     @Value("${test-s2s-url}")
     private String s2sUrl;
 
-    @Disabled
+    @Test
     public void storage_container_exists() {
         RestAssured
             .given()
