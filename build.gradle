@@ -317,7 +317,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
   testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.0', {
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.1', {
     exclude group: 'junit', module: 'junit'
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
