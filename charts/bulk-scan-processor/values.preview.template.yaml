@@ -1,10 +1,10 @@
 java:
   secrets:
     SB_ACCESS_KEY:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: primaryKey
     SB_NAMESPACE:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-{{ .Release.Name }}
