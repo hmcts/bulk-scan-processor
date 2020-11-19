@@ -2,8 +2,7 @@ spring:
   cloud:
     propertiesvolume:
       prefixed: false
-      paths: /mnt/secrets/bulk-scan-v2
-      name: bulk-scan-v2
+      paths: /mnt/secrets/bulk-scan
       aliases:
         processor-POSTGRES-PASS: BULK_SCANNING_DB_PASSWORD
         processor-staging-db-password: BULK_SCANNING_DB_PASSWORD

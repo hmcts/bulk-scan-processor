@@ -46,7 +46,7 @@ java:
     QUEUE_NOTIFICATIONS_NAME: "notifications"
     QUEUE_NOTIFICATIONS_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
   keyVaults:
-    "bulk-scan-v2":
+    "bulk-scan":
       secrets:
         - processor-POSTGRES-PASS
         - s2s-secret

@@ -5,8 +5,8 @@ provider "azurerm" {
 locals {
   is_preview          = "${(var.env == "preview" || var.env == "spreview")}"
   account_name        = "${replace("${var.product}old${var.env}", "-", "")}"
-  previewVaultName    = "${var.raw_product}-v2-aat"
-  nonPreviewVaultName = "${var.product}-v2-${var.env}"
+  previewVaultName    = "${var.raw_product}-aat"
+  nonPreviewVaultName = "${var.product}-${var.env}"
   vaultName           = "${local.is_preview ? local.previewVaultName : local.nonPreviewVaultName}"
 
   aseName   = "core-compute-${var.env}"
@@ -145,8 +145,8 @@ data "azurerm_key_vault" "s2s_key_vault" {
 }
 
 data "azurerm_key_vault" "reform_scan_key_vault" {
-  name                = "reform-scan-v2-${local.local_env}"
-  resource_group_name = "reform-scan-v2-${local.local_env}"
+  name                = "reform-scan-${local.local_env}"
+  resource_group_name = "reform-scan-${local.local_env}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {

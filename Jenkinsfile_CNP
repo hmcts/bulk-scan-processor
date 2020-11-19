@@ -14,7 +14,7 @@ def component = "processor"
 def channel = '#bsp-build-notices'
 
 def combinedSecrets = [
-  'bulk-scan-v2-${env}': [
+  'bulk-scan-${env}': [
     secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
     secret('processed-envelopes-staging-queue-send-shared-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY')
@@ -89,7 +89,7 @@ withPipeline(type, product, component) {
   after('test') {
     builder.gradle('integration')
   }
-  enableDbMigration('bulk-scan-v2')
+  enableDbMigration('bulk-scan')
   enableSlackNotifications(channel)
   enableAksStagingDeployment()
   disableLegacyDeployment()

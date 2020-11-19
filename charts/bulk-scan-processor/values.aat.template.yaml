@@ -1,6 +1,6 @@
 java:
   keyVaults:
-    "bulk-scan-v2":
+    "bulk-scan":
       secrets:
         - processor-staging-db-password
         - s2s-secret
