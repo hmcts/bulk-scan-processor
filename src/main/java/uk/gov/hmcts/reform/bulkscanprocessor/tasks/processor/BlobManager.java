@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobCopyException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.util.List;
 
@@ -117,8 +114,7 @@ public class BlobManager {
             rejectedBlob.createSnapshot();
         }
 
-        // Blob Api provides `copyFromUrl` but it did not work with bulk-scan staging app gateway.
-        copyBlob(inputBlob, rejectedBlob);
+        rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
 
         log.info("Rejected file copied to rejected container: {} ", rejectedContainerName);
 
@@ -153,32 +149,6 @@ public class BlobManager {
             }
         }
         log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
-    }
-
-    private void copyBlob(BlobClient sourceBlobClient, BlobClient targetBlobClient) {
-
-        String sourceBlobUrl = sourceBlobClient.getBlobUrl();
-        String targetBlobUrl = targetBlobClient.getBlobUrl();
-        log.info("Copying from {} to {}", sourceBlobUrl, targetBlobUrl);
-        byte[] rawBlob;
-        try (var outputStream = new ByteArrayOutputStream()) {
-            sourceBlobClient.download(outputStream);
-            rawBlob = outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new BlobCopyException(
-                "Copy blob failed in download, Downloading from : " + sourceBlobUrl,
-                e
-            );
-        }
-
-        try (var uploadContent = new ByteArrayInputStream(rawBlob)) {
-            targetBlobClient.upload(uploadContent, rawBlob.length, true);
-        } catch (Exception ex) {
-            throw new BlobCopyException(
-                "Copy blob failed in Upload, Upload  target: " + targetBlobUrl,
-                ex
-            );
-        }
     }
 
     private String getRejectedContainerName(String inputContainerName) {
