@@ -151,14 +151,16 @@ public class BlobManagerTest {
         // and
         String url = "http://bulk-scan/test.file.txt";
         given(inputBlobClient.getBlobUrl()).willReturn(url);
+        String sasToken = " 3ewqdeaedfweqwdw";
+        given(inputBlobClient.generateSas(any())).willReturn(sasToken);
 
-        given(rejectedBlobClient.copyFromUrl(url)).willReturn("XSS133SXS");
+        given(rejectedBlobClient.copyFromUrl(url + "?" + sasToken)).willReturn("XSS133SXS");
 
         // when
         blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(url);
+        verify(rejectedBlobClient).copyFromUrl(url  + "?" + sasToken);
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 

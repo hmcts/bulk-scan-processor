@@ -9,6 +9,8 @@ import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -16,6 +18,10 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
 import java.net.HttpURLConnection;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -114,7 +120,15 @@ public class BlobManager {
             rejectedBlob.createSnapshot();
         }
 
-        rejectedBlob.copyFromUrl(inputBlob.getBlobUrl());
+        String sasToken = inputBlob
+            .generateSas(
+                new BlobServiceSasSignatureValues(
+                    OffsetDateTime
+                        .of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                    new BlobContainerSasPermission().setReadPermission(true)
+                )
+            );
+        rejectedBlob.copyFromUrl(inputBlob.getBlobUrl() + "?" + sasToken);
 
         log.info("Rejected file copied to rejected container: {} ", rejectedContainerName);
 
