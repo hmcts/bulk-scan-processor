@@ -9,16 +9,19 @@ import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobCopyException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -117,8 +120,15 @@ public class BlobManager {
             rejectedBlob.createSnapshot();
         }
 
-        // Blob Api provides `copyFromUrl` but it did not work with bulk-scan staging app gateway.
-        copyBlob(inputBlob, rejectedBlob);
+        String sasToken = inputBlob
+            .generateSas(
+                new BlobServiceSasSignatureValues(
+                    OffsetDateTime
+                        .of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                    new BlobContainerSasPermission().setReadPermission(true)
+                )
+            );
+        rejectedBlob.copyFromUrl(inputBlob.getBlobUrl() + "?" + sasToken);
 
         log.info("Rejected file copied to rejected container: {} ", rejectedContainerName);
 
@@ -153,32 +163,6 @@ public class BlobManager {
             }
         }
         log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
-    }
-
-    private void copyBlob(BlobClient sourceBlobClient, BlobClient targetBlobClient) {
-
-        String sourceBlobUrl = sourceBlobClient.getBlobUrl();
-        String targetBlobUrl = targetBlobClient.getBlobUrl();
-        log.info("Copying from {} to {}", sourceBlobUrl, targetBlobUrl);
-        byte[] rawBlob;
-        try (var outputStream = new ByteArrayOutputStream()) {
-            sourceBlobClient.download(outputStream);
-            rawBlob = outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new BlobCopyException(
-                "Copy blob failed in download, Downloading from : " + sourceBlobUrl,
-                e
-            );
-        }
-
-        try (var uploadContent = new ByteArrayInputStream(rawBlob)) {
-            targetBlobClient.upload(uploadContent, rawBlob.length, true);
-        } catch (Exception ex) {
-            throw new BlobCopyException(
-                "Copy blob failed in Upload, Upload  target: " + targetBlobUrl,
-                ex
-            );
-        }
     }
 
     private String getRejectedContainerName(String inputContainerName) {
