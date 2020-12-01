@@ -342,6 +342,22 @@ class ReconciliationServiceTest {
                 asList("doc-3", "doc-4"),
                 asList("pay-3", "pay-4"),
                 randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file3",
+                "c3",
+                null,
+                emptyList(),
+                null,
+                randomUUID()
+            ),
+            new ReceivedZipFileData(
+                "file4",
+                "c4",
+                null,
+                null,
+                asList("doc-8", "doc-9"),
+                randomUUID()
             )
         );
 
@@ -349,7 +365,9 @@ class ReconciliationServiceTest {
 
         List<ReportedZipFile> envelopes = asList(
             new ReportedZipFile("file1", "c1", null, null, asList("pay-1", "pay-2")),
-            new ReportedZipFile("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4"))
+            new ReportedZipFile("file2", "c2", null, asList("doc-3", "doc-4"), asList("pay-3", "pay-4")),
+            new ReportedZipFile("file3", "c3", null, null, emptyList()),
+            new ReportedZipFile("file4", "c4", null, asList("doc-6", "doc-7"), null)
         );
         ReconciliationStatement statement = new ReconciliationStatement(date, envelopes);
 
@@ -360,7 +378,9 @@ class ReconciliationServiceTest {
         assertThat(discrepancies)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH, null, "[doc-1, doc-2]")
+                new Discrepancy("file1", "c1", SCANNABLE_DOCUMENT_DCNS_MISMATCH, null, "[doc-1, doc-2]"),
+                new Discrepancy("file4", "c4", PAYMENT_DCNS_MISMATCH, null, "[doc-8, doc-9]"),
+                new Discrepancy("file4", "c4", SCANNABLE_DOCUMENT_DCNS_MISMATCH, "[doc-6, doc-7]", null)
             );
     }
 

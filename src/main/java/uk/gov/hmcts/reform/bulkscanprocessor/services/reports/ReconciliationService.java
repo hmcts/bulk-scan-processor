@@ -146,9 +146,18 @@ public class ReconciliationService {
         List<String> receivedList,
         DiscrepancyType discrepancyType
     ) {
-        if (reportedList == null && receivedList != null
-            || reportedList != null
-            && !new HashSet<>(reportedList).equals(new HashSet<>(receivedList))) {
+        boolean bothEmptyLists =
+            (receivedList == null || receivedList.isEmpty())
+                && (reportedList == null || reportedList.isEmpty());
+
+        if (bothEmptyLists) {
+            return;
+        }
+
+        if ((reportedList == null && receivedList != null)
+            || (reportedList != null
+                && (receivedList == null || !new HashSet<>(reportedList).equals(new HashSet<>(receivedList))))
+        ) {
             discrepancies.add(
                 new Discrepancy(
                     receivedZipFile.zipFileName,
