@@ -146,11 +146,9 @@ public class ReconciliationService {
         List<String> receivedList,
         DiscrepancyType discrepancyType
     ) {
-        boolean bothEmptyLists =
-            (receivedList == null || receivedList.isEmpty())
-                && (reportedList == null || reportedList.isEmpty());
-
-        if (bothEmptyLists) {
+        if ((receivedList == null || receivedList.isEmpty())
+            && (reportedList == null || reportedList.isEmpty())) {
+            // both list empty or null
             return;
         }
 
