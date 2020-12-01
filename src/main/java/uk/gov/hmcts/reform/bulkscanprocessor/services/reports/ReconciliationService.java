@@ -154,9 +154,8 @@ public class ReconciliationService {
             return;
         }
 
-        if ((reportedList == null && receivedList != null)
-            || (reportedList != null
-                && (receivedList == null || !new HashSet<>(reportedList).equals(new HashSet<>(receivedList))))
+        if ((reportedList == null)
+            || (receivedList == null || !new HashSet<>(reportedList).equals(new HashSet<>(receivedList)))
         ) {
             discrepancies.add(
                 new Discrepancy(
