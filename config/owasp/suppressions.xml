@@ -94,4 +94,12 @@
     <cve>CVE-2020-25638</cve>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[
+   file name: hibernate-core-5.4.22.Final.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-core@.*$</packageUrl>
+    <cpe>cpe:/a:hibernate:hibernate_orm</cpe>
+  </suppress>
+
 </suppressions>
