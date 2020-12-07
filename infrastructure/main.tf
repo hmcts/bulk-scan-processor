@@ -28,31 +28,34 @@ locals {
 
 module "bulk-scan-db" {
   source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product            = "${var.product}-${var.component}"
-  location           = "${var.location_db}"
-  env                = "${var.env}"
+  product            = var.product
+  component          = var.component
+  location           = var.location_db
+  env                = var.env
   database_name      = "bulk_scan"
   postgresql_user    = "bulk_scanner"
   postgresql_version = "10"
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
-  common_tags        = "${var.common_tags}"
-  subscription       = "${var.subscription}"
+  common_tags        = var.common_tags
+  subscription       = var.subscription
 }
 
 # Staging DB to be used by AAT staging pod for functional tests
 module "bulk-scan-staging-db" {
   source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product            = "${var.product}-${var.component}-staging"
-  location           = "${var.location_db}"
-  env                = "${var.env}"
+  name               = "${var.product}-${var.component}-staging"
+  product            = var.product
+  component          = var.component
+  location           = var.location_db
+  env                = var.env
   database_name      = "bulk_scan"
   postgresql_user    = "bulk_scanner"
   postgresql_version = "11"
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
-  common_tags        = "${var.common_tags}"
-  subscription       = "${var.subscription}"
+  common_tags        = var.common_tags
+  subscription       = var.subscription
 }
 
 module "bulk-scan" {
