@@ -239,6 +239,10 @@ dependencyManagement {
     }
     //avoid CVE-2020-25638
     dependency group: 'org.hibernate', name: 'hibernate-core', version: '5.4.25.Final'
+    //avoid   CVE-2020-13943 and CVE-2020-17527
+    dependency group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.40'
+    //avoid   CVE-2020-13943 and CVE-2020-17527
+    dependency group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '9.0.40'
   }
 }
 
