@@ -85,11 +85,9 @@ withPipeline(type, product, component) {
 
     }
   }
-
   def branchesToSync = ['demo', 'perftest']
-  withPipeline(type, product, component) {	
-    syncBranchesWithMaster(branchesToSync)
-  }
+  syncBranchesWithMaster(branchesToSync)
+
   
   after('test') {
     builder.gradle('integration')
