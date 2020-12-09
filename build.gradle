@@ -273,7 +273,7 @@ dependencies {
   }
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.17.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.17.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.18.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.9.0'
 
