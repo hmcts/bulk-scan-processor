@@ -14,15 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvide
 @Profile(Profiles.NOT_STORAGE_STUB)
 public class StorageConfiguration {
 
-    @Value("${storage.proxy_enabled}")
-    private boolean isProxyEnabled;
-
-    @Value("${storage.proxy_host}")
-    private String proxyHost;
-
-    @Value("${storage.proxy_port}")
-    private int proxyPort;
-
     @Bean
     public BlobServiceClient getStorageClient(
         @Value("${storage.account_name}") String accountName,
@@ -37,7 +28,6 @@ public class StorageConfiguration {
             key
         );
 
-        //always use proxy
         return new BlobServiceClientBuilder()
             .connectionString(connectionString)
             .httpClient(httpClient)
