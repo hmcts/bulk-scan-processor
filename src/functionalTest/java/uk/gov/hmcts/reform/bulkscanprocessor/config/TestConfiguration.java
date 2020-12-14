@@ -18,12 +18,6 @@ public class TestConfiguration {
 
     public static final String S2S_SECRET;
 
-    public static final String PROXY_HOST;
-
-    public static final String PROXY_PORT;
-
-    public static final boolean IS_PROXY_ENABLED;
-
     public static final boolean FLUX_FUNC_TEST;
 
     public static final String STORAGE_ACCOUNT_URL;
@@ -43,9 +37,6 @@ public class TestConfiguration {
         S2S_URL = config.getString("test-s2s-url");
         S2S_NAME = config.getString("test-s2s-name");
         S2S_SECRET = config.getString("test-s2s-secret");
-        PROXY_HOST = config.getString("storage-proxy-host");
-        PROXY_PORT = config.getString("storage-proxy-port");
-        IS_PROXY_ENABLED = Boolean.valueOf(config.getString("proxyout.enabled"));
         FLUX_FUNC_TEST = config.getBoolean("flux-func-test");
         STORAGE_ACCOUNT_URL = config.getString("test-storage-account-url");
         STORAGE_ACCOUNT_NAME = config.getString("test-storage-account-name");

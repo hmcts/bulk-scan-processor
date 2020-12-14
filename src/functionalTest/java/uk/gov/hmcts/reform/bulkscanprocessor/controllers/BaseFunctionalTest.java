@@ -1,9 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.ProxyOptions;
-import com.azure.core.http.ProxyOptions.Type;
-import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
@@ -14,15 +10,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
-import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.IS_PROXY_ENABLED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROXY_HOST;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROXY_PORT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_SECRET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_URL;
@@ -53,24 +45,6 @@ public abstract class BaseFunctionalTest {
         BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder()
             .credential(storageCredentials)
             .endpoint(STORAGE_ACCOUNT_URL);
-
-        // Apply proxy for functional tests for all environments except preview
-        // as due to NSG config it has to go through outbound proxy
-        if (IS_PROXY_ENABLED) {
-            HttpClient httpClient = new NettyAsyncHttpClientBuilder()
-                .proxy(
-                    new ProxyOptions(
-                        Type.HTTP,
-                        new InetSocketAddress(
-                            PROXY_HOST,
-                            Integer.parseInt(PROXY_PORT)
-                        )
-                    )
-                )
-                .build();
-
-            blobServiceClientBuilder.httpClient(httpClient);
-        }
 
         BlobServiceClient blobServiceClient = blobServiceClientBuilder.buildClient();
 

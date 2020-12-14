@@ -52,7 +52,6 @@ withPipeline(type, product, component) {
   env.TEST_SCAN_DELAY = '4000'
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanaatstaging.blob.core.windows.net'
-  env.PROXYOUT_ENABLED = false
   env.FLUX_FUNC_TEST = false
   env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes-staging'
   env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = 'bulk-scan-servicebus-aat'
@@ -80,8 +79,6 @@ withPipeline(type, product, component) {
       env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = kubectl.getSecret(serviceBusSecret, namespace, "{.data.namespaceName}")
       env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY = kubectl.getSecret(serviceBusSecret, namespace, "{.data.primaryKey}")
       env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'RootManageSharedAccessKey'
-
-      env.PROXYOUT_ENABLED = false
 
     }
   }
