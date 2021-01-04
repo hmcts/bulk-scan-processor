@@ -42,31 +42,21 @@
     <cve>CVE-2018-9117</cve>
   </suppress>
 
-  <suppress until="2021-01-01">
-    <notes><![CDATA[
-   file name: wiremock-2.25.1.jar: jquery-3.4.1.min.js
-    This is only used for TESTING purposes.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/jquery@3\.4\.1\.min.*$</packageUrl>
-    <vulnerabilityName>Regex in its jQuery.htmlPrefilter  sometimes may introduce XSS</vulnerabilityName>
-    <cve>CVE-2020-11022</cve>
-    <cve>CVE-2020-11023</cve>
-  </suppress>
-
-  <suppress until="2021-01-01">
-    <notes><![CDATA[
-   file name: wiremock-2.26.3.jar: handlebars-v4.0.4.js
-    This is only used for TESTING purposes.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/handlebars@4\.0\.4.*$</packageUrl>
-    <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
-    <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
-    <vulnerabilityName>Prototype pollution</vulnerabilityName>
-  </suppress>
-
   <suppress>
     <notes><![CDATA[ used by PACT in tests ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.alpn/alpn\-api@.*$</packageUrl>
     <cve>CVE-2007-5615</cve>
   </suppress>
+
+  <suppress until="2021-03-01">
+    <notes><![CDATA[
+   file name: lang-tag-1.4.4.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.nimbusds/lang\-tag@.*$</packageUrl>
+    <cve>CVE-2020-29242</cve>
+    <cve>CVE-2020-29243</cve>
+    <cve>CVE-2020-29244</cve>
+    <cve>CVE-2020-29245</cve>
+  </suppress>
+
 </suppressions>
