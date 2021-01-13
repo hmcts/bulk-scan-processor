@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
@@ -12,8 +13,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundExceptio
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeReprocessServiceTest {
@@ -47,5 +50,20 @@ class EnvelopeReprocessServiceTest {
         )
             .isInstanceOf(EnvelopeNotFoundException.class)
             .hasMessageContaining("Envelope with id " + uuid.toString() + " not found");
+    }
+
+    @Test
+    void should_not_throw_exception_if_envelope_exists() {
+        // given
+        UUID uuid = UUID.randomUUID();
+        Envelope envelope = mock(Envelope.class);
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+
+        // when
+        // then
+        assertThatCode(() ->
+            envelopeReprocessService.reprocessEnvelope(uuid.toString())
+        )
+            .doesNotThrowAnyException();
     }
 }
