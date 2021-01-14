@@ -95,7 +95,7 @@ class EnvelopeReprocessServiceTest {
     }
 
     @Test
-    void should_throw_if_envelope_is_has_uploaded_status() {
+    void should_throw_exception_if_envelope_has_uploaded_status() {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(
@@ -115,7 +115,7 @@ class EnvelopeReprocessServiceTest {
     }
 
     @Test
-    void should_throw_if_envelope_is_has_ccdid() {
+    void should_throw_exception_if_envelope_has_ccdid() {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(
