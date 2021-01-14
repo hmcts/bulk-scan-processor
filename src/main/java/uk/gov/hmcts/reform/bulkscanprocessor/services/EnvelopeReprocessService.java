@@ -4,8 +4,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeBeingProcessedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeProcessedException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.util.UUID;
 
@@ -28,5 +33,35 @@ public class EnvelopeReprocessService {
             .orElseThrow(
                 () -> new EnvelopeNotFoundException("Envelope with id " + envelopeId + " not found")
             );
+
+        validateEnvelopeState(envelope);
+
+        createEvent(envelope);
+
+        envelope.setStatus(Status.UPLOADED);
+        envelopeRepository.save(envelope);
+    }
+
+    private void createEvent(Envelope envelope) {
+        ProcessEvent event = new ProcessEvent(
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            Event.ONLINE_STATUS_CHANGE
+        );
+        event.setReason("Moved to UPLOADED status to reprocess the envelope");
+        processEventRepository.save(event);
+    }
+
+    private void validateEnvelopeState(Envelope envelope) {
+        if (envelope.getCcdId() != null) {
+            throw new EnvelopeProcessedException(
+                "Envelope with id " + envelope.getId() + " has already been processed"
+            );
+        }
+        if (envelope.getStatus() == Status.UPLOADED) {
+            throw new EnvelopeBeingProcessedException(
+                "Envelope with id " + envelope.getId() + " is being processed"
+            );
+        }
     }
 }
