@@ -25,7 +25,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RE
 public class EnvelopeReprocessService {
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
-    private final long notificationTimeoutMs;
+    private final long notificationTimeoutHr;
 
     public EnvelopeReprocessService(
         EnvelopeRepository envelopeRepository,
@@ -34,7 +34,7 @@ public class EnvelopeReprocessService {
     ) {
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;
-        this.notificationTimeoutMs = notificationTimeoutHr * 60 * 60 * 1000;
+        this.notificationTimeoutHr = notificationTimeoutHr;
     }
 
     @Transactional
@@ -86,7 +86,7 @@ public class EnvelopeReprocessService {
             .stream()
             .map(ProcessEvent::getCreatedAt)
             .max(naturalOrder())
-            .get(); // no events for the envelope is normally impossible
-        return between(lastEventTimeStamp, now()).toMillis() > notificationTimeoutMs;
+            .orElseThrow(); // no events for the envelope is normally impossible
+        return between(lastEventTimeStamp, now()).toHours() > notificationTimeoutHr;
     }
 }

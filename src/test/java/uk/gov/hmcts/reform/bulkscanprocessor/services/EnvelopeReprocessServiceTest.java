@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundExceptio
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeProcessedInCcdException;
 
 import java.time.Instant;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -144,7 +145,7 @@ class EnvelopeReprocessServiceTest {
     }
 
     @Test
-    void should_throw_excption_if_envelope_is_not_stale() {
+    void should_throw_exception_if_envelope_is_not_stale() {
         // given
         Instant halfHourAgo = Instant.now().minus(30, MINUTES);
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
@@ -174,6 +175,28 @@ class EnvelopeReprocessServiceTest {
         )
             .isInstanceOf(EnvelopeNotCompletedOrStaleException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed or stale)$");
+    }
+
+    @Test
+    void should_throw_exception_if_no_events_for_envelope() {
+        // given
+        var envelope = envelope(
+            NOTIFICATION_SENT,
+            null,
+            null
+        );
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(emptyList());
+
+        var uuid = UUID.randomUUID();
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+            envelopeReprocessService.reprocessEnvelope(uuid.toString())
+        )
+            .isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
