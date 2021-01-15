@@ -31,7 +31,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ONLINE_STATUS_CHANGE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeReprocessServiceTest {
@@ -89,7 +89,7 @@ class EnvelopeReprocessServiceTest {
             .isEqualTo(envelope.getContainer());
         assertThat(processEventCaptor.getValue().getZipFileName())
             .isEqualTo(envelope.getZipFileName());
-        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(ONLINE_STATUS_CHANGE);
+        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_RETRIGGER_PROCESSING);
         assertThat(processEventCaptor.getValue().getReason())
             .isEqualTo("Moved to UPLOADED status to reprocess the envelope");
 
@@ -133,7 +133,7 @@ class EnvelopeReprocessServiceTest {
             .isEqualTo(envelope.getContainer());
         assertThat(processEventCaptor.getValue().getZipFileName())
             .isEqualTo(envelope.getZipFileName());
-        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(ONLINE_STATUS_CHANGE);
+        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_RETRIGGER_PROCESSING);
         assertThat(processEventCaptor.getValue().getReason())
             .isEqualTo("Moved to UPLOADED status to reprocess the envelope");
 

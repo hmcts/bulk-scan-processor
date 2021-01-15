@@ -19,7 +19,7 @@ import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static java.util.Comparator.naturalOrder;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ONLINE_STATUS_CHANGE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
 
 @Service
 public class EnvelopeReprocessService {
@@ -56,7 +56,7 @@ public class EnvelopeReprocessService {
         ProcessEvent event = new ProcessEvent(
             envelope.getContainer(),
             envelope.getZipFileName(),
-            ONLINE_STATUS_CHANGE
+            MANUAL_RETRIGGER_PROCESSING
         );
         event.setReason("Moved to UPLOADED status to reprocess the envelope");
         processEventRepository.save(event);
