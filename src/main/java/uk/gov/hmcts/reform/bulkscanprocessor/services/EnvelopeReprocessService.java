@@ -30,7 +30,7 @@ public class EnvelopeReprocessService {
     public EnvelopeReprocessService(
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
-        @Value("${use-wrapping-zip}") long notificationTimeoutHr
+        @Value("${notification-stale-timeout-hr}") long notificationTimeoutHr
     ) {
         this.envelopeRepository = envelopeRepository;
         this.processEventRepository = processEventRepository;

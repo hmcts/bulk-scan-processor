@@ -222,3 +222,5 @@ use-wrapping-zip: true
 
 ocr-validation-max-retries: 2
 ocr-validation-delay-retry-sec: 300
+
+notification-stale-timeout-hr: ${NOTIFICATION_STALE_TIMEOUT_HR:48}
