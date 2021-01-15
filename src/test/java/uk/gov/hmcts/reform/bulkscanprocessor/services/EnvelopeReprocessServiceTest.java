@@ -102,13 +102,6 @@ class EnvelopeReprocessServiceTest {
     @Test
     void should_save_envelope_and_event_if_envelope_is_stale() {
         // given
-        var uuid = UUID.randomUUID();
-        var envelope = envelope(
-            NOTIFICATION_SENT,
-            null,
-            null
-        );
-
         Instant twoHoursAgo = Instant.now().minus(2, HOURS);
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
         Instant fourHoursAgo = Instant.now().minus(4, HOURS);
@@ -118,9 +111,16 @@ class EnvelopeReprocessServiceTest {
         event2.setCreatedAt(threeHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fourHoursAgo);
+
+        var envelope = envelope(
+            NOTIFICATION_SENT,
+            null,
+            null
+        );
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
+        var uuid = UUID.randomUUID();
         given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
 
         // when
@@ -146,13 +146,6 @@ class EnvelopeReprocessServiceTest {
     @Test
     void should_throw_excption_if_envelope_is_not_stale() {
         // given
-        var uuid = UUID.randomUUID();
-        var envelope = envelope(
-            NOTIFICATION_SENT,
-            null,
-            null
-        );
-
         Instant halfHourAgo = Instant.now().minus(30, MINUTES);
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
         Instant fourHoursAgo = Instant.now().minus(4, HOURS);
@@ -162,9 +155,16 @@ class EnvelopeReprocessServiceTest {
         event2.setCreatedAt(threeHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fourHoursAgo);
+
+        var envelope = envelope(
+            NOTIFICATION_SENT,
+            null,
+            null
+        );
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
+        var uuid = UUID.randomUUID();
         given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
 
         // when
