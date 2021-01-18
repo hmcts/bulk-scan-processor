@@ -17,4 +17,5 @@ public enum Event {
     COMPLETED, // the processing of the envelope completed successfully
     // when envelope status needs to be updated for reprocessing (used manually to set the event with reason)
     MANUAL_STATUS_CHANGE,
+    MANUAL_RETRIGGER_PROCESSING
 }
