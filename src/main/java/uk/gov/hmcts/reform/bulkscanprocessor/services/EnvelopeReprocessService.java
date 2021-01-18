@@ -38,8 +38,8 @@ public class EnvelopeReprocessService {
     }
 
     @Transactional
-    public void reprocessEnvelope(String envelopeId) {
-        Envelope envelope = envelopeRepository.findById(UUID.fromString(envelopeId))
+    public void reprocessEnvelope(UUID envelopeId) {
+        Envelope envelope = envelopeRepository.findById(envelopeId)
             .orElseThrow(
                 () -> new EnvelopeNotFoundException("Envelope with id " + envelopeId + " not found")
             );
