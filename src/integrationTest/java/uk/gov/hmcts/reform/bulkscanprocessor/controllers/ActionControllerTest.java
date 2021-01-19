@@ -27,6 +27,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -192,6 +193,19 @@ public class ActionControllerTest {
 
         verify(envelopeRepository).findById(envelopeId);
         verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_bad_request_if_uuid_corrupted() throws Exception {
+
+        mockMvc
+            .perform(
+                put("/actions/reprocess/" + "corrupted")
+            )
+            .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(envelopeRepository);
+        verifyNoInteractions(processEventRepository);
     }
 
     private Envelope envelope(
