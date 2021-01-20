@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -199,10 +200,10 @@ public class BlobManagerTest {
         given(response.getHeaders()).willReturn(httpHeaders);
         given(httpHeaders.getValue(ERROR_CODE)).willReturn(BlobErrorCode.LEASE_LOST.toString());
 
-        given(inputBlobClient.deleteWithResponse(any(), any(), any(), any()))
-            .willThrow(new BlobStorageException(BlobErrorCode.LEASE_LOST.toString(), response, null))
-            .willReturn(mock(Response.class));
 
+        willThrow(new BlobStorageException(BlobErrorCode.LEASE_LOST.toString(), response, null))
+            .willReturn(mock(Response.class))
+            .given(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
 
         // when
         blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
