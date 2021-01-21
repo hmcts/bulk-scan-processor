@@ -21,7 +21,7 @@ public class ActionController {
     }
 
     @PutMapping(path = "/reprocess/{id}")
-    @ApiOperation("Read single envelope by ID")
+    @ApiOperation("Reprocess envelope by ID")
     public ResponseEntity<Void> reprocess(@PathVariable UUID id) {
         envelopeReprocessService.reprocessEnvelope(id);
         return new ResponseEntity<>(HttpStatus.OK);
