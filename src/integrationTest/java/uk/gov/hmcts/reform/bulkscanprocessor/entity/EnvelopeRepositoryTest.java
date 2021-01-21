@@ -202,6 +202,38 @@ public class EnvelopeRepositoryTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    public void should_get_empty_result_when_no_incomplete_envelopes_are_there_in_db() {
+        assertThat(repo.getIncompleteEnvelopesBefore(now())).isEmpty();
+    }
+
+    @Test
+    public void should_get_incomplete_envelopes() {
+        // given
+        dbHas(
+            envelope("A.zip", "X", Status.UPLOADED),
+            envelope("B.zip", "Y", Status.COMPLETED),
+            envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
+            envelope("D.zip", "Z", Status.NOTIFICATION_SENT),
+            envelope("E.zip", "Z", Status.COMPLETED)
+        );
+
+        // and update createAt to 2h ago
+        entityManager.createNativeQuery(
+            "UPDATE envelopes "
+                + "SET createdat = '" + now().minusHours(2) + "' "
+                + "WHERE zipfilename IN ('A.zip', 'B.zip', 'D.zip')"
+        ).executeUpdate();
+
+        // when
+        List<Envelope> result = repo.getIncompleteEnvelopesBefore(now().minusHours(1));
+
+        // then
+        assertThat(result)
+            .extracting(Envelope::getZipFileName)
+            .containsExactlyInAnyOrder("A.zip", "D.zip");
+    }
+
     private Envelope envelopeWithFailureCount(int failCount) {
         Envelope envelope = envelope("X", Status.UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
