@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.SearchResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,13 +27,18 @@ import java.util.UUID;
 public class EnvelopeController {
 
     private final EnvelopeRetrieverService envelopeRetrieverService;
+    private final IncompleteEnvelopesService incompleteEnvelopesService;
     private final AuthService authService;
+
+    private static final String DEFAULT_STALE_TIME_HOURS = "2";
 
     public EnvelopeController(
         EnvelopeRetrieverService envelopeRetrieverService,
+        IncompleteEnvelopesService incompleteEnvelopesService,
         AuthService authService
     ) {
         this.envelopeRetrieverService = envelopeRetrieverService;
+        this.incompleteEnvelopesService = incompleteEnvelopesService;
         this.authService = authService;
     }
 
@@ -61,5 +69,20 @@ public class EnvelopeController {
         return envelopeRetrieverService
             .findById(serviceName, id)
             .orElseThrow(EnvelopeNotFoundException::new);
+    }
+
+    @GetMapping(path = "/stale-incomplete-blobs")
+    @ApiOperation(
+        value = "Retrieves incomplete stale envelopes",
+        notes = "Returns an empty list when no incomplete stale envelopes were found"
+    )
+    @ApiResponse(code = 200, message = "Success", response = EnvelopeListResponse.class)
+    public SearchResult getIncomplete(
+        @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
+            int staleTime
+    ) {
+        List<BlobInfo> envelopes = incompleteEnvelopesService.getIncompleteEnvelopes(2);
+
+        return new SearchResult(envelopes);
     }
 }

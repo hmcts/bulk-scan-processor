@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +30,7 @@ public class ReadSingleEnvelopeControllerTest {
 
     @MockBean private EnvelopeRetrieverService readService;
     @MockBean private AuthService authService;
+    @MockBean private IncompleteEnvelopesService incompleteEnvelopesService;
 
     @Autowired
     private MockMvc mockMvc;

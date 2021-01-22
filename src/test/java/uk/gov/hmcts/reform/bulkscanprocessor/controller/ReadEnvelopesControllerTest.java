@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 
 import java.io.IOException;
 import java.net.URL;
@@ -53,6 +54,9 @@ public class ReadEnvelopesControllerTest {
 
     @MockBean
     private AuthService authService;
+
+    @MockBean
+    private IncompleteEnvelopesService incompleteEnvelopesService;
 
     @Test
     public void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
