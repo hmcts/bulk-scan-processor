@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
@@ -32,9 +31,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -60,6 +61,7 @@ import java.util.List;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -68,6 +70,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
@@ -100,6 +103,7 @@ public class EnvelopeControllerTest {
     @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
     @MockBean private FileRejector fileRejector;
+    @MockBean private IncompleteEnvelopesService incompleteEnvelopesService;
 
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
@@ -219,7 +223,7 @@ public class EnvelopeControllerTest {
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
             // Envelope id is checked explicitly as it is dynamically generated.
-            .andExpect(MockMvcResultMatchers.jsonPath("envelopes[0].id").exists());
+            .andExpect(jsonPath("envelopes[0].id").exists());
 
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
@@ -272,6 +276,28 @@ public class EnvelopeControllerTest {
         assertThat(result.getResponse().getStatus()).isEqualTo(401);
 
         assertThat(result.getResolvedException()).isInstanceOf(UnAuthenticatedException.class);
+    }
+
+    @Test
+    public void should_return_incomplete_stale_envelopes() throws Exception {
+
+        given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
+            .willReturn(asList(
+                new BlobInfo("cmc", "file1.zip", "2021-01-15T10:39:27"),
+                new BlobInfo("sscs", "file2.zip", "2021-01-14T11:38:28")
+            ));
+
+        mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
+                            .header("ServiceAuthorization", "testServiceAuthHeader"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("data[0].container").value("cmc"))
+            .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
+            .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27"))
+            .andExpect(jsonPath("data[1].container").value("sscs"))
+            .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
+            .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28"));
     }
 
     private void uploadZipToBlobStore(String dirToZip, String zipFilename) throws Exception {
