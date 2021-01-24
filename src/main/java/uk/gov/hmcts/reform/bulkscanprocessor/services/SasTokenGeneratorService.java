@@ -23,7 +23,7 @@ public class SasTokenGeneratorService {
 
     private final BlobServiceClient blobServiceClient;
     private final AccessTokenProperties accessTokenProperties;
-    private static final String PERMISSION_WRITE_LIST = "wl";
+    private static final String PERMISSION_WRITE_LIST = "wlr";
 
     public SasTokenGeneratorService(
         BlobServiceClient blobServiceClient,
