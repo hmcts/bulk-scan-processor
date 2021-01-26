@@ -9,11 +9,13 @@ import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -33,15 +35,18 @@ public class DeleteCompleteFilesTask {
     private final BlobManager blobManager;
     private final EnvelopeRepository envelopeRepository;
     private final LeaseAcquirer leaseAcquirer;
+    private final Status envelopeDeleteStatus;
 
     public DeleteCompleteFilesTask(
         BlobManager blobManager,
         EnvelopeRepository envelopeRepository,
-        LeaseAcquirer leaseAcquirer
+        LeaseAcquirer leaseAcquirer,
+        @Value("${envelope-delete-status}") String envelopeDeleteStatus
     ) {
         this.blobManager = blobManager;
         this.envelopeRepository = envelopeRepository;
         this.leaseAcquirer = leaseAcquirer;
+        this.envelopeDeleteStatus = Status.valueOf(envelopeDeleteStatus);
     }
 
     @Scheduled(cron = "${scheduling.task.delete-complete-files.cron}", zone = EUROPE_LONDON)
