@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.util.List;
 
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
 @Service
@@ -75,7 +74,7 @@ public class DeleteCompleteFilesTask {
 
         List<Envelope> envelopes = envelopeRepository.findByContainerAndStatusAndZipDeleted(
             container.getBlobContainerName(),
-            COMPLETED,
+            envelopeDeleteStatus,
             false
         );
         int successCount = 0;
