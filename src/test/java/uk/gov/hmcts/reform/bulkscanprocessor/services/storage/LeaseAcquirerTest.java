@@ -6,6 +6,7 @@ import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.CopyStatusType;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,11 +55,11 @@ class LeaseAcquirerTest {
     @Test
     void should_run_provided_action_when_lease_was_acquired() {
         // given
-        var onSuccess = mock(Consumer.class);
-        var onFailure = mock(Consumer.class);
-
+        setCopyStatus(null);
         given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(true);
         given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
 
@@ -74,7 +75,7 @@ class LeaseAcquirerTest {
         // given
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
-
+        setCopyStatus(null);
         doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
 
         // when
@@ -88,6 +89,8 @@ class LeaseAcquirerTest {
     @Test
     void should_not_call_release_when_failed_to_process_blob() {
         // given
+        setCopyStatus(CopyStatusType.SUCCESS);
+
         doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
 
         // when
@@ -108,6 +111,7 @@ class LeaseAcquirerTest {
         metadata.put(LEASE_EXPIRATION_TIME, "time");
         metadata.put("someProperty", "someValue");
         given(blobProperties.getMetadata()).willReturn(metadata);
+        given(blobProperties.getCopyStatus()).willReturn(null);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
@@ -134,6 +138,8 @@ class LeaseAcquirerTest {
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
 
+        setCopyStatus(CopyStatusType.SUCCESS);
+
         given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(false);
 
         // when
@@ -149,12 +155,12 @@ class LeaseAcquirerTest {
     @Test
     void should_release_lease_when_metadata_lease_check_was_throw_exception() {
         // given
-        var onSuccess = mock(Consumer.class);
-        var onFailure = mock(Consumer.class);
-
+        setCopyStatus(null);
         given(leaseMetaDataChecker.isReadyToUse(any(),any()))
             .willThrow(new RuntimeException("Can not write to Metadata"));
         given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
@@ -182,6 +188,7 @@ class LeaseAcquirerTest {
         metadata.put(LEASE_EXPIRATION_TIME, "time");
         metadata.put("someProperty", "someValue");
         given(blobProperties.getMetadata()).willReturn(metadata);
+        given(blobProperties.getCopyStatus()).willReturn(CopyStatusType.SUCCESS);
 
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
@@ -211,6 +218,7 @@ class LeaseAcquirerTest {
     @Test
     void should_run_onFailure_when_metadata_lease_can_not_acquired() {
         // given
+        setCopyStatus(CopyStatusType.SUCCESS);
         given(leaseMetaDataChecker.isReadyToUse(any(),any())).willReturn(false);
         given(leaseClient.acquireLease(anyInt())).willReturn(leaseId);
 
@@ -232,6 +240,29 @@ class LeaseAcquirerTest {
         verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient), eq(leaseId));
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
+    }
+
+    @Test
+    void should_skip_lease_when_copy_status_is_pending() {
+        // given
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
+        setCopyStatus(CopyStatusType.PENDING);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
+
+        // then
+        verify(onSuccess, never()).accept(anyString());
+        verify(onFailure, never()).accept(any());
+        verifyNoMoreInteractions(leaseMetaDataChecker);
+
+    }
+
+    private void setCopyStatus(CopyStatusType copyStatus) {
+        BlobProperties blobItemProperties = mock(BlobProperties.class);
+        given(blobItemProperties.getCopyStatus()).willReturn(copyStatus);
+        given(blobClient.getProperties()).willReturn(blobItemProperties);
     }
 
 }

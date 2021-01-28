@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobItemProperties;
+import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
@@ -87,6 +88,10 @@ public class CleanUpRejectedFilesTaskTest {
 
         given(blobClientToDelete.getBlobName()).willReturn(OLD_REJECTED_BLOB);
         given(blobClientToDelete.getContainerName()).willReturn(REJECTED_CONTAINER);
+
+        BlobProperties blobItemProperties = mock(BlobProperties.class);
+        given(blobItemProperties.getCopyStatus()).willReturn(null);
+        given(blobClientToDelete.getProperties()).willReturn(blobItemProperties);
 
         given(rejectedContainerBlobItems.stream()).willReturn(Stream.of(newRejectedBlob, oldRejectedBlob));
 

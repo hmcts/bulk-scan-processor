@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
+import static com.azure.storage.blob.models.CopyStatusType.PENDING;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker.LEASE_EXPIRATION_TIME;
 
@@ -49,6 +50,15 @@ public class LeaseAcquirer {
         boolean releaseLease
     ) {
         try {
+
+            if (PENDING == blobClient.getProperties().getCopyStatus()) {
+                logger.warn(
+                    "Copy in progress skipping , file {} in container {}",
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName()
+                );
+                return;
+            }
             var leaseClient = leaseClientProvider.get(blobClient);
             var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
             boolean isReady = false;
