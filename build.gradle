@@ -8,7 +8,7 @@ plugins {
   id 'org.springframework.boot' version '2.3.5.RELEASE'
   id 'org.owasp.dependencycheck' version '6.0.5'
   id 'com.github.ben-manes.versions' version '0.36.0'
-  id 'org.sonarqube' version '3.0'
+  id 'org.sonarqube' version '3.1.1'
   id "info.solidsoft.pitest" version '1.5.2'
   id 'au.com.dius.pact' version '4.1.15'
 }
@@ -332,7 +332,7 @@ dependencies {
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.0.0', {
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.0.1', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
