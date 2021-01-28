@@ -36,6 +36,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"PMD", "unchecked"})
@@ -67,7 +68,8 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask = new DeleteCompleteFilesTask(
             blobManager,
             envelopeRepository,
-            leaseAcquirer
+            leaseAcquirer,
+            COMPLETED.name()
         );
         given(container1.getBlobContainerName()).willReturn(CONTAINER_NAME_1);
     }
@@ -90,6 +92,38 @@ class DeleteCompleteFilesTaskTest {
 
         // then
         verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, COMPLETED, false);
+        verifyEnvelopesSaving(envelope11);
+        verifyNoMoreInteractions(envelopeRepository);
+
+        verifyNoMoreInteractions(blobManager);
+
+        verifyBlobClientInteractions(blobClient);
+    }
+
+    @Test
+    void should_delete_single_existing_file_with_status_notification_sent() {
+        // given
+        deleteCompleteFilesTask = new DeleteCompleteFilesTask(
+            blobManager,
+            envelopeRepository,
+            leaseAcquirer,
+            NOTIFICATION_SENT.name()
+        );
+        final BlobClient blobClient = mock(BlobClient.class);
+
+        final Envelope envelope11 = EnvelopeCreator.envelope("X", NOTIFICATION_SENT, CONTAINER_NAME_1);
+
+        given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
+        given(envelopeRepository.findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, NOTIFICATION_SENT, false))
+            .willReturn(singletonList(envelope11));
+        prepareGivensForEnvelope(container1, blobClient, envelope11);
+
+        leaseCanBeAcquired();
+        // when
+        deleteCompleteFilesTask.run();
+
+        // then
+        verify(envelopeRepository).findByContainerAndStatusAndZipDeleted(CONTAINER_NAME_1, NOTIFICATION_SENT, false);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
 
