@@ -54,9 +54,10 @@ public class LeaseAcquirer {
             if (null != blobClient.getProperties().getCopyStatus()
                 && blobClient.getProperties().getCopyStatus() != SUCCESS) {
                 logger.warn(
-                    "Copy in progress skipping , file {} in container {}",
+                    "Copy in progress skipping, file {} in container {}, copy status {}",
                     blobClient.getBlobName(),
-                    blobClient.getContainerName()
+                    blobClient.getContainerName(),
+                    blobClient.getProperties().getCopyStatus()
                 );
                 return;
             }
