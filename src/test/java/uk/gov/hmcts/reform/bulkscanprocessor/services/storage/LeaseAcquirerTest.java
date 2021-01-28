@@ -11,6 +11,8 @@ import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -242,12 +244,16 @@ class LeaseAcquirerTest {
 
     }
 
-    @Test
-    void should_skip_lease_when_copy_status_is_pending() {
+    @ParameterizedTest
+    @EnumSource(
+        value = CopyStatusType.class,
+        names = {"PENDING", "ABORTED", "FAILED"}
+    )
+    void should_skip_lease_when_copy_status_is_not_success(CopyStatusType copyStatus) {
         // given
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
-        setCopyStatus(CopyStatusType.PENDING);
+        setCopyStatus(copyStatus);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
