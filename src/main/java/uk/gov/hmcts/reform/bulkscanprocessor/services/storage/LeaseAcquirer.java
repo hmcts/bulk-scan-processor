@@ -26,7 +26,7 @@ public class LeaseAcquirer {
 
     private final LeaseClientProvider leaseClientProvider;
     private final LeaseMetaDataChecker leaseMetaDataChecker;
-
+    public static final String META_DATA_WAIT_COPY =  "waitingCopy";
     public LeaseAcquirer(
         LeaseClientProvider leaseClientProvider,
         LeaseMetaDataChecker leaseMetaDataChecker
@@ -51,13 +51,24 @@ public class LeaseAcquirer {
     ) {
         try {
 
-            if (null != blobClient.getProperties().getCopyStatus()
-                && blobClient.getProperties().getCopyStatus() != SUCCESS) {
+            var blobProperties  = blobClient.getProperties();
+            if (null != blobProperties.getCopyStatus()
+                && blobProperties.getCopyStatus() != SUCCESS) {
                 logger.warn(
                     "Copy in progress skipping, file {} in container {}, copy status {}",
                     blobClient.getBlobName(),
                     blobClient.getContainerName(),
                     blobClient.getProperties().getCopyStatus()
+                );
+                return;
+            }
+
+            var metaData = blobProperties.getMetadata();
+            if (metaData.get(META_DATA_WAIT_COPY) !=null){
+                logger.warn(
+                    "Copy Source did not clean the meta data, skipping  file {} in container {}",
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName()
                 );
                 return;
             }
