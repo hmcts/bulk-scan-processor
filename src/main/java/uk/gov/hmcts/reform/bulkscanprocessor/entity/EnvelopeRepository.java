@@ -96,7 +96,10 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime);
 
     @Query("select e from Envelope e \n"
-            + "WHERE status = 'COMPLETED' OR status = 'NOTIFICATION_SENT'"
+            + "WHERE e.container = :container "
+            + "AND (status = 'COMPLETED' OR status = 'NOTIFICATION_SENT')"
     )
-    List<Envelope> getCompleteAndNotifiedEnvelopes();
+    List<Envelope> getCompleteAndNotifiedEnvelopesFromContainer(
+        @Param("container") String container
+    );
 }
