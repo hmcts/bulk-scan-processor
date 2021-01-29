@@ -27,6 +27,7 @@ public class LeaseAcquirer {
     private final LeaseClientProvider leaseClientProvider;
     private final LeaseMetaDataChecker leaseMetaDataChecker;
     public static final String META_DATA_WAIT_COPY =  "waitingCopy";
+
     public LeaseAcquirer(
         LeaseClientProvider leaseClientProvider,
         LeaseMetaDataChecker leaseMetaDataChecker
@@ -64,7 +65,7 @@ public class LeaseAcquirer {
             }
 
             var metaData = blobProperties.getMetadata();
-            if (metaData.get(META_DATA_WAIT_COPY) !=null){
+            if (metaData.get(META_DATA_WAIT_COPY) != null) {
                 logger.warn(
                     "Copy Source did not clean the meta data, skipping  file {} in container {}",
                     blobClient.getBlobName(),
