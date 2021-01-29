@@ -234,6 +234,26 @@ public class EnvelopeRepositoryTest {
             .containsExactlyInAnyOrder("A.zip", "D.zip");
     }
 
+    @Test
+    public void should_get_complete_and_notified_envelopes() {
+        // given
+        dbHas(
+            envelope("A.zip", "X", Status.UPLOADED),
+            envelope("B.zip", "Y", Status.COMPLETED),
+            envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
+            envelope("D.zip", "Z", Status.NOTIFICATION_SENT),
+            envelope("E.zip", "Z", Status.COMPLETED)
+        );
+
+        // when
+        List<Envelope> result = repo.getCompleteAndNotifiedEnvelopes();
+
+        // then
+        assertThat(result)
+            .extracting(Envelope::getZipFileName)
+            .containsExactlyInAnyOrder("B.zip", "D.zip", "E.zip");
+    }
+
     private Envelope envelopeWithFailureCount(int failCount) {
         Envelope envelope = envelope("X", Status.UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
