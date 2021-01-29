@@ -243,13 +243,14 @@ public class EnvelopeRepositoryTest {
     void should_get_complete_and_notified_envelopes() {
         // given
         dbHas(
-            envelope("A.zip", "X", UPLOADED, scannableItems(), "c1"),
-            envelope("B.zip", "Y", COMPLETED, scannableItems(), "c1"),
-            envelope("C.zip", "Z", UPLOAD_FAILURE, scannableItems(), "c1"),
-            envelope("D.zip", "X", NOTIFICATION_SENT, scannableItems(), "c1"),
-            envelope("E.zip", "Y", COMPLETED, scannableItems(), "c2"),
-            envelope("F.zip", "Z", NOTIFICATION_SENT, scannableItems(), "c2"),
-            envelope("G.zip", "X", COMPLETED, scannableItems(), "c1")
+            envelope("A.zip", "X", UPLOADED, scannableItems(), "c1", false),
+            envelope("B.zip", "Y", COMPLETED, scannableItems(), "c1", false),
+            envelope("C.zip", "Z", UPLOAD_FAILURE, scannableItems(), "c1", false),
+            envelope("D.zip", "X", NOTIFICATION_SENT, scannableItems(), "c1", false),
+            envelope("E.zip", "Y", COMPLETED, scannableItems(), "c2", false),
+            envelope("F.zip", "Z", NOTIFICATION_SENT, scannableItems(), "c2", false),
+            envelope("G.zip", "X", COMPLETED, scannableItems(), "c1", true),
+            envelope("H.zip", "X", COMPLETED, scannableItems(), "c1", false)
         );
 
         // when
@@ -258,7 +259,7 @@ public class EnvelopeRepositoryTest {
         // then
         assertThat(result)
             .extracting(Envelope::getZipFileName)
-            .containsExactlyInAnyOrder("B.zip", "D.zip", "G.zip");
+            .containsExactlyInAnyOrder("B.zip", "D.zip", "H.zip");
     }
 
     private Envelope envelopeWithFailureCount(int failCount) {
