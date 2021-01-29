@@ -68,6 +68,6 @@ public class SasTokenControllerTest {
         assertThat(queryParams.get("sig")).isNotNull();//this is a generated hash of the resource string
         assertThat(queryParams.get("se")).startsWith(currentDate);//the expiry date/time for the signature
         assertThat(queryParams.get("sv")).contains("2020-04-08");//azure api version is latest
-        assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
+        assertThat(queryParams.get("sp")).contains("racwdltm");//access permissions(write-w,list-l)
     }
 }
