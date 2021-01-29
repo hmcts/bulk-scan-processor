@@ -197,7 +197,7 @@ public final class EnvelopeCreator {
         );
     }
 
-    private static List<ScannableItem> scannableItems() {
+    public static List<ScannableItem> scannableItems() {
         return ImmutableList.of(
             scannableItem(randomUUID().toString(), null, DocumentType.CHERISHED, null),
             scannableItem(

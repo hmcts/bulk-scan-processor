@@ -16,7 +16,12 @@ import static java.time.LocalDateTime.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
+import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.scannableItems;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
@@ -58,9 +63,9 @@ public class EnvelopeRepositoryTest {
     public void findEnvelopesToUpload_should_filter_based_on_status() {
         // given
         Envelope e1 = envelope("A", Status.CREATED);
-        Envelope e2 = envelope("A", Status.UPLOAD_FAILURE);
-        Envelope e3 = envelope("B", Status.UPLOADED);
-        Envelope e4 = envelope("B", Status.NOTIFICATION_SENT);
+        Envelope e2 = envelope("A", UPLOAD_FAILURE);
+        Envelope e3 = envelope("B", UPLOADED);
+        Envelope e4 = envelope("B", NOTIFICATION_SENT);
 
         dbHas(e1, e2, e3, e4);
 
@@ -81,8 +86,8 @@ public class EnvelopeRepositoryTest {
         // given
         dbHas(
             envelope("A.zip", "X", Status.CREATED),
-            envelope("A.zip", "Y", Status.UPLOAD_FAILURE),
-            envelope("B.zip", "Z", Status.UPLOAD_FAILURE)
+            envelope("A.zip", "Y", UPLOAD_FAILURE),
+            envelope("B.zip", "Z", UPLOAD_FAILURE)
         );
 
         // when
@@ -103,7 +108,7 @@ public class EnvelopeRepositoryTest {
     public void should_count_envelopes_created_after_given_timestamp() {
         // given
         dbHas(
-            envelope("A.zip", Status.COMPLETED),
+            envelope("A.zip", COMPLETED),
             envelope("B.zip", Status.CONSUMED)
         );
 
@@ -116,10 +121,10 @@ public class EnvelopeRepositoryTest {
     public void should_find_incomplete_envelopes() {
         // given
         dbHas(
-            envelope("A.zip", "X", Status.UPLOADED),
-            envelope("B.zip", "Y", Status.COMPLETED),
-            envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
-            envelope("D.zip", "Z", Status.COMPLETED)
+            envelope("A.zip", "X", UPLOADED),
+            envelope("B.zip", "Y", COMPLETED),
+            envelope("C.zip", "Z", UPLOAD_FAILURE),
+            envelope("D.zip", "Z", COMPLETED)
         );
 
         // and update createAt to 2h ago
@@ -139,23 +144,23 @@ public class EnvelopeRepositoryTest {
         // given
         final String container1 = "container1";
         dbHas(
-            envelope("X", Status.COMPLETED, container1),
-            envelope("Y", Status.UPLOADED, "container2"),
-            envelope("X", Status.COMPLETED, container1),
-            envelope("X", Status.UPLOADED, container1),
-            envelope("Z", Status.COMPLETED, "container3")
+            envelope("X", COMPLETED, container1),
+            envelope("Y", UPLOADED, "container2"),
+            envelope("X", COMPLETED, container1),
+            envelope("X", UPLOADED, container1),
+            envelope("Z", COMPLETED, "container3")
         );
 
         // when
-        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, Status.COMPLETED, false);
+        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, COMPLETED, false);
 
         // then
         assertThat(result)
             .hasSize(2)
             .extracting(envelope -> tuple(envelope.getStatus(), envelope.getContainer()))
             .containsExactlyInAnyOrder(
-                tuple(Status.COMPLETED, container1),
-                tuple(Status.COMPLETED, container1)
+                tuple(COMPLETED, container1),
+                tuple(COMPLETED, container1)
             );
     }
 
@@ -164,22 +169,22 @@ public class EnvelopeRepositoryTest {
         // given
         final String container1 = "container1";
         dbHas(
-            envelope("X", Status.COMPLETED, container1, false),
-            envelope("Y", Status.UPLOADED, "container2", false),
-            envelope("X", Status.COMPLETED, container1, true),
-            envelope("X", Status.UPLOADED, container1, false),
-            envelope("Z", Status.COMPLETED, "container3", false)
+            envelope("X", COMPLETED, container1, false),
+            envelope("Y", UPLOADED, "container2", false),
+            envelope("X", COMPLETED, container1, true),
+            envelope("X", UPLOADED, container1, false),
+            envelope("Z", COMPLETED, "container3", false)
         );
 
         // when
-        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, Status.COMPLETED, false);
+        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, COMPLETED, false);
 
         // then
         assertThat(result)
             .hasSize(1)
             .extracting(envelope -> tuple(envelope.getStatus(), envelope.getContainer(), envelope.isZipDeleted()))
             .containsExactlyInAnyOrder(
-                tuple(Status.COMPLETED, container1, false)
+                tuple(COMPLETED, container1, false)
             );
     }
 
@@ -189,14 +194,14 @@ public class EnvelopeRepositoryTest {
         final String container1 = "container1";
         dbHas(
             envelope("X", Status.CREATED, container1),
-            envelope("Y", Status.UPLOADED, "container2"),
+            envelope("Y", UPLOADED, "container2"),
             envelope("X", Status.CREATED, container1),
-            envelope("X", Status.UPLOADED, container1),
-            envelope("Z", Status.COMPLETED, "container3")
+            envelope("X", UPLOADED, container1),
+            envelope("Z", COMPLETED, "container3")
         );
 
         // when
-        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, Status.COMPLETED, false);
+        final List<Envelope> result = repo.findByContainerAndStatusAndZipDeleted(container1, COMPLETED, false);
 
         // then
         assertThat(result).isEmpty();
@@ -211,11 +216,11 @@ public class EnvelopeRepositoryTest {
     public void should_get_incomplete_envelopes() {
         // given
         dbHas(
-            envelope("A.zip", "X", Status.UPLOADED),
-            envelope("B.zip", "Y", Status.COMPLETED),
-            envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
-            envelope("D.zip", "Z", Status.NOTIFICATION_SENT),
-            envelope("E.zip", "Z", Status.COMPLETED)
+            envelope("A.zip", "X", UPLOADED),
+            envelope("B.zip", "Y", COMPLETED),
+            envelope("C.zip", "Z", UPLOAD_FAILURE),
+            envelope("D.zip", "Z", NOTIFICATION_SENT),
+            envelope("E.zip", "Z", COMPLETED)
         );
 
         // and update createAt to 2h ago
@@ -235,27 +240,29 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void should_get_complete_and_notified_envelopes() {
+    void should_get_complete_and_notified_envelopes() {
         // given
         dbHas(
-            envelope("A.zip", "X", Status.UPLOADED),
-            envelope("B.zip", "Y", Status.COMPLETED),
-            envelope("C.zip", "Z", Status.UPLOAD_FAILURE),
-            envelope("D.zip", "Z", Status.NOTIFICATION_SENT),
-            envelope("E.zip", "Z", Status.COMPLETED)
+            envelope("A.zip", "X", UPLOADED, scannableItems(), "c1"),
+            envelope("B.zip", "Y", COMPLETED, scannableItems(), "c1"),
+            envelope("C.zip", "Z", UPLOAD_FAILURE, scannableItems(), "c1"),
+            envelope("D.zip", "X", NOTIFICATION_SENT, scannableItems(), "c1"),
+            envelope("E.zip", "Y", COMPLETED, scannableItems(), "c2"),
+            envelope("F.zip", "Z", NOTIFICATION_SENT, scannableItems(), "c2"),
+            envelope("G.zip", "X", COMPLETED, scannableItems(), "c1")
         );
 
         // when
-        List<Envelope> result = repo.getCompleteAndNotifiedEnvelopes();
+        List<Envelope> result = repo.getCompleteAndNotifiedEnvelopesFromContainer("c1");
 
         // then
         assertThat(result)
             .extracting(Envelope::getZipFileName)
-            .containsExactlyInAnyOrder("B.zip", "D.zip", "E.zip");
+            .containsExactlyInAnyOrder("B.zip", "D.zip", "G.zip");
     }
 
     private Envelope envelopeWithFailureCount(int failCount) {
-        Envelope envelope = envelope("X", Status.UPLOAD_FAILURE);
+        Envelope envelope = envelope("X", UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
         return envelope;
     }
