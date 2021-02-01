@@ -47,7 +47,8 @@ public class SchedulerConfigTest {
             .containsOnly(
                 "upload-documents",
                 "send-orchestrator-notification",
-                "delete-complete-files"
+                "delete-complete-files",
+                "incomplete-envelopes-monitoring"
             );
     }
 
