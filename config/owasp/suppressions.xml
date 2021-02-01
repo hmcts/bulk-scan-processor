@@ -16,16 +16,6 @@
     <cve>CVE-2016-6798</cve>
   </suppress>
 
-  <suppress until="2021-01-10">
-    <notes><![CDATA[
-   file name: oauth2-oidc-sdk-7.1.1.jar
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.nimbusds/oauth2\-oidc\-sdk@.*$</packageUrl>
-    <cve>CVE-2007-1652</cve>
-    <cve>CVE-2007-1651</cve>
-  </suppress>
-  <!-- not used by server -->
-
   <suppress>
     <notes><![CDATA[ used in output capturer in static tests ]]></notes>
     <filePath regex="true">.*logunit-logback-1\.1\.0\.jar</filePath>
