@@ -265,6 +265,28 @@ class LeaseAcquirerTest {
 
     }
 
+    @Test
+    void should_skip_lease_when_meta_data_has_copy_waiting() {
+        // given
+        BlobProperties blobItemProperties = mock(BlobProperties.class);
+        given(blobItemProperties.getCopyStatus()).willReturn(null);
+        given(blobClient.getProperties()).willReturn(blobItemProperties);
+
+        given(blobItemProperties.getMetadata())
+            .willReturn(Map.of("waitingCopy", "anyValue"));
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
+
+        // then
+        verify(onSuccess, never()).accept(anyString());
+        verify(onFailure, never()).accept(any());
+        verifyNoMoreInteractions(leaseMetaDataChecker);
+
+    }
+
     private void setCopyStatus(CopyStatusType copyStatus) {
         BlobProperties blobItemProperties = mock(BlobProperties.class);
         given(blobItemProperties.getCopyStatus()).willReturn(copyStatus);
