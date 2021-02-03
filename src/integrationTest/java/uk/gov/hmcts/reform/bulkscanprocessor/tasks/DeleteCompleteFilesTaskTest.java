@@ -52,8 +52,7 @@ public class DeleteCompleteFilesTaskTest {
         this.task = new DeleteCompleteFilesTask(
             blobManager,
             envelopeRepository,
-            leaseAcquirer,
-            COMPLETED.name()
+            leaseAcquirer
         );
     }
 

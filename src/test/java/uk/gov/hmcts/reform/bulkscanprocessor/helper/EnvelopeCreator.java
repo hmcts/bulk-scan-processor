@@ -120,6 +120,27 @@ public final class EnvelopeCreator {
         String jurisdiction,
         Status status,
         List<ScannableItem> scannableItems,
+        String container,
+        boolean zipDeleted
+    ) {
+        Envelope envelope = envelope(
+            zipFileName,
+            jurisdiction,
+            status,
+            scannableItems,
+            container
+        );
+
+        envelope.setZipDeleted(zipDeleted);
+
+        return envelope;
+    }
+
+    public static Envelope envelope(
+        String zipFileName,
+        String jurisdiction,
+        Status status,
+        List<ScannableItem> scannableItems,
         String container
     ) {
         Instant timestamp = getInstant();

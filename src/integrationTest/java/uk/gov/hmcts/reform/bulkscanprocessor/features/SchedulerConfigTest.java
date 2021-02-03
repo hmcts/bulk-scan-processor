@@ -24,7 +24,9 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.upload-documents.enabled=true",
         "scheduling.task.notifications_to_orchestrator.enabled=true",
         "scheduling.task.delete-complete-files.enabled=true",
-        "scheduling.task.delete-complete-files.cron=* * * * * *"
+        "scheduling.task.delete-complete-files.cron=* * * * * *",
+        "monitoring.incomplete-envelopes.enabled=true",
+        "monitoring.incomplete-envelopes.cron=* * * * * *"
     }
 )
 public class SchedulerConfigTest {
@@ -45,7 +47,8 @@ public class SchedulerConfigTest {
             .containsOnly(
                 "upload-documents",
                 "send-orchestrator-notification",
-                "delete-complete-files"
+                "delete-complete-files",
+                "incomplete-envelopes-monitoring"
             );
     }
 
