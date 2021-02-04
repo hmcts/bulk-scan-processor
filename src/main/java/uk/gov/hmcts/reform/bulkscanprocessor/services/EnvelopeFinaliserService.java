@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -15,6 +17,8 @@ import javax.transaction.Transactional;
 @Service
 public class EnvelopeFinaliserService {
 
+    private static final Logger log = LoggerFactory.getLogger(EnvelopeFinaliserService.class);
+
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
 
@@ -28,6 +32,13 @@ public class EnvelopeFinaliserService {
 
     @Transactional
     public void finaliseEnvelope(UUID envelopeId, String ccdId, String envelopeCcdAction) {
+        log.info(
+            "Finalising envelope, envelopeId: {}, ccdId: {}, envelopeCcdAction: {}",
+            envelopeId,
+            ccdId,
+            envelopeCcdAction
+        );
+
         Envelope envelope = findEnvelope(envelopeId);
 
         envelope.getScannableItems().forEach(item -> {
@@ -40,8 +51,23 @@ public class EnvelopeFinaliserService {
 
         envelopeRepository.saveAndFlush(envelope);
 
+        log.info(
+            "Saved envelope, envelopeId: {}, ccdId: {}, envelopeCcdAction: {}, status: {}",
+            envelope.getId(),
+            envelope.getCcdId(),
+            envelope.getEnvelopeCcdAction(),
+            envelope.getStatus()
+        );
+
         processEventRepository.saveAndFlush(
             new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.COMPLETED)
+        );
+
+        log.info(
+            "Saved processEvent, container: {}, zipFileName: {}, event: {}",
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            Event.COMPLETED
         );
     }
 
