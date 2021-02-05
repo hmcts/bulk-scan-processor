@@ -104,6 +104,15 @@ public class OcrValidator {
         InputScannableItem docWithOcr
     ) {
         log.info("Validation result for envelope {}: {}", envelope.zipFileName, res.status);
+
+        if (res.status == null) {
+            log.error(
+                "Validation ended with null response status. File name: {}",
+                envelope.zipFileName
+            );
+            return;
+        }
+
         switch (res.status) {
             case ERRORS:
                 String message = "OCR validation service returned OCR-specific errors. "
