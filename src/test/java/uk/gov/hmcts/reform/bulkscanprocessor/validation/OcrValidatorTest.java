@@ -367,6 +367,36 @@ public class OcrValidatorTest {
     }
 
     @Test
+    public void should_handle_null_reponse_code() {
+        // given
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true, true)
+            ));
+
+        given(client.validate(any(), any(), any(), any()))
+            .willReturn(new ValidationResponse(null, null, emptyList()));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        InputEnvelope envelope = envelope(
+            PO_BOX,
+            asList(doc(FORM, "z", sampleOcr())),
+            SUPPLEMENTARY_EVIDENCE
+        );
+
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(doc(FORM, "z", sampleOcr())));
+
+        // when
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
+
+        // then
+        assertThat(warnings).isPresent();
+        assertThat(warnings.get().warnings).isEmpty();
+    }
+
+    @Test
     public void should_throw_an_exception_if_service_responded_with_404() {
         // given
         InputEnvelope envelope = envelope(
