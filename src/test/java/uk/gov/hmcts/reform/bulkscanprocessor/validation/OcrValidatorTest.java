@@ -386,7 +386,7 @@ public class OcrValidatorTest {
             .willReturn(Optional.of(doc(FORM, "z", sampleOcr())));
 
         // when
-        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope, blobClient, LEASE_ID);
+        Optional<OcrValidationWarnings> warnings = ocrValidator.assertOcrDataIsValid(envelope);
 
         // then
         assertThat(warnings).isPresent();
