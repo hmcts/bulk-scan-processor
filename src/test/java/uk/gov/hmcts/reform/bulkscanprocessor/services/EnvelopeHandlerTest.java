@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import com.azure.storage.blob.BlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +33,6 @@ class EnvelopeHandlerTest {
     private static final String FILE_NAME = "file1.zip";
     private static final String RESCAN_FOR_FILE_NAME = "file2.zip";
     private static final String CONTAINER_NAME = "container";
-    private static final String LEASE_ID = "leaseID";
     private static final String DCN = "dcn";
     private static final String POBOX = "pobox";
     private static final String BULKSCAN = "bulkscan";
@@ -57,9 +55,6 @@ class EnvelopeHandlerTest {
 
     @Mock
     private FileRejector fileRejector;
-
-    @Mock
-    private BlobClient blobClient;
 
     private List<ContainerMappings.Mapping> mappings = emptyList();
 
@@ -108,9 +103,7 @@ class EnvelopeHandlerTest {
             CONTAINER_NAME,
             FILE_NAME,
             pdfs,
-            inputEnvelope,
-            blobClient,
-            LEASE_ID
+            inputEnvelope
         );
 
         // then
