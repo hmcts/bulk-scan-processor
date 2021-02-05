@@ -1,12 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
-import com.azure.storage.blob.BlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DisallowedDocumentTypesException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
@@ -60,12 +58,7 @@ class FileContentProcessorTest {
     @Mock
     private ZipFileProcessingResult result;
 
-    @Mock
-    private BlobClient blobClient;
-
     private byte[] metadata = new byte[]{};
-
-    private List<ContainerMappings.Mapping> mappings = emptyList();
 
     private List<Pdf> pdfs = emptyList();
 
@@ -111,7 +104,6 @@ class FileContentProcessorTest {
             zis,
             FILE_NAME,
             CONTAINER_NAME,
-            blobClient,
             LEASE_ID
         );
 
@@ -120,9 +112,7 @@ class FileContentProcessorTest {
             CONTAINER_NAME,
             FILE_NAME,
             pdfs,
-            inputEnvelope,
-            blobClient,
-            LEASE_ID
+            inputEnvelope
         );
         verifyNoInteractions(fileRejector);
         verifyNoMoreInteractions(envelopeProcessor);
@@ -145,9 +135,7 @@ class FileContentProcessorTest {
                 CONTAINER_NAME,
                 FILE_NAME,
                 pdfs,
-                inputEnvelope,
-                blobClient,
-                LEASE_ID
+                inputEnvelope
             );
 
         // when
@@ -155,7 +143,6 @@ class FileContentProcessorTest {
             zis,
             FILE_NAME,
             CONTAINER_NAME,
-            blobClient,
             LEASE_ID
         );
 
@@ -189,9 +176,7 @@ class FileContentProcessorTest {
                 CONTAINER_NAME,
                 FILE_NAME,
                 pdfs,
-                inputEnvelope,
-                blobClient,
-                LEASE_ID
+                inputEnvelope
             );
 
         // when
@@ -199,7 +184,6 @@ class FileContentProcessorTest {
             zis,
             FILE_NAME,
             CONTAINER_NAME,
-            blobClient,
             LEASE_ID
         );
 
@@ -232,7 +216,6 @@ class FileContentProcessorTest {
             zis,
             FILE_NAME,
             CONTAINER_NAME,
-            blobClient,
             LEASE_ID
         );
 
@@ -265,7 +248,6 @@ class FileContentProcessorTest {
             zis,
             FILE_NAME,
             CONTAINER_NAME,
-            blobClient,
             LEASE_ID
         );
 
@@ -294,7 +276,6 @@ class FileContentProcessorTest {
             zis,
             FILE_NAME,
             CONTAINER_NAME,
-            blobClient,
             LEASE_ID
         );
 

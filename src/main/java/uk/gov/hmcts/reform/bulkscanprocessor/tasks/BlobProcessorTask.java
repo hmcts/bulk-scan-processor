@@ -161,7 +161,6 @@ public class BlobProcessorTask {
                     zis,
                     zipFilename,
                     container.getBlobContainerName(),
-                    blobClient,
                     leaseId
                 );
 
