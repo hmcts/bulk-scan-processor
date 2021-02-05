@@ -86,9 +86,7 @@ public class EnvelopeHandler {
         envelopeProcessor.assertDidNotFailToUploadBefore(inputEnvelope.zipFileName, containerName);
 
         Optional<OcrValidationWarnings> ocrValidationWarnings = ocrValidator.assertOcrDataIsValid(
-            inputEnvelope,
-            blobClient,
-            leaseId
+            inputEnvelope
         );
 
         Envelope dbEnvelope = toDbEnvelope(inputEnvelope, containerName, ocrValidationWarnings);

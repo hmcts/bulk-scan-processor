@@ -100,7 +100,7 @@ class EnvelopeHandlerTest {
 
     @Test
     void should_handle_and_save_envelope() {
-        given(ocrValidator.assertOcrDataIsValid(inputEnvelope, blobClient, LEASE_ID)).willReturn(warnings);
+        given(ocrValidator.assertOcrDataIsValid(inputEnvelope)).willReturn(warnings);
         given(containerMappings.getMappings()).willReturn(mappings);
 
         // when

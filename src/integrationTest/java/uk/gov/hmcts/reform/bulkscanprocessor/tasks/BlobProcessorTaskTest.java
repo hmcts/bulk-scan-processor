@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.azure.storage.blob.BlobClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,6 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
@@ -141,11 +139,7 @@ public class BlobProcessorTaskTest extends ProcessorTestSuite {
             ImmutableList.of("warning 1", "warning 2")
         );
 
-        given(ocrValidator.assertOcrDataIsValid(
-            any(InputEnvelope.class),
-            any(BlobClient.class),
-            anyString()
-        ))
+        given(ocrValidator.assertOcrDataIsValid(any(InputEnvelope.class)))
             .willReturn(Optional.of(ocrValidationWarnings));
 
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
