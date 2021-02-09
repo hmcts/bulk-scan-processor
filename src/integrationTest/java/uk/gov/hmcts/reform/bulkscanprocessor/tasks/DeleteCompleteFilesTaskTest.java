@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -40,6 +41,9 @@ public class DeleteCompleteFilesTaskTest {
     private EnvelopeRepository envelopeRepository;
 
     @Autowired
+    private EnvelopeJdbcRepository envelopeJdbcRepository;
+
+    @Autowired
     private EnvelopeProcessor envelopeProcessor;
 
     @Mock
@@ -52,6 +56,7 @@ public class DeleteCompleteFilesTaskTest {
         this.task = new DeleteCompleteFilesTask(
             blobManager,
             envelopeRepository,
+            envelopeJdbcRepository,
             leaseAcquirer
         );
     }

@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -48,6 +49,9 @@ class DeleteCompleteFilesTaskTest {
     private EnvelopeRepository envelopeRepository;
 
     @Mock
+    private EnvelopeJdbcRepository envelopeJdbcRepository;
+
+    @Mock
     private LeaseAcquirer leaseAcquirer;
 
     @Mock
@@ -67,6 +71,7 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask = new DeleteCompleteFilesTask(
             blobManager,
             envelopeRepository,
+            envelopeJdbcRepository,
             leaseAcquirer
         );
         given(container1.getBlobContainerName()).willReturn(CONTAINER_NAME_1);
@@ -347,14 +352,11 @@ class DeleteCompleteFilesTaskTest {
     }
 
     private void verifyEnvelopesSaving(Envelope... envelopes) {
-        ArgumentCaptor<Envelope> envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
-        verify(envelopeRepository, times(envelopes.length)).saveAndFlush(envelopeCaptor.capture());
+        ArgumentCaptor<UUID> envelopeCaptor = ArgumentCaptor.forClass(UUID.class);
+        verify(envelopeJdbcRepository, times(envelopes.length)).markEnvelopeAsDeleted(envelopeCaptor.capture());
         for (int i = 0; i < envelopes.length; i++) {
-            assertThat(envelopeCaptor.getAllValues().get(i).getId())
+            assertThat(envelopeCaptor.getAllValues().get(i))
                 .isEqualTo(envelopes[i].getId());
-            assertThat(envelopeCaptor.getAllValues().get(i).getZipFileName())
-                .isEqualTo(envelopes[i].getZipFileName());
-            assertThat(envelopeCaptor.getAllValues().get(i).isZipDeleted()).isTrue();
         }
     }
 

@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -31,15 +32,18 @@ public class DeleteCompleteFilesTask {
 
     private final BlobManager blobManager;
     private final EnvelopeRepository envelopeRepository;
+    private final EnvelopeJdbcRepository envelopeJdbcRepository;
     private final LeaseAcquirer leaseAcquirer;
 
     public DeleteCompleteFilesTask(
         BlobManager blobManager,
         EnvelopeRepository envelopeRepository,
+        EnvelopeJdbcRepository envelopeJdbcRepository,
         LeaseAcquirer leaseAcquirer
     ) {
         this.blobManager = blobManager;
         this.envelopeRepository = envelopeRepository;
+        this.envelopeJdbcRepository = envelopeJdbcRepository;
         this.leaseAcquirer = leaseAcquirer;
     }
 
@@ -113,8 +117,7 @@ public class DeleteCompleteFilesTask {
                 log.info("File has already been deleted. {}", loggingContext);
             }
 
-            envelope.setZipDeleted(true);
-            envelopeRepository.saveAndFlush(envelope);
+            envelopeJdbcRepository.markEnvelopeAsDeleted(envelope.getId());
             log.info("Marked envelope as deleted. {}", loggingContext);
 
             return true;
