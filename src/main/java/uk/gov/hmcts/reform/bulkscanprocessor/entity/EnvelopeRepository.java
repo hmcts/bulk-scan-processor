@@ -97,10 +97,10 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     @Query("select e from Envelope e \n"
             + "WHERE e.container = :container "
-            + "AND (status = 'COMPLETED' OR status = 'NOTIFICATION_SENT') "
+            + "AND status = 'COMPLETED' "
             + "AND zipdeleted=false"
     )
-    List<Envelope> getCompleteAndNotifiedEnvelopesFromContainer(
+    List<Envelope> getCompleteEnvelopesFromContainer(
         @Param("container") String container
     );
 }
