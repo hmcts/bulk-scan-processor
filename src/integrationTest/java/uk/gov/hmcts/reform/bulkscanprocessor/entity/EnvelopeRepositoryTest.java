@@ -254,7 +254,7 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        List<Envelope> result = repo.getCompleteAndNotifiedEnvelopesFromContainer("c1");
+        List<Envelope> result = repo.getCompleteEnvelopesFromContainer("c1");
 
         // then
         assertThat(result)
