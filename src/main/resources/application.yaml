@@ -218,7 +218,7 @@ flyway:
 process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
 
-use-wrapping-zip: true
+use-wrapping-zip: USE_WRAPPING_ZIP
 
 ocr-validation-max-retries: 2
 ocr-validation-delay-retry-sec: 300

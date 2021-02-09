@@ -73,7 +73,7 @@ class DeleteFilesServiceTest {
 
         final Envelope envelope11 = EnvelopeCreator.envelope("X", COMPLETED, CONTAINER_NAME_1);
 
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(singletonList(envelope11));
         prepareGivensForEnvelope(container1, blobClient, envelope11);
 
@@ -83,7 +83,7 @@ class DeleteFilesServiceTest {
         deleteFilesService.processCompleteFiles(container1);
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
 
@@ -93,14 +93,14 @@ class DeleteFilesServiceTest {
     @Test
     void should_handle_zero_complete_files() {
         // given
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(emptyList());
 
         // when
         deleteFilesService.processCompleteFiles(container1);
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -117,7 +117,7 @@ class DeleteFilesServiceTest {
         deleteFilesService.processCompleteFiles(container1);
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
         verify(blobClient).exists();
@@ -134,7 +134,7 @@ class DeleteFilesServiceTest {
         given(envelope.getZipFileName()).willReturn(zipFileName);
 
         given(envelopeRepository
-            .getCompleteAndNotifiedEnvelopesFromContainer(container1.getBlobContainerName()))
+            .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
             .willReturn(singletonList(envelope));
 
         given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
@@ -155,7 +155,7 @@ class DeleteFilesServiceTest {
         deleteFilesService.processCompleteFiles(container1);
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
         verify(envelope, never()).setZipDeleted(anyBoolean());
         verifyNoMoreInteractions(envelope);
@@ -173,7 +173,7 @@ class DeleteFilesServiceTest {
         Envelope envelope = mock(Envelope.class);
         given(envelope.getZipFileName()).willReturn(zipFileName);
 
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(singletonList(envelope));
         given(container1.getBlobClient(zipFileName))
             .willThrow(new StoreException("msg", new RuntimeException()));
@@ -182,7 +182,7 @@ class DeleteFilesServiceTest {
         deleteFilesService.processCompleteFiles(container1);
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
         verify(envelope, never()).setZipDeleted(anyBoolean());
         verifyNoMoreInteractions(envelope);
@@ -198,7 +198,7 @@ class DeleteFilesServiceTest {
         given(envelope.getZipFileName()).willReturn(zipFileName);
 
         given(envelopeRepository
-            .getCompleteAndNotifiedEnvelopesFromContainer(container1.getBlobContainerName()))
+            .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
             .willReturn(singletonList(envelope));
 
         given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
@@ -212,7 +212,7 @@ class DeleteFilesServiceTest {
         deleteFilesService.processCompleteFiles(container1);
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
         verify(envelope, never()).setZipDeleted(anyBoolean());
         verifyNoMoreInteractions(envelope);
@@ -230,7 +230,7 @@ class DeleteFilesServiceTest {
     ) {
         final Envelope envelope = EnvelopeCreator.envelope(jurisdiction, COMPLETED, container.getBlobContainerName());
         given(envelopeRepository
-            .getCompleteAndNotifiedEnvelopesFromContainer(container.getBlobContainerName()))
+            .getCompleteEnvelopesFromContainer(container.getBlobContainerName()))
             .willReturn(singletonList(envelope));
         given(container.getBlobClient(envelope.getZipFileName())).willReturn(blobClient);
 
