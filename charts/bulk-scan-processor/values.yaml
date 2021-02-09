@@ -47,6 +47,7 @@ java:
     QUEUE_NOTIFICATIONS_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
     NOTIFICATION_STALE_TIMEOUT_HR: 48
     envelope-delete-status: COMPLETED
+    USE_WRAPPING_ZIP: true
   keyVaults:
     "bulk-scan":
       secrets:
