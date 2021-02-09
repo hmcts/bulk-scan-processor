@@ -80,7 +80,7 @@ class DeleteCompleteFilesTaskTest {
         final Envelope envelope11 = EnvelopeCreator.envelope("X", COMPLETED, CONTAINER_NAME_1);
 
         given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(singletonList(envelope11));
         prepareGivensForEnvelope(container1, blobClient, envelope11);
 
@@ -89,7 +89,7 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
 
@@ -102,14 +102,14 @@ class DeleteCompleteFilesTaskTest {
     void should_handle_zero_complete_files() {
         // given
         given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(emptyList());
 
         // when
         deleteCompleteFilesTask.run();
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
     }
 
@@ -127,7 +127,7 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyEnvelopesSaving(envelope11);
         verifyNoMoreInteractions(envelopeRepository);
         verify(blobClient).exists();
@@ -144,7 +144,7 @@ class DeleteCompleteFilesTaskTest {
         given(envelope.getZipFileName()).willReturn(zipFileName);
 
         given(envelopeRepository
-            .getCompleteAndNotifiedEnvelopesFromContainer(container1.getBlobContainerName()))
+            .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
             .willReturn(singletonList(envelope));
 
         given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
@@ -166,7 +166,7 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
         verify(envelope, never()).setZipDeleted(anyBoolean());
         verifyNoMoreInteractions(envelope);
@@ -186,7 +186,7 @@ class DeleteCompleteFilesTaskTest {
         given(envelope.getZipFileName()).willReturn(zipFileName);
 
         given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(singletonList(envelope));
         given(container1.getBlobClient(zipFileName))
             .willThrow(new StoreException("msg", new RuntimeException()));
@@ -195,7 +195,7 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
         verify(envelope, never()).setZipDeleted(anyBoolean());
         verifyNoMoreInteractions(envelope);
@@ -210,7 +210,7 @@ class DeleteCompleteFilesTaskTest {
         given(container2.getBlobContainerName()).willReturn(CONTAINER_NAME_2);
 
         given(blobManager.listInputContainerClients()).willReturn(asList(container1, container2));
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willThrow(new RuntimeException("msg"));
 
         final Envelope envelope21 = prepareEnvelope("Y", blobClient21, container2);
@@ -226,8 +226,8 @@ class DeleteCompleteFilesTaskTest {
         // then
         verifyNoMoreInteractions(blobManager);
 
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_2);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_2);
         verifyEnvelopesSaving(envelope21);
         verifyNoMoreInteractions(envelopeRepository);
     }
@@ -248,9 +248,9 @@ class DeleteCompleteFilesTaskTest {
 
         given(blobManager.listInputContainerClients()).willReturn(asList(container1, container2));
         given(container2.getBlobContainerName()).willReturn(CONTAINER_NAME_2);
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(asList(envelope11, envelope12));
-        given(envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_2))
+        given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_2))
             .willReturn(asList(envelope21, envelope22));
         prepareGivensForEnvelope(container1, blobClient11, envelope11);
         prepareGivensForEnvelope(container1, blobClient12, envelope12);
@@ -263,8 +263,8 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_2);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_2);
         verifyEnvelopesSaving(envelope11, envelope12, envelope21, envelope22);
         verifyNoMoreInteractions(envelopeRepository);
 
@@ -286,7 +286,7 @@ class DeleteCompleteFilesTaskTest {
         given(envelope.getZipFileName()).willReturn(zipFileName);
 
         given(envelopeRepository
-            .getCompleteAndNotifiedEnvelopesFromContainer(container1.getBlobContainerName()))
+            .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
             .willReturn(singletonList(envelope));
 
         given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
@@ -301,7 +301,7 @@ class DeleteCompleteFilesTaskTest {
         deleteCompleteFilesTask.run();
 
         // then
-        verify(envelopeRepository).getCompleteAndNotifiedEnvelopesFromContainer(CONTAINER_NAME_1);
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
         verifyNoMoreInteractions(envelopeRepository);
         verify(envelope, never()).setZipDeleted(anyBoolean());
         verifyNoMoreInteractions(envelope);
@@ -320,7 +320,7 @@ class DeleteCompleteFilesTaskTest {
     ) {
         final Envelope envelope = EnvelopeCreator.envelope(jurisdiction, COMPLETED, container.getBlobContainerName());
         given(envelopeRepository
-            .getCompleteAndNotifiedEnvelopesFromContainer(container.getBlobContainerName()))
+            .getCompleteEnvelopesFromContainer(container.getBlobContainerName()))
             .willReturn(singletonList(envelope));
         given(container.getBlobClient(envelope.getZipFileName())).willReturn(blobClient);
 

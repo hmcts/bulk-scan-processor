@@ -254,12 +254,12 @@ public class EnvelopeRepositoryTest {
         );
 
         // when
-        List<Envelope> result = repo.getCompleteAndNotifiedEnvelopesFromContainer("c1");
+        List<Envelope> result = repo.getCompleteEnvelopesFromContainer("c1");
 
         // then
         assertThat(result)
             .extracting(Envelope::getZipFileName)
-            .containsExactlyInAnyOrder("B.zip", "D.zip", "H.zip");
+            .containsExactlyInAnyOrder("B.zip", "H.zip");
     }
 
     private Envelope envelopeWithFailureCount(int failCount) {

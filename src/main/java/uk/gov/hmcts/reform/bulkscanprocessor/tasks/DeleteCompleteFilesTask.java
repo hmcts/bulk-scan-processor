@@ -68,7 +68,7 @@ public class DeleteCompleteFilesTask {
         log.info("Started deleting complete files in container {}", container.getBlobContainerName());
 
         List<Envelope> envelopes =
-            envelopeRepository.getCompleteAndNotifiedEnvelopesFromContainer(
+            envelopeRepository.getCompleteEnvelopesFromContainer(
                 container.getBlobContainerName()
             );
         int successCount = 0;
