@@ -259,7 +259,7 @@ public class EnvelopeRepositoryTest {
         // then
         assertThat(result)
             .extracting(Envelope::getZipFileName)
-            .containsExactlyInAnyOrder("B.zip", "D.zip", "H.zip");
+            .containsExactlyInAnyOrder("B.zip", "H.zip");
     }
 
     private Envelope envelopeWithFailureCount(int failCount) {
