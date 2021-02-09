@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -22,17 +21,18 @@ public class DeleteFilesService {
     private static final Logger log = LoggerFactory.getLogger(DeleteFilesService.class);
 
     private final EnvelopeRepository envelopeRepository;
-    private final EnvelopeJdbcRepository envelopeJdbcRepository;
+
+    private final EnvelopeMarkAsDeletedService envelopeMarkAsDeletedService;
 
     private final LeaseAcquirer leaseAcquirer;
 
     public DeleteFilesService(
         EnvelopeRepository envelopeRepository,
-        EnvelopeJdbcRepository envelopeJdbcRepository,
+        EnvelopeMarkAsDeletedService envelopeMarkAsDeletedService,
         LeaseAcquirer leaseAcquirer
     ) {
         this.envelopeRepository = envelopeRepository;
-        this.envelopeJdbcRepository = envelopeJdbcRepository;
+        this.envelopeMarkAsDeletedService = envelopeMarkAsDeletedService;
         this.leaseAcquirer = leaseAcquirer;
     }
 
@@ -85,7 +85,8 @@ public class DeleteFilesService {
                 log.info("File has already been deleted. {}", loggingContext);
             }
 
-            envelopeJdbcRepository.markEnvelopeAsDeleted(envelope.getId());
+
+            envelopeMarkAsDeletedService.markEnvelopeAsDeleted(envelope.getId(), loggingContext);
             log.info("Marked envelope as deleted. {}", loggingContext);
 
             return true;

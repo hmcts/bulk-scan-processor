@@ -12,7 +12,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -26,6 +25,7 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -44,7 +44,7 @@ class DeleteFilesServiceTest {
     private EnvelopeRepository envelopeRepository;
 
     @Mock
-    private EnvelopeJdbcRepository envelopeJdbcRepository;
+    private EnvelopeMarkAsDeletedService envelopeMarkAsDeletedService;
 
     @Mock
     private LeaseAcquirer leaseAcquirer;
@@ -55,17 +55,12 @@ class DeleteFilesServiceTest {
     private DeleteFilesService deleteFilesService;
 
     private static final String CONTAINER_NAME_1 = "container1";
-    private static final String CONTAINER_NAME_2 = "container2";
-    private static final String LEASE_ID_11 = "LEASEID11";
-    private static final String LEASE_ID_12 = "LEASEID12";
-    private static final String LEASE_ID_21 = "LEASEID21";
-    private static final String LEASE_ID_22 = "LEASEID22";
 
     @BeforeEach
     void setUp() {
         deleteFilesService = new DeleteFilesService(
             envelopeRepository,
-            envelopeJdbcRepository,
+            envelopeMarkAsDeletedService,
             leaseAcquirer
         );
         given(container1.getBlobContainerName()).willReturn(CONTAINER_NAME_1);
@@ -263,7 +258,8 @@ class DeleteFilesServiceTest {
 
     private void verifyEnvelopesSaving(Envelope... envelopes) {
         ArgumentCaptor<UUID> envelopeIdCaptor = ArgumentCaptor.forClass(UUID.class);
-        verify(envelopeJdbcRepository, times(envelopes.length)).markEnvelopeAsDeleted(envelopeIdCaptor.capture());
+        verify(envelopeMarkAsDeletedService, times(envelopes.length))
+            .markEnvelopeAsDeleted(envelopeIdCaptor.capture(), anyString());
         for (int i = 0; i < envelopes.length; i++) {
             assertThat(envelopeIdCaptor.getAllValues().get(i))
                 .isEqualTo(envelopes[i].getId());
