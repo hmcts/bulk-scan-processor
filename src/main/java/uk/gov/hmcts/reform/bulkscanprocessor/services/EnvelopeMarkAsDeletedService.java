@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 
 import java.util.UUID;
+import javax.transaction.Transactional;
 
 @Service
 public class EnvelopeMarkAsDeletedService {
@@ -17,6 +18,7 @@ public class EnvelopeMarkAsDeletedService {
         this.envelopeJdbcRepository = envelopeJdbcRepository;
     }
 
+    @Transactional
     public void markEnvelopeAsDeleted(UUID envelopeId, String loggingContext) {
         envelopeJdbcRepository.markEnvelopeAsDeleted(envelopeId);
         log.info("Marked envelope as deleted. {}", loggingContext);
