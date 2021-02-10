@@ -68,13 +68,13 @@ public class BlobProcessorTask {
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() {
-        log.info("Started blob process job");
+        log.info("Started blob processing job");
 
         for (BlobContainerClient container : blobManager.listInputContainerClients()) {
             processZipFiles(container);
         }
 
-        log.info("Finished blob process job");
+        log.info("Finished blob processing job");
     }
 
     private void processZipFiles(BlobContainerClient container) {
