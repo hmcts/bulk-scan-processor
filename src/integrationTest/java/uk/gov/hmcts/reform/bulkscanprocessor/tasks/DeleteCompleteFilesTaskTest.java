@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.DeleteFilesService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeMarkAsDeletedService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
@@ -45,6 +46,9 @@ public class DeleteCompleteFilesTaskTest {
     private EnvelopeJdbcRepository envelopeJdbcRepository;
 
     @Autowired
+    private EnvelopeMarkAsDeletedService envelopeMarkAsDeletedService;
+
+    @Autowired
     private EnvelopeProcessor envelopeProcessor;
 
     private DeleteFilesService deleteFilesService;
@@ -58,7 +62,7 @@ public class DeleteCompleteFilesTaskTest {
     public void setUp() {
         deleteFilesService = new DeleteFilesService(
             envelopeRepository,
-            envelopeJdbcRepository,
+            envelopeMarkAsDeletedService,
             leaseAcquirer
         );
         task = new DeleteCompleteFilesTask(
