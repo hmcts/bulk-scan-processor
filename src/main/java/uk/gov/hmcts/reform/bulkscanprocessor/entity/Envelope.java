@@ -70,6 +70,8 @@ public class Envelope {
 
     private String rescanFor;
 
+    private Instant lastModified;
+
     //We will need to retrieve all scannable item entities of Envelope every time hence fetch type is Eager
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "envelope")
     @Fetch(FetchMode.SUBSELECT)
@@ -224,6 +226,10 @@ public class Envelope {
 
     public void setRescanFor(String rescanFor) {
         this.rescanFor = rescanFor;
+    }
+
+    public Instant getLastModified() {
+        return lastModified;
     }
 
     public boolean isTestOnly() {
