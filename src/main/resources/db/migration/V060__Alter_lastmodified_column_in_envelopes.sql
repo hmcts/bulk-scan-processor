@@ -1,0 +1,2 @@
+ALTER TABLE envelopes
+  ALTER COLUMN lastmodified TYPE TIMESTAMP;
