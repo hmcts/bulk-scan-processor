@@ -1,5 +1,5 @@
 ALTER TABLE envelopes
-  ADD COLUMN lastmodified TIMESTAMPTZ NULL;
+  ADD COLUMN lastmodified TIMESTAMP NULL;
 
 CREATE OR REPLACE FUNCTION trigger_set_timestamp()
 RETURNS TRIGGER AS $$
