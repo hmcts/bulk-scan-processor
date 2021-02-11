@@ -9,6 +9,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_timestamp ON envelopes;
+
 CREATE TRIGGER set_timestamp
 BEFORE UPDATE ON envelopes
 FOR EACH ROW
