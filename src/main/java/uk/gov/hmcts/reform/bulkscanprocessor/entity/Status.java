@@ -10,6 +10,7 @@ public enum Status {
     CREATED,
     METADATA_FAILURE,   // when we are aware of envelope, but there are inconsistency among files and metadata info
     SIGNATURE_FAILURE,  // the zip archive failed signature verification
+    ZIP_PROCESSING_FAILURE,  // the zip archive failed signature verification
     UPLOADED,
     UPLOAD_FAILURE,
     NOTIFICATION_SENT,  // after notifying about a new envelope
