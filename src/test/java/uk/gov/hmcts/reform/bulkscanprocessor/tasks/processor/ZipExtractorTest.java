@@ -24,7 +24,7 @@ public class ZipExtractorTest {
 
     @BeforeEach
     void setUp() {
-        extractor = new ZipExtractor(); // use wrapping zip
+        extractor = new ZipExtractor();
     }
 
     @Test
