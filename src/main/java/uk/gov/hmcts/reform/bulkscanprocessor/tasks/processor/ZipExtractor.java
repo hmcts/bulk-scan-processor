@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidZipEntriesException;
@@ -19,28 +18,18 @@ public class ZipExtractor {
 
     public static final String DOCUMENTS_ZIP = "envelope.zip";
 
-    private final boolean useWrappingZip;
-
-    public ZipExtractor(@Value("${use-wrapping-zip}") boolean useWrappingZip) {
-        this.useWrappingZip = useWrappingZip;
-    }
-
     /**
      * Extracts the inner zip.
      */
     public ZipInputStream extract(ZipInputStream zipInputStream) {
-        if (!useWrappingZip) {
-            return zipInputStream;
-        } else {
-            Map<String, byte[]> zipEntries = extractZipEntries(zipInputStream);
+        Map<String, byte[]> zipEntries = extractZipEntries(zipInputStream);
 
-            if (zipEntries.containsKey(DOCUMENTS_ZIP)) {
-                return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
-            } else {
-                throw new InvalidZipEntriesException(
-                    "Zip does not contain envelope. Actual zip entries = " + zipEntries.keySet()
-                );
-            }
+        if (zipEntries.containsKey(DOCUMENTS_ZIP)) {
+            return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
+        } else {
+            throw new InvalidZipEntriesException(
+                "Zip does not contain envelope. Actual zip entries = " + zipEntries.keySet()
+            );
         }
     }
 

@@ -24,7 +24,7 @@ public class ZipExtractorTest {
 
     @BeforeEach
     void setUp() {
-        extractor = new ZipExtractor(true); // use wrapping zip
+        extractor = new ZipExtractor(); // use wrapping zip
     }
 
     @Test
@@ -48,18 +48,6 @@ public class ZipExtractorTest {
         assertThatThrownBy(() -> extractor.extract(toZipStream(outerZip)))
             .isInstanceOf(InvalidZipEntriesException.class)
             .hasMessageContaining("Zip does not contain envelope");
-    }
-
-    @Test
-    void should_return_original_zip_if_wrapping_is_disabled() throws Exception {
-        // given
-        ZipInputStream input = toZipStream(zipDirAndWrap("envelopes/sample_valid_content"));
-
-        // when
-        ZipInputStream result = new ZipExtractor(false).extract(input);
-
-        // then
-        assertThat(result).hasSameContentAs(input);
     }
 
     private ZipInputStream toZipStream(byte[] bytes) {
