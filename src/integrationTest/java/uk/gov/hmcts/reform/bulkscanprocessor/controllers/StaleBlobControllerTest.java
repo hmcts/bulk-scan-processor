@@ -40,7 +40,7 @@ public class StaleBlobControllerTest {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(staleBlobFinder.findStaleBlobs(1))
+        given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
                 new BlobInfo("container1", "file_name_1", createdAt),
                 new BlobInfo("container2", "file_name_2", createdAt))
@@ -48,7 +48,7 @@ public class StaleBlobControllerTest {
         mockMvc
             .perform(
                 get("/stale-blobs")
-                    .queryParam("stale_time", "1")
+                    .queryParam("stale_time", "60")
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(2))
@@ -60,7 +60,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data.[1].file_name").value("file_name_2"))
             .andExpect(jsonPath("$.data.[1].created_at").value(createdAt));
 
-        verify(staleBlobFinder).findStaleBlobs(1);
+        verify(staleBlobFinder).findStaleBlobs(60);
 
     }
 
@@ -69,7 +69,7 @@ public class StaleBlobControllerTest {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(staleBlobFinder.findStaleBlobs(2))
+        given(staleBlobFinder.findStaleBlobs(120))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
@@ -80,21 +80,21 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
             .andExpect(jsonPath("$.data.[0].created_at").value(createdAt));
 
-        verify(staleBlobFinder).findStaleBlobs(2);
+        verify(staleBlobFinder).findStaleBlobs(120);
 
     }
 
     @Test
     void should_return_empty_data_when_there_is_no_stale_blob() throws Exception {
 
-        given(staleBlobFinder.findStaleBlobs(2)).willReturn(Collections.emptyList());
+        given(staleBlobFinder.findStaleBlobs(120)).willReturn(Collections.emptyList());
         mockMvc
             .perform(get("/stale-blobs"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(0))
             .andExpect(jsonPath("$.data").isEmpty());
 
-        verify(staleBlobFinder).findStaleBlobs(2);
+        verify(staleBlobFinder).findStaleBlobs(120);
 
     }
 

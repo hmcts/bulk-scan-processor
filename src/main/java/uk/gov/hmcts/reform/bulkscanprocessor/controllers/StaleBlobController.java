@@ -14,7 +14,7 @@ public class StaleBlobController {
 
     private final StaleBlobFinder staleBlobFinder;
 
-    private static final String DEFAULT_STALE_TIME_HOURS = "2";
+    private static final String DEFAULT_STALE_TIME_MINUTES = "120";
 
     public StaleBlobController(StaleBlobFinder staleBlobFinder) {
         this.staleBlobFinder = staleBlobFinder;
@@ -22,7 +22,7 @@ public class StaleBlobController {
 
     @GetMapping
     public SearchResult findStaleBlobs(
-        @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
+        @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_MINUTES)
             int staleTime
     ) {
         return new SearchResult(staleBlobFinder.findStaleBlobs(staleTime));

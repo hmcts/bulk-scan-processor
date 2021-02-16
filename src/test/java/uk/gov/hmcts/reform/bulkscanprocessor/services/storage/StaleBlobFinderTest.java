@@ -54,7 +54,7 @@ class StaleBlobFinderTest {
         given(storageClient.getBlobContainerClient("cmc")).willReturn(cmcBlobClient);
         given(storageClient.getBlobContainerClient("sscs")).willReturn(sscsBlobClient);
 
-        OffsetDateTime creationTime = now().minus(3, ChronoUnit.HOURS);
+        OffsetDateTime creationTime = now().minus(3, ChronoUnit.MINUTES);
 
         mockStorageList(
             bulkscanBlobClient,
