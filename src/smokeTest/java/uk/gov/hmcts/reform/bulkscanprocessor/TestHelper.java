@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipExtractor;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.ByteArrayInputStream;
@@ -77,7 +76,7 @@ public class TestHelper {
         final String destZipFilename) {
         try {
             byte[] zipFile =
-                createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
+                createZipArchiveWithRandomName(files, metadataFile, destZipFilename);
             BlobClient blockBlobReference = container.getBlobClient(destZipFilename);
             blockBlobReference.upload(new ByteArrayInputStream(zipFile), zipFile.length);
         } catch (Exception exc) {
@@ -91,7 +90,7 @@ public class TestHelper {
         String metadataFile,
         String destZipFilename
     ) throws Exception {
-        byte[] zipFile = createWrappedZipArchiveWithRandomName(files, metadataFile, destZipFilename);
+        byte[] zipFile = createZipArchiveWithRandomName(files, metadataFile, destZipFilename);
         BlobClient blobClient = container.getBlobClient(destZipFilename);
         blobClient.upload(new ByteArrayInputStream(zipFile), zipFile.length);
         return new BlobLeaseClientBuilder().blobClient(blobClient).buildClient().acquireLease(20);
@@ -166,19 +165,6 @@ public class TestHelper {
 
     private String generateDcnNumber() {
         return Long.toString(System.currentTimeMillis()) + Math.abs(RANDOM.nextInt());
-    }
-
-    public byte[] createWrappedZipArchiveWithRandomName(
-        List<String> files, String metadataFile, String zipFilename
-    ) throws Exception {
-        byte[] zipArchive = createZipArchiveWithRandomName(files, metadataFile, zipFilename);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
-            zos.putNextEntry(new ZipEntry(ZipExtractor.DOCUMENTS_ZIP));
-            zos.write(zipArchive);
-            zos.closeEntry();
-        }
-        return outputStream.toByteArray();
     }
 
     public EnvelopeListResponse getEnvelopes(String baseUrl, String s2sToken, Status status) {
