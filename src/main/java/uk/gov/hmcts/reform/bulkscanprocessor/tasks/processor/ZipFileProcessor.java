@@ -20,17 +20,11 @@ public class ZipFileProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
 
-    private final ZipExtractor zipExtractor;
-
-    public ZipFileProcessor(ZipExtractor zipExtractor) {
-        this.zipExtractor = zipExtractor;
-    }
-
     public ZipFileProcessingResult process(
-        ZipInputStream zis,
+        ZipInputStream extractedZis,
         String zipFileName
     ) throws IOException {
-        ZipInputStream extractedZis = zipExtractor.extract(zis);
+
         ZipEntry zipEntry;
 
         List<Pdf> pdfs = new ArrayList<>();
