@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.helper;
 
 import com.google.common.io.Files;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipExtractor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,7 +11,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.google.common.io.Resources.getResource;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public final class DirectoryZipper {
@@ -32,20 +30,6 @@ public final class DirectoryZipper {
                 .sorted()
                 .map(f -> new ZipItem(f.getName(), getFileBytes(f)))
                 .collect(toList())
-        );
-    }
-
-    /**
-     * Zips files from given directory and then zips it in wrapping zip.
-     */
-    public static byte[] zipDirAndWrap(String dirName) throws Exception {
-
-        byte[] innerZip = zipDir(dirName);
-
-        return zipItems(
-            asList(
-                new ZipItem(ZipExtractor.DOCUMENTS_ZIP, innerZip)
-            )
         );
     }
 
