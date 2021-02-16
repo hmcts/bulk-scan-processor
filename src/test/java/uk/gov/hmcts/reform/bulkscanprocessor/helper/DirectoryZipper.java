@@ -17,6 +17,8 @@ import static java.util.stream.Collectors.toList;
 
 public final class DirectoryZipper {
 
+    public static final String DOCUMENTS_ZIP = "envelope.zip";
+
     /**
      * Zips files from given directory. Files in resulting archive are NOT wrapped in a directory.
      */
