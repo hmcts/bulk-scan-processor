@@ -1,10 +1,13 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.azure.core.util.Context;
+import com.azure.core.util.polling.PollResponse;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
+import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
@@ -18,11 +21,14 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
 import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toList;
 
@@ -33,6 +39,7 @@ public class BlobManager {
     private static final Logger log = LoggerFactory.getLogger(BlobManager.class);
     private static final String REJECTED_CONTAINER_NAME_SUFFIX = "-rejected";
     private static final String SELECT_ALL_CONTAINER = "ALL";
+    public static final Map<String, String> META_DATA_MAP = Map.of("waitingCopy", "true");
 
     private final BlobServiceClient blobServiceClient;
 
@@ -120,15 +127,7 @@ public class BlobManager {
             rejectedBlob.createSnapshot();
         }
 
-        String sasToken = inputBlob
-            .generateSas(
-                new BlobServiceSasSignatureValues(
-                    OffsetDateTime
-                        .of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
-                    new BlobContainerSasPermission().setReadPermission(true)
-                )
-            );
-        rejectedBlob.copyFromUrl(inputBlob.getBlobUrl() + "?" + sasToken);
+        copyToRejectedContainer(inputBlob, rejectedBlob);
 
         log.info("Rejected file copied to rejected container: {} ", rejectedContainerName);
 
@@ -167,6 +166,60 @@ public class BlobManager {
 
     private String getRejectedContainerName(String inputContainerName) {
         return inputContainerName + REJECTED_CONTAINER_NAME_SUFFIX;
+    }
+
+    private void copyToRejectedContainer(BlobClient sourceBlob, BlobClient targetBlob) {
+        String sasToken = sourceBlob
+            .generateSas(
+                new BlobServiceSasSignatureValues(
+                    OffsetDateTime
+                        .of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                    new BlobContainerSasPermission().setReadPermission(true)
+                )
+            );
+
+        var start = System.nanoTime();
+        SyncPoller<BlobCopyInfo, Void> poller = null;
+        try {
+            poller = targetBlob
+                .beginCopy(
+                    sourceBlob.getBlobUrl() + "?" + sasToken,
+                    META_DATA_MAP,
+                    null,
+                    null,
+                    null,
+                    null,
+                    Duration.ofSeconds(2)
+                );
+
+            PollResponse<BlobCopyInfo> pollResponse = poller
+                .waitForCompletion(Duration.ofMinutes(5));
+            targetBlob.setMetadata(null);
+            log.info("Moved to rejected container from {}. Poll response: {}, Copy status: {} ,Takes {} second",
+                sourceBlob.getBlobUrl(),
+                pollResponse.getStatus(),
+                pollResponse.getValue().getCopyStatus(),
+                TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
+            );
+
+        } catch (Exception ex) {
+            log.error("Copy Error, for {} to rejected container",
+                sourceBlob.getBlobUrl(),
+                ex
+            );
+
+            if (poller != null) {
+                try {
+                    targetBlob.abortCopyFromUrl(poller.poll().getValue().getCopyId());
+                } catch (Exception exc) {
+                    log.error("Abort Copy From Url got Error, From {} to rejected container",
+                        sourceBlob.getBlobUrl(),
+                        exc
+                    );
+                }
+            }
+            throw ex;
+        }
     }
 
 }
