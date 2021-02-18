@@ -227,9 +227,9 @@ dependencyManagement {
       entry 'guava'
     }
     // align with jupiter
-    dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
-      entry 'mockito-core'
-    }
+    //    dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
+    //      entry 'mockito-core'
+    //    }
     // force junit5 deps to use groovy v3 which fixes reflective call errors for java 11
     // rest assured 4.2 -> 4.3 jumps to groovy v3. junit v5.6 still on v2.5
     dependencySet(group: 'org.codehaus.groovy', version: '3.0.7') {
@@ -329,7 +329,6 @@ dependencies {
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
   testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '1.1.0'
-  testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
   testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
