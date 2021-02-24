@@ -56,7 +56,10 @@ public class DocumentManagementServiceTest {
 
         documentManagementService = new DocumentManagementService(
             authTokenGenerator,
-            new DocumentUploadClientApi("http://localhost:8080", restTemplate, new ObjectMapper())
+            new DocumentUploadClientApi("http://localhost:8080", restTemplate, new ObjectMapper()),
+            "http://localhost:8080",
+            restTemplate,
+            new ObjectMapper()
         );
     }
 
