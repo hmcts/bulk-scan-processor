@@ -125,11 +125,10 @@ public class DocumentManagementService {
             MultiValueMap<String, Object> parameters = prepareRequest(roles, classification);
 
             for (var file : files) {
-                inputStreamList.add(getAsStream(file));
+                var in = getAsStream(file);
+                inputStreamList.add(in);
+                parameters.add(FILES, buildPartFromFile(in, file));
             }
-
-            inputStreamList.stream().collect(toList())
-                .forEach(in -> parameters.add(FILES, buildPartFromFile(in, files.get(0))));
 
             HttpHeaders httpHeaders = setHttpHeaders(authorisation, serviceAuth, userId);
 
