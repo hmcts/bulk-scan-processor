@@ -206,8 +206,7 @@ scheduling:
 
 logging:
   level:
-    org:
-      springframework: DEBUG
+    root: DEBUG
 
 envelope-access:
   mappings:
