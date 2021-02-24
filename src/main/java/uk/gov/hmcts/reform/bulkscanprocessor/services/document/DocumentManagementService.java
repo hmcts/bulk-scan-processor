@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -66,7 +65,7 @@ public class DocumentManagementService {
         this.documentUploadClientApi = documentUploadClientApi;
         this.dmUri = dmUri;
         this.restTemplate = restTemplate;
-        this.objectMapper= objectMapper;
+        this.objectMapper = objectMapper;
     }
 
     public Map<String, String> uploadDocuments(List<Pdf> pdfs) {
