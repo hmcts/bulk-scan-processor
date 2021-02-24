@@ -187,7 +187,8 @@ public class DocumentManagementService {
     private static HttpHeaders buildPartHeaders(MultipartFile file) {
         requireNonNull(file.getContentType());
         final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(file.getContentType()));
+        log.info("MediaType  test --> {}", MediaType.valueOf(file.getContentType()));
+        headers.setContentType(MediaType.APPLICATION_PDF);
         return headers;
     }
 }
