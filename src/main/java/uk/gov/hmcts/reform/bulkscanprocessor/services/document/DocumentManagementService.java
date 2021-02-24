@@ -4,12 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -191,27 +187,4 @@ public class DocumentManagementService {
             };
     }
 
-    private static HttpEntity<Resource> buildPartFromFile(MultipartFile file) {
-        return new HttpEntity<>(buildByteArrayResource(file), buildPartHeaders(file));
-    }
-
-    private static ByteArrayResource buildByteArrayResource(MultipartFile file) {
-        try {
-            return new ByteArrayResource(file.getBytes()) {
-                @Override
-                public String getFilename() {
-                    return file.getOriginalFilename();
-                }
-            };
-        } catch (IOException ioException) {
-            throw new IllegalStateException(ioException);
-        }
-    }
-
-    private static HttpHeaders buildPartHeaders(MultipartFile file) {
-        requireNonNull(file.getContentType());
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(file.getContentType()));
-        return headers;
-    }
 }
