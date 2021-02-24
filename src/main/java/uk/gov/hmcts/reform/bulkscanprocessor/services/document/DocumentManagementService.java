@@ -175,7 +175,7 @@ public class DocumentManagementService {
 
                 @Override
                 public String getFilename() {
-                    return file.getName();
+                    return file.getOriginalFilename();
                 }
             };
     }
