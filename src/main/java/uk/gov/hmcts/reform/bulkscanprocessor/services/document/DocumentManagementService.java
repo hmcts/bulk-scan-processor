@@ -139,15 +139,6 @@ public class DocumentManagementService {
             return objectMapper.readValue(t, UploadResponse.class);
         } catch (IOException e) {
             throw new IllegalStateException(e);
-        } finally {
-            inputStreamList.forEach(e -> {
-                    try {
-                        e.getInputStream().close();
-                    } catch (IOException ioException) {
-                        log.error("input Stream close error");
-                    }
-                }
-            );
         }
     }
 
