@@ -170,7 +170,7 @@ public class DocumentManagementService {
             new InputStreamResource(file.getInputStream()) {
                 @Override
                 public long contentLength() {
-                    return file.getSize();
+                    return -1;
                 }
 
                 @Override
