@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +26,7 @@ import uk.gov.hmcts.reform.document.utils.InMemoryMultipartFile;
 
 import java.io.IOException;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -111,17 +113,24 @@ public class DocumentManagementService {
             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-
     public UploadResponse uploadDocs(
         String authorisation,
         String serviceAuth,
         String userId,
         List<MultipartFile> files
     ) {
-        List<String> roles =   Collections.emptyList();
-        Classification classification =  Classification.RESTRICTED;
+        List<String> roles = Collections.emptyList();
+        Classification classification = Classification.RESTRICTED;
+        List<InputStreamResource> inputStreamList = new ArrayList<InputStreamResource>();
         try {
-            MultiValueMap<String, Object> parameters = prepareRequest(files, roles, classification);
+            MultiValueMap<String, Object> parameters = prepareRequest(roles, classification);
+
+            for (var file : files) {
+                inputStreamList.add(getAsStream(file));
+            }
+
+            inputStreamList.stream()
+                .forEach(in -> parameters.add(FILES, in));
 
             HttpHeaders httpHeaders = setHttpHeaders(authorisation, serviceAuth, userId);
 
@@ -131,10 +140,18 @@ public class DocumentManagementService {
 
             final String t = this.restTemplate.postForObject(dmUri + DOCUMENTS_PATH, httpEntity, String.class);
 
-
             return objectMapper.readValue(t, UploadResponse.class);
         } catch (IOException e) {
             throw new IllegalStateException(e);
+        } finally {
+            inputStreamList.forEach(e -> {
+                    try {
+                        e.getInputStream().close();
+                    } catch (IOException ioException) {
+                        log.error("input Stream close error");
+                    }
+                }
+            );
         }
     }
 
@@ -150,17 +167,28 @@ public class DocumentManagementService {
     }
 
     private static MultiValueMap<String, Object> prepareRequest(
-        List<MultipartFile> files,
         List<String> roles,
         Classification classification
     ) {
         MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
-        files.stream()
-            .map(DocumentManagementService::buildPartFromFile)
-            .forEach(file -> parameters.add(FILES, file));
         parameters.add(CLASSIFICATION, classification.name());
         parameters.add(ROLES, roles.stream().collect(Collectors.joining(",")));
         return parameters;
+    }
+
+    private static InputStreamResource getAsStream(MultipartFile file) throws IOException {
+        return
+            new InputStreamResource(file.getInputStream()) {
+                @Override
+                public long contentLength() {
+                    return file.getSize();
+                }
+
+                @Override
+                public String getFilename() {
+                    return file.getName();
+                }
+            };
     }
 
     private static HttpEntity<Resource> buildPartFromFile(MultipartFile file) {
