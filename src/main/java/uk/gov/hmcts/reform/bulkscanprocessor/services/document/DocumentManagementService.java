@@ -127,7 +127,7 @@ public class DocumentManagementService {
             for (var file : files) {
                 var in = getAsStream(file);
                 inputStreamList.add(in);
-                parameters.add(FILES, buildPartFromFile(in, file));
+                parameters.add(FILES, in);
             }
 
             HttpHeaders httpHeaders = setHttpHeaders(authorisation, serviceAuth, userId);
