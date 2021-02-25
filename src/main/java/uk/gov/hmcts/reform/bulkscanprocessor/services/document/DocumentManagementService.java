@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -178,10 +177,6 @@ public class DocumentManagementService {
                     return file.getOriginalFilename();
                 }
             };
-    }
-
-    private static HttpEntity<Resource> buildPartFromFile(InputStreamResource in, MultipartFile file) {
-        return new HttpEntity<>(in, buildPartHeaders(file));
     }
 
     private static HttpHeaders buildPartHeaders(MultipartFile file) {
