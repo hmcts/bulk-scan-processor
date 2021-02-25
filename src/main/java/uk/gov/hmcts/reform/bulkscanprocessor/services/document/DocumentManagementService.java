@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -179,11 +177,4 @@ public class DocumentManagementService {
             };
     }
 
-    private static HttpHeaders buildPartHeaders(MultipartFile file) {
-        requireNonNull(file.getContentType());
-        final HttpHeaders headers = new HttpHeaders();
-        log.info("MediaType  test --> {}", MediaType.valueOf(file.getContentType()));
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        return headers;
-    }
 }
