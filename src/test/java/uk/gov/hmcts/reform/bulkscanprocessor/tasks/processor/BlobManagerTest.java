@@ -4,10 +4,13 @@ import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
+import com.azure.core.util.polling.PollResponse;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
+import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +21,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.azure.storage.common.implementation.Constants.HeaderConstants.ERROR_CODE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,31 +156,30 @@ public class BlobManagerTest {
 
         // and
         String url = "http://bulk-scan/test.file.txt";
-        given(inputBlobClient.getBlobUrl()).willReturn(url);
         String sasToken = " 3ewqdeaedfweqwdw";
-        given(inputBlobClient.generateSas(any())).willReturn(sasToken);
-
-        given(rejectedBlobClient.copyFromUrl(url + "?" + sasToken)).willReturn("XSS133SXS");
+        mockBeginCopy(url, sasToken);
 
         // when
         blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(url  + "?" + sasToken);
+        verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
     }
 
     @Test
-    void tryMoveFileToRejectedContainer_does_not_delete_blob_when_copyFromUrl_fails() {
+    void tryMoveFileToRejectedContainer_does_not_delete_blob_when_beginFromUrl_fails() {
         // given
         given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
         given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        doThrow(new BlobStorageException("Can not copy", null, null)).when(rejectedBlobClient).copyFromUrl(any());
+        doThrow(new BlobStorageException("Can not copy", null, null))
+            .when(rejectedBlobClient)
+            .beginCopy(any(), any(), any(), any(), any(), any(), any());;
 
-        // when
+        // whenc
         blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
@@ -192,7 +196,7 @@ public class BlobManagerTest {
 
         given(rejectedBlobClient.exists()).willReturn(Boolean.FALSE);
 
-        given(rejectedBlobClient.copyFromUrl(any())).willReturn("XS133SXS");
+        mockBeginCopy("http://retry", UUID.randomUUID().toString());
 
         HttpResponse response = mock(HttpResponse.class);
         given(response.getStatusCode()).willReturn(412);
@@ -209,7 +213,7 @@ public class BlobManagerTest {
         blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(any());
+        verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
         verify(inputBlobClient,times(2)).deleteWithResponse(any(), any(), any(), any());
     }
 
@@ -221,8 +225,7 @@ public class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        given(rejectedBlobClient.copyFromUrl(any())).willReturn("XS133SXS");
-
+        mockBeginCopy("http://test/leaselost", UUID.randomUUID().toString());
         given(inputBlobClient.deleteWithResponse(any(), any(), any(), any()))
             .willThrow(new RuntimeException("Does not work"));
 
@@ -232,13 +235,71 @@ public class BlobManagerTest {
         blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
 
         // then
-        verify(rejectedBlobClient).copyFromUrl(any());
+        verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
         verify(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
+    }
+
+    @Test
+    void tryMoveFileToRejectedContainer_should_abort_copy_when_begincopy_fails() {
+
+        given(inputContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(inputBlobClient);
+        given(rejectedContainerClient.getBlobClient(INPUT_FILE_NAME)).willReturn(rejectedBlobClient);
+        given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
+        given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
+
+        SyncPoller syncPoller = mock(SyncPoller.class);
+
+        given(rejectedBlobClient
+            .beginCopy(any(), any(), any(), any(), any(), any(), any())).willReturn(syncPoller);
+
+        var pollResponse = mock(PollResponse.class);
+        willThrow(new RuntimeException("Copy Failed"))
+            .given(syncPoller).waitForCompletion(Duration.ofMinutes(5));
+
+        var blobCopyInfo = mock(BlobCopyInfo.class);
+        given(syncPoller.poll()).willReturn(pollResponse);
+        given(pollResponse.getValue()).willReturn(blobCopyInfo);
+
+        String copyId = UUID.randomUUID().toString();
+        given(blobCopyInfo.getCopyId()).willReturn(copyId);
+
+
+        // whenc
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+
+        // then
+        verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
+        verify(rejectedBlobClient).abortCopyFromUrl(copyId);
+        verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
     }
 
     private BlobContainerItem mockBlobContainerItem(String name) {
         BlobContainerItem container = mock(BlobContainerItem.class);
         given(container.getName()).willReturn(name);
         return container;
+    }
+
+    private void mockBeginCopy(String url, String sasToken) {
+        given(inputBlobClient.getBlobUrl()).willReturn(url);
+        given(inputBlobClient.generateSas(any())).willReturn(sasToken);
+
+        SyncPoller syncPoller = mock(SyncPoller.class);
+        given(rejectedBlobClient.beginCopy(
+            url + "?" + sasToken,
+            BlobManager.META_DATA_MAP,
+            null,
+            null,
+            null,
+            null,
+            Duration.ofSeconds(2)
+        )).willReturn(syncPoller);
+
+        var pollResponse = mock(PollResponse.class);
+        var blobCopyInfo = mock(BlobCopyInfo.class);
+
+        given(syncPoller.waitForCompletion(Duration.ofMinutes(5))).willReturn(pollResponse);
+        given(pollResponse.getValue()).willReturn(mock(BlobCopyInfo.class));
+
+        given(pollResponse.getValue()).willReturn(blobCopyInfo);
     }
 }
