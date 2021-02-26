@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,8 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetry
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.zip.ZipInputStream;
@@ -148,7 +145,7 @@ public class BlobProcessorTask {
 
         if (envelope == null) {
             // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis = loadIntoMemory(blobClient, zipFilename)) {
+            try (ZipInputStream zis =  new ZipInputStream(blobClient.openInputStream())) {
                 envelopeProcessor.createEvent(
                     ZIPFILE_PROCESSING_STARTED,
                     container.getBlobContainerName(),
@@ -180,22 +177,6 @@ public class BlobProcessorTask {
                 zipFilename,
                 envelope.getId()
             );
-        }
-    }
-
-    private ZipInputStream loadIntoMemory(BlobClient blobClient, String zipFilename) {
-        log.info("Loading file {} into memory.", zipFilename);
-        try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.download(outputStream);
-            byte[] array = outputStream.toByteArray();
-            log.info(
-                "Finished loading file {} into memory. {} loaded.",
-                zipFilename,
-                FileUtils.byteCountToDisplaySize(array.length)
-            );
-            return new ZipInputStream(new ByteArrayInputStream(array));
-        } catch (IOException exception) {
-            throw new ZipFileLoadException("Error loading into memory, blob file " + zipFilename, exception);
         }
     }
 
