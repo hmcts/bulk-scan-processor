@@ -53,7 +53,7 @@ public final class EnvelopeResponseMapper {
         );
     }
 
-    private static List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
+    public static List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
         if (scannableItems == null) {
             return emptyList();
         }
@@ -84,7 +84,7 @@ public final class EnvelopeResponseMapper {
         );
     }
 
-    private static List<NonScannableItemResponse> toNonScannableItemsResponse(
+    public static List<NonScannableItemResponse> toNonScannableItemsResponse(
         List<NonScannableItem> nonScannableItems
     ) {
         if (nonScannableItems == null) {
@@ -106,7 +106,7 @@ public final class EnvelopeResponseMapper {
         );
     }
 
-    private static List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
+    public static List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
         if (payments == null) {
             return emptyList();
         }
