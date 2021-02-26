@@ -12,6 +12,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStat
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toNonScannableItemsResponse;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toScannableItemsResponse;
 
 @Service
 public class ZipFileStatusService {
@@ -47,7 +50,10 @@ public class ZipFileStatusService {
             envelope.getCcdId(),
             envelope.getEnvelopeCcdAction(),
             envelope.isZipDeleted(),
-            envelope.getRescanFor()
+            envelope.getRescanFor(),
+            toScannableItemsResponse(envelope.getScannableItems()),
+            toNonScannableItemsResponse(envelope.getNonScannableItems()),
+            toPaymentsResponse(envelope.getPayments())
         );
     }
 

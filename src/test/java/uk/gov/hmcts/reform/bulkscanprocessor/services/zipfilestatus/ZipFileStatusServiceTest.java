@@ -7,8 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
@@ -25,6 +28,9 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toNonScannableItemsResponse;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toScannableItemsResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class ZipFileStatusServiceTest {
@@ -60,7 +66,7 @@ public class ZipFileStatusServiceTest {
         assertThat(result.fileName).isEqualTo("hello.zip");
 
         assertThat(result.envelopes)
-            .usingFieldByFieldElementComparator()
+            .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new ZipFileEnvelope(
                     envelopes.get(0).getId().toString(),
@@ -69,7 +75,10 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getCcdId(),
                     envelopes.get(0).getEnvelopeCcdAction(),
                     envelopes.get(0).isZipDeleted(),
-                    envelopes.get(0).getRescanFor()
+                    envelopes.get(0).getRescanFor(),
+                    toScannableItemsResponse(envelopes.get(0).getScannableItems()),
+                    toNonScannableItemsResponse(envelopes.get(0).getNonScannableItems()),
+                    toPaymentsResponse(envelopes.get(0).getPayments())
                 ),
                 new ZipFileEnvelope(
                     envelopes.get(1).getId().toString(),
@@ -78,7 +87,10 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getCcdId(),
                     envelopes.get(1).getEnvelopeCcdAction(),
                     envelopes.get(1).isZipDeleted(),
-                    envelopes.get(1).getRescanFor()
+                    envelopes.get(1).getRescanFor(),
+                    toScannableItemsResponse(envelopes.get(1).getScannableItems()),
+                    toNonScannableItemsResponse(envelopes.get(1).getNonScannableItems()),
+                    toPaymentsResponse(envelopes.get(1).getPayments())
                 )
             );
 
@@ -127,6 +139,12 @@ public class ZipFileStatusServiceTest {
         given(envelope.getContainer()).willReturn(container);
         given(envelope.getStatus()).willReturn(Status.UPLOADED);
         given(envelope.getRescanFor()).willReturn("envelope1.zip");
+        given(envelope.getScannableItems())
+            .willReturn(asList(mock(ScannableItem.class), mock(ScannableItem.class)));
+        given(envelope.getNonScannableItems())
+            .willReturn(asList(mock(NonScannableItem.class), mock(NonScannableItem.class)));
+        given(envelope.getPayments())
+            .willReturn(asList(mock(Payment.class), mock(Payment.class)));
         return envelope;
     }
 
