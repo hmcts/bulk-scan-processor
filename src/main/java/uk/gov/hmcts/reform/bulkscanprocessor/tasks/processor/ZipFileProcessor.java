@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,11 @@ public class ZipFileProcessor {
             switch (FilenameUtils.getExtension(zipEntry.getName())) {
                 case "json":
                     metadata = toByteArray(extractedZis);
+                    log.info(
+                        "File: {}, Meta data size: {}",
+                        zipFileName,
+                        FileUtils.byteCountToDisplaySize(metadata.length)
+                    );
                     break;
                 case "pdf":
                     pdfs.add(new Pdf(zipEntry.getName(), null));
