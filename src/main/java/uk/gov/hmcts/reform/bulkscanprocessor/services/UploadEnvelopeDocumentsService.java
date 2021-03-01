@@ -116,6 +116,7 @@ public class UploadEnvelopeDocumentsService {
         ZipFileProcessingResult result = processBlobContent(blobClient, containerName, zipFileName, envelopeId);
 
         uploadParsedZipFileName(envelope, result.getPdfs());
+        zipFileProcessor.deleteFolder(zipFileName);
 
         envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
 

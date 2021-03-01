@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.document.domain.Classification;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -136,21 +135,10 @@ public class DocumentManagementService {
     ) {
         MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
         pdfs.stream()
-            .map(pdf -> getFileSystemResource(pdf.getFile(), pdf.getFilename()))
+            .map(pdf -> new FileSystemResource(pdf.getFile()))
             .forEach(file -> parameters.add(FILES, file));
         parameters.add(CLASSIFICATION, classification.name());
         parameters.add(ROLES, roles.stream().collect(Collectors.joining(",")));
         return parameters;
     }
-
-    private static FileSystemResource getFileSystemResource(File file, String fileName) {
-        return
-            new FileSystemResource(file) {
-                @Override
-                public String getFilename() {
-                    return fileName;
-                }
-            };
-    }
-
 }

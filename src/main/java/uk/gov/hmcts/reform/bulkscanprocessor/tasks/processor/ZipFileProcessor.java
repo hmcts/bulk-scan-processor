@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -29,6 +28,15 @@ public class ZipFileProcessor {
         String zipFileName
     ) throws IOException {
         return saveToTemp(extractedZis, zipFileName);
+    }
+
+    public void deleteFolder(String zipFileName) {
+        String folderPath =  DOWNLOAD_PATH + File.separator +  zipFileName;
+        try {
+            FileUtils.deleteDirectory(new File(folderPath));
+        } catch (IOException e) {
+            log.error("Folder delete unsuccessful, path: {} ", folderPath, e);
+        }
     }
 
     public ZipFileProcessingResult getZipContentDetail(
@@ -65,7 +73,6 @@ public class ZipFileProcessor {
         return new ZipFileProcessingResult(metadata, pdfs);
     }
 
-
     public ZipFileProcessingResult saveToTemp(
         ZipInputStream extractedZis,
         String zipFileName
@@ -82,7 +89,8 @@ public class ZipFileProcessor {
                 case "json":
                     break;
                 case "pdf":
-                    String filePath = folderPath + File.separator +  FilenameUtils.getBaseName(zipEntry.getName());
+                    String filePath =
+                        folderPath + File.separator + FilenameUtils.getName(zipEntry.getName());
                     var pdfFile = new File(filePath);
                     FileUtils.copyToFile(extractedZis, pdfFile);
                     pdfs.add(new Pdf(zipEntry.getName(), pdfFile));
