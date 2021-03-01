@@ -84,7 +84,8 @@ public class ZipFileProcessor {
                 case "json":
                     break;
                 case "pdf":
-                    var pdfFile = new File(folderPath + File.separator +  zipEntry.getName());
+                    String filePath = folderPath + File.separator +  FilenameUtils.getBaseName(zipEntry.getName());
+                    var pdfFile = new File(filePath);
                     FileUtils.copyToFile(extractedZis, pdfFile);
                     pdfs.add(new Pdf(zipEntry.getName(), pdfFile));
                     break;
