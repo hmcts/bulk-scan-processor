@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.document.output;
 
 import org.springframework.http.MediaType;
 
-import java.util.Arrays;
+import java.io.File;
 import java.util.Objects;
 
 @SuppressWarnings("PMD.ShortClassName")
@@ -10,19 +10,19 @@ public class Pdf {
     public static final String CONTENT_TYPE = MediaType.APPLICATION_PDF_VALUE;
 
     private final String fileBaseName;
-    private final byte[] bytes;
+    private final File file;
 
-    public Pdf(String fileBaseName, byte[] bytes) {
+    public Pdf(String fileBaseName, File file) {
         this.fileBaseName = fileBaseName;
-        this.bytes = bytes;
+        this.file = file;
     }
 
     public String getFilename() {
         return fileBaseName;
     }
 
-    public byte[] getBytes() {
-        return bytes;
+    public File getFile() {
+        return file;
     }
 
     @Override
@@ -34,14 +34,14 @@ public class Pdf {
             return false;
         }
         Pdf pdf = (Pdf) o;
-        return Objects.equals(fileBaseName, pdf.fileBaseName) && Arrays.equals(bytes, pdf.bytes);
+        return pdf.file.getPath().equals(this.file.getPath());
     }
 
     @Override
     public int hashCode() {
 
         int result = Objects.hash(fileBaseName);
-        result = 31 * result + Arrays.hashCode(bytes);
+        result = 31 * result + this.file.hashCode();
         return result;
     }
 }

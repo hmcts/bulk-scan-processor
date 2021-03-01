@@ -59,7 +59,6 @@ import java.io.File;
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -204,7 +203,7 @@ public class EnvelopeControllerTest {
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
         uploadZipToBlobStore("zipcontents/mismatching_pdfs", "8_24-06-2018-00-00-00.zip");
 
-        Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
+        Pdf okPdf = new Pdf("1111002.pdf", new File(getResource("zipcontents/ok/1111002.pdf").toURI()));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(okPdf)))
             .willReturn(
@@ -232,7 +231,7 @@ public class EnvelopeControllerTest {
         verify(documentManagementService, never())
             .uploadDocuments(
                 ImmutableList.of(
-                    new Pdf("1111005.pdf", toByteArray(getResource("zipcontents/mismatching_pdfs/1111005.pdf")))
+                    new Pdf("1111005.pdf", new File(getResource("zipcontents/mismatching_pdfs/1111005.pdf").toURI()))
                 )
             );
         verify(tokenValidator).getServiceName("testServiceAuthHeader");

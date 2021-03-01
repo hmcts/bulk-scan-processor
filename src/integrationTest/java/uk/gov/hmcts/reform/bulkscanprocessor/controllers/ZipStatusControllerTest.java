@@ -53,7 +53,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -191,7 +190,7 @@ class ZipStatusControllerTest {
 
         uploadZipToBlobStore("zipcontents/all_items", "1_24-06-2018-00-00-00.zip");
 
-        Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
+        Pdf okPdf = new Pdf("1111002.pdf", new File(getResource("zipcontents/ok/1111002.pdf").toURI()));
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(okPdf)))
             .willReturn(

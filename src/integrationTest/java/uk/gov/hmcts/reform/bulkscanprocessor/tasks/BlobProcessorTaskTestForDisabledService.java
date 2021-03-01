@@ -8,12 +8,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
+import java.io.File;
+
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor.DOWNLOAD_PATH;
 
 @IntegrationTest
 @TestPropertySource(properties = {
@@ -35,7 +36,7 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite 
         // and
         Pdf pdf = new Pdf(
             "1111002.pdf",
-            toByteArray(getResource("zipcontents/ok/1111002.pdf"))
+            new File(DOWNLOAD_PATH + SAMPLE_ZIP_FILE_NAME +  "1111002.pdf")
         );
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))

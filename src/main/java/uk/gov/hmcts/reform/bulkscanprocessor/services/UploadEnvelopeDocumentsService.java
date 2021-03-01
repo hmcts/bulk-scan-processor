@@ -15,8 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -115,9 +113,7 @@ public class UploadEnvelopeDocumentsService {
         UUID envelopeId = envelope.getId();
         String containerName = blobClient.getContainerName();
 
-        byte[] rawBlob =  downloadBlob(blobClient, envelopeId);
-
-        ZipFileProcessingResult result = processBlobContent(rawBlob, containerName, zipFileName, envelopeId);
+        ZipFileProcessingResult result = processBlobContent(blobClient, containerName, zipFileName, envelopeId);
 
         uploadParsedZipFileName(envelope, result.getPdfs());
 
@@ -131,30 +127,13 @@ public class UploadEnvelopeDocumentsService {
         );
     }
 
-    private byte[] downloadBlob(BlobClient blobClient, UUID envelopeId) {
-        try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.download(outputStream);
-
-            return outputStream.toByteArray();
-        } catch (Exception exc) {
-            String message = String.format(
-                "Unable to download blob. Container: %s, Blob: %s, Envelope ID: %s",
-                blobClient.getContainerName(),
-                blobClient.getBlobName(),
-                envelopeId
-            );
-
-            throw new FailedUploadException(message, exc);
-        }
-    }
-
     private ZipFileProcessingResult processBlobContent(
-        byte[] rawBlob,
+        BlobClient blobClient,
         String containerName,
         String zipFileName,
         UUID envelopeId
     ) {
-        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
+        try (ZipInputStream zis = new ZipInputStream(blobClient.openInputStream())) {
             return zipFileProcessor.process(zis, zipFileName);
         } catch (Exception exception) {
             String message = String.format(
