@@ -55,7 +55,7 @@ public class FileContentProcessor {
         String leaseId
     ) {
         try {
-            ZipFileProcessingResult result = zipFileProcessor.process(zis, zipFilename);
+            ZipFileProcessingResult result = zipFileProcessor.getZipContentDetail(zis, zipFilename);
 
             InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
 

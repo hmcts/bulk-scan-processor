@@ -94,7 +94,7 @@ class FileContentProcessorTest {
     @Test
     void should_process_file_content_and_save_envelope() throws Exception {
         // given
-        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
         given(result.getPdfs()).willReturn(pdfs);
@@ -121,7 +121,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_payments_disabled() throws Exception {
         // given
-        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
         given(envelopeProcessor
@@ -162,7 +162,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_service_disabled() throws Exception {
         // given
-        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
         given(envelopeProcessor
@@ -203,7 +203,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_envelope_rejection_exception() throws Exception {
         // given
-        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         MetadataNotFoundException ex = new MetadataNotFoundException("msg");
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
@@ -235,7 +235,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_envelope_disallowed_document_type_exception() throws Exception {
         // given
-        given(zipFileProcessor.process(zis, FILE_NAME)).willReturn(result);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
         given(result.getMetadata()).willReturn(metadata);
         DisallowedDocumentTypesException ex = new DisallowedDocumentTypesException("msg");
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
@@ -268,7 +268,7 @@ class FileContentProcessorTest {
     void should_handle_generic_exception() throws Exception {
         // given
         RuntimeException ex = new RuntimeException("msg");
-        given(zipFileProcessor.process(zis, FILE_NAME)).willThrow(ex);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willThrow(ex);
 
 
         // when

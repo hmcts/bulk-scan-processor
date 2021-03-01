@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,4 +51,39 @@ public class ZipFileProcessor {
 
         return new ZipFileProcessingResult(metadata, pdfs);
     }
+
+    public ZipFileProcessingResult getZipContentDetail(
+        ZipInputStream extractedZis,
+        String zipFileName
+    ) throws IOException {
+
+        ZipEntry zipEntry;
+
+        List<Pdf> pdfs = new ArrayList<>();
+        byte[] metadata = null;
+
+        while ((zipEntry = extractedZis.getNextEntry()) != null) {
+            switch (FilenameUtils.getExtension(zipEntry.getName())) {
+                case "json":
+                    metadata = toByteArray(extractedZis);
+                    log.info(
+                        "File: {}, Meta data size: {}",
+                        zipFileName,
+                        FileUtils.byteCountToDisplaySize(metadata.length)
+                    );
+                    break;
+                case "pdf":
+                    pdfs.add(new Pdf(zipEntry.getName(), null));
+                    break;
+                default:
+                    // contract breakage
+                    throw new NonPdfFileFoundException(zipFileName, zipEntry.getName());
+            }
+        }
+
+        log.info("PDFs found in {}: {}", zipFileName, pdfs.size());
+
+        return new ZipFileProcessingResult(metadata, pdfs);
+    }
+
 }

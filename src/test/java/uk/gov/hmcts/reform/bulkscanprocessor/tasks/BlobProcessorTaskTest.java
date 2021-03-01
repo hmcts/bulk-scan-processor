@@ -91,7 +91,7 @@ class BlobProcessorTaskTest {
             return null;
         }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
 
-        willThrow(new RuntimeException("Can't download")).given(blobClient).download(any());
+        willThrow(new RuntimeException("Can't download")).given(blobClient).openInputStream();
 
         // when
         blobProcessorTask.processBlobs();
