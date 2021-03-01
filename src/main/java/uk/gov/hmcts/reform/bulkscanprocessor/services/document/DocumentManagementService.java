@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
 import uk.gov.hmcts.reform.document.domain.Classification;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
@@ -34,10 +33,8 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 @Service
 public class DocumentManagementService {
 
-    private static final String MULTIPART_FORM_PARAM = "files";
     private static final Logger log = LoggerFactory.getLogger(DocumentManagementService.class);
 
-    private final DocumentUploadClientApi documentUploadClientApi;
     private final AuthTokenGenerator authTokenGenerator;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -52,13 +49,11 @@ public class DocumentManagementService {
 
     public DocumentManagementService(
         AuthTokenGenerator authTokenGenerator,
-        DocumentUploadClientApi documentUploadClientApi,
         @Value("${document_management.url}") String dmUri,
         RestTemplate restTemplate,
         ObjectMapper objectMapper
     ) {
         this.authTokenGenerator = authTokenGenerator;
-        this.documentUploadClientApi = documentUploadClientApi;
         this.dmUri = dmUri;
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;

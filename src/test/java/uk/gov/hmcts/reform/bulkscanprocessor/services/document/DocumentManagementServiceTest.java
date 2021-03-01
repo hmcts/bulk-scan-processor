@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +55,6 @@ public class DocumentManagementServiceTest {
 
         documentManagementService = new DocumentManagementService(
             authTokenGenerator,
-            new DocumentUploadClientApi("http://localhost:8080", restTemplate, new ObjectMapper()),
             "http://localhost:8080",
             restTemplate,
             new ObjectMapper()

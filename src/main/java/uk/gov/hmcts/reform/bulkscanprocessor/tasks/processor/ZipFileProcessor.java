@@ -11,8 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -99,13 +97,4 @@ public class ZipFileProcessor {
 
         return new ZipFileProcessingResult(null, pdfs);
     }
-
-    private String createEmptyFolder(String zipFileName) throws IOException {
-        String folderPath = DOWNLOAD_PATH + File.separator + zipFileName;
-        Files.createDirectories(Paths.get(folderPath));
-        File folder = new File(folderPath);
-        FileUtils.cleanDirectory(folder);
-        return folderPath;
-    }
-
 }
