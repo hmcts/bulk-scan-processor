@@ -5,14 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -20,6 +18,7 @@ import uk.gov.hmcts.reform.document.domain.Classification;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -137,24 +136,19 @@ public class DocumentManagementService {
     ) {
         MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
         pdfs.stream()
-            .map(pdf -> new FileSystemResource(pdf.getFile()))
+            .map(pdf -> getFileSystemResource(pdf.getFile(), pdf.getFilename()))
             .forEach(file -> parameters.add(FILES, file));
         parameters.add(CLASSIFICATION, classification.name());
         parameters.add(ROLES, roles.stream().collect(Collectors.joining(",")));
         return parameters;
     }
 
-    private static InputStreamResource getAsStream(MultipartFile file) throws IOException {
+    private static FileSystemResource getFileSystemResource(File file, String fileName) {
         return
-            new InputStreamResource(file.getInputStream()) {
-                @Override
-                public long contentLength() {
-                    return -1;
-                }
-
+            new FileSystemResource(file) {
                 @Override
                 public String getFilename() {
-                    return file.getOriginalFilename();
+                    return fileName;
                 }
             };
     }
