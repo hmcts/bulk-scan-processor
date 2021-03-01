@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
@@ -17,6 +18,7 @@ import java.util.zip.ZipInputStream;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @Service
+@ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class ZipFileProcessingService {
 
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessingService.class);
