@@ -22,17 +22,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.ZipFileProcessingService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
@@ -81,22 +77,15 @@ public abstract class ProcessorTestSuite {
     @Autowired
     protected ProcessEventRepository processEventRepository;
 
-    @Autowired
-    protected OcrValidationRetryManager ocrValidationRetryManager;
-
     protected ErrorNotificationSender errorNotificationSender;
 
     protected EnvelopeValidator envelopeValidator;
 
     protected FileRejector fileRejector;
 
-    protected FileContentProcessor fileContentProcessor;
-
-    protected EnvelopeHandler envelopeHandler;
-
     protected DocumentProcessor documentProcessor;
 
-    protected EnvelopeProcessor envelopeProcessor;
+    protected ZipFileProcessingService zipFileProcessingService;
 
     protected BlobManager blobManager;
 
@@ -105,9 +94,6 @@ public abstract class ProcessorTestSuite {
 
     @Autowired
     private BlobManagementProperties blobManagementProperties;
-
-    @Autowired
-    private LeaseAcquirer leaseAcquirer;
 
     @Mock
     protected DocumentManagementService documentManagementService;
@@ -141,12 +127,6 @@ public abstract class ProcessorTestSuite {
             scannableItemRepository
         );
 
-        envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            envelopeRepository,
-            processEventRepository
-        );
-
         errorNotificationSender = new ErrorNotificationSender(
             serviceBusHelper,
             containerMappings
@@ -157,21 +137,6 @@ public abstract class ProcessorTestSuite {
         fileRejector = new FileRejector(
             blobManager,
             errorNotificationSender
-        );
-
-        envelopeHandler = new EnvelopeHandler(
-            envelopeValidator,
-            containerMappings,
-            envelopeProcessor,
-            ocrValidator,
-            paymentsEnabled
-        );
-
-        fileContentProcessor = new FileContentProcessor(
-            zipFileProcessor,
-            envelopeProcessor,
-            envelopeHandler,
-            fileRejector
         );
 
         testContainer = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
@@ -186,10 +151,7 @@ public abstract class ProcessorTestSuite {
 
         processor = new BlobProcessorTask(
             blobManager,
-            envelopeProcessor,
-            fileContentProcessor,
-            leaseAcquirer,
-            ocrValidationRetryManager
+            zipFileProcessingService
         );
     }
 

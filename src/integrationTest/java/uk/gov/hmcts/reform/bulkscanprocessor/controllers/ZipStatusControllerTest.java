@@ -32,6 +32,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.ZipFileProcessingService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -152,12 +153,16 @@ class ZipStatusControllerTest {
             leaseMetaDataChecker
         );
 
-        blobProcessorTask = new BlobProcessorTask(
-            blobManager,
+        ZipFileProcessingService zipFileProcessingService = new ZipFileProcessingService(
             envelopeProcessor,
             fileContentProcessor,
             leaseAcquirer,
             ocrValidationRetryManager
+        );
+
+        blobProcessorTask = new BlobProcessorTask(
+            blobManager,
+            zipFileProcessingService
         );
 
         UploadEnvelopeDocumentsService uploadService =  new UploadEnvelopeDocumentsService(
