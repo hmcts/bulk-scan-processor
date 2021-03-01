@@ -39,10 +39,28 @@ public class ZipStatusControllerTest {
 
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
-                "0", "container0", "status0", "9832132131312", "AUTO_ATTACHED_TO_CASE", false, "envelope11.zip"
+                "0",
+                "container0",
+                "status0",
+                "9832132131312",
+                "AUTO_ATTACHED_TO_CASE",
+                false,
+                "envelope11.zip",
+                emptyList(),
+                emptyList(),
+                emptyList()
             ),
             new ZipFileEnvelope(
-                "1", "container1", "status1", "3210329752313", "EXCEPTION_RECORD", true, null
+                "1",
+                "container1",
+                "status1",
+                "3210329752313",
+                "EXCEPTION_RECORD",
+                true,
+                null,
+                emptyList(),
+                emptyList(),
+                emptyList()
             )
         );
 
