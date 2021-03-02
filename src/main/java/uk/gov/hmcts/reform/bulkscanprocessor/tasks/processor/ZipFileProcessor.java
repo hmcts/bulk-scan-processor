@@ -33,10 +33,6 @@ public class ZipFileProcessor {
     public void deleteFolder(String zipFileName) {
         String folderPath =  DOWNLOAD_PATH + File.separator +  zipFileName;
         try {
-            FileUtils
-                .listFiles(new File(DOWNLOAD_PATH), null, false)
-                .stream()
-                .forEach(f -> log.info("{}, List before delete {}", zipFileName, f.getName()));
             FileUtils.deleteDirectory(new File(folderPath));
             log.info("Folder deleted {}", folderPath);
         } catch (IOException e) {
