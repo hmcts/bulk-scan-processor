@@ -74,20 +74,24 @@ public class ReportsControllerTest {
         final EnvelopeCountSummaryReportItem countSummary2 = new EnvelopeCountSummaryReportItem(
             100, 11, "hello2", LocalDate.of(2019, 1, 14)
         );
+        List<EnvelopeCountSummaryReportItem> list=new ArrayList<>();
+        list.add(countSummary1);
+        list.add(countSummary2);
+
+
         final EnvelopeCountSummary countSummary3 = new EnvelopeCountSummary(
             100, 11, "hello1", LocalDate.of(2019, 1, 14)
         );
         final EnvelopeCountSummary countSummary4 = new EnvelopeCountSummary(
             100, 11, "hello2", LocalDate.of(2019, 1, 14)
         );
-        List<EnvelopeCountSummaryReportItem> list=new ArrayList<>();
-        list.add(countSummary1);
-        list.add(countSummary2);
+
         List<EnvelopeCountSummary> list1=new ArrayList<>();
         list1.add(countSummary3);
         list1.add(countSummary4);
-        EnvelopeCountSummaryReportListResponse e=new EnvelopeCountSummaryReportListResponse(200, 22, LocalDateTime.now(), list);
 
+        EnvelopeCountSummaryReportListResponse e = new EnvelopeCountSummaryReportListResponse(200, 22, LocalDateTime.now(), list);
+        System.out.println("count summary test check: "+e.totalReceived);
 
         given(reportsService.getCountSummaryResponse(list1))
             .willReturn(e);
@@ -95,11 +99,15 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.totalReceived").value(200));
-//            .andExpect(jsonPath("$.data[0].received").value(countSummary.received))
-//            .andExpect(jsonPath("$.data[0].rejected").value(countSummary.rejected))
-//            .andExpect(jsonPath("$.data[0].container").value(countSummary.container))
-//            .andExpect(jsonPath("$.data[0].date").value(countSummary.date.toString()));
+            //.andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.total_received").value(e.totalReceived))
+            .andExpect(jsonPath("$.total_rejected").value(e.totalRejected))
+            .andExpect(jsonPath("$.time_stamp").value(e.timeStamp))
+            .andExpect(jsonPath("$.data.length()").value(2))
+            .andExpect(jsonPath("$.data[0].received").value(countSummary1.received))
+            .andExpect(jsonPath("$.data[0].rejected").value(countSummary1.rejected))
+            .andExpect(jsonPath("$.data[0].container").value(countSummary1.container))
+            .andExpect(jsonPath("$.data[0].date").value(countSummary1.date.toString()));
     }
 
     @Test
