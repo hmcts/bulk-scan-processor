@@ -34,6 +34,7 @@ public class ZipFileProcessor {
         String folderPath =  DOWNLOAD_PATH + File.separator +  zipFileName;
         try {
             FileUtils.deleteDirectory(new File(folderPath));
+            log.info("Folder deleted {}", folderPath);
         } catch (IOException e) {
             log.error("Folder delete unsuccessful, path: {} ", folderPath, e);
         }
