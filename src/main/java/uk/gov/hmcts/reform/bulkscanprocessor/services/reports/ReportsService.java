@@ -7,6 +7,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
@@ -57,6 +59,47 @@ public class ReportsService {
             .collect(toList());
         log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
         return reportResult;
+    }
+    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(List<EnvelopeCountSummary> result ){
+
+        //build timestamp ??
+        LocalDateTime localDateTime = getTimeStamp();
+
+        //Total number of rejected Envelopes
+        int totalRejected = getTotalRejected(result);
+
+        //Total number of received Envelopes
+        int totalReceived = getTotalReceived(result);
+
+        List<EnvelopeCountSummaryReportItem> items = result
+            .stream()
+            .map(item -> new EnvelopeCountSummaryReportItem(
+                item.received,
+                item.rejected,
+                item.container,
+                item.date
+            ))
+            .collect(toList());
+
+        return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
+    }
+    private int getTotalReceived(List<EnvelopeCountSummary> result)
+    {
+
+        return result.stream()
+            .mapToInt(o->o.received)
+            .reduce(0, (a, b) -> a + b);
+    }
+    private int getTotalRejected(List<EnvelopeCountSummary> result)
+    {
+        return result.stream()
+            .mapToInt(o->o.rejected)
+            .reduce(0, (a, b) -> a + b);
+    }
+    private LocalDateTime getTimeStamp()
+    {
+        var instant = Instant.now();
+        return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
     }
 
     /**
@@ -109,8 +152,9 @@ public class ReportsService {
     private LocalTime toLocalTime(Instant instant) {
         if (instant != null) {
             return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss")
-                .format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
+                                       .format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
         }
         return null;
     }
 }
+

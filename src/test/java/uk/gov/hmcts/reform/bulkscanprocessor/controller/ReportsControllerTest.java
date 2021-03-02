@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
@@ -21,7 +23,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFil
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -60,6 +65,42 @@ public class ReportsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Test
+    public void should_return_result_generated_with_total_by_the_service() throws Exception {
+        final EnvelopeCountSummaryReportItem countSummary1 = new EnvelopeCountSummaryReportItem(
+            100, 11, "hello1", LocalDate.of(2019, 1, 14)
+        );
+        final EnvelopeCountSummaryReportItem countSummary2 = new EnvelopeCountSummaryReportItem(
+            100, 11, "hello2", LocalDate.of(2019, 1, 14)
+        );
+        final EnvelopeCountSummary countSummary3 = new EnvelopeCountSummary(
+            100, 11, "hello1", LocalDate.of(2019, 1, 14)
+        );
+        final EnvelopeCountSummary countSummary4 = new EnvelopeCountSummary(
+            100, 11, "hello2", LocalDate.of(2019, 1, 14)
+        );
+        List<EnvelopeCountSummaryReportItem> list=new ArrayList<>();
+        list.add(countSummary1);
+        list.add(countSummary2);
+        List<EnvelopeCountSummary> list1=new ArrayList<>();
+        list1.add(countSummary3);
+        list1.add(countSummary4);
+        EnvelopeCountSummaryReportListResponse e=new EnvelopeCountSummaryReportListResponse(200, 22, LocalDateTime.now(), list);
+
+
+        given(reportsService.getCountSummaryResponse(list1))
+            .willReturn(e);
+
+        mockMvc
+            .perform(get("/reports/count-summary?date=2019-01-14"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalReceived").value(200));
+//            .andExpect(jsonPath("$.data[0].received").value(countSummary.received))
+//            .andExpect(jsonPath("$.data[0].rejected").value(countSummary.rejected))
+//            .andExpect(jsonPath("$.data[0].container").value(countSummary.container))
+//            .andExpect(jsonPath("$.data[0].date").value(countSummary.date.toString()));
+    }
 
     @Test
     public void should_return_result_generated_by_the_service() throws Exception {
@@ -309,3 +350,4 @@ public class ReportsControllerTest {
         assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
     }
 }
+

@@ -32,15 +32,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @RestController
 @CrossOrigin
@@ -71,46 +70,10 @@ public class ReportsController {
     )
     {
         List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestContainer);
-
-        //build timestamp ??
-        LocalDateTime localDateTime = getTimeStamp();
-
-        //Total number of rejected Envelopes
-        int totalRejected = getTotalRejected(result);
-
-        //Total number of received Envelopes
-        int totalReceived = getTotalReceived(result);
-
-        List<EnvelopeCountSummaryReportItem> items = getEnvelopeCountSummaryReportItemList(result);
-
-        return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
-    }
-    private List<EnvelopeCountSummaryReportItem> getEnvelopeCountSummaryReportItemList(List<EnvelopeCountSummary> result)
-    {
-        return result
-            .stream()
-            .map(item -> new EnvelopeCountSummaryReportItem(
-                item.received,
-                item.rejected,
-                item.container,
-                item.date
-            ))
-            .collect(toList());
+        EnvelopeCountSummaryReportListResponse e=this.reportsService.getCountSummaryResponse(result);
+        return e;
     }
 
-    private int getTotalReceived(List<EnvelopeCountSummary> result)
-    {
-        return result.stream().mapToInt(o->o.received).sum();
-    }
-    private int getTotalRejected(List<EnvelopeCountSummary> result)
-    {
-        return result.stream().mapToInt(o->o.rejected).sum();
-    }
-    private LocalDateTime getTimeStamp()
-    {
-        var instant = Instant.now();
-        return LocalDateTime.ofInstant(instant, ZoneId.of("Europe/London"));
-    }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Retrieves zip files summary report in json format for the given date and container")
@@ -185,3 +148,4 @@ public class ReportsController {
         );
     }
 }
+
