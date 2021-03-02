@@ -70,7 +70,7 @@ public class ReportsController {
     )
     {
         List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestContainer);
-        EnvelopeCountSummaryReportListResponse e=this.reportsService.getCountSummaryResponse(result);
+        EnvelopeCountSummaryReportListResponse e = this.reportsService.getCountSummaryResponse(result);
         return e;
     }
 

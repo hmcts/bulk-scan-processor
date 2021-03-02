@@ -10,7 +10,7 @@ public class EnvelopeCountSummaryReportListResponse {
 
     // "total_received"
     @JsonProperty("total_received")
-    public final int totalRecieved;
+    public final int totalReceived;
 
     // "total_rejected":
     @JsonProperty("total_rejected")
@@ -32,7 +32,7 @@ public class EnvelopeCountSummaryReportListResponse {
     ) {
 
         //initialize the fields
-        this.totalRecieved = totalReceived;
+        this.totalReceived = totalReceived;
         this.totalRejected = totalRejected;
         this.timeStamp = localDateTime;
 
