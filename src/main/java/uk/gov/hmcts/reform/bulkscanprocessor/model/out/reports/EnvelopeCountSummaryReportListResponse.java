@@ -24,16 +24,19 @@ public class EnvelopeCountSummaryReportListResponse {
     @JsonProperty("data")
     public final List<EnvelopeCountSummaryReportItem> items;
 
-    public EnvelopeCountSummaryReportListResponse(int totalReceived,
-                                                  int totalRejected,
-                                                  LocalDateTime localDateTime,
-                                                  List<EnvelopeCountSummaryReportItem> items)
-    {
+    public EnvelopeCountSummaryReportListResponse(
+        int totalReceived,
+        int totalRejected,
+        LocalDateTime localDateTime,
+        List<EnvelopeCountSummaryReportItem> items
+    ) {
+
         //initialize the fields
         this.totalRecieved = totalReceived;
         this.totalRejected = totalRejected;
         this.timeStamp = localDateTime;
 
         this.items = items;
+
     }
 }

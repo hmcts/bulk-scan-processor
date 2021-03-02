@@ -60,7 +60,10 @@ public class ReportsService {
         log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
         return reportResult;
     }
-    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(List<EnvelopeCountSummary> result ){
+
+    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(
+        List<EnvelopeCountSummary> result
+    ) {
 
         //build timestamp ??
         LocalDateTime localDateTime = getTimeStamp();
@@ -82,7 +85,9 @@ public class ReportsService {
             .collect(toList());
 
         return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
+
     }
+
     private int getTotalReceived(List<EnvelopeCountSummary> result)
     {
 
