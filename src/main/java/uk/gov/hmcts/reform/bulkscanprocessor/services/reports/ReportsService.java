@@ -94,19 +94,19 @@ public class ReportsService {
         return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
     }
 
-    private int getTotalReceived(List<EnvelopeCountSummary> result) {
+    public int getTotalReceived(List<EnvelopeCountSummary> result) {
         return result.stream()
             .mapToInt(o -> o.received)
             .reduce(0, (a, b) -> a + b);
     }
 
-    private int getTotalRejected(List<EnvelopeCountSummary> result) {
+    public int getTotalRejected(List<EnvelopeCountSummary> result) {
         return result.stream()
             .mapToInt(o -> o.rejected)
             .reduce(0, (a, b) -> a + b);
     }
 
-    private String getTimeStamp() {
+    public String getTimeStamp() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return dtf.format(LocalDateTime.now());
     }

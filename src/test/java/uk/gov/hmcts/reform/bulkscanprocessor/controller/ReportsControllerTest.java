@@ -95,17 +95,21 @@ public class ReportsControllerTest {
         List<EnvelopeCountSummaryReportItem> list = new ArrayList<>();
         list.add(countSummary1);
         list.add(countSummary2);
-
+        given(reportsService.getTotalReceived(list1))
+            .willReturn(200);
+        given(reportsService.getTotalRejected(list1))
+            .willReturn(22);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String ts = dtf.format(LocalDateTime.now());
-
+        given(reportsService.getTimeStamp())
+            .willReturn(ts);
+        given(reportsService.getEnvelopeCountSummaryReportItems(list1))
+            .willReturn(list);
         EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
             200, 22, ts, list
         );
-
         given(reportsService.getCountSummaryResponse(list1))
             .willReturn(response);
-
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
