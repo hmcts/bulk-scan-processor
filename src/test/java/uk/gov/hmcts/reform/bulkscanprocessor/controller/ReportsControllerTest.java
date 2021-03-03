@@ -74,7 +74,7 @@ public class ReportsControllerTest {
         final EnvelopeCountSummaryReportItem countSummary2 = new EnvelopeCountSummaryReportItem(
             100, 11, "hello2", LocalDate.of(2019, 1, 14)
         );
-        List<EnvelopeCountSummaryReportItem> list=new ArrayList<>();
+        List<EnvelopeCountSummaryReportItem> list = new ArrayList<>();
         list.add(countSummary1);
         list.add(countSummary2);
 
@@ -86,12 +86,15 @@ public class ReportsControllerTest {
             100, 11, "hello2", LocalDate.of(2019, 1, 14)
         );
 
-        List<EnvelopeCountSummary> list1=new ArrayList<>();
+        List<EnvelopeCountSummary> list1 = new ArrayList<>();
         list1.add(countSummary3);
         list1.add(countSummary4);
 
-        EnvelopeCountSummaryReportListResponse e = new EnvelopeCountSummaryReportListResponse(200, 22, LocalDateTime.now(), list);
-        System.out.println("count summary test check: "+e.totalReceived);
+        EnvelopeCountSummaryReportListResponse e = new EnvelopeCountSummaryReportListResponse(
+            200, 22, LocalDateTime.now(), list
+        );
+
+        System.out.println("count summary test check: " + e.totalReceived);
 
         given(reportsService.getCountSummaryResponse(list1))
             .willReturn(e);
@@ -99,6 +102,7 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
+
             //.andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.total_received").value(e.totalReceived))
             .andExpect(jsonPath("$.total_rejected").value(e.totalRejected))
