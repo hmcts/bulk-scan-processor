@@ -66,6 +66,7 @@ public class ReportsControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    /*
     @Test
     public void should_return_result_generated_with_total_by_the_service() throws Exception {
         final EnvelopeCountSummaryReportItem countSummary1 = new EnvelopeCountSummaryReportItem(
@@ -113,6 +114,7 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].container").value(countSummary1.container))
             .andExpect(jsonPath("$.data[0].date").value(countSummary1.date.toString()));
     }
+    */
 
     @Test
     public void should_return_result_generated_by_the_service() throws Exception {
