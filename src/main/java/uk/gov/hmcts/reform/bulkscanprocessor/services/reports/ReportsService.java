@@ -96,17 +96,13 @@ public class ReportsService {
         return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
     }
 
-    private int getTotalReceived(
-        List<EnvelopeCountSummary> result
-    ) {
+    private int getTotalReceived(List<EnvelopeCountSummary> result) {
         return result.stream()
             .mapToInt(o -> o.received)
             .reduce(0, (a, b) -> a + b);
     }
 
-    private int getTotalRejected(
-        List<EnvelopeCountSummary> result
-    ) {
+    private int getTotalRejected(List<EnvelopeCountSummary> result) {
         return result.stream()
             .mapToInt(o -> o.rejected)
             .reduce(0, (a, b) -> a + b);

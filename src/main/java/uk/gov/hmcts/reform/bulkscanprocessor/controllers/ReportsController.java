@@ -69,6 +69,7 @@ public class ReportsController {
         return e;
     }
 
+
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Retrieves zip files summary report in json format for the given date and container")
     public ZipFilesSummaryReportListResponse getZipFilesSummary(
