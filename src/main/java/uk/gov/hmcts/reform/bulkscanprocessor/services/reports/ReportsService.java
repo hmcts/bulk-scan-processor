@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCou
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,19 +62,10 @@ public class ReportsService {
         return reportResult;
     }
 
-    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(
+    //build EnvelopeCountSummaryReportItems list
+    public List<EnvelopeCountSummaryReportItem> getEnvelopeCountSummaryReportItems(
         List<EnvelopeCountSummary> result
     ) {
-
-        //build timestamp ??
-        LocalDateTime localDateTime = getTimeStamp();
-
-        //Total number of rejected Envelopes
-        int totalRejected = getTotalRejected(result);
-
-        //Total number of received Envelopes
-        int totalReceived = getTotalReceived(result);
-
         List<EnvelopeCountSummaryReportItem> items = result
             .stream()
             .map(item -> new EnvelopeCountSummaryReportItem(
@@ -83,9 +75,25 @@ public class ReportsService {
                 item.date
             ))
             .collect(toList());
+        return items;
+    }
+
+
+    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(
+        List<EnvelopeCountSummary> result
+    ) {
+        // Timestamp
+        Timestamp localDateTime = getTimeStamp();
+
+        // Total number of rejected Envelopes
+        int totalRejected = getTotalRejected(result);
+
+        // Total number of received Envelopes
+        int totalReceived = getTotalReceived(result);
+
+        List<EnvelopeCountSummaryReportItem> items = getEnvelopeCountSummaryReportItems(result);
 
         return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
-
     }
 
     private int getTotalReceived(
@@ -104,10 +112,18 @@ public class ReportsService {
             .reduce(0, (a, b) -> a + b);
     }
 
-    private LocalDateTime getTimeStamp() {
+    private Timestamp getTimeStamp() {
+        /*
         var instant = Instant.now();
         return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
+        */
+
+        LocalDateTime ldt = LocalDateTime.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Timestamp ts = Timestamp.valueOf(ldt.format(dtf));
+        return  ts;
     }
+
 
     /**
      * Get zip files summary for the given date and container.

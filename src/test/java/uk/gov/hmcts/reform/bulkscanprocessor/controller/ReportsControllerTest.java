@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+//import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
+//import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
@@ -22,11 +24,17 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Reconciliat
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
+//import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+//import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+//import java.util.ArrayList;
+//import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -67,7 +75,20 @@ public class ReportsControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void should_return_result_generated_with_total_by_the_service() throws Exception {
+    public void should_return_result_generated_by_the_service() throws Exception {
+
+        final EnvelopeCountSummary countSummary3 = new EnvelopeCountSummary(
+            100, 11, "hello1", LocalDate.of(2019, 1, 14)
+        );
+        final EnvelopeCountSummary countSummary4 = new EnvelopeCountSummary(
+            100, 11, "hello2", LocalDate.of(2019, 1, 14)
+        );
+        List<EnvelopeCountSummary> list1 = new ArrayList<>();
+        list1.add(countSummary3);
+        list1.add(countSummary4);
+        given(reportsService.getCountFor(LocalDate.of(2019, 1, 14), false))
+            .willReturn(list1);
+
         final EnvelopeCountSummaryReportItem countSummary1 = new EnvelopeCountSummaryReportItem(
             100, 11, "hello1", LocalDate.of(2019, 1, 14)
         );
@@ -78,59 +99,29 @@ public class ReportsControllerTest {
         list.add(countSummary1);
         list.add(countSummary2);
 
+        LocalDateTime ldt = LocalDateTime.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Timestamp ts = Timestamp.valueOf(ldt.format(dtf));
 
-        final EnvelopeCountSummary countSummary3 = new EnvelopeCountSummary(
-            100, 11, "hello1", LocalDate.of(2019, 1, 14)
+        EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
+            200, 22, ts, list
         );
-        final EnvelopeCountSummary countSummary4 = new EnvelopeCountSummary(
-            100, 11, "hello2", LocalDate.of(2019, 1, 14)
-        );
-
-        List<EnvelopeCountSummary> list1 = new ArrayList<>();
-        list1.add(countSummary3);
-        list1.add(countSummary4);
-
-        EnvelopeCountSummaryReportListResponse e = new EnvelopeCountSummaryReportListResponse(
-            200, 22, LocalDateTime.now(), list
-        );
-
-        System.out.println("count summary test check: " + e.totalReceived);
 
         given(reportsService.getCountSummaryResponse(list1))
-            .willReturn(e);
+            .willReturn(response);
 
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
 
-            //.andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.total_received").value(e.totalReceived))
-            .andExpect(jsonPath("$.total_rejected").value(e.totalRejected))
-            .andExpect(jsonPath("$.time_stamp").value(e.timeStamp))
+            .andExpect(jsonPath("$.total_received").value(response.totalReceived))
+            .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
+            .andExpect(jsonPath("$.time_stamp").value(response.timeStamp))
             .andExpect(jsonPath("$.data.length()").value(2))
-            .andExpect(jsonPath("$.data[0].received").value(countSummary1.received))
-            .andExpect(jsonPath("$.data[0].rejected").value(countSummary1.rejected))
-            .andExpect(jsonPath("$.data[0].container").value(countSummary1.container))
-            .andExpect(jsonPath("$.data[0].date").value(countSummary1.date.toString()));
-    }
-
-    @Test
-    public void should_return_result_generated_by_the_service() throws Exception {
-        final EnvelopeCountSummary countSummary = new EnvelopeCountSummary(
-            100, 11, "hello", LocalDate.of(2019, 1, 14)
-        );
-
-        given(reportsService.getCountFor(countSummary.date, false))
-            .willReturn(singletonList(countSummary));
-
-        mockMvc
-            .perform(get("/reports/count-summary?date=2019-01-14"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.length()").value(1))
-            .andExpect(jsonPath("$.data[0].received").value(countSummary.received))
-            .andExpect(jsonPath("$.data[0].rejected").value(countSummary.rejected))
-            .andExpect(jsonPath("$.data[0].container").value(countSummary.container))
-            .andExpect(jsonPath("$.data[0].date").value(countSummary.date.toString()));
+            .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))
+            .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))
+            .andExpect(jsonPath("$.data[0].container").value(response.items.get(0).container))
+            .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
     }
 
     @Test
