@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.DiscrepancyItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedFilesResponse;
@@ -32,14 +31,11 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @RestController
 @CrossOrigin
@@ -72,7 +68,6 @@ public class ReportsController {
         EnvelopeCountSummaryReportListResponse response = this.reportsService.getCountSummaryResponse(result);
         return response;
     }
-
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Retrieves zip files summary report in json format for the given date and container")
