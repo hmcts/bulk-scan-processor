@@ -64,7 +64,7 @@ public class ReportsService {
     public List<EnvelopeCountSummaryReportItem> getEnvelopeCountSummaryReportItems(
         List<EnvelopeCountSummary> result
     ) {
-        List<EnvelopeCountSummaryReportItem> items = result
+        return  result
             .stream()
             .map(item -> new EnvelopeCountSummaryReportItem(
                 item.received,
@@ -73,7 +73,7 @@ public class ReportsService {
                 item.date
             ))
             .collect(toList());
-        return items;
+
     }
 
 
@@ -108,10 +108,8 @@ public class ReportsService {
 
     private String getTimeStamp() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String ts = dtf.format(LocalDateTime.now());
-        return  ts;
+        return dtf.format(LocalDateTime.now());
     }
-
 
     /**
      * Get zip files summary for the given date and container.
