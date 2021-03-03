@@ -76,39 +76,25 @@ public class ReportsService {
 
     }
 
-
     public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(
         List<EnvelopeCountSummary> result
     ) {
         // Timestamp
-        String localDateTime = getTimeStamp();
+        String localDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
 
         // Total number of rejected Envelopes
-        int totalRejected = getTotalRejected(result);
+        int totalRejected = result.stream()
+            .mapToInt(o -> o.rejected)
+            .reduce(0, (a, b) -> a + b);
 
         // Total number of received Envelopes
-        int totalReceived = getTotalReceived(result);
+        int totalReceived = result.stream()
+            .mapToInt(o -> o.received)
+            .reduce(0, (a, b) -> a + b);
 
         List<EnvelopeCountSummaryReportItem> items = getEnvelopeCountSummaryReportItems(result);
 
         return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
-    }
-
-    public int getTotalReceived(List<EnvelopeCountSummary> result) {
-        return result.stream()
-            .mapToInt(o -> o.received)
-            .reduce(0, (a, b) -> a + b);
-    }
-
-    public int getTotalRejected(List<EnvelopeCountSummary> result) {
-        return result.stream()
-            .mapToInt(o -> o.rejected)
-            .reduce(0, (a, b) -> a + b);
-    }
-
-    public String getTimeStamp() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return dtf.format(LocalDateTime.now());
     }
 
     /**

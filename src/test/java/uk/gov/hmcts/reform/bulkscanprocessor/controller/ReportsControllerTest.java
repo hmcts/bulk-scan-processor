@@ -95,14 +95,8 @@ public class ReportsControllerTest {
         List<EnvelopeCountSummaryReportItem> list = new ArrayList<>();
         list.add(countSummary1);
         list.add(countSummary2);
-        given(reportsService.getTotalReceived(list1))
-            .willReturn(200);
-        given(reportsService.getTotalRejected(list1))
-            .willReturn(22);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String ts = dtf.format(LocalDateTime.now());
-        given(reportsService.getTimeStamp())
-            .willReturn(ts);
         given(reportsService.getEnvelopeCountSummaryReportItems(list1))
             .willReturn(list);
         EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
@@ -113,7 +107,6 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-
             .andExpect(jsonPath("$.total_received").value(response.totalReceived))
             .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
             .andExpect(jsonPath("$.time_stamp").value(response.timeStamp))
@@ -122,7 +115,9 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))
             .andExpect(jsonPath("$.data[0].container").value(response.items.get(0).container))
             .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
+        verify(reportsService).getCountSummaryResponse(list1);
     }
+
 
     @Test
     public void should_not_include_test_container_by_default() throws Exception {
