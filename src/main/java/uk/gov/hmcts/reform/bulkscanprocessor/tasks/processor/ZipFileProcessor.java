@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -100,6 +101,12 @@ public class ZipFileProcessor {
                     var pdfFile = new File(filePath);
                     FileUtils.copyToFile(extractedZis, pdfFile);
                     pdfs.add(new Pdf(zipEntry.getName(), pdfFile));
+                    log.info(
+                        "ZipFile:{}, has  PDF {}, pdf size: {}",
+                        zipFileName,
+                        zipEntry.getName(),
+                        FileUtils.byteCountToDisplaySize(Files.size(pdfFile.toPath()))
+                    );
                     break;
                 default:
                     // contract breakage
