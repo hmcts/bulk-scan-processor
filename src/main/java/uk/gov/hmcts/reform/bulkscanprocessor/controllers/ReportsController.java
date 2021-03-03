@@ -67,11 +67,10 @@ public class ReportsController {
     public EnvelopeCountSummaryReportListResponse getCountSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
-    )
-    {
+    ) {
         List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestContainer);
-        EnvelopeCountSummaryReportListResponse e = this.reportsService.getCountSummaryResponse(result);
-        return e;
+        EnvelopeCountSummaryReportListResponse response = this.reportsService.getCountSummaryResponse(result);
+        return response;
     }
 
 
