@@ -3,9 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
+import java.time.LocalDateTime;
 
 public class EnvelopeCountSummaryReportListResponse {
 
