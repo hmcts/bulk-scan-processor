@@ -99,9 +99,8 @@ public class ReportsControllerTest {
         list.add(countSummary1);
         list.add(countSummary2);
 
-        LocalDateTime ldt = LocalDateTime.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Timestamp ts = Timestamp.valueOf(ldt.format(dtf));
+        String ts = dtf.format(LocalDateTime.now());
 
         EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
             200, 22, ts, list

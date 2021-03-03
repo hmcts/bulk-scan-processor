@@ -83,7 +83,7 @@ public class ReportsService {
         List<EnvelopeCountSummary> result
     ) {
         // Timestamp
-        Timestamp localDateTime = getTimeStamp();
+        String localDateTime = getTimeStamp();
 
         // Total number of rejected Envelopes
         int totalRejected = getTotalRejected(result);
@@ -108,15 +108,14 @@ public class ReportsService {
             .reduce(0, (a, b) -> a + b);
     }
 
-    private Timestamp getTimeStamp() {
+    private String getTimeStamp() {
         /*
         var instant = Instant.now();
         return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
         */
 
-        LocalDateTime ldt = LocalDateTime.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Timestamp ts = Timestamp.valueOf(ldt.format(dtf));
+        String ts = dtf.format(LocalDateTime.now());
         return  ts;
     }
 

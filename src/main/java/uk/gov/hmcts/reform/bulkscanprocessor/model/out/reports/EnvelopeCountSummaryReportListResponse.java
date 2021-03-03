@@ -18,7 +18,7 @@ public class EnvelopeCountSummaryReportListResponse {
     // "time_stamp" : "18-07-2017 06:20:19",
     @JsonProperty("time_stamp")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    public final Timestamp timeStamp;
+    public final String timeStamp;
 
     @JsonProperty("data")
     public final List<EnvelopeCountSummaryReportItem> items;
@@ -26,7 +26,7 @@ public class EnvelopeCountSummaryReportListResponse {
     public EnvelopeCountSummaryReportListResponse(
         int totalReceived,
         int totalRejected,
-        Timestamp localDateTime,
+        String localDateTime,
         List<EnvelopeCountSummaryReportItem> items
     ) {
         this.totalReceived = totalReceived;
