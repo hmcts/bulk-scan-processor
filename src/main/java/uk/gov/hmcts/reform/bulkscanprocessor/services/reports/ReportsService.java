@@ -61,8 +61,11 @@ public class ReportsService {
         return reportResult;
     }
 
-    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(List<EnvelopeCountSummary> result) {
-        //build timestamp
+    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(
+        List<EnvelopeCountSummary> result
+    ) {
+
+        //build timestamp ??
         LocalDateTime localDateTime = getTimeStamp();
 
         //Total number of rejected Envelopes
@@ -80,23 +83,26 @@ public class ReportsService {
                 item.date
             ))
             .collect(toList());
+
         return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
+
     }
 
-    private int getTotalReceived(List<EnvelopeCountSummary> result) {
+    private int getTotalReceived(List<EnvelopeCountSummary> result)
+    {
 
         return result.stream()
             .mapToInt(o->o.received)
             .reduce(0, (a, b) -> a + b);
     }
-
-    private int getTotalRejected(List<EnvelopeCountSummary> result) {
+    private int getTotalRejected(List<EnvelopeCountSummary> result)
+    {
         return result.stream()
             .mapToInt(o->o.rejected)
             .reduce(0, (a, b) -> a + b);
     }
-
-    private LocalDateTime getTimeStamp() {
+    private LocalDateTime getTimeStamp()
+    {
         var instant = Instant.now();
         return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
     }
