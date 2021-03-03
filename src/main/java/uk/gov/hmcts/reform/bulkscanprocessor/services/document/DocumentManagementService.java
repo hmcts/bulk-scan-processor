@@ -36,25 +36,24 @@ public class DocumentManagementService {
     private final AuthTokenGenerator authTokenGenerator;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private final String dmUri;
+    private final String docUploadUrl;
 
     private static final String CLASSIFICATION = "classification";
     private static final String FILES = "files";
-    private static final String DOCUMENTS_PATH = "/documents";
     private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     public static final String USER_ID = "user-id";
     public static final String ROLES = "roles";
 
     public DocumentManagementService(
         AuthTokenGenerator authTokenGenerator,
-        @Value("${document_management.url}") String dmUri,
+        @Value("${document_management.url}") String dmUrl,
         RestTemplate restTemplate,
         ObjectMapper objectMapper
     ) {
         this.authTokenGenerator = authTokenGenerator;
-        this.dmUri = dmUri;
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.docUploadUrl = dmUrl + "" + "/documents";
     }
 
     public Map<String, String> uploadDocuments(List<Pdf> pdfs) {
@@ -109,7 +108,7 @@ public class DocumentManagementService {
                 parameters, httpHeaders
             );
 
-            final String t = this.restTemplate.postForObject(dmUri + DOCUMENTS_PATH, httpEntity, String.class);
+            final String t = this.restTemplate.postForObject(docUploadUrl, httpEntity, String.class);
 
             return objectMapper.readValue(t, UploadResponse.class);
         } catch (IOException e) {
@@ -122,9 +121,7 @@ public class DocumentManagementService {
         headers.add(HttpHeaders.AUTHORIZATION, authorizationToken);
         headers.add(SERVICE_AUTHORIZATION, serviceAuth);
         headers.add(USER_ID, userId);
-
         headers.set(HttpHeaders.CONTENT_TYPE, MULTIPART_FORM_DATA_VALUE);
-
         return headers;
     }
 

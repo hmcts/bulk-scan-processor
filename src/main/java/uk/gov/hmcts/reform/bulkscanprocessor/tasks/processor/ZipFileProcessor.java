@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
@@ -21,7 +22,11 @@ import static com.google.common.io.ByteStreams.toByteArray;
 public class ZipFileProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
-    public static final String DOWNLOAD_PATH = "/var/tmp/download/blobs";
+    public final String downloadPath;
+
+    public ZipFileProcessor(@Value("${tmp-folder-path-for-download}") String downloadPath) {
+        this.downloadPath = downloadPath + File.separator;
+    }
 
     public ZipFileProcessingResult process(
         ZipInputStream extractedZis,
@@ -31,7 +36,7 @@ public class ZipFileProcessor {
     }
 
     public void deleteFolder(String zipFileName) {
-        String folderPath =  DOWNLOAD_PATH + File.separator +  zipFileName;
+        String folderPath =  downloadPath +  zipFileName;
         try {
             FileUtils.deleteDirectory(new File(folderPath));
             log.info("Folder deleted {}", folderPath);
@@ -83,7 +88,7 @@ public class ZipFileProcessor {
 
         List<Pdf> pdfs = new ArrayList<>();
 
-        String folderPath =  DOWNLOAD_PATH + File.separator + zipFileName;
+        String folderPath =  downloadPath + zipFileName;
 
         while ((zipEntry = extractedZis.getNextEntry()) != null) {
             switch (FilenameUtils.getExtension(zipEntry.getName())) {

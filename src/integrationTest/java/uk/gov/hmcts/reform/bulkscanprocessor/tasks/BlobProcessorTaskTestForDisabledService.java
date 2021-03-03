@@ -14,7 +14,6 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor.DOWNLOAD_PATH;
 
 @IntegrationTest
 @TestPropertySource(properties = {
@@ -25,6 +24,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProce
     "containers.mappings[0].enabled=false"
 })
 public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite {
+
+    public static final String DOWNLOAD_PATH = "/var/tmp/download/blobs";
 
     @Test
     public void should_reject_file_when_service_is_disabled() throws Exception {
