@@ -88,21 +88,19 @@ public class ReportsService {
 
     }
 
-    private int getTotalReceived(List<EnvelopeCountSummary> result)
-    {
+    private int getTotalReceived(List<EnvelopeCountSummary> result) {
+        return result.stream()
+            .mapToInt(o -> o.received)
+            .reduce(0, (a, b) -> a + b);
+    }
 
+    private int getTotalRejected(List<EnvelopeCountSummary> result) {
         return result.stream()
-            .mapToInt(o->o.received)
+            .mapToInt(o -> o.rejected)
             .reduce(0, (a, b) -> a + b);
     }
-    private int getTotalRejected(List<EnvelopeCountSummary> result)
-    {
-        return result.stream()
-            .mapToInt(o->o.rejected)
-            .reduce(0, (a, b) -> a + b);
-    }
-    private LocalDateTime getTimeStamp()
-    {
+
+    private LocalDateTime getTimeStamp() {
         var instant = Instant.now();
         return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
     }
