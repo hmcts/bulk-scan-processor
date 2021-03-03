@@ -24,12 +24,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Reconciliat
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-//import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-//import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;

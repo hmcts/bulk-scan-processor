@@ -65,10 +65,8 @@ public class ReportsController {
         @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
     ) {
         List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestContainer);
-        EnvelopeCountSummaryReportListResponse e = this.reportsService.getCountSummaryResponse(result);
-        return e;
+        return this.reportsService.getCountSummaryResponse(result);
     }
-
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Retrieves zip files summary report in json format for the given date and container")
@@ -143,4 +141,3 @@ public class ReportsController {
         );
     }
 }
-

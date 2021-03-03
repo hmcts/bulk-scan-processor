@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCou
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,7 +61,6 @@ public class ReportsService {
         return reportResult;
     }
 
-    //build EnvelopeCountSummaryReportItems list
     public List<EnvelopeCountSummaryReportItem> getEnvelopeCountSummaryReportItems(
         List<EnvelopeCountSummary> result
     ) {
@@ -109,11 +107,6 @@ public class ReportsService {
     }
 
     private String getTimeStamp() {
-        /*
-        var instant = Instant.now();
-        return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
-        */
-
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String ts = dtf.format(LocalDateTime.now());
         return  ts;
@@ -175,4 +168,3 @@ public class ReportsService {
         return null;
     }
 }
-

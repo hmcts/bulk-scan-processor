@@ -3,8 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Timestamp;
-//import java.time.LocalDateTime;
 import java.util.List;
 
 public class EnvelopeCountSummaryReportListResponse {
@@ -15,7 +13,6 @@ public class EnvelopeCountSummaryReportListResponse {
     @JsonProperty("total_rejected")
     public final int totalRejected;
 
-    // "time_stamp" : "18-07-2017 06:20:19",
     @JsonProperty("time_stamp")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     public final String timeStamp;
