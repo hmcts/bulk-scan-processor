@@ -132,7 +132,7 @@ public class DocumentManagementService {
     ) {
         MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
         pdfs.stream()
-            .map(pdf -> new FileSystemResource(pdf))
+            .map(FileSystemResource::new)
             .forEach(file -> parameters.add(FILES, file));
         parameters.add(CLASSIFICATION, classification.name());
         parameters.add(ROLES, roles.stream().collect(Collectors.joining(",")));
