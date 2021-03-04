@@ -46,14 +46,14 @@ public class ZipFileProcessor {
         }
     }
 
-    public ZipFileProcessingResult getZipContentDetail(
+    public ZipFileContentDetail getZipContentDetail(
         ZipInputStream extractedZis,
         String zipFileName
     ) throws IOException {
 
         ZipEntry zipEntry;
 
-        List<Pdf> pdfs = new ArrayList<>();
+        List<String> pdfs = new ArrayList<>();
         byte[] metadata = null;
 
         while ((zipEntry = extractedZis.getNextEntry()) != null) {
@@ -67,7 +67,7 @@ public class ZipFileProcessor {
                     );
                     break;
                 case "pdf":
-                    pdfs.add(new Pdf(zipEntry.getName(), null));
+                    pdfs.add(zipEntry.getName());
                     break;
                 default:
                     // contract breakage
@@ -77,7 +77,7 @@ public class ZipFileProcessor {
 
         log.info("PDFs found in {}: {}", zipFileName, pdfs.size());
 
-        return new ZipFileProcessingResult(metadata, pdfs);
+        return new ZipFileContentDetail(metadata, pdfs);
     }
 
     public ZipFileProcessingResult saveToTemp(
