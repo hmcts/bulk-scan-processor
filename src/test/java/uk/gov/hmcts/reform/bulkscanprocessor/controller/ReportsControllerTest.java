@@ -335,4 +335,3 @@ public class ReportsControllerTest {
         assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
     }
 }
-
