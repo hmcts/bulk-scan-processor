@@ -109,7 +109,7 @@ public class ReportsService {
     private LocalTime toLocalTime(Instant instant) {
         if (instant != null) {
             return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss")
-                                       .format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
+                .format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
         }
         return null;
     }
