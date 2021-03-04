@@ -66,7 +66,6 @@ public class ReportsService {
      * @param container to filter the zip files when container value is provided
      * @return list of zip files summary
      */
-
     public List<ZipFileSummaryResponse> getZipFilesSummary(LocalDate date, String container) {
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
             .stream()
