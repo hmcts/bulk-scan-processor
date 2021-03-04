@@ -10,16 +10,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
-//import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
-//import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
@@ -74,36 +71,29 @@ public class ReportsControllerTest {
     @Test
     public void should_return_result_generated_by_the_service() throws Exception {
 
-        final EnvelopeCountSummary countSummary3 = new EnvelopeCountSummary(
+        final EnvelopeCountSummary countSummary1 = new EnvelopeCountSummary(
             100, 11, "hello1", LocalDate.of(2019, 1, 14)
         );
-        final EnvelopeCountSummary countSummary4 = new EnvelopeCountSummary(
+        final EnvelopeCountSummary countSummary2 = new EnvelopeCountSummary(
             100, 11, "hello2", LocalDate.of(2019, 1, 14)
         );
         List<EnvelopeCountSummary> list1 = new ArrayList<>();
-        list1.add(countSummary3);
-        list1.add(countSummary4);
+        list1.add(countSummary1);
+        list1.add(countSummary2);
+        String ts = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
         given(reportsService.getCountFor(LocalDate.of(2019, 1, 14), false))
             .willReturn(list1);
+        given(reportsService.getTotalReceived(list1))
+            .willReturn(200);
+        given(reportsService.getTotalRejected(list1))
+            .willReturn(22);
+        given(reportsService.getTimeStamp())
+            .willReturn(ts);
 
-        final EnvelopeCountSummaryReportItem countSummary1 = new EnvelopeCountSummaryReportItem(
-            100, 11, "hello1", LocalDate.of(2019, 1, 14)
+        EnvelopeCountSummaryResponse response = new EnvelopeCountSummaryResponse(
+            200, 22, ts, list1
         );
-        final EnvelopeCountSummaryReportItem countSummary2 = new EnvelopeCountSummaryReportItem(
-            100, 11, "hello2", LocalDate.of(2019, 1, 14)
-        );
-        List<EnvelopeCountSummaryReportItem> list = new ArrayList<>();
-        list.add(countSummary1);
-        list.add(countSummary2);
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String ts = dtf.format(LocalDateTime.now());
-        given(reportsService.getEnvelopeCountSummaryReportItems(list1))
-            .willReturn(list);
-        EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
-            200, 22, ts, list
-        );
-        given(reportsService.getCountSummaryResponse(list1))
-            .willReturn(response);
+
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
@@ -115,7 +105,6 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))
             .andExpect(jsonPath("$.data[0].container").value(response.items.get(0).container))
             .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
-        verify(reportsService).getCountSummaryResponse(list1);
     }
 
 

@@ -7,8 +7,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
@@ -61,40 +59,20 @@ public class ReportsService {
         return reportResult;
     }
 
-    public List<EnvelopeCountSummaryReportItem> getEnvelopeCountSummaryReportItems(
-        List<EnvelopeCountSummary> result
-    ) {
-        return  result
-            .stream()
-            .map(item -> new EnvelopeCountSummaryReportItem(
-                item.received,
-                item.rejected,
-                item.container,
-                item.date
-            ))
-            .collect(toList());
-
+    public int getTotalReceived(List<EnvelopeCountSummary> items) {
+        return items.stream()
+               .mapToInt(o -> o.received)
+               .reduce(0, (a, b) -> a + b);
     }
 
-    public EnvelopeCountSummaryReportListResponse getCountSummaryResponse(
-        List<EnvelopeCountSummary> result
-    ) {
-        // Timestamp
-        String localDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
+    public int getTotalRejected(List<EnvelopeCountSummary> items) {
+        return items.stream()
+               .mapToInt(o -> o.rejected)
+               .reduce(0, (a, b) -> a + b);
+    }
 
-        // Total number of rejected Envelopes
-        int totalRejected = result.stream()
-            .mapToInt(o -> o.rejected)
-            .reduce(0, (a, b) -> a + b);
-
-        // Total number of received Envelopes
-        int totalReceived = result.stream()
-            .mapToInt(o -> o.received)
-            .reduce(0, (a, b) -> a + b);
-
-        List<EnvelopeCountSummaryReportItem> items = getEnvelopeCountSummaryReportItems(result);
-
-        return new EnvelopeCountSummaryReportListResponse(totalReceived, totalRejected, localDateTime, items);
+    public String getTimeStamp() {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
     }
 
     /**
@@ -104,6 +82,7 @@ public class ReportsService {
      * @param container to filter the zip files when container value is provided
      * @return list of zip files summary
      */
+
     public List<ZipFileSummaryResponse> getZipFilesSummary(LocalDate date, String container) {
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
             .stream()
