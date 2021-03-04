@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSumm
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,25 +82,24 @@ public class ReportsControllerTest {
         given(reportsService.getCountFor(LocalDate.of(2019, 1, 14), false))
             .willReturn(envelopeCountSummaryList);
 
-        var envelopeCountSummaryReportItemsList = envelopeCountSummaryList.stream()
-            .map(item -> new EnvelopeCountSummaryReportItem(
-                item.received,
-                item.rejected,
-                item.container,
-                item.date
-            ))
-            .collect(toList());
         EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
-            envelopeCountSummaryReportItemsList
+            envelopeCountSummaryList.stream()
+                .map(item -> new EnvelopeCountSummaryReportItem(
+                    item.received,
+                    item.rejected,
+                    item.container,
+                    item.date
+                ))
+                .collect(toList())
         );
 
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andDo(print())
             .andExpect(jsonPath("$.total_received").value(response.getTotalReceived()))
             .andExpect(jsonPath("$.total_rejected").value(response.getTotalRejected()))
-            .andExpect(jsonPath("$.time_stamp").value(response.timeStamp))
+            .andExpect(jsonPath("$.time_stamp").value(response.timeStamp.format(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
             .andExpect(jsonPath("$.data.length()").value(2))
             .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))
             .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))

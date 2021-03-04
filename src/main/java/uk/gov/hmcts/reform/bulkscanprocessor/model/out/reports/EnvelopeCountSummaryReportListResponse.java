@@ -3,12 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
-
-//import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 public class EnvelopeCountSummaryReportListResponse {
 
@@ -30,7 +26,7 @@ public class EnvelopeCountSummaryReportListResponse {
     ) {
         this.items = items;
         calculateTotalCounts(items);
-        timeStamp = LocalDateTime.of(LocalDate.now(), LocalTime.now());
+        timeStamp = LocalDateTime.now().withNano(0);
     }
 
     public int getTotalReceived() {
