@@ -1,6 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.ScannableItemResponse;
+
+import java.util.List;
 
 public class ZipFileEnvelope {
 
@@ -25,6 +30,15 @@ public class ZipFileEnvelope {
     @JsonProperty("rescan_for")
     public final String rescanFor;
 
+    @JsonProperty("scannable_items")
+    public final List<ScannableItemResponse> scannableItems;
+
+    @JsonProperty("non_scannable_items")
+    public final List<NonScannableItemResponse> nonScannableItems;
+
+    @JsonProperty("payments")
+    public final List<PaymentResponse> payments;
+
     // region constructor
     public ZipFileEnvelope(
         String id,
@@ -33,7 +47,11 @@ public class ZipFileEnvelope {
         String ccdId,
         String envelopeCcdAction,
         boolean zipDeleted,
-        String rescanFor
+        String rescanFor,
+        List<ScannableItemResponse> scannableItems,
+        List<NonScannableItemResponse> nonScannableItems,
+        List<PaymentResponse> payments
+
     ) {
         this.id = id;
         this.container = container;
@@ -42,6 +60,9 @@ public class ZipFileEnvelope {
         this.envelopeCcdAction = envelopeCcdAction;
         this.zipDeleted = zipDeleted;
         this.rescanFor = rescanFor;
+        this.scannableItems = scannableItems;
+        this.nonScannableItems = nonScannableItems;
+        this.payments = payments;
     }
     // endregion
 }
