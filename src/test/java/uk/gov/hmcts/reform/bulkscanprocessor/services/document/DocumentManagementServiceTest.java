@@ -15,7 +15,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,11 +64,8 @@ public class DocumentManagementServiceTest {
     public void should_return_upload_response_with_document_urls_when_docs_are_successfully_uploaded()
         throws Exception {
         //Given
-        File test1 = new File(getResource("test1.pdf").toURI());
-        File test2 = new File(getResource("test2.pdf").toURI());
-
-        Pdf pdf1 = new Pdf("test1.pdf", test1);
-        Pdf pdf2 = new Pdf("test2.pdf", test2);
+        File pdf1 = new File(getResource("test1.pdf").toURI());
+        File pdf2 = new File(getResource("test2.pdf").toURI());
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
@@ -99,11 +95,8 @@ public class DocumentManagementServiceTest {
     @Test
     public void should_throw_client_exception_when_service_auth_throws_unauthorized_exception() throws Exception {
         //Given
-        File test1 = new File(getResource("test1.pdf").toURI());
-        File test2 = new File(getResource("test2.pdf").toURI());
-
-        Pdf pdf1 = new Pdf("test1.pdf", test1);
-        Pdf pdf2 = new Pdf("test2.pdf", test2);
+        File pdf1 = new File(getResource("test1.pdf").toURI());
+        File pdf2 = new File(getResource("test2.pdf").toURI());
 
         given(authTokenGenerator.generate()).willThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
@@ -121,11 +114,8 @@ public class DocumentManagementServiceTest {
     public void should_throw_unable_to_upload_doc_exception_when_bulk_scan_service_throws_client_exception()
         throws Exception {
         //Given
-        File test1 = new File(getResource("test1.pdf").toURI());
-        File test2 = new File(getResource("test2.pdf").toURI());
-
-        Pdf pdf1 = new Pdf("test1.pdf", test1);
-        Pdf pdf2 = new Pdf("test2.pdf", test2);
+        File pdf1 = new File(getResource("test1.pdf").toURI());
+        File pdf2 = new File(getResource("test2.pdf").toURI());
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
@@ -147,11 +137,8 @@ public class DocumentManagementServiceTest {
     @Test
     public void should_throw_unable_to_upload_document_exception_when_document_storage_is_down() throws Exception {
         //Given
-        File test1 = new File(getResource("test1.pdf").toURI());
-        File test2 = new File(getResource("test2.pdf").toURI());
-
-        Pdf pdf1 = new Pdf("test1.pdf", test1);
-        Pdf pdf2 = new Pdf("test2.pdf", test2);
+        File pdf1 = new File(getResource("test1.pdf").toURI());
+        File pdf2 = new File(getResource("test2.pdf").toURI());
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),

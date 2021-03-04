@@ -7,14 +7,13 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -113,9 +112,9 @@ public class UploadEnvelopeDocumentsService {
         UUID envelopeId = envelope.getId();
         String containerName = blobClient.getContainerName();
 
-        ZipFileProcessingResult result = processBlobContent(blobClient, containerName, zipFileName, envelopeId);
+        List<File> pdfList = processBlobContent(blobClient, containerName, zipFileName, envelopeId);
 
-        uploadParsedZipFileName(envelope, result.getPdfs());
+        uploadParsedZipFileName(envelope, pdfList);
         zipFileProcessor.deleteFolder(zipFileName);
 
         envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
@@ -128,14 +127,14 @@ public class UploadEnvelopeDocumentsService {
         );
     }
 
-    private ZipFileProcessingResult processBlobContent(
+    private List<File> processBlobContent(
         BlobClient blobClient,
         String containerName,
         String zipFileName,
         UUID envelopeId
     ) {
         try (ZipInputStream zis = new ZipInputStream(blobClient.openInputStream())) {
-            return zipFileProcessor.process(zis, zipFileName);
+            return zipFileProcessor.extractPdfFiles(zis, zipFileName);
         } catch (Exception exception) {
             String message = String.format(
                 "Failed to process zip. File: %s, Container: %s, Envelope ID: %s",
@@ -149,7 +148,7 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
-    private void uploadParsedZipFileName(Envelope envelope, List<Pdf> pdfs) {
+    private void uploadParsedZipFileName(Envelope envelope, List<File> pdfs) {
         try {
             documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
 

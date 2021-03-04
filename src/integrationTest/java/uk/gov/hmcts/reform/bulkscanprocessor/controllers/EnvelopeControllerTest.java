@@ -38,7 +38,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
@@ -226,11 +225,11 @@ public class EnvelopeControllerTest {
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
         assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
-        ArgumentCaptor<List<Pdf>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
             .uploadDocuments(pdfListCaptor.capture());
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
-        assertThat(pdfListCaptor.getAllValues().get(0).get(0).getFilename()).isEqualTo("1111002.pdf");
+        assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 

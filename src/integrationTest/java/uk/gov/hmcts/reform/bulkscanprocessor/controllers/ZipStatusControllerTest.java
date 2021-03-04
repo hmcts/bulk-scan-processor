@@ -33,7 +33,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
@@ -213,9 +212,9 @@ class ZipStatusControllerTest {
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(content().json(Resources.toString(getResource("zipstatus.json"), UTF_8)));
 
-        ArgumentCaptor<List<Pdf>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService,times(1)).uploadDocuments(pdfListCaptor.capture());
-        assertThat(pdfListCaptor.getValue().get(0).getFilename()).isEqualTo("1111002.pdf");
+        assertThat(pdfListCaptor.getValue().get(0).getName()).isEqualTo("1111002.pdf");
     }
 
     private void uploadZipToBlobStore(String dirToZip, String zipFilename) throws Exception {

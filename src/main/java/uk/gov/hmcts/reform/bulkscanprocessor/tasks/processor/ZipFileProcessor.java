@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +29,11 @@ public class ZipFileProcessor {
         this.downloadPath = downloadPath + File.separator;
     }
 
-    public ZipFileProcessingResult process(
+    public List<File> extractPdfFiles(
         ZipInputStream extractedZis,
         String zipFileName
     ) throws IOException {
-        return saveToTemp(extractedZis, zipFileName);
+        return createPdfAndSaveToTemp(extractedZis, zipFileName);
     }
 
     public void deleteFolder(String zipFileName) {
@@ -80,42 +80,32 @@ public class ZipFileProcessor {
         return new ZipFileContentDetail(metadata, pdfs);
     }
 
-    public ZipFileProcessingResult saveToTemp(
+    private List<File> createPdfAndSaveToTemp(
         ZipInputStream extractedZis,
         String zipFileName
     ) throws IOException {
 
         ZipEntry zipEntry;
-
-        List<Pdf> pdfs = new ArrayList<>();
-
+        List<File> pdfs = new ArrayList<>();
         String folderPath =  downloadPath + zipFileName;
 
         while ((zipEntry = extractedZis.getNextEntry()) != null) {
-            switch (FilenameUtils.getExtension(zipEntry.getName())) {
-                case "json":
-                    break;
-                case "pdf":
-                    String filePath =
-                        folderPath + File.separator + FilenameUtils.getName(zipEntry.getName());
-                    var pdfFile = new File(filePath);
-                    FileUtils.copyToFile(extractedZis, pdfFile);
-                    pdfs.add(new Pdf(zipEntry.getName(), pdfFile));
-                    log.info(
-                        "ZipFile:{}, has  PDF {}, pdf size: {}",
-                        zipFileName,
-                        zipEntry.getName(),
-                        FileUtils.byteCountToDisplaySize(Files.size(pdfFile.toPath()))
-                    );
-                    break;
-                default:
-                    // contract breakage
-                    throw new NonPdfFileFoundException(zipFileName, zipEntry.getName());
+            if ("pdf".equals(FilenameUtils.getExtension(zipEntry.getName()))) {
+                String filePath =
+                    folderPath + File.separator + FilenameUtils.getName(zipEntry.getName());
+                var pdfFile = new File(filePath);
+                FileUtils.copyToFile(extractedZis, pdfFile);
+                pdfs.add(pdfFile);
+                log.info(
+                    "ZipFile:{}, has  PDF {}, pdf size: {}",
+                    zipFileName,
+                    zipEntry.getName(),
+                    FileUtils.byteCountToDisplaySize(Files.size(pdfFile.toPath()))
+                );
             }
         }
+        log.info("Zip file {} has {} pdfs: {}. Saved to {} ", zipFileName, pdfs, pdfs.size(), folderPath);
 
-        log.info("PDFs found in {}: {}, saved to {} ", zipFileName, pdfs.size(), folderPath);
-
-        return new ZipFileProcessingResult(null, pdfs);
+        return ImmutableList.copyOf(pdfs);
     }
 }
