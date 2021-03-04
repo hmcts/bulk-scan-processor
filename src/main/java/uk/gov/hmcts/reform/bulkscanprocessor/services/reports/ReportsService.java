@@ -60,15 +60,11 @@ public class ReportsService {
     }
 
     public int getTotalReceived(List<EnvelopeCountSummary> items) {
-        return items.stream()
-               .mapToInt(o -> o.received)
-               .reduce(0, (a, b) -> a + b);
+        return items.stream().mapToInt(o -> o.received).reduce(0, (a, b) -> a + b);
     }
 
     public int getTotalRejected(List<EnvelopeCountSummary> items) {
-        return items.stream()
-               .mapToInt(o -> o.rejected)
-               .reduce(0, (a, b) -> a + b);
+        return items.stream().mapToInt(o -> o.rejected).reduce(0, (a, b) -> a + b);
     }
 
     public String getTimeStamp() {

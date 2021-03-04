@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -83,13 +84,9 @@ public class ReportsControllerTest {
         String ts = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
         given(reportsService.getCountFor(LocalDate.of(2019, 1, 14), false))
             .willReturn(list1);
-        given(reportsService.getTotalReceived(list1))
-            .willReturn(200);
-        given(reportsService.getTotalRejected(list1))
-            .willReturn(22);
-        given(reportsService.getTimeStamp())
-            .willReturn(ts);
-
+        when(reportsService.getTotalReceived(list1)).thenCallRealMethod();
+        when(reportsService.getTotalRejected(list1)).thenCallRealMethod();
+        when(reportsService.getTimeStamp()).thenCallRealMethod();
         EnvelopeCountSummaryResponse response = new EnvelopeCountSummaryResponse(
             200, 22, ts, list1
         );
@@ -106,7 +103,6 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].container").value(response.items.get(0).container))
             .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
     }
-
 
     @Test
     public void should_not_include_test_container_by_default() throws Exception {
