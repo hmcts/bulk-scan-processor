@@ -9,10 +9,10 @@ import java.util.List;
 public class EnvelopeCountSummaryReportListResponse {
 
     @JsonProperty("total_received")
-    private final int totalReceived;
+    public final int totalReceived;
 
     @JsonProperty("total_rejected")
-    private final int totalRejected;
+    public final int totalRejected;
 
     @JsonProperty("time_stamp")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -25,25 +25,16 @@ public class EnvelopeCountSummaryReportListResponse {
         List<EnvelopeCountSummaryReportItem> items
     ) {
         this.items = items;
-        int totalReceivedEnvelops = 0;
-        int totalRejectedEnvelops = 0;
+        int totalReceivedEnvelopes = 0;
+        int totalRejectedEnvelopes = 0;
 
         for (var item : items) {
-            totalReceivedEnvelops += item.received;
-            totalRejectedEnvelops += item.rejected;
+            totalReceivedEnvelopes += item.received;
+            totalRejectedEnvelopes += item.rejected;
         }
 
-        this.totalReceived = totalReceivedEnvelops;
-        this.totalRejected = totalRejectedEnvelops;
+        this.totalReceived = totalReceivedEnvelopes;
+        this.totalRejected = totalRejectedEnvelopes;
         timeStamp = LocalDateTime.now().withNano(0);
-    }
-
-    public int getTotalReceived() {
-        return totalReceived;
-    }
-
-    public int getTotalRejected() {
-
-        return totalRejected;
     }
 }

@@ -96,8 +96,8 @@ public class ReportsControllerTest {
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.total_received").value(response.getTotalReceived()))
-            .andExpect(jsonPath("$.total_rejected").value(response.getTotalRejected()))
+            .andExpect(jsonPath("$.total_received").value(response.totalReceived))
+            .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
             .andExpect(jsonPath("$.time_stamp").value(response.timeStamp.format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
             .andExpect(jsonPath("$.data.length()").value(2))
@@ -110,7 +110,6 @@ public class ReportsControllerTest {
     @Test
     public void should_not_include_test_container_by_default() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14"));
-
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
