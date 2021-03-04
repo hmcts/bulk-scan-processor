@@ -16,14 +16,13 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
-import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -56,7 +55,9 @@ public class DocumentManagementServiceTest {
 
         documentManagementService = new DocumentManagementService(
             authTokenGenerator,
-            new DocumentUploadClientApi("http://localhost:8080", restTemplate, new ObjectMapper())
+            "http://localhost:8080",
+            restTemplate,
+            new ObjectMapper()
         );
     }
 
@@ -64,11 +65,11 @@ public class DocumentManagementServiceTest {
     public void should_return_upload_response_with_document_urls_when_docs_are_successfully_uploaded()
         throws Exception {
         //Given
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
+        File test1 = new File(getResource("test1.pdf").toURI());
+        File test2 = new File(getResource("test2.pdf").toURI());
 
-        Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
+        Pdf pdf1 = new Pdf("test1.pdf", test1);
+        Pdf pdf2 = new Pdf("test2.pdf", test2);
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
@@ -98,11 +99,11 @@ public class DocumentManagementServiceTest {
     @Test
     public void should_throw_client_exception_when_service_auth_throws_unauthorized_exception() throws Exception {
         //Given
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
+        File test1 = new File(getResource("test1.pdf").toURI());
+        File test2 = new File(getResource("test2.pdf").toURI());
 
-        Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
+        Pdf pdf1 = new Pdf("test1.pdf", test1);
+        Pdf pdf2 = new Pdf("test2.pdf", test2);
 
         given(authTokenGenerator.generate()).willThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
@@ -120,11 +121,11 @@ public class DocumentManagementServiceTest {
     public void should_throw_unable_to_upload_doc_exception_when_bulk_scan_service_throws_client_exception()
         throws Exception {
         //Given
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
+        File test1 = new File(getResource("test1.pdf").toURI());
+        File test2 = new File(getResource("test2.pdf").toURI());
 
-        Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
+        Pdf pdf1 = new Pdf("test1.pdf", test1);
+        Pdf pdf2 = new Pdf("test2.pdf", test2);
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
@@ -146,11 +147,11 @@ public class DocumentManagementServiceTest {
     @Test
     public void should_throw_unable_to_upload_document_exception_when_document_storage_is_down() throws Exception {
         //Given
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
-        byte[] test2PdfBytes = toByteArray(getResource("test2.pdf"));
+        File test1 = new File(getResource("test1.pdf").toURI());
+        File test2 = new File(getResource("test2.pdf").toURI());
 
-        Pdf pdf1 = new Pdf("test1.pdf", test1PdfBytes);
-        Pdf pdf2 = new Pdf("test2.pdf", test2PdfBytes);
+        Pdf pdf1 = new Pdf("test1.pdf", test1);
+        Pdf pdf2 = new Pdf("test2.pdf", test2);
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
