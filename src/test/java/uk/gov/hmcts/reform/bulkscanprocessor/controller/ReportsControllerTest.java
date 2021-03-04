@@ -10,21 +10,20 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +32,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -70,30 +69,36 @@ public class ReportsControllerTest {
     @Test
     public void should_return_result_generated_by_the_service() throws Exception {
 
-        final EnvelopeCountSummary countSummary1 = new EnvelopeCountSummary(
+        final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
             100, 11, "hello1", LocalDate.of(2019, 1, 14)
         );
-        final EnvelopeCountSummary countSummary2 = new EnvelopeCountSummary(
+        final EnvelopeCountSummary countSummaryTwo = new EnvelopeCountSummary(
             100, 11, "hello2", LocalDate.of(2019, 1, 14)
         );
-        List<EnvelopeCountSummary> list1 = new ArrayList<>();
-        list1.add(countSummary1);
-        list1.add(countSummary2);
-        String ts = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
+        List<EnvelopeCountSummary> envelopeCountSummaryList = new ArrayList<>();
+        envelopeCountSummaryList.add(countSummaryOne);
+        envelopeCountSummaryList.add(countSummaryTwo);
         given(reportsService.getCountFor(LocalDate.of(2019, 1, 14), false))
-            .willReturn(list1);
-        when(reportsService.getTotalReceived(list1)).thenCallRealMethod();
-        when(reportsService.getTotalRejected(list1)).thenCallRealMethod();
-        when(reportsService.getTimeStamp()).thenCallRealMethod();
-        EnvelopeCountSummaryResponse response = new EnvelopeCountSummaryResponse(
-            200, 22, ts, list1
+            .willReturn(envelopeCountSummaryList);
+
+        var envelopeCountSummaryReportItemsList = envelopeCountSummaryList.stream()
+            .map(item -> new EnvelopeCountSummaryReportItem(
+                item.received,
+                item.rejected,
+                item.container,
+                item.date
+            ))
+            .collect(toList());
+        EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
+            envelopeCountSummaryReportItemsList
         );
 
         mockMvc
             .perform(get("/reports/count-summary?date=2019-01-14"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.total_received").value(response.totalReceived))
-            .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
+            .andDo(print())
+            .andExpect(jsonPath("$.total_received").value(response.getTotalReceived()))
+            .andExpect(jsonPath("$.total_rejected").value(response.getTotalRejected()))
             .andExpect(jsonPath("$.time_stamp").value(response.timeStamp))
             .andExpect(jsonPath("$.data.length()").value(2))
             .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))

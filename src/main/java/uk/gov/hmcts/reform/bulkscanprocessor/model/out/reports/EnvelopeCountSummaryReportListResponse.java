@@ -3,32 +3,48 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+
+//import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 public class EnvelopeCountSummaryReportListResponse {
 
     @JsonProperty("total_received")
-    public final int totalReceived;
+    private int totalReceived = 0;
 
     @JsonProperty("total_rejected")
-    public final int totalRejected;
+    private int totalRejected = 0;
 
     @JsonProperty("time_stamp")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    public final String timeStamp;
+    public final LocalDateTime timeStamp;
 
     @JsonProperty("data")
     public final List<EnvelopeCountSummaryReportItem> items;
 
     public EnvelopeCountSummaryReportListResponse(
-        int totalReceived,
-        int totalRejected,
-        String localDateTime,
         List<EnvelopeCountSummaryReportItem> items
     ) {
-        this.totalReceived = totalReceived;
-        this.totalRejected = totalRejected;
-        this.timeStamp = localDateTime;
         this.items = items;
+        calculateTotalCounts(items);
+        timeStamp = LocalDateTime.of(LocalDate.now(), LocalTime.now());
+    }
+
+    public int getTotalReceived() {
+        return totalReceived;
+    }
+
+    public int getTotalRejected() {
+        return totalRejected;
+    }
+
+    private void calculateTotalCounts(List<EnvelopeCountSummaryReportItem> items) {
+        for (var item : items) {
+            this.totalReceived += item.received;
+            this.totalRejected += item.rejected;
+        }
     }
 }

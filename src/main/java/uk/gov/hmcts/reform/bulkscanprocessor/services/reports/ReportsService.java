@@ -59,18 +59,6 @@ public class ReportsService {
         return reportResult;
     }
 
-    public int getTotalReceived(List<EnvelopeCountSummary> items) {
-        return items.stream().mapToInt(o -> o.received).reduce(0, (a, b) -> a + b);
-    }
-
-    public int getTotalRejected(List<EnvelopeCountSummary> items) {
-        return items.stream().mapToInt(o -> o.rejected).reduce(0, (a, b) -> a + b);
-    }
-
-    public String getTimeStamp() {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
-    }
-
     /**
      * Get zip files summary for the given date and container.
      *
