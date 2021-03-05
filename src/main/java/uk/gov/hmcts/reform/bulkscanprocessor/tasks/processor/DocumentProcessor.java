@@ -9,8 +9,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class DocumentProcessor {
         this.scannableItemRepository = scannableItemRepository;
     }
 
-    public void uploadPdfFiles(List<Pdf> pdfs, List<ScannableItem> scannedItems) {
+    public void uploadPdfFiles(List<File> pdfs, List<ScannableItem> scannedItems) {
         Map<String, String> response = documentManagementService.uploadDocuments(pdfs);
 
         log.info("Document service response with file name and doc url {}", response);

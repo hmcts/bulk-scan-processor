@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -54,7 +53,7 @@ public class EnvelopeProcessorValidationTest {
                 scannableItem("world.pdf")
             )
         );
-        List<Pdf> pdfs = singletonList(new Pdf("hello.pdf", null));
+        List<String> pdfs = singletonList("hello.pdf");
 
         // when
         Throwable throwable = catchThrowable(() -> envelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs));
@@ -77,10 +76,10 @@ public class EnvelopeProcessorValidationTest {
                 scannableItem("bbb.pdf")
             )
         );
-        List<Pdf> pdfs = asList(
-            new Pdf("aaa.pdf", null),
-            new Pdf("bbb.pdf", null),
-            new Pdf("extra.pdf", null)
+        List<String> pdfs = asList(
+            "aaa.pdf",
+            "bbb.pdf",
+            "extra.pdf"
         );
 
         // when
@@ -105,10 +104,10 @@ public class EnvelopeProcessorValidationTest {
                 scannableItem("zzz.pdf")
             )
         );
-        List<Pdf> pdfs = asList(
-            new Pdf("xxx.pdf", null),
-            new Pdf("yyy.pdf", null),
-            new Pdf("something_not_declared.pdf", null)
+        List<String> pdfs = asList(
+            "xxx.pdf",
+            "yyy.pdf",
+            "something_not_declared.pdf"
         );
 
         // when
@@ -134,9 +133,9 @@ public class EnvelopeProcessorValidationTest {
                 scannableItem("yyy.pdf")
             )
         );
-        List<Pdf> pdfs = asList(
-            new Pdf("xxx.pdf", null),
-            new Pdf("yyy.pdf", null)
+        List<String> pdfs = asList(
+            "xxx.pdf",
+            "yyy.pdf"
         );
 
         // when

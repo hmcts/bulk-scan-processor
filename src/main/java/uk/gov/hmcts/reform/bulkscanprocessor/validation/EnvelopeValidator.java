@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +129,7 @@ public final class EnvelopeValidator {
      * @param envelope to assert against
      * @param pdfs     to assert against
      */
-    public void assertEnvelopeHasPdfs(InputEnvelope envelope, List<Pdf> pdfs) {
+    public void assertEnvelopeHasPdfs(InputEnvelope envelope, List<String> pdfs) {
         List<String> problems = new ArrayList<>();
 
         List<String> duplicateFileNames =
@@ -146,10 +145,7 @@ public final class EnvelopeValidator {
             .map(item -> item.fileName)
             .collect(toSet());
 
-        Set<String> pdfFileNames = pdfs
-            .stream()
-            .map(Pdf::getFilename)
-            .collect(toSet());
+        Set<String> pdfFileNames = Sets.newHashSet(pdfs);
 
         Set<String> missingActualPdfFiles = Sets.difference(scannedFileNames, pdfFileNames);
         Set<String> notDeclaredPdfs = Sets.difference(pdfFileNames, scannedFileNames);

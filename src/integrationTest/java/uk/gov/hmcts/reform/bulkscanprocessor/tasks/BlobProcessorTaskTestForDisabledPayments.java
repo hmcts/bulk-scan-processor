@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
+
+import java.io.File;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
@@ -34,10 +34,8 @@ public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
 
         // and
-        Pdf pdf = new Pdf(
-            "1111002.pdf",
-            toByteArray(getResource("zipcontents/disabled_payments/1111002.pdf"))
-        );
+        File pdf = new File(getResource("zipcontents/disabled_payments/1111002.pdf").toURI());
+
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(ImmutableMap.of(

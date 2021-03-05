@@ -10,9 +10,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.MetadataNotFoundExceptio
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentsDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileContentDetail;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.util.List;
@@ -55,12 +54,11 @@ class FileContentProcessorTest {
     @Mock
     private ZipInputStream zis;
 
-    @Mock
-    private ZipFileProcessingResult result;
-
     private byte[] metadata = new byte[]{};
 
-    private List<Pdf> pdfs = emptyList();
+    private List<String> pdfs = emptyList();
+
+    private ZipFileContentDetail zipFileContentDetail = new ZipFileContentDetail(new byte[]{}, emptyList());
 
     private InputEnvelope inputEnvelope;
 
@@ -94,10 +92,8 @@ class FileContentProcessorTest {
     @Test
     void should_process_file_content_and_save_envelope() throws Exception {
         // given
-        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
-        given(result.getMetadata()).willReturn(metadata);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(zipFileContentDetail);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
-        given(result.getPdfs()).willReturn(pdfs);
 
         // when
         fileContentProcessor.processZipFileContent(
@@ -121,8 +117,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_payments_disabled() throws Exception {
         // given
-        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
-        given(result.getMetadata()).willReturn(metadata);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(zipFileContentDetail);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
         given(envelopeProcessor
                   .createEvent(FILE_VALIDATION_FAILURE, CONTAINER_NAME, FILE_NAME, "msg", null))
@@ -162,8 +157,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_service_disabled() throws Exception {
         // given
-        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
-        given(result.getMetadata()).willReturn(metadata);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(zipFileContentDetail);
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willReturn(inputEnvelope);
         given(envelopeProcessor
                   .createEvent(DISABLED_SERVICE_FAILURE, CONTAINER_NAME, FILE_NAME, "msg", null))
@@ -203,8 +197,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_envelope_rejection_exception() throws Exception {
         // given
-        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
-        given(result.getMetadata()).willReturn(metadata);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(zipFileContentDetail);
         MetadataNotFoundException ex = new MetadataNotFoundException("msg");
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
         given(envelopeProcessor
@@ -235,8 +228,7 @@ class FileContentProcessorTest {
     @Test
     void should_handle_envelope_disallowed_document_type_exception() throws Exception {
         // given
-        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(result);
-        given(result.getMetadata()).willReturn(metadata);
+        given(zipFileProcessor.getZipContentDetail(zis, FILE_NAME)).willReturn(zipFileContentDetail);
         DisallowedDocumentTypesException ex = new DisallowedDocumentTypesException("msg");
         given(envelopeProcessor.parseEnvelope(metadata, FILE_NAME)).willThrow(ex);
         given(envelopeProcessor

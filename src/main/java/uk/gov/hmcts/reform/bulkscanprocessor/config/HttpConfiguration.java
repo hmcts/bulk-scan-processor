@@ -30,7 +30,9 @@ public class HttpConfiguration {
 
     @Bean
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
-        return new HttpComponentsClientHttpRequestFactory(getHttpClient());
+        var factory = new HttpComponentsClientHttpRequestFactory(getHttpClient());
+        factory.setBufferRequestBody(false);
+        return factory;
     }
 
     private CloseableHttpClient getHttpClient() {
