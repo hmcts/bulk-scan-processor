@@ -97,14 +97,14 @@ public class ZipFileProcessor {
                 FileUtils.copyToFile(extractedZis, pdfFile);
                 pdfs.add(pdfFile);
                 log.info(
-                    "ZipFile:{}, has  PDF {}, pdf size: {}",
+                    "ZipFile:{}, has {}, pdf size: {}",
                     zipFileName,
                     zipEntry.getName(),
                     FileUtils.byteCountToDisplaySize(Files.size(pdfFile.toPath()))
                 );
             }
         }
-        log.info("Zip file {} has {} pdfs: {}. Saved to {} ", zipFileName, pdfs, pdfs.size(), folderPath);
+        log.info("Zip file {} has {} pdfs: {}. Saved to {} ", zipFileName, pdfs.size(), pdfs, folderPath);
 
         return ImmutableList.copyOf(pdfs);
     }
