@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
@@ -27,6 +26,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -122,9 +122,9 @@ public class UploadEnvelopeDocumentsTaskTest {
             .get()
             .extracting(Envelope::getStatus)
             .isEqualTo(UPLOADED);
-        ArgumentCaptor<List<Pdf>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService, times(1)).uploadDocuments(pdfListCaptor.capture());
-        assertThat(pdfListCaptor.getValue().get(0).getFilename()).isEqualTo("1111002.pdf");
+        assertThat(pdfListCaptor.getValue().get(0).getName()).isEqualTo("1111002.pdf");
     }
 
 }

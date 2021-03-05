@@ -13,11 +13,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.document.domain.Classification;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -56,7 +56,7 @@ public class DocumentManagementService {
         this.docUploadUrl = dmUrl + "" + "/documents";
     }
 
-    public Map<String, String> uploadDocuments(List<Pdf> pdfs) {
+    public Map<String, String> uploadDocuments(List<File> pdfs) {
 
         String s2sToken = authTokenGenerator.generate();
         try {
@@ -95,7 +95,7 @@ public class DocumentManagementService {
         String authorisation,
         String serviceAuth,
         String userId,
-        List<Pdf> pdfs
+        List<File> pdfs
     ) {
         List<String> roles = Collections.emptyList();
         Classification classification = Classification.RESTRICTED;
@@ -126,13 +126,13 @@ public class DocumentManagementService {
     }
 
     private static MultiValueMap<String, Object> prepareRequest(
-        List<Pdf> pdfs,
+        List<File> pdfs,
         List<String> roles,
         Classification classification
     ) {
         MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
         pdfs.stream()
-            .map(pdf -> new FileSystemResource(pdf.getFile()))
+            .map(FileSystemResource::new)
             .forEach(file -> parameters.add(FILES, file));
         parameters.add(CLASSIFICATION, classification.name());
         parameters.add(ROLES, roles.stream().collect(Collectors.joining(",")));

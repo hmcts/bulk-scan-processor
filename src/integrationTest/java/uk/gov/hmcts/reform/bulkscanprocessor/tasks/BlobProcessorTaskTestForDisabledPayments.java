@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 
 import java.io.File;
 
@@ -35,10 +34,8 @@ public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
 
         // and
-        Pdf pdf = new Pdf(
-            "1111002.pdf",
-            new File(getResource("zipcontents/disabled_payments/1111002.pdf").toURI())
-        );
+        File pdf = new File(getResource("zipcontents/disabled_payments/1111002.pdf").toURI());
+
 
         given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
             .willReturn(ImmutableMap.of(
