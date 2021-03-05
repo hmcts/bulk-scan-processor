@@ -71,15 +71,15 @@ public class ReportsControllerTest {
     public void should_return_result_generated_by_the_service() throws Exception {
 
         final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
-            100, 11, "hello1", LocalDate.of(2019, 1, 14)
+            150, 10, "container1", LocalDate.of(2021, 3, 4)
         );
         final EnvelopeCountSummary countSummaryTwo = new EnvelopeCountSummary(
-            100, 11, "hello2", LocalDate.of(2019, 1, 14)
+            150, 10, "container2", LocalDate.of(2021, 3, 4)
         );
         List<EnvelopeCountSummary> envelopeCountSummaryList = new ArrayList<>();
         envelopeCountSummaryList.add(countSummaryOne);
         envelopeCountSummaryList.add(countSummaryTwo);
-        given(reportsService.getCountFor(LocalDate.of(2019, 1, 14), false))
+        given(reportsService.getCountFor(LocalDate.of(2021, 3, 4), false))
             .willReturn(envelopeCountSummaryList);
 
         EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
@@ -94,7 +94,7 @@ public class ReportsControllerTest {
         );
 
         mockMvc
-            .perform(get("/reports/count-summary?date=2019-01-14"))
+            .perform(get("/reports/count-summary?date=2021-03-04"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.total_received").value(response.totalReceived))
             .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
