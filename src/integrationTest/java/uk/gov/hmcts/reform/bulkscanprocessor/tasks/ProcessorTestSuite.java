@@ -193,8 +193,8 @@ public abstract class ProcessorTestSuite {
             leaseAcquirer,
             ocrValidationRetryManager
         );
-        
-        processor = new BlobProcessorTask(
+
+                processor = new BlobProcessorTask(
             blobManager,
             zipFileProcessingService
         );
