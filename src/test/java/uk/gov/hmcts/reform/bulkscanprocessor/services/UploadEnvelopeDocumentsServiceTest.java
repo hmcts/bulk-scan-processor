@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
@@ -152,7 +151,7 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blobClient.getContainerName()).willReturn(CONTAINER_1);
         // and
         willThrow(new IOException("failed")).given(zipFileProcessor)
-            .process(any(ZipInputStream.class), eq(ZIP_FILE_NAME));
+            .extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME));
 
         Envelope envelope = mock(Envelope.class);
         UUID envelopeId = UUID.randomUUID();
@@ -180,8 +179,8 @@ class UploadEnvelopeDocumentsServiceTest {
         leaseAcquired();
         given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
 
-        given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
-            .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
+        given(zipFileProcessor.extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
+            .willReturn(emptyList()); // unit test doesn't care if it's empty
 
         // and
         willThrow(new RuntimeException("oh no")).given(documentProcessor).uploadPdfFiles(emptyList(), emptyList());
@@ -217,8 +216,8 @@ class UploadEnvelopeDocumentsServiceTest {
         leaseAcquired();
         given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
 
-        given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
-            .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
+        given(zipFileProcessor.extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
+            .willReturn(emptyList()); // unit test doesn't care if it's empty
 
         // when
         uploadService.processByContainer(CONTAINER_1, getEnvelopes());
