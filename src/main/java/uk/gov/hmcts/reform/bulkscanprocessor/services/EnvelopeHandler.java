@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
@@ -64,7 +63,7 @@ public class EnvelopeHandler {
     public void handleEnvelope(
         String containerName,
         String zipFilename,
-        List<Pdf> pdfs,
+        List<String> pdfs,
         InputEnvelope inputEnvelope
     ) {
         envelopeValidator.assertZipFilenameMatchesWithMetadata(inputEnvelope, zipFilename);

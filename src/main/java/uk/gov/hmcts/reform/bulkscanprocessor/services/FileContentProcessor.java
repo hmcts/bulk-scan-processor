@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileContentDetail;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.util.zip.ZipInputStream;
@@ -55,9 +55,9 @@ public class FileContentProcessor {
         String leaseId
     ) {
         try {
-            ZipFileProcessingResult result = zipFileProcessor.getZipContentDetail(zis, zipFilename);
+            ZipFileContentDetail zipDetail = zipFileProcessor.getZipContentDetail(zis, zipFilename);
 
-            InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(result.getMetadata(), zipFilename);
+            InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(zipDetail.getMetadata(), zipFilename);
 
             log.info(
                 "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
@@ -70,7 +70,7 @@ public class FileContentProcessor {
             envelopeHandler.handleEnvelope(
                 containerName,
                 zipFilename,
-                result.getPdfs(),
+                zipDetail.pdfFileNames,
                 inputEnvelope
             );
         } catch (PaymentsDisabledException ex) {
