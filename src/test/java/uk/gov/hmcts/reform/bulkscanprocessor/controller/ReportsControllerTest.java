@@ -71,10 +71,10 @@ public class ReportsControllerTest {
     public void should_return_result_generated_by_the_service() throws Exception {
 
         final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
-            150, 10, "container1", LocalDate.of(2021, 3, 4)
+            152, 11, "container1", LocalDate.of(2021, 3, 4)
         );
         final EnvelopeCountSummary countSummaryTwo = new EnvelopeCountSummary(
-            150, 10, "container2", LocalDate.of(2021, 3, 4)
+            178, 13, "container2", LocalDate.of(2021, 3, 4)
         );
         List<EnvelopeCountSummary> envelopeCountSummaryList = new ArrayList<>();
         envelopeCountSummaryList.add(countSummaryOne);
