@@ -16,7 +16,7 @@ public class BlobInfo {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("envelope_id")
-    public final UUID envelopeId;
+    public final String envelopeId;
 
     @JsonProperty("created_at")
     public final String createdAt;
@@ -29,7 +29,11 @@ public class BlobInfo {
     ) {
         this.container = container;
         this.fileName = fileName;
-        this.envelopeId = envelopeId;
+        if (envelopeId == null) {
+            this.envelopeId = "";
+        } else {
+            this.envelopeId = envelopeId.toString();
+        }
         this.createdAt = createdAt;
     }
 }
