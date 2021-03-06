@@ -32,6 +32,7 @@ public class IncompleteEnvelopesService {
             .map(envelope -> new BlobInfo(
                      envelope.getContainer(),
                      envelope.getZipFileName(),
+                     envelope.getId(),
                      toLocalTimeZone(envelope.getCreatedAt())
                  )
             )
