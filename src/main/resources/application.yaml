@@ -175,6 +175,7 @@ idam:
 document_management:
   url: http://dm-store:4460
 
+tmp-folder-path-for-download: "/var/tmp/download/blobs"
 # end of clients region
 
 scheduling:

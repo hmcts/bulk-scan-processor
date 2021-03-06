@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.EnvelopeValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
@@ -58,7 +57,7 @@ class EnvelopeHandlerTest {
 
     private List<ContainerMappings.Mapping> mappings = emptyList();
 
-    private List<Pdf> pdfs = emptyList();
+    private List<String> pdfs = emptyList();
 
     private Optional<OcrValidationWarnings> warnings =
         Optional.of(new OcrValidationWarnings(DCN, emptyList()));

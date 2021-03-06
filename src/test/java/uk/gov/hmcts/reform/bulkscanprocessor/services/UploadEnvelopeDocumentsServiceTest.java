@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.specialized.BlobInputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessingResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
 import java.io.IOException;
@@ -120,9 +120,8 @@ class UploadEnvelopeDocumentsServiceTest {
         verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
     }
 
-
     @Test
-    void should_do_nothing_when_failing_to_download_blob() {
+    void should_do_nothing_when_failing_to_open_stream() {
         // given
         given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
@@ -131,13 +130,13 @@ class UploadEnvelopeDocumentsServiceTest {
         leaseAcquired();
 
         // and
-        willThrow(new RuntimeException("openInputStream error")).given(blobClient).download(any());
+        willThrow(new RuntimeException("openInputStream error")).given(blobClient).openInputStream();
 
         // when
         uploadService.processByContainer(CONTAINER_1, getEnvelopes());
 
         // then
-        verifyNoInteractions(zipFileProcessor, documentProcessor, envelopeProcessor);
+        verifyNoInteractions(zipFileProcessor, documentProcessor);
     }
 
     @Test
@@ -147,11 +146,12 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
         leaseAcquired();
+        given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
 
         given(blobClient.getContainerName()).willReturn(CONTAINER_1);
         // and
         willThrow(new IOException("failed")).given(zipFileProcessor)
-            .process(any(ZipInputStream.class), eq(ZIP_FILE_NAME));
+            .extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME));
 
         Envelope envelope = mock(Envelope.class);
         UUID envelopeId = UUID.randomUUID();
@@ -177,9 +177,10 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
         leaseAcquired();
+        given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
 
-        given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
-            .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
+        given(zipFileProcessor.extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
+            .willReturn(emptyList()); // unit test doesn't care if it's empty
 
         // and
         willThrow(new RuntimeException("oh no")).given(documentProcessor).uploadPdfFiles(emptyList(), emptyList());
@@ -213,9 +214,10 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
         leaseAcquired();
+        given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
 
-        given(zipFileProcessor.process(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
-            .willReturn(new ZipFileProcessingResult(new byte[]{}, emptyList())); // unit test doesn't care if it's empty
+        given(zipFileProcessor.extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
+            .willReturn(emptyList()); // unit test doesn't care if it's empty
 
         // when
         uploadService.processByContainer(CONTAINER_1, getEnvelopes());

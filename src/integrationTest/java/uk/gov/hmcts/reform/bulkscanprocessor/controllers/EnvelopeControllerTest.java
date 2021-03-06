@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.AfterAll;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -38,7 +38,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
@@ -60,12 +59,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -82,6 +80,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 })
 @AutoConfigureMockMvc
 @IntegrationTest
+@SuppressWarnings("unchecked")
 public class EnvelopeControllerTest {
 
     @Autowired private MockMvc mockMvc;
@@ -205,9 +204,7 @@ public class EnvelopeControllerTest {
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
         uploadZipToBlobStore("zipcontents/mismatching_pdfs", "8_24-06-2018-00-00-00.zip");
 
-        Pdf okPdf = new Pdf("1111002.pdf", toByteArray(getResource("zipcontents/ok/1111002.pdf")));
-
-        given(documentManagementService.uploadDocuments(ImmutableList.of(okPdf)))
+        given(documentManagementService.uploadDocuments(anyList()))
             .willReturn(
                 ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
             );
@@ -229,13 +226,11 @@ public class EnvelopeControllerTest {
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
         assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
-
-        verify(documentManagementService, never())
-            .uploadDocuments(
-                ImmutableList.of(
-                    new Pdf("1111005.pdf", toByteArray(getResource("zipcontents/mismatching_pdfs/1111005.pdf")))
-                )
-            );
+        ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
+        verify(documentManagementService)
+            .uploadDocuments(pdfListCaptor.capture());
+        assertThat(pdfListCaptor.getAllValues()).hasSize(1);
+        assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 

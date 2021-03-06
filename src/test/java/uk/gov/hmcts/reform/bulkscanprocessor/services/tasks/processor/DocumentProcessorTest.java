@@ -11,15 +11,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.document.output.Pdf;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,10 +51,9 @@ public class DocumentProcessorTest {
     public void should_update_document_uuid_when_doc_response_conntains_matching_file_name_and_doc_url()
         throws Exception {
         //Given
-        byte[] test1PdfBytes = toByteArray(getResource("test1.pdf"));
+        File test1 = new File(getResource("test1.pdf").toURI());
 
-        Pdf pdf = new Pdf("test1.pdf", test1PdfBytes);
-        List<Pdf> pdfs = ImmutableList.of(pdf);
+        List<File> pdfs = ImmutableList.of(test1);
 
         Map<String, String> response = ImmutableMap.of("test1.pdf", "http://localhost/documents/5fef5f98-e875-4084-b115-47188bc9066b");
 
