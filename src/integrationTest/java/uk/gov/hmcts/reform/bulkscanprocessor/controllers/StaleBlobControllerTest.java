@@ -55,10 +55,10 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data", hasSize(2)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
-            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt))
+            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt.toString()))
             .andExpect(jsonPath("$.data.[1].container").value("container2"))
             .andExpect(jsonPath("$.data.[1].file_name").value("file_name_2"))
-            .andExpect(jsonPath("$.data.[1].created_at").value(createdAt));
+            .andExpect(jsonPath("$.data.[1].created_at").value(createdAt.toString()));
 
         verify(staleBlobFinder).findStaleBlobs(60);
 
@@ -78,7 +78,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
-            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt));
+            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt.toString()));
 
         verify(staleBlobFinder).findStaleBlobs(120);
 
