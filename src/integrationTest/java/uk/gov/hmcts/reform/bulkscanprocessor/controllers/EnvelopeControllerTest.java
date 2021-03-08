@@ -281,8 +281,8 @@ public class EnvelopeControllerTest {
         UUID uuid2 = UUID.randomUUID();
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27Z")),
-                new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28Z"))
+                new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27")),
+                new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28"))
             ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
@@ -293,11 +293,11 @@ public class EnvelopeControllerTest {
             .andExpect(jsonPath("data[0].container").value("cmc"))
             .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
             .andExpect(jsonPath("data[0].envelope_id").value(uuid1.toString()))
-            .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27"))
+            .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27Z"))
             .andExpect(jsonPath("data[1].container").value("sscs"))
             .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
             .andExpect(jsonPath("data[1].envelope_id").value(uuid2.toString()))
-            .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28"));
+            .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28Z"));
     }
 
     private void uploadZipToBlobStore(String dirToZip, String zipFilename) throws Exception {
