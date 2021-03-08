@@ -38,7 +38,7 @@ public class StaleBlobControllerTest {
     @Test
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
-        String createdAt = toLocalTimeZone(now());
+        Instant createdAt = now();
 
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
@@ -67,7 +67,7 @@ public class StaleBlobControllerTest {
     @Test
     void should_return_list_of_stale_blobs_when_there_is_by_default_param_value() throws Exception {
 
-        String createdAt = toLocalTimeZone(now());
+        Instant createdAt = now();
 
         given(staleBlobFinder.findStaleBlobs(120))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));

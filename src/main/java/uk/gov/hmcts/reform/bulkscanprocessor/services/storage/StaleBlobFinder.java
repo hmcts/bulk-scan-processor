@@ -46,7 +46,7 @@ public class StaleBlobFinder {
             .map(blob -> new BlobInfo(
                     containerName,
                     blob.getName(),
-                    toLocalTimeZone(blob.getProperties().getCreationTime().toInstant())
+                    blob.getProperties().getCreationTime().toInstant()
                 )
             );
     }

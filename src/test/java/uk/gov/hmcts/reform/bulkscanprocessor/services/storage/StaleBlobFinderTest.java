@@ -15,8 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings.Mapping;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
 
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +24,6 @@ import static java.time.OffsetDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @ExtendWith(MockitoExtension.class)
 class StaleBlobFinderTest {
@@ -79,11 +76,7 @@ class StaleBlobFinderTest {
         assertThat(blobInfos.size()).isEqualTo(1);
         assertThat(blobInfos.get(0).container).isEqualTo("bulkscan");
         assertThat(blobInfos.get(0).fileName).isEqualTo("bulk_scan_file_stale");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        var expectedTime =
-            dateTimeFormatter.format(ZonedDateTime.ofInstant(creationTime.toInstant(), EUROPE_LONDON_ZONE_ID));
-
-        assertThat(blobInfos.get(0).createdAt).isEqualTo(expectedTime);
+        assertThat(blobInfos.get(0).createdAt).isEqualTo(creationTime.toInstant());
     }
 
     @SuppressWarnings("unchecked")
