@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -25,11 +25,11 @@ public class IncompleteEnvelopesService {
         this.envelopeRepository = envelopeRepository;
     }
 
-    public List<BlobInfo> getIncompleteEnvelopes(int staleTimeHr) {
+    public List<EnvelopeInfo> getIncompleteEnvelopes(int staleTimeHr) {
         return envelopeRepository
             .getIncompleteEnvelopesBefore(now().minus(staleTimeHr, HOURS))
             .stream()
-            .map(envelope -> new BlobInfo(
+            .map(envelope -> new EnvelopeInfo(
                      envelope.getContainer(),
                      envelope.getZipFileName(),
                      envelope.getId(),

@@ -7,10 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -36,15 +37,17 @@ class IncompleteEnvelopesServiceTest {
     @Test
     void should_propagate_result_from_repository() {
         // given
+        UUID uuid1 = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
         List<Envelope> envelopes = asList(
-            envelope("file1.zip", "CMC", COMPLETED, emptyList(), "cmc"),
-            envelope("file2.zip", "SSCS", COMPLETED, emptyList(), "sscs")
+            envelope("file1.zip", "CMC", COMPLETED, emptyList(), "cmc", uuid1),
+            envelope("file2.zip", "SSCS", COMPLETED, emptyList(), "sscs", uuid2)
         );
         given(envelopeRepository.getIncompleteEnvelopesBefore(any(LocalDateTime.class)))
             .willReturn(envelopes);
 
         // when
-        List<BlobInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
+        List<EnvelopeInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         // then
         assertThat(result)
@@ -63,7 +66,7 @@ class IncompleteEnvelopesServiceTest {
             .willReturn(emptyList());
 
         // when
-        List<BlobInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
+        List<EnvelopeInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         // then
         assertThat(result).isEmpty();

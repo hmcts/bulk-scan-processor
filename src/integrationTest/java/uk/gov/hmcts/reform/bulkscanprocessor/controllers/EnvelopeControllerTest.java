@@ -31,7 +31,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
@@ -280,11 +280,11 @@ public class EnvelopeControllerTest {
         UUID uuid2 = UUID.randomUUID();
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                new BlobInfo("cmc", "file1.zip", uuid1,"2021-01-15T10:39:27"),
-                new BlobInfo("sscs", "file2.zip", uuid2, "2021-01-14T11:38:28")
+                new EnvelopeInfo("cmc", "file1.zip", uuid1, "2021-01-15T10:39:27"),
+                new EnvelopeInfo("sscs", "file2.zip", uuid2, "2021-01-14T11:38:28")
             ));
 
-        mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
+        mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
                             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
