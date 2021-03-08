@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 public class BlobInfo {
 
     @JsonProperty("container")

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class EnvelopeInfo {
@@ -15,25 +16,20 @@ public class EnvelopeInfo {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("envelope_id")
-    public final String envelopeId;
+    public final UUID envelopeId;
 
     @JsonProperty("created_at")
-    public final String createdAt;
+    public final Instant createdAt;
 
     public EnvelopeInfo(
         String container,
         String fileName,
         UUID envelopeId,
-        String createdAt
+        Instant createdAt
     ) {
         this.container = container;
         this.fileName = fileName;
-        if (envelopeId == null) {
-            this.envelopeId = null;
-        } else {
-            this.envelopeId = envelopeId.toString();
-        }
-
+        this.envelopeId = envelopeId;
         this.createdAt = createdAt;
     }
 }

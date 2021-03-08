@@ -33,7 +33,7 @@ public class IncompleteEnvelopesService {
                      envelope.getContainer(),
                      envelope.getZipFileName(),
                      envelope.getId(),
-                     toLocalTimeZone(envelope.getCreatedAt())
+                     envelope.getCreatedAt()
                  )
             )
             .collect(toList());

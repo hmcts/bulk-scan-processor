@@ -55,6 +55,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -280,8 +281,8 @@ public class EnvelopeControllerTest {
         UUID uuid2 = UUID.randomUUID();
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                new EnvelopeInfo("cmc", "file1.zip", uuid1, "2021-01-15T10:39:27"),
-                new EnvelopeInfo("sscs", "file2.zip", uuid2, "2021-01-14T11:38:28")
+                new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27Z")),
+                new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28Z"))
             ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
