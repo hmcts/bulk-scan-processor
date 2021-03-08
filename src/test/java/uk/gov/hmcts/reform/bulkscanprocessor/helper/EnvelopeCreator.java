@@ -29,7 +29,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -161,39 +160,6 @@ public final class EnvelopeCreator {
             nonScannableItems(),
             container,
             "file1.zip"
-        );
-
-        envelope.setStatus(status);
-
-        return envelope;
-    }
-
-    public static Envelope envelope(
-        String zipFileName,
-        String jurisdiction,
-        Status status,
-        List<ScannableItem> scannableItems,
-        String container,
-        UUID id
-    ) {
-        Instant timestamp = getInstant();
-
-        Envelope envelope = new Envelope(
-            "SSCSPO",
-            jurisdiction,
-            timestamp,
-            timestamp,
-            timestamp,
-            zipFileName,
-            "1111222233334446",
-            "123654789",
-            Classification.EXCEPTION,
-            scannableItems,
-            payments(),
-            nonScannableItems(),
-            container,
-            "file1.zip",
-            id
         );
 
         envelope.setStatus(status);

@@ -28,7 +28,12 @@ public class EnvelopeInfo {
     ) {
         this.container = container;
         this.fileName = fileName;
-        this.envelopeId = envelopeId.toString();
+        if (envelopeId == null) {
+            this.envelopeId = null;
+        } else {
+            this.envelopeId = envelopeId.toString();
+        }
+
         this.createdAt = createdAt;
     }
 }

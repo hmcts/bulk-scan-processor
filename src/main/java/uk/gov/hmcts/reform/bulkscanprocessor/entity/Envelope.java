@@ -128,44 +128,6 @@ public class Envelope {
         assignSelfToChildren(this.nonScannableItems);
     }
 
-    public Envelope(
-        String poBox,
-        String jurisdiction,
-        Instant deliveryDate,
-        Instant openingDate,
-        Instant zipFileCreateddate,
-        String zipFileName,
-        String caseNumber,
-        String previousServiceCaseReference,
-        Classification classification,
-        List<ScannableItem> scannableItems,
-        List<Payment> payments,
-        List<NonScannableItem> nonScannableItems,
-        String container,
-        String rescanFor,
-        UUID id
-    ) {
-        this.poBox = poBox;
-        this.jurisdiction = jurisdiction;
-        this.deliveryDate = deliveryDate;
-        this.openingDate = openingDate;
-        this.zipFileCreateddate = zipFileCreateddate;
-        this.zipFileName = zipFileName;
-        this.caseNumber = caseNumber;
-        this.previousServiceCaseReference = previousServiceCaseReference;
-        this.classification = classification;
-        this.scannableItems = scannableItems;
-        this.payments = payments;
-        this.nonScannableItems = nonScannableItems;
-        this.container = container;
-        this.rescanFor = rescanFor;
-        this.id = id;
-
-        assignSelfToChildren(this.scannableItems);
-        assignSelfToChildren(this.payments);
-        assignSelfToChildren(this.nonScannableItems);
-    }
-
     public List<ScannableItem> getScannableItems() {
         return scannableItems;
     }

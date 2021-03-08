@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -37,11 +36,9 @@ class IncompleteEnvelopesServiceTest {
     @Test
     void should_propagate_result_from_repository() {
         // given
-        UUID uuid1 = UUID.randomUUID();
-        UUID uuid2 = UUID.randomUUID();
         List<Envelope> envelopes = asList(
-            envelope("file1.zip", "CMC", COMPLETED, emptyList(), "cmc", uuid1),
-            envelope("file2.zip", "SSCS", COMPLETED, emptyList(), "sscs", uuid2)
+            envelope("file1.zip", "CMC", COMPLETED, emptyList(), "cmc"),
+            envelope("file2.zip", "SSCS", COMPLETED, emptyList(), "sscs")
         );
         given(envelopeRepository.getIncompleteEnvelopesBefore(any(LocalDateTime.class)))
             .willReturn(envelopes);
