@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +44,7 @@ class IncompleteEnvelopesServiceTest {
             .willReturn(envelopes);
 
         // when
-        List<BlobInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
+        List<EnvelopeInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         // then
         assertThat(result)
@@ -63,7 +63,7 @@ class IncompleteEnvelopesServiceTest {
             .willReturn(emptyList());
 
         // when
-        List<BlobInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
+        List<EnvelopeInfo> result = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         // then
         assertThat(result).isEmpty();

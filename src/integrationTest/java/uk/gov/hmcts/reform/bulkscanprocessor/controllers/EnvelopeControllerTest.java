@@ -31,7 +31,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnAuthenticatedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
@@ -57,6 +57,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -276,22 +277,26 @@ public class EnvelopeControllerTest {
 
     @Test
     public void should_return_incomplete_stale_envelopes() throws Exception {
-
+        UUID uuid1 = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                new BlobInfo("cmc", "file1.zip", Instant.parse("2021-01-15T10:39:27.000Z")),
-                             new BlobInfo("sscs", "file2.zip", Instant.parse("2021-01-14T11:38:28.000Z"))
+                new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27.000Z")),
+                new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28.000Z"))
             ));
-        mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
+
+        mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
                             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("data[0].container").value("cmc"))
             .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
+            .andExpect(jsonPath("data[0].envelope_id").value(uuid1.toString()))
             .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27.000Z"))
             .andExpect(jsonPath("data[1].container").value("sscs"))
             .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
+            .andExpect(jsonPath("data[1].envelope_id").value(uuid2.toString()))
             .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28.000Z"));
     }
 
