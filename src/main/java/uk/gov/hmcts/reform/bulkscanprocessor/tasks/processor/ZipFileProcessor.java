@@ -33,10 +33,10 @@ public class ZipFileProcessor {
     public void extractPdfFiles(
         ZipInputStream extractedZis,
         String zipFileName,
-        Consumer<List<File>> consume
+        Consumer<List<File>> pdfListConsumer
     ) throws IOException {
         try {
-            consume.accept(createPdfAndSaveToTemp(extractedZis, zipFileName));
+            pdfListConsumer.accept(createPdfAndSaveToTemp(extractedZis, zipFileName));
             log.info("Function consumed, zipFileName {}", zipFileName);
         } finally {
             deleteFolder(zipFileName);
