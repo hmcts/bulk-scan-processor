@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.DocumentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -147,11 +148,10 @@ class UploadEnvelopeDocumentsServiceTest {
         given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
         leaseAcquired();
         given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
-
         given(blobClient.getContainerName()).willReturn(CONTAINER_1);
         // and
         willThrow(new IOException("failed")).given(zipFileProcessor)
-            .extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME));
+            .extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME), any());
 
         Envelope envelope = mock(Envelope.class);
         UUID envelopeId = UUID.randomUUID();
@@ -179,8 +179,12 @@ class UploadEnvelopeDocumentsServiceTest {
         leaseAcquired();
         given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
 
-        given(zipFileProcessor.extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
-            .willReturn(emptyList()); // unit test doesn't care if it's empty
+        doAnswer(invocation -> {
+            var okAction = (Consumer) invocation.getArgument(2);
+            okAction.accept(emptyList());
+            return null;
+        }).when(zipFileProcessor).extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME), any());
+
 
         // and
         willThrow(new RuntimeException("oh no")).given(documentProcessor).uploadPdfFiles(emptyList(), emptyList());
@@ -216,8 +220,12 @@ class UploadEnvelopeDocumentsServiceTest {
         leaseAcquired();
         given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
 
-        given(zipFileProcessor.extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME)))
-            .willReturn(emptyList()); // unit test doesn't care if it's empty
+        List<File> files = List.of(mock(File.class));
+        doAnswer(invocation -> {
+            var okAction = (Consumer) invocation.getArgument(2);
+            okAction.accept(files);
+            return null;
+        }).when(zipFileProcessor).extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME), any());
 
         // when
         uploadService.processByContainer(CONTAINER_1, getEnvelopes());
@@ -228,7 +236,7 @@ class UploadEnvelopeDocumentsServiceTest {
         assertThat(eventCaptor.getValue()).isEqualTo(Event.DOC_UPLOADED);
 
         // and
-        verify(documentProcessor, times(1)).uploadPdfFiles(emptyList(), emptyList());
+        verify(documentProcessor, times(1)).uploadPdfFiles(files, emptyList());
 
     }
 
