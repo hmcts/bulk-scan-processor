@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -18,6 +20,7 @@ public class EnvelopeInfo {
     @JsonProperty("envelope_id")
     public final UUID envelopeId;
 
+    @JsonSerialize(using = InstantSerializer.class)
     @JsonProperty("created_at")
     public final Instant createdAt;
 
