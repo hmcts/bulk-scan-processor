@@ -39,7 +39,4 @@ public class IncompleteEnvelopesService {
             .collect(toList());
     }
 
-    private static String toLocalTimeZone(Instant instant) {
-        return dateTimeFormatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
-    }
 }
