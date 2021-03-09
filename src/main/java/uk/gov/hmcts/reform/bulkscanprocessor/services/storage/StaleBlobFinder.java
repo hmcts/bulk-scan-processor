@@ -8,20 +8,15 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
 
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Component
 @EnableConfigurationProperties(ContainerMappings.class)
 public class StaleBlobFinder {
-
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private final BlobServiceClient storageClient;
     private final ContainerMappings containerMappings;
@@ -46,7 +41,7 @@ public class StaleBlobFinder {
             .map(blob -> new BlobInfo(
                     containerName,
                     blob.getName(),
-                    toLocalTimeZone(blob.getProperties().getCreationTime().toInstant())
+                    blob.getProperties().getCreationTime().toInstant()
                 )
             );
     }
@@ -61,7 +56,4 @@ public class StaleBlobFinder {
             );
     }
 
-    private static String toLocalTimeZone(Instant instant) {
-        return dateTimeFormatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
-    }
 }
