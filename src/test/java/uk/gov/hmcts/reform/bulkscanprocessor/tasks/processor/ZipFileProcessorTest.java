@@ -36,7 +36,7 @@ class ZipFileProcessorTest {
         var consumer = mock(Consumer.class);
         zipFileProcessor.extractPdfFiles(extractedZis, zipFileName, consumer);
         verify(consumer).accept(any());
-        assertThat(new File(FOLDER_NAME + File.separator + zipFileName).exists()).isFalse();
+        assertThat(new File(FOLDER_NAME + File.separator + zipFileName)).doesNotExist();
     }
 
     @Test
@@ -53,6 +53,6 @@ class ZipFileProcessorTest {
             BlobStorageException.class,
             () -> zipFileProcessor.extractPdfFiles(extractedZis, zipFileName, consumer)
         );
-        assertThat(new File(FOLDER_NAME + File.separator + zipFileName).exists()).isFalse();
+        assertThat(new File(FOLDER_NAME + File.separator + zipFileName)).doesNotExist();
     }
 }
