@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.SearchResult;
@@ -71,7 +71,7 @@ public class EnvelopeController {
             .orElseThrow(EnvelopeNotFoundException::new);
     }
 
-    @GetMapping(path = "/stale-incomplete-blobs")
+    @GetMapping(path = "/stale-incomplete-envelopes")
     @ApiOperation(
         value = "Retrieves incomplete stale envelopes",
         notes = "Returns an empty list when no incomplete stale envelopes were found"
@@ -81,7 +81,7 @@ public class EnvelopeController {
         @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
             int staleTime
     ) {
-        List<BlobInfo> envelopes = incompleteEnvelopesService.getIncompleteEnvelopes(2);
+        List<EnvelopeInfo> envelopes = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         return new SearchResult(envelopes);
     }
