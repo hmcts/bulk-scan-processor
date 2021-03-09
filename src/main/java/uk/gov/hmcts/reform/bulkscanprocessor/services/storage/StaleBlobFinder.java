@@ -19,8 +19,6 @@ import static java.util.stream.Collectors.toList;
 @EnableConfigurationProperties(ContainerMappings.class)
 public class StaleBlobFinder {
 
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
     private final BlobServiceClient storageClient;
     private final ContainerMappings containerMappings;
 
