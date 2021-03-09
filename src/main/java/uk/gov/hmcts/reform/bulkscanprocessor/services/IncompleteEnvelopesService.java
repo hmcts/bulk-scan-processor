@@ -4,15 +4,12 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
-import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.time.LocalDateTime.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Service
 public class IncompleteEnvelopesService {
