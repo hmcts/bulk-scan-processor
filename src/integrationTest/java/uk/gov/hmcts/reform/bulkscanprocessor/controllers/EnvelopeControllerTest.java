@@ -279,10 +279,9 @@ public class EnvelopeControllerTest {
 
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                new BlobInfo("cmc", "file1.zip", Instant.parse("2021-01-15T10:39:27Z")),
-                             new BlobInfo("sscs", "file2.zip", Instant.parse("2021-01-14T11:38:28Z"))
+                new BlobInfo("cmc", "file1.zip", Instant.parse("2021-01-15T10:39:27.000Z")),
+                             new BlobInfo("sscs", "file2.zip", Instant.parse("2021-01-14T11:38:28.000Z"))
             ));
-
         mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
                             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
@@ -290,10 +289,10 @@ public class EnvelopeControllerTest {
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("data[0].container").value("cmc"))
             .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
-            .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27Z"))
+            .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27.000Z"))
             .andExpect(jsonPath("data[1].container").value("sscs"))
             .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
-            .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28Z"));
+            .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28.000Z"));
     }
 
     private void uploadZipToBlobStore(String dirToZip, String zipFilename) throws Exception {
