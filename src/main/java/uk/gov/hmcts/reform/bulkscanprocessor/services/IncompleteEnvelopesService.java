@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.time.LocalDateTime.now;
@@ -13,8 +12,6 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class IncompleteEnvelopesService {
-
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private final EnvelopeRepository envelopeRepository;
 
