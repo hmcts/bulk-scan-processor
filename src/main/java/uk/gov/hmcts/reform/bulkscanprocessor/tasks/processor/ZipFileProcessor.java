@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -29,14 +30,20 @@ public class ZipFileProcessor {
         this.downloadPath = downloadPath + File.separator;
     }
 
-    public List<File> extractPdfFiles(
+    public void extractPdfFiles(
         ZipInputStream extractedZis,
-        String zipFileName
+        String zipFileName,
+        Consumer<List<File>> pdfListConsumer
     ) throws IOException {
-        return createPdfAndSaveToTemp(extractedZis, zipFileName);
+        try {
+            pdfListConsumer.accept(createPdfAndSaveToTemp(extractedZis, zipFileName));
+            log.info("Function consumed, zipFileName {}", zipFileName);
+        } finally {
+            deleteFolder(zipFileName);
+        }
     }
 
-    public void deleteFolder(String zipFileName) {
+    private void deleteFolder(String zipFileName) {
         String folderPath =  downloadPath +  zipFileName;
         try {
             FileUtils.deleteDirectory(new File(folderPath));

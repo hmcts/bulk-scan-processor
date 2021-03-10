@@ -112,10 +112,7 @@ public class UploadEnvelopeDocumentsService {
         UUID envelopeId = envelope.getId();
         String containerName = blobClient.getContainerName();
 
-        List<File> pdfList = processBlobContent(blobClient, containerName, zipFileName, envelopeId);
-
-        uploadParsedZipFileName(envelope, pdfList);
-        zipFileProcessor.deleteFolder(zipFileName);
+        processBlobContent(blobClient, containerName, envelope);
 
         envelopeProcessor.handleEvent(envelope, DOC_UPLOADED);
 
@@ -127,14 +124,15 @@ public class UploadEnvelopeDocumentsService {
         );
     }
 
-    private List<File> processBlobContent(
+    private void processBlobContent(
         BlobClient blobClient,
         String containerName,
-        String zipFileName,
-        UUID envelopeId
+        Envelope envelope
     ) {
+        String zipFileName = envelope.getZipFileName();
+        UUID envelopeId = envelope.getId();
         try (ZipInputStream zis = new ZipInputStream(blobClient.openInputStream())) {
-            return zipFileProcessor.extractPdfFiles(zis, zipFileName);
+            zipFileProcessor.extractPdfFiles(zis, zipFileName, pdfList -> uploadParsedZipFileName(envelope, pdfList));
         } catch (Exception exception) {
             String message = String.format(
                 "Failed to process zip. File: %s, Container: %s, Envelope ID: %s",
