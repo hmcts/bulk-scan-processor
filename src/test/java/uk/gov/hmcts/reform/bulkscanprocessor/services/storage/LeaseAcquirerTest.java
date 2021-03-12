@@ -22,7 +22,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doThrow;
@@ -62,7 +61,7 @@ class LeaseAcquirerTest {
         // then
         verify(onSuccess).accept(null);
         verify(onFailure, never()).accept(any(BlobErrorCode.class));
-        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient));
+        verify(leaseMetaDataChecker).isReadyToUse(blobClient);
         verifyNoMoreInteractions(leaseMetaDataChecker);
     }
 
@@ -112,8 +111,8 @@ class LeaseAcquirerTest {
         leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
 
         // then
-        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient));
-        verify(blobClient).setMetadata(eq(metadata));
+        verify(leaseMetaDataChecker).isReadyToUse(blobClient);
+        verify(blobClient).setMetadata(metadata);
         assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
         assertThat(metadata.containsKey("someProperty")).isTrue();
         assertThat(metadata.get("someProperty")).isEqualTo("someValue");
@@ -163,8 +162,8 @@ class LeaseAcquirerTest {
         // then
         verify(onSuccess).accept(null);
         verify(onFailure, never()).accept(any());
-        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient));
-        verify(blobClient).setMetadata(eq(metadata));
+        verify(leaseMetaDataChecker).isReadyToUse(blobClient);
+        verify(blobClient).setMetadata(metadata);
         assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
         assertThat(metadata.containsKey("someProperty")).isTrue();
         assertThat(metadata.get("someProperty")).isEqualTo("someValue");
@@ -190,7 +189,7 @@ class LeaseAcquirerTest {
 
         // then
         verify(onSuccess, never()).accept(anyString());
-        verify(leaseMetaDataChecker).isReadyToUse(eq(blobClient));
+        verify(leaseMetaDataChecker).isReadyToUse(blobClient);
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
     }

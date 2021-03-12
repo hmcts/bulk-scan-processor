@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 
 import java.util.List;
-import java.util.UUID;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 
@@ -79,7 +78,7 @@ public class DeleteFilesService {
                     blobClient,
                     leaseId -> deleteBlob(blobClient),
                     //should throw this if deletion or lease acquiring fails envelope should not be marked as deleted
-                    errorCode -> throwBlobDeleteException(errorCode, envelope.getId(), loggingContext),
+                    errorCode -> throwBlobDeleteException(errorCode, loggingContext),
                     false
                 );
 
@@ -114,7 +113,7 @@ public class DeleteFilesService {
         );
     }
 
-    private void throwBlobDeleteException(BlobErrorCode errorCode, UUID envelopeId, String loggingContext) {
+    private void throwBlobDeleteException(BlobErrorCode errorCode, String loggingContext) {
         if (BLOB_NOT_FOUND == errorCode) {
             log.info(
                 "File has already been deleted. Should Marked envelope as deleted. {}",
