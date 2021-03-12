@@ -122,8 +122,7 @@ public class DeleteCompleteFilesTaskTest {
         task.run();
 
         // then
-        verify(blobClient).getBlobName();
-        verify(blobClient).getContainerName();
+        verify(blobClient).getBlobUrl();
         verifyNoMoreInteractions(blobClient);
     }
 }
