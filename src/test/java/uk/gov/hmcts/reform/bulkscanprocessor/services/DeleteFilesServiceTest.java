@@ -19,6 +19,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
+import static com.azure.storage.blob.models.BlobErrorCode.BLOB_OVERWRITTEN;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
@@ -220,6 +222,77 @@ class DeleteFilesServiceTest {
 
         verify(blobClient).exists();
         verify(blobClient, never()).deleteWithResponse(any(), any(), any(), any());
+        verifyNoMoreInteractions(blobClient);
+    }
+
+    @Test
+    void should_mark_as_deleted_when_error_code_blob_not_found() {
+        // given
+        final BlobClient blobClient = mock(BlobClient.class);
+
+        String zipFileName = randomUUID() + ".zip";
+        Envelope envelope = mock(Envelope.class);
+        given(envelope.getZipFileName()).willReturn(zipFileName);
+
+        given(envelopeRepository
+            .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
+            .willReturn(singletonList(envelope));
+
+        given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
+
+        given(blobClient.exists()).willReturn(true);
+
+
+        doAnswer(invocation -> {
+            var errorAction = (Consumer) invocation.getArgument(2);
+            errorAction.accept(BLOB_NOT_FOUND);
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+
+
+        // when
+        deleteFilesService.processCompleteFiles(container1);
+
+        // then
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
+        verifyEnvelopesSaving(envelope);
+        verifyNoMoreInteractions(envelopeRepository);
+        verify(envelope, never()).setZipDeleted(anyBoolean());
+        verifyNoMoreInteractions(blobClient);
+    }
+
+    @Test
+    void should_mark_as_deleted_when_error_code_different_than_blob_not_found() {
+        // given
+        final BlobClient blobClient = mock(BlobClient.class);
+
+        String zipFileName = randomUUID() + ".zip";
+        Envelope envelope = mock(Envelope.class);
+        given(envelope.getZipFileName()).willReturn(zipFileName);
+
+        given(envelopeRepository
+            .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
+            .willReturn(singletonList(envelope));
+
+        given(container1.getBlobClient(zipFileName)).willReturn(blobClient);
+
+        given(blobClient.exists()).willReturn(true);
+
+
+        doAnswer(invocation -> {
+            var errorAction = (Consumer) invocation.getArgument(2);
+            errorAction.accept(BLOB_OVERWRITTEN);
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+
+
+        // when
+        deleteFilesService.processCompleteFiles(container1);
+
+        // then
+        verify(envelopeRepository).getCompleteEnvelopesFromContainer(CONTAINER_NAME_1);
+        verifyNoMoreInteractions(envelopeRepository);
+        verify(envelope, never()).setZipDeleted(anyBoolean());
         verifyNoMoreInteractions(blobClient);
     }
 

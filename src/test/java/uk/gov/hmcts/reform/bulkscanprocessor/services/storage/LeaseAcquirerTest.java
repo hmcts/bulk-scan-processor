@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -235,6 +236,24 @@ class LeaseAcquirerTest {
         verify(onFailure, never()).accept(any());
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
+    }
+
+    @Test
+    void should_extract_the_error_code_when_exception_is_blobStorageException() {
+        // given
+        setCopyStatus(CopyStatusType.SUCCESS);
+
+        doThrow(blobStorageException).when(leaseMetaDataChecker).isReadyToUse(any());
+        given(blobStorageException.getErrorCode()).willReturn(null);
+        given(blobStorageException.getStatusCode()).willReturn(404);
+        var onFailure = mock(Consumer.class);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), onFailure, false);
+
+        // then
+        verify(leaseMetaDataChecker, never()).clearMetaData(any());
+        verify(onFailure).accept(BLOB_NOT_FOUND);
     }
 
     private void setCopyStatus(CopyStatusType copyStatus) {

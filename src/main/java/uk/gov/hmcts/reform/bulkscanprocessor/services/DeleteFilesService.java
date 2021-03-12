@@ -116,9 +116,8 @@ public class DeleteFilesService {
 
     private void throwBlobDeleteException(BlobErrorCode errorCode, UUID envelopeId, String loggingContext) {
         if (BLOB_NOT_FOUND == errorCode) {
-            envelopeMarkAsDeletedService.markEnvelopeAsDeleted(envelopeId, loggingContext);
             log.info(
-                "File has already been deleted. Marked envelope as deleted. {}",
+                "File has already been deleted. Should Marked envelope as deleted. {}",
                 loggingContext
             );
         } else {
