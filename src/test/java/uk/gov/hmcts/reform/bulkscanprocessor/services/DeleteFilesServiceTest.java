@@ -324,8 +324,7 @@ class DeleteFilesServiceTest {
     private void verifyBlobClientInteractions(BlobClient blobClient) {
         verify(blobClient).exists();
         verify(blobClient).deleteWithResponse(any(), any(), any(), any());
-        verify(blobClient).getBlobName();
-        verify(blobClient).getContainerName();
+        verify(blobClient).getBlobUrl();
         verifyNoMoreInteractions(blobClient);
     }
 

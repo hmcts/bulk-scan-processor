@@ -88,7 +88,7 @@ public class DeleteFilesService {
 
 
             envelopeMarkAsDeletedService.markEnvelopeAsDeleted(envelope.getId(), loggingContext);
-            log.info("Marked envelope as deleted. {}", loggingContext);
+            log.info("Delete processes completed.  Envelope marked as deleted. {}", loggingContext);
 
             return true;
 
@@ -106,17 +106,13 @@ public class DeleteFilesService {
             Context.NONE
         );
 
-        log.info(
-            "Deleted completed file {} from container {}",
-            blobClient.getBlobName(),
-            blobClient.getContainerName()
-        );
+        log.info("Blob {}  is deleted", blobClient.getBlobUrl());
     }
 
     private void throwBlobDeleteException(BlobErrorCode errorCode, String loggingContext) {
         if (BLOB_NOT_FOUND == errorCode) {
             log.info(
-                "File has already been deleted. Should Marked envelope as deleted. {}",
+                "Blob not found. Envelope should mark as deleted. {}",
                 loggingContext
             );
         } else {
