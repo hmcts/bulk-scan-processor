@@ -27,8 +27,11 @@ public class LeaseMetaDataChecker {
         this.properties = properties;
     }
 
-    public boolean isReadyToUse(BlobClient blobClient, String leaseId) {
-        Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
+    public boolean isReadyToUse(BlobClient blobClient) {
+        var blobProperties = blobClient.getProperties();
+        Map<String, String> blobMetaData = blobProperties.getMetadata();
+        String etag = blobProperties.getETag();
+
         String leaseExpirationTime = blobMetaData.get(LEASE_EXPIRATION_TIME);
         var zipFilename = blobClient.getBlobName();
         var containerName = blobClient.getContainerName();
@@ -44,12 +47,13 @@ public class LeaseMetaDataChecker {
             blobMetaData.put(
                 LEASE_EXPIRATION_TIME,
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
-                    .plusSeconds(properties.getBlobLeaseAcquireDelayInSeconds()).toString()
+                    .plusSeconds(this.properties.getBlobLeaseAcquireDelayInSeconds()).toString()
             );
             blobClient.setMetadataWithResponse(
                 blobMetaData,
-                new BlobRequestConditions().setLeaseId(leaseId),
-                null, Context.NONE
+                new BlobRequestConditions().setIfMatch("\"" + etag + "\""),
+                null,
+                Context.NONE
             );
             return true;
         } else {
@@ -73,11 +77,9 @@ public class LeaseMetaDataChecker {
         }
     }
 
-    public void clearMetaData(BlobClient blobClient, String leaseId) {
-        blobClient.setMetadataWithResponse(
-            null,
-            new BlobRequestConditions().setLeaseId(leaseId),
-            null, Context.NONE
-        );
+    public void clearMetaData(BlobClient blobClient) {
+        Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
+        blobMetaData.remove(LEASE_EXPIRATION_TIME);
+        blobClient.setMetadata(blobMetaData);
     }
 }

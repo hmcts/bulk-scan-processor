@@ -1,11 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
-import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobErrorCode;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -21,18 +20,14 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDa
 @Component
 public class LeaseAcquirer {
 
-    public static final int LEASE_DURATION_IN_SECONDS = 60;
     private static final Logger logger = getLogger(LeaseAcquirer.class);
 
-    private final LeaseClientProvider leaseClientProvider;
     private final LeaseMetaDataChecker leaseMetaDataChecker;
     public static final String META_DATA_WAIT_COPY =  "waitingCopy";
 
     public LeaseAcquirer(
-        LeaseClientProvider leaseClientProvider,
         LeaseMetaDataChecker leaseMetaDataChecker
     ) {
-        this.leaseClientProvider = leaseClientProvider;
         this.leaseMetaDataChecker = leaseMetaDataChecker;
     }
 
@@ -73,13 +68,16 @@ public class LeaseAcquirer {
                 );
                 return;
             }
-            var leaseClient = leaseClientProvider.get(blobClient);
-            var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
+
             boolean isReady = false;
+            BlobErrorCode errorCode = LEASE_ALREADY_PRESENT;
 
             try {
-                isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+                isReady = leaseMetaDataChecker.isReadyToUse(blobClient);
             } catch (Exception ex) {
+                if (ex instanceof BlobStorageException) {
+                    errorCode = getErrorCode(blobClient, (BlobStorageException) ex);
+                }
                 logger.warn(
                     "Could not check meta data for lease expiration on file {} in container {}",
                     blobClient.getBlobName(),
@@ -87,16 +85,15 @@ public class LeaseAcquirer {
                 );
             } finally {
                 if (!isReady) {
-                    release(leaseClient, blobClient);
                     //it means lease did not acquired let the failure function decide
-                    onFailure.accept(LEASE_ALREADY_PRESENT);
+                    onFailure.accept(errorCode);
                 }
             }
 
             if (isReady) {
-                onLeaseSuccess.accept(leaseId);
+                onLeaseSuccess.accept(null);
                 if (releaseLease) {
-                    clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
+                    clearMetadataAndReleaseLease(blobClient);
                 }
             }
         } catch (BlobStorageException exc) {
@@ -115,13 +112,16 @@ public class LeaseAcquirer {
         }
     }
 
-    private void release(BlobLeaseClient leaseClient, BlobClient blobClient) {
+    private void clearMetadataAndReleaseLease(
+        BlobClient blobClient
+    ) {
         try {
-            leaseClient.releaseLease();
+            Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
+            blobMetaData.remove(LEASE_EXPIRATION_TIME);
+            blobClient.setMetadata(blobMetaData);
         } catch (BlobStorageException exc) {
             logger.warn(
-                "Could not release the lease with ID {}. Blob: {}, container: {}",
-                leaseClient.getLeaseId(),
+                "Could not clear metadata, lBlob: {}, container: {}",
                 blobClient.getBlobName(),
                 blobClient.getContainerName(),
                 exc
@@ -129,30 +129,20 @@ public class LeaseAcquirer {
         }
     }
 
-    private void clearMetadataAndReleaseLease(
-        BlobLeaseClient leaseClient,
-        BlobClient blobClient,
-        String leaseId
-    ) {
-        try {
-            Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
-            blobMetaData.remove(LEASE_EXPIRATION_TIME);
-            blobClient.setMetadataWithResponse(
-                blobMetaData,
-                new BlobRequestConditions().setLeaseId(leaseId),
-                null,
-                Context.NONE
-            );
-            release(leaseClient, blobClient);
-        } catch (BlobStorageException exc) {
-            logger.warn(
-                "Could not clear metadata, lease with ID {}. Blob: {}, container: {}",
-                leaseClient.getLeaseId(),
+    private BlobErrorCode getErrorCode(BlobClient blobClient, BlobStorageException exc) {
+        // sometimes there is no error code in blob storage devmode
+        BlobErrorCode errorCode = exc.getErrorCode();
+        if (errorCode == null) {
+            logger.info("Error code is NULL, File name: {}, Container: {}",
                 blobClient.getBlobName(),
                 blobClient.getContainerName(),
                 exc
             );
+            if (exc.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                errorCode = BLOB_NOT_FOUND;
+            }
         }
+        return errorCode;
     }
 
 }

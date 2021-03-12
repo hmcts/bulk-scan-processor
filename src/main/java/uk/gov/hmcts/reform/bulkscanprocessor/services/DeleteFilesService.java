@@ -4,7 +4,6 @@ import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobErrorCode;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 
 import java.util.List;
+import java.util.UUID;
+
+import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 
 @Service
 public class DeleteFilesService {
@@ -75,9 +77,9 @@ public class DeleteFilesService {
 
                 leaseAcquirer.ifAcquiredOrElse(
                     blobClient,
-                    leaseId -> deleteBlob(blobClient, leaseId),
+                    leaseId -> deleteBlob(blobClient),
                     //should throw this if deletion or lease acquiring fails envelope should not be marked as deleted
-                    DeleteFilesService::throwBlobDeleteException,
+                    errorCode -> throwBlobDeleteException(errorCode, envelope.getId(), loggingContext),
                     false
                 );
 
@@ -97,10 +99,10 @@ public class DeleteFilesService {
         }
     }
 
-    private void deleteBlob(BlobClient blobClient, String leaseId) {
+    private void deleteBlob(BlobClient blobClient) {
         blobClient.deleteWithResponse(
             DeleteSnapshotsOptionType.INCLUDE,
-            new BlobRequestConditions().setLeaseId(leaseId),
+            null,
             null,
             Context.NONE
         );
@@ -112,7 +114,15 @@ public class DeleteFilesService {
         );
     }
 
-    private static void throwBlobDeleteException(BlobErrorCode errorCode) {
-        throw new BlobDeleteException("Deleting blob failed. ErrorCode: " + errorCode.toString());
+    private void throwBlobDeleteException(BlobErrorCode errorCode, UUID envelopeId, String loggingContext) {
+        if (BLOB_NOT_FOUND == errorCode) {
+            envelopeMarkAsDeletedService.markEnvelopeAsDeleted(envelopeId, loggingContext);
+            log.info(
+                "File has already been deleted. Marked envelope as deleted. {}",
+                loggingContext
+            );
+        } else {
+            throw new BlobDeleteException("Deleting blob failed. ErrorCode: " + errorCode.toString());
+        }
     }
 }

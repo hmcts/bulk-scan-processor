@@ -22,11 +22,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -95,15 +93,12 @@ public class CleanUpRejectedFilesTaskTest {
 
         given(rejectedContainerBlobItems.stream()).willReturn(Stream.of(newRejectedBlob, oldRejectedBlob));
 
-        var leaseId = UUID.randomUUID().toString();
-        given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS)).willReturn(leaseId);
-
-        given(leaseMetaDataChecker.isReadyToUse(blobClientToDelete, leaseId)).willReturn(true);
+        given(leaseMetaDataChecker.isReadyToUse(blobClientToDelete)).willReturn(true);
 
         CleanUpRejectedFilesTask task =
             new CleanUpRejectedFilesTask(
                 blobManager,
-                new LeaseAcquirer(blobClient -> leaseClient, leaseMetaDataChecker),
+                new LeaseAcquirer(leaseMetaDataChecker),
                 ttlString
 
             );
@@ -115,7 +110,6 @@ public class CleanUpRejectedFilesTaskTest {
         var conditionCapturer = ArgumentCaptor.forClass(BlobRequestConditions.class);
         verify(blobClientToDelete, times(1))
             .deleteWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), conditionCapturer.capture(), any(), any());
-        assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
 
     }
 
