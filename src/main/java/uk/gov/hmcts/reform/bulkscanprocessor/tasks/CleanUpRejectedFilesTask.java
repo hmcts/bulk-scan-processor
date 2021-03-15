@@ -5,7 +5,6 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -73,7 +72,7 @@ public class CleanUpRejectedFilesTask {
             .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
             .forEach(blobClient -> leaseAcquirer.ifAcquiredOrElse(
                 blobClient,
-                leaseId -> deleteBlob(blobClient, leaseId),
+                leaseId -> deleteBlob(blobClient),
                 errorCode -> {}, // nothing to do if blob not found in rejected container
                 false
             ));
@@ -81,11 +80,11 @@ public class CleanUpRejectedFilesTask {
         log.info("Finished removing rejected files. Container: {}", containerName);
     }
 
-    private void deleteBlob(BlobClient blobClient, String leaseId) {
+    private void deleteBlob(BlobClient blobClient) {
         try {
             blobClient.deleteWithResponse(
                 DeleteSnapshotsOptionType.INCLUDE,
-                new BlobRequestConditions().setLeaseId(leaseId),
+                null,
                 null,
                 Context.NONE
             );

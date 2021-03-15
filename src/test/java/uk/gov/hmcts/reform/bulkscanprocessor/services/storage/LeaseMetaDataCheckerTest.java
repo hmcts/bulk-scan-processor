@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.storage;
 
-import com.azure.core.http.rest.Response;
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRequestConditions;
@@ -18,9 +18,9 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
@@ -35,8 +35,6 @@ class LeaseMetaDataCheckerTest {
     @Mock private BlobManagementProperties managementProperties;
 
     private Map<String, String> blobMetaData;
-
-    private static final String leaseId = "lease-id";
 
     private static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 
@@ -53,16 +51,28 @@ class LeaseMetaDataCheckerTest {
         //given
         given(blobClient.getProperties()).willReturn(blobProperties);
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
+        String etag = "etag-21321312";
+        given(blobProperties.getETag()).willReturn(etag);
+
+        int leaseTimeoutISec = 300;
+        given(managementProperties.getBlobLeaseAcquireDelayInSeconds()).willReturn(leaseTimeoutISec);
+        LocalDateTime minExpiryTime = LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
+            .plusSeconds(leaseTimeoutISec);
 
         //when
-        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient);
 
         //then
         assertThat(isReady).isTrue();
+        var mapCapturer = ArgumentCaptor.forClass(Map.class);
         var conditionCapturer = ArgumentCaptor.forClass(BlobRequestConditions.class);
-        verify(blobClient).setMetadataWithResponse(any(),conditionCapturer.capture(), any(), any());
-        assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
-
+        verify(blobClient)
+            .setMetadataWithResponse(mapCapturer.capture(), conditionCapturer.capture(), eq(null), eq(Context.NONE));
+        Map<String, String> map = mapCapturer.getValue();
+        LocalDateTime leaseExpiresAt = LocalDateTime.parse(map.get(LEASE_EXPIRATION_TIME));
+        assertThat(minExpiryTime).isBefore(leaseExpiresAt);
+        BlobRequestConditions con = conditionCapturer.getValue();
+        assertThat(con.getIfMatch()).isEqualTo("\"" + etag + "\"");
     }
 
     @Test
@@ -73,7 +83,7 @@ class LeaseMetaDataCheckerTest {
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
 
         //when
-        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient);
 
         //then
         assertThat(isReady).isFalse();
@@ -90,35 +100,47 @@ class LeaseMetaDataCheckerTest {
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
 
         given(managementProperties.getBlobLeaseAcquireDelayInSeconds()).willReturn(15);
+        String etag = "etag-21321312";
+        given(blobProperties.getETag()).willReturn(etag);
 
+        int leaseTimeoutISec = 10;
+        given(managementProperties.getBlobLeaseAcquireDelayInSeconds()).willReturn(leaseTimeoutISec);
+        LocalDateTime minExpiryTime = LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
+            .plusSeconds(leaseTimeoutISec);
         //when
-        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient);
 
         //then
         assertThat(isReady).isTrue();
-        LocalDateTime leaseExpiresAt = LocalDateTime.parse(blobMetaData.get(LEASE_EXPIRATION_TIME));
-        assertThat(leaseExpiresAt.isAfter(LocalDateTime.now(EUROPE_LONDON_ZONE_ID))).isTrue();
+
+        var mapCapturer = ArgumentCaptor.forClass(Map.class);
         var conditionCapturer = ArgumentCaptor.forClass(BlobRequestConditions.class);
-        verify(blobClient).setMetadataWithResponse(any(),conditionCapturer.capture(), any(), any());
-        assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
+        verify(blobClient)
+            .setMetadataWithResponse(mapCapturer.capture(), conditionCapturer.capture(), eq(null), eq(Context.NONE));
+        Map<String, String> map = mapCapturer.getValue();
+        LocalDateTime leaseExpiresAt = LocalDateTime.parse(map.get(LEASE_EXPIRATION_TIME));
+        assertThat(minExpiryTime).isBefore(leaseExpiresAt);
+        BlobRequestConditions con = conditionCapturer.getValue();
+        assertThat(con.getIfMatch()).isEqualTo("\"" + etag + "\"");
 
     }
 
     @Test
     void should_clear_blob_metadata_when_clear_successful() {
         //given
-        given(blobClient.setMetadataWithResponse(any(), any(), any(), any()))
-            .willReturn(mock(Response.class));
+        given(blobClient.getProperties()).willReturn(blobProperties);
+        blobMetaData.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).plusSeconds(40).toString());
+        given(blobProperties.getMetadata()).willReturn(blobMetaData);
+
+        doNothing().when(blobClient).setMetadata(any());
 
         //when
-        leaseMetaDataChecker.clearMetaData(blobClient, leaseId);
+        leaseMetaDataChecker.clearMetaData(blobClient);
 
         //then
-        var conditionCaptor = ArgumentCaptor.forClass(BlobRequestConditions.class);
         var metaDataCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(blobClient)
-            .setMetadataWithResponse(isNull(), conditionCaptor.capture(), any(), any());
+        verify(blobClient).setMetadata(metaDataCaptor.capture());
 
-        assertThat(conditionCaptor.getValue().getLeaseId()).isEqualTo(leaseId);
+        assertThat(metaDataCaptor.getValue()).isEmpty();
     }
 }

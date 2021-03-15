@@ -39,7 +39,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
@@ -92,7 +91,6 @@ public class EnvelopeControllerTest {
     @Autowired private EnvelopeRepository envelopeRepository;
     @Autowired private ProcessEventRepository processEventRepository;
     @Autowired private BlobManagementProperties blobManagementProperties;
-    @Autowired private LeaseClientProvider leaseClientProvider;
     @Autowired private LeaseMetaDataChecker leaseMetaDataChecker;
     @Autowired private DocumentProcessor documentProcessor;
     @Autowired private LeaseAcquirer leaseAcquirer;
@@ -161,7 +159,6 @@ public class EnvelopeControllerTest {
         );
 
         LeaseAcquirer leaseAcquirer = new LeaseAcquirer(
-            leaseClientProvider,
             leaseMetaDataChecker
         );
 
