@@ -126,7 +126,7 @@ public class BlobProcessorTask {
             blobClient,
             leaseId -> {
                 if (ocrValidationRetryManager.canProcess(blobClient)) {
-                    processZipFile(container, blobClient, zipFilename, leaseId);
+                    processZipFile(container, blobClient, zipFilename);
                 }
             },
             s -> {},
@@ -137,8 +137,7 @@ public class BlobProcessorTask {
     private void processZipFile(
         BlobContainerClient container,
         BlobClient blobClient,
-        String zipFilename,
-        String leaseId
+        String zipFilename
     ) {
         Envelope envelope = envelopeProcessor
             .getEnvelopeByFileAndContainer(container.getBlobContainerName(), zipFilename);
@@ -157,8 +156,7 @@ public class BlobProcessorTask {
                 fileContentProcessor.processZipFileContent(
                     zis,
                     zipFilename,
-                    container.getBlobContainerName(),
-                    leaseId
+                    container.getBlobContainerName()
                 );
 
                 log.info(

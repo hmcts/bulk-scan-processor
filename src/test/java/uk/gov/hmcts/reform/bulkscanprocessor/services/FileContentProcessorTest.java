@@ -33,7 +33,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALI
 class FileContentProcessorTest {
     private static final String FILE_NAME = "file1.zip";
     private static final String CONTAINER_NAME = "container";
-    private static final String LEASE_ID = "leaseID";
     private static final String POBOX = "pobox";
     private static final String BULKSCAN = "bulkscan";
     private static final String CASE_NUMBER = "case_number";
@@ -99,8 +98,7 @@ class FileContentProcessorTest {
         fileContentProcessor.processZipFileContent(
             zis,
             FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
+            CONTAINER_NAME
         );
 
         // then
@@ -137,8 +135,7 @@ class FileContentProcessorTest {
         fileContentProcessor.processZipFileContent(
             zis,
             FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
+            CONTAINER_NAME
         );
 
         // then
@@ -147,7 +144,6 @@ class FileContentProcessorTest {
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
-                LEASE_ID,
                 ex
             );
         verifyNoMoreInteractions(fileRejector);
@@ -177,8 +173,7 @@ class FileContentProcessorTest {
         fileContentProcessor.processZipFileContent(
             zis,
             FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
+            CONTAINER_NAME
         );
 
         // then
@@ -187,7 +182,6 @@ class FileContentProcessorTest {
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
-                LEASE_ID,
                 ex
             );
         verifyNoMoreInteractions(fileRejector);
@@ -208,8 +202,7 @@ class FileContentProcessorTest {
         fileContentProcessor.processZipFileContent(
             zis,
             FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
+            CONTAINER_NAME
         );
 
         // then
@@ -218,7 +211,6 @@ class FileContentProcessorTest {
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
-                LEASE_ID,
                 ex
             );
         verifyNoMoreInteractions(fileRejector);
@@ -239,8 +231,7 @@ class FileContentProcessorTest {
         fileContentProcessor.processZipFileContent(
             zis,
             FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
+            CONTAINER_NAME
         );
 
         // then
@@ -249,7 +240,6 @@ class FileContentProcessorTest {
                 1L,
                 CONTAINER_NAME,
                 FILE_NAME,
-                LEASE_ID,
                 ex
             );
         verifyNoMoreInteractions(fileRejector);
@@ -267,8 +257,7 @@ class FileContentProcessorTest {
         fileContentProcessor.processZipFileContent(
             zis,
             FILE_NAME,
-            CONTAINER_NAME,
-            LEASE_ID
+            CONTAINER_NAME
         );
 
         // then
