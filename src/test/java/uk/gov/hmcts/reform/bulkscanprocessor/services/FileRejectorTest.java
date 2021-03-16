@@ -15,7 +15,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode.ERR_
 class FileRejectorTest {
     private static final long EVENT_ID = 1L;
     private static final String FILE_NAME = "file1.zip";
-    private static final String LEASE_ID = "leaseID";
     private static final String MSG = "msg";
     private static final OcrPresenceException MAPPED_CAUSE = new OcrPresenceException(MSG);
 
@@ -46,7 +45,6 @@ class FileRejectorTest {
             EVENT_ID,
             CONTAINER,
             FILE_NAME,
-            LEASE_ID,
             MAPPED_CAUSE
         );
 
@@ -62,8 +60,7 @@ class FileRejectorTest {
         verify(blobManager)
             .tryMoveFileToRejectedContainer(
                 FILE_NAME,
-                CONTAINER,
-                LEASE_ID
+                CONTAINER
             );
     }
 }

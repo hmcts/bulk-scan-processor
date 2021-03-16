@@ -25,7 +25,6 @@ public class FileRejector {
         Long eventId,
         String containerName,
         String zipFilename,
-        String leaseId,
         EnvelopeRejectionException cause
     ) {
         errorNotificationSender.sendErrorNotification(
@@ -35,6 +34,6 @@ public class FileRejector {
             eventId,
             cause.getErrorCode()
         );
-        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName, leaseId);
+        blobManager.tryMoveFileToRejectedContainer(zipFilename, containerName);
     }
 }

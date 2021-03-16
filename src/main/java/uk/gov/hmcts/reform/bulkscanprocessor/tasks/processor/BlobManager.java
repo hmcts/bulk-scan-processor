@@ -85,15 +85,14 @@ public class BlobManager {
             .collect(toList());
     }
 
-    public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName, String leaseId) {
+    public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName) {
         String rejectedContainerName = getRejectedContainerName(inputContainerName);
 
         try {
             moveFileToRejectedContainer(
                 fileName,
                 inputContainerName,
-                rejectedContainerName,
-                leaseId
+                rejectedContainerName
             );
         } catch (Exception ex) {
             log.error(
@@ -109,8 +108,7 @@ public class BlobManager {
     private void moveFileToRejectedContainer(
         String fileName,
         String inputContainerName,
-        String rejectedContainerName,
-        String leaseId
+        String rejectedContainerName
     ) {
         log.info("Moving file {} from container {} to {}", fileName, inputContainerName, rejectedContainerName);
         BlobClient inputBlob = blobServiceClient

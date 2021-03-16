@@ -46,7 +46,6 @@ public class BlobManagerTest {
     private static final String INPUT_CONTAINER_NAME = "container-name";
     private static final String REJECTED_CONTAINER_NAME = INPUT_CONTAINER_NAME + "-rejected";
     private static final String INPUT_FILE_NAME = "file-name-123.zip";
-    private static final String LEASE_ID = "leaseid123";
 
     /// start new version
     @Mock
@@ -160,7 +159,7 @@ public class BlobManagerTest {
         mockBeginCopy(url, sasToken);
 
         // when
-        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME);
 
         // then
         verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
@@ -180,7 +179,7 @@ public class BlobManagerTest {
             .beginCopy(any(), any(), any(), any(), any(), any(), any());;
 
         // whenc
-        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME);
 
         // then
         verify(inputBlobClient, never()).deleteWithResponse(any(), any(), any(), any());
@@ -210,7 +209,7 @@ public class BlobManagerTest {
             .given(inputBlobClient).deleteWithResponse(any(), any(), any(), any());
 
         // when
-        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME);
 
         // then
         verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
@@ -232,7 +231,7 @@ public class BlobManagerTest {
         // and
 
         // when
-        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME);
 
         // then
         verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
@@ -265,7 +264,7 @@ public class BlobManagerTest {
 
 
         // whenc
-        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME, LEASE_ID);
+        blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME);
 
         // then
         verify(rejectedBlobClient).beginCopy(any(), any(), any(), any(), any(), any(), any());
