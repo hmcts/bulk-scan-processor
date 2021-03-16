@@ -46,6 +46,7 @@ public class ZipStatusControllerTest {
                 "AUTO_ATTACHED_TO_CASE",
                 false,
                 "envelope11.zip",
+                "1329348437482",
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -57,6 +58,7 @@ public class ZipStatusControllerTest {
                 "3210329752313",
                 "EXCEPTION_RECORD",
                 true,
+                null,
                 null,
                 emptyList(),
                 emptyList(),
@@ -84,6 +86,7 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].envelope_ccd_action").value(envelopes.get(0).envelopeCcdAction))
             .andExpect(jsonPath("$.envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
             .andExpect(jsonPath("$.envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
+            .andExpect(jsonPath("$.envelopes[0].case_number").value(envelopes.get(0).caseNumber))
             .andExpect(jsonPath("$.envelopes[1].id").value(envelopes.get(1).id))
             .andExpect(jsonPath("$.envelopes[1].container").value(envelopes.get(1).container))
             .andExpect(jsonPath("$.envelopes[1].status").value(envelopes.get(1).status))
@@ -91,6 +94,7 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[1].envelope_ccd_action").value(envelopes.get(1).envelopeCcdAction))
             .andExpect(jsonPath("$.envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
             .andExpect(jsonPath("$.envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
+            .andExpect(jsonPath("$.envelopes[1].case_number").value(envelopes.get(1).caseNumber))
             .andExpect(jsonPath("$.events", hasSize(2)))
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
             .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))

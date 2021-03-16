@@ -51,6 +51,7 @@ public class ZipFileStatusService {
             envelope.getEnvelopeCcdAction(),
             envelope.isZipDeleted(),
             envelope.getRescanFor(),
+            envelope.getCaseNumber(),
             toScannableItemsResponse(envelope.getScannableItems()),
             toNonScannableItemsResponse(envelope.getNonScannableItems()),
             toPaymentsResponse(envelope.getPayments())
