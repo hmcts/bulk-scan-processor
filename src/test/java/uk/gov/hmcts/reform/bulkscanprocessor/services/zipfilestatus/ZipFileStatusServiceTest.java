@@ -76,6 +76,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getEnvelopeCcdAction(),
                     envelopes.get(0).isZipDeleted(),
                     envelopes.get(0).getRescanFor(),
+                    envelopes.get(0).getCaseNumber(),
                     toScannableItemsResponse(envelopes.get(0).getScannableItems()),
                     toNonScannableItemsResponse(envelopes.get(0).getNonScannableItems()),
                     toPaymentsResponse(envelopes.get(0).getPayments())
@@ -88,6 +89,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getEnvelopeCcdAction(),
                     envelopes.get(1).isZipDeleted(),
                     envelopes.get(1).getRescanFor(),
+                    envelopes.get(1).getCaseNumber(),
                     toScannableItemsResponse(envelopes.get(1).getScannableItems()),
                     toNonScannableItemsResponse(envelopes.get(1).getNonScannableItems()),
                     toPaymentsResponse(envelopes.get(1).getPayments())

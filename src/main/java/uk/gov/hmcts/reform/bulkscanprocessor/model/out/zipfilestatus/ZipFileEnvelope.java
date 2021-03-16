@@ -30,6 +30,9 @@ public class ZipFileEnvelope {
     @JsonProperty("rescan_for")
     public final String rescanFor;
 
+    @JsonProperty("case_number")
+    public final String caseNumber;
+
     @JsonProperty("scannable_items")
     public final List<ScannableItemResponse> scannableItems;
 
@@ -48,6 +51,7 @@ public class ZipFileEnvelope {
         String envelopeCcdAction,
         boolean zipDeleted,
         String rescanFor,
+        String caseNumber,
         List<ScannableItemResponse> scannableItems,
         List<NonScannableItemResponse> nonScannableItems,
         List<PaymentResponse> payments
@@ -60,6 +64,7 @@ public class ZipFileEnvelope {
         this.envelopeCcdAction = envelopeCcdAction;
         this.zipDeleted = zipDeleted;
         this.rescanFor = rescanFor;
+        this.caseNumber = caseNumber;
         this.scannableItems = scannableItems;
         this.nonScannableItems = nonScannableItems;
         this.payments = payments;
