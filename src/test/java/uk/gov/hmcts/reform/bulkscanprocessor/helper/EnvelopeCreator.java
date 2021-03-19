@@ -101,6 +101,11 @@ public final class EnvelopeCreator {
         return envelope(zipFileName, jurisdiction, status, scannableItems());
     }
 
+    public static Envelope envelope(List<Payment> payments) {
+        return envelope(randomUUID() + ".zip","SSCS", Status.UPLOADED, scannableItems(), payments);
+    }
+
+
     public static Envelope envelope(
         String zipFileName,
         String jurisdiction,
@@ -159,6 +164,37 @@ public final class EnvelopeCreator {
             payments(),
             nonScannableItems(),
             container,
+            "file1.zip"
+        );
+
+        envelope.setStatus(status);
+
+        return envelope;
+    }
+
+    public static Envelope envelope(
+        String zipFileName,
+        String jurisdiction,
+        Status status,
+        List<ScannableItem> scannableItems,
+        List<Payment> paymentItems
+    ) {
+        Instant timestamp = getInstant();
+
+        Envelope envelope = new Envelope(
+            "SSCSPO",
+            jurisdiction,
+            timestamp,
+            timestamp,
+            timestamp,
+            zipFileName,
+            "4444222233334446",
+            "123654789",
+            Classification.EXCEPTION,
+            scannableItems,
+            paymentItems,
+            nonScannableItems(),
+            "SSCS",
             "file1.zip"
         );
 

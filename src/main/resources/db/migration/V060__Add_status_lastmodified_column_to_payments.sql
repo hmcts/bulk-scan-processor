@@ -1,0 +1,3 @@
+ALTER TABLE payments
+  ADD COLUMN lastmodified TIMESTAMP NULL,
+  ADD COLUMN status VARCHAR(100) NULL;
