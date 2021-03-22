@@ -8,6 +8,10 @@ public class PaymentRequest {
     @JsonProperty(value = "payments", required = true)
     public final List<PaymentInfo> payments;
 
+    private PaymentRequest() {
+        payments = null;
+    }
+
     public PaymentRequest(List<PaymentInfo> payments) {
         this.payments = payments;
     }
