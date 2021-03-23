@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,7 +72,7 @@ public class PaymentControllerTest {
 
 
         //Then
-        verify(authService, times(1)).authenticate(eq("testServiceAuthHeader"));
+        verify(authService, times(1)).authenticate("testServiceAuthHeader");
     }
 
 

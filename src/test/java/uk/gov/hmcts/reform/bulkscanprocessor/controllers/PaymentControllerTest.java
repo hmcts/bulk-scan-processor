@@ -2,8 +2,10 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
 @WebMvcTest(PaymentController.class)
 class PaymentControllerTest {
     @Autowired
@@ -43,7 +45,7 @@ class PaymentControllerTest {
     ArgumentCaptor<PaymentRequest> paymentRequestArgumentCaptor;
 
     @Test
-    public void should_successfully_update_payment_status() throws Exception {
+    void should_successfully_update_payment_status() throws Exception {
         List<PaymentInfo> paymentInfoList = Arrays.asList(new PaymentInfo("123"),
             new PaymentInfo("234"), new PaymentInfo("567"));
         //Given
@@ -52,7 +54,7 @@ class PaymentControllerTest {
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
 
-        doNothing().when(paymentService).updatePaymentStatus(eq(paymentRequest));
+        doNothing().when(paymentService).updatePaymentStatus(paymentRequest);
 
         //When
         mockMvc.perform(put("/payment/status")
@@ -65,7 +67,7 @@ class PaymentControllerTest {
 
 
         //Then
-        verify(authService, times(1)).authenticate(eq("testServiceAuthHeader"));
+        verify(authService, times(1)).authenticate("testServiceAuthHeader");
         verify(paymentService, times(1))
             .updatePaymentStatus(paymentRequestArgumentCaptor.capture());
 
