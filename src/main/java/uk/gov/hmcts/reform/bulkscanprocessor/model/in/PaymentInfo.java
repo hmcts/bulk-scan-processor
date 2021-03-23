@@ -12,9 +12,4 @@ public class PaymentInfo {
     public PaymentInfo(@JsonProperty(value = "document_control_number", required = true) String documentControlNumber) {
         this.documentControlNumber = documentControlNumber;
     }
-
-    @Override
-    public String toString() {
-        return documentControlNumber;
-    }
 }
