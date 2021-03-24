@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,21 +48,22 @@ class PaymentRepositoryTest {
         List<String> paymentDcns = paymentsDB.stream().map(Payment::getDocumentControlNumber)
             .collect(Collectors.toList());
 
-        LocalDateTime currentTime = LocalDateTime.now();
         //When
-        int recordCount = paymentRepository.updateStatus(currentTime, paymentDcns);
+        int recordCount = paymentRepository.updateStatus(paymentDcns);
+        assertThat(recordCount).isEqualTo(3);
 
         Optional<List<Payment>> successFullPayments = paymentRepository.findByDocumentControlNumberIn(paymentDcns);
 
         //Then
         assertThat(successFullPayments).isPresent();
-        assertThat(successFullPayments.get()).as("Successful payment").extracting("status", "lastmodified")
-            .containsExactly(tuple("REQUESTED", currentTime), tuple("REQUESTED", currentTime),
-                             tuple("REQUESTED", currentTime));
+        assertThat(successFullPayments.get().size()).isEqualTo(3);
+        assertThat(successFullPayments.get()).as("Successful payment").extracting("status")
+            .contains("REQUESTED", "REQUESTED",
+                             "REQUESTED");
 
-        assertThat(recordCount).isEqualTo(3);
+        assertThat(successFullPayments.get()).as("Successful payment")
+            .extracting("lastmodified").isNotNull();
     }
-
 
     @Test
     void should_update_only_given_records() {
@@ -91,17 +91,8 @@ class PaymentRepositoryTest {
         List<String> paymentDcns = paymentsDB.stream().map(Payment::getDocumentControlNumber)
             .collect(Collectors.toList());
 
-        LocalDateTime currentTime = LocalDateTime.now();
         //When
-        int recordCount = paymentRepository.updateStatus(currentTime, paymentDcns);
-
-        List<Payment> successFullPayments = paymentRepository.findAll();
-
-        //Then
+        int recordCount = paymentRepository.updateStatus(paymentDcns);
         assertThat(recordCount).isEqualTo(3);
-        assertThat(successFullPayments).as("Successful payment").extracting("status", "lastmodified")
-            .containsExactly(tuple(null, null), tuple(null, null), tuple(null, null),
-                             tuple("REQUESTED", currentTime), tuple("REQUESTED", currentTime),
-                             tuple("REQUESTED", currentTime));
     }
 }
