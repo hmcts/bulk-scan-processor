@@ -238,7 +238,7 @@ dependencyManagement {
       entry 'groovy-xml'
     }
     //avoid CVE-2020-25638
-    dependency group: 'org.hibernate', name: 'hibernate-core', version: '5.4.29.Final'
+    dependency group: 'org.hibernate', name: 'hibernate-core', version: '5.4.30.Final'
   }
 }
 
