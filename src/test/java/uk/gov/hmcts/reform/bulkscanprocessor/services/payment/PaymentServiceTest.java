@@ -13,8 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.PaymentRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,9 +25,6 @@ import static org.mockito.Mockito.verify;
 class PaymentServiceTest {
     @Mock
     private PaymentRepository repository;
-
-    @Captor
-    ArgumentCaptor<LocalDateTime> localDateTimeArgumentCaptor;
 
     @Captor
     ArgumentCaptor<List<String>> listArgumentCaptor;
@@ -53,9 +48,7 @@ class PaymentServiceTest {
         paymentService.updatePaymentStatus(paymentRequest);
 
         //Then
-        verify(repository).updateStatus(localDateTimeArgumentCaptor.capture(), listArgumentCaptor.capture());
-        LocalDate localDate = localDateTimeArgumentCaptor.getValue().toLocalDate();
-        assertThat(localDate).isEqualTo(LocalDate.now());
+        verify(repository).updateStatus(listArgumentCaptor.capture());
         assertThat(listArgumentCaptor.getValue()).containsExactly("123", "234", "567");
     }
 
@@ -69,7 +62,7 @@ class PaymentServiceTest {
         paymentService.updatePaymentStatus(paymentRequest);
 
         //Then
-        verify(repository, never()).updateStatus(any(), any());
+        verify(repository, never()).updateStatus(any());
     }
 
 }

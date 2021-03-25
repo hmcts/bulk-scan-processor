@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.PaymentRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import javax.transaction.Transactional;
 
@@ -32,7 +31,7 @@ public class PaymentService {
                 .collect(toList());
             logger.info("DCNS to be updated {}", dcns);
 
-            int count = repository.updateStatus(LocalDateTime.now(), dcns);
+            int count = repository.updateStatus(dcns);
             logger.info("Records count updated {}", count);
         } else {
             logger.error("Nothing to update");
