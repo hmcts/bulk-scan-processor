@@ -58,8 +58,7 @@ class PaymentRepositoryTest {
         assertThat(successFullPayments).isPresent();
         assertThat(successFullPayments.get().size()).isEqualTo(3);
         assertThat(successFullPayments.get()).as("Successful payment").extracting("status")
-            .contains("REQUESTED", "REQUESTED",
-                             "REQUESTED");
+            .contains("SUBMITTED", "SUBMITTED", "SUBMITTED");
 
         assertThat(successFullPayments.get()).as("Successful payment")
             .extracting("lastmodified").isNotNull();

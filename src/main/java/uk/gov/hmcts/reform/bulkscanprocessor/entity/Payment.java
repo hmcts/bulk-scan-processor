@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,7 +22,7 @@ public class Payment implements EnvelopeAssignable {
 
     private String status;
 
-    private LocalDateTime lastmodified;
+    private Instant lastmodified;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "envelope_id", nullable = false)

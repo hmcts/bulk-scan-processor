@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Payment p SET p.status = 'REQUESTED'"
+    @Query("UPDATE Payment p SET p.status = 'SUBMITTED'"
         + "WHERE p.documentControlNumber in :dcn")
     int updateStatus(@Param("dcn") List<String> dcns);
 
