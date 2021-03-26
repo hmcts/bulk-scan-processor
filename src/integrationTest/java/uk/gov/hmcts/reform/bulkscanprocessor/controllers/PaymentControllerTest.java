@@ -16,10 +16,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static java.util.List.of;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,19 +42,23 @@ public class PaymentControllerTest {
 
     @Test
     void should_update_payment_status() throws Exception {
-        List<Payment> payments = asList(
+        List<Payment> payments = of(
             new Payment("11234"),
             new Payment("22234"),
             new Payment("33234")
         );
 
-        // given
+        //Given
         Envelope envelope = EnvelopeCreator.envelope(payments);
         envelopeRepository.save(envelope);
 
-        List<PaymentInfo> paymentInfoList = Arrays.asList(new PaymentInfo("11234"),
-                                                          new PaymentInfo("22234"), new PaymentInfo("33234"));
-        //Given
+        List<PaymentInfo> paymentInfoList = of(
+            new PaymentInfo("11234"),
+            new PaymentInfo("22234"),
+            new PaymentInfo("33234")
+        );
+
+
         PaymentRequest paymentRequest = new PaymentRequest(paymentInfoList);
 
         when(authService.authenticate("testServiceAuthHeader"))
