@@ -98,7 +98,8 @@ class PaymentControllerTest {
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
 
-        doThrow(new PaymentRecordsException("Number of records updated don't match")).when(paymentService).updatePaymentStatus(any());
+        doThrow(new PaymentRecordsException("Number of records updated don't match"))
+            .when(paymentService).updatePaymentStatus(any());
 
         String request = Resources.toString(getResource("payment/payments.json"), UTF_8);
 
