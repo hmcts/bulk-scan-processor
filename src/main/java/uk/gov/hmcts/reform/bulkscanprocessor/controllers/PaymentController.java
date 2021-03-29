@@ -34,7 +34,8 @@ public class PaymentController {
     @ApiResponses({
         @ApiResponse(code = 200, message = SUCCESSFUL_UPATE),
         @ApiResponse(code = 401, message = "Invalid service authorisation header"),
-        @ApiResponse(code = 403, message = "Service not configured")
+        @ApiResponse(code = 403, message = "Service not configured"),
+        @ApiResponse(code = 400, message = "Bad request")
     })
     public ResponseEntity<String> updatePayemnts(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,
