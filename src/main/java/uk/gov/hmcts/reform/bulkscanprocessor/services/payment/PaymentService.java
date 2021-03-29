@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.PaymentRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPaymentRecordsException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentRecordsException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 
@@ -25,19 +25,22 @@ public class PaymentService {
 
     @Transactional
     public void updatePaymentStatus(PaymentRequest paymentRequest) {
-        List<PaymentInfo> payments = paymentRequest.payments;
+        List<PaymentInfo> payments = paymentRequest.getPayments();
 
         if (payments != null && !payments.isEmpty()) {
             List<String> dcns = payments.stream()
-                .map(paymentInfo -> paymentInfo.documentControlNumber)
+                .map(PaymentInfo::getDocumentControlNumber)
                 .collect(toList());
 
             logger.info("DCNS to be updated {}", dcns);
 
             int count = repository.updateStatus(dcns);
             logger.info("Records count updated {}", count);
+            if (count != dcns.size()) {
+                throw new PaymentRecordsException("Number of records updated don't match");
+            }
         } else {
-            throw new NoPaymentRecordsException("No payment DCN's to be update");
+            throw new PaymentRecordsException("No payment DCN's to be update");
         }
     }
 }

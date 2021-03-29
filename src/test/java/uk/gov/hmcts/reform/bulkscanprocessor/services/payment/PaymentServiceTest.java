@@ -10,7 +10,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.PaymentRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NoPaymentRecordsException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentRecordsException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 
@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
@@ -58,6 +59,30 @@ class PaymentServiceTest {
         assertThat(listArgumentCaptor.getValue()).containsExactly("123", "234", "567");
     }
 
+    @Test
+    void should_throw_PaymentRecordsException_for_mismatch_update() {
+        //Given
+        List<PaymentInfo> paymentInfoList = of(
+            new PaymentInfo("123"),
+            new PaymentInfo("234"),
+            new PaymentInfo("567")
+        );
+
+        PaymentRequest paymentRequest = new PaymentRequest(paymentInfoList);
+
+        when(repository.updateStatus(any())).thenReturn(2);
+
+        //When
+        //When
+        assertThatThrownBy(() -> paymentService.updatePaymentStatus(paymentRequest))
+            .isInstanceOf(PaymentRecordsException.class)
+            .hasMessage("Number of records updated don't match");
+
+        //Then
+        verify(repository).updateStatus(listArgumentCaptor.capture());
+        assertThat(listArgumentCaptor.getValue()).containsExactly("123", "234", "567");
+    }
+
     @ParameterizedTest
     @NullAndEmptySource
     void should_not_invoke_paymentRepo_update(List<PaymentInfo> list) {
@@ -66,7 +91,7 @@ class PaymentServiceTest {
 
         //When
         assertThatThrownBy(() -> paymentService.updatePaymentStatus(paymentRequest))
-            .isInstanceOf(NoPaymentRecordsException.class)
+            .isInstanceOf(PaymentRecordsException.class)
             .hasMessage("No payment DCN's to be update");
 
         //Then

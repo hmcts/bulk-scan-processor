@@ -7,12 +7,21 @@ import javax.validation.constraints.NotEmpty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PaymentInfo {
-
     @JsonProperty("document_control_number")
-    @NotEmpty(message = "Payment DCN can't be empty")
-    public final String documentControlNumber;
+    @NotEmpty(message = "Document control number is empty or null")
+    private String documentControlNumber;
 
-    public PaymentInfo(@JsonProperty(value = "document_control_number", required = true) String documentControlNumber) {
+    public PaymentInfo(String documentControlNumber) {
+        this.documentControlNumber = documentControlNumber;
+    }
+
+    private PaymentInfo() { }
+
+    public String getDocumentControlNumber() {
+        return documentControlNumber;
+    }
+
+    public void setDocumentControlNumber(String documentControlNumber) {
         this.documentControlNumber = documentControlNumber;
     }
 }
