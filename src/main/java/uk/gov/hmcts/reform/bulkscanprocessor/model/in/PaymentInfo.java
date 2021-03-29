@@ -15,7 +15,8 @@ public class PaymentInfo {
         this.documentControlNumber = documentControlNumber;
     }
 
-    private PaymentInfo() { }
+    private PaymentInfo() {
+    }
 
     public String getDocumentControlNumber() {
         return documentControlNumber;
