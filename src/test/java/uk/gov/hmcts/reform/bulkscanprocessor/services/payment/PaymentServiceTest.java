@@ -73,7 +73,6 @@ class PaymentServiceTest {
         when(repository.updateStatus(any())).thenReturn(2);
 
         //When
-        //When
         assertThatThrownBy(() -> paymentService.updatePaymentStatus(paymentRequest))
             .isInstanceOf(PaymentRecordsException.class)
             .hasMessage("Number of records updated don't match");
