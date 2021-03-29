@@ -50,7 +50,7 @@ class PaymentServiceTest {
         );
 
         PaymentRequest paymentRequest = new PaymentRequest(paymentInfoList);
-
+        when(repository.updateStatus(any())).thenReturn(3);
         //When
         paymentService.updatePaymentStatus(paymentRequest);
 
