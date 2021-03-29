@@ -1,0 +1,13 @@
+{
+  "payments": [
+    {
+      "document_control_number": "11234"
+    },
+    {
+      "document_control_number": "22234"
+    },
+    {
+      "document_control_number": "33234"
+    }
+  ]
+}
