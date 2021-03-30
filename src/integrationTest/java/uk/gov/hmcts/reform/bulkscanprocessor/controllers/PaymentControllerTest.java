@@ -76,7 +76,6 @@ public class PaymentControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().string(PaymentController.SUCCESSFUL_UPATE));
 
-
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
     }
@@ -112,7 +111,6 @@ public class PaymentControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.errors[0].field_name").value("payments[2].documentControlNumber"))
             .andExpect(jsonPath("$.errors[0].message").value("Document control number is empty or null"));
-
 
         //Then
         verify(authService, never()).authenticate("testServiceAuthHeader");
