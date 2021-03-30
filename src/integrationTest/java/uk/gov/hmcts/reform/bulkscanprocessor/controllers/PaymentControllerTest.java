@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestUtil;
 
@@ -55,12 +54,6 @@ public class PaymentControllerTest {
         //Given
         Envelope envelope = EnvelopeCreator.envelope(payments);
         envelopeRepository.save(envelope);
-
-        List<PaymentInfo> paymentInfoList = of(
-            new PaymentInfo("11234"),
-            new PaymentInfo("22234"),
-            new PaymentInfo("33234")
-        );
 
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
