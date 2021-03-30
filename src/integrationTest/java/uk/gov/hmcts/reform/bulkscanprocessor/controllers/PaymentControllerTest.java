@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -36,7 +37,6 @@ public class PaymentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -69,9 +69,9 @@ public class PaymentControllerTest {
 
         //When
         mockMvc.perform(put("/payment/status")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .header("ServiceAuthorization", "testServiceAuthHeader")
-                            .content(request))
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("ServiceAuthorization", "testServiceAuthHeader")
+            .content(request))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().string(PaymentController.SUCCESSFUL_UPATE));
@@ -91,7 +91,9 @@ public class PaymentControllerTest {
             .header("ServiceAuthorization", "testServiceAuthHeader")
             .content(request))
             .andDo(print())
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errors[0].field_name").value("payments"))
+            .andExpect(jsonPath("$.errors[0].message").value("Payment list can't be empty"));
 
         //Then
         verify(authService, never()).authenticate("testServiceAuthHeader");
@@ -103,11 +105,14 @@ public class PaymentControllerTest {
 
         //When
         mockMvc.perform(put("/payment/status")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .header("ServiceAuthorization", "testServiceAuthHeader")
-                            .content(request))
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("ServiceAuthorization", "testServiceAuthHeader")
+            .content(request))
             .andDo(print())
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errors[0].field_name").value("payments[2].documentControlNumber"))
+            .andExpect(jsonPath("$.errors[0].message").value("Document control number is empty or null"));
+
 
         //Then
         verify(authService, never()).authenticate("testServiceAuthHeader");

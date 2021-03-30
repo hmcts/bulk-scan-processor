@@ -53,7 +53,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
         ModelValidationError error = new ModelValidationError(fieldErrors);
 
-        log.info("Bad request: {}", error);
+        log.error("Bad request: {}", error);
 
         return badRequest().body(error);
     }
