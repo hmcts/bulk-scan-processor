@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static java.time.Instant.now;
+import static java.time.ZoneOffset.UTC;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @WebMvcTest(StaleBlobController.class)
 public class StaleBlobControllerTest {
@@ -40,7 +40,7 @@ public class StaleBlobControllerTest {
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
         Instant createdAt = now();
-        String strcreatedAt = dateTimeFormatter.withZone(ZoneId.of("UTC")).format(createdAt);
+        String strcreatedAt = dateTimeFormatter.withZone(UTC).format(createdAt);
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
                 new BlobInfo("container1", "file_name_1", createdAt),
@@ -69,7 +69,7 @@ public class StaleBlobControllerTest {
     void should_return_list_of_stale_blobs_when_there_is_by_default_param_value() throws Exception {
 
         Instant createdAt = now();
-        String strcreatedAt = dateTimeFormatter.withZone(EUROPE_LONDON_ZONE_ID).format(createdAt);
+        String strcreatedAt = dateTimeFormatter.withZone(UTC).format(createdAt);
         given(staleBlobFinder.findStaleBlobs(120))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
         mockMvc
