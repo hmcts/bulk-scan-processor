@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ZipStatusController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
@@ -34,8 +35,13 @@ public class ZipStatusControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private  static final String DIVORCE = "divorce";
+    private  static final String CMC = "cmc";
+    private  static final String PROBATE = "probate";
+
     @Test
     public void should_return_data_returned_from_the_service() throws Exception {
+
 
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
@@ -46,6 +52,8 @@ public class ZipStatusControllerTest {
                 "AUTO_ATTACHED_TO_CASE",
                 false,
                 "envelope11.zip",
+                Classification.NEW_APPLICATION,
+                DIVORCE,
                 "1329348437482",
                 emptyList(),
                 emptyList(),
@@ -59,6 +67,8 @@ public class ZipStatusControllerTest {
                 "EXCEPTION_RECORD",
                 true,
                 null,
+                Classification.SUPPLEMENTARY_EVIDENCE,
+                PROBATE,
                 null,
                 emptyList(),
                 emptyList(),
