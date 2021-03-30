@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.BlobInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.StaleBlobFinder;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +40,7 @@ public class StaleBlobControllerTest {
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
         Instant createdAt = now();
-        String strcreatedAt = dateTimeFormatter.withZone(EUROPE_LONDON_ZONE_ID).format(createdAt);
+        String strcreatedAt = dateTimeFormatter.withZone(ZoneId.of("UTC")).format(createdAt);
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
                 new BlobInfo("container1", "file_name_1", createdAt),
