@@ -113,8 +113,8 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(PaymentRecordsException.class)
-    protected ResponseEntity<Void> handlePaymentException(PaymentRecordsException exc) {
+    protected ResponseEntity<ErrorResponse> handlePaymentException(PaymentRecordsException exc) {
         log.error(exc.getMessage(), exc);
-        return status(BAD_REQUEST).build();
+        return status(BAD_REQUEST).body(new ErrorResponse(exc.getMessage()));
     }
 }

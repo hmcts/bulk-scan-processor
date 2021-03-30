@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,7 +99,8 @@ class PaymentControllerTest {
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
 
-        doThrow(new PaymentRecordsException("Number of records updated don't match"))
+        String message = "Number of records updated don't match";
+        doThrow(new PaymentRecordsException(message))
             .when(paymentService).updatePaymentStatus(any());
 
         String request = Resources.toString(getResource("payment/payments.json"), UTF_8);
@@ -109,7 +111,8 @@ class PaymentControllerTest {
             .header("ServiceAuthorization", "testServiceAuthHeader")
             .content(request))
             .andDo(print())
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value(message));
 
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
