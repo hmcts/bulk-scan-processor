@@ -31,7 +31,7 @@ public class ZipFileEnvelope {
     @JsonProperty("rescan_for")
     public final String rescanFor;
 
-    @JsonProperty("classfication")
+    @JsonProperty("classification")
     public final Classification classification;
 
     @JsonProperty("jurisdiction")
