@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.ScannableItemResponse;
@@ -30,6 +31,12 @@ public class ZipFileEnvelope {
     @JsonProperty("rescan_for")
     public final String rescanFor;
 
+    @JsonProperty("classification")
+    public final Classification classification;
+
+    @JsonProperty("jurisdiction")
+    public final String jurisdiction;
+
     @JsonProperty("case_number")
     public final String caseNumber;
 
@@ -51,6 +58,8 @@ public class ZipFileEnvelope {
         String envelopeCcdAction,
         boolean zipDeleted,
         String rescanFor,
+        Classification classification,
+        String jurisdiction,
         String caseNumber,
         List<ScannableItemResponse> scannableItems,
         List<NonScannableItemResponse> nonScannableItems,
@@ -64,6 +73,8 @@ public class ZipFileEnvelope {
         this.envelopeCcdAction = envelopeCcdAction;
         this.zipDeleted = zipDeleted;
         this.rescanFor = rescanFor;
+        this.classification = classification;
+        this.jurisdiction = jurisdiction;
         this.caseNumber = caseNumber;
         this.scannableItems = scannableItems;
         this.nonScannableItems = nonScannableItems;
