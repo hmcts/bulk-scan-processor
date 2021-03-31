@@ -24,6 +24,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 
 @WebMvcTest(ZipStatusController.class)
 public class ZipStatusControllerTest {
@@ -33,6 +35,10 @@ public class ZipStatusControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    private static final String DIVORCE = "divorce";
+    private static final String CMC = "cmc";
+    private static final String PROBATE = "probate";
 
     @Test
     public void should_return_data_returned_from_the_service() throws Exception {
@@ -46,6 +52,8 @@ public class ZipStatusControllerTest {
                 "AUTO_ATTACHED_TO_CASE",
                 false,
                 "envelope11.zip",
+                NEW_APPLICATION,
+                DIVORCE,
                 "1329348437482",
                 emptyList(),
                 emptyList(),
@@ -59,6 +67,8 @@ public class ZipStatusControllerTest {
                 "EXCEPTION_RECORD",
                 true,
                 null,
+                SUPPLEMENTARY_EVIDENCE,
+                PROBATE,
                 null,
                 emptyList(),
                 emptyList(),
@@ -87,6 +97,8 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
             .andExpect(jsonPath("$.envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
             .andExpect(jsonPath("$.envelopes[0].case_number").value(envelopes.get(0).caseNumber))
+            .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()))
+            .andExpect(jsonPath("$.envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
             .andExpect(jsonPath("$.envelopes[1].id").value(envelopes.get(1).id))
             .andExpect(jsonPath("$.envelopes[1].container").value(envelopes.get(1).container))
             .andExpect(jsonPath("$.envelopes[1].status").value(envelopes.get(1).status))
@@ -95,6 +107,8 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
             .andExpect(jsonPath("$.envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
             .andExpect(jsonPath("$.envelopes[1].case_number").value(envelopes.get(1).caseNumber))
+            .andExpect(jsonPath("$.envelopes[1].classification").value(envelopes.get(1).classification.name()))
+            .andExpect(jsonPath("$.envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
             .andExpect(jsonPath("$.events", hasSize(2)))
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
             .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))
