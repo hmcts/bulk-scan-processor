@@ -1,17 +1,17 @@
 name: bulk-scan-processor
 apiVersion: v2
 home: https://github.com/hmcts/bulk-scan-processor
-version: 0.3.13
+version: 0.3.14
 description: HMCTS Bulk scan processor service
 maintainers:
   - name: HMCTS BSP Team
     email: bspteam@hmcts.net
 dependencies:
   - name: java
-    version: 3.4.4
+    version: 3.4.5
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
   - name: servicebus
-    version: 0.3.0
+    version: 0.3.1
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: servicebus.enabled
   - name: blobstorage

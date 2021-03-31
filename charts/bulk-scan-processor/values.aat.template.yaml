@@ -2,18 +2,30 @@ java:
   keyVaults:
     "bulk-scan":
       secrets:
-        - processor-staging-db-password
-        - s2s-secret
-        - flyway-password
-        - envelopes-staging-queue-send-shared-access-key
-        - notifications-queue-send-shared-access-key
-        - processed-envelopes-staging-queue-listen-shared-access-key
-        - storage-account-staging-name
-        - storage-account-staging-primary-key
-        - app-insights-instrumentation-key
-        - reports-email-username
-        - reports-email-password
-        - reports-recipients
+        - name: processor-staging-db-password
+          alias: BULK_SCANNING_DB_PASSWORD
+        - name: s2s-secret
+          alias: S2S_SECRET
+        - name: flyway-password
+          alias: flyway.password
+        - name: envelopes-staging-queue-send-shared-access-key
+          alias: QUEUE_ENVELOPE_SEND_ACCESS_KEY
+        - name: notifications-queue-send-shared-access-key
+          alias: QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY
+        - name: processed-envelopes-staging-queue-listen-shared-access-key
+          alias: QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY
+        - name: storage-account-staging-name
+          alias: storage.account_name
+        - name: storage-account-staging-primary-key
+          alias: storage.key
+        - name: app-insights-instrumentation-key
+          alias: azure.application-insights.instrumentation-key
+        - name: reports-email-username
+          alias: SMTP_USERNAME
+        - name: reports-email-password
+          alias: SMTP_PASSWORD
+        - name:  reports-recipients
+          alias: REPORTS_RECIPIENTS
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

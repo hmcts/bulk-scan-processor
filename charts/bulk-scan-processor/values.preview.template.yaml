@@ -48,7 +48,8 @@ java:
   keyVaults:
     "bulk-scan":
       secrets:
-        - s2s-secret
+        - name: s2s-secret
+          alias: S2S_SECRET
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
