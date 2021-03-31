@@ -61,7 +61,6 @@ public class ZipFileEnvelope {
         Classification classification,
         String jurisdiction,
         String caseNumber,
-
         List<ScannableItemResponse> scannableItems,
         List<NonScannableItemResponse> nonScannableItems,
         List<PaymentResponse> payments
