@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 
 @WebMvcTest(ZipStatusController.class)
 public class ZipStatusControllerTest {
@@ -51,7 +53,7 @@ public class ZipStatusControllerTest {
                 "AUTO_ATTACHED_TO_CASE",
                 false,
                 "envelope11.zip",
-                Classification.NEW_APPLICATION,
+                NEW_APPLICATION,
                 DIVORCE,
                 "1329348437482",
                 emptyList(),
@@ -66,7 +68,7 @@ public class ZipStatusControllerTest {
                 "EXCEPTION_RECORD",
                 true,
                 null,
-                Classification.SUPPLEMENTARY_EVIDENCE,
+                SUPPLEMENTARY_EVIDENCE,
                 PROBATE,
                 null,
                 emptyList(),
