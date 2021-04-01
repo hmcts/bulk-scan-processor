@@ -259,10 +259,6 @@ ext.libraries = [
 ext["rest-assured.version"] = '4.3.0'
 
 dependencies {
-  // exclude spring-cloud-context as it is already included in spring-cloud-starter-netflix-hystrix
-  def withoutSpringCloudContext = {
-    exclude group: 'org.springframework.cloud', module: 'spring-cloud-context'
-  }
 
   def withoutJavaxMailApi = {
     exclude group: 'javax.mail', module: 'mailapi'
@@ -285,8 +281,6 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
-
-  implementation group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.1.0', withoutSpringCloudContext
 
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
