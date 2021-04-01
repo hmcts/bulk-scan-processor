@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,11 @@ class PaymentRepositoryTest {
     @Autowired
     private EnvelopeRepository envelopeRepository;
 
+    @AfterEach
+    public void cleanUp() {
+        envelopeRepository.deleteAll();
+    }
+    
     @Test
     void should_update_payment_status() {
 
