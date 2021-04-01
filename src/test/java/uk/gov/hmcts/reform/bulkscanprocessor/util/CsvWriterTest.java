@@ -38,8 +38,8 @@ public class CsvWriterTest {
                 DOC_UPLOADED.toString(),
                 Status.UPLOADED.toString(),
                 SUPPLEMENTARY_EVIDENCE.name(),
-                null,
-                null
+                "1321321312",
+                "AUTO_CREATED_CASE"
             ),
             new ZipFileSummaryResponse(
                 "test2.zip",
@@ -66,7 +66,7 @@ public class CsvWriterTest {
             .isNotEmpty()
             .hasSize(3)
             .extracting(data -> tuple(
-                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7))
+                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7), data.get(8), data.get(9))
             )
             .containsExactly(
                 tuple(
@@ -77,7 +77,9 @@ public class CsvWriterTest {
                     "Date Processed",
                     "Time Processed",
                     "Status",
-                    "Classification"
+                    "Classification",
+                    "CCD Action",
+                    "CCD ID"
                 ),
                 tuple(
                     "bulkscan",
@@ -87,7 +89,9 @@ public class CsvWriterTest {
                     date.toString(),
                     time.toString(),
                     DOC_UPLOADED.toString(),
-                    SUPPLEMENTARY_EVIDENCE.name()
+                    SUPPLEMENTARY_EVIDENCE.name(),
+                    "AUTO_CREATED_CASE",
+                    "1321321312"
                 ),
                 tuple(
                     "bulkscan",
@@ -97,6 +101,8 @@ public class CsvWriterTest {
                     date.toString(),
                     time.toString(),
                     DOC_UPLOADED.toString(),
+                    "",
+                    "",
                     ""
                 )
             );
@@ -114,7 +120,7 @@ public class CsvWriterTest {
             .isNotEmpty()
             .hasSize(1)
             .extracting(data -> tuple(
-                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7))
+                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7), data.get(8), data.get(9))
             )
             .containsExactly(
                 tuple(
@@ -125,7 +131,9 @@ public class CsvWriterTest {
                     "Date Processed",
                     "Time Processed",
                     "Status",
-                    "Classification"
+                    "Classification",
+                    "CCD Action",
+                    "CCD ID"
                 )
             );
     }
