@@ -66,7 +66,16 @@ public class CsvWriterTest {
             .isNotEmpty()
             .hasSize(3)
             .extracting(data -> tuple(
-                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7), data.get(8), data.get(9))
+                data.get(0),
+                data.get(1),
+                data.get(2),
+                data.get(3),
+                data.get(4),
+                data.get(5),
+                data.get(6),
+                data.get(7),
+                data.get(8),
+                data.get(9))
             )
             .containsExactly(
                 tuple(
@@ -120,7 +129,16 @@ public class CsvWriterTest {
             .isNotEmpty()
             .hasSize(1)
             .extracting(data -> tuple(
-                data.get(0), data.get(1), data.get(2), data.get(3), data.get(4), data.get(5), data.get(6), data.get(7), data.get(8), data.get(9))
+                data.get(0),
+                data.get(1),
+                data.get(2),
+                data.get(3),
+                data.get(4),
+                data.get(5),
+                data.get(6),
+                data.get(7),
+                data.get(8),
+                data.get(9))
             )
             .containsExactly(
                 tuple(

@@ -170,8 +170,8 @@ public class ReportsControllerTest {
 
         String expectedContent = String.format(
             "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,"
-                + "Status,Classification\r\n"
-                + "bulkscan,test.zip,%s,%s,%s,%s,CONSUMED,EXCEPTION\r\n",
+                + "Status,Classification,CCD Action,CCD ID\r\n"
+                + "bulkscan,test.zip,%s,%s,%s,%s,CONSUMED,EXCEPTION,ccd-action,ccd-id\r\n",
             localDate.toString(), "12:30:10",
             localDate.toString(), "13:30:10"
         );
@@ -200,7 +200,7 @@ public class ReportsControllerTest {
             .andExpect(content().contentType(APPLICATION_OCTET_STREAM))
             .andExpect(content().string(
                 "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,"
-                    + "Status,Classification\r\n"
+                    + "Status,Classification,CCD Action,CCD ID\r\n"
             ));
     }
 
