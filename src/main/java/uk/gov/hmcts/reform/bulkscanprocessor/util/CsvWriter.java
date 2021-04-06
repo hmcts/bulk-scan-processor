@@ -16,7 +16,7 @@ public final class CsvWriter {
 
     private static final String[] ZIP_FILES_SUMMARY_CSV_HEADERS = {
         "Container", "Zip File Name", "Date Received", "Time Received",
-        "Date Processed", "Time Processed", "Status", "Classification"
+        "Date Processed", "Time Processed", "Status", "Classification", "CCD Action", "CCD ID"
     };
 
     private CsvWriter() {
@@ -41,7 +41,9 @@ public final class CsvWriter {
                     summary.dateProcessed,
                     summary.timeProcessed,
                     summary.lastEventStatus,
-                    summary.classification
+                    summary.classification,
+                    summary.ccdAction,
+                    summary.ccdId
                 );
             }
         }
