@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
@@ -66,11 +67,16 @@ public class ReportsService {
      * @param container to filter the zip files when container value is provided
      * @return list of zip files summary
      */
-    public List<ZipFileSummaryResponse> getZipFilesSummary(LocalDate date, String container) {
+    public List<ZipFileSummaryResponse> getZipFilesSummary(
+        LocalDate date,
+        String container,
+        Classification classification
+    ) {
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
             .stream()
             .map(this::fromDbZipfileSummary)
             .filter(summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container))
+            .filter(summary -> classification == null || summary.classification.equalsIgnoreCase(classification.name()))
             .collect(Collectors.toList());
     }
 

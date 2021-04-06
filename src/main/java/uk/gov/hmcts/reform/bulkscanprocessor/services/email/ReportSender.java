@@ -79,7 +79,7 @@ public class ReportSender {
     }
 
     private File getCsvReport() throws IOException {
-        List<ZipFileSummaryResponse> reportDate = reportsService.getZipFilesSummary(getPreviousDay(), null);
+        List<ZipFileSummaryResponse> reportDate = reportsService.getZipFilesSummary(getPreviousDay(), null, null);
         return CsvWriter.writeZipFilesSummaryToCsv(reportDate);
     }
 
