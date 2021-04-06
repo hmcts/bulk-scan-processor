@@ -228,7 +228,8 @@ public class ReportsControllerTest {
             .willReturn(singletonList(response));
 
         mockMvc
-            .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan&classification=NEW_APPLICATION"))
+            .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan"
+                             + "&classification=NEW_APPLICATION"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.data.length()").value(1))
