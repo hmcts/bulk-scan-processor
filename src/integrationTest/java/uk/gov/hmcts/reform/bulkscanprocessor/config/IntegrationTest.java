@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -19,5 +20,6 @@ import java.lang.annotation.Target;
 })
 @ContextConfiguration(initializers = IntegrationContextInitializer.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public @interface IntegrationTest {
 }
