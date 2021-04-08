@@ -50,6 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 
 @WebMvcTest(ReportsController.class)
@@ -165,7 +166,7 @@ public class ReportsControllerTest {
             "ccd-action"
         );
 
-        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
             .willReturn(singletonList(zipFileSummaryResponse));
 
         String expectedContent = String.format(
@@ -189,7 +190,7 @@ public class ReportsControllerTest {
     public void should_return_empty_zipfiles_summary_in_csv_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
-        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
             .willReturn(emptyList());
 
         mockMvc
@@ -223,11 +224,12 @@ public class ReportsControllerTest {
             "ccd-action"
         );
 
-        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan", NEW_APPLICATION))
             .willReturn(singletonList(response));
 
         mockMvc
-            .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan"))
+            .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan"
+                             + "&classification=NEW_APPLICATION"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.data.length()").value(1))
@@ -248,7 +250,7 @@ public class ReportsControllerTest {
     public void should_return_empty_zipfiles_summary_in_json_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
-        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
             .willReturn(emptyList());
 
         mockMvc
