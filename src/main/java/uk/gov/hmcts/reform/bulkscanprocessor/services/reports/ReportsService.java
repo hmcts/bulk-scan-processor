@@ -76,7 +76,18 @@ public class ReportsService {
             .stream()
             .map(this::fromDbZipfileSummary)
             .filter(summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container))
-            .filter(summary -> classification == null || summary.classification.equalsIgnoreCase(classification.name()))
+            .filter(summary -> {
+                try {
+                    if (classification == null) {
+                        return true;
+                    }
+
+                    return summary.classification.equalsIgnoreCase(classification.name());
+                } catch (NullPointerException ex) {
+                    log.error(String.format("%s, %s", classification, summary.classification), ex);
+                    return true;
+                }
+            })
             .collect(Collectors.toList());
     }
 
