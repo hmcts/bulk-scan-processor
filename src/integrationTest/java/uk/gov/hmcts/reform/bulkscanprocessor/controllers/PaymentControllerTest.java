@@ -65,8 +65,7 @@ public class PaymentControllerTest {
             .header("ServiceAuthorization", "testServiceAuthHeader")
             .content(request))
             .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("Payment status successfully updated"));
+            .andExpect(status().isOk());
 
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
