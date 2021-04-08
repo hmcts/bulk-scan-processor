@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,15 @@ public class ReceivedZipFileRepositoryTest {
     private ScannableItemRepository scannableItemRepo;
     @Autowired
     private PaymentRepository paymentRepo;
+
+    @AfterEach
+    public void cleanUp() {
+        reportRepo.deleteAll();
+        eventRepo.deleteAll();
+        envelopeRepo.deleteAll();
+        scannableItemRepo.deleteAll();
+        paymentRepo.deleteAll();
+    }
 
     @Test
     void should_return_single_event_if_no_envelope() {

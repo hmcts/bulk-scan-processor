@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,11 @@ public class ProcessEventRepositoryTest {
 
     @Autowired
     private ProcessEventRepository repo;
+
+    @AfterEach
+    public void cleanUp() {
+        repo.deleteAll();
+    }
 
     @Test
     public void findByZipFileName_should_find_events_in_db() {

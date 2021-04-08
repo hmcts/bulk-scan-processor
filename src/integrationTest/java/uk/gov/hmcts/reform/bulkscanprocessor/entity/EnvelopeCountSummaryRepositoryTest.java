@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,12 @@ public class EnvelopeCountSummaryRepositoryTest {
 
     @Autowired private EnvelopeCountSummaryRepository reportRepo;
     @Autowired private ProcessEventRepository eventRepo;
+
+    @AfterEach
+    public void cleanUp() {
+        reportRepo.deleteAll();
+        eventRepo.deleteAll();
+    }
 
     @Test
     public void should_group_by_container() {

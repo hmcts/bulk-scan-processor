@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,13 @@ public class ZipFilesSummaryRepositoryTest {
     private ProcessEventRepository eventRepo;
     @Autowired
     private EnvelopeRepository envelopeRepo;
+
+    @AfterEach
+    public void cleanUp() {
+        reportRepo.deleteAll();
+        eventRepo.deleteAll();
+        envelopeRepo.deleteAll();
+    }
 
     @Test
     public void should_return_zipfiles_summary_by_date() {
