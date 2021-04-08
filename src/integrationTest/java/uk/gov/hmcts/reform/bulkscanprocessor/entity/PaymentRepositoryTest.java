@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 
@@ -21,7 +20,6 @@ import static org.assertj.core.api.Assertions.tuple;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class PaymentRepositoryTest {
 
     @Autowired
@@ -32,8 +30,8 @@ class PaymentRepositoryTest {
 
     @AfterEach
     public void cleanUp() {
-        envelopeRepository.deleteAll();
         paymentRepository.deleteAll();
+        envelopeRepository.deleteAll();
     }
     
     @Test
