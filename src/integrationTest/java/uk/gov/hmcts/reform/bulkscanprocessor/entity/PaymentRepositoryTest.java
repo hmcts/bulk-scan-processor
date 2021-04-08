@@ -33,6 +33,7 @@ class PaymentRepositoryTest {
     @AfterEach
     public void cleanUp() {
         envelopeRepository.deleteAll();
+        paymentRepository.deleteAll();
     }
     
     @Test
