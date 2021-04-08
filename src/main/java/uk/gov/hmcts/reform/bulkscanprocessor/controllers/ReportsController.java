@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.DiscrepancyItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
@@ -81,9 +82,10 @@ public class ReportsController {
     @ApiOperation("Retrieves zip files summary report in json format for the given date and container")
     public ZipFilesSummaryReportListResponse getZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
-        @RequestParam(name = "container", required = false) String container
+        @RequestParam(name = "container", required = false) String container,
+        @RequestParam(name = "classification", required = false) Classification classification
     ) {
-        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, container);
+        List<ZipFileSummaryResponse> summary = reportsService.getZipFilesSummary(date, container, classification);
         return new ZipFilesSummaryReportListResponse(
             summary.size(),
             (int)summary.stream().filter(completed -> completed.envelopeStatus.equalsIgnoreCase("COMPLETED")).count(),
@@ -113,7 +115,7 @@ public class ReportsController {
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "container", required = false) String container
     ) throws IOException {
-        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, container);
+        List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, container, null);
 
         File csvFile = CsvWriter.writeZipFilesSummaryToCsv(summary);
         return ResponseEntity

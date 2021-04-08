@@ -70,7 +70,7 @@ public class ReportSenderTest {
         assertThat(msg.getAttachmentList().get(0).getName())
             .isEqualTo(ReportSender.ATTACHMENT_PREFIX + yesterday + ".csv");
 
-        verify(reportsService).getZipFilesSummary(yesterday, null);
+        verify(reportsService).getZipFilesSummary(yesterday, null, null);
     }
 
     @Test
