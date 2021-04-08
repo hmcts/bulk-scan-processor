@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -73,17 +72,15 @@ public class ReportsService {
         String container,
         Classification classification
     ) {
-        List<Predicate<ZipFileSummaryResponse>> predicates = new ArrayList<>();
-        predicates.add(summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container));
+        Predicate<ZipFileSummaryResponse> predicate =
+            summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container);
         if (classification != null) {
-            predicates.add(summary -> classification.name().equalsIgnoreCase(summary.classification));
+            predicate = predicate.and(summary -> classification.name().equalsIgnoreCase(summary.classification));
         }
-        Predicate<ZipFileSummaryResponse> compositePredicate =
-            predicates.stream().reduce(p -> true, Predicate::and);
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
                 .stream()
                 .map(this::fromDbZipfileSummary)
-                .filter(compositePredicate)
+                .filter(predicate)
                 .collect(toList());
     }
 
