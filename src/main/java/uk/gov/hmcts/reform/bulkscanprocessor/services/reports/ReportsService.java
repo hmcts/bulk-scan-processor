@@ -17,9 +17,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -72,23 +73,18 @@ public class ReportsService {
         String container,
         Classification classification
     ) {
+        List<Predicate<ZipFileSummaryResponse>> predicates = new ArrayList<>();
+        predicates.add(summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container));
+        if (classification != null) {
+            predicates.add(summary -> classification.name().equalsIgnoreCase(summary.classification));
+        }
+        Predicate<ZipFileSummaryResponse> compositePredicate =
+            predicates.stream().reduce(p -> true, Predicate::and);
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
-            .stream()
-            .map(this::fromDbZipfileSummary)
-            .filter(summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container))
-            .filter(summary -> {
-                try {
-                    if (classification == null) {
-                        return true;
-                    }
-
-                    return summary.classification.equalsIgnoreCase(classification.name());
-                } catch (NullPointerException ex) {
-                    log.error(String.format("%s, %s", classification, summary.classification), ex);
-                    return true;
-                }
-            })
-            .collect(Collectors.toList());
+                .stream()
+                .map(this::fromDbZipfileSummary)
+                .filter(compositePredicate)
+                .collect(toList());
     }
 
     private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
