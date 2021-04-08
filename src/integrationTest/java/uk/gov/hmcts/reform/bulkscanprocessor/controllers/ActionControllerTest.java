@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,12 @@ public class ActionControllerTest {
 
     @MockBean
     private ProcessEventRepository processEventRepository;
+
+    @AfterEach
+    public void cleanUp() {
+        processEventRepository.deleteAll();
+        envelopeRepository.deleteAll();
+    }
 
     @Test
     void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events() throws Exception {
