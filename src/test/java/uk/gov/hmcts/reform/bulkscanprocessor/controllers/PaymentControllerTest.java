@@ -73,7 +73,6 @@ class PaymentControllerTest {
             .andDo(print())
             .andExpect(status().isOk());
 
-
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
         verify(paymentService, times(1))
