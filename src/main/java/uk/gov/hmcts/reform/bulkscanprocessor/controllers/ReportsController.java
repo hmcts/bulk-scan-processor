@@ -85,6 +85,9 @@ public class ReportsController {
     ) {
         List<ZipFileSummaryResponse> summary = this.reportsService.getZipFilesSummary(date, container);
         return new ZipFilesSummaryReportListResponse(
+            summary.size(),
+            (int)summary.stream().filter(completed -> completed.envelopeStatus.equalsIgnoreCase("COMPLETED")).count(),
+            (int)summary.stream().filter(completed -> completed.envelopeStatus.contains("FAILURE")).count(),
             summary
                 .stream()
                 .map(item -> new ZipFilesSummaryReportItem(
