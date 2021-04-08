@@ -111,7 +111,7 @@ public class ReportsServiceTest {
             .willReturn(emptyList());
 
         // when
-        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null);
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null, null);
 
         // then
         assertThat(result).isEmpty();
@@ -147,7 +147,7 @@ public class ReportsServiceTest {
             ));
 
         // when
-        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null);
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null, null);
 
         // then
         assertThat(result)
@@ -212,7 +212,7 @@ public class ReportsServiceTest {
             ));
 
         // when
-        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), "c2");
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), "c2", null);
 
         // then
         assertThat(result).hasSize(1);
@@ -220,6 +220,132 @@ public class ReportsServiceTest {
 
         assertThat(result.get(0).fileName).isEqualTo("t2.zip");
         assertThat(result.get(0).classification).isEqualTo(EXCEPTION.name());
+    }
+
+    @Test
+    public void should_filter_zipfiles_by_classification_when_requested_for_zipfiles_summary() {
+        Instant instant = Instant.now();
+        given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
+            .willReturn(asList(
+                new ZipFileSummaryItem(
+                    "t1.zip",
+                    instant.minus(1, MINUTES),
+                    null,
+                    "c1",
+                    ZIPFILE_PROCESSING_STARTED.toString(),
+                    null,
+                    EXCEPTION.name(),
+                    null,
+                    null
+                ),
+                new ZipFileSummaryItem(
+                    "t2.zip",
+                    instant.minus(1, MINUTES),
+                    null,
+                    "c1",
+                    ZIPFILE_PROCESSING_STARTED.toString(),
+                    null,
+                    NEW_APPLICATION.name(),
+                    null,
+                    null
+                ),
+                new ZipFileSummaryItem(
+                    "t3.zip",
+                    instant.minus(10, MINUTES),
+                    instant.minus(20, MINUTES),
+                    "c2",
+                    COMPLETED.toString(),
+                    null,
+                    EXCEPTION.name(),
+                    null,
+                    null
+                ),
+                new ZipFileSummaryItem(
+                    "t4.zip",
+                    instant.minus(10, MINUTES),
+                    instant.minus(20, MINUTES),
+                    "c2",
+                    COMPLETED.toString(),
+                    null,
+                    NEW_APPLICATION.name(),
+                    null,
+                    null
+                )
+            ));
+
+        // when
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null, NEW_APPLICATION);
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).container).isEqualTo("c1");
+        assertThat(result.get(0).fileName).isEqualTo("t2.zip");
+        assertThat(result.get(0).classification).isEqualTo(NEW_APPLICATION.name());
+        assertThat(result.get(1).container).isEqualTo("c2");
+        assertThat(result.get(1).fileName).isEqualTo("t4.zip");
+        assertThat(result.get(1).classification).isEqualTo(NEW_APPLICATION.name());
+    }
+
+    @Test
+    public void should_filter_zipfiles_by_container_and_classification_when_requested_for_zipfiles_summary() {
+        Instant instant = Instant.now();
+        given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
+            .willReturn(asList(
+                new ZipFileSummaryItem(
+                    "t1.zip",
+                    instant.minus(1, MINUTES),
+                    null,
+                    "c1",
+                    ZIPFILE_PROCESSING_STARTED.toString(),
+                    null,
+                    EXCEPTION.name(),
+                    null,
+                    null
+                ),
+                new ZipFileSummaryItem(
+                    "t2.zip",
+                    instant.minus(1, MINUTES),
+                    null,
+                    "c1",
+                    ZIPFILE_PROCESSING_STARTED.toString(),
+                    null,
+                    NEW_APPLICATION.name(),
+                    null,
+                    null
+                ),
+                new ZipFileSummaryItem(
+                    "t3.zip",
+                    instant.minus(10, MINUTES),
+                    instant.minus(20, MINUTES),
+                    "c2",
+                    COMPLETED.toString(),
+                    null,
+                    EXCEPTION.name(),
+                    null,
+                    null
+                ),
+                new ZipFileSummaryItem(
+                    "t4.zip",
+                    instant.minus(10, MINUTES),
+                    instant.minus(20, MINUTES),
+                    "c2",
+                    COMPLETED.toString(),
+                    null,
+                    NEW_APPLICATION.name(),
+                    null,
+                    null
+                )
+            ));
+
+        // when
+        List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), "c2", NEW_APPLICATION);
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).container).isEqualTo("c2");
+
+        assertThat(result.get(0).fileName).isEqualTo("t4.zip");
+        assertThat(result.get(0).classification).isEqualTo(NEW_APPLICATION.name());
     }
 
     private LocalTime toLocalTime(Instant instant) {
