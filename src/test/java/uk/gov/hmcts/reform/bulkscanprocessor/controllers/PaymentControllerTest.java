@@ -2,10 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @WebMvcTest(PaymentController.class)
 class PaymentControllerTest {
     @Autowired
@@ -45,9 +41,6 @@ class PaymentControllerTest {
 
     @MockBean
     private PaymentService paymentService;
-
-    @Captor
-    ArgumentCaptor<PaymentRequest> paymentRequestArgumentCaptor;
 
     @Test
     void should_successfully_update_payment_status() throws Exception {
@@ -72,9 +65,9 @@ class PaymentControllerTest {
                             .content(request))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("Payment status successfully updated"));
+            .andExpect(jsonPath("$.status").value(PaymentController.SUCCESSFUL_UPDATE));
 
-
+        ArgumentCaptor<PaymentRequest> paymentRequestArgumentCaptor = ArgumentCaptor.forClass(PaymentRequest.class);
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
         verify(paymentService, times(1))
@@ -113,6 +106,7 @@ class PaymentControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value(message));
 
+        ArgumentCaptor<PaymentRequest> paymentRequestArgumentCaptor = ArgumentCaptor.forClass(PaymentRequest.class);
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
         verify(paymentService, times(1))

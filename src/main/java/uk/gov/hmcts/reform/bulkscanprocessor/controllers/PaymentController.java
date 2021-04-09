@@ -24,7 +24,7 @@ import javax.validation.Valid;
 public class PaymentController {
     private final AuthService authService;
     private final PaymentService paymentService;
-    public static final String SUCCESSFUL_UPATE = "Payment status successfully updated";
+    public static final String SUCCESSFUL_UPDATE = "success";
 
     public PaymentController(AuthService authService, PaymentService paymentService) {
         this.authService = authService;
@@ -34,7 +34,7 @@ public class PaymentController {
     @PutMapping(path = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Update's payment status to SUBMITTED")
     @ApiResponses({
-        @ApiResponse(code = 200, message = SUCCESSFUL_UPATE),
+        @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE),
         @ApiResponse(code = 401, message = "Invalid service authorisation header"),
         @ApiResponse(code = 403, message = "Service not configured"),
         @ApiResponse(code = 400, message = "Bad request")
@@ -45,7 +45,7 @@ public class PaymentController {
 
         authService.authenticate(serviceAuthHeader);
         paymentService.updatePaymentStatus(paymentRequest);
-        return ResponseEntity.ok().body(new PaymentStatusReponse(SUCCESSFUL_UPATE));
+        return ResponseEntity.ok().body(new PaymentStatusReponse(SUCCESSFUL_UPDATE));
     }
 }
 

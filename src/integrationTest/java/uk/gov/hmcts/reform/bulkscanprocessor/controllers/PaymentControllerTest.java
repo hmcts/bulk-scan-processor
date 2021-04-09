@@ -72,7 +72,7 @@ public class PaymentControllerTest {
             .content(request))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("Payment status successfully updated"));
+            .andExpect(jsonPath("$.status").value(PaymentController.SUCCESSFUL_UPDATE));
 
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
