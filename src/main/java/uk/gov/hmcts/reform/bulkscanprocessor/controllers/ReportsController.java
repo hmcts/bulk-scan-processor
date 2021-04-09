@@ -86,22 +86,23 @@ public class ReportsController {
         @RequestParam(name = "classification", required = false) Classification classification
     ) {
         List<ZipFileSummaryResponse> summary = reportsService.getZipFilesSummary(date, container, classification);
-        return new ZipFilesSummaryReportListResponse(summary
-                                                     .stream()
-                                                     .map(item -> new ZipFilesSummaryReportItem(
-                                                         item.fileName,
-                                                         item.dateReceived,
-                                                         item.timeReceived,
-                                                         item.dateProcessed,
-                                                         item.timeProcessed,
-                                                         item.container,
-                                                         item.lastEventStatus,
-                                                         item.envelopeStatus,
-                                                         item.classification,
-                                                         item.ccdId,
-                                                         item.ccdAction
-                                                     ))
-                                                    .collect(toList()));
+        return new ZipFilesSummaryReportListResponse(
+            summary
+                .stream()
+                .map(item -> new ZipFilesSummaryReportItem(
+                    item.fileName,
+                    item.dateReceived,
+                    item.timeReceived,
+                    item.dateProcessed,
+                    item.timeProcessed,
+                    item.container,
+                    item.lastEventStatus,
+                    item.envelopeStatus,
+                    item.classification,
+                    item.ccdId,
+                    item.ccdAction
+                ))
+                .collect(toList()));
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
