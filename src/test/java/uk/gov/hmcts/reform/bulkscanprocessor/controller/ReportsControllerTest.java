@@ -299,11 +299,12 @@ public class ReportsControllerTest {
         );
 
         List<ZipFileSummaryResponse> response = Arrays.asList(response1, response2, response3);
-        given(reportsService.getZipFilesSummary(localDate, "bulkscan"))
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan", SUPPLEMENTARY_EVIDENCE))
             .willReturn(response);
 
         mockMvc
-            .perform(get("/reports/zip-files-summary?date=2021-04-08&container=bulkscan"))
+            .perform(get("/reports/zip-files-summary?date=2021-04-08&container=bulkscan"
+                             + "&classification=SUPPLEMENTARY_EVIDENCE"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.total").value(3))

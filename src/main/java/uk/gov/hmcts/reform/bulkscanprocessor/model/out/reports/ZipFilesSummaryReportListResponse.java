@@ -18,11 +18,10 @@ public class ZipFilesSummaryReportListResponse {
     @JsonProperty("data")
     public final List<ZipFilesSummaryReportItem> items;
 
-    public ZipFilesSummaryReportListResponse(int total, int totalCompleted,
-                                             int totalFailed, List<ZipFilesSummaryReportItem> items) {
-        this.total = total;
-        this.totalCompleted = totalCompleted;
-        this.totalFailed = totalFailed;
+    public ZipFilesSummaryReportListResponse(List<ZipFilesSummaryReportItem> items) {
+        this.total = items.size();
+        this.totalCompleted = (int)items.stream().filter(completed -> completed.envelopeStatus.equalsIgnoreCase("COMPLETED")).count();
+        this.totalFailed = (int)items.stream().filter(completed -> completed.envelopeStatus.contains("FAILURE")).count();
         this.items = items;
     }
 }
