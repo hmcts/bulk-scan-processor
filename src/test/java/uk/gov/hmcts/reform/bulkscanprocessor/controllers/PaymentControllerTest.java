@@ -43,9 +43,6 @@ class PaymentControllerTest {
     @MockBean
     private PaymentService paymentService;
 
-    @Captor
-    ArgumentCaptor<PaymentRequest> paymentRequestArgumentCaptor;
-
     @Test
     void should_successfully_update_payment_status() throws Exception {
         List<PaymentInfo> paymentInfoList = of(
@@ -71,7 +68,7 @@ class PaymentControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(PaymentController.SUCCESSFUL_UPDATE));
 
-
+        ArgumentCaptor<PaymentRequest> paymentRequestArgumentCaptor = ArgumentCaptor.forClass(PaymentRequest.class);
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
         verify(paymentService, times(1))
@@ -110,6 +107,7 @@ class PaymentControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value(message));
 
+        ArgumentCaptor<PaymentRequest> paymentRequestArgumentCaptor = ArgumentCaptor.forClass(PaymentRequest.class);
         //Then
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
         verify(paymentService, times(1))
