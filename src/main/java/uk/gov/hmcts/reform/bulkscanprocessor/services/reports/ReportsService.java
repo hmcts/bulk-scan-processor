@@ -19,7 +19,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -72,12 +72,16 @@ public class ReportsService {
         String container,
         Classification classification
     ) {
+        Predicate<ZipFileSummaryResponse> predicate =
+            summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container);
+        if (classification != null) {
+            predicate = predicate.and(summary -> classification.name().equalsIgnoreCase(summary.classification));
+        }
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
-            .stream()
-            .map(this::fromDbZipfileSummary)
-            .filter(summary -> isEmpty(container) || summary.container.equalsIgnoreCase(container))
-            .filter(summary -> classification == null || summary.classification.equalsIgnoreCase(classification.name()))
-            .collect(Collectors.toList());
+                .stream()
+                .map(this::fromDbZipfileSummary)
+                .filter(predicate)
+                .collect(toList());
     }
 
     private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
