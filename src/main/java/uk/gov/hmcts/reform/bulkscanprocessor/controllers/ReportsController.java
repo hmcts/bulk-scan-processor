@@ -102,7 +102,8 @@ public class ReportsController {
                     item.ccdId,
                     item.ccdAction
                 ))
-                .collect(toList()));
+                .collect(toList())
+        );
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
