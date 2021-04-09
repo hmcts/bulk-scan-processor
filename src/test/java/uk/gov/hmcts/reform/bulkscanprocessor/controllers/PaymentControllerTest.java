@@ -34,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @WebMvcTest(PaymentController.class)
 class PaymentControllerTest {
     @Autowired
@@ -72,7 +71,7 @@ class PaymentControllerTest {
                             .content(request))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("Payment status successfully updated"));
+            .andExpect(jsonPath("$.status").value(PaymentController.SUCCESSFUL_UPDATE));
 
 
         //Then
