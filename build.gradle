@@ -269,7 +269,7 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.10.2'
 
-  implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.6.1', {
+  implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.6.2', {
     exclude group: 'javax.mail', module: 'mail'
     exclude group: 'net.minidev', module: 'json-smart'
   }
