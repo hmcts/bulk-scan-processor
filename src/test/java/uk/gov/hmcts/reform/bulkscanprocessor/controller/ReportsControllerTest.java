@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
@@ -49,6 +50,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
@@ -244,6 +249,67 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].classification").value(response.classification))
             .andExpect(jsonPath("$.data[0].ccd_id").value(response.ccdId))
             .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction));
+    }
+
+    @Test
+    public void should_return_total_count_summary_result() throws Exception {
+        LocalDate localDate = LocalDate.of(2021, 4, 8);
+        LocalTime localTime = LocalTime.of(12, 30, 10, 0);
+
+        ZipFileSummaryResponse response1 = new ZipFileSummaryResponse(
+            "test1.zip",
+            localDate,
+            localTime,
+            localDate,
+            localTime.plusHours(1),
+            "bulkscan",
+            CONSUMED.toString(),
+            COMPLETED.toString(),
+            SUPPLEMENTARY_EVIDENCE.name(),
+            "ccd-id",
+            "ccd-action"
+        );
+
+        ZipFileSummaryResponse response2 = new ZipFileSummaryResponse(
+            "test2.zip",
+            localDate,
+            localTime,
+            localDate,
+            localTime.plusHours(2),
+            "bulkscan",
+            UPLOADED.toString(),
+            UPLOAD_FAILURE.toString(),
+            SUPPLEMENTARY_EVIDENCE.name(),
+            "ccd-id",
+            "ccd-action"
+        );
+
+        ZipFileSummaryResponse response3 = new ZipFileSummaryResponse(
+            "test3.zip",
+            localDate,
+            localTime,
+            localDate,
+            localTime.plusHours(3),
+            "bulkscan",
+            NOTIFICATION_SENT.toString(),
+            CREATED.toString(),
+            SUPPLEMENTARY_EVIDENCE.name(),
+            "ccd-id",
+            "ccd-action"
+        );
+
+        List<ZipFileSummaryResponse> response = Arrays.asList(response1, response2, response3);
+        given(reportsService.getZipFilesSummary(localDate, "bulkscan", SUPPLEMENTARY_EVIDENCE))
+            .willReturn(response);
+
+        mockMvc
+            .perform(get("/reports/zip-files-summary?date=2021-04-08&container=bulkscan"
+                             + "&classification=SUPPLEMENTARY_EVIDENCE"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.total").value(3))
+            .andExpect(jsonPath("$.total_completed").value(1))
+            .andExpect(jsonPath("$.total_failed").value(1));
     }
 
     @Test
