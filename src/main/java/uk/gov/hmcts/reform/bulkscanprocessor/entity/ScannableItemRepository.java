@@ -12,7 +12,7 @@ public interface ScannableItemRepository extends JpaRepository<ScannableItem, UU
     /**
      * Finds envelope with a blob not deleted for a given container and zip file name.
      *
-     * @param documentControllNumber of scannable item.
+     * @param documentControlNumber of scannable item.
      * @return A list of envelopes.
      */
     @Query("select e.zipFileName from ScannableItem si"
@@ -22,7 +22,7 @@ public interface ScannableItemRepository extends JpaRepository<ScannableItem, UU
     )
 
     List<String> findByDcn(
-        @Param("documentControllNumber") String documentControllNumber
+        @Param("documentControlNumber") String documentControlNumber
     );
 
 }
