@@ -293,11 +293,6 @@ public class ZipFileStatusServiceTest {
     @Test
     public void should_return_invalid_parameter_exception_for_dcn_less_than_6_chars() throws Exception {
 
-        //given
-        var documentControllNumber = "1000";
-
-        //when
-        //then
         assertThatThrownBy(() -> service.getStatusByDcn("1000"))
             .isInstanceOf(InvalidParameterException.class)
             .hasMessageMatching("DCN number has to be at least 6 characters long");

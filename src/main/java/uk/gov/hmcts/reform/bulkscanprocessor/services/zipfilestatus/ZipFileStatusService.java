@@ -53,14 +53,14 @@ public class ZipFileStatusService {
         );
     }
 
-    public List<ZipFileStatus> getStatusByDcn(String documentControllNumber) throws InvalidParameterException {
+    public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) throws InvalidParameterException {
 
-        if (documentControllNumber.length() < 6) {
+        if (documentControlNumber.length() < 6) {
             log.error("Exception in Search by DCN error: DCN number specified is less than 6 characters in length.");
             throw new InvalidParameterException("DCN number has to be at least 6 characters long");
         }
 
-        List<String> zipFileNames = scannableItemRepo.findByDcn(documentControllNumber);
+        List<String> zipFileNames = scannableItemRepo.findByDcn(documentControlNumber);
         List<ZipFileStatus> zipFileStatusList = new ArrayList<>();
 
         zipFileNames.stream().forEach(
