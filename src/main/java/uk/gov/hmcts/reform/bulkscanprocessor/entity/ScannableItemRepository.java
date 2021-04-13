@@ -15,8 +15,8 @@ public interface ScannableItemRepository extends JpaRepository<ScannableItem, UU
      * @param documentControllNumber of scannable item.
      * @return A list of envelopes.
      */
-    @Query("select e.zipFileName from scannable_items si"
-        + " JOIN envelopes e on e.id = si.envelope_id"
+    @Query("select e.zipFileName from ScannableItem si"
+        + " JOIN Envelope e on e.id = si.envelope.id"
         + " where si.documentControlNumber like :documentControllNumber"
         + " order by si.scanningDate desc"
     )
