@@ -29,7 +29,9 @@ public class ZipFileStatusService {
     private final EnvelopeRepository envelopeRepo;
     private final ScannableItemRepository scannableItemRepo;
     private static final int MIN_LENGTH = 6;
+
     // region constructor
+
     public ZipFileStatusService(
         ProcessEventRepository eventRepo,
         EnvelopeRepository envelopeRepo,
