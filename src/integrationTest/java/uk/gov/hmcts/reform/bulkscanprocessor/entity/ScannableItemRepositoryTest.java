@@ -59,6 +59,24 @@ public class ScannableItemRepositoryTest {
         assertThat(result).isEqualTo(Arrays.asList("test1.zip", "test2.zip"));
     }
 
+    @Test
+    public void zip_file_names_should_not_be_found_with_dcn_not_in_beginning() {
+        // given
+        final String documentControlNumber = "10000023";
+        Envelope e1 = envelope("c1", "test1.zip", Status.CREATED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
+        Envelope e2 = envelope("c2", "test2.zip", Status.CONSUMED, EXCEPTION, "ccd-id-2", "ccd-action-2", null);
+        ScannableItem s1 = scannableItem(e1,"310000023");
+        ScannableItem s2 = scannableItem(e2,"45721000002322");
+        dbHasEnvelope(e1, e2);
+        dbHasScannableItems(s1, s2);
+
+        // when
+        final List<String> result = scannableItemRepo.findByDcn(documentControlNumber);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
     private void dbHasEnvelope(Envelope... envelopes) {
         envelopeRepo.saveAll(asList(envelopes));
     }
