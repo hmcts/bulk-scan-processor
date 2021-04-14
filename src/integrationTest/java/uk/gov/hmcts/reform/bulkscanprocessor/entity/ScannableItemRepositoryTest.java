@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +58,7 @@ public class ScannableItemRepositoryTest {
         // then
         assertThat(result).isEqualTo(Arrays.asList("test1.zip", "test2.zip"));
     }
+
     private void dbHasEnvelope(Envelope... envelopes) {
         envelopeRepo.saveAll(asList(envelopes));
     }
