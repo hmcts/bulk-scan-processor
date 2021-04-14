@@ -28,7 +28,7 @@ public class ZipFileStatusService {
     private final ProcessEventRepository eventRepo;
     private final EnvelopeRepository envelopeRepo;
     private final ScannableItemRepository scannableItemRepo;
-
+    private static final int MIN_LENGTH = 6;
     // region constructor
     public ZipFileStatusService(
         ProcessEventRepository eventRepo,
@@ -55,7 +55,7 @@ public class ZipFileStatusService {
 
     public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) throws InvalidParameterException {
 
-        if (documentControlNumber.length() < 6) {
+        if (documentControlNumber.length() < MIN_LENGTH) {
             log.error("Exception in Search by DCN error: DCN number specified is less than 6 characters in length.");
             throw new InvalidParameterException("DCN number has to be at least 6 characters long");
         }
