@@ -24,7 +24,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeRespons
 
 @Service
 public class ZipFileStatusService {
-    private static final Logger log = LoggerFactory.getLogger(ReportSender.class);
+    private static final Logger log = LoggerFactory.getLogger(ZipFileStatusService.class);
     private final ProcessEventRepository eventRepo;
     private final EnvelopeRepository envelopeRepo;
     private final ScannableItemRepository scannableItemRepo;
@@ -58,8 +58,8 @@ public class ZipFileStatusService {
     public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) throws InvalidParameterException {
 
         if (documentControlNumber.length() < MIN_LENGTH) {
-            log.error("Exception in Search by DCN error: DCN number specified is less than 6 characters in length.");
-            throw new InvalidParameterException("DCN number has to be at least 6 characters long");
+            log.error("Exception in Search by DCN error: DCN number specified is less than" + MIN_LENGTH + " characters in length.");
+            throw new InvalidParameterException("DCN number has to be at least " + MIN_LENGTH + " characters long");
         }
 
         List<String> zipFileNames = scannableItemRepo.findByDcn(documentControlNumber);
