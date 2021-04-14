@@ -21,9 +21,9 @@ public class ZipFilesSummaryReportListResponse {
     public ZipFilesSummaryReportListResponse(List<ZipFilesSummaryReportItem> items) {
         this.total = items.size();
         this.totalCompleted = (int)items.stream().filter(
-            completed -> completed.envelopeStatus.equalsIgnoreCase("COMPLETED")).count();
+            completed -> "COMPLETED".equalsIgnoreCase(completed.envelopeStatus)).count();
         this.totalFailed = (int)items.stream().filter(
-            completed -> completed.envelopeStatus.contains("FAILURE")).count();
+            completed -> completed.envelopeStatus != null && completed.envelopeStatus.contains("FAILURE")).count();
         this.items = items;
     }
 }
