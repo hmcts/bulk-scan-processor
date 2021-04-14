@@ -40,7 +40,7 @@ public class ScannableItemRepositoryTest {
     }
 
     @Test
-    public void find_zip_file_names_with_dcn() {
+    public void should_find_zip_file_when_dcn_begins_with_search_string() {
         // given
         final String documentControlNumber = "10000023";
         Envelope e1 = envelope("c1", "test1.zip", Status.CREATED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
@@ -60,7 +60,7 @@ public class ScannableItemRepositoryTest {
     }
 
     @Test
-    public void zip_file_names_should_not_be_found_with_dcn_not_in_beginning() {
+    public void should_not_find_zip_file_when_dcn_not_begins_with_search_string() {
         // given
         final String documentControlNumber = "10000023";
         Envelope e1 = envelope("c1", "test1.zip", Status.CREATED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
