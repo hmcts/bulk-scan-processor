@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatu
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(
@@ -29,7 +28,9 @@ public class ZipStatusController {
     // endregion
 
     @GetMapping
-    public ResponseEntity<List<ZipFileStatus>> findByFileNameOrDcn(@RequestParam( required = false, value = "name") String fileName, @RequestParam(required = false,value = "dcn") String dcn) {
+    public ResponseEntity<List<ZipFileStatus>> findByFileNameOrDcn(
+        @RequestParam(required = false, value = "name") String fileName,
+        @RequestParam(required = false,value = "dcn") String dcn) {
         if (fileName != null && dcn == null) {
             List<ZipFileStatus> zipFileStatuses = new ArrayList<>();
             zipFileStatuses.add(service.getStatusFor(fileName));
