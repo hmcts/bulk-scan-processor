@@ -40,7 +40,7 @@ public class ScannableItemRepositoryTest {
     }
 
     @Test
-    public void should_not_find_complete_envelopes_by_container_if_they_do_not_exist() {
+    public void find_zip_file_names_with_dcn() {
         // given
         final String documentControlNumber = "10000023";
         Envelope e1 = envelope("c1", "test1.zip", Status.CREATED, EXCEPTION, "ccd-id-1", "ccd-action-1", null);
