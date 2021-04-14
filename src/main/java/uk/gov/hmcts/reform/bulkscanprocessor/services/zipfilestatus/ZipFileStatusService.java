@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.email.ReportSender;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -58,7 +57,8 @@ public class ZipFileStatusService {
     public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) throws InvalidParameterException {
 
         if (documentControlNumber.length() < MIN_LENGTH) {
-            log.error("Exception in Search by DCN error: DCN number specified is less than" + MIN_LENGTH + " characters in length.");
+            log.error("Exception in Search by DCN error: DCN number specified is less than"
+                      + MIN_LENGTH + " characters in length.");
             throw new InvalidParameterException("DCN number has to be at least " + MIN_LENGTH + " characters long");
         }
 
