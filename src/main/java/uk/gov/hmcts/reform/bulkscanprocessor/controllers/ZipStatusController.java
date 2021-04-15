@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatu
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping(
     path = "/zip-files",
@@ -27,12 +29,11 @@ public class ZipStatusController {
 
     @RequestMapping(params = "name")
     public ResponseEntity<ZipFileStatus> findByFileName(
-        @RequestParam(required = true, value = "name") String fileName
+        @RequestParam(required = false, value = "name") String fileName
     ) {
-        if (fileName != null) {
+        if (fileName != "") {
             return ResponseEntity.ok().body(service.getStatusFor(fileName));
         }
-        String errorMessage = "'name' can not be empty or is required!";
         return ResponseEntity.badRequest().body(null);
     }
 
@@ -40,9 +41,7 @@ public class ZipStatusController {
     public ResponseEntity<List<ZipFileStatus>> findByDcn(
         @RequestParam(required = true, value = "dcn") String dcn
     ) {
-        if (dcn != null) {
-            return ResponseEntity.ok().body(service.getStatusByDcn(dcn));
-        }
-        return ResponseEntity.badRequest().body(null);
+        var result = service.getStatusByDcn(dcn);
+        return ResponseEntity.ok().body(result);
     }
 }

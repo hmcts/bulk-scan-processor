@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ZipStatusController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
@@ -12,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStat
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.DateFormatter;
 
+import java.security.InvalidParameterException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -40,10 +43,11 @@ public class ZipStatusControllerTest {
     private static final String DIVORCE = "divorce";
     private static final String CMC = "cmc";
     private static final String PROBATE = "probate";
+    private static final String dcn = "1000092";
+    private static final String fileName = "hello.zip";
 
     @Test
     public void should_return_data_returned_from_the_service_with_dcn_as_parameter() throws Exception {
-
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
                 "0",
@@ -81,15 +85,14 @@ public class ZipStatusControllerTest {
             new ZipFileEvent("type0", "container0", now().minusSeconds(10), "reason0"),
             new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
         );
-        List<ZipFileStatus> zipFileStatusList = Arrays.asList(new ZipFileStatus("hello.zip", envelopes, events));
+        List<ZipFileStatus> zipFileStatusList = Arrays.asList(new ZipFileStatus(fileName, envelopes, events));
         String documentControlNumber = "1000913";
         given(service.getStatusByDcn(documentControlNumber)).willReturn(zipFileStatusList);
-
         mockMvc
             .perform(get("/zip-files").param("dcn", documentControlNumber))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].file_name").value("hello.zip"))
+            .andExpect(jsonPath("$[0].file_name").value(fileName))
             .andExpect(jsonPath("$[0].envelopes", hasSize(2)))
             .andExpect(jsonPath("$[0].envelopes[0].id").value(envelopes.get(0).id))
             .andExpect(jsonPath("$[0].envelopes[0].container").value(envelopes.get(0).container))
@@ -120,6 +123,20 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$[0].events[1].container").value(events.get(1).container))
             .andExpect(jsonPath("$[0].events[1].created_at").value(toIso(events.get(1).createdAt)))
             .andExpect(jsonPath("$[0].events[1].reason").value(events.get(1).reason));
+    }
+
+    @Test
+    public void should_return_500_with_invalid_dcn_as_parameter() throws Exception {
+        //given
+        String documentControlNumber = "1453";
+        //when
+        given(service.getStatusByDcn(documentControlNumber))
+            .willThrow(InvalidParameterException.class);
+        //assert
+        mockMvc
+            .perform(get("/zip-files").param("dcn", documentControlNumber))
+            .andDo(print())
+            .andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -163,13 +180,13 @@ public class ZipStatusControllerTest {
             new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
         );
 
-        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip", envelopes, events));
+        given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, envelopes, events));
 
         mockMvc
-            .perform(get("/zip-files").param("name", "hello.zip"))
+            .perform(get("/zip-files").param("name", fileName))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.file_name").value("hello.zip"))
+            .andExpect(jsonPath("$.file_name").value(fileName))
             .andExpect(jsonPath("$.envelopes", hasSize(2)))
             .andExpect(jsonPath("$.envelopes[0].id").value(envelopes.get(0).id))
             .andExpect(jsonPath("$.envelopes[0].container").value(envelopes.get(0).container))
@@ -204,15 +221,38 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
-        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip", emptyList(), emptyList()));
+        given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
         mockMvc
-            .perform(get("/zip-files").param("name", "hello.zip"))
+            .perform(get("/zip-files").param("name", fileName))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.file_name").value("hello.zip"))
+            .andExpect(jsonPath("$.file_name").value(fileName))
             .andExpect(jsonPath("$.envelopes").isEmpty())
             .andExpect(jsonPath("$.events").isEmpty());
     }
+
+    @Test
+    public void should_throw_exception_when_both_parameters_together() throws Exception {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("name", fileName);
+        map.add("dcn", dcn);
+
+        given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
+        mockMvc
+            .perform(get("/zip-files").params(map))
+            .andDo(print())
+            .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void should_throw_exception_when_no_parameter_supplied() throws Exception {
+        given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
+        mockMvc
+            .perform(get("/zip-files"))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
 
     private String toIso(Instant timestamp) {
         return DateFormatter.getSimpleDateTime(timestamp);
