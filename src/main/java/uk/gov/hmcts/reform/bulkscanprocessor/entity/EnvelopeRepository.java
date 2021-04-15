@@ -34,6 +34,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     List<Envelope> findByZipFileName(String zipFileName);
 
+    List<Envelope> findByCcdId(String ccdId);
+
     /**
      * Finds envelope with a blob not deleted for a given container and zip file name.
      *

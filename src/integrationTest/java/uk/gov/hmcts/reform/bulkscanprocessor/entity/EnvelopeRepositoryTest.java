@@ -18,6 +18,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
@@ -99,6 +100,61 @@ public class EnvelopeRepositoryTest {
         // then
         assertThat(resultForA).hasSize(2);
         assertThat(resultForX).hasSize(0);
+    }
+
+    @Test
+    public void should_find_envelope_when_ccdid_matches() {
+        // given
+        Envelope e1 = envelope("A.zip", "X", Status.CREATED);
+        e1.setCcdId("97586937");
+        dbHas(e1);
+
+        // when
+        List<Envelope> result = repo.findByCcdId("97586937");
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getCcdId()).isEqualTo("97586937");
+        assertThat(result.get(0).getZipFileName()).isEqualTo("A.zip");
+        assertThat(result.get(0).getJurisdiction()).isEqualTo("X");
+        assertThat(result.get(0).getStatus()).isEqualTo(CREATED);
+    }
+
+    @Test
+    public void should_find_envelopes_when_ccdid_matches() {
+        // given
+        Envelope e1 = envelope("A.zip", "X", Status.CREATED);
+        Envelope e2 = envelope("A.zip", "Y", UPLOAD_FAILURE);
+        e1.setCcdId("1111123");
+        e2.setCcdId("1111123");
+        dbHas(e1, e2);
+        // when
+        List<Envelope> result = repo.findByCcdId("1111123");
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getCcdId()).isEqualTo("1111123");
+        assertThat(result.get(1).getCcdId()).isEqualTo("1111123");
+        assertThat(result.get(0).getZipFileName()).isEqualTo("A.zip");
+        assertThat(result.get(1).getZipFileName()).isEqualTo("A.zip");
+        assertThat(result.get(0).getJurisdiction()).isEqualTo("X");
+        assertThat(result.get(1).getJurisdiction()).isEqualTo("Y");
+        assertThat(result.get(0).getStatus()).isEqualTo(CREATED);
+        assertThat(result.get(1).getStatus()).isEqualTo(UPLOAD_FAILURE);
+    }
+
+    @Test
+    public void  should_not_find_envelopes_when_ccdid_does_not_match() {
+        // given
+        Envelope e1 = envelope("A.zip", "X", Status.CREATED);
+        Envelope e2 = envelope("A.zip", "Y", UPLOAD_FAILURE);
+        Envelope e3 = envelope("B.zip", "Z", UPLOAD_FAILURE);
+        e1.setCcdId("1111123");
+        e2.setCcdId("1111123");
+        e3.setCcdId("3546684");
+        dbHas(e1, e2, e3);
+        // when
+        List<Envelope> result = repo.findByCcdId("786473");
+        // then
+        assertThat(result).hasSize(0);
     }
 
     @Test
