@@ -45,5 +45,4 @@ public class ZipStatusController {
         }
         return ResponseEntity.badRequest().body(null);
     }
-
 }
