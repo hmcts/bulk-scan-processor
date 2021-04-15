@@ -2,14 +2,12 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,17 +25,25 @@ public class ZipStatusController {
     }
     // endregion
 
-    @GetMapping
-    public ResponseEntity<List<ZipFileStatus>> findByFileNameOrDcn(
-        @RequestParam(required = false, value = "name") String fileName,
-        @RequestParam(required = false,value = "dcn") String dcn) {
-        if (fileName != null && dcn == null) {
-            List<ZipFileStatus> zipFileStatuses = new ArrayList<>();
-            zipFileStatuses.add(service.getStatusFor(fileName));
-            return ResponseEntity.ok().body(zipFileStatuses);
-        } else if (dcn != null && fileName == null) {
+    @RequestMapping(params = "name")
+    public ResponseEntity<ZipFileStatus> findByFileName(
+        @RequestParam(required = true, value = "name") String fileName
+    ) {
+        if (fileName != null) {
+            return ResponseEntity.ok().body(service.getStatusFor(fileName));
+        }
+        String errorMessage = "'name' can not be empty or is required!";
+        return ResponseEntity.badRequest().body(null);
+    }
+
+    @RequestMapping(params = "dcn")
+    public ResponseEntity<List<ZipFileStatus>> findByDcn(
+        @RequestParam(required = true, value = "dcn") String dcn
+    ) {
+        if (dcn != null) {
             return ResponseEntity.ok().body(service.getStatusByDcn(dcn));
         }
         return ResponseEntity.badRequest().body(null);
     }
+
 }
