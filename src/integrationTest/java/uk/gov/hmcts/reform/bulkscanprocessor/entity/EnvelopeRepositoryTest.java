@@ -18,6 +18,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
@@ -112,6 +113,10 @@ public class EnvelopeRepositoryTest {
         List<Envelope> result = repo.findByCcdId("97586937");
         // then
         assertThat(result).hasSize(1);
+        assertThat(result.get(0).getCcdId()).isEqualTo("97586937");
+        assertThat(result.get(0).getZipFileName()).isEqualTo("A.zip");
+        assertThat(result.get(0).getJurisdiction()).isEqualTo("X");
+        assertThat(result.get(0).getStatus()).isEqualTo(CREATED);
     }
 
     @Test
@@ -126,6 +131,14 @@ public class EnvelopeRepositoryTest {
         List<Envelope> result = repo.findByCcdId("1111123");
         // then
         assertThat(result).hasSize(2);
+        assertThat(result.get(0).getCcdId()).isEqualTo("1111123");
+        assertThat(result.get(1).getCcdId()).isEqualTo("1111123");
+        assertThat(result.get(0).getZipFileName()).isEqualTo("A.zip");
+        assertThat(result.get(1).getZipFileName()).isEqualTo("A.zip");
+        assertThat(result.get(0).getJurisdiction()).isEqualTo("X");
+        assertThat(result.get(1).getJurisdiction()).isEqualTo("Y");
+        assertThat(result.get(0).getStatus()).isEqualTo(CREATED);
+        assertThat(result.get(1).getStatus()).isEqualTo(UPLOAD_FAILURE);
     }
 
     @Test
