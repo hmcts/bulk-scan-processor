@@ -79,26 +79,16 @@ public class ZipFileStatusService {
         return zipFileStatusList;
     }
 
-    public List<ZipFileStatus> getStatusByCcdId(String ccdid) {
-        List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdid);
-        List<ZipFileStatus> zipFileStatusList = new ArrayList<>();
+    public ZipFileStatus getStatusByCcdId(String ccdId) {
 
-        envelopes.stream().forEach(
-            envelope ->
-                zipFileStatusList.add(
-                    new ZipFileStatus(
-                        envelope.getZipFileName(),
-                        envelopeRepo.findByZipFileName(
-                            envelope.getZipFileName()).stream()
-                            .map(this::mapEnvelope).collect(toList()),
-                        eventRepo.findByZipFileName(
-                            envelope.getZipFileName()).stream()
-                            .map(this::mapEvent).collect(toList())
-                    )
-                )
+        List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
+        String zipFileName = envelopes.get(0).getZipFileName();
+        List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
+        return new ZipFileStatus(
+            zipFileName,
+            envelopes.stream().map(this::mapEnvelope).collect(toList()),
+            events.stream().map(this::mapEvent).collect(toList())
         );
-
-        return zipFileStatusList;
     }
 
     private ZipFileEnvelope mapEnvelope(Envelope envelope) {
