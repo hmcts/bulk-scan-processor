@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStat
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -82,13 +83,19 @@ public class ZipFileStatusService {
     public ZipFileStatus getStatusByCcdId(String ccdId) {
 
         List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
-        String zipFileName = envelopes.get(0).getZipFileName();
-        List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-        return new ZipFileStatus(
-            zipFileName,
-            envelopes.stream().map(this::mapEnvelope).collect(toList()),
-            events.stream().map(this::mapEvent).collect(toList())
-        );
+        if(envelopes.size() > 0) {
+           String zipFileName = envelopes.get(0).getZipFileName();
+            List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
+            return new ZipFileStatus(
+                zipFileName,
+                envelopes.stream().map(this::mapEnvelope).collect(toList()),
+                events.stream().map(this::mapEvent).collect(toList())
+            );
+        }
+      return new ZipFileStatus(
+          "",
+          Collections.emptyList(),
+          Collections.emptyList());
     }
 
     private ZipFileEnvelope mapEnvelope(Envelope envelope) {
