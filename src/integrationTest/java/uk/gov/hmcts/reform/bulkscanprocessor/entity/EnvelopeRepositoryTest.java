@@ -102,6 +102,27 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
+    public void findByCcdId_should_find_envelops_in_db() {
+        // given
+        Envelope e1 = envelope("A.zip", "X", Status.CREATED);
+        Envelope e2 = envelope("A.zip", "Y", UPLOAD_FAILURE);
+        Envelope e3 = envelope("B.zip", "Z", UPLOAD_FAILURE);
+        e1.setCcdId("1111123");
+        e2.setCcdId("1111123");
+        e3.setCcdId("3546684");
+        dbHas(e1, e2, e3);
+
+        // when
+        List<Envelope> resultA = repo.findByCcdId("1111123");
+        List<Envelope> resultB = repo.findByCcdId("3546684");
+        List<Envelope> resultC = repo.findByCcdId("786473");
+        // then
+        assertThat(resultA).hasSize(2);
+        assertThat(resultB).hasSize(1);
+        assertThat(resultC).hasSize(0);
+    }
+
+    @Test
     public void should_get_0_when_no_incomplete_envelopes_are_there_in_db() {
         assertThat(repo.getIncompleteEnvelopesCountBefore(now())).isEqualTo(0);
     }
