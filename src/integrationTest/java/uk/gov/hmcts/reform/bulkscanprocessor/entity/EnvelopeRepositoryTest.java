@@ -102,7 +102,34 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findByCcdId_should_find_envelops_in_db() {
+    public void should_find_envelope_when_ccdid_matches() {
+        // given
+        Envelope e1 = envelope("A.zip", "X", Status.CREATED);
+        e1.setCcdId("97586937");
+        dbHas(e1);
+
+        // when
+        List<Envelope> result = repo.findByCcdId("97586937");
+        // then
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    public void should_find_envelopes_when_ccdid_matches() {
+        // given
+        Envelope e1 = envelope("A.zip", "X", Status.CREATED);
+        Envelope e2 = envelope("A.zip", "Y", UPLOAD_FAILURE);
+        e1.setCcdId("1111123");
+        e2.setCcdId("1111123");
+        dbHas(e1, e2);
+        // when
+        List<Envelope> result = repo.findByCcdId("1111123");
+        // then
+        assertThat(result).hasSize(2);
+    }
+
+    @Test
+    public void  should_not_find_envelopes_when_ccdid_does_not_match() {
         // given
         Envelope e1 = envelope("A.zip", "X", Status.CREATED);
         Envelope e2 = envelope("A.zip", "Y", UPLOAD_FAILURE);
@@ -111,15 +138,10 @@ public class EnvelopeRepositoryTest {
         e2.setCcdId("1111123");
         e3.setCcdId("3546684");
         dbHas(e1, e2, e3);
-
         // when
-        List<Envelope> resultA = repo.findByCcdId("1111123");
-        List<Envelope> resultB = repo.findByCcdId("3546684");
-        List<Envelope> resultC = repo.findByCcdId("786473");
+        List<Envelope> result = repo.findByCcdId("786473");
         // then
-        assertThat(resultA).hasSize(2);
-        assertThat(resultB).hasSize(1);
-        assertThat(resultC).hasSize(0);
+        assertThat(result).hasSize(0);
     }
 
     @Test
