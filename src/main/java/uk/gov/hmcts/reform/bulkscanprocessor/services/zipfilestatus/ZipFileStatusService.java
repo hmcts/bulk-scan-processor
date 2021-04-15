@@ -58,7 +58,7 @@ public class ZipFileStatusService {
 
         if (documentControlNumber.length() < MIN_LENGTH) {
             log.error("Exception in Search by DCN error: DCN number specified is less than"
-                      + MIN_LENGTH + " characters in length.");
+                          + MIN_LENGTH + " characters in length.");
             throw new InvalidParameterException("DCN number has to be at least " + MIN_LENGTH + " characters long");
         }
 
@@ -72,6 +72,28 @@ public class ZipFileStatusService {
                         zipFileName,
                         envelopeRepo.findByZipFileName(zipFileName).stream().map(this::mapEnvelope).collect(toList()),
                         eventRepo.findByZipFileName(zipFileName).stream().map(this::mapEvent).collect(toList())
+                    )
+                )
+        );
+
+        return zipFileStatusList;
+    }
+
+    public List<ZipFileStatus> getStatusByCcdId(String ccdid) {
+        List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdid);
+        List<ZipFileStatus> zipFileStatusList = new ArrayList<>();
+
+        envelopes.stream().forEach(
+            envelope ->
+                zipFileStatusList.add(
+                    new ZipFileStatus(
+                        envelope.getZipFileName(),
+                        envelopeRepo.findByZipFileName(
+                            envelope.getZipFileName()).stream()
+                            .map(this::mapEnvelope).collect(toList()),
+                        eventRepo.findByZipFileName(
+                            envelope.getZipFileName()).stream()
+                            .map(this::mapEvent).collect(toList())
                     )
                 )
         );
@@ -106,3 +128,4 @@ public class ZipFileStatusService {
         );
     }
 }
+
