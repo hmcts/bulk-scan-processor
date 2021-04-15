@@ -58,7 +58,7 @@ public class ZipFileStatusService {
 
         if (documentControlNumber.length() < MIN_LENGTH) {
             log.error("Exception in Search by DCN error: DCN number specified is less than"
-                          + MIN_LENGTH + " characters in length.");
+                      + MIN_LENGTH + " characters in length.");
             throw new InvalidParameterException("DCN number has to be at least " + MIN_LENGTH + " characters long");
         }
 
@@ -128,4 +128,3 @@ public class ZipFileStatusService {
         );
     }
 }
-
