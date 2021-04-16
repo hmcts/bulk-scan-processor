@@ -83,8 +83,9 @@ public class ZipFileStatusService {
         return getZipFileStatus(null, ccdId, emptyList(), emptyList());
     }
 
-    private ZipFileStatus getZipFileStatus(String fileName, String ccdId, List<Envelope> envelopes, List<ProcessEvent> events) {
-       return new ZipFileStatus(fileName,
+    private ZipFileStatus getZipFileStatus(String fileName, String ccdId,
+                                           List<Envelope> envelopes, List<ProcessEvent> events) {
+        return new ZipFileStatus(fileName,
                           ccdId,
                           envelopes.stream().map(this::mapEnvelope).collect(toList()),
                           events.stream().map(this::mapEvent).collect(toList()));
