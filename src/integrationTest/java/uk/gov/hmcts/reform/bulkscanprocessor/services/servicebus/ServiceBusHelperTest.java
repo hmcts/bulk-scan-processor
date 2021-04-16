@@ -30,7 +30,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.MsgLabel;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.OcrField;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -204,7 +206,9 @@ public class ServiceBusHelperTest {
         when(envelope.getZipFileName()).thenReturn("zip-file-test.zip");
         when(envelope.getClassification()).thenReturn(Classification.EXCEPTION);
         when(envelope.getDeliveryDate()).thenReturn(Instant.now());
-        when(envelope.getOpeningDate()).thenReturn(Instant.now());
+        //2021-04-16T09:01:43.029Z (not with 6 digit millisecond)
+        LocalDateTime dateTime = LocalDateTime.parse("2021-04-16T09:01:43.029000");
+        when(envelope.getOpeningDate()).thenReturn(dateTime.toInstant(ZoneOffset.UTC));
         when(envelope.getScannableItems()).thenReturn(Arrays.asList(scannableItem1, scannableItem2));
         when(envelope.getPayments()).thenReturn(Arrays.asList(payment1, payment2));
 
