@@ -284,7 +284,7 @@ dependencies {
 
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.7.3'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.8.0'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.19'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.10.4'
@@ -328,10 +328,10 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.2', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.2'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.3'
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
