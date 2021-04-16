@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.CcdIdStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
@@ -312,11 +313,12 @@ public class ZipFileStatusServiceTest {
         given(envelopeRepo.findByCcdId(ccdId)).willReturn(envelopes);
         given(eventRepo.findByZipFileName("hello.zip")).willReturn(events);
         // when
-        ZipFileStatus result = service.getStatusByCcdId(ccdId);
+        CcdIdStatus result = service.getStatusByCcdId(ccdId);
         // then
-        assertThat(result.fileName).isEqualTo("hello.zip");
+        assertThat(result.ccdId).isEqualTo(ccdId);
+        assertThat(result.zipFileStatus.fileName).isEqualTo("hello.zip");
 
-        assertThat(result.envelopes)
+        assertThat(result.zipFileStatus.envelopes)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new ZipFileEnvelope(
@@ -351,7 +353,7 @@ public class ZipFileStatusServiceTest {
                 )
             );
 
-        assertThat(result.events)
+        assertThat(result.zipFileStatus.events)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new ZipFileEvent(
@@ -378,12 +380,13 @@ public class ZipFileStatusServiceTest {
     @Test
     public void should_return_empty_lists_when_no_data_for_ccdid_was_found() {
         // when
-        ZipFileStatus result = service.getStatusByCcdId("5744543854354");
+        CcdIdStatus result = service.getStatusByCcdId("5744543854354");
         // then
         assertThat(result).isNotNull();
-        assertThat(result.fileName).isNotNull().isEmpty();
-        assertThat(result.envelopes).isNotNull().isEmpty();
-        assertThat(result.events).isNotNull().isEmpty();
+        assertThat(result.ccdId).isNotNull().isEmpty();
+        assertThat(result.zipFileStatus.fileName).isNotNull().isEmpty();
+        assertThat(result.zipFileStatus.envelopes).isNotNull().isEmpty();
+        assertThat(result.zipFileStatus.events).isNotNull().isEmpty();
     }
 
     private Envelope envelope(String container) {

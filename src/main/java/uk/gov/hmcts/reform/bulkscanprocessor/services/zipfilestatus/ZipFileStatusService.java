@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.CcdIdStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
@@ -80,22 +81,26 @@ public class ZipFileStatusService {
         return zipFileStatusList;
     }
 
-    public ZipFileStatus getStatusByCcdId(String ccdId) {
+    public CcdIdStatus getStatusByCcdId(String ccdId) {
 
         List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
         if (envelopes.size() > 0) {
             String zipFileName = envelopes.get(0).getZipFileName();
             List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-            return new ZipFileStatus(
-                zipFileName,
-                envelopes.stream().map(this::mapEnvelope).collect(toList()),
-                events.stream().map(this::mapEvent).collect(toList())
+            ZipFileStatus zipFileStatus = new ZipFileStatus(zipFileName,
+                                          envelopes.stream().map(this::mapEnvelope).collect(toList()),
+                                          events.stream().map(this::mapEvent).collect(toList()));
+            return new CcdIdStatus(
+                ccdId,
+                zipFileStatus
             );
         }
-        return new ZipFileStatus(
+        return new CcdIdStatus(
         "",
+         new ZipFileStatus(
+         "",
          emptyList(),
-         emptyList());
+         emptyList()));
     }
 
     private ZipFileEnvelope mapEnvelope(Envelope envelope) {
