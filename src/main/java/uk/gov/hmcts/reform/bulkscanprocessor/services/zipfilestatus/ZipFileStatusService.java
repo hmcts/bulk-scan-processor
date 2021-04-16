@@ -89,13 +89,13 @@ public class ZipFileStatusService {
             String zipFileName = envelopes.get(0).getZipFileName();
             List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
 
-            return new ZipFileStatus(zipFileName,
+            return new ZipFileStatus(null,
                                      ccdId,
                                      envelopes.stream().map(this::mapEnvelope).collect(toList()),
                                      events.stream().map(this::mapEvent).collect(toList()));
         }
         return new ZipFileStatus(
-         "",
+         null,
          ccdId,
          emptyList(),
          emptyList());
@@ -108,6 +108,7 @@ public class ZipFileStatusService {
             envelope.getStatus().name(),
             envelope.getCcdId(),
             envelope.getEnvelopeCcdAction(),
+            envelope.getZipFileName(),
             envelope.isZipDeleted(),
             envelope.getRescanFor(),
             envelope.getClassification(),

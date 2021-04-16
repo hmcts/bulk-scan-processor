@@ -79,6 +79,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getStatus().name(),
                     envelopes.get(0).getCcdId(),
                     envelopes.get(0).getEnvelopeCcdAction(),
+                    envelopes.get(0).getZipFileName(),
                     envelopes.get(0).isZipDeleted(),
                     envelopes.get(0).getRescanFor(),
                     envelopes.get(0).getClassification(),
@@ -94,6 +95,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getStatus().name(),
                     envelopes.get(1).getCcdId(),
                     envelopes.get(1).getEnvelopeCcdAction(),
+                    envelopes.get(1).getZipFileName(),
                     envelopes.get(1).isZipDeleted(),
                     envelopes.get(1).getRescanFor(),
                     envelopes.get(1).getClassification(),
@@ -186,6 +188,7 @@ public class ZipFileStatusServiceTest {
                     envelopes1.get(0).getStatus().name(),
                     envelopes1.get(0).getCcdId(),
                     envelopes1.get(0).getEnvelopeCcdAction(),
+                    envelopes1.get(0).getZipFileName(),
                     envelopes1.get(0).isZipDeleted(),
                     envelopes1.get(0).getRescanFor(),
                     envelopes1.get(0).getClassification(),
@@ -201,6 +204,7 @@ public class ZipFileStatusServiceTest {
                     envelopes1.get(1).getStatus().name(),
                     envelopes1.get(1).getCcdId(),
                     envelopes1.get(1).getEnvelopeCcdAction(),
+                    envelopes1.get(1).getZipFileName(),
                     envelopes1.get(1).isZipDeleted(),
                     envelopes1.get(1).getRescanFor(),
                     envelopes1.get(1).getClassification(),
@@ -220,6 +224,7 @@ public class ZipFileStatusServiceTest {
                     envelopes2.get(0).getStatus().name(),
                     envelopes2.get(0).getCcdId(),
                     envelopes2.get(0).getEnvelopeCcdAction(),
+                    envelopes2.get(0).getZipFileName(),
                     envelopes2.get(0).isZipDeleted(),
                     envelopes2.get(0).getRescanFor(),
                     envelopes2.get(0).getClassification(),
@@ -235,6 +240,7 @@ public class ZipFileStatusServiceTest {
                     envelopes2.get(1).getStatus().name(),
                     envelopes2.get(1).getCcdId(),
                     envelopes2.get(1).getEnvelopeCcdAction(),
+                    envelopes2.get(1).getZipFileName(),
                     envelopes2.get(1).isZipDeleted(),
                     envelopes2.get(1).getRescanFor(),
                     envelopes2.get(1).getClassification(),
@@ -316,7 +322,7 @@ public class ZipFileStatusServiceTest {
         ZipFileStatus result = service.getStatusByCcdId(ccdId);
         // then
         assertThat(result.ccdId).isEqualTo(ccdId);
-        assertThat(result.fileName).isEqualTo("hello.zip");
+        assertThat(result.fileName).isNull();
 
         assertThat(result.envelopes)
             .usingRecursiveFieldByFieldElementComparator()
@@ -327,6 +333,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getStatus().name(),
                     envelopes.get(0).getCcdId(),
                     envelopes.get(0).getEnvelopeCcdAction(),
+                    envelopes.get(0).getZipFileName(),
                     envelopes.get(0).isZipDeleted(),
                     envelopes.get(0).getRescanFor(),
                     envelopes.get(0).getClassification(),
@@ -342,6 +349,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getStatus().name(),
                     envelopes.get(1).getCcdId(),
                     envelopes.get(1).getEnvelopeCcdAction(),
+                    envelopes.get(1).getZipFileName(),
                     envelopes.get(1).isZipDeleted(),
                     envelopes.get(1).getRescanFor(),
                     envelopes.get(1).getClassification(),
@@ -384,7 +392,7 @@ public class ZipFileStatusServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.ccdId).isEqualTo("5744543854354");
-        assertThat(result.fileName).isNotNull().isEmpty();
+        assertThat(result.fileName).isNull();
         assertThat(result.envelopes).isNotNull().isEmpty();
         assertThat(result.events).isNotNull().isEmpty();
     }
