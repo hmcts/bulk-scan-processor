@@ -383,7 +383,7 @@ public class ZipFileStatusServiceTest {
         CcdIdStatus result = service.getStatusByCcdId("5744543854354");
         // then
         assertThat(result).isNotNull();
-        assertThat(result.ccdId).isNotNull().isEmpty();
+        assertThat(result.ccdId).isEqualTo("5744543854354");
         assertThat(result.zipFileStatus.fileName).isNotNull().isEmpty();
         assertThat(result.zipFileStatus.envelopes).isNotNull().isEmpty();
         assertThat(result.zipFileStatus.events).isNotNull().isEmpty();

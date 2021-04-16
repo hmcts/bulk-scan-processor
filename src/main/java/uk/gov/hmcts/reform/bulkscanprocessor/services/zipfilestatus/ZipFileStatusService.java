@@ -96,7 +96,7 @@ public class ZipFileStatusService {
             );
         }
         return new CcdIdStatus(
-        "",
+        ccdId,
          new ZipFileStatus(
          "",
          emptyList(),
