@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,16 +26,16 @@ public class ZipStatusController {
     }
     // endregion
 
-    @RequestMapping(params = "name")
+    @GetMapping(params = {"name"})
     public ResponseEntity<ZipFileStatus> findByFileName(
-        @RequestParam(required = true, value = "name") String fileName
+        @RequestParam("name") String fileName
     ) {
         return ResponseEntity.ok().body(service.getStatusFor(fileName));
     }
 
-    @RequestMapping(params = "dcn")
+    @GetMapping(params = {"dcn"})
     public ResponseEntity<List<ZipFileStatus>> findByDcn(
-        @RequestParam(required = true, value = "dcn") String dcn
+        @RequestParam("dcn") String dcn
     ) {
         var result = service.getStatusByDcn(dcn);
         return ResponseEntity.ok().body(result);
