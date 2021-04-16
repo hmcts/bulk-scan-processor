@@ -7,6 +7,7 @@ import java.util.List;
 
 public class ZipFileStatus {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("file_name")
     public final String fileName;
 
