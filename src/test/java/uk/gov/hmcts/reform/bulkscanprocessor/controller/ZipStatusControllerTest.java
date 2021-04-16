@@ -126,20 +126,6 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_500_with_invalid_dcn_as_parameter() throws Exception {
-        //given
-        String documentControlNumber = "1453";
-        //when
-        given(service.getStatusByDcn(documentControlNumber))
-            .willThrow(InvalidParameterException.class);
-        //assert
-        mockMvc
-            .perform(get("/zip-files").param("dcn", documentControlNumber))
-            .andDo(print())
-            .andExpect(status().is5xxServerError());
-    }
-
-    @Test
     public void should_return_data_returned_from_the_service() throws Exception {
 
         List<ZipFileEnvelope> envelopes = asList(
@@ -232,6 +218,20 @@ public class ZipStatusControllerTest {
     }
 
     @Test
+    public void should_return_500_with_invalid_dcn_as_parameter() throws Exception {
+        //given
+        String documentControlNumber = "1453";
+        //when
+        given(service.getStatusByDcn(documentControlNumber))
+            .willThrow(InvalidParameterException.class);
+        //assert
+        mockMvc
+            .perform(get("/zip-files").param("dcn", documentControlNumber))
+            .andDo(print())
+            .andExpect(status().is5xxServerError());
+    }
+
+    @Test
     public void should_throw_exception_when_both_parameters_together() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("name", fileName);
@@ -253,6 +253,35 @@ public class ZipStatusControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void should_throw_exception_when_empty_filename_supplied() throws Exception {
+        String emptyFileName = "";
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("name", emptyFileName);
+        map.add("dcn", dcn);
+        given(service.getStatusFor(emptyFileName))
+            .willThrow(IllegalArgumentException.class);
+
+        mockMvc
+            .perform(get("/zip-files").params(map))
+            .andDo(print())
+            .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void should_throw_exception_when_empty_dcn_supplied() throws Exception {
+        String emptyFileName = "";
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("name", fileName);
+        map.add("dcn", emptyFileName);
+        given(service.getStatusFor(emptyFileName))
+            .willThrow(IllegalArgumentException.class);
+
+        mockMvc
+            .perform(get("/zip-files").params(map))
+            .andDo(print())
+            .andExpect(status().is5xxServerError());
+    }
 
     private String toIso(Instant timestamp) {
         return DateFormatter.getSimpleDateTime(timestamp);
