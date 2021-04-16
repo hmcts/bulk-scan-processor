@@ -69,7 +69,7 @@ public class ZipFileStatusServiceTest {
 
         // then
         assertThat(result.fileName).isEqualTo("hello.zip");
-
+        assertThat(result.ccdId).isNull();
         assertThat(result.envelopes)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
@@ -140,6 +140,7 @@ public class ZipFileStatusServiceTest {
 
         // then
         assertThat(result).isNotNull();
+        assertThat(result.ccdId).isNull();
         assertThat(result.envelopes).isNotNull().isEmpty();
         assertThat(result.events).isNotNull().isEmpty();
     }
