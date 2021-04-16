@@ -14,9 +14,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStat
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toNonScannableItemsResponse;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
@@ -94,8 +94,8 @@ public class ZipFileStatusService {
         }
         return new ZipFileStatus(
         "",
-         Collections.emptyList(),
-         Collections.emptyList());
+         emptyList(),
+         emptyList());
     }
 
     private ZipFileEnvelope mapEnvelope(Envelope envelope) {
