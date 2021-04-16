@@ -47,7 +47,7 @@ public class ZipStatusControllerTest {
     private static final String fileName = "hello.zip";
 
     @Test
-    public void should_return_data_returned_from_the_service_with_dcn_as_parameter() throws Exception {
+      void should_return_data_returned_from_the_service_with_dcn_as_parameter() throws Exception {
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
                 "0",
@@ -126,7 +126,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_data_returned_from_the_service() throws Exception {
+     void should_return_data_returned_from_the_service() throws Exception {
 
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
@@ -206,7 +206,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
+    void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
         given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files").param("name", fileName))
@@ -218,7 +218,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_500_with_invalid_dcn_as_parameter() throws Exception {
+     void should_return_500_with_invalid_dcn_as_parameter() throws Exception {
         //given
         String documentControlNumber = "1453";
         //when
@@ -232,7 +232,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_throw_exception_when_both_parameters_together() throws Exception {
+     void should_throw_exception_when_both_parameters_together() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("name", fileName);
         map.add("dcn", dcn);
@@ -245,7 +245,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_throw_exception_when_no_parameter_supplied() throws Exception {
+     void should_throw_exception_when_no_parameter_supplied() throws Exception {
         given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files"))
@@ -254,7 +254,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_throw_exception_when_empty_filename_supplied() throws Exception {
+     void should_throw_exception_when_empty_filename_supplied() throws Exception {
         String emptyFileName = "";
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("name", emptyFileName);
@@ -269,7 +269,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_throw_exception_when_empty_dcn_supplied() throws Exception {
+     void should_throw_exception_when_empty_dcn_supplied() throws Exception {
         String emptyFileName = "";
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("name", fileName);
