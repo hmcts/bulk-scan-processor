@@ -47,13 +47,7 @@ public class ZipFileStatusService {
     public ZipFileStatus getStatusFor(String zipFileName) {
         List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
         List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-
-        return new ZipFileStatus(
-            zipFileName,
-            null,
-            envelopes.stream().map(this::mapEnvelope).collect(toList()),
-            events.stream().map(this::mapEvent).collect(toList())
-        );
+        return getZipFileStatus(zipFileName, null, envelopes, events);
     }
 
     public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) throws InvalidParameterException {
@@ -70,12 +64,9 @@ public class ZipFileStatusService {
         zipFileNames.stream().forEach(
             zipFileName ->
                 zipFileStatusList.add(
-                    new ZipFileStatus(
-                        zipFileName,
-                        null,
-                        envelopeRepo.findByZipFileName(zipFileName).stream().map(this::mapEnvelope).collect(toList()),
-                        eventRepo.findByZipFileName(zipFileName).stream().map(this::mapEvent).collect(toList())
-                    )
+                    getZipFileStatus(zipFileName, null,
+                                     envelopeRepo.findByZipFileName(zipFileName),
+                                     eventRepo.findByZipFileName(zipFileName))
                 )
         );
 
@@ -83,22 +74,20 @@ public class ZipFileStatusService {
     }
 
     public ZipFileStatus getStatusByCcdId(String ccdId) {
-
         List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
         if (envelopes.size() > 0) {
             String zipFileName = envelopes.get(0).getZipFileName();
             List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-
-            return new ZipFileStatus(null,
-                                     ccdId,
-                                     envelopes.stream().map(this::mapEnvelope).collect(toList()),
-                                     events.stream().map(this::mapEvent).collect(toList()));
+            return getZipFileStatus(null,ccdId,envelopes, events);
         }
-        return new ZipFileStatus(
-         null,
-         ccdId,
-         emptyList(),
-         emptyList());
+        return getZipFileStatus(null, ccdId, emptyList(), emptyList());
+    }
+
+    private ZipFileStatus getZipFileStatus(String fileName, String ccdId, List<Envelope> envelopes, List<ProcessEvent> events) {
+       return new ZipFileStatus(fileName,
+                          ccdId,
+                          envelopes.stream().map(this::mapEnvelope).collect(toList()),
+                          events.stream().map(this::mapEvent).collect(toList()));
     }
 
     private ZipFileEnvelope mapEnvelope(Envelope envelope) {
