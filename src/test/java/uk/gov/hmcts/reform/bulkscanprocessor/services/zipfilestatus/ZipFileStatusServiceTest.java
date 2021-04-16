@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.CcdIdStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
@@ -300,7 +299,7 @@ public class ZipFileStatusServiceTest {
     }
 
     @Test
-    public void should_return_envelopes_and_events_from_db_when_ccdid_is_given() {
+    public void should_return_envelopes_and_events_from_db_when_ccd_id_is_given() {
         // given
         List<ProcessEvent> events = asList(
             event(Event.DOC_UPLOADED, "A", now(), null),
@@ -313,12 +312,12 @@ public class ZipFileStatusServiceTest {
         given(envelopeRepo.findByCcdId(ccdId)).willReturn(envelopes);
         given(eventRepo.findByZipFileName("hello.zip")).willReturn(events);
         // when
-        CcdIdStatus result = service.getStatusByCcdId(ccdId);
+        ZipFileStatus result = service.getStatusByCcdId(ccdId);
         // then
         assertThat(result.ccdId).isEqualTo(ccdId);
-        assertThat(result.zipFileStatus.fileName).isEqualTo("hello.zip");
+        assertThat(result.fileName).isEqualTo("hello.zip");
 
-        assertThat(result.zipFileStatus.envelopes)
+        assertThat(result.envelopes)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new ZipFileEnvelope(
@@ -353,7 +352,7 @@ public class ZipFileStatusServiceTest {
                 )
             );
 
-        assertThat(result.zipFileStatus.events)
+        assertThat(result.events)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new ZipFileEvent(
@@ -378,15 +377,15 @@ public class ZipFileStatusServiceTest {
     }
 
     @Test
-    public void should_return_empty_lists_when_no_data_for_ccdid_was_found() {
+    public void should_return_empty_lists_when_no_data_for_ccd_id_was_found() {
         // when
-        CcdIdStatus result = service.getStatusByCcdId("5744543854354");
+        ZipFileStatus result = service.getStatusByCcdId("5744543854354");
         // then
         assertThat(result).isNotNull();
         assertThat(result.ccdId).isEqualTo("5744543854354");
-        assertThat(result.zipFileStatus.fileName).isNotNull().isEmpty();
-        assertThat(result.zipFileStatus.envelopes).isNotNull().isEmpty();
-        assertThat(result.zipFileStatus.events).isNotNull().isEmpty();
+        assertThat(result.fileName).isNotNull().isEmpty();
+        assertThat(result.envelopes).isNotNull().isEmpty();
+        assertThat(result.events).isNotNull().isEmpty();
     }
 
     private Envelope envelope(String container) {
