@@ -122,7 +122,8 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
-        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip", null, emptyList(), emptyList()));
+        given(service.getStatusFor("hello.zip"))
+            .willReturn(new ZipFileStatus("hello.zip", null, emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files").param("name", "hello.zip"))
             .andDo(print())
