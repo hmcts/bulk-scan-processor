@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ZipStatusController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
@@ -218,7 +216,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_500_with_invalid_dcn_as_parameter() throws Exception {
+    public void should_return_400_with_invalid_dcn_as_parameter() throws Exception {
         //given
         String documentControlNumber = "1453";
         //when
@@ -228,24 +226,21 @@ public class ZipStatusControllerTest {
         mockMvc
             .perform(get("/zip-files").param("dcn", documentControlNumber))
             .andDo(print())
-            .andExpect(status().is5xxServerError());
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void should_throw_exception_when_both_parameters_together() throws Exception {
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-        map.add("name", fileName);
-        map.add("dcn", dcn);
+    public void should_return_bad_request_when_both_parameters_together() throws Exception {
 
         given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
         mockMvc
-            .perform(get("/zip-files").params(map))
+            .perform(get("/zip-files").param("name", fileName, "dcn", dcn))
             .andDo(print())
-            .andExpect(status().is5xxServerError());
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void should_throw_exception_when_no_parameter_supplied() throws Exception {
+    public void should_return_bad_request_when_no_parameter_supplied() throws Exception {
         given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files"))
@@ -254,33 +249,25 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_throw_exception_when_empty_filename_supplied() throws Exception {
+    public void should_return_bad_request_when_empty_filename_supplied() throws Exception {
         String emptyFileName = "";
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-        map.add("name", emptyFileName);
-        map.add("dcn", dcn);
         given(service.getStatusFor(emptyFileName))
             .willThrow(IllegalArgumentException.class);
-
         mockMvc
-            .perform(get("/zip-files").params(map))
+            .perform(get("/zip-files").param("name", emptyFileName, "dcn", dcn))
             .andDo(print())
-            .andExpect(status().is5xxServerError());
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void should_throw_exception_when_empty_dcn_supplied() throws Exception {
-        String emptyFileName = "";
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-        map.add("name", fileName);
-        map.add("dcn", emptyFileName);
-        given(service.getStatusFor(emptyFileName))
+    public void should_return_bad_request_when_empty_dcn_supplied() throws Exception {
+        String emptyDcn = "";
+        given(service.getStatusByDcn(emptyDcn))
             .willThrow(IllegalArgumentException.class);
-
         mockMvc
-            .perform(get("/zip-files").params(map))
+            .perform(get("/zip-files").param("name", fileName, "dcn", emptyDcn))
             .andDo(print())
-            .andExpect(status().is5xxServerError());
+            .andExpect(status().isBadRequest());
     }
 
     private String toIso(Instant timestamp) {
