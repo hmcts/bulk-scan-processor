@@ -254,7 +254,7 @@ public class ZipStatusControllerTest {
         given(service.getStatusFor(emptyFileName))
             .willThrow(IllegalArgumentException.class);
         mockMvc
-            .perform(get("/zip-files").param("name", emptyFileName, "dcn", dcn))
+            .perform(get("/zip-files").param("name", emptyFileName))
             .andDo(print())
             .andExpect(status().isBadRequest());
     }
@@ -265,7 +265,7 @@ public class ZipStatusControllerTest {
         given(service.getStatusByDcn(emptyDcn))
             .willThrow(IllegalArgumentException.class);
         mockMvc
-            .perform(get("/zip-files").param("name", fileName, "dcn", emptyDcn))
+            .perform(get("/zip-files").param("dcn", emptyDcn))
             .andDo(print())
             .andExpect(status().isBadRequest());
     }

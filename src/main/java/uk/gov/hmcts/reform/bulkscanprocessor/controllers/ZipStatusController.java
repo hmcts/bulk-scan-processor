@@ -31,7 +31,7 @@ public class ZipStatusController {
     public ResponseEntity<ZipFileStatus> findByFileName(
         @RequestParam("name") String fileName
     ) {
-        if (!fileName.equals(null)) {
+        if (!fileName.equals(null) && !fileName.isEmpty()) {
             return ResponseEntity.ok().body(service.getStatusFor(fileName));
         } else {
             return ResponseEntity.badRequest().body(null);
@@ -42,7 +42,7 @@ public class ZipStatusController {
     public ResponseEntity<List<ZipFileStatus>> findByDcn(
         @RequestParam("dcn") String dcn
     ) {
-        if (dcn.equals(null)) {
+        if (dcn.equals(null) || dcn.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
 
