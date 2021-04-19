@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ZipStatusController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
@@ -228,6 +230,19 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.ccd_id").value("34643746765475"))
             .andExpect(jsonPath("$.envelopes").isEmpty())
             .andExpect(jsonPath("$.events").isEmpty());
+    }
+
+    @Test
+    public void should_return_400_if_more_than_one_parameter_provided() throws Exception {
+        given(service.getStatusByCcdId("34643746765475"))
+            .willReturn(new ZipFileStatus(null, "34643746765475", emptyList(), emptyList()));
+        MultiValueMap map = new LinkedMultiValueMap<String, String>();
+        map.set("ccd_id","34643746765475");
+        map.set("name","hello.zip");
+        mockMvc
+            .perform(get("/zip-files").params(map))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     private String toIso(Instant timestamp) {
