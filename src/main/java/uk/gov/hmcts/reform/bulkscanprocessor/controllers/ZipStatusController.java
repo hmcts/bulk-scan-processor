@@ -23,12 +23,12 @@ public class ZipStatusController {
     }
     // endregion
 
-    @GetMapping
+    @GetMapping(params = {"name"})
     public ZipFileStatus findByFileName(@RequestParam("name") String fileName) {
         return service.getStatusFor(fileName);
     }
 
-    @GetMapping(@RequestParam("ccdId"))
+    @GetMapping(params = {"ccdId"})
     public ZipFileStatus findByCcdId(@RequestParam("ccdId") String ccdId) {
         return service.getStatusByCcdId(ccdId);
     }
