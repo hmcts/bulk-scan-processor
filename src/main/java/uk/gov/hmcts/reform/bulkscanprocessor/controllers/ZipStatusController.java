@@ -27,4 +27,9 @@ public class ZipStatusController {
     public ZipFileStatus findByFileName(@RequestParam("name") String fileName) {
         return service.getStatusFor(fileName);
     }
+
+//    @GetMapping
+//    public ZipFileStatus findByccdId(@RequestParam("ccdid") String ccdId) {
+//        //return service.getStatusByCcdId(ccdId);
+//    }
 }
