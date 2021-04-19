@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
 
 import java.util.Optional;
+import java.util.zip.ZipFile;
 
 @RestController
 @RequestMapping(
@@ -26,7 +28,7 @@ public class ZipStatusController {
     // endregion
 
     @GetMapping
-    public ResponseEntity<?> getStatus(
+    public ResponseEntity<ZipFileStatus> getStatus(
         @RequestParam(value = "name", required = false) Optional<String> fileName,
         @RequestParam(value = "ccd_id", required = false) Optional<String> ccdId) {
 

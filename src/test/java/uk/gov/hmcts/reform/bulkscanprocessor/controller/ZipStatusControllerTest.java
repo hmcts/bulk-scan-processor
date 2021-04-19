@@ -245,6 +245,14 @@ public class ZipStatusControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void should_return_400_if_no_parameter_provided() throws Exception {
+        mockMvc
+            .perform(get("/zip-files"))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
     private String toIso(Instant timestamp) {
         return DateFormatter.getSimpleDateTime(timestamp);
     }
