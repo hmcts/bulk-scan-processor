@@ -18,6 +18,7 @@ import java.util.Optional;
 public class ZipStatusController {
 
     private final ZipFileStatusService service;
+    private final int minDcnLength = 6;
 
     // region constructor
     public ZipStatusController(ZipFileStatusService service) {
@@ -28,12 +29,18 @@ public class ZipStatusController {
     @GetMapping
     public ResponseEntity<?> getStatus(
         @RequestParam(value = "name", required = false) Optional<String> fileName,
-        @RequestParam(value = "ccd_id", required = false) Optional<String> ccdId) {
-
-        if (fileName.isPresent() && !ccdId.isPresent()) {
+        @RequestParam(value = "ccd_id", required = false) Optional<String> ccdId,
+        @RequestParam(value = "dcn", required = false) Optional<String> dcn) {
+        var testStop = "";
+        if ((fileName.isPresent() && !fileName.get().equals("")) && (!ccdId.isPresent() && !dcn.isPresent())) {
             return ResponseEntity.ok(service.getStatusFor(fileName.get()));
-        } else if (!fileName.isPresent() && ccdId.isPresent()) {
+        } else if (ccdId.isPresent() && (!fileName.isPresent() && !dcn.isPresent())) {
             return ResponseEntity.ok(service.getStatusByCcdId(ccdId.get()));
+        } else if (
+            (dcn.isPresent() && dcn.get().length() >= minDcnLength)
+                && (!fileName.isPresent() && !ccdId.isPresent())
+        ) {
+            return ResponseEntity.ok(service.getStatusByDcn(dcn.get()));
         }
         return ResponseEntity.badRequest().body(null);
     }
