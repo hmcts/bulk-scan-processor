@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStat
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
 
 import java.util.Optional;
-import java.util.zip.ZipFile;
 
 @RestController
 @RequestMapping(
