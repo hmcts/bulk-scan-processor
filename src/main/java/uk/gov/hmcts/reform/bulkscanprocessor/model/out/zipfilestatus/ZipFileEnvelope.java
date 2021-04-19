@@ -25,6 +25,9 @@ public class ZipFileEnvelope {
     @JsonProperty("envelope_ccd_action")
     public final String envelopeCcdAction;
 
+    @JsonProperty("zip_file_name")
+    public final String zipFileName;
+
     @JsonProperty("zip_deleted")
     public final boolean zipDeleted;
 
@@ -56,6 +59,7 @@ public class ZipFileEnvelope {
         String status,
         String ccdId,
         String envelopeCcdAction,
+        String zipFileName,
         boolean zipDeleted,
         String rescanFor,
         Classification classification,
@@ -71,6 +75,7 @@ public class ZipFileEnvelope {
         this.status = status;
         this.ccdId = ccdId;
         this.envelopeCcdAction = envelopeCcdAction;
+        this.zipFileName = zipFileName;
         this.zipDeleted = zipDeleted;
         this.rescanFor = rescanFor;
         this.classification = classification;
