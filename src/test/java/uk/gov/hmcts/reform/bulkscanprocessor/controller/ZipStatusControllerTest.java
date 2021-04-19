@@ -230,16 +230,6 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_bad_request_when_both_parameters_together() throws Exception {
-
-        given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
-        mockMvc
-            .perform(get("/zip-files").param("name", fileName, "dcn", dcn))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void should_return_bad_request_when_no_parameter_supplied() throws Exception {
         given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, emptyList(), emptyList()));
         mockMvc
