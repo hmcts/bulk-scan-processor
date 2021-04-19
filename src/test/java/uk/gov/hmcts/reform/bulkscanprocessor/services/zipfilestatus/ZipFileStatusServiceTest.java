@@ -44,6 +44,7 @@ public class ZipFileStatusServiceTest {
     @Mock private ScannableItemRepository scannableItemRepo;
 
     private ZipFileStatusService service;
+    private static final int MIN_LENGTH = 6;
 
     @BeforeEach
     public void setUp() {
@@ -173,7 +174,7 @@ public class ZipFileStatusServiceTest {
         given(eventRepo.findByZipFileName("hello2.zip")).willReturn(events2);
 
         // when
-        var zipFileStatusList = service.getStatusByDcn(documentControlNumber);
+        var zipFileStatusList = service.getStatusByDcn(documentControlNumber, MIN_LENGTH);
 
         // then
         assertThat(zipFileStatusList.size() == 2);
@@ -300,7 +301,7 @@ public class ZipFileStatusServiceTest {
     @Test
     public void should_return_invalid_parameter_exception_for_dcn_less_than_6_chars() throws Exception {
 
-        assertThatThrownBy(() -> service.getStatusByDcn("1000"))
+        assertThatThrownBy(() -> service.getStatusByDcn("1000", MIN_LENGTH))
             .isInstanceOf(InvalidParameterException.class)
             .hasMessageMatching("DCN number has to be at least 6 characters long");
     }

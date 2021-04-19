@@ -28,7 +28,6 @@ public class ZipFileStatusService {
     private final ProcessEventRepository eventRepo;
     private final EnvelopeRepository envelopeRepo;
     private final ScannableItemRepository scannableItemRepo;
-    private static final int MIN_LENGTH = 6;
 
     // region constructor
 
@@ -50,12 +49,15 @@ public class ZipFileStatusService {
         return getZipFileStatus(zipFileName, null, envelopes, events);
     }
 
-    public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) throws InvalidParameterException {
+    public List<ZipFileStatus> getStatusByDcn(
+        String documentControlNumber,
+        int minLength
+    ) throws InvalidParameterException {
 
-        if (documentControlNumber.length() < MIN_LENGTH) {
+        if (documentControlNumber.length() < minLength) {
             log.error("Exception in Search by DCN error: DCN number specified is less than"
-                          + MIN_LENGTH + " characters in length.");
-            throw new InvalidParameterException("DCN number has to be at least " + MIN_LENGTH + " characters long");
+                          + minLength + " characters in length.");
+            throw new InvalidParameterException("DCN number has to be at least " + minLength + " characters long");
         }
 
         List<String> zipFileNames = scannableItemRepo.findByDcn(documentControlNumber);
