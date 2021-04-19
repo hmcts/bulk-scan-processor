@@ -29,10 +29,9 @@ public class ZipStatusController {
 
     @GetMapping(params = {"name"})
     public ResponseEntity<ZipFileStatus> findByFileName(
-        @RequestParam("name") String fileName,
-        @RequestParam("dcn") String dcn
+        @RequestParam("name") String fileName
     ) {
-        if (!fileName.equals(null) && dcn.equals(null)) {
+        if (!fileName.equals(null)) {
             return ResponseEntity.ok().body(service.getStatusFor(fileName));
         } else {
             return ResponseEntity.badRequest().body(null);
@@ -41,10 +40,9 @@ public class ZipStatusController {
 
     @GetMapping(params = {"dcn"})
     public ResponseEntity<List<ZipFileStatus>> findByDcn(
-        @RequestParam("name") String fileName,
         @RequestParam("dcn") String dcn
     ) {
-        if (dcn.equals(null) || !fileName.equals(null)) {
+        if (dcn.equals(null)) {
             return ResponseEntity.badRequest().body(null);
         }
 
