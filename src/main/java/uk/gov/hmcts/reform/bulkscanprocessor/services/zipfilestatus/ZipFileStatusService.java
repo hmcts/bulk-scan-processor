@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnve
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
