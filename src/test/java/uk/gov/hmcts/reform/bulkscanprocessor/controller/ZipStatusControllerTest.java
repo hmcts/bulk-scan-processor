@@ -181,7 +181,7 @@ public class ZipStatusControllerTest {
         given(service.getStatusByCcdId(ccdId)).willReturn(new ZipFileStatus(null, ccdId, envelopes, events));
 
         mockMvc
-            .perform(get("/zip-files").param("ccdId", ccdId))
+            .perform(get("/zip-files").param("ccd_id", ccdId))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.ccd_id").value(ccdId))
@@ -222,7 +222,7 @@ public class ZipStatusControllerTest {
         given(service.getStatusByCcdId("34643746765475"))
             .willReturn(new ZipFileStatus(null, "34643746765475", emptyList(), emptyList()));
         mockMvc
-            .perform(get("/zip-files").param("ccdId", "34643746765475"))
+            .perform(get("/zip-files").param("ccd_id", "34643746765475"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.ccd_id").value("34643746765475"))

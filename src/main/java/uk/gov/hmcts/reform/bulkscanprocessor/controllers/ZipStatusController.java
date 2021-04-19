@@ -28,8 +28,8 @@ public class ZipStatusController {
         return service.getStatusFor(fileName);
     }
 
-    @GetMapping(params = {"ccdId"})
-    public ZipFileStatus findByCcdId(@RequestParam("ccdId") String ccdId) {
+    @GetMapping(params = {"ccd_id"})
+    public ZipFileStatus findByCcdId(@RequestParam("ccd_id") String ccdId) {
         return service.getStatusByCcdId(ccdId);
     }
 }
