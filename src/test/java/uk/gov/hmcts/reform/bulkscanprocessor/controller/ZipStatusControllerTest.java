@@ -236,9 +236,9 @@ public class ZipStatusControllerTest {
     public void should_return_400_if_more_than_one_parameter_provided() throws Exception {
         given(service.getStatusByCcdId("34643746765475"))
             .willReturn(new ZipFileStatus(null, "34643746765475", emptyList(), emptyList()));
-        MultiValueMap map = new LinkedMultiValueMap<String, String>();
-        map.set("ccd_id","34643746765475");
-        map.set("name","hello.zip");
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("ccd_id","34643746765475");
+        map.add("name","hello.zip");
         mockMvc
             .perform(get("/zip-files").params(map))
             .andDo(print())
