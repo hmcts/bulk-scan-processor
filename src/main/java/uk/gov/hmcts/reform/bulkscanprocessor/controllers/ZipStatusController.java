@@ -31,7 +31,6 @@ public class ZipStatusController {
         @RequestParam(value = "name", required = false) Optional<String> fileName,
         @RequestParam(value = "ccd_id", required = false) Optional<String> ccdId,
         @RequestParam(value = "dcn", required = false) Optional<String> dcn) {
-        var testStop = "";
         if ((fileName.isPresent() && !fileName.get().equals("")) && (!ccdId.isPresent() && !dcn.isPresent())) {
             return ResponseEntity.ok(service.getStatusFor(fileName.get()));
         } else if (ccdId.isPresent() && (!fileName.isPresent() && !dcn.isPresent())) {
