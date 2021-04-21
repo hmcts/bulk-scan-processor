@@ -29,16 +29,33 @@ public class ZipFilesSummaryReportListResponse {
 
     public ZipFilesSummaryReportListResponse(List<ZipFilesSummaryReportItem> items) {
         this.total = items.size();
-        this.totalCompleted = (int) items.stream().filter(
-            completed -> "COMPLETED".equalsIgnoreCase(completed.envelopeStatus)).count();
-        this.totalFailed = (int) items.stream().filter(
-            completed -> completed.envelopeStatus != null && completed.envelopeStatus.contains("FAILURE")).count();
-        this.exceptionRecord = (int) items.stream()
-            .filter(exRecord -> exRecord.ccdAction.equalsIgnoreCase("EXCEPTION_RECORD")).count();
-        this.autoCaseCreation = (int) items.stream()
-            .filter(autoCreatedCase -> autoCreatedCase.ccdAction.equalsIgnoreCase("AUTO_CREATED_CASE")).count();
-        this.autoAttachedToCase = (int) items.stream()
-            .filter(autoAttachedCase -> autoAttachedCase.ccdAction.equalsIgnoreCase("AUTO_ATTACHED_TO_CASE")).count();
         this.items = items;
+        int totalCompletedCount = 0, totalFailedCount = 0, exceptionRecordCount = 0;
+        int autoCaseCreationCount = 0, autoAttachedToCaseCount = 0;
+
+        for (var item : items)
+        {
+            if("COMPLETED".equalsIgnoreCase(item.envelopeStatus)){
+                totalCompletedCount += totalCompletedCount;
+            }
+            if(item.envelopeStatus != null && item.envelopeStatus.contains("FAILURE")){
+                totalFailedCount += totalFailedCount;
+            }
+            if(item.ccdAction.equalsIgnoreCase("EXCEPTION_RECORD")){
+                exceptionRecordCount += exceptionRecordCount;
+            }
+            if(item.ccdAction.equalsIgnoreCase("AUTO_CREATED_CASE")){
+                autoCaseCreationCount += autoCaseCreationCount;
+            }
+            if(item.ccdAction.equalsIgnoreCase("AUTO_ATTACHED_TO_CASE")){
+                autoAttachedToCaseCount += autoAttachedToCaseCount;
+            }
+        }
+
+        this.totalCompleted = totalCompletedCount;
+        this.totalFailed = totalFailedCount;
+        this.exceptionRecord = exceptionRecordCount;
+        this.autoCaseCreation = autoCaseCreationCount;
+        this.autoAttachedToCase = autoAttachedToCaseCount;
     }
 }
