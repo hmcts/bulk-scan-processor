@@ -30,25 +30,29 @@ public class ZipFilesSummaryReportListResponse {
     public ZipFilesSummaryReportListResponse(List<ZipFilesSummaryReportItem> items) {
         this.total = items.size();
         this.items = items;
-        int totalCompletedCount = 0, totalFailedCount = 0, exceptionRecordCount = 0;
-        int autoCaseCreationCount = 0, autoAttachedToCaseCount = 0;
+        int totalCompletedCount = 0;
+        int totalFailedCount = 0;
+        int exceptionRecordCount = 0;
+        int autoCaseCreationCount = 0;
+        int autoAttachedToCaseCount = 0;
 
-        for (var item : items)
-        {
-            if("COMPLETED".equalsIgnoreCase(item.envelopeStatus)){
-                totalCompletedCount += totalCompletedCount;
+        for (var item : items) {
+            if (item.envelopeStatus != null && item.envelopeStatus.contains("COMPLETED")) {
+                totalCompletedCount = totalCompletedCount + 1;
             }
-            if(item.envelopeStatus != null && item.envelopeStatus.contains("FAILURE")){
-                totalFailedCount += totalFailedCount;
+            if (item.envelopeStatus != null && item.envelopeStatus.contains("FAILURE")) {
+                totalFailedCount = totalFailedCount + 1;
             }
-            if(item.ccdAction.equalsIgnoreCase("EXCEPTION_RECORD")){
-                exceptionRecordCount += exceptionRecordCount;
+            if (item.ccdAction.equalsIgnoreCase("EXCEPTION_RECORD")) {
+                exceptionRecordCount = exceptionRecordCount + 1;
+                continue;
             }
-            if(item.ccdAction.equalsIgnoreCase("AUTO_CREATED_CASE")){
-                autoCaseCreationCount += autoCaseCreationCount;
+            if (item.ccdAction.equalsIgnoreCase("AUTO_CREATED_CASE")) {
+                autoCaseCreationCount = autoCaseCreationCount + 1;
+                continue;
             }
-            if(item.ccdAction.equalsIgnoreCase("AUTO_ATTACHED_TO_CASE")){
-                autoAttachedToCaseCount += autoAttachedToCaseCount;
+            if (item.ccdAction.equalsIgnoreCase("AUTO_ATTACHED_TO_CASE")) {
+                autoAttachedToCaseCount = autoAttachedToCaseCount + 1;
             }
         }
 
