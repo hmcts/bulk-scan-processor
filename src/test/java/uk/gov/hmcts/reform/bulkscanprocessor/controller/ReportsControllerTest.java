@@ -168,7 +168,7 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             EXCEPTION.name(),
             "ccd-id",
-            "ccd-action"
+            "AUTO_CREATED_CASE"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
@@ -226,7 +226,7 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "AUTO_CREATED_CASE"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", NEW_APPLICATION))
@@ -267,7 +267,7 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "AUTO_CREATED_CASE"
         );
 
         ZipFileSummaryResponse response2 = new ZipFileSummaryResponse(
@@ -281,7 +281,7 @@ public class ReportsControllerTest {
             UPLOAD_FAILURE.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "EXCEPTION_RECORD"
         );
 
         ZipFileSummaryResponse response3 = new ZipFileSummaryResponse(
@@ -295,7 +295,7 @@ public class ReportsControllerTest {
             CREATED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "AUTO_ATTACHED_TO_CASE"
         );
 
         List<ZipFileSummaryResponse> response = Arrays.asList(response1, response2, response3);
@@ -309,7 +309,10 @@ public class ReportsControllerTest {
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.total").value(3))
             .andExpect(jsonPath("$.total_completed").value(1))
-            .andExpect(jsonPath("$.total_failed").value(1));
+            .andExpect(jsonPath("$.total_failed").value(1))
+            .andExpect(jsonPath("$.exception_record").value(1))
+            .andExpect(jsonPath("$.auto_case_creation").value(1))
+            .andExpect(jsonPath("$.auto_attached_to_case").value(1));
     }
 
     @Test
