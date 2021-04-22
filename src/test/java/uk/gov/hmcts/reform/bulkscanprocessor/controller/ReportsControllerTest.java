@@ -256,6 +256,19 @@ public class ReportsControllerTest {
         LocalDate localDate = LocalDate.of(2021, 4, 8);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
 
+        ZipFileSummaryResponse response0 = new ZipFileSummaryResponse(
+            "test1.zip",
+            localDate,
+            localTime,
+            localDate,
+            localTime.plusHours(1),
+            "bulkscan",
+            CONSUMED.toString(),
+            COMPLETED.toString(),
+            SUPPLEMENTARY_EVIDENCE.name(),
+            "ccd-id", null
+        );
+
         ZipFileSummaryResponse response1 = new ZipFileSummaryResponse(
             "test1.zip",
             localDate,
@@ -298,7 +311,7 @@ public class ReportsControllerTest {
             "AUTO_ATTACHED_TO_CASE"
         );
 
-        List<ZipFileSummaryResponse> response = Arrays.asList(response1, response2, response3);
+        List<ZipFileSummaryResponse> response = Arrays.asList(response0, response1, response2, response3);
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", SUPPLEMENTARY_EVIDENCE))
             .willReturn(response);
 
@@ -307,11 +320,11 @@ public class ReportsControllerTest {
                              + "&classification=SUPPLEMENTARY_EVIDENCE"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.total").value(3))
-            .andExpect(jsonPath("$.total_completed").value(1))
+            .andExpect(jsonPath("$.total").value(4))
+            .andExpect(jsonPath("$.total_completed").value(2))
             .andExpect(jsonPath("$.total_failed").value(1))
             .andExpect(jsonPath("$.exception_record").value(1))
-            .andExpect(jsonPath("$.auto_case_creation").value(1))
+            .andExpect(jsonPath("$.auto_created_case").value(1))
             .andExpect(jsonPath("$.auto_attached_to_case").value(1));
     }
 

@@ -3,8 +3,16 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ZipFilesSummaryReportListResponse {
+
+    private static final String ENVELOPE_UPLOAD_FAILURE = "UPLOAD_FAILURE";
+    private static final String ENVELOPE_UPLOAD_COMPLETED = "COMPLETED";
+    private static final String CCD_ACTION_EXCEPTION_RECORD = "EXCEPTION_RECORD";
+    private static final String CCD_ACTION_AUTO_CREATED_CASE = "AUTO_CREATED_CASE";
+    private static final String CCD_ACTION_AUTO_ATTACHED_TO_CASE = "AUTO_ATTACHED_TO_CASE";
 
     @JsonProperty("total")
     public final int total;
@@ -18,8 +26,8 @@ public class ZipFilesSummaryReportListResponse {
     @JsonProperty("exception_record")
     public final int exceptionRecord;
 
-    @JsonProperty("auto_case_creation")
-    public final int autoCaseCreation;
+    @JsonProperty("auto_created_case")
+    public final int autoCreatedCase;
 
     @JsonProperty("auto_attached_to_case")
     public final int autoAttachedToCase;
@@ -30,36 +38,23 @@ public class ZipFilesSummaryReportListResponse {
     public ZipFilesSummaryReportListResponse(List<ZipFilesSummaryReportItem> items) {
         this.total = items.size();
         this.items = items;
-        int totalCompletedCount = 0;
-        int totalFailedCount = 0;
-        int exceptionRecordCount = 0;
-        int autoCaseCreationCount = 0;
-        int autoAttachedToCaseCount = 0;
 
-        for (var item : items) {
-            if (item.envelopeStatus != null && item.envelopeStatus.contains("COMPLETED")) {
-                totalCompletedCount = totalCompletedCount + 1;
-            }
-            if (item.envelopeStatus != null && item.envelopeStatus.contains("FAILURE")) {
-                totalFailedCount = totalFailedCount + 1;
-            }
-            if (item.ccdAction.equalsIgnoreCase("EXCEPTION_RECORD")) {
-                exceptionRecordCount = exceptionRecordCount + 1;
-                continue;
-            }
-            if (item.ccdAction.equalsIgnoreCase("AUTO_CREATED_CASE")) {
-                autoCaseCreationCount = autoCaseCreationCount + 1;
-                continue;
-            }
-            if (item.ccdAction.equalsIgnoreCase("AUTO_ATTACHED_TO_CASE")) {
-                autoAttachedToCaseCount = autoAttachedToCaseCount + 1;
-            }
-        }
+        Map<String, Long> envelopeStatusCount = items.stream()
+            .filter(item -> item.envelopeStatus != null)
+            .collect(Collectors.groupingBy(item -> item.envelopeStatus, Collectors.counting()));
+        this.totalCompleted = envelopeStatusCount.containsKey(ENVELOPE_UPLOAD_COMPLETED)
+            ? Math.toIntExact(envelopeStatusCount.get(ENVELOPE_UPLOAD_COMPLETED)) : 0;
+        this.totalFailed = envelopeStatusCount.containsKey(ENVELOPE_UPLOAD_FAILURE)
+            ? Math.toIntExact(envelopeStatusCount.get(ENVELOPE_UPLOAD_FAILURE)) : 0;
 
-        this.totalCompleted = totalCompletedCount;
-        this.totalFailed = totalFailedCount;
-        this.exceptionRecord = exceptionRecordCount;
-        this.autoCaseCreation = autoCaseCreationCount;
-        this.autoAttachedToCase = autoAttachedToCaseCount;
+        Map<String, Long> ccdActionCount = items.stream()
+            .filter(envelope -> envelope.ccdAction != null)
+            .collect(Collectors.groupingBy(envelope -> envelope.ccdAction, Collectors.counting()));
+        this.exceptionRecord = ccdActionCount.containsKey(CCD_ACTION_EXCEPTION_RECORD)
+            ? Math.toIntExact(ccdActionCount.get(CCD_ACTION_EXCEPTION_RECORD)) : 0;
+        this.autoCreatedCase = ccdActionCount.containsKey(CCD_ACTION_AUTO_CREATED_CASE)
+            ? Math.toIntExact(ccdActionCount.get(CCD_ACTION_AUTO_CREATED_CASE)) : 0;
+        this.autoAttachedToCase = ccdActionCount.containsKey(CCD_ACTION_AUTO_ATTACHED_TO_CASE)
+            ? Math.toIntExact(ccdActionCount.get(CCD_ACTION_AUTO_ATTACHED_TO_CASE)) : 0;
     }
 }
