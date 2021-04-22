@@ -3,13 +3,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor;
 import org.springframework.boot.LazyInitializationExcludeFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusHelpersConfiguration;
 
 @SpringBootApplication
-@EnableCircuitBreaker
 @EnableFeignClients
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
 public class Application {
