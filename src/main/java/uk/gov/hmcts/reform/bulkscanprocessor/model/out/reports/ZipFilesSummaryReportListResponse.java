@@ -24,13 +24,13 @@ public class ZipFilesSummaryReportListResponse {
     public final int totalFailed;
 
     @JsonProperty("exception_record")
-    public final int exceptionRecord;
+    public final Long exceptionRecord;
 
     @JsonProperty("auto_created_case")
-    public final int autoCreatedCase;
+    public final Long autoCreatedCase;
 
     @JsonProperty("auto_attached_to_case")
-    public final int autoAttachedToCase;
+    public final Long autoAttachedToCase;
 
     @JsonProperty("data")
     public final List<ZipFilesSummaryReportItem> items;
@@ -51,10 +51,10 @@ public class ZipFilesSummaryReportListResponse {
             .filter(envelope -> envelope.ccdAction != null)
             .collect(Collectors.groupingBy(envelope -> envelope.ccdAction, Collectors.counting()));
         this.exceptionRecord = ccdActionCount.containsKey(CCD_ACTION_EXCEPTION_RECORD)
-            ? Math.toIntExact(ccdActionCount.get(CCD_ACTION_EXCEPTION_RECORD)) : 0;
+            ? ccdActionCount.get(CCD_ACTION_EXCEPTION_RECORD) : 0;
         this.autoCreatedCase = ccdActionCount.containsKey(CCD_ACTION_AUTO_CREATED_CASE)
-            ? Math.toIntExact(ccdActionCount.get(CCD_ACTION_AUTO_CREATED_CASE)) : 0;
+            ? ccdActionCount.get(CCD_ACTION_AUTO_CREATED_CASE) : 0;
         this.autoAttachedToCase = ccdActionCount.containsKey(CCD_ACTION_AUTO_ATTACHED_TO_CASE)
-            ? Math.toIntExact(ccdActionCount.get(CCD_ACTION_AUTO_ATTACHED_TO_CASE)) : 0;
+            ? ccdActionCount.get(CCD_ACTION_AUTO_ATTACHED_TO_CASE) : 0;
     }
 }

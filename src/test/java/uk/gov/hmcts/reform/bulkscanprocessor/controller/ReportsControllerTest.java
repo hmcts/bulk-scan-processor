@@ -308,7 +308,7 @@ public class ReportsControllerTest {
             CREATED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "AUTO_ATTACHED_TO_CASE"
+            null
         );
 
         List<ZipFileSummaryResponse> response = Arrays.asList(response0, response1, response2, response3);
@@ -325,7 +325,7 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.total_failed").value(1))
             .andExpect(jsonPath("$.exception_record").value(1))
             .andExpect(jsonPath("$.auto_created_case").value(1))
-            .andExpect(jsonPath("$.auto_attached_to_case").value(1));
+            .andExpect(jsonPath("$.auto_attached_to_case").value(0));
     }
 
     @Test
