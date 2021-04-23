@@ -2,13 +2,15 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(
@@ -26,21 +28,30 @@ public class ZipStatusController {
     }
     // endregion
 
-    @GetMapping
-    public ResponseEntity<?> getStatus(
-        @RequestParam(value = "name", required = false) Optional<String> fileName,
-        @RequestParam(value = "ccd_id", required = false) Optional<String> ccdId,
-        @RequestParam(value = "dcn", required = false) Optional<String> dcn) {
-        if ((fileName.isPresent() && !fileName.get().equals("")) && (!ccdId.isPresent() && !dcn.isPresent())) {
-            return ResponseEntity.ok(service.getStatusFor(fileName.get()));
-        } else if (ccdId.isPresent() && (!fileName.isPresent() && !dcn.isPresent())) {
-            return ResponseEntity.ok(service.getStatusByCcdId(ccdId.get()));
-        } else if (
-            (dcn.isPresent() && dcn.get().length() >= minDcnLength)
-                && (!fileName.isPresent() && !ccdId.isPresent())
-        ) {
-            return ResponseEntity.ok(service.getStatusByDcn(dcn.get()));
+    @RequestMapping
+    public ResponseEntity<List<ZipFileStatus>> findFileByFilter(@RequestParam Map<String,String> filtersList) {
+
+        //invalid parameter list
+        if (filtersList.isEmpty()
+            || filtersList.keySet().size() > 1
+            || ((filtersList.keySet().size() == 1) && filtersList.values().toArray()[0].equals(""))) {
+            return ResponseEntity.badRequest().body(null);
         }
+
+        if (filtersList.keySet().contains("name")) {
+            List<ZipFileStatus> zipFileStatuses = new ArrayList<>();
+            zipFileStatuses.add(service.getStatusFor(filtersList.get("name")));
+            return ResponseEntity.ok().body(zipFileStatuses);
+        }
+
+        if (filtersList.keySet().contains("dcn")) {
+            var dcnLength = filtersList.get("dcn").length();
+            if (dcnLength < minDcnLength) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            return ResponseEntity.ok().body(service.getStatusByDcn(filtersList.get("dcn")));
+        }
+
         return ResponseEntity.badRequest().body(null);
     }
 }
