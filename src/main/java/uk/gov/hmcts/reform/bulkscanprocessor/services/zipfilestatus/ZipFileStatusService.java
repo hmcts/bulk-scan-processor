@@ -46,7 +46,8 @@ public class ZipFileStatusService {
     public ZipFileStatus getStatusFor(String zipFileName) {
         List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
         List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-        return getZipFileStatus(zipFileName, null,null, envelopes, events);
+        return getZipFileStatus(zipFileName, null, null, envelopes, events);
+      
     }
 
     public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) {
@@ -92,6 +93,30 @@ public class ZipFileStatusService {
             fileName,
             ccdId,
             dcn,
+            envelopes.stream().map(this::mapEnvelope).collect(toList()),
+            events.stream().map(this::mapEvent).collect(toList())
+        );
+    }
+
+    public ZipFileStatus getStatusByCcdId(String ccdId) {
+        List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
+        if (envelopes.size() > 0) {
+            String zipFileName = envelopes.get(0).getZipFileName();
+            List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
+            return getZipFileStatus(null, ccdId, envelopes, events);
+        }
+        return getZipFileStatus(null, ccdId, emptyList(), emptyList());
+    }
+
+    private ZipFileStatus getZipFileStatus(
+        String fileName,
+        String ccdId,
+        List<Envelope> envelopes,
+        List<ProcessEvent> events
+    ) {
+        return new ZipFileStatus(
+            fileName,
+            ccdId,
             envelopes.stream().map(this::mapEnvelope).collect(toList()),
             events.stream().map(this::mapEvent).collect(toList())
         );
