@@ -6,11 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
+
 import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatusService;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,11 +19,12 @@ import java.util.Map;
 public class ZipStatusController {
 
     private final ZipFileStatusService service;
-    private final int MIN_DCN_LENGTH = 6;
+    private static final int MIN_DCN_LENGTH = 6;
     // region constructor
     public ZipStatusController(ZipFileStatusService service) {
         this.service = service;
     }
+
     // endregion
 
     @GetMapping
