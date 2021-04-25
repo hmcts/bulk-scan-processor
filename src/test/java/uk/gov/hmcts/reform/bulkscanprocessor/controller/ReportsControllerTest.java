@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
@@ -156,6 +157,9 @@ public class ReportsControllerTest {
     public void should_return_zipfiles_summary_result_in_csv_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
+        List<PaymentResponse> payments = Arrays.asList(
+            new PaymentResponse("276325453643")
+        );
 
         ZipFileSummaryResponse zipFileSummaryResponse = new ZipFileSummaryResponse(
             "test.zip",
@@ -168,7 +172,8 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             EXCEPTION.name(),
             "ccd-id",
-            "ccd-action"
+            "ccd-action",
+            payments
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
@@ -214,7 +219,9 @@ public class ReportsControllerTest {
     public void should_return_zipfiles_summary_result_in_json_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
-
+        List<PaymentResponse> payments = Arrays.asList(
+            new PaymentResponse("276325453643")
+        );
         ZipFileSummaryResponse response = new ZipFileSummaryResponse(
             "test.zip",
             localDate,
@@ -226,7 +233,8 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "ccd-action",
+            payments
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", NEW_APPLICATION))
@@ -248,14 +256,23 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus))
             .andExpect(jsonPath("$.data[0].classification").value(response.classification))
             .andExpect(jsonPath("$.data[0].ccd_id").value(response.ccdId))
-            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction));
+            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction))
+            .andExpect(jsonPath("$.data[0].payments").value(response.payments));
     }
 
     @Test
     public void should_return_total_count_summary_result() throws Exception {
         LocalDate localDate = LocalDate.of(2021, 4, 8);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
-
+        List<PaymentResponse> payments1 = Arrays.asList(
+            new PaymentResponse("8348346343")
+        );
+        List<PaymentResponse> payments2 = Arrays.asList(
+            new PaymentResponse("127238623")
+        );
+        List<PaymentResponse> payments3 = Arrays.asList(
+            new PaymentResponse("6437463743")
+        );
         ZipFileSummaryResponse response1 = new ZipFileSummaryResponse(
             "test1.zip",
             localDate,
@@ -267,7 +284,8 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "ccd-action",
+            payments1
         );
 
         ZipFileSummaryResponse response2 = new ZipFileSummaryResponse(
@@ -281,7 +299,8 @@ public class ReportsControllerTest {
             UPLOAD_FAILURE.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "ccd-action",
+            payments2
         );
 
         ZipFileSummaryResponse response3 = new ZipFileSummaryResponse(
@@ -295,7 +314,8 @@ public class ReportsControllerTest {
             CREATED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action"
+            "ccd-action",
+            payments3
         );
 
         List<ZipFileSummaryResponse> response = Arrays.asList(response1, response2, response3);

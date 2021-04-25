@@ -4,6 +4,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.io.File;
@@ -25,7 +26,14 @@ public class CsvWriterTest {
     public void should_return_csv_file_with_headers_and_csv_records() throws IOException {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
-
+        List<PaymentResponse> payments1 = Arrays.asList(
+            new PaymentResponse("376473643743"),
+            new PaymentResponse("83748543654")
+        );
+        List<PaymentResponse> payments2 = Arrays.asList(
+            new PaymentResponse("83446467544"),
+            new PaymentResponse("98373843343")
+        );
         //given
         List<ZipFileSummaryResponse> csvData = Arrays.asList(
             new ZipFileSummaryResponse(
@@ -39,7 +47,8 @@ public class CsvWriterTest {
                 Status.UPLOADED.toString(),
                 SUPPLEMENTARY_EVIDENCE.name(),
                 "1321321312",
-                "AUTO_CREATED_CASE"
+                "AUTO_CREATED_CASE",
+                payments1
             ),
             new ZipFileSummaryResponse(
                 "test2.zip",
@@ -52,7 +61,8 @@ public class CsvWriterTest {
                 Status.UPLOADED.toString(),
                 null,
                 null,
-                null
+                null,
+                payments2
             )
         );
 

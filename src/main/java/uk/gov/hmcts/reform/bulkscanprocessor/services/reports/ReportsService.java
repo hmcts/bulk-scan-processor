@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
@@ -19,10 +20,13 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Service
@@ -34,6 +38,7 @@ public class ReportsService {
 
     private final EnvelopeCountSummaryRepository repo;
     private final ZeroRowFiller zeroRowFiller;
+    private final EnvelopeRepository envelopeRepo;
 
     private final ZipFilesSummaryRepository zipFilesSummaryRepository;
 
@@ -41,11 +46,13 @@ public class ReportsService {
     public ReportsService(
         EnvelopeCountSummaryRepository repo,
         ZeroRowFiller zeroRowFiller,
-        ZipFilesSummaryRepository zipFilesSummaryRepository
+        ZipFilesSummaryRepository zipFilesSummaryRepository,
+        EnvelopeRepository envelopeRepo
     ) {
         this.repo = repo;
         this.zeroRowFiller = zeroRowFiller;
         this.zipFilesSummaryRepository = zipFilesSummaryRepository;
+        this.envelopeRepo = envelopeRepo;
     }
     // endregion
 
@@ -77,6 +84,7 @@ public class ReportsService {
         if (classification != null) {
             predicate = predicate.and(summary -> classification.name().equalsIgnoreCase(summary.classification));
         }
+
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
                 .stream()
                 .map(this::fromDbZipfileSummary)
@@ -96,7 +104,8 @@ public class ReportsService {
             dbItem.getEnvelopeStatus(),
             dbItem.getClassification(),
             dbItem.getCcdId(),
-            dbItem.getCcdAction()
+            dbItem.getCcdAction(),
+            toPaymentsResponse(envelopeRepo.findById(UUID.fromString(dbItem.getEnvelopeId())).get().getPayments())
         );
     }
 
