@@ -31,11 +31,11 @@ public class ZipStatusController {
     @GetMapping
     public ResponseEntity getStatusByFilter(@RequestParam Map<String,String> filtersList) {
 
-        if (filtersList.keySet().contains("name") && filtersList.size() == 1 && filtersList.get("name") != "") {
+        if (filtersList.keySet().contains("name") && filtersList.size() == 1 && !filtersList.get("name").isEmpty()) {
             return ResponseEntity.ok(service.getStatusFor(filtersList.get("name")));
         }
 
-        if (filtersList.keySet().contains("dcn") && filtersList.size() == 1 && filtersList.get("dcn") != "") {
+        if (filtersList.keySet().contains("dcn") && filtersList.size() == 1 && !filtersList.get("dcn").isEmpty()) {
             var dcnLength = filtersList.get("dcn").length();
             if (dcnLength < MIN_DCN_LENGTH) {
                 return ResponseEntity.badRequest().body(null);
