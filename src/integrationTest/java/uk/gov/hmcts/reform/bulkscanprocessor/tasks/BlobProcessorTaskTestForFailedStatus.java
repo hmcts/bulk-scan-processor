@@ -200,7 +200,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
     }
 
     @Test
-    public void should_reject_file_which_has_duplicate_cdn_number() throws Exception {
+    public void should_reject_file_which_has_duplicate_dcn_number() throws Exception {
         // given
         byte[] zipBytes = zipDir("zipcontents/ok");
 
