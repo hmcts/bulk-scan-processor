@@ -175,39 +175,40 @@ public class ZipStatusControllerTest {
         mockMvc
             .perform(get("/zip-files").param("name", fileName))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].file_name").value(fileName))
-            .andExpect(jsonPath("$[0].envelopes", hasSize(2)))
-            .andExpect(jsonPath("$[0].envelopes[0].id").value(envelopes.get(0).id))
-            .andExpect(jsonPath("$[0].envelopes[0].container").value(envelopes.get(0).container))
-            .andExpect(jsonPath("$[0].envelopes[0].status").value(envelopes.get(0).status))
-            .andExpect(jsonPath("$[0].envelopes[0].ccd_id").value(envelopes.get(0).ccdId))
-            .andExpect(jsonPath("$[0].envelopes[0].envelope_ccd_action").value(envelopes.get(0).envelopeCcdAction))
-            .andExpect(jsonPath("$[0].envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
-            .andExpect(jsonPath("$[0].envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
-            .andExpect(jsonPath("$[0].envelopes[0].case_number").value(envelopes.get(0).caseNumber))
-            .andExpect(jsonPath("$[0].envelopes[0].classification").value(envelopes.get(0).classification.name()))
-            .andExpect(jsonPath("$[0].envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
-            .andExpect(jsonPath("$[0].envelopes[1].id").value(envelopes.get(1).id))
-            .andExpect(jsonPath("$[0].envelopes[1].container").value(envelopes.get(1).container))
-            .andExpect(jsonPath("$[0].envelopes[1].status").value(envelopes.get(1).status))
-            .andExpect(jsonPath("$[0].envelopes[1].ccd_id").value(envelopes.get(0).ccdId))
-            .andExpect(jsonPath("$[0].envelopes[1].envelope_ccd_action").value(envelopes.get(1).envelopeCcdAction))
-            .andExpect(jsonPath("$[0].envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
-            .andExpect(jsonPath("$[0].envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
-            .andExpect(jsonPath("$[0].envelopes[1].case_number").value(envelopes.get(1).caseNumber))
-            .andExpect(jsonPath("$[0].envelopes[1].classification").value(envelopes.get(1).classification.name()))
-            .andExpect(jsonPath("$[0].envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
-            .andExpect(jsonPath("$[0].events", hasSize(2)))
-            .andExpect(jsonPath("$[0].events[0].type").value(events.get(0).eventType))
-            .andExpect(jsonPath("$[0].events[0].container").value(events.get(0).container))
-            .andExpect(jsonPath("$[0].events[0].created_at").value(toIso(events.get(0).createdAt)))
-            .andExpect(jsonPath("$[0].events[0].reason").value(events.get(0).reason))
-            .andExpect(jsonPath("$[0].events[1].type").value(events.get(1).eventType))
-            .andExpect(jsonPath("$[0].events[1].container").value(events.get(1).container))
-            .andExpect(jsonPath("$[0].events[1].created_at").value(toIso(events.get(1).createdAt)))
-            .andExpect(jsonPath("$[0].events[1].reason").value(events.get(1).reason));
+            .andExpect(jsonPath("$.file_name").value(fileName))
+            .andExpect(jsonPath("$.envelopes", hasSize(2)))
+            .andExpect(jsonPath("$.envelopes[0].id").value(envelopes.get(0).id))
+            .andExpect(jsonPath("$.envelopes[0].container").value(envelopes.get(0).container))
+            .andExpect(jsonPath("$.envelopes[0].status").value(envelopes.get(0).status))
+            .andExpect(jsonPath("$.envelopes[0].ccd_id").value(envelopes.get(0).ccdId))
+            .andExpect(jsonPath("$.envelopes[0].envelope_ccd_action").value(envelopes.get(0).envelopeCcdAction))
+            .andExpect(jsonPath("$.envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
+            .andExpect(jsonPath("$.envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
+            .andExpect(jsonPath("$.envelopes[0].case_number").value(envelopes.get(0).caseNumber))
+            .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()))
+            .andExpect(jsonPath("$.envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
+            .andExpect(jsonPath("$.envelopes[1].id").value(envelopes.get(1).id))
+            .andExpect(jsonPath("$.envelopes[1].container").value(envelopes.get(1).container))
+            .andExpect(jsonPath("$.envelopes[1].status").value(envelopes.get(1).status))
+            .andExpect(jsonPath("$.envelopes[1].ccd_id").value(envelopes.get(0).ccdId))
+            .andExpect(jsonPath("$.envelopes[1].envelope_ccd_action").value(envelopes.get(1).envelopeCcdAction))
+            .andExpect(jsonPath("$.envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
+            .andExpect(jsonPath("$.envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
+            .andExpect(jsonPath("$.envelopes[1].case_number").value(envelopes.get(1).caseNumber))
+            .andExpect(jsonPath("$.envelopes[1].classification").value(envelopes.get(1).classification.name()))
+            .andExpect(jsonPath("$.envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
+            .andExpect(jsonPath("$.events", hasSize(2)))
+            .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
+            .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))
+            .andExpect(jsonPath("$.events[0].created_at").value(toIso(events.get(0).createdAt)))
+            .andExpect(jsonPath("$.events[0].reason").value(events.get(0).reason))
+            .andExpect(jsonPath("$.events[1].type").value(events.get(1).eventType))
+            .andExpect(jsonPath("$.events[1].container").value(events.get(1).container))
+            .andExpect(jsonPath("$.events[1].created_at").value(toIso(events.get(1).createdAt)))
+            .andExpect(jsonPath("$.events[1].reason").value(events.get(1).reason));
     }
 
+    @Test
     public void should_throw_exception_when_both_parameters_together() throws Exception {
         MultiValueMap<String,String> map = new LinkedMultiValueMap<String, String>();
         map.add("dcn", "1000092");
@@ -231,18 +232,15 @@ public class ZipStatusControllerTest {
             .perform(get("/zip-files").param("name", fileName))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].file_name").value(fileName))
-            .andExpect(jsonPath("$[0].envelopes").isEmpty())
-            .andExpect(jsonPath("$[0].events").isEmpty());
+            .andExpect(jsonPath("$.file_name").value(fileName))
+            .andExpect(jsonPath("$.envelopes").isEmpty())
+            .andExpect(jsonPath("$.events").isEmpty());
     }
 
     @Test
     public void should_return_400_with_invalid_dcn_as_parameter() throws Exception {
         //given
         String documentControlNumber = "1453";
-        //when
-        given(service.getStatusByDcn(documentControlNumber))
-            .willThrow(IllegalArgumentException.class);
         //assert
         mockMvc
             .perform(get("/zip-files").param("dcn", documentControlNumber))

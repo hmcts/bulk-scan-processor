@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,36 +21,26 @@ import java.util.Map;
 public class ZipStatusController {
 
     private final ZipFileStatusService service;
-    private final int minDcnLength = 6;
-
+    private final int MIN_DCN_LENGTH = 6;
     // region constructor
     public ZipStatusController(ZipFileStatusService service) {
         this.service = service;
     }
     // endregion
 
-    @RequestMapping
-    public ResponseEntity<List<ZipFileStatus>> findFileByFilter(@RequestParam Map<String,String> filtersList) {
+    @GetMapping
+    public ResponseEntity getStatusByFilter(@RequestParam Map<String,String> filtersList) {
 
-        //invalid parameter list
-        if (filtersList.isEmpty()
-            || filtersList.keySet().size() > 1
-            || ((filtersList.keySet().size() == 1) && filtersList.values().toArray()[0].equals(""))) {
-            return ResponseEntity.badRequest().body(null);
+        if (filtersList.keySet().contains("name") && filtersList.size() == 1 && filtersList.get("name") != "") {
+            return ResponseEntity.ok(service.getStatusFor(filtersList.get("name")));
         }
 
-        if (filtersList.keySet().contains("name")) {
-            List<ZipFileStatus> zipFileStatuses = new ArrayList<>();
-            zipFileStatuses.add(service.getStatusFor(filtersList.get("name")));
-            return ResponseEntity.ok().body(zipFileStatuses);
-        }
-
-        if (filtersList.keySet().contains("dcn")) {
+        if (filtersList.keySet().contains("dcn") && filtersList.size() == 1 && filtersList.get("dcn") != "") {
             var dcnLength = filtersList.get("dcn").length();
-            if (dcnLength < minDcnLength) {
+            if (dcnLength < MIN_DCN_LENGTH) {
                 return ResponseEntity.badRequest().body(null);
             }
-            return ResponseEntity.ok().body(service.getStatusByDcn(filtersList.get("dcn")));
+            return ResponseEntity.ok(service.getStatusByDcn(filtersList.get("dcn")));
         }
 
         return ResponseEntity.badRequest().body(null);
