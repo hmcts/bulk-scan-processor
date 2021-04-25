@@ -175,8 +175,7 @@ public class ZipFileStatusServiceTest {
 
         // then
         assertThat(zipFileStatusList.size() == 2);
-        assertThat(zipFileStatusList.get(0).fileName).isEqualTo("hello1.zip");
-        assertThat(zipFileStatusList.get(1).fileName).isEqualTo("hello2.zip");
+        assertThat(zipFileStatusList.get(0).dcn).isEqualTo(documentControlNumber);
         assertThat(zipFileStatusList.get(0).envelopes)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
@@ -383,8 +382,22 @@ public class ZipFileStatusServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.ccdId).isEqualTo("5744543854354");
         assertThat(result.fileName).isNull();
+        assertThat(result.dcn).isNull();
         assertThat(result.envelopes).isNotNull().isEmpty();
         assertThat(result.events).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void should_return_empty_lists_when_no_data_for_dcn_was_found() {
+        // when
+        List<ZipFileStatus> result = service.getStatusByDcn("3743874343");
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.get(0).dcn).isEqualTo("3743874343");
+        assertThat(result.get(0).fileName).isNull();
+        assertThat(result.get(0).ccdId).isNull();
+        assertThat(result.get(0).envelopes).isNotNull().isEmpty();
+        assertThat(result.get(0).events).isNotNull().isEmpty();
     }
 
     private Envelope envelope(String container) {
