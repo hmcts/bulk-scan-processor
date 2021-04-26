@@ -12,10 +12,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnve
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toNonScannableItemsResponse;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
@@ -27,7 +27,6 @@ public class ZipFileStatusService {
     private final ProcessEventRepository eventRepo;
     private final EnvelopeRepository envelopeRepo;
     private final ScannableItemRepository scannableItemRepo;
-    private static final int MIN_LENGTH = 6;
 
     // region constructor
 
@@ -46,21 +45,10 @@ public class ZipFileStatusService {
     public ZipFileStatus getStatusFor(String zipFileName) {
         List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
         List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-
-        return new ZipFileStatus(
-            zipFileName,
-            envelopes.stream().map(this::mapEnvelope).collect(toList()),
-            events.stream().map(this::mapEvent).collect(toList())
-        );
+        return getZipFileStatus(zipFileName, null, envelopes, events);
     }
 
-    public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) throws InvalidParameterException {
-
-        if (documentControlNumber.length() < MIN_LENGTH) {
-            log.error("Exception in Search by DCN error: DCN number specified is less than"
-                      + MIN_LENGTH + " characters in length.");
-            throw new InvalidParameterException("DCN number has to be at least " + MIN_LENGTH + " characters long");
-        }
+    public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) {
 
         List<String> zipFileNames = scannableItemRepo.findByDcn(documentControlNumber);
         List<ZipFileStatus> zipFileStatusList = new ArrayList<>();
@@ -68,15 +56,40 @@ public class ZipFileStatusService {
         zipFileNames.stream().forEach(
             zipFileName ->
                 zipFileStatusList.add(
-                    new ZipFileStatus(
+                    getZipFileStatus(
                         zipFileName,
-                        envelopeRepo.findByZipFileName(zipFileName).stream().map(this::mapEnvelope).collect(toList()),
-                        eventRepo.findByZipFileName(zipFileName).stream().map(this::mapEvent).collect(toList())
+                        null,
+                        envelopeRepo.findByZipFileName(zipFileName),
+                        eventRepo.findByZipFileName(zipFileName)
                     )
                 )
         );
 
         return zipFileStatusList;
+    }
+
+    public ZipFileStatus getStatusByCcdId(String ccdId) {
+        List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
+        if (envelopes.size() > 0) {
+            String zipFileName = envelopes.get(0).getZipFileName();
+            List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
+            return getZipFileStatus(null, ccdId, envelopes, events);
+        }
+        return getZipFileStatus(null, ccdId, emptyList(), emptyList());
+    }
+
+    private ZipFileStatus getZipFileStatus(
+        String fileName,
+        String ccdId,
+        List<Envelope> envelopes,
+        List<ProcessEvent> events
+    ) {
+        return new ZipFileStatus(
+            fileName,
+            ccdId,
+            envelopes.stream().map(this::mapEnvelope).collect(toList()),
+            events.stream().map(this::mapEvent).collect(toList())
+        );
     }
 
     private ZipFileEnvelope mapEnvelope(Envelope envelope) {
@@ -86,6 +99,7 @@ public class ZipFileStatusService {
             envelope.getStatus().name(),
             envelope.getCcdId(),
             envelope.getEnvelopeCcdAction(),
+            envelope.getZipFileName(),
             envelope.isZipDeleted(),
             envelope.getRescanFor(),
             envelope.getClassification(),

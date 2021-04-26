@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEnve
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 
-import java.security.InvalidParameterException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,6 @@ import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toNonScannableItemsResponse;
@@ -69,7 +67,7 @@ public class ZipFileStatusServiceTest {
 
         // then
         assertThat(result.fileName).isEqualTo("hello.zip");
-
+        assertThat(result.ccdId).isNull();
         assertThat(result.envelopes)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
@@ -79,6 +77,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getStatus().name(),
                     envelopes.get(0).getCcdId(),
                     envelopes.get(0).getEnvelopeCcdAction(),
+                    envelopes.get(0).getZipFileName(),
                     envelopes.get(0).isZipDeleted(),
                     envelopes.get(0).getRescanFor(),
                     envelopes.get(0).getClassification(),
@@ -94,6 +93,7 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getStatus().name(),
                     envelopes.get(1).getCcdId(),
                     envelopes.get(1).getEnvelopeCcdAction(),
+                    envelopes.get(1).getZipFileName(),
                     envelopes.get(1).isZipDeleted(),
                     envelopes.get(1).getRescanFor(),
                     envelopes.get(1).getClassification(),
@@ -140,6 +140,7 @@ public class ZipFileStatusServiceTest {
 
         // then
         assertThat(result).isNotNull();
+        assertThat(result.ccdId).isNull();
         assertThat(result.envelopes).isNotNull().isEmpty();
         assertThat(result.events).isNotNull().isEmpty();
     }
@@ -185,6 +186,7 @@ public class ZipFileStatusServiceTest {
                     envelopes1.get(0).getStatus().name(),
                     envelopes1.get(0).getCcdId(),
                     envelopes1.get(0).getEnvelopeCcdAction(),
+                    envelopes1.get(0).getZipFileName(),
                     envelopes1.get(0).isZipDeleted(),
                     envelopes1.get(0).getRescanFor(),
                     envelopes1.get(0).getClassification(),
@@ -200,6 +202,7 @@ public class ZipFileStatusServiceTest {
                     envelopes1.get(1).getStatus().name(),
                     envelopes1.get(1).getCcdId(),
                     envelopes1.get(1).getEnvelopeCcdAction(),
+                    envelopes1.get(1).getZipFileName(),
                     envelopes1.get(1).isZipDeleted(),
                     envelopes1.get(1).getRescanFor(),
                     envelopes1.get(1).getClassification(),
@@ -219,6 +222,7 @@ public class ZipFileStatusServiceTest {
                     envelopes2.get(0).getStatus().name(),
                     envelopes2.get(0).getCcdId(),
                     envelopes2.get(0).getEnvelopeCcdAction(),
+                    envelopes2.get(0).getZipFileName(),
                     envelopes2.get(0).isZipDeleted(),
                     envelopes2.get(0).getRescanFor(),
                     envelopes2.get(0).getClassification(),
@@ -234,6 +238,7 @@ public class ZipFileStatusServiceTest {
                     envelopes2.get(1).getStatus().name(),
                     envelopes2.get(1).getCcdId(),
                     envelopes2.get(1).getEnvelopeCcdAction(),
+                    envelopes2.get(1).getZipFileName(),
                     envelopes2.get(1).isZipDeleted(),
                     envelopes2.get(1).getRescanFor(),
                     envelopes2.get(1).getClassification(),
@@ -291,11 +296,95 @@ public class ZipFileStatusServiceTest {
     }
 
     @Test
-    public void should_return_invalid_parameter_exception_for_dcn_less_than_6_chars() throws Exception {
+    public void should_return_envelopes_and_events_from_db_when_ccd_id_is_given() {
+        // given
+        List<ProcessEvent> events = asList(
+            event(Event.DOC_UPLOADED, "A", now(), null),
+            event(Event.DOC_PROCESSED_NOTIFICATION_SENT, "A", now().plusSeconds(1), null),
+            event(Event.DOC_FAILURE, "B", now().minusSeconds(2), "reason2")
+        );
+        String ccdId = "7452652475246754";
+        List<Envelope> envelopes = asList(envelope("A"), envelope("B"));
+        given(envelopes.get(0).getZipFileName()).willReturn("hello.zip");
+        given(envelopeRepo.findByCcdId(ccdId)).willReturn(envelopes);
+        given(eventRepo.findByZipFileName("hello.zip")).willReturn(events);
+        // when
+        ZipFileStatus result = service.getStatusByCcdId(ccdId);
+        // then
+        assertThat(result.ccdId).isEqualTo(ccdId);
+        assertThat(result.fileName).isNull();
 
-        assertThatThrownBy(() -> service.getStatusByDcn("1000"))
-            .isInstanceOf(InvalidParameterException.class)
-            .hasMessageMatching("DCN number has to be at least 6 characters long");
+        assertThat(result.envelopes)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
+                new ZipFileEnvelope(
+                    envelopes.get(0).getId().toString(),
+                    envelopes.get(0).getContainer(),
+                    envelopes.get(0).getStatus().name(),
+                    envelopes.get(0).getCcdId(),
+                    envelopes.get(0).getEnvelopeCcdAction(),
+                    envelopes.get(0).getZipFileName(),
+                    envelopes.get(0).isZipDeleted(),
+                    envelopes.get(0).getRescanFor(),
+                    envelopes.get(0).getClassification(),
+                    envelopes.get(0).getJurisdiction(),
+                    envelopes.get(0).getCaseNumber(),
+                    toScannableItemsResponse(envelopes.get(0).getScannableItems()),
+                    toNonScannableItemsResponse(envelopes.get(0).getNonScannableItems()),
+                    toPaymentsResponse(envelopes.get(0).getPayments())
+                ),
+                new ZipFileEnvelope(
+                    envelopes.get(1).getId().toString(),
+                    envelopes.get(1).getContainer(),
+                    envelopes.get(1).getStatus().name(),
+                    envelopes.get(1).getCcdId(),
+                    envelopes.get(1).getEnvelopeCcdAction(),
+                    envelopes.get(1).getZipFileName(),
+                    envelopes.get(1).isZipDeleted(),
+                    envelopes.get(1).getRescanFor(),
+                    envelopes.get(1).getClassification(),
+                    envelopes.get(1).getJurisdiction(),
+                    envelopes.get(1).getCaseNumber(),
+                    toScannableItemsResponse(envelopes.get(1).getScannableItems()),
+                    toNonScannableItemsResponse(envelopes.get(1).getNonScannableItems()),
+                    toPaymentsResponse(envelopes.get(1).getPayments())
+                )
+            );
+
+        assertThat(result.events)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
+                new ZipFileEvent(
+                    events.get(0).getEvent().name(),
+                    events.get(0).getContainer(),
+                    events.get(0).getCreatedAt(),
+                    events.get(0).getReason()
+                ),
+                new ZipFileEvent(
+                    events.get(1).getEvent().name(),
+                    events.get(1).getContainer(),
+                    events.get(1).getCreatedAt(),
+                    events.get(1).getReason()
+                ),
+                new ZipFileEvent(
+                    events.get(2).getEvent().name(),
+                    events.get(2).getContainer(),
+                    events.get(2).getCreatedAt(),
+                    events.get(2).getReason()
+                )
+            );
+    }
+
+    @Test
+    public void should_return_empty_lists_when_no_data_for_ccd_id_was_found() {
+        // when
+        ZipFileStatus result = service.getStatusByCcdId("5744543854354");
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.ccdId).isEqualTo("5744543854354");
+        assertThat(result.fileName).isNull();
+        assertThat(result.envelopes).isNotNull().isEmpty();
+        assertThat(result.events).isNotNull().isEmpty();
     }
 
     private Envelope envelope(String container) {
