@@ -45,6 +45,6 @@ public class ZipStatusController {
             return ResponseEntity.ok(service.getStatusByDcn(filtersList.get("dcn")));
         }
 
-        return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.badRequest().body("No records");
     }
 }
