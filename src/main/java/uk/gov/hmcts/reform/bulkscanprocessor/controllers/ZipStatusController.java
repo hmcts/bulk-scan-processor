@@ -38,7 +38,9 @@ public class ZipStatusController {
         if (filtersList.keySet().contains("dcn") && filtersList.size() == 1 && !filtersList.get("dcn").isEmpty()) {
             var dcnLength = filtersList.get("dcn").length();
             if (dcnLength < MIN_DCN_LENGTH) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(
+                    "Invalid dcn parameter. The minimum expected length of dcn is 6 characters."
+                );
             }
             return ResponseEntity.ok(service.getStatusByDcn(filtersList.get("dcn")));
         }
