@@ -170,7 +170,7 @@ public class ZipStatusControllerTest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.ccd_id").value(ccdId))
-            .andExpect(jsonPath("$.envelopes", hasSize(2)))
+            .andExpect(jsonPath("$.envelopes", hasSize(1)))
             .andExpect(jsonPath("$.envelopes[0].id").value(envelopes.get(0).id))
             .andExpect(jsonPath("$.envelopes[0].container").value(envelopes.get(0).container))
             .andExpect(jsonPath("$.envelopes[0].status").value(envelopes.get(0).status))
