@@ -156,24 +156,7 @@ public class ZipStatusControllerTest {
                 emptyList(),
                 emptyList(),
                 emptyList()
-            ),
-            new ZipFileEnvelope(
-                "1",
-                "container1",
-                "status1",
-                "3210329752313",
-                "EXCEPTION_RECORD",
-                "hello.zip",
-                true,
-                null,
-                SUPPLEMENTARY_EVIDENCE,
-                PROBATE,
-                null,
-                emptyList(),
-                emptyList(),
-                emptyList()
-            )
-        );
+            ));
 
         List<ZipFileEvent> events = asList(
             new ZipFileEvent("type0", "container0", now().minusSeconds(10), "reason0"),
@@ -198,16 +181,6 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].case_number").value(envelopes.get(0).caseNumber))
             .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()))
             .andExpect(jsonPath("$.envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
-            .andExpect(jsonPath("$.envelopes[1].id").value(envelopes.get(1).id))
-            .andExpect(jsonPath("$.envelopes[1].container").value(envelopes.get(1).container))
-            .andExpect(jsonPath("$.envelopes[1].status").value(envelopes.get(1).status))
-            .andExpect(jsonPath("$.envelopes[1].ccd_id").value(envelopes.get(1).ccdId))
-            .andExpect(jsonPath("$.envelopes[1].envelope_ccd_action").value(envelopes.get(1).envelopeCcdAction))
-            .andExpect(jsonPath("$.envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
-            .andExpect(jsonPath("$.envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
-            .andExpect(jsonPath("$.envelopes[1].case_number").value(envelopes.get(1).caseNumber))
-            .andExpect(jsonPath("$.envelopes[1].classification").value(envelopes.get(1).classification.name()))
-            .andExpect(jsonPath("$.envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
             .andExpect(jsonPath("$.events", hasSize(2)))
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
             .andExpect(jsonPath("$.events[0].container").value(events.get(0).container))
