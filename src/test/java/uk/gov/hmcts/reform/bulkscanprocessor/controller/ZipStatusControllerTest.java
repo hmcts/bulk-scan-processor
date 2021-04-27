@@ -85,7 +85,12 @@ public class ZipStatusControllerTest {
             new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
         );
 
-        given(service.getStatusByFileName("hello.zip")).willReturn(new ZipFileStatus("hello.zip", null, envelopes, events));
+        given(service.getStatusByFileName("hello.zip")).willReturn(
+            new ZipFileStatus(
+                "hello.zip",
+                null,
+                envelopes,
+                events));
 
         mockMvc
             .perform(get("/zip-files").param("name", "hello.zip"))
