@@ -86,7 +86,7 @@ public class ZipStatusControllerTest {
         );
 
 
-        given(service.getStatusFor("hello.zip")).willReturn(
+        given(service.getStatusByFileName("hello.zip")).willReturn(
             new ZipFileStatus(
                 "hello.zip",
                 null,
@@ -133,7 +133,7 @@ public class ZipStatusControllerTest {
     @Test
     public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
 
-        given(service.getStatusFor("hello.zip"))
+        given(service.getStatusByFileName("hello.zip"))
             .willReturn(new ZipFileStatus("hello.zip", null, null, emptyList(), emptyList()));
 
         mockMvc
@@ -171,7 +171,7 @@ public class ZipStatusControllerTest {
             new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
         );
         String ccdId = "3746374637643";
-        given(service.getStatusByCcdId(ccdId)).willReturn(new ZipFileStatus(null, ccdId, envelopes, events));
+        given(service.getStatusByCcdId(ccdId)).willReturn(new ZipFileStatus(null, ccdId, null, envelopes, events));
 
         mockMvc
             .perform(get("/zip-files").param("ccd_id", ccdId))
@@ -203,7 +203,7 @@ public class ZipStatusControllerTest {
     @Test
     public void should_return_200_with_empty_model_if_no_results_were_found_with_given_ccdId() throws Exception {
         given(service.getStatusByCcdId("34643746765475"))
-            .willReturn(new ZipFileStatus(null, "34643746765475", emptyList(), emptyList()));
+            .willReturn(new ZipFileStatus(null, "34643746765475", null, emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files").param("ccd_id", "34643746765475"))
             .andDo(print())
@@ -216,7 +216,7 @@ public class ZipStatusControllerTest {
     @Test
     public void should_return_400_if_more_than_one_parameter_provided() throws Exception {
         given(service.getStatusByCcdId("34643746765475"))
-            .willReturn(new ZipFileStatus(null, "34643746765475", emptyList(), emptyList()));
+            .willReturn(new ZipFileStatus(null, "34643746765475", null, emptyList(), emptyList()));
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("ccd_id","34643746765475");
         map.add("name","hello.zip");
