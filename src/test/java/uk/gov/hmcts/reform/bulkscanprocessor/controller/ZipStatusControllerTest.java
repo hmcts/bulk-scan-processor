@@ -170,7 +170,7 @@ public class ZipStatusControllerTest {
             new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
         );
 
-        given(service.getStatusFor(fileName)).willReturn(new ZipFileStatus(fileName, envelopes, events));
+        given(service.getStatusByFileName(fileName)).willReturn(new ZipFileStatus(fileName, envelopes, events));
 
         mockMvc
             .perform(get("/zip-files").param("name", fileName))
@@ -224,7 +224,7 @@ public class ZipStatusControllerTest {
     @Test
     public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
 
-        given(service.getStatusFor(fileName)).willReturn(
+        given(service.getStatusByFileName(fileName)).willReturn(
             new ZipFileStatus(fileName, emptyList(), emptyList())
         );
 
@@ -265,7 +265,7 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_bad_request_when_no_parameter_supplied() throws Exception {
-        given(service.getStatusFor(fileName)).willReturn(
+        given(service.getStatusByFileName(fileName)).willReturn(
             new ZipFileStatus(null, emptyList(), emptyList())
         );
         mockMvc
@@ -280,7 +280,7 @@ public class ZipStatusControllerTest {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("name", emptyFileName);
 
-        given(service.getStatusFor(emptyFileName))
+        given(service.getStatusByFileName(emptyFileName))
             .willReturn(new ZipFileStatus(emptyFileName, emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files").params(map))

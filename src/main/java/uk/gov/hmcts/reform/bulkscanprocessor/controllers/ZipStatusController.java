@@ -32,7 +32,7 @@ public class ZipStatusController {
     public ResponseEntity getStatusByFilter(@RequestParam Map<String,String> filtersList) {
 
         if (filtersList.keySet().contains("name") && filtersList.size() == 1 && !filtersList.get("name").isEmpty()) {
-            return ResponseEntity.ok(service.getStatusFor(filtersList.get("name")));
+            return ResponseEntity.ok(service.getStatusByFileName(filtersList.get("name")));
         }
 
         if (filtersList.keySet().contains("dcn") && filtersList.size() == 1 && !filtersList.get("dcn").isEmpty()) {

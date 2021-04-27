@@ -63,7 +63,7 @@ public class ZipFileStatusServiceTest {
         given(eventRepo.findByZipFileName("hello.zip")).willReturn(events);
 
         // when
-        ZipFileStatus result = service.getStatusFor("hello.zip");
+        ZipFileStatus result = service.getStatusByFileName("hello.zip");
 
         // then
         assertThat(result.fileName).isEqualTo("hello.zip");
@@ -135,7 +135,7 @@ public class ZipFileStatusServiceTest {
         given(eventRepo.findByZipFileName("hello.zip")).willReturn(emptyList());
 
         // when
-        ZipFileStatus result = service.getStatusFor("hello.zip");
+        ZipFileStatus result = service.getStatusByFileName("hello.zip");
 
         // then
         assertThat(result).isNotNull();

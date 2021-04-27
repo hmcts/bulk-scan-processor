@@ -41,7 +41,7 @@ public class ZipFileStatusService {
 
     // endregion
 
-    public ZipFileStatus getStatusFor(String zipFileName) {
+    public ZipFileStatus getStatusByFileName(String zipFileName) {
         List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
         List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
         return getZipFileStatus(zipFileName, envelopes, events);
