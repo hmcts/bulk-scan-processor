@@ -11,7 +11,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,7 +55,7 @@ public class ScannableItemRepositoryTest {
         final List<String> result = scannableItemRepo.findByDcn(documentControlNumber);
 
         // then
-        assertThat(result).isEqualTo(Arrays.asList("test1.zip", "test2.zip"));
+        assertThat(result).containsExactlyInAnyOrder("test1.zip", "test2.zip");
     }
 
     @Test
