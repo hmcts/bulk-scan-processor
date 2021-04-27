@@ -131,6 +131,7 @@ public class ReportsServiceTest {
                     Status.CREATED.toString(),
                     EXCEPTION.name(),
                     null,
+                    null,
                     null
                 ),
                 new ZipFileSummaryItem(
@@ -142,7 +143,8 @@ public class ReportsServiceTest {
                     Status.UPLOADED.toString(),
                     NEW_APPLICATION.name(),
                     "ccd-id",
-                    "ccd-action"
+                    "ccd-action",
+                    null
                 )
             ));
 
@@ -196,6 +198,7 @@ public class ReportsServiceTest {
                     null,
                     EXCEPTION.name(),
                     null,
+                    null,
                     null
                 ),
                 new ZipFileSummaryItem(
@@ -206,6 +209,7 @@ public class ReportsServiceTest {
                     COMPLETED.toString(),
                     null,
                     EXCEPTION.name(),
+                    null,
                     null,
                     null
                 )
@@ -236,6 +240,7 @@ public class ReportsServiceTest {
                     null,
                     EXCEPTION.name(),
                     null,
+                    null,
                     null
                 ),
                 new ZipFileSummaryItem(
@@ -246,6 +251,7 @@ public class ReportsServiceTest {
                     ZIPFILE_PROCESSING_STARTED.toString(),
                     null,
                     NEW_APPLICATION.name(),
+                    null,
                     null,
                     null
                 ),
@@ -258,6 +264,7 @@ public class ReportsServiceTest {
                     null,
                     EXCEPTION.name(),
                     null,
+                    null,
                     null
                 ),
                 new ZipFileSummaryItem(
@@ -268,6 +275,7 @@ public class ReportsServiceTest {
                     COMPLETED.toString(),
                     null,
                     NEW_APPLICATION.name(),
+                    null,
                     null,
                     null
                 )
@@ -300,6 +308,7 @@ public class ReportsServiceTest {
                     null,
                     EXCEPTION.name(),
                     null,
+                    null,
                     null
                 ),
                 new ZipFileSummaryItem(
@@ -310,6 +319,7 @@ public class ReportsServiceTest {
                     ZIPFILE_PROCESSING_STARTED.toString(),
                     null,
                     NEW_APPLICATION.name(),
+                    null,
                     null,
                     null
                 ),
@@ -322,6 +332,7 @@ public class ReportsServiceTest {
                     null,
                     EXCEPTION.name(),
                     null,
+                    null,
                     null
                 ),
                 new ZipFileSummaryItem(
@@ -332,6 +343,7 @@ public class ReportsServiceTest {
                     COMPLETED.toString(),
                     null,
                     NEW_APPLICATION.name(),
+                    null,
                     null,
                     null
                 )
