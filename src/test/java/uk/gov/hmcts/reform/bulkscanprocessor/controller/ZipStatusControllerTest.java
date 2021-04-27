@@ -85,7 +85,7 @@ public class ZipStatusControllerTest {
             new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
         );
 
-        given(service.getStatusFor("hello.zip")).willReturn(new ZipFileStatus("hello.zip",null, envelopes, events));
+        given(service.getStatusByFileName("hello.zip")).willReturn(new ZipFileStatus("hello.zip", null, envelopes, events));
 
         mockMvc
             .perform(get("/zip-files").param("name", "hello.zip"))
@@ -126,7 +126,7 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
-        given(service.getStatusFor("hello.zip"))
+        given(service.getStatusByFileName("hello.zip"))
             .willReturn(new ZipFileStatus("hello.zip", null, emptyList(), emptyList()));
         mockMvc
             .perform(get("/zip-files").param("name", "hello.zip"))

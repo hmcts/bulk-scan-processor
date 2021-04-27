@@ -32,7 +32,7 @@ public class ZipStatusController {
         @RequestParam(value = "ccd_id", required = false) Optional<String> ccdId) {
 
         if (fileName.isPresent() && !ccdId.isPresent()) {
-            return ResponseEntity.ok(service.getStatusFor(fileName.get()));
+            return ResponseEntity.ok(service.getStatusByFileName(fileName.get()));
         } else if (!fileName.isPresent() && ccdId.isPresent()) {
             return ResponseEntity.ok(service.getStatusByCcdId(ccdId.get()));
         }
