@@ -15,6 +15,10 @@ public class ZipFileStatus {
     @JsonProperty("ccd_id")
     public final String ccdId;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("dcn")
+    public final String dcn;
+
     @JsonProperty("envelopes")
     public final List<ZipFileEnvelope> envelopes;
 
@@ -22,9 +26,17 @@ public class ZipFileStatus {
     public final List<ZipFileEvent> events;
 
     // region constructor
-    public ZipFileStatus(String fileName, String ccdId, List<ZipFileEnvelope> envelopes, List<ZipFileEvent> events) {
+    public ZipFileStatus(
+        String fileName,
+        String ccdId,
+        String dcn,
+        List<ZipFileEnvelope> envelopes,
+        List<ZipFileEvent> events
+
+    ) {
         this.fileName = fileName;
         this.ccdId = ccdId;
+        this.dcn = dcn;
         this.envelopes = envelopes;
         this.events = events;
     }
