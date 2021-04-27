@@ -56,7 +56,7 @@ public class ScannableItemRepositoryTest {
         final List<String> result = scannableItemRepo.findByDcn(documentControlNumber);
 
         // then
-        assertThat(result).isEqualTo(Arrays.asList("test1.zip", "test2.zip"));
+        assertThat(result).containsExactlyInAnyOrder("test1.zip", "test2.zip");
     }
 
     @Test
