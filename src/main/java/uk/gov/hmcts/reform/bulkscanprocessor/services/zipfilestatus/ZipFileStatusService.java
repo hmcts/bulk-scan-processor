@@ -54,7 +54,7 @@ public class ZipFileStatusService {
 
         List<String> zipFileNames = scannableItemRepo.findByDcn(documentControlNumber);
         List<ZipFileStatus> zipFileStatusList = new ArrayList<>();
-        if (zipFileNames.size() > 0) {
+        if (!zipFileNames.isEmpty()) {
             zipFileNames.stream().forEach(
                 zipFileName ->
                 zipFileStatusList.add(
