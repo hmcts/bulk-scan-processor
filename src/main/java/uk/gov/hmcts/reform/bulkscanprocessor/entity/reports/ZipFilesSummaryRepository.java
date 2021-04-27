@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID> {
-
     @Query(
         nativeQuery = true,
         value = "SELECT "
+            + "Cast(envelope.id as varchar) as envelopeId, "
             + "createdEvent.container, "
             + "createdEvent.zipfilename, "
             + "createdEvent.createdDate, "
