@@ -68,6 +68,7 @@ public class ZipFileStatusServiceTest {
         // then
         assertThat(result.fileName).isEqualTo("hello.zip");
         assertThat(result.ccdId).isNull();
+        assertThat(result.dcn).isNull();
         assertThat(result.envelopes)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
@@ -175,6 +176,9 @@ public class ZipFileStatusServiceTest {
 
         // then
         assertThat(zipFileStatusList.size() == 2);
+        assertThat(zipFileStatusList.get(0).fileName).isNull();
+        assertThat(zipFileStatusList.get(1).fileName).isNull();
+        assertThat(zipFileStatusList.get(0).ccdId).isNull();
         assertThat(zipFileStatusList.get(0).dcn).isEqualTo(documentControlNumber);
         assertThat(zipFileStatusList.get(0).envelopes)
             .usingRecursiveFieldByFieldElementComparator()
@@ -312,7 +316,7 @@ public class ZipFileStatusServiceTest {
         // then
         assertThat(result.ccdId).isEqualTo(ccdId);
         assertThat(result.fileName).isNull();
-
+        assertThat(result.dcn).isNull();
         assertThat(result.envelopes)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(

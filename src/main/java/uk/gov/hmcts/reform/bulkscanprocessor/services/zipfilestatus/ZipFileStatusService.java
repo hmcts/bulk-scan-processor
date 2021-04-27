@@ -59,7 +59,7 @@ public class ZipFileStatusService {
                 zipFileName ->
                 zipFileStatusList.add(
                     getZipFileStatus(
-                        zipFileName,
+                        null,
                         null,
                         documentControlNumber,
                         envelopeRepo.findByZipFileName(zipFileName),
