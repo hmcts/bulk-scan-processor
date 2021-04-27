@@ -31,7 +31,9 @@ public class ZipFileStatus {
         String ccdId,
         String dcn,
         List<ZipFileEnvelope> envelopes,
-        List<ZipFileEvent> events) {
+        List<ZipFileEvent> events
+
+    ) {
         this.fileName = fileName;
         this.ccdId = ccdId;
         this.dcn = dcn;

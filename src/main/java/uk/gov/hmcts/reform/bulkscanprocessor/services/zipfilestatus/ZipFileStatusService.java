@@ -77,9 +77,9 @@ public class ZipFileStatusService {
         if (envelopes.size() > 0) {
             String zipFileName = envelopes.get(0).getZipFileName();
             List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-            return getZipFileStatus(null, ccdId,null, envelopes, events);
+            return getZipFileStatus(null, ccdId, null, envelopes, events);
         }
-        return getZipFileStatus(null, ccdId,null, emptyList(), emptyList());
+        return getZipFileStatus(null, ccdId, null, emptyList(), emptyList());
     }
 
     private ZipFileStatus getZipFileStatus(
