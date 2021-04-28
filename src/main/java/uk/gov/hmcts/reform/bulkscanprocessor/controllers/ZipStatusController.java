@@ -31,18 +31,25 @@ public class ZipStatusController {
     @GetMapping
     public ResponseEntity getStatusByFilter(@RequestParam Map<String,String> filtersList) {
 
-        if (filtersList.keySet().contains("name") && filtersList.size() == 1 && !filtersList.get("name").isEmpty()) {
-            return ResponseEntity.ok(service.getStatusByFileName(filtersList.get("name")));
-        }
+        if (filtersList.size() == 1) {
 
-        if (filtersList.keySet().contains("dcn") && filtersList.size() == 1 && !filtersList.get("dcn").isEmpty()) {
-            var dcnLength = filtersList.get("dcn").length();
-            if (dcnLength < MIN_DCN_LENGTH) {
-                return ResponseEntity.badRequest().body(
-                    "Invalid dcn parameter. The minimum expected length of dcn is 6 characters."
-                );
+            if (filtersList.keySet().contains("name") && !filtersList.get("name").isEmpty()) {
+                return ResponseEntity.ok(service.getStatusByFileName(filtersList.get("name")));
             }
-            return ResponseEntity.ok(service.getStatusByDcn(filtersList.get("dcn")));
+
+            if (filtersList.keySet().contains("dcn") && !filtersList.get("dcn").isEmpty()) {
+                var dcnLength = filtersList.get("dcn").length();
+                if (dcnLength < MIN_DCN_LENGTH) {
+                    return ResponseEntity.badRequest().body(
+                        "Invalid dcn parameter. The minimum expected length of dcn is 6 characters."
+                    );
+                }
+                return ResponseEntity.ok(service.getStatusByDcn(filtersList.get("dcn")));
+            }
+
+            if (filtersList.keySet().contains("ccd_id") && !filtersList.get("ccd_id").isEmpty()) {
+                return ResponseEntity.ok(service.getStatusByCcdId(filtersList.get("ccd_id")));
+            }
         }
 
         return ResponseEntity.badRequest().body("No records");
