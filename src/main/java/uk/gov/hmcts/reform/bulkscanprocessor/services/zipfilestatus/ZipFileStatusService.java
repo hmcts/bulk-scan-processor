@@ -13,8 +13,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileEven
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus.ZipFileStatus;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toNonScannableItemsResponse;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
@@ -44,35 +46,53 @@ public class ZipFileStatusService {
     public ZipFileStatus getStatusByFileName(String zipFileName) {
         List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
         List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
-        return getZipFileStatus(zipFileName, envelopes, events);
+        return getZipFileStatus(zipFileName, null, null, envelopes, events);
+
     }
 
     public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) {
 
         List<String> zipFileNames = scannableItemRepo.findByDcn(documentControlNumber);
         List<ZipFileStatus> zipFileStatusList = new ArrayList<>();
-
-        zipFileNames.stream().forEach(
-            zipFileName ->
+        if (!zipFileNames.isEmpty()) {
+            zipFileNames.stream().forEach(
+                zipFileName ->
                 zipFileStatusList.add(
                     getZipFileStatus(
-                        zipFileName,
+                        null,
+                        null,
+                        documentControlNumber,
                         envelopeRepo.findByZipFileName(zipFileName),
                         eventRepo.findByZipFileName(zipFileName)
                     )
                 )
-        );
+            );
+            return zipFileStatusList;
+        }
+        return Arrays.asList(new ZipFileStatus(null, null, documentControlNumber, emptyList(), emptyList()));
+    }
 
-        return zipFileStatusList;
+    public ZipFileStatus getStatusByCcdId(String ccdId) {
+        List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
+        if (envelopes.size() > 0) {
+            String zipFileName = envelopes.get(0).getZipFileName();
+            List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
+            return getZipFileStatus(null, ccdId, null, envelopes, events);
+        }
+        return getZipFileStatus(null, ccdId, null, emptyList(), emptyList());
     }
 
     private ZipFileStatus getZipFileStatus(
         String fileName,
+        String ccdId,
+        String dcn,
         List<Envelope> envelopes,
         List<ProcessEvent> events
     ) {
         return new ZipFileStatus(
             fileName,
+            ccdId,
+            dcn,
             envelopes.stream().map(this::mapEnvelope).collect(toList()),
             events.stream().map(this::mapEvent).collect(toList())
         );
