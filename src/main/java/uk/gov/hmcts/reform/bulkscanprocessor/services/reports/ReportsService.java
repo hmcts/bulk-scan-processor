@@ -24,7 +24,6 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.abbreviate;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;

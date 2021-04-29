@@ -173,8 +173,7 @@ public class ReportsControllerTest {
             EXCEPTION.name(),
             "ccd-id",
             "ccd-action",
-            payments,
-            "AUTO_CREATED_CASE"
+            payments
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
@@ -235,8 +234,7 @@ public class ReportsControllerTest {
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
             "ccd-action",
-            payments,
-            "AUTO_CREATED_CASE"
+            payments
 
         );
 
@@ -288,7 +286,9 @@ public class ReportsControllerTest {
             CONSUMED.toString(),
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
-            "ccd-id", null
+            "ccd-id",
+            null,
+            null
         );
 
         ZipFileSummaryResponse response1 = new ZipFileSummaryResponse(
@@ -303,8 +303,7 @@ public class ReportsControllerTest {
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
             "ccd-action",
-            payments1,
-            "AUTO_CREATED_CASE"
+            payments1
         );
 
         ZipFileSummaryResponse response2 = new ZipFileSummaryResponse(
@@ -319,8 +318,7 @@ public class ReportsControllerTest {
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
             "ccd-action",
-            payments2,
-            "EXCEPTION_RECORD"
+            payments2
         );
 
         ZipFileSummaryResponse response3 = new ZipFileSummaryResponse(
@@ -335,8 +333,7 @@ public class ReportsControllerTest {
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
             "ccd-action",
-            payments3,
-            null
+            payments3
 
         );
 
