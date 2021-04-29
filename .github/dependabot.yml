@@ -1,0 +1,51 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.flywaydb.flyway
+    versions:
+    - 7.8.0
+  - dependency-name: org.springframework.boot
+    versions:
+    - 2.4.3
+    - 2.4.5
+  - dependency-name: net.javacrumbs.shedlock:shedlock-spring
+    versions:
+    - 4.21.0
+  - dependency-name: com.microsoft.azure:azure-servicebus
+    versions:
+    - 3.6.1
+  - dependency-name: uk.gov.hmcts.reform:service-auth-provider-client
+    versions:
+    - 4.0.0
+  - dependency-name: org.flywaydb:flyway-core
+    versions:
+    - 7.5.3
+    - 7.7.0
+  - dependency-name: au.com.dius.pact
+    versions:
+    - 4.1.17
+    - 4.2.1
+    - 4.2.4
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-core
+    versions:
+    - 10.0.2
+  - dependency-name: org.owasp.dependencycheck
+    versions:
+    - 6.1.3
+  - dependency-name: org.springframework.cloud:spring-cloud-starter-bootstrap
+    versions:
+    - 3.0.2
+  - dependency-name: org.springframework.cloud:spring-cloud-contract-wiremock
+    versions:
+    - 3.0.2
+  - dependency-name: com.github.ben-manes.versions
+    versions:
+    - 0.38.0
+  - dependency-name: org.hibernate:hibernate-core
+    versions:
+    - 5.4.29.Final
