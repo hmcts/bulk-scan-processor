@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 
 import java.time.Instant;
-import java.util.UUID;
 
 public class ZipFileSummaryItem implements ZipFileSummary {
 
