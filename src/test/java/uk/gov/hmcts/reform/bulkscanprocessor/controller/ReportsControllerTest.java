@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
@@ -172,7 +173,7 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             EXCEPTION.name(),
             "ccd-id",
-            "ccd-action",
+            "AUTO_CREATED_CASE",
             payments
         );
 
@@ -235,13 +236,11 @@ public class ReportsControllerTest {
             "ccd-id",
             "ccd-action",
             payments
-
         );
-
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", NEW_APPLICATION))
             .willReturn(singletonList(response));
 
-        mockMvc
+        MvcResult result = mockMvc
             .perform(get("/reports/zip-files-summary?date=2019-01-14&container=bulkscan"
                              + "&classification=NEW_APPLICATION"))
             .andExpect(status().isOk())
@@ -258,23 +257,15 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].classification").value(response.classification))
             .andExpect(jsonPath("$.data[0].ccd_id").value(response.ccdId))
             .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction))
-            .andExpect(jsonPath("$.data[0].payments").value(response.payments));
+            .andExpect(jsonPath("$.data[0].payments").isArray())
+            .andReturn();
+        assertThat(result.toString().contains(response.payments.toString()));
     }
 
     @Test
     public void should_return_total_count_summary_result() throws Exception {
         LocalDate localDate = LocalDate.of(2021, 4, 8);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
-
-        List<PaymentResponse> payments1 = Arrays.asList(
-            new PaymentResponse("8348346343")
-        );
-        List<PaymentResponse> payments2 = Arrays.asList(
-            new PaymentResponse("127238623")
-        );
-        List<PaymentResponse> payments3 = Arrays.asList(
-            new PaymentResponse("6437463743")
-        );
 
         ZipFileSummaryResponse response0 = new ZipFileSummaryResponse(
             "test1.zip",
@@ -302,8 +293,8 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action",
-            payments1
+            "AUTO_CREATED_CASE",
+            null
         );
 
         ZipFileSummaryResponse response2 = new ZipFileSummaryResponse(
@@ -318,7 +309,7 @@ public class ReportsControllerTest {
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
             "ccd-action",
-            payments2
+            null
         );
 
         ZipFileSummaryResponse response3 = new ZipFileSummaryResponse(
@@ -332,8 +323,8 @@ public class ReportsControllerTest {
             CREATED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "ccd-action",
-            payments3
+            "EXCEPTION_RECORD",
+            null
 
         );
 
