@@ -7,10 +7,10 @@ plugins {
   id 'org.flywaydb.flyway' version '7.8.2'
   id 'org.springframework.boot' version '2.4.5'
   id 'org.owasp.dependencycheck' version '6.1.5'
-  id 'com.github.ben-manes.versions' version '0.36.0'
-  id 'org.sonarqube' version '3.1.1'
+  id 'com.github.ben-manes.versions' version '0.38.0'
+  id 'org.sonarqube' version '3.2.0'
   id "info.solidsoft.pitest" version '1.6.0'
-  id 'au.com.dius.pact' version '4.2.3'
+  id 'au.com.dius.pact' version '4.2.4'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -238,7 +238,7 @@ dependencyManagement {
       entry 'groovy-xml'
     }
     //avoid CVE-2020-25638
-    dependency group: 'org.hibernate', name: 'hibernate-core', version: '5.4.30.Final'
+    dependency group: 'org.hibernate', name: 'hibernate-core', version: '5.4.31.Final'
   }
 }
 
@@ -326,7 +326,7 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.0.2', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3', {
     exclude group: 'junit', module: 'junit'
   }
