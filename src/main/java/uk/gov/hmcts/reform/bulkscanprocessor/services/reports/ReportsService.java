@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
@@ -23,6 +24,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
@@ -92,6 +94,13 @@ public class ReportsService {
     }
 
     private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
+        List<PaymentResponse> payments;
+        if (dbItem.getEnvelopeId() == null) {
+            payments = emptyList();
+        } else {
+            payments = toPaymentsResponse(
+               envelopeRepo.findById(UUID.fromString(dbItem.getEnvelopeId())).get().getPayments());
+        }
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
             toLocalDate(dbItem.getCreatedDate()),
@@ -104,7 +113,7 @@ public class ReportsService {
             dbItem.getClassification(),
             dbItem.getCcdId(),
             dbItem.getCcdAction(),
-            toPaymentsResponse(envelopeRepo.findById(UUID.fromString(dbItem.getEnvelopeId())).get().getPayments())
+            payments
         );
     }
 
