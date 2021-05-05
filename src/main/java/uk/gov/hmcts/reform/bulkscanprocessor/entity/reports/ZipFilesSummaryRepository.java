@@ -13,7 +13,7 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
     @Query(
         nativeQuery = true,
         value = "SELECT "
-            + "Cast(envelope.id as varchar) as envelopeId, "
+            + "payment.documentcontrolnumber, "
             + "createdEvent.container, "
             + "createdEvent.zipfilename, "
             + "createdEvent.createdDate, "
@@ -47,6 +47,8 @@ public interface ZipFilesSummaryRepository extends JpaRepository<Envelope, UUID>
             + "LEFT JOIN envelopes AS envelope "
             + "  ON createdEvent.zipfilename = envelope.zipfilename "
             + "  AND createdEvent.container = envelope.container "
+            + "LEFT JOIN payments AS payment "
+            + "  ON payment.envelope_id = envelope.id "
             + "ORDER BY createdEvent.createdDate ASC"
     )
     List<ZipFileSummary> getZipFileSummaryReportFor(@Param("date") LocalDate date);

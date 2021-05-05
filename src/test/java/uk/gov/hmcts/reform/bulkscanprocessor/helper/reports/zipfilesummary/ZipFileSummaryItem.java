@@ -15,7 +15,7 @@ public class ZipFileSummaryItem implements ZipFileSummary {
     private final String classification;
     private final String ccdId;
     private final String ccdAction;
-    private final String envelopeId;
+    private final String documentControlNumber;
 
     public ZipFileSummaryItem(
         String zipFileName,
@@ -27,7 +27,7 @@ public class ZipFileSummaryItem implements ZipFileSummary {
         String classification,
         String ccdId,
         String ccdAction,
-        String envelopeId
+        String documentControlNumber
     ) {
         this.zipFileName = zipFileName;
         this.createdDate = createdDate;
@@ -38,7 +38,7 @@ public class ZipFileSummaryItem implements ZipFileSummary {
         this.classification = classification;
         this.ccdId = ccdId;
         this.ccdAction = ccdAction;
-        this.envelopeId = envelopeId;
+        this.documentControlNumber = documentControlNumber;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ZipFileSummaryItem implements ZipFileSummary {
     }
 
     @Override
-    public String getEnvelopeId() {
-        return envelopeId;
+    public String getDocumentControlNumber() {
+        return documentControlNumber;
     }
 }

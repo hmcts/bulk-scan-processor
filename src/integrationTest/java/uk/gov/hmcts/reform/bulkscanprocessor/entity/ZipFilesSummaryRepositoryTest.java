@@ -40,6 +40,8 @@ public class ZipFilesSummaryRepositoryTest {
     private ProcessEventRepository eventRepo;
     @Autowired
     private EnvelopeRepository envelopeRepo;
+    @Autowired
+    private PaymentRepository paymentRepo;
 
     @Test
     public void should_return_zipfiles_summary_by_date() {
@@ -58,6 +60,10 @@ public class ZipFilesSummaryRepositoryTest {
         var envelope2 = envelope("c2", "test2.zip", Status.CREATED, SUPPLEMENTARY_EVIDENCE, null, null);
         dbHasEnvelope(envelope1);
         dbHasEnvelope(envelope2);
+        var payment = new Payment("746343463743");
+        payment.setEnvelope(envelope1);
+        paymentRepo.save(payment);
+
 
         // when
         List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
@@ -77,7 +83,7 @@ public class ZipFilesSummaryRepositoryTest {
                         EXCEPTION.name(),
                         "ccd-id-1",
                         "ccd-action-1",
-                        envelope1.getId().toString()
+                        "746343463743"
                     ),
                     new ZipFileSummaryItem(
                         "test2.zip",
@@ -89,7 +95,7 @@ public class ZipFilesSummaryRepositoryTest {
                         SUPPLEMENTARY_EVIDENCE.name(),
                         null,
                         null,
-                        envelope2.getId().toString()
+                        null
                     ),
                     new ZipFileSummaryItem(
                         "test4.zip",
@@ -141,7 +147,9 @@ public class ZipFilesSummaryRepositoryTest {
         );
         var envelope = envelope(container, zip1Name, Status.UPLOADED, SUPPLEMENTARY_EVIDENCE, null, null);
         dbHasEnvelope(envelope);
-
+        var payment  = new Payment("2356643443432245");
+        payment.setEnvelope(envelope);
+        paymentRepo.save(payment);
         // when
         List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
 
@@ -160,7 +168,7 @@ public class ZipFilesSummaryRepositoryTest {
                         SUPPLEMENTARY_EVIDENCE.name(),
                         null,
                         null,
-                        envelope.getId().toString()
+                        payment.getDocumentControlNumber()
                     )
                 )
             );

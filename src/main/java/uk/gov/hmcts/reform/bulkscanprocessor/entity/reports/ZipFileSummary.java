@@ -22,5 +22,5 @@ public interface ZipFileSummary {
 
     String getCcdAction();
 
-    String getEnvelopeId();
+    String getDocumentControlNumber();
 }
