@@ -29,9 +29,10 @@ public final class CsvWriter {
         File csvFile = File.createTempFile("Zipfiles-summary-", ".csv");
 
         CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(ZIP_FILES_SUMMARY_CSV_HEADERS);
-        FileWriter fileWriter = new FileWriter(csvFile);
-
-        try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
+        try (
+            FileWriter fileWriter = new FileWriter(csvFile);
+            CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)
+        ) {
             for (ZipFileSummaryResponse summary : ofNullable(data).orElse(emptyList())) {
                 printer.printRecord(
                     summary.container,

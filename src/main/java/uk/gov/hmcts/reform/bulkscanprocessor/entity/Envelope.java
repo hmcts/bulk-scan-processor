@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -234,7 +235,7 @@ public class Envelope {
 
     public boolean isTestOnly() {
         return !Strings.isNullOrEmpty(zipFileName)
-            && zipFileName.toLowerCase().endsWith(TEST_FILE_SUFFIX);
+            && zipFileName.toLowerCase(Locale.ENGLISH).endsWith(TEST_FILE_SUFFIX);
     }
 
     private void assignSelfToChildren(List<? extends EnvelopeAssignable> assignables) {
