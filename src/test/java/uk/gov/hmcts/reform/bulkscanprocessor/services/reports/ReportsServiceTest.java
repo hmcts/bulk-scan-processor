@@ -169,7 +169,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null
+                    emptyList()
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -183,7 +183,7 @@ public class ReportsServiceTest {
                     NEW_APPLICATION.name(),
                     "ccd-id",
                     "ccd-action",
-                    null
+                    emptyList()
                 )
             );
     }
