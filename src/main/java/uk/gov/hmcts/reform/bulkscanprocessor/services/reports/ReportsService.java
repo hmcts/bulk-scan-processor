@@ -95,10 +95,9 @@ public class ReportsService {
 
     private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
         List<PaymentResponse> payments = emptyList();
-        if (dbItem.getEnvelopeId() != null
-            && envelopeRepo.findById(UUID.fromString(dbItem.getEnvelopeId())).isPresent()) {
+        if (dbItem.getEnvelopeId() != null) {
             payments = toPaymentsResponse(
-               envelopeRepo.findById(UUID.fromString(dbItem.getEnvelopeId())).get().getPayments());
+               envelopeRepo.findById(UUID.fromString(dbItem.getEnvelopeId())).orElse(null).getPayments());
         }
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
