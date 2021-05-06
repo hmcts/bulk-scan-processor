@@ -26,7 +26,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALI
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class FileContentProcessor {
-    private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
+    private static final Logger log = LoggerFactory.getLogger(FileContentProcessor.class);
 
     private final ZipFileProcessor zipFileProcessor;
 
