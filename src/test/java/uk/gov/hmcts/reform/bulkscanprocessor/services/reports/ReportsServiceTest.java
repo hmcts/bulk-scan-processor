@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import static java.time.LocalDate.now;
 import static java.time.LocalDateTime.ofInstant;
@@ -120,6 +121,8 @@ public class ReportsServiceTest {
     @Test
     public void should_map_db_results_when_requested_for_zipfiles_summary() {
         Instant instant = Instant.now();
+        String envelopeId1 = UUID.randomUUID().toString();
+        String envelopeId2 = UUID.randomUUID().toString();
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
@@ -132,7 +135,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null
+                    envelopeId1
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -144,7 +147,7 @@ public class ReportsServiceTest {
                     NEW_APPLICATION.name(),
                     "ccd-id",
                     "ccd-action",
-                    null
+                    envelopeId2
                 )
             ));
 
@@ -166,7 +169,8 @@ public class ReportsServiceTest {
                     Status.CREATED.toString(),
                     EXCEPTION.name(),
                     null,
-                    null
+                    null,
+                    envelopeId1
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -179,7 +183,8 @@ public class ReportsServiceTest {
                     Status.UPLOADED.toString(),
                     NEW_APPLICATION.name(),
                     "ccd-id",
-                    "ccd-action"
+                    "ccd-action",
+                    envelopeId2
                 )
             );
     }

@@ -39,7 +39,8 @@ public class CsvWriterTest {
                 Status.UPLOADED.toString(),
                 SUPPLEMENTARY_EVIDENCE.name(),
                 "1321321312",
-                "AUTO_CREATED_CASE"
+                "AUTO_CREATED_CASE",
+                ""
             ),
             new ZipFileSummaryResponse(
                 "test2.zip",
@@ -52,7 +53,8 @@ public class CsvWriterTest {
                 Status.UPLOADED.toString(),
                 null,
                 null,
-                null
+                null,
+                ""
             )
         );
 

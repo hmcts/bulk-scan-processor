@@ -79,12 +79,13 @@ public class ReportsService {
         }
         return zipFilesSummaryRepository.getZipFileSummaryReportFor(date)
                 .stream()
-                .map(this::fromDbZipfileSummary)
+                .map(this::fromDbZipFileSummary)
                 .filter(predicate)
                 .collect(toList());
+
     }
 
-    private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
+    private ZipFileSummaryResponse fromDbZipFileSummary(ZipFileSummary dbItem) {
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
             toLocalDate(dbItem.getCreatedDate()),
@@ -96,7 +97,8 @@ public class ReportsService {
             dbItem.getEnvelopeStatus(),
             dbItem.getClassification(),
             dbItem.getCcdId(),
-            dbItem.getCcdAction()
+            dbItem.getCcdAction(),
+            dbItem.getEnvelopeId()
         );
     }
 
