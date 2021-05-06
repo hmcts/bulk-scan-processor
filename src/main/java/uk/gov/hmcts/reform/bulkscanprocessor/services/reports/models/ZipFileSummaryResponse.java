@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models;
 
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -16,6 +18,7 @@ public class ZipFileSummaryResponse {
     public final String classification;
     public final String ccdId;
     public final String ccdAction;
+    public final PaymentResponse payment;
 
     // region constructor
     public ZipFileSummaryResponse(
@@ -29,7 +32,8 @@ public class ZipFileSummaryResponse {
         String envelopeStatus,
         String classification,
         String ccdId,
-        String ccdAction
+        String ccdAction,
+        PaymentResponse payment
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -42,6 +46,7 @@ public class ZipFileSummaryResponse {
         this.classification = classification;
         this.ccdId = ccdId;
         this.ccdAction = ccdAction;
+        this.payment = payment;
     }
     // endregion
 }

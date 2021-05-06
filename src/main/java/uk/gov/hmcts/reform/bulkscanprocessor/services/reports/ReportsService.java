@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummary
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFileSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
@@ -85,6 +86,10 @@ public class ReportsService {
     }
 
     private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
+        PaymentResponse payment = null;
+        if (dbItem.getDocumentControlNumber() != null) {
+            payment =  new PaymentResponse(dbItem.getDocumentControlNumber());
+        }
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
             toLocalDate(dbItem.getCreatedDate()),
@@ -96,7 +101,8 @@ public class ReportsService {
             dbItem.getEnvelopeStatus(),
             dbItem.getClassification(),
             dbItem.getCcdId(),
-            dbItem.getCcdAction()
+            dbItem.getCcdAction(),
+            payment
         );
     }
 

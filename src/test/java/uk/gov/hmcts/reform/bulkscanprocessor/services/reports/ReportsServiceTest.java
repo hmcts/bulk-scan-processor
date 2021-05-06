@@ -5,12 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.PaymentRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ZipFilesSummaryRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.zipfilesummary.ZipFileSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.utils.ZeroRowFiller;
@@ -41,6 +43,8 @@ public class ReportsServiceTest {
     @Mock private EnvelopeCountSummaryRepository repo;
     @Mock private ZeroRowFiller zeroRowFiller;
     @Mock private ZipFilesSummaryRepository zipFilesSummaryRepo;
+    @Mock private PaymentRepository paymentRepo;
+
 
     private ReportsService service;
 
@@ -120,6 +124,9 @@ public class ReportsServiceTest {
     @Test
     public void should_map_db_results_when_requested_for_zipfiles_summary() {
         Instant instant = Instant.now();
+        String dcn = "376437473476232";
+        PaymentResponse paymentResponse = new PaymentResponse(dcn);
+
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
                 new ZipFileSummaryItem(
@@ -132,7 +139,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null
+                    "376437473476232"
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -147,10 +154,9 @@ public class ReportsServiceTest {
                     null
                 )
             ));
-
         // when
         List<ZipFileSummaryResponse> result = service.getZipFilesSummary(now(), null, null);
-
+        assertThat(result.get(0).payment.documentControlNumber).isEqualTo(dcn);
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
@@ -166,7 +172,8 @@ public class ReportsServiceTest {
                     Status.CREATED.toString(),
                     EXCEPTION.name(),
                     null,
-                    null
+                    null,
+                     result.get(0).payment
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -179,7 +186,8 @@ public class ReportsServiceTest {
                     Status.UPLOADED.toString(),
                     NEW_APPLICATION.name(),
                     "ccd-id",
-                    "ccd-action"
+                    "ccd-action",
+                    null
                 )
             );
     }
