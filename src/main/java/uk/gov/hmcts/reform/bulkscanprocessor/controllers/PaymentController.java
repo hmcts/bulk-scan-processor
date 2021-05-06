@@ -39,7 +39,7 @@ public class PaymentController {
         @ApiResponse(code = 403, message = "Service not configured"),
         @ApiResponse(code = 400, message = "Bad request")
     })
-    public ResponseEntity<PaymentStatusReponse> updatePayemnts(
+    public ResponseEntity<PaymentStatusReponse> updatePayments(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,
         @Valid @RequestBody PaymentRequest paymentRequest) {
 
