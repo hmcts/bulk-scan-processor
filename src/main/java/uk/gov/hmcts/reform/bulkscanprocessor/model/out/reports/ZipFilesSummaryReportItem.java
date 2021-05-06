@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -42,6 +43,9 @@ public class ZipFilesSummaryReportItem {
     @JsonProperty("ccd_action")
     public final String ccdAction;
 
+    @JsonProperty("payment")
+    public final PaymentResponse payment;
+
     // region constructor
     public ZipFilesSummaryReportItem(
         String fileName,
@@ -54,7 +58,8 @@ public class ZipFilesSummaryReportItem {
         String envelopeStatus,
         String classification,
         String ccdId,
-        String ccdAction
+        String ccdAction,
+        PaymentResponse payment
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -67,6 +72,7 @@ public class ZipFilesSummaryReportItem {
         this.classification = classification;
         this.ccdId = ccdId;
         this.ccdAction = ccdAction;
+        this.payment = payment;
     }
     // endregion
 

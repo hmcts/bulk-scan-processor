@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
@@ -215,7 +216,7 @@ public class ReportsControllerTest {
     public void should_return_zipfiles_summary_result_in_json_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
-
+        PaymentResponse payment = new PaymentResponse("387436783823");
         ZipFileSummaryResponse response = new ZipFileSummaryResponse(
             "test.zip",
             localDate,
@@ -228,7 +229,7 @@ public class ReportsControllerTest {
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
             "AUTO_CREATED_CASE",
-            null
+             payment
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", NEW_APPLICATION))
@@ -250,7 +251,8 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus))
             .andExpect(jsonPath("$.data[0].classification").value(response.classification))
             .andExpect(jsonPath("$.data[0].ccd_id").value(response.ccdId))
-            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction));
+            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction))
+            .andExpect(jsonPath("$.data[0].payment").value(response.payment));
     }
 
     @Test
