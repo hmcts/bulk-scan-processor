@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUpload
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.BlobProcessorTask;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileContentDetail;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -26,7 +25,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALI
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class FileContentProcessor {
-    private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
+    private static final Logger log = LoggerFactory.getLogger(FileContentProcessor.class);
 
     private final ZipFileProcessor zipFileProcessor;
 
