@@ -82,7 +82,6 @@ public class ReportsService {
                 .map(this::fromDbZipFileSummary)
                 .filter(predicate)
                 .collect(toList());
-
     }
 
     private ZipFileSummaryResponse fromDbZipFileSummary(ZipFileSummary dbItem) {
