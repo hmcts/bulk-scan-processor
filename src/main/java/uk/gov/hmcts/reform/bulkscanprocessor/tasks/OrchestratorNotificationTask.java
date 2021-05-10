@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,17 +59,7 @@ public class OrchestratorNotificationTask {
 
         envelopesToSend
             .forEach(env -> {
-                try {
-                    serviceBusHelper.sendMessage(new EnvelopeMsg(env));
-                    logEnvelopeSent(env);
-                    createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
-                    updateStatus(env);
-                    successCount.incrementAndGet();
-                } catch (Exception exc) {
-                    createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
-                    // log error and try with another envelope.
-                    log.error("Error sending envelope notification", exc);
-                }
+                processEnvelope(successCount, env);
             });
 
         log.info(
@@ -77,6 +68,21 @@ public class OrchestratorNotificationTask {
             envelopesToSend.size() - successCount.get()
         );
         log.info("Finished {} job", TASK_NAME);
+    }
+
+    @Transactional
+    private void processEnvelope(AtomicInteger successCount, Envelope env) {
+        try {
+            serviceBusHelper.sendMessage(new EnvelopeMsg(env));
+            logEnvelopeSent(env);
+            createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
+            updateStatus(env);
+            successCount.incrementAndGet();
+        } catch (Exception exc) {
+            createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
+            // log error and try with another envelope.
+            log.error("Error sending envelope notification", exc);
+        }
     }
 
     private void logEnvelopeSent(Envelope env) {
