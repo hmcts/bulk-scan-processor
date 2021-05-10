@@ -16,9 +16,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.transaction.Transactional;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
