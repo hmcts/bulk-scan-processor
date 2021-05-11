@@ -58,7 +58,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
     public CompletableFuture<Void> onMessageAsync(IMessage message) {
         return CompletableFuture
             .supplyAsync(() -> tryProcessMessage(message), EXECUTOR)
-            .thenComposeAsync(processingResult -> tryFinaliseMessageAync(message, processingResult), EXECUTOR)
+            .thenComposeAsync(processingResult -> tryFinaliseMessageAsync(message, processingResult), EXECUTOR)
             .handleAsync((v, error) -> {
                 // Individual steps are supposed to handle their exceptions themselves.
                 // This code is here to make sure errors are logged even when they fail to do that.
@@ -82,7 +82,7 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         );
     }
 
-    private CompletableFuture<Void> tryFinaliseMessageAync(
+    private CompletableFuture<Void> tryFinaliseMessageAsync(
         IMessage message,
         MessageProcessingResult processingResult
     ) {
