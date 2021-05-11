@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelpe
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 /**
@@ -99,7 +100,18 @@ public class OrchestratorNotificationTask {
     }
 
     private void updateStatus(Envelope envelope) {
-        envelope.setStatus(Status.NOTIFICATION_SENT);
-        envelopeRepo.saveAndFlush(envelope);
+        Envelope env = envelopeRepo.findById(envelope.getId()).get();
+        if (env.getStatus().equals(COMPLETED)) {
+            log.warn(
+                "Status of envelope is already COMPLETED, skipping status NOTIFICATION_SENT,"
+                    + " envelope ID {}. File {}, container {}",
+                env.getId(),
+                env.getZipFileName(),
+                env.getContainer()
+            );
+        } else {
+            envelope.setStatus(Status.NOTIFICATION_SENT);
+            envelopeRepo.saveAndFlush(envelope);
+        }
     }
 }
