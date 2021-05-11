@@ -86,12 +86,16 @@ class OrchestratorNotificationServiceTest {
         orchestratorNotificationService.processEnvelope(successCount, env);
 
         // then
+        ArgumentCaptor<Envelope> envArg = ArgumentCaptor.forClass(Envelope.class);
+        verify(envelopeRepo).saveAndFlush(envArg.capture());
+        assertThat(envArg.getValue().getContainer()).isEqualTo(env.getContainer());
+        assertThat(envArg.getValue().getZipFileName()).isEqualTo(env.getZipFileName());
+        assertThat(envArg.getValue().getStatus()).isEqualTo(NOTIFICATION_SENT);
         ArgumentCaptor<ProcessEvent> argument = ArgumentCaptor.forClass(ProcessEvent.class);
         verify(processEventRepo).saveAndFlush(argument.capture());
         assertThat(argument.getValue().getContainer()).isEqualTo(env.getContainer());
         assertThat(argument.getValue().getZipFileName()).isEqualTo(env.getZipFileName());
         assertThat(argument.getValue().getEvent()).isEqualTo(DOC_PROCESSED_NOTIFICATION_FAILURE);
-        verifyNoInteractions(envelopeRepo);
         assertThat(successCount.get()).isEqualTo(0);
     }
 }

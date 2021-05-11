@@ -39,10 +39,10 @@ public class OrchestratorNotificationService {
     @Transactional
     public void processEnvelope(AtomicInteger successCount, Envelope env) {
         try {
+            updateStatus(env);
             serviceBusHelper.sendMessage(new EnvelopeMsg(env));
             logEnvelopeSent(env);
             createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
-            updateStatus(env);
             successCount.incrementAndGet();
         } catch (Exception exc) {
             createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
