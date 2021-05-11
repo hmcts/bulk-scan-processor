@@ -287,7 +287,7 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.8.2'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.20'
   // review following dependency after integrating db structure
-  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.10.4'
+  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.11.1'
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
