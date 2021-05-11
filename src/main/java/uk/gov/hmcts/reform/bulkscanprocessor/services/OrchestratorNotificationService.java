@@ -38,17 +38,11 @@ public class OrchestratorNotificationService {
 
     @Transactional
     public void processEnvelope(AtomicInteger successCount, Envelope env) {
-        try {
-            updateStatus(env);
-            serviceBusHelper.sendMessage(new EnvelopeMsg(env));
-            logEnvelopeSent(env);
-            createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
-            successCount.incrementAndGet();
-        } catch (Exception exc) {
-            createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
-            // log error and try with another envelope.
-            log.error("Error sending envelope notification", exc);
-        }
+        updateStatus(env);
+        createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
+        serviceBusHelper.sendMessage(new EnvelopeMsg(env));
+        logEnvelopeSent(env);
+        successCount.incrementAndGet();
     }
 
     private void logEnvelopeSent(Envelope env) {

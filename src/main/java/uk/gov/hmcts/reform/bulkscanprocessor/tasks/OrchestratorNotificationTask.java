@@ -8,6 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.OrchestratorNotificationService;
 
 import java.util.List;
@@ -27,14 +30,16 @@ public class OrchestratorNotificationTask {
 
     private final OrchestratorNotificationService orchestratorNotificationService;
     private final EnvelopeRepository envelopeRepo;
+    private final ProcessEventRepository processEventRepo;
 
     // region constructor
     public OrchestratorNotificationTask(
         OrchestratorNotificationService orchestratorNotificationService,
-        EnvelopeRepository envelopeRepo
-    ) {
+        EnvelopeRepository envelopeRepo,
+        ProcessEventRepository processEventRepo) {
         this.orchestratorNotificationService = orchestratorNotificationService;
         this.envelopeRepo = envelopeRepo;
+        this.processEventRepo = processEventRepo;
     }
     // endregion
 
@@ -49,7 +54,13 @@ public class OrchestratorNotificationTask {
 
         envelopesToSend
             .forEach(env -> {
-                orchestratorNotificationService.processEnvelope(successCount, env);
+                try {
+                    orchestratorNotificationService.processEnvelope(successCount, env);
+                } catch (Exception exc) {
+                    createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
+                    // log error and try with another envelope.
+                    log.error("Error sending envelope notification", exc);
+                }
             });
 
         log.info(
@@ -58,5 +69,15 @@ public class OrchestratorNotificationTask {
             envelopesToSend.size() - successCount.get()
         );
         log.info("Finished {} job", TASK_NAME);
+    }
+
+    private void createEvent(Envelope envelope, Event event) {
+        processEventRepo.saveAndFlush(
+            new ProcessEvent(
+                envelope.getContainer(),
+                envelope.getZipFileName(),
+                event
+            )
+        );
     }
 }

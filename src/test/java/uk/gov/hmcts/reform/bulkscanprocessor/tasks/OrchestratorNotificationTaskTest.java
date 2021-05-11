@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.OrchestratorNotificationService;
 
@@ -25,6 +26,7 @@ public class OrchestratorNotificationTaskTest {
 
     @Mock private OrchestratorNotificationService orchestratorNotificationService;
     @Mock private EnvelopeRepository envelopeRepo;
+    @Mock private ProcessEventRepository processEventRepo;
 
     private OrchestratorNotificationTask task;
 
@@ -32,7 +34,8 @@ public class OrchestratorNotificationTaskTest {
     public void setUp() throws Exception {
         this.task = new OrchestratorNotificationTask(
             orchestratorNotificationService,
-            envelopeRepo
+            envelopeRepo,
+            processEventRepo
         );
     }
 

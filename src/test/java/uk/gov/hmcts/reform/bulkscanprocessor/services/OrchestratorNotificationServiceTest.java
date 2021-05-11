@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
@@ -17,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelpe
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -75,7 +77,7 @@ class OrchestratorNotificationServiceTest {
     }
 
     @Test
-    void should_handle_exception_from_service_bus() {
+    void should_rethrow_exception_from_service_bus() {
         // given
         doThrow(InvalidMessageException.class)
             .when(serviceBusHelper)
@@ -83,7 +85,10 @@ class OrchestratorNotificationServiceTest {
         Envelope env = envelope();
 
         // when
-        orchestratorNotificationService.processEnvelope(successCount, env);
+        assertThatThrownBy(() ->
+                               orchestratorNotificationService.processEnvelope(successCount, env)
+        )
+            .isInstanceOf(InvalidMessageException.class);
 
         // then
         ArgumentCaptor<Envelope> envArg = ArgumentCaptor.forClass(Envelope.class);
@@ -95,7 +100,7 @@ class OrchestratorNotificationServiceTest {
         verify(processEventRepo).saveAndFlush(argument.capture());
         assertThat(argument.getValue().getContainer()).isEqualTo(env.getContainer());
         assertThat(argument.getValue().getZipFileName()).isEqualTo(env.getZipFileName());
-        assertThat(argument.getValue().getEvent()).isEqualTo(DOC_PROCESSED_NOTIFICATION_FAILURE);
+        assertThat(argument.getValue().getEvent()).isEqualTo(DOC_PROCESSED_NOTIFICATION_SENT);
         assertThat(successCount.get()).isEqualTo(0);
     }
 }

@@ -43,7 +43,8 @@ public class OrchestratorNotificationTaskTest {
         );
         task = new OrchestratorNotificationTask(
             orchestratorNotificationService,
-            envelopeRepo
+            envelopeRepo,
+            processEventRepo
         );
     }
 
