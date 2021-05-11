@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.OrchestratorNotificationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class OrchestratorNotificationTaskTest {
 
     @Autowired private EnvelopeRepository envelopeRepo;
     @Autowired private ProcessEventRepository processEventRepo;
+    private OrchestratorNotificationService orchestratorNotificationService;
 
     @Mock private ServiceBusHelper serviceBusHelper;
 
@@ -34,10 +36,14 @@ public class OrchestratorNotificationTaskTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        this.task = new OrchestratorNotificationTask(
+        orchestratorNotificationService = new OrchestratorNotificationService(
             serviceBusHelper,
             envelopeRepo,
             processEventRepo
+        );
+        task = new OrchestratorNotificationTask(
+            orchestratorNotificationService,
+            envelopeRepo
         );
     }
 
