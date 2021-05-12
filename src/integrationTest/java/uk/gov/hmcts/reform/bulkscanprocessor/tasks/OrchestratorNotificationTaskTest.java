@@ -3,8 +3,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -21,26 +24,27 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @IntegrationTest
+@TestPropertySource(properties = "scheduling.task.notifications_to_orchestrator.enabled=true")
 public class OrchestratorNotificationTaskTest {
 
     @Autowired private EnvelopeRepository envelopeRepo;
     @Autowired private ProcessEventRepository processEventRepo;
+
+    @Autowired
     private OrchestratorNotificationService orchestratorNotificationService;
 
-    @Mock private ServiceBusHelper serviceBusHelper;
+    @MockBean
+    private ServiceBusHelper serviceBusHelper;
 
     private OrchestratorNotificationTask task;
 
     @BeforeEach
     public void setUp() throws Exception {
-        orchestratorNotificationService = new OrchestratorNotificationService(
-            serviceBusHelper,
-            envelopeRepo,
-            processEventRepo
-        );
+
         task = new OrchestratorNotificationTask(
             orchestratorNotificationService,
             envelopeRepo,
@@ -98,5 +102,14 @@ public class OrchestratorNotificationTaskTest {
     public void tearDown() {
         processEventRepo.deleteAll();
         envelopeRepo.deleteAll();
+    }
+
+    @TestConfiguration
+    public static class MockConfig {
+
+        @Bean(name = "envelopes-helper")
+        public ServiceBusHelper envelopesQueueHelper() {
+            return mock(ServiceBusHelper.class);
+        }
     }
 }
