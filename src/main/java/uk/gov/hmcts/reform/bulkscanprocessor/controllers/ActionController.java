@@ -7,23 +7,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeReprocessService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeActionService;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/actions")
 public class ActionController {
-    private final EnvelopeReprocessService envelopeReprocessService;
+    private final EnvelopeActionService envelopeActionService;
 
-    public ActionController(EnvelopeReprocessService envelopeReprocessService) {
-        this.envelopeReprocessService = envelopeReprocessService;
+    public ActionController(EnvelopeActionService envelopeActionService) {
+        this.envelopeActionService = envelopeActionService;
     }
 
     @PutMapping(path = "/reprocess/{id}")
     @ApiOperation("Reprocess envelope by ID")
     public ResponseEntity<Void> reprocess(@PathVariable UUID id) {
-        envelopeReprocessService.reprocessEnvelope(id);
+        envelopeActionService.reprocessEnvelope(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

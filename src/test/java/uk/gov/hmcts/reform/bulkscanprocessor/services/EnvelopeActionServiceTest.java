@@ -35,8 +35,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
 
 @ExtendWith(MockitoExtension.class)
-class EnvelopeReprocessServiceTest {
-    private EnvelopeReprocessService envelopeReprocessService;
+class EnvelopeActionServiceTest {
+    private EnvelopeActionService envelopeActionService;
 
     @Mock
     private EnvelopeRepository envelopeRepository;
@@ -46,7 +46,7 @@ class EnvelopeReprocessServiceTest {
 
     @BeforeEach
     void setUp() {
-        envelopeReprocessService = new EnvelopeReprocessService(
+        envelopeActionService = new EnvelopeActionService(
             envelopeRepository,
             processEventRepository,
             1
@@ -63,7 +63,7 @@ class EnvelopeReprocessServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-            envelopeReprocessService.reprocessEnvelope(uuid)
+            envelopeActionService.reprocessEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeNotFoundException.class)
             .hasMessageContaining("Envelope with id " + uuid + " not found");
@@ -81,7 +81,7 @@ class EnvelopeReprocessServiceTest {
         given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
 
         // when
-        envelopeReprocessService.reprocessEnvelope(uuid);
+        envelopeActionService.reprocessEnvelope(uuid);
 
         // then
         var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
@@ -125,7 +125,7 @@ class EnvelopeReprocessServiceTest {
         given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
 
         // when
-        envelopeReprocessService.reprocessEnvelope(uuid);
+        envelopeActionService.reprocessEnvelope(uuid);
 
         // then
         var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
@@ -171,7 +171,7 @@ class EnvelopeReprocessServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-            envelopeReprocessService.reprocessEnvelope(uuid)
+            envelopeActionService.reprocessEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeNotCompletedOrStaleException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed or stale)$");
@@ -194,7 +194,7 @@ class EnvelopeReprocessServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-            envelopeReprocessService.reprocessEnvelope(uuid)
+            envelopeActionService.reprocessEnvelope(uuid)
         )
             .isInstanceOf(NoSuchElementException.class);
     }
@@ -213,7 +213,7 @@ class EnvelopeReprocessServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-            envelopeReprocessService.reprocessEnvelope(uuid)
+            envelopeActionService.reprocessEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeNotCompletedOrStaleException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed or stale)$");
@@ -233,7 +233,7 @@ class EnvelopeReprocessServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-            envelopeReprocessService.reprocessEnvelope(uuid)
+            envelopeActionService.reprocessEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeProcessedInCcdException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( has already been processed in CCD)$");
