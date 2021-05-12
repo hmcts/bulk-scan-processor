@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -11,10 +10,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.OrchestratorNotificationService;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,17 +28,16 @@ public class OrchestratorNotificationTask {
     private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
     private static final String TASK_NAME = "send-orchestrator-notification";
 
-    private final ServiceBusHelper serviceBusHelper;
+    private final OrchestratorNotificationService orchestratorNotificationService;
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
     // region constructor
     public OrchestratorNotificationTask(
-        @Qualifier("envelopes-helper") ServiceBusHelper serviceBusHelper,
+        OrchestratorNotificationService orchestratorNotificationService,
         EnvelopeRepository envelopeRepo,
-        ProcessEventRepository processEventRepo
-    ) {
-        this.serviceBusHelper = serviceBusHelper;
+        ProcessEventRepository processEventRepo) {
+        this.orchestratorNotificationService = orchestratorNotificationService;
         this.envelopeRepo = envelopeRepo;
         this.processEventRepo = processEventRepo;
     }
@@ -59,11 +55,7 @@ public class OrchestratorNotificationTask {
         envelopesToSend
             .forEach(env -> {
                 try {
-                    serviceBusHelper.sendMessage(new EnvelopeMsg(env));
-                    logEnvelopeSent(env);
-                    createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
-                    updateStatus(env);
-                    successCount.incrementAndGet();
+                    orchestratorNotificationService.processEnvelope(successCount, env);
                 } catch (Exception exc) {
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
                     // log error and try with another envelope.
@@ -79,15 +71,6 @@ public class OrchestratorNotificationTask {
         log.info("Finished {} job", TASK_NAME);
     }
 
-    private void logEnvelopeSent(Envelope env) {
-        log.info(
-            "Sent envelope with ID {}. File {}, container {}",
-            env.getId(),
-            env.getZipFileName(),
-            env.getContainer()
-        );
-    }
-
     private void createEvent(Envelope envelope, Event event) {
         processEventRepo.saveAndFlush(
             new ProcessEvent(
@@ -96,10 +79,5 @@ public class OrchestratorNotificationTask {
                 event
             )
         );
-    }
-
-    private void updateStatus(Envelope envelope) {
-        envelope.setStatus(Status.NOTIFICATION_SENT);
-        envelopeRepo.saveAndFlush(envelope);
     }
 }
