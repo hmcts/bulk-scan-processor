@@ -22,12 +22,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
 
 @Service
-public class EnvelopeReprocessService {
+public class EnvelopeActionService {
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final long notificationTimeoutHr;
 
-    public EnvelopeReprocessService(
+    public EnvelopeActionService(
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
         @Value("${notification-stale-timeout-hr}") long notificationTimeoutHr
