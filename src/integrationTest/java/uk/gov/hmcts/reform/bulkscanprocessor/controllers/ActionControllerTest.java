@@ -16,7 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeReprocessService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeActionService;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public class ActionControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private EnvelopeReprocessService envelopeReprocessService;
+    private EnvelopeActionService envelopeActionService;
 
     @MockBean
     private EnvelopeRepository envelopeRepository;
