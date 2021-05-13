@@ -65,7 +65,8 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events() throws Exception {
+    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events_for_reprocess()
+        throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
@@ -108,7 +109,8 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_conflict_if_envelope_has_notification_sent_status_and_not_stale_events() throws Exception {
+    void should_respond_conflict_if_envelope_has_notification_sent_status_and_not_stale_events_for_reprocess()
+        throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
@@ -141,7 +143,7 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_conflict_if_envelope_has_uploaded_status() throws Exception {
+    void should_respond_conflict_if_envelope_has_uploaded_status_for_reprocess() throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
@@ -172,7 +174,7 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_conflict_if_envelope_already_processed() throws Exception {
+    void should_respond_conflict_if_envelope_already_processed_for_reprocess() throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
@@ -203,7 +205,7 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_bad_request_if_uuid_corrupted() throws Exception {
+    void should_respond_bad_request_if_uuid_corrupted_for_reprocess() throws Exception {
 
         mockMvc
             .perform(
