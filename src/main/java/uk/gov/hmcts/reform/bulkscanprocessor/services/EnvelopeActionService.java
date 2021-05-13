@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotCompletedOrStaleException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeProcessedInCcdException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static java.util.Comparator.naturalOrder;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
 
 @Service
@@ -46,20 +48,24 @@ public class EnvelopeActionService {
 
         validateEnvelopeState(envelope);
 
-        createEvent(envelope);
+        createEvent(
+            envelope,
+            MANUAL_RETRIGGER_PROCESSING,
+            "Moved to UPLOADED status to reprocess the envelope"
+        );
 
-        envelope.setStatus(Status.UPLOADED);
+        envelope.setStatus(UPLOADED);
         envelopeRepository.save(envelope);
     }
 
-    private void createEvent(Envelope envelope) {
-        ProcessEvent event = new ProcessEvent(
+    private void createEvent(Envelope envelope, Event event, String reason) {
+        ProcessEvent processEvent = new ProcessEvent(
             envelope.getContainer(),
             envelope.getZipFileName(),
-            MANUAL_RETRIGGER_PROCESSING
+            event
         );
-        event.setReason("Moved to UPLOADED status to reprocess the envelope");
-        processEventRepository.save(event);
+        processEvent.setReason(reason);
+        processEventRepository.save(processEvent);
     }
 
     private void validateEnvelopeState(Envelope envelope) {
