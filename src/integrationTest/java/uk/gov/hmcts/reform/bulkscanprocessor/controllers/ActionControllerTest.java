@@ -80,15 +80,15 @@ public class ActionControllerTest {
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
-        Instant twoHoursAgo = Instant.now().minus(49, HOURS);
-        Instant threeHoursAgo = Instant.now().minus(50, HOURS);
-        Instant fourHoursAgo = Instant.now().minus(51, HOURS);
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
         ProcessEvent event1 = new ProcessEvent();
-        event1.setCreatedAt(twoHoursAgo);
+        event1.setCreatedAt(fourtyNineHoursAgo);
         ProcessEvent event2 = new ProcessEvent();
-        event2.setCreatedAt(threeHoursAgo);
+        event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
-        event3.setCreatedAt(fourHoursAgo);
+        event3.setCreatedAt(fiftyOneHoursAgo);
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
@@ -124,15 +124,15 @@ public class ActionControllerTest {
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
-        Instant twoHoursAgo = Instant.now().minus(47, HOURS);
-        Instant threeHoursAgo = Instant.now().minus(50, HOURS);
-        Instant fourHoursAgo = Instant.now().minus(51, HOURS);
+        Instant fourtySevenHoursAgo = Instant.now().minus(47, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
         ProcessEvent event1 = new ProcessEvent();
-        event1.setCreatedAt(twoHoursAgo);
+        event1.setCreatedAt(fourtySevenHoursAgo);
         ProcessEvent event2 = new ProcessEvent();
-        event2.setCreatedAt(threeHoursAgo);
+        event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
-        event3.setCreatedAt(fourHoursAgo);
+        event3.setCreatedAt(fiftyOneHoursAgo);
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
@@ -157,15 +157,15 @@ public class ActionControllerTest {
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
-        Instant twoHoursAgo = Instant.now().minus(49, HOURS);
-        Instant threeHoursAgo = Instant.now().minus(50, HOURS);
-        Instant fourHoursAgo = Instant.now().minus(51, HOURS);
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
         ProcessEvent event1 = new ProcessEvent();
-        event1.setCreatedAt(twoHoursAgo);
+        event1.setCreatedAt(fourtyNineHoursAgo);
         ProcessEvent event2 = new ProcessEvent();
-        event2.setCreatedAt(threeHoursAgo);
+        event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
-        event3.setCreatedAt(fourHoursAgo);
+        event3.setCreatedAt(fiftyOneHoursAgo);
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
@@ -188,15 +188,15 @@ public class ActionControllerTest {
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
-        Instant twoHoursAgo = Instant.now().minus(49, HOURS);
-        Instant threeHoursAgo = Instant.now().minus(50, HOURS);
-        Instant fourHoursAgo = Instant.now().minus(51, HOURS);
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
         ProcessEvent event1 = new ProcessEvent();
-        event1.setCreatedAt(twoHoursAgo);
+        event1.setCreatedAt(fourtyNineHoursAgo);
         ProcessEvent event2 = new ProcessEvent();
-        event2.setCreatedAt(threeHoursAgo);
+        event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
-        event3.setCreatedAt(fourHoursAgo);
+        event3.setCreatedAt(fiftyOneHoursAgo);
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
@@ -224,7 +224,7 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events_when_make_completed()
+    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events_when_complete()
         throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
@@ -236,8 +236,8 @@ public class ActionControllerTest {
         Instant oneHourAgo = Instant.now().minus(1, HOURS);
         Instant twoHoursAgo = Instant.now().minus(2, HOURS);
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
-        Instant fourHoursAgo = Instant.now().minus(4, HOURS);
-        ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, fourHoursAgo);
+        Instant fourOneHoursAgo = Instant.now().minus(4, HOURS);
+        ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, fourOneHoursAgo);
         ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, threeHoursAgo);
         ProcessEvent event3 = createProcessEvent(envelope, Event.COMPLETED, twoHoursAgo);
         ProcessEvent event4 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, oneHourAgo);
@@ -246,7 +246,7 @@ public class ActionControllerTest {
 
         mockMvc
             .perform(
-                put("/actions/make-completed/" + envelopeId)
+                put("/actions/" + envelopeId + "/complete")
             )
             .andExpect(status().isOk());
 
@@ -267,7 +267,7 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_conflict_if_envelope_has_completed_status_for_reprocess() throws Exception {
+    void should_respond_conflict_if_envelope_has_completed_status_for_complete() throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
@@ -288,7 +288,7 @@ public class ActionControllerTest {
 
         mockMvc
             .perform(
-                put("/actions/make-completed/" + envelopeId)
+                put("/actions/" + envelopeId + "/complete")
             )
             .andExpect(status().isConflict());
 
@@ -297,7 +297,7 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_conflict_if_envelope_has_no_completed_event_for_reprocess() throws Exception {
+    void should_respond_conflict_if_envelope_has_no_completed_event_for_complete() throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
@@ -316,7 +316,7 @@ public class ActionControllerTest {
 
         mockMvc
             .perform(
-                put("/actions/make-completed/" + envelopeId)
+                put("/actions/" + envelopeId + "/complete")
             )
             .andExpect(status().isConflict());
 
@@ -325,11 +325,11 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_bad_request_if_uuid_corrupted_for_make_completed() throws Exception {
+    void should_respond_bad_request_if_uuid_corrupted_for_complete() throws Exception {
 
         mockMvc
             .perform(
-                put("/actions/make-completed/" + "corrupted")
+                put("/actions/" + "corrupted" + "/complete")
             )
             .andExpect(status().isBadRequest());
 
