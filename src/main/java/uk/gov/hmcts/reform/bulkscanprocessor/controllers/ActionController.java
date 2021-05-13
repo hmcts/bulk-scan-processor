@@ -26,4 +26,11 @@ public class ActionController {
         envelopeActionService.reprocessEnvelope(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PutMapping(path = "/make-completed/{id}")
+    @ApiOperation("Reprocess envelope by ID")
+    public ResponseEntity<Void> makeCompleted(@PathVariable UUID id) {
+        envelopeActionService.moveEnvelopeToCompleted(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

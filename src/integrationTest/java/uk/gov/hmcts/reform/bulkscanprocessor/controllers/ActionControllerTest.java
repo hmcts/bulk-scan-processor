@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeActionService;
 
 import java.time.Instant;
@@ -33,9 +34,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_STATUS_CHANGE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @ActiveProfiles({
     IntegrationContextInitializer.PROFILE_WIREMOCK,
@@ -70,7 +76,7 @@ public class ActionControllerTest {
 
         UUID envelopeId = UUID.randomUUID();
 
-        Envelope envelope = envelope(Status.NOTIFICATION_SENT, null, null);
+        Envelope envelope = envelope(NOTIFICATION_SENT, null, null);
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
@@ -114,7 +120,7 @@ public class ActionControllerTest {
 
         UUID envelopeId = UUID.randomUUID();
 
-        Envelope envelope = envelope(Status.NOTIFICATION_SENT, null, null);
+        Envelope envelope = envelope(NOTIFICATION_SENT, null, null);
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
@@ -215,6 +221,130 @@ public class ActionControllerTest {
 
         verifyNoInteractions(envelopeRepository);
         verifyNoInteractions(processEventRepository);
+    }
+
+    @Test
+    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events_when_make_completed()
+        throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(NOTIFICATION_SENT, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant oneHourAgo = Instant.now().minus(1, HOURS);
+        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
+        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
+        Instant fourHoursAgo = Instant.now().minus(4, HOURS);
+        ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, fourHoursAgo);
+        ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, threeHoursAgo);
+        ProcessEvent event3 = createProcessEvent(envelope, Event.COMPLETED, twoHoursAgo);
+        ProcessEvent event4 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, oneHourAgo);
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3, event4));
+
+        mockMvc
+            .perform(
+                put("/actions/make-completed/" + envelopeId)
+            )
+            .andExpect(status().isOk());
+
+        var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
+        verify(processEventRepository).save(processEventCaptor.capture());
+        assertThat(processEventCaptor.getValue().getContainer())
+            .isEqualTo(envelope.getContainer());
+        assertThat(processEventCaptor.getValue().getZipFileName())
+            .isEqualTo(envelope.getZipFileName());
+        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_STATUS_CHANGE);
+        assertThat(processEventCaptor.getValue().getReason())
+            .isEqualTo("Moved to COMPLETED status to fix inconsistent state caused by race conditions");
+
+        var envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
+        verify(envelopeRepository).save(envelopeCaptor.capture());
+        assertThat(envelopeCaptor.getValue().getStatus()).isEqualTo(COMPLETED);
+        assertThat(envelopeCaptor.getValue().getId()).isEqualTo(envelope.getId());
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_has_completed_status_for_reprocess() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(COMPLETED, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant oneHourAgo = Instant.now().minus(1, HOURS);
+        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
+        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
+        Instant fourHoursAgo = Instant.now().minus(4, HOURS);
+        ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, fourHoursAgo);
+        ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, threeHoursAgo);
+        ProcessEvent event3 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, twoHoursAgo);
+        ProcessEvent event4 = createProcessEvent(envelope, Event.COMPLETED, oneHourAgo);
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3, event4));
+
+        mockMvc
+            .perform(
+                put("/actions/make-completed/" + envelopeId)
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_has_no_completed_event_for_reprocess() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(NOTIFICATION_SENT, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant oneHourAgo = Instant.now().minus(1, HOURS);
+        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
+        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
+        ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, threeHoursAgo);
+        ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, twoHoursAgo);
+        ProcessEvent event3 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, oneHourAgo);
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+            .perform(
+                put("/actions/make-completed/" + envelopeId)
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_bad_request_if_uuid_corrupted_for_make_completed() throws Exception {
+
+        mockMvc
+            .perform(
+                put("/actions/make-completed/" + "corrupted")
+            )
+            .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(envelopeRepository);
+        verifyNoInteractions(processEventRepository);
+    }
+
+    private ProcessEvent createProcessEvent(Envelope envelope, Event completed, Instant timestamp) {
+        ProcessEvent event = new ProcessEvent(
+            envelope.getContainer(),
+            envelope.getZipFileName(),
+            completed
+        );
+        event.setCreatedAt(timestamp);
+        return event;
     }
 
     private Envelope envelope(
