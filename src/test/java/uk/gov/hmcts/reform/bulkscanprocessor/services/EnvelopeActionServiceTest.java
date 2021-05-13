@@ -54,7 +54,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_throw_exception_if_envelope_does_not_exist() {
+    void reprocessEnvelope_should_throw_exception_if_envelope_does_not_exist() {
         // given
         var uuid = UUID.randomUUID();
 
@@ -70,7 +70,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_save_envelope_and_event_if_envelope_has_completed_status() {
+    void reprocessEnvelope_should_save_envelope_and_event_if_envelope_has_completed_status() {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(
@@ -101,7 +101,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_save_envelope_and_event_if_envelope_is_stale() {
+    void reprocessEnvelope_should_save_envelope_and_event_if_envelope_is_stale() {
         // given
         Instant twoHoursAgo = Instant.now().minus(2, HOURS);
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
@@ -145,7 +145,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_throw_exception_if_envelope_is_not_stale() {
+    void reprocessEnvelope_should_throw_exception_if_envelope_is_not_stale() {
         // given
         Instant halfHourAgo = Instant.now().minus(30, MINUTES);
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
@@ -178,7 +178,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_throw_exception_if_no_events_for_envelope() {
+    void reprocessEnvelope_should_throw_exception_if_no_events_for_envelope() {
         // given
         var envelope = envelope(
             NOTIFICATION_SENT,
@@ -200,7 +200,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_throw_exception_if_envelope_has_uploaded_status() {
+    void reprocessEnvelope_should_throw_exception_if_envelope_has_uploaded_status() {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(
@@ -220,7 +220,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_throw_exception_if_envelope_has_ccdid() {
+    void reprocessEnvelope_should_throw_exception_if_envelope_has_ccdid() {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(
