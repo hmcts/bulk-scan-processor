@@ -304,7 +304,7 @@ class EnvelopeActionServiceTest {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(
-            UPLOADED,
+            COMPLETED,
             null,
             null
         );
@@ -316,7 +316,7 @@ class EnvelopeActionServiceTest {
                                envelopeActionService.moveEnvelopeToCompleted(uuid)
         )
             .isInstanceOf(EnvelopeNotInInconsistentStateException.class)
-            .hasMessageMatching("^(Envelope with id )[\\S]+( is not in NOTIFICATION_SENT status)$");
+            .hasMessageMatching("^(Envelope with id )[\\S]+( is not in inconsistent state)$");
     }
 
     @Test

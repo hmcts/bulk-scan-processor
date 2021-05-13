@@ -104,9 +104,9 @@ public class EnvelopeActionService {
     }
 
     private void validateEnvelopeIsInInconsistentState(Envelope envelope) {
-        if (envelope.getStatus() != Status.NOTIFICATION_SENT) {
+        if (envelope.getStatus() == COMPLETED) {
             throw new EnvelopeNotInInconsistentStateException(
-                "Envelope with id " + envelope.getId() + " is not in NOTIFICATION_SENT status"
+                "Envelope with id " + envelope.getId() + " is not in inconsistent state"
             );
         }
 
