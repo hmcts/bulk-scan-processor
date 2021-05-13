@@ -13,7 +13,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotCompletedOrStaleException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotInInconsistentStateException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeProcessedInCcdException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
 import java.util.NoSuchElementException;
@@ -32,7 +34,11 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_STATUS_CHANGE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeActionServiceTest {
@@ -237,6 +243,106 @@ class EnvelopeActionServiceTest {
         )
             .isInstanceOf(EnvelopeProcessedInCcdException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( has already been processed in CCD)$");
+    }
+
+    @Test
+    void moveEnvelopeToCompleted_should_throw_exception_if_envelope_does_not_exist() {
+        // given
+        var uuid = UUID.randomUUID();
+
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                               envelopeActionService.moveEnvelopeToCompleted(uuid)
+        )
+            .isInstanceOf(EnvelopeNotFoundException.class)
+            .hasMessageContaining("Envelope with id " + uuid + " not found");
+    }
+
+    @Test
+    void moveEnvelopeToCompleted_should_save_envelope_and_event_if_envelope_has_completed_status() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(
+            NOTIFICATION_SENT,
+            "ccdId",
+            null
+        );
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(asList(
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), ZIPFILE_PROCESSING_STARTED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.COMPLETED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT)
+            ));
+
+        // when
+        envelopeActionService.moveEnvelopeToCompleted(uuid);
+
+        // then
+        var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
+        verify(processEventRepository).save(processEventCaptor.capture());
+        assertThat(processEventCaptor.getValue().getContainer())
+            .isEqualTo(envelope.getContainer());
+        assertThat(processEventCaptor.getValue().getZipFileName())
+            .isEqualTo(envelope.getZipFileName());
+        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_STATUS_CHANGE);
+        assertThat(processEventCaptor.getValue().getReason())
+            .isEqualTo("Moved to COMPLETED status to fix inconsistent state caused by race conditions");
+
+        var envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
+        verify(envelopeRepository).save(envelopeCaptor.capture());
+        assertThat(envelopeCaptor.getValue().getStatus()).isEqualTo(COMPLETED);
+        assertThat(envelopeCaptor.getValue().getId()).isEqualTo(envelope.getId());
+    }
+
+    @Test
+    void moveEnvelopeToCompleted_should_throw_exception_if_status_is_not_notification_sent() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(
+            COMPLETED,
+            null,
+            null
+        );
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                               envelopeActionService.moveEnvelopeToCompleted(uuid)
+        )
+            .isInstanceOf(EnvelopeNotInInconsistentStateException.class)
+            .hasMessageMatching("^(Envelope with id )[\\S]+( is not in inconsistent state)$");
+    }
+
+    @Test
+    void moveEnvelopeToCompleted_should_throw_exception_if_no_completed_event() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(
+            NOTIFICATION_SENT,
+            null,
+            null
+        );
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(asList(
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), ZIPFILE_PROCESSING_STARTED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT)
+            ));
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                               envelopeActionService.moveEnvelopeToCompleted(uuid)
+        )
+            .isInstanceOf(EnvelopeNotInInconsistentStateException.class)
+            .hasMessageMatching("^(Envelope with id )[\\S]+( does not have COMPLETED event)$");
     }
 
     private Envelope envelope(

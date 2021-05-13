@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotCompletedOrStaleException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotInInconsistentStateException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeProcessedInCcdException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
@@ -22,6 +23,7 @@ import static java.util.Comparator.naturalOrder;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_STATUS_CHANGE;
 
 @Service
 public class EnvelopeActionService {
@@ -58,6 +60,25 @@ public class EnvelopeActionService {
         envelopeRepository.save(envelope);
     }
 
+    @Transactional
+    public void moveEnvelopeToCompleted(UUID envelopeId) {
+        Envelope envelope = envelopeRepository.findById(envelopeId)
+            .orElseThrow(
+                () -> new EnvelopeNotFoundException("Envelope with id " + envelopeId + " not found")
+            );
+
+        validateEnvelopeIsInInconsistentState(envelope);
+
+        createEvent(
+            envelope,
+            MANUAL_STATUS_CHANGE,
+            "Moved to COMPLETED status to fix inconsistent state caused by race conditions"
+        );
+
+        envelope.setStatus(COMPLETED);
+        envelopeRepository.save(envelope);
+    }
+
     private void createEvent(Envelope envelope, Event event, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
             envelope.getContainer(),
@@ -78,6 +99,25 @@ public class EnvelopeActionService {
         if (envelope.getStatus() != COMPLETED && !isStale(envelope)) {
             throw new EnvelopeNotCompletedOrStaleException(
                 "Envelope with id " + envelope.getId() + " is not completed or stale"
+            );
+        }
+    }
+
+    private void validateEnvelopeIsInInconsistentState(Envelope envelope) {
+        if (envelope.getStatus() == COMPLETED) {
+            throw new EnvelopeNotInInconsistentStateException(
+                "Envelope with id " + envelope.getId() + " is not in inconsistent state"
+            );
+        }
+
+        if (processEventRepository.findByZipFileName(envelope.getZipFileName())
+            .stream()
+            .filter(ev -> ev.getEvent() == Event.COMPLETED)
+            .findFirst()
+            .isEmpty()
+        ) {
+            throw new EnvelopeNotInInconsistentStateException(
+                "Envelope with id " + envelope.getId() + " does not have COMPLETED event"
             );
         }
     }
