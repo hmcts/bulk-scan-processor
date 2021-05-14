@@ -11,7 +11,7 @@ public interface ProcessEventRepository extends JpaRepository<ProcessEvent, Long
     List<ProcessEvent> findByZipFileName(String zipFileName);
 
     @Query("select ev from ProcessEvent ev"
-        + " where ev.createdAt = :createdAt"
+        + " where ev.createdAt = :date"
         + "   and ev.event IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE')"
         + " order by ev.date desc"
     )
