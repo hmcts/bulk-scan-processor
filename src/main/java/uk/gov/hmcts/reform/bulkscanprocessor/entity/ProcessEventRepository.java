@@ -13,7 +13,7 @@ public interface ProcessEventRepository extends JpaRepository<ProcessEvent, Long
     @Query("select ev from ProcessEvent ev"
         + " where ev.createdAt = :date"
         + "   and ev.event IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE')"
-        + " order by ev.date desc"
+        + " order by ev.createdAt desc"
     )
     List<ProcessEvent> getRejectionEvents(@Param("date") Instant date);
 }
