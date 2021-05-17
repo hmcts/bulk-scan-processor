@@ -19,7 +19,7 @@ import java.util.UUID;
 import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_CONSUMED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
@@ -115,8 +115,7 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("service_D", "D2.zip", FILE_VALIDATION_FAILURE),
 
             event("service_E", "E1.zip", ZIPFILE_PROCESSING_STARTED),
-            event("service_E", "E1.zip", FILE_VALIDATION_FAILURE),
-            event("service_E", "E1.zip", DOC_CONSUMED)
+            event("service_E", "E1.zip", FILE_VALIDATION_FAILURE)
         );
 
         // when
@@ -139,6 +138,32 @@ public class EnvelopeCountSummaryRepositoryTest {
         // given
         dbHas(
             event("service_A", "A1.zip", DOC_UPLOADED),
+            event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(now());
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyElementsOf(asList(
+                new Item(now(), "service_A", 1, 0),
+                new Item(now(), "service_B", 1, 1)
+            ));
+    }
+
+    @Test
+    public void should_handle_failure_and_subsequent_success() {
+        // given
+        dbHas(
+            event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
+            event("service_A", "A1.zip", DOC_FAILURE),
+            event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
+            event("service_A", "A1.zip", DOC_UPLOADED),
+            event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
+            event("service_A", "A1.zip", COMPLETED),
+
             event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
         );
 
