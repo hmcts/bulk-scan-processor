@@ -212,7 +212,7 @@ dependencyCheck {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
-  junit: '5.7.1',
+  junit: '5.7.2',
   junitPlatform: '1.7.2',
   mockitoJupiter: '3.3.3',
   springfoxSwagger: '2.9.2',
@@ -314,7 +314,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
   testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.3', {
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.4', {
     exclude group: 'junit', module: 'junit'
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
