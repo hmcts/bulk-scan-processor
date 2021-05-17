@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @IntegrationTest
-@TestPropertySource(properties = "scheduling.task.notifications_to_orchestrator.enabled=true")
+@TestPropertySource(properties = "scheduling.task.notifications_to_orchestrator.enabled=false")
 public class OrchestratorNotificationTaskTest {
 
     @Autowired private EnvelopeRepository envelopeRepo;

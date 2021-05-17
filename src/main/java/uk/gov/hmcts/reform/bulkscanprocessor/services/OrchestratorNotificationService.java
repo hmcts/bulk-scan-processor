@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -18,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.transaction.Transactional;
 
 @Service
-@ConditionalOnProperty(value = "scheduling.task.notifications_to_orchestrator.enabled", matchIfMissing = true)
 public class OrchestratorNotificationService {
     private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationService.class);
 
