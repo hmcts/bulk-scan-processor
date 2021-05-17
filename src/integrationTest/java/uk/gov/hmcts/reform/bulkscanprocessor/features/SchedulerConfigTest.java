@@ -60,9 +60,5 @@ public class SchedulerConfigTest {
             return mock(ServiceBusHelper.class);
         }
 
-        @Bean(name = "envelopes-helper")
-        public ServiceBusHelper envelopesQueueHelper() {
-            return mock(ServiceBusHelper.class);
-        }
     }
 }
