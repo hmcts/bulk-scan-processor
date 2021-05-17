@@ -4,9 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -24,7 +22,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @IntegrationTest
@@ -102,14 +99,5 @@ public class OrchestratorNotificationTaskTest {
     public void tearDown() {
         processEventRepo.deleteAll();
         envelopeRepo.deleteAll();
-    }
-
-    @TestConfiguration
-    public static class MockConfig {
-
-        @Bean(name = "envelopes-helper")
-        public ServiceBusHelper envelopesQueueHelper() {
-            return mock(ServiceBusHelper.class);
-        }
     }
 }
