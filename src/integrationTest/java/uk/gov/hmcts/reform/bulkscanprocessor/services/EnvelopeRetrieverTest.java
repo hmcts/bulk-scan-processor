@@ -72,7 +72,7 @@ public class EnvelopeRetrieverTest {
         serviceCanReadFromJurisdiction("service_B", "B");
 
         // when
-        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_B", Status.UPLOADED);
+        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_B", Status.NOTIFICATION_SENT);
 
         // then
         assertThat(envs).hasSize(0);
