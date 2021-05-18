@@ -40,9 +40,9 @@ public class EnvelopeRetrieverTest {
         dbContains(
             envelope("A", Status.UPLOADED),
             envelope("A", Status.UPLOADED),
-            envelope("A", Status.CONSUMED),
+            envelope("A", Status.NOTIFICATION_SENT),
             envelope("B", Status.UPLOADED),
-            envelope("B", Status.CONSUMED)
+            envelope("B", Status.NOTIFICATION_SENT)
         );
 
         // and
@@ -63,7 +63,7 @@ public class EnvelopeRetrieverTest {
         // given
         dbContains(
             envelope("A", Status.UPLOADED),
-            envelope("A", Status.CONSUMED),
+            envelope("A", Status.NOTIFICATION_SENT),
             envelope("B", Status.UPLOADED),
             envelope("B", Status.UPLOADED)
         );
@@ -72,7 +72,7 @@ public class EnvelopeRetrieverTest {
         serviceCanReadFromJurisdiction("service_B", "B");
 
         // when
-        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_B", Status.CONSUMED);
+        List<EnvelopeResponse> envs = service.findByServiceAndStatus("service_B", Status.NOTIFICATION_SENT);
 
         // then
         assertThat(envs).hasSize(0);
@@ -84,9 +84,9 @@ public class EnvelopeRetrieverTest {
         dbContains(
             envelope("X", Status.UPLOAD_FAILURE),
             envelope("X", Status.UPLOAD_FAILURE),
-            envelope("X", Status.CONSUMED),
+            envelope("X", Status.NOTIFICATION_SENT),
             envelope("X", Status.UPLOADED),
-            envelope("Y", Status.CONSUMED)
+            envelope("Y", Status.NOTIFICATION_SENT)
         );
 
         // and

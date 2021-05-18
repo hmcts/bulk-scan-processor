@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
@@ -19,7 +20,6 @@ import java.util.UUID;
 import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
@@ -29,6 +29,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class EnvelopeCountSummaryRepositoryTest {
 
     @Autowired private EnvelopeCountSummaryRepository reportRepo;
@@ -115,8 +116,7 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("service_D", "D2.zip", FILE_VALIDATION_FAILURE),
 
             event("service_E", "E1.zip", ZIPFILE_PROCESSING_STARTED),
-            event("service_E", "E1.zip", FILE_VALIDATION_FAILURE),
-            event("service_E", "E1.zip", DOC_CONSUMED)
+            event("service_E", "E1.zip", FILE_VALIDATION_FAILURE)
         );
 
         // when

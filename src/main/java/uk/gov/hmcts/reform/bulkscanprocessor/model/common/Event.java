@@ -10,7 +10,6 @@ public enum Event {
     DOC_SIGNATURE_FAILURE, // Signature verification failure while processing zip file
     DOC_UPLOADED,
     DOC_UPLOAD_FAILURE,
-    DOC_CONSUMED, // client service handled the documents
     DOC_PROCESSED_NOTIFICATION_SENT, // when document processed notification is posted (to servicebus queue)
     DOC_PROCESSED_NOTIFICATION_FAILURE, // when document processed notification fails
     DOC_PROCESSING_ABORTED, // when envelope processing cannot be completed (used manually to set the event with reason)

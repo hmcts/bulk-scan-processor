@@ -6,7 +6,6 @@ import java.util.Optional;
 
 public enum Status {
 
-    CONSUMED,           // client service handled the documents
     CREATED,
     METADATA_FAILURE,   // when we are aware of envelope, but there are inconsistency among files and metadata info
     SIGNATURE_FAILURE,  // the zip archive failed signature verification
@@ -25,8 +24,6 @@ public enum Status {
                 return Optional.of(UPLOADED);
             case DOC_UPLOAD_FAILURE:
                 return Optional.of(UPLOAD_FAILURE);
-            case DOC_CONSUMED:
-                return Optional.of(CONSUMED);
             case DOC_PROCESSED_NOTIFICATION_SENT:
                 return Optional.of(NOTIFICATION_SENT);
             default:
