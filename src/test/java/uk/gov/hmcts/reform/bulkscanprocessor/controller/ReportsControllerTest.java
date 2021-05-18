@@ -49,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
-import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
@@ -164,7 +163,7 @@ public class ReportsControllerTest {
             localDate,
             localTime.plusHours(1),
             "bulkscan",
-            CONSUMED.toString(),
+            NOTIFICATION_SENT.toString(),
             COMPLETED.toString(),
             EXCEPTION.name(),
             "ccd-id",
@@ -177,7 +176,7 @@ public class ReportsControllerTest {
         String expectedContent = String.format(
             "Container,Zip File Name,Date Received,Time Received,Date Processed,Time Processed,"
                 + "Status,Classification,CCD Action,CCD ID\r\n"
-                + "bulkscan,test.zip,%s,%s,%s,%s,CONSUMED,EXCEPTION,AUTO_CREATED_CASE,ccd-id\r\n",
+                + "bulkscan,test.zip,%s,%s,%s,%s,NOTIFICATION_SENT,EXCEPTION,AUTO_CREATED_CASE,ccd-id\r\n",
             localDate.toString(), "12:30:10",
             localDate.toString(), "13:30:10"
         );
@@ -222,7 +221,7 @@ public class ReportsControllerTest {
             localDate,
             localTime.plusHours(1),
             "bulkscan",
-            CONSUMED.toString(),
+            NOTIFICATION_SENT.toString(),
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
@@ -263,7 +262,7 @@ public class ReportsControllerTest {
             localDate,
             localTime.plusHours(1),
             "bulkscan",
-            CONSUMED.toString(),
+            NOTIFICATION_SENT.toString(),
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id", null
@@ -276,7 +275,7 @@ public class ReportsControllerTest {
             localDate,
             localTime.plusHours(1),
             "bulkscan",
-            CONSUMED.toString(),
+            NOTIFICATION_SENT.toString(),
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",

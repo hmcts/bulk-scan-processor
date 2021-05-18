@@ -167,7 +167,7 @@ public class EnvelopeRepositoryTest {
         // given
         dbHas(
             envelope("A.zip", COMPLETED),
-            envelope("B.zip", Status.CONSUMED)
+            envelope("B.zip", NOTIFICATION_SENT)
         );
 
         // then
