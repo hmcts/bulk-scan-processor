@@ -19,7 +19,6 @@ import java.util.UUID;
 import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_CONSUMED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
@@ -115,8 +114,7 @@ public class EnvelopeCountSummaryRepositoryTest {
             event("service_D", "D2.zip", FILE_VALIDATION_FAILURE),
 
             event("service_E", "E1.zip", ZIPFILE_PROCESSING_STARTED),
-            event("service_E", "E1.zip", FILE_VALIDATION_FAILURE),
-            event("service_E", "E1.zip", DOC_CONSUMED)
+            event("service_E", "E1.zip", FILE_VALIDATION_FAILURE)
         );
 
         // when
