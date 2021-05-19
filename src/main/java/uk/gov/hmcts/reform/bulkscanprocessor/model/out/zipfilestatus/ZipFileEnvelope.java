@@ -46,6 +46,10 @@ public class ZipFileEnvelope {
     @JsonProperty("case_number")
     public final String caseNumber;
 
+    @JsonProperty("created_at")
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant createdAt;
+
     @JsonProperty("delivery_date")
     @JsonSerialize(using = InstantSerializer.class)
     public final Instant deliveryDate;
@@ -76,6 +80,7 @@ public class ZipFileEnvelope {
         Classification classification,
         String jurisdiction,
         String caseNumber,
+        Instant createdAt,
         Instant deliveryDate,
         Instant openingDate,
         List<ScannableItemResponse> scannableItems,
@@ -93,6 +98,7 @@ public class ZipFileEnvelope {
         this.classification = classification;
         this.jurisdiction = jurisdiction;
         this.caseNumber = caseNumber;
+        this.createdAt = createdAt;
         this.deliveryDate = deliveryDate;
         this.openingDate = openingDate;
         this.scannableItems = scannableItems;

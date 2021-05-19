@@ -111,6 +111,7 @@ public class ZipFileStatusService {
             envelope.getClassification(),
             envelope.getJurisdiction(),
             envelope.getCaseNumber(),
+            envelope.getCreatedAt(),
             envelope.getDeliveryDate(),
             envelope.getOpeningDate(),
             toScannableItemsResponse(envelope.getScannableItems()),
