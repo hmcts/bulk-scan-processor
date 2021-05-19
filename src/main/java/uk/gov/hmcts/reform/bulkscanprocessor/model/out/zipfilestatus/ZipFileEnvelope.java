@@ -1,11 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.zipfilestatus;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.NonScannableItemResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.ScannableItemResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
+import java.time.Instant;
 import java.util.List;
 
 public class ZipFileEnvelope {
@@ -43,6 +46,14 @@ public class ZipFileEnvelope {
     @JsonProperty("case_number")
     public final String caseNumber;
 
+    @JsonProperty("delivery_date")
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant deliveryDate;
+
+    @JsonProperty("opening_date")
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant openingDate;
+
     @JsonProperty("scannable_items")
     public final List<ScannableItemResponse> scannableItems;
 
@@ -65,10 +76,11 @@ public class ZipFileEnvelope {
         Classification classification,
         String jurisdiction,
         String caseNumber,
+        Instant deliveryDate,
+        Instant openingDate,
         List<ScannableItemResponse> scannableItems,
         List<NonScannableItemResponse> nonScannableItems,
         List<PaymentResponse> payments
-
     ) {
         this.id = id;
         this.container = container;
@@ -81,6 +93,8 @@ public class ZipFileEnvelope {
         this.classification = classification;
         this.jurisdiction = jurisdiction;
         this.caseNumber = caseNumber;
+        this.deliveryDate = deliveryDate;
+        this.openingDate = openingDate;
         this.scannableItems = scannableItems;
         this.nonScannableItems = nonScannableItems;
         this.payments = payments;
