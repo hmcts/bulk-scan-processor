@@ -47,10 +47,11 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_data_returned_from_the_service() throws Exception {
-        Instant deliveryDate
-            = Instant.parse("2020-03-23T13:17:20.00Z");
-        Instant openingDate
-            = Instant.parse("2020-05-03T23:19:54.10Z");
+
+        String deliveryDate = "2020-03-23T13:17:20.000Z";
+        String openingDate = "2020-05-03T23:19:00.159Z";
+        String createdAt = "2021-06-03T00:00:00.100Z";
+
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
                 "0",
@@ -64,8 +65,9 @@ public class ZipStatusControllerTest {
                 NEW_APPLICATION,
                 DIVORCE,
                 "1329348437482",
-                deliveryDate,
-                openingDate,
+                Instant.parse(createdAt),
+                Instant.parse(deliveryDate),
+                Instant.parse(openingDate),
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -83,7 +85,8 @@ public class ZipStatusControllerTest {
                 PROBATE,
                 null,
                 null,
-                openingDate,
+                null,
+                Instant.parse(openingDate),
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -118,6 +121,9 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
             .andExpect(jsonPath("$.envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
             .andExpect(jsonPath("$.envelopes[0].case_number").value(envelopes.get(0).caseNumber))
+            .andExpect(jsonPath("$.envelopes[0].created_at").value(createdAt))
+            .andExpect(jsonPath("$.envelopes[0].delivery_date").value(deliveryDate))
+            .andExpect(jsonPath("$.envelopes[0].opening_date").value(openingDate))
             .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()))
             .andExpect(jsonPath("$.envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
             .andExpect(jsonPath("$.envelopes[1].id").value(envelopes.get(1).id))
@@ -128,6 +134,9 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
             .andExpect(jsonPath("$.envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
             .andExpect(jsonPath("$.envelopes[1].case_number").value(envelopes.get(1).caseNumber))
+            .andExpect(jsonPath("$.envelopes[1].created_at").doesNotExist())
+            .andExpect(jsonPath("$.envelopes[1].delivery_date").doesNotExist())
+            .andExpect(jsonPath("$.envelopes[1].opening_date").value(openingDate))
             .andExpect(jsonPath("$.envelopes[1].classification").value(envelopes.get(1).classification.name()))
             .andExpect(jsonPath("$.envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
             .andExpect(jsonPath("$.events", hasSize(2)))
@@ -158,10 +167,9 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_data_returned_from_the_service_with_given_dcn() throws Exception {
-        Instant deliveryDate
-            = Instant.parse("2020-03-23T13:17:20.00Z");
-        Instant openingDate
-            = Instant.parse("2020-05-03T23:19:54.10Z");
+        String deliveryDate = "2020-03-23T13:17:20.000Z";
+        String openingDate = "2020-05-03T23:19:54.159Z";
+        String createdAt = "2021-06-03T00:00:54.000Z";
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
                 "0",
@@ -175,8 +183,9 @@ public class ZipStatusControllerTest {
                 NEW_APPLICATION,
                 DIVORCE,
                 "1329348437482",
-                deliveryDate,
-                openingDate,
+                Instant.parse(createdAt),
+                Instant.parse(deliveryDate),
+                Instant.parse(openingDate),
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -193,7 +202,8 @@ public class ZipStatusControllerTest {
                 SUPPLEMENTARY_EVIDENCE,
                 PROBATE,
                 null,
-                deliveryDate,
+                Instant.parse(createdAt),
+                Instant.parse(deliveryDate),
                 null,
                 emptyList(),
                 emptyList(),
@@ -228,6 +238,9 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$[0].envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
             .andExpect(jsonPath("$[0].envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
             .andExpect(jsonPath("$[0].envelopes[0].case_number").value(envelopes.get(0).caseNumber))
+            .andExpect(jsonPath("$[0].envelopes[0].created_at").value(createdAt))
+            .andExpect(jsonPath("$[0].envelopes[0].delivery_date").value(deliveryDate))
+            .andExpect(jsonPath("$[0].envelopes[0].opening_date").value(openingDate))
             .andExpect(jsonPath("$[0].envelopes[0].classification").value(envelopes.get(0).classification.name()))
             .andExpect(jsonPath("$[0].envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
             .andExpect(jsonPath("$[0].envelopes[1].id").value(envelopes.get(1).id))
@@ -238,6 +251,9 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$[0].envelopes[1].zip_deleted").value(envelopes.get(1).zipDeleted))
             .andExpect(jsonPath("$[0].envelopes[1].rescan_for").value(envelopes.get(1).rescanFor))
             .andExpect(jsonPath("$[0].envelopes[1].case_number").value(envelopes.get(1).caseNumber))
+            .andExpect(jsonPath("$[0].envelopes[1].created_at").value(createdAt))
+            .andExpect(jsonPath("$[0].envelopes[1].delivery_date").value(deliveryDate))
+            .andExpect(jsonPath("$[0].envelopes[1].opening_date").doesNotExist())
             .andExpect(jsonPath("$[0].envelopes[1].classification").value(envelopes.get(1).classification.name()))
             .andExpect(jsonPath("$[0].envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
             .andExpect(jsonPath("$[0].events", hasSize(2)))
@@ -294,6 +310,7 @@ public class ZipStatusControllerTest {
                 "1329348437482",
                 null,
                 null,
+                null,
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -320,6 +337,9 @@ public class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].zip_deleted").value(envelopes.get(0).zipDeleted))
             .andExpect(jsonPath("$.envelopes[0].rescan_for").value(envelopes.get(0).rescanFor))
             .andExpect(jsonPath("$.envelopes[0].case_number").value(envelopes.get(0).caseNumber))
+            .andExpect(jsonPath("$.envelopes[0].created_at").doesNotExist())
+            .andExpect(jsonPath("$.envelopes[0].delivery_date").doesNotExist())
+            .andExpect(jsonPath("$.envelopes[0].opening_date").doesNotExist())
             .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()))
             .andExpect(jsonPath("$.envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
             .andExpect(jsonPath("$.events", hasSize(2)))
