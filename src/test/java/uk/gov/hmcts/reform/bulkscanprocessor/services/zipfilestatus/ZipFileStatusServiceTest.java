@@ -84,6 +84,8 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getClassification(),
                     envelopes.get(0).getJurisdiction(),
                     envelopes.get(0).getCaseNumber(),
+                    envelopes.get(0).getDeliveryDate(),
+                    envelopes.get(0).getOpeningDate(),
                     toScannableItemsResponse(envelopes.get(0).getScannableItems()),
                     toNonScannableItemsResponse(envelopes.get(0).getNonScannableItems()),
                     toPaymentsResponse(envelopes.get(0).getPayments())
@@ -100,6 +102,8 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getClassification(),
                     envelopes.get(1).getJurisdiction(),
                     envelopes.get(1).getCaseNumber(),
+                    envelopes.get(1).getDeliveryDate(),
+                    envelopes.get(1).getOpeningDate(),
                     toScannableItemsResponse(envelopes.get(1).getScannableItems()),
                     toNonScannableItemsResponse(envelopes.get(1).getNonScannableItems()),
                     toPaymentsResponse(envelopes.get(1).getPayments())
@@ -195,6 +199,8 @@ public class ZipFileStatusServiceTest {
                     envelopes1.get(0).getClassification(),
                     envelopes1.get(0).getJurisdiction(),
                     envelopes1.get(0).getCaseNumber(),
+                    envelopes1.get(0).getDeliveryDate(),
+                    envelopes1.get(0).getOpeningDate(),
                     toScannableItemsResponse(envelopes1.get(0).getScannableItems()),
                     toNonScannableItemsResponse(envelopes1.get(0).getNonScannableItems()),
                     toPaymentsResponse(envelopes1.get(0).getPayments())
@@ -211,6 +217,8 @@ public class ZipFileStatusServiceTest {
                     envelopes1.get(1).getClassification(),
                     envelopes1.get(1).getJurisdiction(),
                     envelopes1.get(1).getCaseNumber(),
+                    envelopes1.get(1).getDeliveryDate(),
+                    envelopes1.get(1).getOpeningDate(),
                     toScannableItemsResponse(envelopes1.get(1).getScannableItems()),
                     toNonScannableItemsResponse(envelopes1.get(1).getNonScannableItems()),
                     toPaymentsResponse(envelopes1.get(1).getPayments())
@@ -231,6 +239,8 @@ public class ZipFileStatusServiceTest {
                     envelopes2.get(0).getClassification(),
                     envelopes2.get(0).getJurisdiction(),
                     envelopes2.get(0).getCaseNumber(),
+                    envelopes2.get(0).getDeliveryDate(),
+                    envelopes2.get(0).getOpeningDate(),
                     toScannableItemsResponse(envelopes2.get(0).getScannableItems()),
                     toNonScannableItemsResponse(envelopes2.get(0).getNonScannableItems()),
                     toPaymentsResponse(envelopes2.get(0).getPayments())
@@ -247,6 +257,8 @@ public class ZipFileStatusServiceTest {
                     envelopes2.get(1).getClassification(),
                     envelopes2.get(1).getJurisdiction(),
                     envelopes2.get(1).getCaseNumber(),
+                    envelopes2.get(1).getDeliveryDate(),
+                    envelopes2.get(1).getOpeningDate(),
                     toScannableItemsResponse(envelopes2.get(1).getScannableItems()),
                     toNonScannableItemsResponse(envelopes2.get(1).getNonScannableItems()),
                     toPaymentsResponse(envelopes2.get(1).getPayments())
@@ -332,6 +344,8 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(0).getClassification(),
                     envelopes.get(0).getJurisdiction(),
                     envelopes.get(0).getCaseNumber(),
+                    envelopes.get(0).getDeliveryDate(),
+                    envelopes.get(0).getOpeningDate(),
                     toScannableItemsResponse(envelopes.get(0).getScannableItems()),
                     toNonScannableItemsResponse(envelopes.get(0).getNonScannableItems()),
                     toPaymentsResponse(envelopes.get(0).getPayments())
@@ -348,6 +362,8 @@ public class ZipFileStatusServiceTest {
                     envelopes.get(1).getClassification(),
                     envelopes.get(1).getJurisdiction(),
                     envelopes.get(1).getCaseNumber(),
+                    envelopes.get(1).getDeliveryDate(),
+                    envelopes.get(1).getOpeningDate(),
                     toScannableItemsResponse(envelopes.get(1).getScannableItems()),
                     toNonScannableItemsResponse(envelopes.get(1).getNonScannableItems()),
                     toPaymentsResponse(envelopes.get(1).getPayments())

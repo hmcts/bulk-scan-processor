@@ -47,7 +47,10 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_data_returned_from_the_service() throws Exception {
-
+        Instant deliveryDate
+            = Instant.parse("2020-03-23T13:17:20.00Z");
+        Instant openingDate
+            = Instant.parse("2020-05-03T23:19:54.10Z");
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
                 "0",
@@ -61,6 +64,8 @@ public class ZipStatusControllerTest {
                 NEW_APPLICATION,
                 DIVORCE,
                 "1329348437482",
+                deliveryDate,
+                openingDate,
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -77,6 +82,8 @@ public class ZipStatusControllerTest {
                 SUPPLEMENTARY_EVIDENCE,
                 PROBATE,
                 null,
+                null,
+                openingDate,
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -151,6 +158,10 @@ public class ZipStatusControllerTest {
 
     @Test
     public void should_return_data_returned_from_the_service_with_given_dcn() throws Exception {
+        Instant deliveryDate
+            = Instant.parse("2020-03-23T13:17:20.00Z");
+        Instant openingDate
+            = Instant.parse("2020-05-03T23:19:54.10Z");
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
                 "0",
@@ -164,6 +175,8 @@ public class ZipStatusControllerTest {
                 NEW_APPLICATION,
                 DIVORCE,
                 "1329348437482",
+                deliveryDate,
+                openingDate,
                 emptyList(),
                 emptyList(),
                 emptyList()
@@ -179,6 +192,8 @@ public class ZipStatusControllerTest {
                 null,
                 SUPPLEMENTARY_EVIDENCE,
                 PROBATE,
+                null,
+                deliveryDate,
                 null,
                 emptyList(),
                 emptyList(),
@@ -277,6 +292,8 @@ public class ZipStatusControllerTest {
                 NEW_APPLICATION,
                 DIVORCE,
                 "1329348437482",
+                null,
+                null,
                 emptyList(),
                 emptyList(),
                 emptyList()
