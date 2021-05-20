@@ -6,16 +6,21 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentStatusReponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.payment.PaymentService;
 
+import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 
 @Validated
@@ -46,6 +51,12 @@ public class PaymentController {
         authService.authenticate(serviceAuthHeader);
         paymentService.updatePaymentStatus(paymentRequest);
         return ResponseEntity.ok().body(new PaymentStatusReponse(SUCCESSFUL_UPDATE));
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public Optional<List<Payment>> getPaymentDcns(
+        @RequestParam(name = "dcns") List<String> dcns) {
+        return paymentService.getPayment(dcns);
     }
 }
 
