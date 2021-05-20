@@ -227,7 +227,7 @@ public class ReportsControllerTest {
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
             "AUTO_CREATED_CASE",
-            false
+            true
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", NEW_APPLICATION))
@@ -249,7 +249,8 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].envelope_status").value(response.envelopeStatus))
             .andExpect(jsonPath("$.data[0].classification").value(response.classification))
             .andExpect(jsonPath("$.data[0].ccd_id").value(response.ccdId))
-            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction));
+            .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction))
+            .andExpect(jsonPath("$.data[0].has_payments").value(response.hasPayments));
     }
 
     @Test

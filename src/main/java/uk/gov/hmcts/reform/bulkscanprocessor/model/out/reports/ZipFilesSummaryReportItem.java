@@ -42,6 +42,9 @@ public class ZipFilesSummaryReportItem {
     @JsonProperty("ccd_action")
     public final String ccdAction;
 
+    @JsonProperty("has_payments")
+    public final boolean hasPayments;
+
     // region constructor
     public ZipFilesSummaryReportItem(
         String fileName,
@@ -54,7 +57,8 @@ public class ZipFilesSummaryReportItem {
         String envelopeStatus,
         String classification,
         String ccdId,
-        String ccdAction
+        String ccdAction,
+        boolean hasPayments
     ) {
         this.fileName = fileName;
         this.dateReceived = dateReceived;
@@ -67,6 +71,7 @@ public class ZipFilesSummaryReportItem {
         this.classification = classification;
         this.ccdId = ccdId;
         this.ccdAction = ccdAction;
+        this.hasPayments = hasPayments;
     }
     // endregion
 

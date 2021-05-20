@@ -100,7 +100,8 @@ public class ReportsController {
                     item.envelopeStatus,
                     item.classification,
                     item.ccdId,
-                    item.ccdAction
+                    item.ccdAction,
+                    item.hasPayments
                 ))
                 .collect(toList())
         );
