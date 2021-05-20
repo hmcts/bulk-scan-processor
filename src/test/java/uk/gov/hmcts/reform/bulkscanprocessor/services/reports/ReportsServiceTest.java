@@ -168,7 +168,8 @@ public class ReportsServiceTest {
                     Status.CREATED.toString(),
                     EXCEPTION.name(),
                     null,
-                    null
+                    null,
+                    false
                 ),
                 new ZipFileSummaryResponse(
                     "t2.zip",
@@ -181,7 +182,8 @@ public class ReportsServiceTest {
                     Status.UPLOADED.toString(),
                     NEW_APPLICATION.name(),
                     "ccd-id",
-                    "ccd-action"
+                    "ccd-action",
+                    false
                 )
             );
     }
