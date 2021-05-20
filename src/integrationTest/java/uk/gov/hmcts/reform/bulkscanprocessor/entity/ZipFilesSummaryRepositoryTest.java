@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +37,23 @@ public class ZipFilesSummaryRepositoryTest {
 
     @Autowired
     private ZipFilesSummaryRepository reportRepo;
+
     @Autowired
     private ProcessEventRepository eventRepo;
+
+    @Autowired
+    private PaymentRepository paymentRepo;
+
     @Autowired
     private EnvelopeRepository envelopeRepo;
 
+    @AfterEach
+    void tearDown() {
+        paymentRepo.deleteAll();
+    }
+
     @Test
-    public void should_return_zipfiles_summary_by_date() {
+    public void should_return_zipfiles_summaryCsvWriterTest_by_date() {
         // given
         Instant createdDate = Instant.parse("2019-02-15T14:15:23.456Z");
         Instant completedDate = Instant.parse("2019-02-15T14:20:33.656Z");
@@ -58,6 +69,8 @@ public class ZipFilesSummaryRepositoryTest {
         var envelope2 = envelope("c2", "test2.zip", Status.CREATED, SUPPLEMENTARY_EVIDENCE, null, null);
         dbHasEnvelope(envelope1);
         dbHasEnvelope(envelope2);
+        var payment21 = payment(envelope2);
+        dbHasPayments(payment21);
 
         // when
         List<ZipFileSummary> result = reportRepo.getZipFileSummaryReportFor(LocalDate.of(2019, 2, 15));
@@ -77,7 +90,8 @@ public class ZipFilesSummaryRepositoryTest {
                         EXCEPTION.name(),
                         "ccd-id-1",
                         "ccd-action-1",
-                        envelope1.getId().toString()
+                        envelope1.getId().toString(),
+                        false
                     ),
                     new ZipFileSummaryItem(
                         "test2.zip",
@@ -89,7 +103,8 @@ public class ZipFilesSummaryRepositoryTest {
                         SUPPLEMENTARY_EVIDENCE.name(),
                         null,
                         null,
-                        envelope2.getId().toString()
+                        envelope2.getId().toString(),
+                        true
                     ),
                     new ZipFileSummaryItem(
                         "test4.zip",
@@ -101,7 +116,8 @@ public class ZipFilesSummaryRepositoryTest {
                         null,
                         null,
                         null,
-                        null
+                        null,
+                        false
                     )
                 )
             );
@@ -160,7 +176,8 @@ public class ZipFilesSummaryRepositoryTest {
                         SUPPLEMENTARY_EVIDENCE.name(),
                         null,
                         null,
-                        envelope.getId().toString()
+                        envelope.getId().toString(),
+                        false
                     )
                 )
             );
@@ -168,6 +185,10 @@ public class ZipFilesSummaryRepositoryTest {
 
     private void dbHasEvents(ProcessEvent... events) {
         eventRepo.saveAll(asList(events));
+    }
+
+    private void dbHasPayments(Payment... payments) {
+        paymentRepo.saveAll(asList(payments));
     }
 
     private void dbHasEnvelope(Envelope envelope) {
@@ -179,6 +200,12 @@ public class ZipFilesSummaryRepositoryTest {
         event.setCreatedAt(createdAt);
 
         return event;
+    }
+
+    private Payment payment(Envelope envelope) {
+        Payment payment = new Payment(UUID.randomUUID().toString());
+        payment.setEnvelope(envelope);
+        return payment;
     }
 
     private Envelope envelope(
