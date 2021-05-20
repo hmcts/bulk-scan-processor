@@ -167,8 +167,7 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             EXCEPTION.name(),
             "ccd-id",
-            "AUTO_CREATED_CASE",
-            false
+            "AUTO_CREATED_CASE"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
@@ -226,8 +225,7 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "AUTO_CREATED_CASE",
-            false
+            "AUTO_CREATED_CASE"
         );
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", NEW_APPLICATION))
@@ -267,8 +265,7 @@ public class ReportsControllerTest {
             NOTIFICATION_SENT.toString(),
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
-            "ccd-id", null,
-            false
+            "ccd-id", null
         );
 
         ZipFileSummaryResponse response1 = new ZipFileSummaryResponse(
@@ -282,8 +279,7 @@ public class ReportsControllerTest {
             COMPLETED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "AUTO_CREATED_CASE",
-            false
+            "AUTO_CREATED_CASE"
         );
 
         ZipFileSummaryResponse response2 = new ZipFileSummaryResponse(
@@ -297,8 +293,7 @@ public class ReportsControllerTest {
             UPLOAD_FAILURE.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            "EXCEPTION_RECORD",
-            false
+            "EXCEPTION_RECORD"
         );
 
         ZipFileSummaryResponse response3 = new ZipFileSummaryResponse(
@@ -312,8 +307,7 @@ public class ReportsControllerTest {
             CREATED.toString(),
             SUPPLEMENTARY_EVIDENCE.name(),
             "ccd-id",
-            null,
-            false
+            null
         );
 
         List<ZipFileSummaryResponse> response = Arrays.asList(response0, response1, response2, response3);

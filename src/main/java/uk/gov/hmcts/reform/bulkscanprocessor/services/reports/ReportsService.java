@@ -96,8 +96,7 @@ public class ReportsService {
             dbItem.getEnvelopeStatus(),
             dbItem.getClassification(),
             dbItem.getCcdId(),
-            dbItem.getCcdAction(),
-            dbItem.getHasPayments()
+            dbItem.getCcdAction()
         );
     }
 
