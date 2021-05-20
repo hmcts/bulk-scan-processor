@@ -62,10 +62,12 @@ public class PaymentControllerTest {
             new Payment("22234"),
             new Payment("33234")
         );
+        List<String> dcns = of("11234", "22234", "33234");
 
         //Given
         Envelope envelope = EnvelopeCreator.envelope(payments);
         envelopeRepository.save(envelope);
+        given(paymentRepository.updateStatus(dcns)).willReturn(3);
 
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
