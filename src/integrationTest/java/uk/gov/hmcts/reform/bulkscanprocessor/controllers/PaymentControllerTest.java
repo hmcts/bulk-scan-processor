@@ -11,17 +11,21 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.PaymentRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.List.of;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -43,6 +47,9 @@ public class PaymentControllerTest {
     @MockBean
     private AuthService authService;
 
+    @MockBean
+    private PaymentRepository paymentRepository;
+
     @AfterEach
     public void cleanUp() {
         envelopeRepository.deleteAll();
@@ -55,10 +62,12 @@ public class PaymentControllerTest {
             new Payment("22234"),
             new Payment("33234")
         );
+        List<String> dcns = of("11234", "22234", "33234");
 
         //Given
         Envelope envelope = EnvelopeCreator.envelope(payments);
         envelopeRepository.save(envelope);
+        given(paymentRepository.updateStatus(dcns)).willReturn(3);
 
         when(authService.authenticate("testServiceAuthHeader"))
             .thenReturn("testServiceName");
@@ -114,5 +123,34 @@ public class PaymentControllerTest {
         verify(authService, never()).authenticate("testServiceAuthHeader");
     }
 
+    @Test
+    void should_get_paymentDcns() throws Exception {
+        List<Payment> payments = of(
+            new Payment("11234"),
+            new Payment("33234")
+        );
 
+        List<String> dcns = of("11234", "22234", "33234");
+        given(paymentRepository.findByDocumentControlNumberIn(dcns))
+            .willReturn(Optional.of(payments));
+
+        mockMvc.perform(get("/payment?dcns=" + String.join(",", dcns)))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].documentControlNumber").value("11234"))
+            .andExpect(jsonPath("$[1].documentControlNumber").value("33234"));
+    }
+
+    @Test
+    void should_not_return_payment_when_no_payment() throws Exception {
+
+        List<String> dcns = of("11234", "22234", "33234");
+        given(paymentRepository.findByDocumentControlNumberIn(dcns))
+            .willReturn(Optional.empty());
+
+        mockMvc.perform(get("/payment?dcns=" + String.join(",", dcns)))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").doesNotExist());
+    }
 }
