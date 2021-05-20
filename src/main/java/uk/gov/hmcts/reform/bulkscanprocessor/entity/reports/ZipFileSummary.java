@@ -23,6 +23,4 @@ public interface ZipFileSummary {
     String getCcdAction();
 
     String getEnvelopeId();
-
-    boolean getHasPayments();
 }

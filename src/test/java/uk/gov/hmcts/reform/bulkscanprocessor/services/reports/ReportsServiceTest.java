@@ -132,8 +132,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -145,8 +144,7 @@ public class ReportsServiceTest {
                     NEW_APPLICATION.name(),
                     "ccd-id",
                     "ccd-action",
-                    null,
-                    false
+                    null
                 )
             ));
 
@@ -201,8 +199,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -214,8 +211,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 )
             ));
 
@@ -245,8 +241,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -258,8 +253,7 @@ public class ReportsServiceTest {
                     NEW_APPLICATION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t3.zip",
@@ -271,8 +265,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t4.zip",
@@ -284,8 +277,7 @@ public class ReportsServiceTest {
                     NEW_APPLICATION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 )
             ));
 
@@ -317,8 +309,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t2.zip",
@@ -330,8 +321,7 @@ public class ReportsServiceTest {
                     NEW_APPLICATION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t3.zip",
@@ -343,8 +333,7 @@ public class ReportsServiceTest {
                     EXCEPTION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 ),
                 new ZipFileSummaryItem(
                     "t4.zip",
@@ -356,8 +345,7 @@ public class ReportsServiceTest {
                     NEW_APPLICATION.name(),
                     null,
                     null,
-                    null,
-                    false
+                    null
                 )
             ));
 
