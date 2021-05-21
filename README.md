@@ -10,6 +10,7 @@
 Retrieve scanned documents along with information extracted with OCR engine. Store the images and let recipient
 services fetch the new data.
 
+
 ## Building and deploying the application
 
 The project uses [Gradle](https://gradle.org) as a build tool. It already contains
