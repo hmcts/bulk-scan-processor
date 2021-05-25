@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
@@ -36,9 +35,6 @@ public class ScannableItemResponse {
     @JsonProperty("file_name")
     public final String fileName;
 
-    @JsonProperty("notes")
-    public final String notes;
-
     @JsonProperty("document_uuid")
     public final String documentUuid;
 
@@ -59,7 +55,6 @@ public class ScannableItemResponse {
         @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("next_action_date") Instant nextActionDate,
         @JsonProperty("file_name") String fileName,
-        @JsonProperty("notes") String notes,
         @JsonProperty("document_uuid") String documentUuid,
         @JsonProperty("document_type") DocumentType documentType,
         @JsonProperty("document_subtype") String documentSubtype
@@ -71,7 +66,6 @@ public class ScannableItemResponse {
         this.nextAction = nextAction;
         this.nextActionDate = nextActionDate;
         this.fileName = fileName;
-        this.notes = notes;
         this.documentUuid = documentUuid;
         this.documentType = documentType;
         this.documentSubtype = documentSubtype;
@@ -87,7 +81,6 @@ public class ScannableItemResponse {
             + ", nextAction='" + nextAction + '\''
             + ", nextActionDate=" + nextActionDate
             + ", fileName='" + fileName + '\''
-            + ", notes='" + notes + '\''
             + ", documentUuid='" + documentUuid + '\''
             + ", documentType='" + documentType + '\''
             + ", documentSubtype='" + documentSubtype + '\''
