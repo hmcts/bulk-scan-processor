@@ -33,9 +33,6 @@ public class ScannableItemResponse {
     @JsonProperty("next_action_date")
     public final Instant nextActionDate;
 
-    @JsonProperty("ocr_data")
-    public final OcrData ocrData;
-
     @JsonProperty("file_name")
     public final String fileName;
 
@@ -61,7 +58,6 @@ public class ScannableItemResponse {
         @JsonProperty("next_action") String nextAction,
         @JsonDeserialize(using = InstantDeserializer.class)
         @JsonProperty("next_action_date") Instant nextActionDate,
-        @JsonProperty("ocr_data") OcrData ocrData,
         @JsonProperty("file_name") String fileName,
         @JsonProperty("notes") String notes,
         @JsonProperty("document_uuid") String documentUuid,
@@ -74,7 +70,6 @@ public class ScannableItemResponse {
         this.manualIntervention = manualIntervention;
         this.nextAction = nextAction;
         this.nextActionDate = nextActionDate;
-        this.ocrData = ocrData;
         this.fileName = fileName;
         this.notes = notes;
         this.documentUuid = documentUuid;

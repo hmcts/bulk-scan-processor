@@ -75,7 +75,6 @@ public final class EnvelopeResponseMapper {
             scannableItem.getManualIntervention(),
             scannableItem.getNextAction(),
             scannableItem.getNextActionDate(),
-            scannableItem.getOcrData(),
             scannableItem.getFileName(),
             scannableItem.getNotes(),
             scannableItem.getDocumentUuid(),
@@ -101,8 +100,7 @@ public final class EnvelopeResponseMapper {
         }
         return new NonScannableItemResponse(
             nonScannableItem.getDocumentControlNumber(),
-            nonScannableItem.getItemType(),
-            nonScannableItem.getNotes()
+            nonScannableItem.getItemType()
         );
     }
 
