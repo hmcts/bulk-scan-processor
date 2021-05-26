@@ -96,14 +96,10 @@ public class EnvelopeProcessor {
      * blob deletion is the last processing step.
      */
     public Envelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
-        return envelopeRepository.findEnvelopesByFileAndContainer(
+        return envelopeRepository.findFirstEnvelopesByFileAndContainer(
             container,
-            zipFileName,
-            PageRequest.of(0, 1)
-        )
-            .stream()
-            .findFirst()
-            .orElse(null);
+            zipFileName
+        );
     }
 
     public void saveEnvelope(Envelope envelope) {
