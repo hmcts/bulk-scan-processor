@@ -10,6 +10,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManager;
@@ -362,6 +363,54 @@ public class EnvelopeRepositoryTest {
 
     }
 
+    @Test
+    public void findByJurisdictionAndCreatedAtGreaterThan_should_return_envelopes() {
+        // given
+
+        var e1 = envelope("A.zip", "X", COMPLETED, scannableItems(), "c1", false);
+        var e2 = envelope("B.zip", "X", UPLOADED, scannableItems(), "c1", false);
+        var e3 = envelope("F.zip", "X", NOTIFICATION_SENT, scannableItems(), "c2", false);
+        var e4 = envelope("A.zip", "Y", COMPLETED, scannableItems(), "c2", false);
+
+        dbHas(e1, e2, e3, e4);
+
+        entityManager.createNativeQuery(
+            "UPDATE envelopes SET createdat = '" + now().minusMinutes(20) + "' WHERE id ='" + e1.getId() + "'"
+        ).executeUpdate();
+
+        // when
+        List<Envelope> results = repo.findByJurisdictionAndCreatedAtGreaterThan(
+            "X",
+            Instant.now().minus(5, ChronoUnit.MINUTES)
+        );
+
+        // then
+        assertThat(results)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(e2, e3);
+    }
+
+    @Test
+    public void findByJurisdictionAndCreatedAtGreaterThan_should_not_return_any_envelope() {
+        // given
+        dbHas(
+            envelope("A.zip", "X", COMPLETED, scannableItems(), "c1", false),
+            envelope("B.zip", "X", COMPLETED, scannableItems(), "c1", false),
+            envelope("F.zip", "X", NOTIFICATION_SENT, scannableItems(), "c2", false),
+            envelope("A.zip", "X", COMPLETED, scannableItems(), "c2", false)
+        );
+
+
+        // when
+        List<Envelope> results = repo.findByJurisdictionAndCreatedAtGreaterThan(
+            "X",
+            Instant.now()
+        );
+
+        // then
+        assertThat(results).hasSize(0);
+    }
+
     private Envelope envelopeWithFailureCount(int failCount) {
         Envelope envelope = envelope("X", UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);
@@ -370,5 +419,6 @@ public class EnvelopeRepositoryTest {
 
     private void dbHas(Envelope... envelopes) {
         repo.saveAll(asList(envelopes));
+        repo.flush();
     }
 }

@@ -12,6 +12,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,7 +43,11 @@ public class EnvelopeRetrieverService {
 
         return EnvelopeResponseMapper.toEnvelopesResponse(
             status == null
-                ? envelopeRepository.findByJurisdiction(jurisdiction)
+                ?
+                envelopeRepository.findByJurisdictionAndCreatedAtGreaterThan(
+                    jurisdiction,
+                    Instant.now().minus(24, ChronoUnit.HOURS)
+                )
                 : envelopeRepository.findByJurisdictionAndStatus(jurisdiction, status)
         );
     }
