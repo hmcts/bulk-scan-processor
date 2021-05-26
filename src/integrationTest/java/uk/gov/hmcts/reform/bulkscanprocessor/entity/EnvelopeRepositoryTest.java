@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManager;
 
 import static java.time.LocalDateTime.now;
@@ -318,6 +319,47 @@ public class EnvelopeRepositoryTest {
         assertThat(result)
             .extracting(Envelope::getZipFileName)
             .containsExactlyInAnyOrder("B.zip", "D.zip", "H.zip");
+    }
+
+    @Test
+    public void findFirstByZipFileNameAndContainerOrderByCreatedAtDesc_should_return_one_envelope()
+        throws InterruptedException {
+        // given
+        var envelope =
+            envelope("A.zip", "X", UPLOADED, scannableItems(), "c1", false);
+        TimeUnit.SECONDS.sleep(1);
+        dbHas(
+            envelope,
+            envelope("A.zip", "X", COMPLETED, scannableItems(), "c1", false),
+            envelope("B.zip", "Y", COMPLETED, scannableItems(), "c1", false),
+            envelope("F.zip", "Z", NOTIFICATION_SENT, scannableItems(), "c2", false),
+            envelope("A.zip", "X", COMPLETED, scannableItems(), "c2", false)
+        );
+
+
+        // when
+        Envelope result = repo.findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
+            "A.zip",
+            "c1"
+        );
+
+        // then
+        assertThat(result)
+            .hasFieldOrPropertyWithValue("zipFileName","A.zip")
+            .hasFieldOrPropertyWithValue("container","c1")
+            .hasFieldOrPropertyWithValue("status",COMPLETED);
+    }
+
+    @Test
+    public void findFirstByZipFileNameAndContainerOrderByCreatedAtDesc_should_return_null() {
+        // when
+        Envelope result = repo.findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
+            "A.zip",
+            "c1"
+        );
+
+        assertThat(result).isNull();
+
     }
 
     private Envelope envelopeWithFailureCount(int failCount) {

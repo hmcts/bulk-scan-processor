@@ -44,8 +44,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
      * @return A list of envelopes.
      */
     Envelope findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
-        @Param("container") String container,
-        @Param("zip") String zipFileName
+        String zipFileName,
+        String container
     );
 
     /**
