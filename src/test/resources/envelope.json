@@ -17,7 +17,6 @@
           "next_action": "return",
           "next_action_date": "2018-06-23T12:34:56.123Z",
           "file_name": "1111001.pdf",
-          "notes": "test",
           "document_uuid": "0fa1ab60-f836-43aa-8c65-b07cc9bebceb",
           "document_type": "cherished"
         },
@@ -28,9 +27,7 @@
           "manual_intervention": "test",
           "next_action": "return",
           "next_action_date": "2018-06-23T12:34:56.123Z",
-          "ocr_data": {"Metadata_file":[{"metadata_field_name": "name1", "metadata_field_value": "value1"}]},
           "file_name": "1111002.pdf",
-          "notes": "test",
           "document_uuid": "0fa1ab60-f836-43aa-8c65-b07cc9bebcbe",
           "document_type": "other"
         }
@@ -43,8 +40,7 @@
       "non_scannable_items": [
         {
           "document_control_number": "1111001",
-          "item_type": "CD",
-          "notes": "4GB USB memory stick"
+          "item_type": "CD"
         }
       ],
       "status": "UPLOADED",

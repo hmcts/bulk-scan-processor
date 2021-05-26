@@ -20,9 +20,9 @@ public class NonScannableItemResponse {
 
     @Override
     public String toString() {
-        return "NonScannableItemResponse{" +
-            "documentControlNumber='" + documentControlNumber + '\'' +
-            ", itemType='" + itemType + '\'' +
-            '}';
+        return "NonScannableItemResponse{"
+            + "documentControlNumber='" + documentControlNumber + '\''
+            + ", itemType='" + itemType + '\''
+            + '}';
     }
 }
