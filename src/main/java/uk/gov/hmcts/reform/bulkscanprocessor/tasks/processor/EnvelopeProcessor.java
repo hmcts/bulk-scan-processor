@@ -96,7 +96,7 @@ public class EnvelopeProcessor {
      * blob deletion is the last processing step.
      */
     public Envelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
-        return envelopeRepository.findFirstEnvelopesByFileAndContainer(
+        return envelopeRepository.findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
             container,
             zipFileName
         );
