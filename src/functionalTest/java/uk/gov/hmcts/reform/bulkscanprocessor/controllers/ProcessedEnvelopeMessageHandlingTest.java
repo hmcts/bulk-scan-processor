@@ -73,7 +73,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
         var updatedEnvelope = getEnvelope(zipFilename);
         assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
-        assertThat(updatedEnvelope.getScannableItems()).allMatch(item -> item.ocrData == null);
 
         if (FLUX_FUNC_TEST) {
             assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
