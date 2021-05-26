@@ -97,8 +97,8 @@ public class EnvelopeProcessor {
      */
     public Envelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
         return envelopeRepository.findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
-            container,
-            zipFileName
+            zipFileName,
+            container
         );
     }
 
