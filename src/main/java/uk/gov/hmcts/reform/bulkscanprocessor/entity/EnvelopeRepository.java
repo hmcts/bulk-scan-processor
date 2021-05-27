@@ -26,7 +26,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     /**
      * Find all envelopes for given jurisdiction.
      */
-    List<Envelope> findByJurisdiction(String jurisdiction);
+    List<Envelope> findByJurisdictionAndCreatedAtGreaterThan(String jurisdiction, Instant date);
 
     List<Envelope> findByStatus(Status status);
 

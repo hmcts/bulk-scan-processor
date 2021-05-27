@@ -17,6 +17,8 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,11 +77,12 @@ public class EnvelopeRetrieverServiceTest {
         given(envelopeAccess.getReadJurisdictionForService("testService"))
             .willReturn("testJurisdiction");
 
-        given(envelopeRepository.findByJurisdiction("testJurisdiction"))
+        given(envelopeRepository.findByJurisdictionAndCreatedAtGreaterThan(eq("testJurisdiction"), any()))
             .willReturn(envelopes);
 
         // when
-        List<EnvelopeResponse> foundEnvelopes = envelopeRetrieverService.findByServiceAndStatus("testService", null);
+        List<EnvelopeResponse> foundEnvelopes = envelopeRetrieverService
+            .findByServiceAndStatus("testService", null);
 
         // then
         assertThat(foundEnvelopes)
