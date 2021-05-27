@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -12,6 +13,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -49,7 +52,8 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeAccess.getReadJurisdictionForService("testService"))
             .thenReturn("testJurisdiction");
 
-        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", UPLOADED))
+        when(envelopeRepository
+                 .findByJurisdictionAndStatusAndCreatedAtGreaterThan(eq("testJurisdiction"), eq(UPLOADED), any()))
             .thenReturn(envelopes);
 
         List<EnvelopeResponse> retrievedResponses =
@@ -58,8 +62,16 @@ public class EnvelopeRetrieverServiceTest {
         assertThat(retrievedResponses)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(envelopesResponse);
-
-        verify(envelopeRepository).findByJurisdictionAndStatus("testJurisdiction", UPLOADED);
+        var greaterThan = Instant.now().minus(24, ChronoUnit.HOURS).minusSeconds(10);
+        ArgumentCaptor<Instant> argument = ArgumentCaptor.forClass(Instant.class);
+        verify(envelopeRepository)
+            .findByJurisdictionAndStatusAndCreatedAtGreaterThan(
+                eq("testJurisdiction"),
+                eq(UPLOADED),
+                argument.capture()
+            );
+        var time = argument.getValue();
+        assertThat(time).isAfter(greaterThan).isBefore(Instant.now());
     }
 
     @Test
@@ -95,7 +107,8 @@ public class EnvelopeRetrieverServiceTest {
         when(envelopeAccess.getReadJurisdictionForService("testService"))
             .thenReturn("testJurisdiction");
 
-        when(envelopeRepository.findByJurisdictionAndStatus("testJurisdiction", UPLOADED))
+        when(envelopeRepository
+                 .findByJurisdictionAndStatusAndCreatedAtGreaterThan(eq("testJurisdiction"), eq(UPLOADED), any()))
             .thenThrow(DataRetrievalFailureException.class);
 
         Throwable throwable = catchThrowable(() ->
