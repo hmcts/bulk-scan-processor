@@ -61,7 +61,14 @@ class FileNamesExtractorTest {
         var blob2 = mock(BlobItem.class);
         var blob3 = mock(BlobItem.class);
         var blob4 = mock(BlobItem.class);
-        var blobs = asList(blob0, blob1, blob2, blob3, blob4);
+        var blob5 = mock(BlobItem.class);
+        var blob6 = mock(BlobItem.class);
+        var blob7 = mock(BlobItem.class);
+        var blob8 = mock(BlobItem.class);
+        var blob9 = mock(BlobItem.class);
+        var blob10 = mock(BlobItem.class);
+
+        var blobs = asList(blob0, blob1, blob2, blob3, blob4, blob5, blob6, blob7, blob8, blob9, blob10);
 
         given(container.listBlobs()).willReturn(pagedIterable);
         given(pagedIterable.stream()).willReturn(blobs.stream());
