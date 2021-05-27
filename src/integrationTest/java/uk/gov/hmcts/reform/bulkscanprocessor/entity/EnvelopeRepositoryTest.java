@@ -411,6 +411,57 @@ public class EnvelopeRepositoryTest {
         assertThat(results).hasSize(0);
     }
 
+    @Test
+    public void findByJurisdictionAndStatusAndCreatedAtGreaterThan_should_return_envelopes() {
+        // given
+
+        var e1 = envelope("A.zip", "X", COMPLETED, scannableItems(), "c1", false);
+        var e2 = envelope("B.zip", "X", COMPLETED, scannableItems(), "c1", false);
+        var e3 = envelope("F.zip", "X", COMPLETED, scannableItems(), "c2", false);
+        var e4 = envelope("A.zip", "Y", COMPLETED, scannableItems(), "c2", false);
+        var e5 = envelope("A.zip", "X", UPLOADED, scannableItems(), "c2", false);
+
+        dbHas(e1, e2, e3, e4, e5);
+
+        entityManager.createNativeQuery(
+            "UPDATE envelopes SET createdat = '" + now().minusMinutes(20) + "' WHERE id ='" + e1.getId() + "'"
+        ).executeUpdate();
+
+        // when
+        List<Envelope> results = repo.findByJurisdictionAndStatusAndCreatedAtGreaterThan(
+            "X",
+            COMPLETED,
+            Instant.now().minus(5, ChronoUnit.MINUTES)
+        );
+
+        // then
+        assertThat(results)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(e2, e3);
+    }
+
+    @Test
+    public void findByJurisdictionAndStatusAndCreatedAtGreaterThan_should_not_return_any_envelope() {
+        // given
+        dbHas(
+            envelope("A.zip", "X", COMPLETED, scannableItems(), "c1", false),
+            envelope("B.zip", "X", COMPLETED, scannableItems(), "c1", false),
+            envelope("F.zip", "X", NOTIFICATION_SENT, scannableItems(), "c2", false),
+            envelope("A.zip", "X", COMPLETED, scannableItems(), "c2", false)
+        );
+
+
+        // when
+        List<Envelope> results = repo.findByJurisdictionAndStatusAndCreatedAtGreaterThan(
+            "X",
+            COMPLETED,
+            Instant.now()
+        );
+
+        // then
+        assertThat(results).hasSize(0);
+    }
+
     private Envelope envelopeWithFailureCount(int failCount) {
         Envelope envelope = envelope("X", UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);

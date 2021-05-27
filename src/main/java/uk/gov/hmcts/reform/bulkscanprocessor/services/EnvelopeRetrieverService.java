@@ -40,15 +40,20 @@ public class EnvelopeRetrieverService {
         log.info("Fetch requested for envelopes for service {} and status {}", serviceName, status);
 
         String jurisdiction = envelopeAccessService.getReadJurisdictionForService(serviceName);
-
+        var greaterThan = Instant.now().minus(24, ChronoUnit.HOURS);
         return EnvelopeResponseMapper.toEnvelopesResponse(
             status == null
                 ?
                 envelopeRepository.findByJurisdictionAndCreatedAtGreaterThan(
                     jurisdiction,
-                    Instant.now().minus(24, ChronoUnit.HOURS)
+                    greaterThan
                 )
-                : envelopeRepository.findByJurisdictionAndStatus(jurisdiction, status)
+                :
+                envelopeRepository.findByJurisdictionAndStatusAndCreatedAtGreaterThan(
+                    jurisdiction,
+                    status,
+                    greaterThan
+                )
         );
     }
 

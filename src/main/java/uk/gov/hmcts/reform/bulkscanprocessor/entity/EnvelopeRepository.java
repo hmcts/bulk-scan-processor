@@ -19,7 +19,11 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
      * @param jurisdiction jurisdiction for which envelopes needs to be retrieved
      * @return A list of envelopes which belongs to the given jurisdiction.
      */
-    List<Envelope> findByJurisdictionAndStatus(String jurisdiction, Status status);
+    List<Envelope> findByJurisdictionAndStatusAndCreatedAtGreaterThan(
+        String jurisdiction,
+        Status status,
+        Instant time
+    );
 
     int countAllByCreatedAtAfter(Instant createdAt);
 
