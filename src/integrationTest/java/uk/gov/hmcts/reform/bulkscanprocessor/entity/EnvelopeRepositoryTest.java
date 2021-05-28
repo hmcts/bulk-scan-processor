@@ -375,7 +375,7 @@ public class EnvelopeRepositoryTest {
         dbHas(e1, e2, e3, e4);
 
         entityManager.createNativeQuery(
-            "UPDATE envelopes SET createdat = '" + now().minusMinutes(20) + "' WHERE id ='" + e1.getId() + "'"
+            "UPDATE envelopes SET createdat = '" + now().minusHours(3) + "' WHERE id ='" + e1.getId() + "'"
         ).executeUpdate();
         entityManager.flush();
         // when
@@ -424,7 +424,7 @@ public class EnvelopeRepositoryTest {
         dbHas(e1, e2, e3, e4, e5);
 
         entityManager.createNativeQuery(
-            "UPDATE envelopes SET createdat = '" + now().minusMinutes(20) + "' WHERE id ='" + e1.getId() + "'"
+            "UPDATE envelopes SET createdat = '" + now().minusHours(3) + "' WHERE id ='" + e1.getId() + "'"
         ).executeUpdate();
         entityManager.flush();
 
