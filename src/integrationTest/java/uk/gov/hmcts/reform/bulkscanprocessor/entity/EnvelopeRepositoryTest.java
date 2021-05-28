@@ -377,7 +377,7 @@ public class EnvelopeRepositoryTest {
         entityManager.createNativeQuery(
             "UPDATE envelopes SET createdat = '" + now().minusMinutes(20) + "' WHERE id ='" + e1.getId() + "'"
         ).executeUpdate();
-
+        entityManager.flush();
         // when
         List<Envelope> results = repo.findByJurisdictionAndCreatedAtGreaterThan(
             "X",
@@ -426,6 +426,7 @@ public class EnvelopeRepositoryTest {
         entityManager.createNativeQuery(
             "UPDATE envelopes SET createdat = '" + now().minusMinutes(20) + "' WHERE id ='" + e1.getId() + "'"
         ).executeUpdate();
+        entityManager.flush();
 
         // when
         List<Envelope> results = repo.findByJurisdictionAndStatusAndCreatedAtGreaterThan(
