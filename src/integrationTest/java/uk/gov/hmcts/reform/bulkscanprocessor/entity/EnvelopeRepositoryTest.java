@@ -10,7 +10,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManager;
@@ -364,24 +363,23 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findByJurisdictionAndCreatedAtGreaterThan_should_return_envelopes() {
+    public void findByJurisdictionAndCreatedAtGreaterThan_should_return_envelopes()
+        throws InterruptedException {
         // given
 
         var e1 = envelope("A.zip", "X", COMPLETED, scannableItems(), "c1", false);
+        Instant greaterThan = Instant.now();
+        TimeUnit.SECONDS.sleep(2);
         var e2 = envelope("B.zip", "X", UPLOADED, scannableItems(), "c1", false);
         var e3 = envelope("F.zip", "X", NOTIFICATION_SENT, scannableItems(), "c2", false);
         var e4 = envelope("A.zip", "Y", COMPLETED, scannableItems(), "c2", false);
 
         dbHas(e1, e2, e3, e4);
 
-        entityManager.createNativeQuery(
-            "UPDATE envelopes SET createdat = '" + now().minusHours(3) + "' WHERE id ='" + e1.getId() + "'"
-        ).executeUpdate();
-        entityManager.flush();
         // when
         List<Envelope> results = repo.findByJurisdictionAndCreatedAtGreaterThan(
             "X",
-            Instant.now().minus(5, ChronoUnit.MINUTES)
+            greaterThan
         );
 
         // then
@@ -412,10 +410,13 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void findByJurisdictionAndStatusAndCreatedAtGreaterThan_should_return_envelopes() {
+    public void findByJurisdictionAndStatusAndCreatedAtGreaterThan_should_return_envelopes()
+        throws InterruptedException {
         // given
 
         var e1 = envelope("A.zip", "X", COMPLETED, scannableItems(), "c1", false);
+        Instant greaterThan = Instant.now();
+        TimeUnit.SECONDS.sleep(2);
         var e2 = envelope("B.zip", "X", COMPLETED, scannableItems(), "c1", false);
         var e3 = envelope("F.zip", "X", COMPLETED, scannableItems(), "c2", false);
         var e4 = envelope("A.zip", "Y", COMPLETED, scannableItems(), "c2", false);
@@ -423,16 +424,11 @@ public class EnvelopeRepositoryTest {
 
         dbHas(e1, e2, e3, e4, e5);
 
-        entityManager.createNativeQuery(
-            "UPDATE envelopes SET createdat = '" + now().minusHours(3) + "' WHERE id ='" + e1.getId() + "'"
-        ).executeUpdate();
-        entityManager.flush();
-
         // when
         List<Envelope> results = repo.findByJurisdictionAndStatusAndCreatedAtGreaterThan(
             "X",
             COMPLETED,
-            Instant.now().minus(5, ChronoUnit.MINUTES)
+            greaterThan
         );
 
         // then
