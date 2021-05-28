@@ -45,7 +45,7 @@ public class EnvelopeActionService {
     public void reprocessEnvelope(UUID envelopeId) {
         Envelope envelope = envelopeRepository.findById(envelopeId)
             .orElseThrow(
-                () -> new EnvelopeNotFoundException("Envelope with id " + envelopeId + " not found")
+                () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
         validateEnvelopeState(envelope);
@@ -64,7 +64,7 @@ public class EnvelopeActionService {
     public void moveEnvelopeToCompleted(UUID envelopeId) {
         Envelope envelope = envelopeRepository.findById(envelopeId)
             .orElseThrow(
-                () -> new EnvelopeNotFoundException("Envelope with id " + envelopeId + " not found")
+                () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
         validateEnvelopeIsInInconsistentState(envelope);
@@ -92,13 +92,13 @@ public class EnvelopeActionService {
     private void validateEnvelopeState(Envelope envelope) {
         if (envelope.getCcdId() != null) {
             throw new EnvelopeProcessedInCcdException(
-                "Envelope with id " + envelope.getId() + " has already been processed in CCD"
+                    getErrorMessage(envelope.getId(), "has already been processed in CCD")
             );
         }
 
         if (envelope.getStatus() != COMPLETED && !isStale(envelope)) {
             throw new EnvelopeNotCompletedOrStaleException(
-                "Envelope with id " + envelope.getId() + " is not completed or stale"
+                    getErrorMessage(envelope.getId(), "is not completed or stale")
             );
         }
     }
@@ -106,7 +106,7 @@ public class EnvelopeActionService {
     private void validateEnvelopeIsInInconsistentState(Envelope envelope) {
         if (envelope.getStatus() == COMPLETED) {
             throw new EnvelopeNotInInconsistentStateException(
-                "Envelope with id " + envelope.getId() + " is not in inconsistent state"
+                    getErrorMessage(envelope.getId(), "is not in inconsistent state")
             );
         }
 
@@ -117,7 +117,7 @@ public class EnvelopeActionService {
             .isEmpty()
         ) {
             throw new EnvelopeNotInInconsistentStateException(
-                "Envelope with id " + envelope.getId() + " does not have COMPLETED event"
+                    getErrorMessage(envelope.getId(), "does not have COMPLETED event")
             );
         }
     }
@@ -134,5 +134,9 @@ public class EnvelopeActionService {
             .max(naturalOrder())
             .orElseThrow(); // no events for the envelope is normally impossible
         return between(lastEventTimeStamp, now()).toHours() > notificationTimeoutHr;
+    }
+
+    private String getErrorMessage(UUID id, String msg) {
+        return "Envelope with id " + id + " " + msg;
     }
 }
