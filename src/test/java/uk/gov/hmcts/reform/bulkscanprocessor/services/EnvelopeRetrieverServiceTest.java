@@ -120,12 +120,12 @@ public class EnvelopeRetrieverServiceTest {
 
     @Test
     public void should_throw_envelope_not_found_exception_when_there_is_no_envelope() {
-        when(envelopeRepository
-                 .findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
-                     "a.zip",
-                     "Container_A"
-                 )
-        ).thenThrow(EnvelopeNotFoundException.class);
+        given(envelopeRepository
+                  .findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
+                      "a.zip",
+                      "Container_A"
+                  ))
+            .willReturn(null);
 
         Throwable throwable =
             catchThrowable(() ->
