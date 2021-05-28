@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,11 +12,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings({"PMD", "unchecked"})
+@SuppressWarnings({"PMD"})
 class DeleteCompleteFilesTaskTest {
 
     @Mock
@@ -42,26 +43,9 @@ class DeleteCompleteFilesTaskTest {
     @Test
     void should_process_single_container() {
         // given
-        final BlobClient blobClient = mock(BlobClient.class);
-
         given(blobManager.listInputContainerClients()).willReturn(singletonList(container1));
 
         // when
-        deleteCompleteFilesTask.run();
-
-        // then
-        verifyNoMoreInteractions(blobManager);
-    }
-
-    @Test
-    void should_process_second_container_if_processing_the_first_container_throws() {
-        // given
-
-        final BlobContainerClient container2 = mock(BlobContainerClient.class);
-
-        given(blobManager.listInputContainerClients()).willReturn(asList(container1, container2));
-
-        // then
         deleteCompleteFilesTask.run();
 
         // then
@@ -73,9 +57,31 @@ class DeleteCompleteFilesTaskTest {
         // given
         final BlobContainerClient container2 = mock(BlobContainerClient.class);
 
+        given(blobManager.listInputContainerClients()).willReturn(asList(container1, container2));
+
         // when
-        deleteFilesService.processCompleteFiles(container1);
+        deleteCompleteFilesTask.run();
 
         // then
+        verify(deleteFilesService).processCompleteFiles(container1);
+        verify(deleteFilesService).processCompleteFiles(container2);
+        verifyNoMoreInteractions(blobManager);
+    }
+
+    @Test
+    void should_process_second_container_if_processing_the_first_container_throws() {
+        // given
+        final BlobContainerClient container2 = mock(BlobContainerClient.class);
+
+        given(blobManager.listInputContainerClients()).willReturn(asList(container1, container2));
+        doThrow(new RuntimeException("error message")).when(deleteFilesService).processCompleteFiles(container1);
+
+        // then
+        deleteCompleteFilesTask.run();
+
+        // then
+        verify(deleteFilesService).processCompleteFiles(container1);
+        verify(deleteFilesService).processCompleteFiles(container2);
+        verifyNoMoreInteractions(blobManager);
     }
 }
