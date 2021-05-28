@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataRetrievalFailureException;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
@@ -116,4 +117,43 @@ public class EnvelopeRetrieverServiceTest {
 
         assertThat(throwable).isInstanceOf(DataRetrievalFailureException.class);
     }
+
+    @Test
+    public void should_throw_envelope_not_found_exception_when_there_is_no_envelope() {
+        given(envelopeRepository
+                  .findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
+                      "a.zip",
+                      "Container_A"
+                  ))
+            .willReturn(null);
+
+        Throwable throwable =
+            catchThrowable(() ->
+                               envelopeRetrieverService
+                                   .findByFileNameAndContainer("a.zip", "Container_A")
+            );
+
+        assertThat(throwable).isInstanceOf(EnvelopeNotFoundException.class);
+    }
+
+    @Test
+    public void should_return_envelope_when_there_is_matching_envelope() {
+
+        var envelope = envelope();
+        var expectedResponse = EnvelopeResponseMapper.toEnvelopeResponse(envelope);
+
+        given(envelopeRepository
+                  .findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
+                      "a.zip",
+                      "Container_A"
+                  ))
+            .willReturn(envelope);
+
+        var result = envelopeRetrieverService
+            .findByFileNameAndContainer("a.zip", "Container_A");
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expectedResponse);
+    }
+
+
 }
