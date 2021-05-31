@@ -297,6 +297,51 @@ public class EnvelopeControllerTest {
             .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28.000Z"));
     }
 
+    @Test
+    public void should_find_envelope_by_file_name_and_container()
+        throws Exception {
+
+        uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
+
+        given(documentManagementService.uploadDocuments(anyList()))
+            .willReturn(
+                ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
+            );
+
+        blobProcessorTask.processBlobs();
+        uploadTask.run();
+
+        given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
+
+        mockMvc.perform(get("/envelopes/bulkscan/1_24-06-2018-00-00-00.zip"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(content().json(Resources.toString(getResource("envelopeResponse.json"), UTF_8)))
+            // Envelope id is checked explicitly as it is dynamically generated.
+            .andExpect(jsonPath("$.id").exists());
+
+        List<Envelope> envelopes = envelopeRepository.findAll();
+        assertThat(envelopes).hasSize(1);
+        assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
+        assertThat(envelopes.get(0).getZipFileName()).isEqualTo("1_24-06-2018-00-00-00.zip");
+        assertThat(envelopes.get(0).getContainer()).isEqualTo("bulkscan");
+        ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
+        verify(documentManagementService)
+            .uploadDocuments(pdfListCaptor.capture());
+        assertThat(pdfListCaptor.getAllValues()).hasSize(1);
+        assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
+    }
+
+    @Test
+    public void should_throw_404_when_envelope_not_exists() throws Exception {
+        given(tokenValidator.getServiceName("testServiceAuthHeader")).willThrow(UnAuthenticatedException.class);
+
+        mockMvc.perform(get("/envelopes/containarX/1_24-06-2018-00-00-00.zip"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
     private void uploadZipToBlobStore(String dirToZip, String zipFilename) throws Exception {
         byte[] zipFile = DirectoryZipper.zipDir(dirToZip);
 
