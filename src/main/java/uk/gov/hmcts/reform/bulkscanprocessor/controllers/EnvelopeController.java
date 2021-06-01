@@ -71,6 +71,16 @@ public class EnvelopeController {
             .orElseThrow(EnvelopeNotFoundException::new);
     }
 
+    @GetMapping(path = "/{container}/{file_name}")
+    @ApiOperation(value = "Read single envelope by filename and container", hidden = true)
+    public EnvelopeResponse getByContainerAndFileName(
+        @PathVariable(name = "container") String container,
+        @PathVariable(name = "file_name") String fileName
+    ) {
+        return envelopeRetrieverService
+            .findByFileNameAndContainer(fileName, container);
+    }
+
     @GetMapping(path = "/stale-incomplete-envelopes")
     @ApiOperation(
         value = "Retrieves incomplete stale envelopes",
