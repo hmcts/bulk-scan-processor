@@ -311,8 +311,6 @@ public class EnvelopeControllerTest {
         blobProcessorTask.processBlobs();
         uploadTask.run();
 
-        given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
-
         mockMvc.perform(get("/envelopes/bulkscan/1_24-06-2018-00-00-00.zip"))
             .andDo(print())
             .andExpect(status().isOk())
