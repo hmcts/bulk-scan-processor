@@ -1,0 +1,26 @@
+{
+  "case_number": "1111222233334446",
+  "po_box": "BULKSCANPO",
+  "jurisdiction": "BULKSCAN",
+  "delivery_date": "2018-06-23T00:00:00.000Z",
+  "opening_date": "2018-06-23T00:00:00.000Z",
+  "zip_file_name": "1_24-06-2018-00-00-00.zip",
+  "classification": "exception",
+  "scannable_items": [
+    {
+      "document_control_number": "1111002",
+      "scanning_date": "2018-06-23T00:00:00.000Z",
+      "ocr_accuracy": "test",
+      "manual_intervention": "test",
+      "next_action": "return",
+      "next_action_date": "2018-06-23T00:00:00.000Z",
+      "file_name": "1111002.pdf",
+      "document_uuid": "0fa1ab60-f836-43aa-8c65-b07cc9bebcbe",
+      "document_type": "form"
+    }
+  ],
+  "non_scannable_items": [
+  ],
+  "status": "UPLOADED",
+  "zip_file_createddate": "2018-06-23T00:00:00.000Z"
+}
