@@ -205,9 +205,9 @@ public class TestHelper {
                 .get("/envelopes/{container}/{fileName}", container, fileName)
                 .andReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(200);
-
-        return response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
+        return response.getStatusCode() == 404
+            ? null
+            : response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
     }
 
     private void assertSuccessfulEnvelopesResponse(Response response) {
