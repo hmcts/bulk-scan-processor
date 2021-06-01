@@ -67,6 +67,7 @@ public abstract class BaseFunctionalTest {
 
         await("File " + fileName + " should be processed")
             .atMost(SCAN_DELAY + 60_000, TimeUnit.MILLISECONDS)
+            .catchUncaughtExceptions()
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(() ->
                        awaitedStatuses.contains(
