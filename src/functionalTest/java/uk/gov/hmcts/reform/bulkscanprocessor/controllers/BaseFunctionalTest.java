@@ -68,10 +68,12 @@ public abstract class BaseFunctionalTest {
         await("File " + fileName + " should be processed")
             .atMost(SCAN_DELAY + 60_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until(() ->
-                       awaitedStatuses.contains(
-                           testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, fileName)
-                       )
+            .until(
+                () -> {
+                    var envelope
+                        = testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, fileName);
+                    return envelope != null && awaitedStatuses.contains(envelope.getStatus());
+                }
             );
 
         EnvelopeResponse envelope = testHelper.getEnvelopeByContainerAndFileName(

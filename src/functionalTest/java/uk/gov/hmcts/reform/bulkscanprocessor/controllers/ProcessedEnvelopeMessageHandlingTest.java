@@ -92,10 +92,8 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private Boolean hasNotificationBeenSent(String zipFilename) {
-        return
-            COMPLETED_OR_NOTIFICATION_SENT.contains(
-                testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename)
-                    .getStatus());
+        var envelope = testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
+        return envelope != null && COMPLETED_OR_NOTIFICATION_SENT.contains(envelope.getStatus());
         // Ideally, we'd like to wait until the envelope is in NOTIFICATION_SENT status,
         // but there's a risk of it becoming completed if there's an orchestrator working
         // in the same environment.
