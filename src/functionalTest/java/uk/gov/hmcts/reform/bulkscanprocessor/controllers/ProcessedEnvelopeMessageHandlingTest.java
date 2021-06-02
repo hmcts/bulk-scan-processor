@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +24,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_SECRET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_URL;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.SCAN_DELAY;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_CONTAINER_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.TEST_URL;
 
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
@@ -30,6 +32,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private static final long MESSAGE_PROCESSING_TIMEOUT_MILLIS = 60_000;
     private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 60_000;
     private static final int DELETE_TIMEOUT_MILLIS = 60_000;
+    private static List COMPLETED_OR_NOTIFICATION_SENT = ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED);
 
     private String s2sToken;
     private QueueClient queueClient;
@@ -89,15 +92,11 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private Boolean hasNotificationBeenSent(String zipFilename) {
-        return testHelper.getEnvelopeByZipFileName(TEST_URL, s2sToken, zipFilename)
-            .map(envelope ->
-                // Ideally, we'd like to wait until the envelope is in NOTIFICATION_SENT status,
-                // but there's a risk of it becoming completed if there's an orchestrator working
-                // in the same environment.
-                ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED)
-                    .contains(envelope.getStatus())
-            )
-            .orElse(false);
+        var envelope = testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
+        return envelope != null && COMPLETED_OR_NOTIFICATION_SENT.contains(envelope.getStatus());
+        // Ideally, we'd like to wait until the envelope is in NOTIFICATION_SENT status,
+        // but there's a risk of it becoming completed if there's an orchestrator working
+        // in the same environment.
     }
 
     private String uploadEnvelope() {
@@ -114,12 +113,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private EnvelopeResponse getEnvelope(String zipFilename) {
-        return testHelper.getEnvelopeByZipFileName(TEST_URL, s2sToken, zipFilename)
-            .orElseThrow(() ->
-                new AssertionError(
-                    String.format("The envelope for file %s couldn't be found", zipFilename)
-                )
-            );
+        return testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
     }
 
     //unknown fields should be ignored

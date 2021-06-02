@@ -28,10 +28,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -192,34 +189,25 @@ public class TestHelper {
         return deserialisedResponse;
     }
 
-    public Optional<EnvelopeResponse> getEnvelopeByZipFileName(
+    public EnvelopeResponse getEnvelopeByContainerAndFileName(
         String baseUrl,
-        String s2sToken,
-        String zipFileName
+        String container,
+        String fileName
     ) {
-        return getEnvelopes(baseUrl, s2sToken, null)
-            .envelopes
-            .stream()
-            .filter(env -> Objects.equals(env.getZipFileName(), zipFileName))
-            .findFirst();
-    }
-
-    public EnvelopeResponse getEnvelope(String baseUrl, String s2sToken, UUID id) {
         Response response =
             RestAssured
                 .given()
                 .relaxedHTTPSValidation()
                 .baseUri(baseUrl)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header("ServiceAuthorization", "Bearer " + s2sToken)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
                 .when()
-                .get("/envelopes/" + id)
+                .get("/envelopes/{container}/{fileName}", container, fileName)
                 .andReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(200);
-
-        return response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
+        return response.getStatusCode() == 404
+            ? null
+            : response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
     }
 
     private void assertSuccessfulEnvelopesResponse(Response response) {
