@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.config.EnvelopeAccessProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
@@ -66,5 +67,16 @@ public class EnvelopeRetrieverService {
         } else {
             return envelope.map(EnvelopeResponseMapper::toEnvelopeResponse);
         }
+    }
+
+    public EnvelopeResponse findByFileNameAndContainer(String fileName, String container) {
+        Envelope envelope = envelopeRepository.findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
+            fileName,
+            container
+        );
+        if (envelope == null) {
+            throw new EnvelopeNotFoundException("Envelope " + fileName + " not found for container " + container);
+        }
+        return EnvelopeResponseMapper.toEnvelopeResponse(envelope);
     }
 }
