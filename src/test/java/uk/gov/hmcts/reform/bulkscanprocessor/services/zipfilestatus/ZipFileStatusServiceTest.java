@@ -181,7 +181,7 @@ public class ZipFileStatusServiceTest {
         var zipFileStatusList = service.getStatusByDcn(documentControlNumber);
 
         // then
-        assertThat(zipFileStatusList.size() == 2);
+        assertThat(zipFileStatusList).hasSize(2);
         assertThat(zipFileStatusList.get(0).fileName).isNull();
         assertThat(zipFileStatusList.get(1).fileName).isNull();
         assertThat(zipFileStatusList.get(0).ccdId).isNull();
