@@ -30,7 +30,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.scann
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class EnvelopeRepositoryTest {
 
     @Autowired
