@@ -121,10 +121,10 @@ public class ReportsController {
             .body(Files.readAllBytes(csvFile.toPath()));
     }
 
-    @GetMapping(path = "/rejected")
+    @GetMapping(path = "/rejected", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Retrieves rejected files")
     public RejectedFilesResponse getRejectedFiles() {
-        List<RejectedFile> rejectedEnvs = this.rejectedFilesReportService.getRejectedFiles();
+        List<RejectedFile> rejectedEnvs = rejectedFilesReportService.getRejectedFiles();
         return new RejectedFilesResponse(rejectedEnvs.size(), rejectedEnvs);
     }
 
