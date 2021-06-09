@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.flywaydb.flyway' version '7.9.2'
-  id 'org.springframework.boot' version '2.4.5'
+  id 'org.springframework.boot' version '2.5.0'
   id 'org.owasp.dependencycheck' version '6.2.0'
   id 'com.github.ben-manes.versions' version '0.39.0'
   id 'org.sonarqube' version '3.2.0'
@@ -361,6 +361,21 @@ bootJar {
 
 import org.flywaydb.gradle.task.FlywayMigrateTask
 
+processFunctionalTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processIntegrationTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processSmokeTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+processContractTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
 flyway {
   url = System.getenv('FLYWAY_URL')
   user = System.getenv('FLYWAY_USER')
