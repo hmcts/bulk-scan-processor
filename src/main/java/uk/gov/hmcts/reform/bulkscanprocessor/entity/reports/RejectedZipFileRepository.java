@@ -29,5 +29,5 @@ public interface RejectedZipFileRepository extends JpaRepository<Envelope, UUID>
                     + "  IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE') "
                     + "  AND date(process_events.createdat) = :date"
     )
-    List<EnvelopeCountSummaryItem> getReportFor(@Param("date") LocalDate date);
+    List<RejectedZipFile> getRejectedZipFilesReportFor(@Param("date") LocalDate date);
 }
