@@ -20,6 +20,6 @@ import java.lang.annotation.Target;
 })
 @ContextConfiguration(initializers = IntegrationContextInitializer.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public @interface IntegrationTest {
 }
