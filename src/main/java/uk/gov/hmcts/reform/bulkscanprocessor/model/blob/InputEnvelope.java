@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.blob;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantDeserializer;
 
@@ -53,7 +54,8 @@ public class InputEnvelope {
         this.zipFileCreateddate = zipFileCreateddate;
         this.zipFileName = zipFileName;
         this.rescanFor = rescanFor;
-        this.caseNumber = caseNumber;
+        // scanning can add spaces
+        this.caseNumber = StringUtils.trim(caseNumber);
         this.previousServiceCaseReference = previousServiceCaseReference;
         this.classification = classification;
         this.scannableItems = scannableItems == null ? emptyList() : scannableItems;
