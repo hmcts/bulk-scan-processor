@@ -221,6 +221,10 @@ def versions = [
 
 dependencyManagement {
   dependencies {
+    // CVE-2018-10237 - Unbounded memory allocation
+    dependencySet(group: 'com.google.guava', version: '30.1.1-jre') {
+      entry 'guava'
+    }
     // CVE-2021-22118
     dependencySet(group: 'org.springframework', version: '5.3.8') {
       entry 'spring-aop'
