@@ -58,11 +58,12 @@ public class FileContentProcessor {
             InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(zipDetail.getMetadata(), zipFilename);
 
             log.info(
-                "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}",
+                "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}, caseNumber {}",
                 zipFilename,
                 containerName,
                 inputEnvelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
-                inputEnvelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(","))
+                inputEnvelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(",")),
+                inputEnvelope.caseNumber
             );
 
             envelopeHandler.handleEnvelope(
