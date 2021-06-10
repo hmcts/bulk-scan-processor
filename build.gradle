@@ -221,15 +221,10 @@ def versions = [
 
 dependencyManagement {
   dependencies {
-    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.68'
     // CVE-2018-10237 - Unbounded memory allocation
     dependencySet(group: 'com.google.guava', version: '30.1.1-jre') {
       entry 'guava'
     }
-    // align with jupiter
-    //    dependencySet(group: 'org.mockito', version: versions.mockitoJupiter) {
-    //      entry 'mockito-core'
-    //    }
     // force junit5 deps to use groovy v3 which fixes reflective call errors for java 11
     // rest assured 4.2 -> 4.3 jumps to groovy v3. junit v5.6 still on v2.5
     dependencySet(group: 'org.codehaus.groovy', version: '3.0.8') {
@@ -237,8 +232,6 @@ dependencyManagement {
       entry 'groovy-json'
       entry 'groovy-xml'
     }
-    //avoid CVE-2020-25638
-    dependency group: 'org.hibernate', name: 'hibernate-core', version: '5.5.0.Final'
     // CVE-2021-22118
     dependencySet(group: 'org.springframework', version: '5.3.8') {
       entry 'spring-aop'
