@@ -70,8 +70,8 @@ class RejectedZipFilesServiceTest {
         // when
         // then
         Assertions.assertThrows(
-                RuntimeException.class,
-                () -> rejectedZipFilesService.getRejectedZipFiles(date)
+            RuntimeException.class,
+            () -> rejectedZipFilesService.getRejectedZipFiles(date)
         );
     }
 }
