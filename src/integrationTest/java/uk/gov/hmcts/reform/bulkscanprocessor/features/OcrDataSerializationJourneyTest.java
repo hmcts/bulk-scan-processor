@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.features;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ public class OcrDataSerializationJourneyTest {
     @Test
     public void should_deserialize_all_ocr_fields_in_insertion_order() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        mapper.registerModule(new JavaTimeModule());
         InputEnvelope inputEnvelope;
         InputStream resourceAsStream = EnvelopeCreator.class.getResourceAsStream(
             "/metafiles/valid/envelope-with-ocr-data.json"
