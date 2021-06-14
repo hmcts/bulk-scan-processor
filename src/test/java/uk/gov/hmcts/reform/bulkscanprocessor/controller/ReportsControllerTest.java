@@ -14,6 +14,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSumm
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFileItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFilesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
@@ -23,17 +25,21 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFil
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,6 +74,9 @@ public class ReportsControllerTest {
 
     @MockBean
     private ReconciliationService reconciliationService;
+
+    @MockBean
+    private RejectedZipFilesService rejectedZipFilesService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -416,5 +425,54 @@ public class ReportsControllerTest {
         var reconciliationStatement = argument.getValue();
 
         assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
+    }
+
+    @Test
+    public void should_return_rejected_zip_files() throws Exception {
+        LocalDateTime dateTime = LocalDateTime.parse("2021-04-16T09:01:43.029000");
+        UUID uuid1 = randomUUID();
+        UUID uuid2 = randomUUID();
+        given(rejectedZipFilesService.getRejectedZipFiles(LocalDate.parse("2021-04-16")))
+                .willReturn(asList(
+                        new RejectedZipFileItem(
+                                "a.zip",
+                                "A",
+                                LocalDateTime.parse("2021-04-16T09:01:43.029000").toInstant(ZoneOffset.UTC),
+                                uuid1,
+                                "FILE_VALIDATION_FAILURE"
+                        ),
+                        new RejectedZipFileItem(
+                                "b.zip",
+                                "B",
+                                LocalDateTime.parse("2021-04-16T09:01:44.029000").toInstant(ZoneOffset.UTC),
+                                uuid2,
+                                "DOC_SIGNATURE_FAILURE"
+                        )
+                ));
+
+        mockMvc
+                .perform(get("/reports/rejected-zip-files?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'count': 2,"
+                                + "'rejected_zip_files': ["
+                                + "  {"
+                                + "    'zip_file_name': 'a.zip',"
+                                + "    'container': 'A',"
+                                + "    'processing_started_date_time': '2021-04-16T09:01:43.029',"
+                                + "    'envelope_id': '" + uuid1 + "',"
+                                + "    'event': 'FILE_VALIDATION_FAILURE'"
+                                + "  },"
+                                + "  {"
+                                + "    'zip_file_name': 'b.zip',"
+                                + "    'container': 'B',"
+                                + "    'processing_started_date_time': '2021-04-16T09:01:44.029',"
+                                + "    'envelope_id': '" + uuid2 + "',"
+                                + "    'event': 'DOC_SIGNATURE_FAILURE'"
+                                + "  }"
+                                + "]"
+                                + "}"
+                ));
     }
 }
