@@ -18,7 +18,7 @@ public interface RejectedZipFileRepository extends JpaRepository<Envelope, UUID>
                     + "  process_events.container, "
                     + "  process_events.zipfilename, "
                     + "  process_events.event, "
-                    + "  process_events.createdat AS processingStartedEventDate, "
+                    + "  MIN(process_events.createdat) AS processingStartedEventDate, "
                     + "  Cast(envelopes.id as varchar) as envelopeId " // null means no envelope
                     // UUID by default it translates to a JDBC Binary type so cast to varchar
                     + "FROM process_events "
@@ -27,7 +27,11 @@ public interface RejectedZipFileRepository extends JpaRepository<Envelope, UUID>
                     + "    AND envelopes.zipfilename = process_events.zipfilename "
                     + "WHERE process_events.event "
                     + "  IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE') "
-                    + "  AND date(process_events.createdat) = :date"
+                    + "  AND date(process_events.createdat) = :date "
+                    + "GROUP BY process_events.container, "
+                    + "         process_events.zipfilename, "
+                    + "         process_events.event, "
+                    + "         envelopeId"
     )
     List<RejectedZipFile> getRejectedZipFilesReportFor(@Param("date") LocalDate date);
 }
