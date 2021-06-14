@@ -24,9 +24,7 @@ sourceSets {
     java {
       compileClasspath += main.output
       runtimeClasspath += main.output
-      srcDir file('src/contractTest/java')
     }
-    resources.srcDir file('src/contractTest/resources')
   }
   functionalTest {
     java {
