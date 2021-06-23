@@ -60,6 +60,17 @@ public class ReportsService {
         return reportResult;
     }
 
+    public List<EnvelopeCountSummary> getSummaryCountFor(LocalDate date, boolean includeTestContainer) {
+        long start = System.currentTimeMillis();
+        final List<EnvelopeCountSummary> reportResult = zeroRowFiller
+            .fill(repo.getSummaryReportFor(date).stream().map(this::fromDb).collect(toList()), date)
+            .stream()
+            .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
+            .collect(toList());
+        log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
+        return reportResult;
+    }
+
     /**
      * Get zip files summary for the given date and container.
      *
