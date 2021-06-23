@@ -9,6 +9,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.EnvelopeCountSummaryRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.reports.countsummary.Item;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
@@ -33,6 +34,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 public class EnvelopeCountSummaryRepositoryTest {
 
     @Autowired private EnvelopeCountSummaryRepository reportRepo;
+    @Autowired private EnvelopeRepository envelopeRepo;
     @Autowired private ProcessEventRepository eventRepo;
 
     @Test
@@ -154,8 +156,103 @@ public class EnvelopeCountSummaryRepositoryTest {
             ));
     }
 
+    @Test
+    public void summary_report_should_group_by_container() {
+        // given
+        Envelope envelope1 = envelope("A");
+        Envelope envelope2 = envelope("A");
+        Envelope envelope3 = envelope("A");
+        Envelope envelope4 = envelope("B");
+        Envelope envelope5 = envelope("B");
+        Envelope envelope6 = envelope("C");
+        dbHas(
+                envelope1,
+                envelope2,
+                envelope3,
+                envelope4,
+                envelope5,
+                envelope6
+        );
+        dbHas(
+            event("A", envelope1.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT),
+            event("A", envelope2.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT),
+            event("A", envelope3.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT),
+            event("B", envelope4.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT),
+            event("B", envelope5.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT),
+            event("C", envelope6.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyElementsOf(asList(
+                new Item(now(), "A", 3, 0),
+                new Item(now(), "B", 2, 0),
+                new Item(now(), "C", 1, 0)
+            ));
+    }
+
+    @Test
+    public void summary_report_should_filter_by_date() {
+        // given
+        Envelope envelope1 = envelope("X");
+        Envelope envelope2 = envelope("Y");
+        dbHas(
+                envelope1,
+                envelope2
+        );
+        dbHas(
+            event("X", envelope1.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT),
+            event("Y", envelope2.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> resultForYesterday = reportRepo.getSummaryReportFor(now().minusDays(1));
+
+        // then
+        assertThat(resultForYesterday).isEmpty();
+    }
+
+    @Test
+    public void summary_report_should_handle_single_success_and_single_failure_per_zip_file() {
+        // given
+        // given
+        Envelope envelope1 = envelope("service_A");
+        Envelope envelope2 = envelope("service_B");
+        dbHas(
+                envelope1,
+                envelope2
+        );
+        dbHas(
+            event("service_A", envelope1.getZipFileName(), DOC_UPLOADED),
+            event("service_B", envelope2.getZipFileName(), FILE_VALIDATION_FAILURE)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyElementsOf(asList(
+                new Item(now(), "service_A", 1, 0),
+                new Item(now(), "service_B", 1, 1)
+            ));
+    }
+
+    private void dbHas(Envelope... envelopes) {
+        envelopeRepo.saveAll(asList(envelopes));
+    }
+
     private void dbHas(ProcessEvent... events) {
         eventRepo.saveAll(asList(events));
+    }
+
+    private Envelope envelope(String container) {
+        return EnvelopeCreator.envelope("X", Status.COMPLETED, container);
     }
 
     private ProcessEvent event(String container, Event type) {
