@@ -51,22 +51,24 @@ public class ReportsService {
 
     public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
         long start = System.currentTimeMillis();
-        final List<EnvelopeCountSummary> reportResult = zeroRowFiller
-            .fill(repo.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
-            .stream()
-            .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
-            .collect(toList());
+        List<EnvelopeCountSummaryItem> countSummaryItems = repo.getReportFor(date);
+        final List<EnvelopeCountSummary> reportResult = getEnvelopeCountSummaries(
+                date,
+                includeTestContainer,
+                countSummaryItems
+        );
         log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
         return reportResult;
     }
 
     public List<EnvelopeCountSummary> getSummaryCountFor(LocalDate date, boolean includeTestContainer) {
         long start = System.currentTimeMillis();
-        final List<EnvelopeCountSummary> reportResult = zeroRowFiller
-            .fill(repo.getSummaryReportFor(date).stream().map(this::fromDb).collect(toList()), date)
-            .stream()
-            .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
-            .collect(toList());
+        List<EnvelopeCountSummaryItem> countSummaryItems = repo.getSummaryReportFor(date);
+        final List<EnvelopeCountSummary> reportResult = getEnvelopeCountSummaries(
+                date,
+                includeTestContainer,
+                countSummaryItems
+        );
         log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
         return reportResult;
     }
@@ -92,6 +94,18 @@ public class ReportsService {
                 .stream()
                 .map(this::fromDbZipfileSummary)
                 .filter(predicate)
+                .collect(toList());
+    }
+
+    private List<EnvelopeCountSummary> getEnvelopeCountSummaries(
+            LocalDate date,
+            boolean includeTestContainer,
+            List<EnvelopeCountSummaryItem> countSummaryItems
+    ) {
+        return zeroRowFiller
+                .fill(countSummaryItems.stream().map(this::fromDb).collect(toList()), date)
+                .stream()
+                .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
                 .collect(toList());
     }
 
