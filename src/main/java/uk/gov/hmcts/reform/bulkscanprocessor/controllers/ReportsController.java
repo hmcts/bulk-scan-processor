@@ -76,15 +76,17 @@ public class ReportsController {
         @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
     ) {
         List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestContainer);
-        return new EnvelopeCountSummaryReportListResponse(result
-                                                          .stream()
-                                                          .map(item -> new EnvelopeCountSummaryReportItem(
-                                                              item.received,
-                                                              item.rejected,
-                                                              item.container,
-                                                              item.date
-                                                          ))
-                                                          .collect(toList()));
+        return getEnvelopeCountSummaryReportListResponse(result);
+    }
+
+    @GetMapping(path = "/count-summary-report", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Retrieves envelope count summary report")
+    public EnvelopeCountSummaryReportListResponse getSummaryCountFor(
+        @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+        @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
+    ) {
+        List<EnvelopeCountSummary> result = this.reportsService.getSummaryCountFor(date, includeTestContainer);
+        return getEnvelopeCountSummaryReportListResponse(result);
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -180,5 +182,19 @@ public class ReportsController {
                 ))
                 .collect(toList())
         );
+    }
+
+    private EnvelopeCountSummaryReportListResponse getEnvelopeCountSummaryReportListResponse(
+            List<EnvelopeCountSummary> result
+    ) {
+        return new EnvelopeCountSummaryReportListResponse(result
+                .stream()
+                .map(item -> new EnvelopeCountSummaryReportItem(
+                        item.received,
+                        item.rejected,
+                        item.container,
+                        item.date
+                ))
+                .collect(toList()));
     }
 }
