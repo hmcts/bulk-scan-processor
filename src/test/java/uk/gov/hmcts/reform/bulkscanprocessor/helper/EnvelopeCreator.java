@@ -115,7 +115,8 @@ public final class EnvelopeCreator {
         return envelope(
             zipFileName,
             jurisdiction,
-            status, scannableItems,
+            status,
+            scannableItems,
             "SSCS"
         );
     }

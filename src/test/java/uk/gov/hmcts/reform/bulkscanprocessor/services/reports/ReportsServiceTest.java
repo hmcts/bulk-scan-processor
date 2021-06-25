@@ -106,6 +106,62 @@ public class ReportsServiceTest {
     }
 
     @Test
+    public void summary_report_should_map_repo_result_properly_when_requested_for_envelope_count_summary() {
+        given(repo.getSummaryReportFor(now()))
+            .willReturn(asList(
+                new Item(now().plusDays(1), "A", 100, 1),
+                new Item(now().minusDays(1), "B", 200, 9)
+            ));
+        given(this.zeroRowFiller.fill(any(), any()))
+            .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
+
+        // when
+        List<EnvelopeCountSummary> result = service.getSummaryCountFor(now(), false);
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactly(
+                new EnvelopeCountSummary(100, 1, "A", now().plusDays(1)),
+                new EnvelopeCountSummary(200, 9, "B", now().minusDays(1))
+            );
+    }
+
+    @Test
+    public void summary_report_should_filter_out_test_container_when_requested_for_envelope_count_summary() {
+        given(repo.getSummaryReportFor(now()))
+            .willReturn(asList(
+                new Item(now(), TEST_CONTAINER, 100, 1),
+                new Item(now(), "some_other_container", 10, 0)
+            ));
+        given(this.zeroRowFiller.fill(any(), any()))
+            .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
+
+        // when
+        List<EnvelopeCountSummary> resultWithoutTestContainer = service.getSummaryCountFor(now(), false);
+        List<EnvelopeCountSummary> resultWithTestContainer = service.getSummaryCountFor(now(), true);
+
+        // then
+        assertThat(resultWithoutTestContainer).hasSize(1);
+        assertThat(resultWithoutTestContainer.get(0).container).isEqualTo("some_other_container");
+
+        assertThat(resultWithTestContainer).hasSize(2);
+    }
+
+    @Test
+    public void summary_report_should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
+        given(repo.getSummaryReportFor(now())).willReturn(emptyList());
+        given(this.zeroRowFiller.fill(any(), any()))
+            .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
+
+        // when
+        List<EnvelopeCountSummary> result = service.getSummaryCountFor(now(), false);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     public void should_map_empty_list_from_repo_when_requested_for_zipfiles_summary() {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(emptyList());

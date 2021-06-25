@@ -120,6 +120,46 @@ public class RejectedZipFileRepositoryTest {
             );
     }
 
+    @Test
+    void should_return_single_result_by_date_if_envelope_exists_with_multiple_failure_events() {
+        // given
+        Instant eventDate11 = Instant.parse("2019-02-15T14:15:23.456Z");
+        Instant eventDate12 = Instant.parse("2019-02-15T14:16:23.456Z");
+        Instant eventDate13 = Instant.parse("2019-02-15T14:17:23.456Z");
+        Instant eventDate14 = Instant.parse("2019-02-15T14:18:23.456Z");
+
+        dbHasEvents(
+            event("c2", "test2.zip", eventDate11, ZIPFILE_PROCESSING_STARTED),
+            event("c2", "test2.zip", eventDate12, DOC_FAILURE),
+            event("c2", "test2.zip", eventDate13, DOC_FAILURE),
+            event("c2", "test2.zip", eventDate14, DOC_FAILURE)
+        );
+
+        dbHasEnvelope(envelope("c1", "test1.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null));
+        Envelope existingEnvelope
+            = envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test5");
+        dbHasEnvelope(existingEnvelope);
+        dbHasEnvelope(envelope("c3", "test3.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", null));
+
+        // when
+        List<RejectedZipFile> result = reportRepo.getRejectedZipFilesReportFor(LocalDate.of(2019, 2, 15));
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyElementsOf(
+                singletonList(
+                        new RejectedZipFileItem(
+                                "test2.zip",
+                                "c2",
+                                eventDate12,
+                                existingEnvelope.getId(),
+                                "DOC_FAILURE"
+                        )
+                )
+            );
+    }
+
     private void dbHasEvents(ProcessEvent... events) {
         eventRepo.saveAll(asList(events));
     }

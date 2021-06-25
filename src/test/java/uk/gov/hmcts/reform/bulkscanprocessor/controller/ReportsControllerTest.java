@@ -14,6 +14,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSumm
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFileItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFilesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
@@ -23,17 +25,21 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFil
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,6 +74,9 @@ public class ReportsControllerTest {
 
     @MockBean
     private ReconciliationService reconciliationService;
+
+    @MockBean
+    private RejectedZipFilesService rejectedZipFilesService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -138,6 +147,76 @@ public class ReportsControllerTest {
 
         mockMvc
             .perform(get("/reports/count-summary?date=" + invalidDate))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void summary_report_should_return_result_generated_by_the_service() throws Exception {
+
+        final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
+            152, 11, "container1", LocalDate.of(2021, 3, 4)
+        );
+        final EnvelopeCountSummary countSummaryTwo = new EnvelopeCountSummary(
+            178, 13, "container2", LocalDate.of(2021, 3, 4)
+        );
+        List<EnvelopeCountSummary> envelopeCountSummaryList = new ArrayList<>();
+        envelopeCountSummaryList.add(countSummaryOne);
+        envelopeCountSummaryList.add(countSummaryTwo);
+        given(reportsService.getSummaryCountFor(LocalDate.of(2021, 3, 4), false))
+            .willReturn(envelopeCountSummaryList);
+
+        EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
+            envelopeCountSummaryList.stream()
+                .map(item -> new EnvelopeCountSummaryReportItem(
+                    item.received,
+                    item.rejected,
+                    item.container,
+                    item.date
+                ))
+                .collect(toList())
+        );
+
+        mockMvc
+            .perform(get("/reports/count-summary-report?date=2021-03-04"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.total_received").value(response.totalReceived))
+            .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
+            .andExpect(jsonPath("$.time_stamp").value(response.timeStamp.format(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+            .andExpect(jsonPath("$.data.length()").value(2))
+            .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))
+            .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))
+            .andExpect(jsonPath("$.data[0].container").value(response.items.get(0).container))
+            .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
+    }
+
+    @Test
+    public void summary_report_should_not_include_test_container_by_default() throws Exception {
+        mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14"));
+        verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), false);
+    }
+
+    @Test
+    public void summary_report_should_include_test_container_if_requested_by_the_client() throws Exception {
+        mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14&include-test=true"));
+
+        verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), true);
+    }
+
+    @Test
+    public void summary_report_should_not_include_test_container_if_exlicitly_not_requested_by_the_client()
+            throws Exception {
+        mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14&include-test=false"));
+
+        verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), false);
+    }
+
+    @Test
+    public void summary_report_should_return_400_if_date_is_invalid() throws Exception {
+        final String invalidDate = "2019-14-14";
+
+        mockMvc
+            .perform(get("/reports/count-summary-report?date=" + invalidDate))
             .andExpect(status().isBadRequest());
     }
 
@@ -416,5 +495,54 @@ public class ReportsControllerTest {
         var reconciliationStatement = argument.getValue();
 
         assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
+    }
+
+    @Test
+    public void should_return_rejected_zip_files() throws Exception {
+        LocalDateTime dateTime = LocalDateTime.parse("2021-04-16T09:01:43.029000");
+        UUID uuid1 = randomUUID();
+        UUID uuid2 = randomUUID();
+        given(rejectedZipFilesService.getRejectedZipFiles(LocalDate.parse("2021-04-16")))
+                .willReturn(asList(
+                        new RejectedZipFileItem(
+                                "a.zip",
+                                "A",
+                                LocalDateTime.parse("2021-04-16T09:01:43.029000").toInstant(ZoneOffset.UTC),
+                                uuid1,
+                                "FILE_VALIDATION_FAILURE"
+                        ),
+                        new RejectedZipFileItem(
+                                "b.zip",
+                                "B",
+                                LocalDateTime.parse("2021-04-16T09:01:44.029000").toInstant(ZoneOffset.UTC),
+                                uuid2,
+                                "DOC_SIGNATURE_FAILURE"
+                        )
+                ));
+
+        mockMvc
+                .perform(get("/reports/rejected-zip-files?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'count': 2,"
+                                + "'rejected_zip_files': ["
+                                + "  {"
+                                + "    'zip_file_name': 'a.zip',"
+                                + "    'container': 'A',"
+                                + "    'processing_started_date_time': '2021-04-16T09:01:43.029',"
+                                + "    'envelope_id': '" + uuid1 + "',"
+                                + "    'event': 'FILE_VALIDATION_FAILURE'"
+                                + "  },"
+                                + "  {"
+                                + "    'zip_file_name': 'b.zip',"
+                                + "    'container': 'B',"
+                                + "    'processing_started_date_time': '2021-04-16T09:01:44.029',"
+                                + "    'envelope_id': '" + uuid2 + "',"
+                                + "    'event': 'DOC_SIGNATURE_FAILURE'"
+                                + "  }"
+                                + "]"
+                                + "}"
+                ));
     }
 }

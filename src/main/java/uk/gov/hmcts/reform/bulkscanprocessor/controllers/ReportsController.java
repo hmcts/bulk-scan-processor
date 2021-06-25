@@ -12,21 +12,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.RejectedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.DiscrepancyItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedFilesResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedZipFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFilesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedZipFileData;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.CsvWriter;
 
@@ -34,6 +38,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -46,16 +52,19 @@ public class ReportsController {
 
     private final ReportsService reportsService;
     private final RejectedFilesReportService rejectedFilesReportService;
+    private final RejectedZipFilesService rejectedZipFilesService;
     private final ReconciliationService reconciliationService;
 
     // region constructor
     public ReportsController(
-        ReportsService reportsService,
-        RejectedFilesReportService rejectedFilesReportService,
-        ReconciliationService reconciliationService
+            ReportsService reportsService,
+            RejectedFilesReportService rejectedFilesReportService,
+            RejectedZipFilesService rejectedZipFilesService,
+            ReconciliationService reconciliationService
     ) {
         this.reportsService = reportsService;
         this.rejectedFilesReportService = rejectedFilesReportService;
+        this.rejectedZipFilesService = rejectedZipFilesService;
         this.reconciliationService = reconciliationService;
     }
     // endregion
@@ -67,15 +76,17 @@ public class ReportsController {
         @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
     ) {
         List<EnvelopeCountSummary> result = this.reportsService.getCountFor(date, includeTestContainer);
-        return new EnvelopeCountSummaryReportListResponse(result
-                                                          .stream()
-                                                          .map(item -> new EnvelopeCountSummaryReportItem(
-                                                              item.received,
-                                                              item.rejected,
-                                                              item.container,
-                                                              item.date
-                                                          ))
-                                                          .collect(toList()));
+        return getEnvelopeCountSummaryReportListResponse(result);
+    }
+
+    @GetMapping(path = "/count-summary-report", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Retrieves envelope count summary report")
+    public EnvelopeCountSummaryReportListResponse getSummaryCountFor(
+        @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+        @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
+    ) {
+        List<EnvelopeCountSummary> result = this.reportsService.getSummaryCountFor(date, includeTestContainer);
+        return getEnvelopeCountSummaryReportListResponse(result);
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -128,6 +139,27 @@ public class ReportsController {
         return new RejectedFilesResponse(rejectedEnvs.size(), rejectedEnvs);
     }
 
+    @GetMapping(path = "/rejected-zip-files", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Retrieves rejected files")
+    public RejectedZipFilesResponse getRejectedZipFiles(
+            @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
+    ) {
+        List<RejectedZipFile> result = rejectedZipFilesService.getRejectedZipFiles(date);
+        return new RejectedZipFilesResponse(
+                result.size(),
+                result
+                        .stream()
+                        .map(file -> new RejectedZipFileData(
+                                file.getZipFileName(),
+                                file.getContainer(),
+                                LocalDateTime.ofInstant(file.getProcessingStartedEventDate(), ZoneId.of("UTC")),
+                                file.getEnvelopeId(),
+                                file.getEvent()
+                        ))
+                        .collect(toList())
+        );
+    }
+
     @PostMapping(
         path = "/reconciliation",
         consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -150,5 +182,19 @@ public class ReportsController {
                 ))
                 .collect(toList())
         );
+    }
+
+    private EnvelopeCountSummaryReportListResponse getEnvelopeCountSummaryReportListResponse(
+            List<EnvelopeCountSummary> result
+    ) {
+        return new EnvelopeCountSummaryReportListResponse(result
+                .stream()
+                .map(item -> new EnvelopeCountSummaryReportItem(
+                        item.received,
+                        item.rejected,
+                        item.container,
+                        item.date
+                ))
+                .collect(toList()));
     }
 }

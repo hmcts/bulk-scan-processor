@@ -37,4 +37,25 @@ public interface EnvelopeCountSummaryRepository extends JpaRepository<Envelope, 
             + "HAVING date(first_events.createdat) = :date\n"
     )
     List<EnvelopeCountSummaryItem> getReportFor(@Param("date") LocalDate date);
+
+    @Query(
+        nativeQuery = true,
+        value = "SELECT\n"
+            + "  envelopes.container AS container,\n"
+            + "  date(envelopes.createdat) AS date,\n"
+            + "  count(*) AS received,\n"
+            + "  SUM(CASE WHEN rejection_events.id IS NOT NULL THEN 1 ELSE 0 END) AS rejected\n"
+            + "FROM envelopes AS envelopes\n"
+            + "LEFT JOIN (\n"
+            + "  SELECT DISTINCT on (container, zipfilename)\n"
+            + "    id, container, zipfilename\n"
+            + "  FROM process_events\n"
+            + "  WHERE event IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE')\n"
+            + ") AS rejection_events\n"
+            + "ON rejection_events.container = envelopes.container\n"
+            + "AND rejection_events.zipfilename = envelopes.zipfilename\n"
+            + "GROUP BY envelopes.container, date(envelopes.createdat)\n"
+            + "HAVING date(envelopes.createdat) = :date\n"
+    )
+    List<EnvelopeCountSummaryItem> getSummaryReportFor(@Param("date") LocalDate date);
 }
