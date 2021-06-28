@@ -6,7 +6,6 @@ public class QueueConfigurationProperties {
 
     private String accessKey;
     private String accessKeyName;
-    private String connectionString;
     private String queueName;
     private Optional<String> namespaceOverride = Optional.empty();
 
@@ -16,10 +15,6 @@ public class QueueConfigurationProperties {
 
     public String getAccessKeyName() {
         return accessKeyName;
-    }
-
-    public String getConnectionString() {
-        return connectionString;
     }
 
     public String getQueueName() {
@@ -36,10 +31,6 @@ public class QueueConfigurationProperties {
 
     public void setAccessKeyName(String accessKeyName) {
         this.accessKeyName = accessKeyName;
-    }
-
-    public void setConnectionString(String connectionString) {
-        this.connectionString = connectionString;
     }
 
     public void setQueueName(String queueName) {

@@ -95,17 +95,14 @@ queues:
   envelopes:
     access-key: ${QUEUE_ENVELOPE_SEND_ACCESS_KEY}
     access-key-name: ${QUEUE_ACCESS_KEY_SEND_NAME}
-    connection-string: ${QUEUE_ENVELOPE_SEND:}
     queue-name: ${QUEUE_ENVELOPE_NAME}
   processed-envelopes:
     access-key: ${QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY}
     access-key-name: ${QUEUE_ACCESS_KEY_LISTEN_NAME}
-    connection-string: ${QUEUE_PROCESSED_ENVELOPES_READ:}
     queue-name: ${QUEUE_PROCESSED_ENVELOPES_NAME}
   notifications:
     access-key: ${QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY}
     access-key-name: ${QUEUE_ACCESS_KEY_SEND_NAME}
-    connection-string: ${QUEUE_NOTIFICATIONS_SEND:}
     queue-name: ${QUEUE_NOTIFICATIONS_NAME}
     namespace-override: ${QUEUE_NOTIFICATIONS_NAMESPACE}
 
