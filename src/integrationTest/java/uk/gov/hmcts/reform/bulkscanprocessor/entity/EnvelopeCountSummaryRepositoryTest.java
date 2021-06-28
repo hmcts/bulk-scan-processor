@@ -243,6 +243,30 @@ public class EnvelopeCountSummaryRepositoryTest {
             ));
     }
 
+    @Test
+    public void summary_report_should_count_zip_files_correctly_when_no_envelopes() {
+        // given
+
+        Instant today = Instant.now();
+        Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
+
+        dbHas(
+                event("some_service", "hello.zip", today, DOC_FAILURE),
+                event("some_service", "hello.zip", today, DOC_FAILURE),
+                event("some_service", "hello.zip", today, DOC_FAILURE)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getReportFor(now());
+
+        // then
+        assertThat(result)
+                .usingFieldByFieldElementComparator()
+                .containsExactlyElementsOf(asList(
+                        new Item(now(), "some_service", 1, 1)
+                ));
+    }
+
     private void dbHas(Envelope... envelopes) {
         envelopeRepo.saveAll(asList(envelopes));
     }
