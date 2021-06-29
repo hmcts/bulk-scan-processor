@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +22,16 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSING_ABORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_STATUS_CHANGE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class EnvelopeCountSummaryRepositoryTest {
 
     @Autowired private EnvelopeCountSummaryRepository reportRepo;
@@ -268,230 +264,6 @@ class EnvelopeCountSummaryRepositoryTest {
                 .usingFieldByFieldElementComparator()
                 .containsExactlyElementsOf(singletonList(
                         new Item(now(), "some_service", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_failure_and_subsequent_success() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", COMPLETED),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_failure_and_subsequent_success_after_several_days() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", Instant.now().plus(2, DAYS), COMPLETED),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_multiple_failures_and_subsequent_success() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", COMPLETED),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_multiple_failures_and_subsequent_success_after_several_days() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_FAILURE),
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", Instant.now().plus(10, DAYS), COMPLETED),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_manual_status_change() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", MANUAL_STATUS_CHANGE),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_manual_status_change_after_several_days() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", Instant.now().plus(10, DAYS), MANUAL_STATUS_CHANGE),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_doc_processing_aborted() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", DOC_PROCESSING_ABORTED),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
-                ));
-    }
-
-    @Test
-    @Ignore
-    void summary_report_should_handle_doc_processing_aborted_after_several_days() {
-        // given
-        dbHas(
-                event("service_A", "A1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_A", "A1.zip", DOC_UPLOADED),
-                event("service_A", "A1.zip", DOC_PROCESSED_NOTIFICATION_SENT),
-                event("service_A", "A1.zip", Instant.now().plus(2, DAYS), DOC_PROCESSING_ABORTED),
-
-                event("service_B", "B1.zip", ZIPFILE_PROCESSING_STARTED),
-                event("service_B", "B1.zip", FILE_VALIDATION_FAILURE)
-        );
-
-        // when
-        List<EnvelopeCountSummaryItem> result = reportRepo.getSummaryReportFor(now());
-
-        // then
-        assertThat(result)
-                .usingFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(now(), "service_A", 1, 0),
-                        new Item(now(), "service_B", 1, 1)
                 ));
     }
 
