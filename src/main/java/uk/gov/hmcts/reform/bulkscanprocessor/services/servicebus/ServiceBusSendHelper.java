@@ -10,9 +10,7 @@ import com.google.common.base.Strings;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
-import javax.annotation.PreDestroy;
-
-public class ServiceBusSendHelper implements AutoCloseable {
+public class ServiceBusSendHelper {
 
     private final ServiceBusSenderClient sendClient;
 
@@ -29,13 +27,6 @@ public class ServiceBusSendHelper implements AutoCloseable {
             sendClient.sendMessage(busMessage);
         } catch (ServiceBusException e) {
             throw new InvalidMessageException("Unable to send message", e);
-        }
-    }
-
-    @Override
-    public void close() {
-        if (sendClient != null) {
-            sendClient.close();
         }
     }
 
@@ -61,11 +52,5 @@ public class ServiceBusSendHelper implements AutoCloseable {
             throw new InvalidMessageException("Unable to create message body in json format", e);
         }
     }
-
-    @PreDestroy
-    public void preDestroy() {
-        close();
-    }
-
 }
 

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus;
 
+import com.azure.messaging.servicebus.ServiceBusException;
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,6 +39,9 @@ import java.util.UUID;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -110,6 +114,30 @@ public class ServiceBusSendHelperTest {
         Msg msg = new EnvelopeMsg(envelope);
         ServiceBusMessage busMessage = serviceBusHelper.mapToBusMessage(msg);
         assertThat(busMessage.getSubject()).isNullOrEmpty();
+    }
+
+    @Test
+    public void should_throw_exception_when_message_null() {
+        Throwable exc = catchThrowable(() -> serviceBusHelper.mapToBusMessage(null));
+        //then
+        assertThat(exc)
+            .isInstanceOf(InvalidMessageException.class)
+            .hasMessage("Msg == null");
+    }
+
+    @Test
+    public void should_throw_exception_when_service_bus_connection_times_out() throws Exception {
+        // given
+        Msg msg = new EnvelopeMsg(envelope);
+        willThrow(ServiceBusException.class).given(sendClient).sendMessage(any());
+
+        // when
+        Throwable exc = catchThrowable(() -> serviceBusHelper.sendMessage(msg));
+
+        //then
+        assertThat(exc)
+            .isInstanceOf(InvalidMessageException.class)
+            .hasMessage("Unable to send message");
     }
 
     @SuppressWarnings("unchecked")
