@@ -29,7 +29,7 @@ public class ServiceBusHelpersConfiguration {
 
     @Bean(name = "notifications-helper")
     public ServiceBusHelper notificationsQueueHelper(
-        @Qualifier("notifications-client") IQueueClient queueClient
+        @Qualifier("notifications-send-client") IQueueClient queueClient
     ) {
         return new ServiceBusHelper(queueClient, objectMapper);
     }
