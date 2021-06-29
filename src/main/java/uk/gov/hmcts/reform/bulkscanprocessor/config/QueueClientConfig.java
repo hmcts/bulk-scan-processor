@@ -11,7 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.util.StringUtils;
 
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
@@ -62,16 +61,14 @@ public class QueueClientConfig {
     private QueueClient createQueueClient(
         QueueConfigurationProperties queueProperties
     ) throws ServiceBusException, InterruptedException {
-        // once notification secrets are set this ternary can be removed
-        var connectionStringBuilder = StringUtils.isEmpty(queueProperties.getAccessKey())
-            ? new ConnectionStringBuilder(queueProperties.getConnectionString(), queueProperties.getQueueName())
-            : new ConnectionStringBuilder(
+        return new QueueClient(
+            new ConnectionStringBuilder(
                 queueProperties.getNamespaceOverride().orElse(defaultNamespace),
                 queueProperties.getQueueName(),
                 queueProperties.getAccessKeyName(),
                 queueProperties.getAccessKey()
-            );
-
-        return new QueueClient(connectionStringBuilder, ReceiveMode.PEEKLOCK);
+            ),
+            ReceiveMode.PEEKLOCK
+        );
     }
 }
