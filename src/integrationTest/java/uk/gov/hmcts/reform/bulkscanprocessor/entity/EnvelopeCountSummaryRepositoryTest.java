@@ -22,13 +22,10 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSING_ABORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_STATUS_CHANGE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
