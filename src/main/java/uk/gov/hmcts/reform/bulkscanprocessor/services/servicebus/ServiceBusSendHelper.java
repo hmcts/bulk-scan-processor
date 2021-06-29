@@ -46,12 +46,12 @@ public class ServiceBusSendHelper implements AutoCloseable {
         if (Strings.isNullOrEmpty(msg.getMsgId())) {
             throw new InvalidMessageException("Msg Id == null");
         }
-        ServiceBusMessage busMessage = new ServiceBusMessage(BinaryData.fromString(getMsgBodyInString(msg)));
-        busMessage.setContentType("application/json");
-        busMessage.setMessageId(msg.getMsgId());
-        busMessage.setSubject(msg.getLabel());
+        var serviceBusMessage = new ServiceBusMessage(BinaryData.fromString(getMsgBodyInString(msg)));
+        serviceBusMessage.setContentType("application/json");
+        serviceBusMessage.setMessageId(msg.getMsgId());
+        serviceBusMessage.setSubject(msg.getLabel());
 
-        return busMessage;
+        return serviceBusMessage;
     }
 
     private String getMsgBodyInString(Msg message) {

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IQueueClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 @AutoConfigureAfter(QueueClientConfig.class)
 @Configuration
@@ -28,10 +30,10 @@ public class ServiceBusHelpersConfiguration {
     }
 
     @Bean(name = "notifications-helper")
-    public ServiceBusHelper notificationsQueueHelper(
-        @Qualifier("notifications-send-client") IQueueClient queueClient
+    public ServiceBusSendHelper notificationsQueueHelper(
+        @Qualifier("notifications-send-client") ServiceBusSenderClient queueClient
     ) {
-        return new ServiceBusHelper(queueClient, objectMapper);
+        return new ServiceBusSendHelper(queueClient, objectMapper);
     }
 
     @Bean(name = "processed-envelopes-completor")

@@ -12,22 +12,22 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingExcepti
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public class ErrorNotificationSender {
     private static final Logger log = LoggerFactory.getLogger(ErrorNotificationSender.class);
 
-    private final ServiceBusHelper notificationsQueueHelper;
+    private final ServiceBusSendHelper notificationsSendQueueHelper;
 
     private final ContainerMappings containerMappings;
 
     public ErrorNotificationSender(
-        @Qualifier("notifications-helper") ServiceBusHelper notificationsQueueHelper,
+        @Qualifier("notifications-helper") ServiceBusSendHelper notificationsQueueHelper,
         ContainerMappings containerMappings
     ) {
-        this.notificationsQueueHelper = notificationsQueueHelper;
+        this.notificationsSendQueueHelper = notificationsQueueHelper;
         this.containerMappings = containerMappings;
     }
 
@@ -57,7 +57,7 @@ public class ErrorNotificationSender {
     ) {
         String messageId = StringUtils.joinWith("_", containerName, zipFilename);
 
-        notificationsQueueHelper.sendMessage(
+        notificationsSendQueueHelper.sendMessage(
             new ErrorMsg(
                 messageId,
                 eventId,
