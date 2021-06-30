@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
 import static org.mockito.Mockito.mock;

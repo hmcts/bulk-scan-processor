@@ -27,11 +27,11 @@ public class QueueClientConfig {
         return new QueueConfigurationProperties();
     }
 
-    @Bean("envelopes-client")
-    public IQueueClient envelopesQueueClient(
+    @Bean("envelopes-send-client")
+    public ServiceBusSenderClient envelopesQueueClient(
         @Qualifier("envelopes-config") QueueConfigurationProperties queueProperties
-    ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(queueProperties);
+    ) {
+        return createSendClient(queueProperties);
     }
 
     @Bean("processed-envelopes-config")
