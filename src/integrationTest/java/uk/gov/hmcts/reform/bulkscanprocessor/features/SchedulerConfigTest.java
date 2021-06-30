@@ -9,7 +9,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
@@ -56,8 +56,8 @@ public class SchedulerConfigTest {
     public static class MockConfig {
 
         @Bean(name = "notifications-helper")
-        public ServiceBusHelper notificationsQueueHelper() {
-            return mock(ServiceBusHelper.class);
+        public ServiceBusSendHelper notificationsQueueHelper() {
+            return mock(ServiceBusSendHelper.class);
         }
 
     }

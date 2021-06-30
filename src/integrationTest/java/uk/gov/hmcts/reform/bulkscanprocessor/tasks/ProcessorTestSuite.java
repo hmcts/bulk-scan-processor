@@ -27,7 +27,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.ErrorNotificationSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -116,7 +116,7 @@ public abstract class ProcessorTestSuite {
     protected OcrValidator ocrValidator;
 
     @Mock
-    protected ServiceBusHelper serviceBusHelper;
+    protected ServiceBusSendHelper serviceBusHelper;
 
     @Value("${process-payments.enabled}")
     protected boolean paymentsEnabled;
