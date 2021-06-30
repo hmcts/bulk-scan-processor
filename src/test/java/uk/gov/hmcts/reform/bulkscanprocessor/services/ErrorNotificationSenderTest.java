@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrPresenceException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +41,7 @@ class ErrorNotificationSenderTest {
     private ErrorNotificationSender errorNotificationSender;
 
     @Mock
-    private ServiceBusHelper notificationsQueueHelper;
+    private ServiceBusSendHelper notificationsQueueHelper;
 
     @Mock
     private ContainerMappings containerMappings;

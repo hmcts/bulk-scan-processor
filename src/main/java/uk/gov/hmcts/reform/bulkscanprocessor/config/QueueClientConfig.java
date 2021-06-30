@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.ReceiveMode;
@@ -51,11 +53,29 @@ public class QueueClientConfig {
         return new QueueConfigurationProperties();
     }
 
-    @Bean("notifications-client")
-    public IQueueClient notificationsQueueClient(
+    @Bean("notifications-send-client")
+    public ServiceBusSenderClient notificationsQueueClient(
         @Qualifier("notifications-config") QueueConfigurationProperties queueProperties
-    ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(queueProperties);
+    ) {
+        return createSendClient(queueProperties);
+    }
+
+    private ServiceBusSenderClient createSendClient(
+        QueueConfigurationProperties queueProperties
+    ) {
+        String connectionString = String.format(
+            "Endpoint=sb://%s.servicebus.windows.net;SharedAccessKeyName=%s;SharedAccessKey=%s;",
+            queueProperties.getNamespaceOverride().orElse(defaultNamespace),
+            queueProperties.getAccessKeyName(),
+            queueProperties.getAccessKey()
+        );
+
+        return new ServiceBusClientBuilder()
+            .connectionString(connectionString)
+            .sender()
+            .queueName(queueProperties.getQueueName())
+            .buildClient();
+
     }
 
     private QueueClient createQueueClient(
