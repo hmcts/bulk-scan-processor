@@ -259,6 +259,7 @@ dependencies {
     exclude group: 'javax.mail', module: 'mail'
     exclude group: 'net.minidev', module: 'json-smart'
   }
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.2.3'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
