@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
 import static org.mockito.Mockito.mock;
@@ -62,7 +63,7 @@ public class IntegrationContextInitializer implements ApplicationContextInitiali
     }
 
     @Bean(name = "envelopes-helper")
-    public ServiceBusHelper envelopesQueueHelper() {
-        return mock(ServiceBusHelper.class);
+    public ServiceBusSendHelper envelopesQueueHelper() {
+        return mock(ServiceBusSendHelper.class);
     }
 }
