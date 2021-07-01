@@ -274,6 +274,25 @@ public class MetafileJsonValidatorTestForInvalidFiles {
             .hasMessageContaining("instance: {\"pointer\":\"/rescan_for\"}");
     }
 
+    @Test
+    public void should_not_parse_envelope_with_long_case_num() throws IOException {
+        // given
+        byte[] metafile = getMetafile("/metafiles/invalid/long-case-number.json");
+
+        // when
+        Throwable exc = catchThrowable(() -> validator.validate(metafile, SAMPLE_ZIP_FILE_NAME));
+
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidEnvelopeSchemaException.class)
+            .hasMessageStartingWith(getExpectedErrorHeaderLine(SAMPLE_ZIP_FILE_NAME)
+                                        + "\n\terror: string"
+            )
+            .hasMessageContaining("is too long (length: 116, maximum allowed: 100)");
+
+    }
+
     private byte[] getMetafile(String resource) throws IOException {
         return IOUtils.toByteArray(getClass().getResource(resource));
     }
