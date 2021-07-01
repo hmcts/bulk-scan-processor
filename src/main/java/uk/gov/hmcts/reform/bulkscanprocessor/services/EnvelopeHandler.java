@@ -87,6 +87,12 @@ public class EnvelopeHandler {
 
         Envelope dbEnvelope = toDbEnvelope(inputEnvelope, containerName, ocrValidationWarnings);
 
+        log.info(
+            "Envelope Name: {} case number: {}, status: {}",
+            dbEnvelope.getZipFileName(),
+            dbEnvelope.getCaseNumber(),
+            dbEnvelope.getStatus()
+        );
         envelopeProcessor.saveEnvelope(dbEnvelope);
     }
 }
