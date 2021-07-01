@@ -7,7 +7,8 @@
     "case_number": {
       "id": "#/properties/case_number",
       "type": ["string", "null"],
-      "title": "Case reference number to which the envelope belongs to"
+      "title": "Case reference number to which the envelope belongs to",
+      "maxLength": 100
     },
     "previous_service_case_reference": {
       "id": "#/properties/previous_service_case_reference",
