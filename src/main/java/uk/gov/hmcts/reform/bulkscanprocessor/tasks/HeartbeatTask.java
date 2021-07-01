@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.HeartbeatMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 /**
  * Sends heartbeat messages to orchestrator.
@@ -19,9 +19,9 @@ public class HeartbeatTask {
 
     private static final Logger log = LoggerFactory.getLogger(HeartbeatTask.class);
 
-    private final ServiceBusHelper serviceBusHelper;
+    private final ServiceBusSendHelper serviceBusHelper;
 
-    public HeartbeatTask(@Qualifier("envelopes-helper") ServiceBusHelper serviceBusHelper) {
+    public HeartbeatTask(@Qualifier("envelopes-helper") ServiceBusSendHelper serviceBusHelper) {
         this.serviceBusHelper = serviceBusHelper;
     }
 

@@ -15,7 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.OrchestratorNotificationService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class OrchestratorNotificationTaskTest {
     private OrchestratorNotificationService orchestratorNotificationService;
 
     @MockBean
-    private ServiceBusHelper serviceBusHelper;
+    private ServiceBusSendHelper serviceBusHelper;
 
     private OrchestratorNotificationTask task;
 

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class HeartbeatTaskTest {
 
-    @Mock private ServiceBusHelper serviceBusHelper;
+    @Mock private ServiceBusSendHelper serviceBusHelper;
 
     @Test
     public void should_send_heartbeat_message_to_the_queue() {

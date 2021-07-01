@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 @AutoConfigureAfter(QueueClientConfig.class)
@@ -23,10 +22,10 @@ public class ServiceBusHelpersConfiguration {
 
 
     @Bean(name = "envelopes-helper")
-    public ServiceBusHelper envelopesQueueHelper(
-        @Qualifier("envelopes-client") IQueueClient queueClient
+    public ServiceBusSendHelper envelopesQueueHelper(
+        @Qualifier("envelopes-send-client") ServiceBusSenderClient queueClient
     ) {
-        return new ServiceBusHelper(queueClient, objectMapper);
+        return new ServiceBusSendHelper(queueClient, objectMapper);
     }
 
     @Bean(name = "notifications-helper")

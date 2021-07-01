@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.transaction.Transactional;
@@ -20,12 +20,12 @@ import javax.transaction.Transactional;
 public class OrchestratorNotificationService {
     private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationService.class);
 
-    private final ServiceBusHelper serviceBusHelper;
+    private final ServiceBusSendHelper serviceBusHelper;
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
     public OrchestratorNotificationService(
-        @Qualifier("envelopes-helper") ServiceBusHelper serviceBusHelper,
+        @Qualifier("envelopes-helper") ServiceBusSendHelper serviceBusHelper,
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository processEventRepo
     ) {
