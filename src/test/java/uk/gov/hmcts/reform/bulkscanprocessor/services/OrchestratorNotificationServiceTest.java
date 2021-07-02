@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusHelper;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,7 +30,7 @@ class OrchestratorNotificationServiceTest {
     private OrchestratorNotificationService orchestratorNotificationService;
 
     @Mock
-    private ServiceBusHelper serviceBusHelper;
+    private ServiceBusSendHelper serviceBusHelper;
 
     @Mock
     private EnvelopeRepository envelopeRepo;
