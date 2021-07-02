@@ -1,10 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusMessage;
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.google.common.collect.ImmutableList;
-import com.microsoft.azure.servicebus.IMessage;
-import com.microsoft.azure.servicebus.Message;
-import com.microsoft.azure.servicebus.QueueClient;
-import com.microsoft.azure.servicebus.ReceiveMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -19,7 +18,8 @@ import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.FLUX_FUNC_TEST;
-import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROCESSED_ENVELOPES_QUEUE_CONN_STRING_BUILDER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROCESSED_ENVELOPES_QUEUE_CONN_STRING;
+import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.PROCESSED_ENVELOPES_QUEUE_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_SECRET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.S2S_URL;
@@ -35,18 +35,14 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private static List COMPLETED_OR_NOTIFICATION_SENT = ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED);
 
     private String s2sToken;
-    private QueueClient queueClient;
+    private ServiceBusSenderClient queueSendClient;
 
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
 
         this.s2sToken = testHelper.s2sSignIn(S2S_NAME, S2S_SECRET, S2S_URL);
-
-        this.queueClient = new QueueClient(
-            PROCESSED_ENVELOPES_QUEUE_CONN_STRING_BUILDER,
-            ReceiveMode.PEEKLOCK
-        );
+        this.queueSendClient = getSendClient();
     }
 
     @Test
@@ -118,7 +114,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     //unknown fields should be ignored
     private void sendProcessedEnvelopeMessage(UUID envelopeId, String ccdId, String ccdAction) throws Exception {
-        IMessage message = new Message(
+        ServiceBusMessage message = new ServiceBusMessage(
             " {"
                 + "\"envelope_id\":\"" + envelopeId + "\","
                 + "\"ccd_id\":\"" + ccdId + "\","
@@ -127,7 +123,16 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
                 + "}"
         );
 
-        queueClient.send(message);
+        queueSendClient.sendMessage(message);
+    }
+
+    private ServiceBusSenderClient getSendClient() {
+        return new ServiceBusClientBuilder()
+            .connectionString(PROCESSED_ENVELOPES_QUEUE_CONN_STRING)
+            .sender()
+            .queueName(PROCESSED_ENVELOPES_QUEUE_NAME)
+            .buildClient();
+
     }
 }
 
