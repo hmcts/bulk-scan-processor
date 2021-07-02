@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
-import com.microsoft.azure.servicebus.IQueueClient;
-import com.microsoft.azure.servicebus.MessageHandlerOptions;
-import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
-import java.time.Duration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 
 @AutoConfigureAfter(ServiceBusHelpersConfiguration.class)
@@ -24,27 +18,12 @@ public class MessageHandlerConfig {
 
     public static final Logger log = LoggerFactory.getLogger(MessageHandlerConfig.class);
 
-    private static final ExecutorService processedEnvelopesReadExecutor =
-        Executors.newSingleThreadExecutor(r ->
-            new Thread(r, "processed-envelopes-queue-read")
-        );
-
-    private static final MessageHandlerOptions messageHandlerOptions =
-        new MessageHandlerOptions(1, false, Duration.ofMinutes(5));
-
     @Autowired
     @Qualifier("processed-envelopes-client")
-    private IQueueClient processedEnvelopesQueueClient;
-
-    @Autowired
-    private ProcessedEnvelopeNotificationHandler processedEnvelopeNotificationHandler;
+    private ServiceBusProcessorClient processedEnvelopesQueueClient;
 
     @PostConstruct()
-    public void registerMessageHandlers() throws InterruptedException, ServiceBusException {
-        processedEnvelopesQueueClient.registerMessageHandler(
-            processedEnvelopeNotificationHandler,
-            messageHandlerOptions,
-            processedEnvelopesReadExecutor
-        );
+    public void registerMessageHandlers() {
+        processedEnvelopesQueueClient.start();
     }
 }

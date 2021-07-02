@@ -1,14 +1,14 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.azure.messaging.servicebus.ServiceBusErrorContext;
+import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
+import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
+import com.azure.messaging.servicebus.models.DeadLetterOptions;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.azure.servicebus.ExceptionPhase;
-import com.microsoft.azure.servicebus.IMessage;
-import com.microsoft.azure.servicebus.IMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -17,11 +17,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundExceptio
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageBodyRetriever;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,102 +29,62 @@ import java.util.concurrent.Executors;
  * This involves removing sensitive information, status change and creation of an appropriate event.
  * </p>
  */
-@DependsOn("processed-envelopes-completor")
+@DependsOn("processed-envelopes-client")
 @Service
 @Profile(Profiles.NOT_SERVICE_BUS_STUB) // only active when interaction with Service Bus isn't disabled
-public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
+public class ProcessedEnvelopeNotificationHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessedEnvelopeNotificationHandler.class);
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final EnvelopeFinaliserService envelopeFinaliserService;
     private final ObjectMapper objectMapper;
-    private final MessageAutoCompletor messageCompletor;
 
     public ProcessedEnvelopeNotificationHandler(
         EnvelopeFinaliserService envelopeFinaliserService,
-        ObjectMapper objectMapper,
-        @Qualifier("processed-envelopes-completor") MessageAutoCompletor messageCompletor
+        ObjectMapper objectMapper
     ) {
         this.envelopeFinaliserService = envelopeFinaliserService;
         this.objectMapper = objectMapper;
-        this.messageCompletor = messageCompletor;
     }
 
-    @Override
-    public CompletableFuture<Void> onMessageAsync(IMessage message) {
-        return CompletableFuture
-            .supplyAsync(() -> tryProcessMessage(message), EXECUTOR)
-            .thenComposeAsync(processingResult -> tryFinaliseMessageAsync(message, processingResult), EXECUTOR)
-            .handleAsync((v, error) -> {
-                // Individual steps are supposed to handle their exceptions themselves.
-                // This code is here to make sure errors are logged even when they fail to do that.
-                if (error != null) {
-                    log.error(
-                        "An error occurred when trying to handle 'processed envelope' message with ID {}",
-                        message.getMessageId()
-                    );
-                }
-
-                return null;
-            });
+    public void processMessage(ServiceBusReceivedMessageContext messageContext) {
+        var message = messageContext.getMessage();
+        var processingResult = tryProcessMessage(message);
+        finaliseMessage(messageContext, processingResult);
     }
 
-    @Override
-    public void notifyException(Throwable throwable, ExceptionPhase exceptionPhase) {
-        log.error(
-            "An error occurred when handling processed envelope notification. Phase: {}",
-            exceptionPhase,
-            throwable
-        );
+    public void processException(ServiceBusErrorContext context) {
+        log.error("Processed envelope queue handle error {}", context.getErrorSource(), context.getException());
     }
 
-    private CompletableFuture<Void> tryFinaliseMessageAsync(
-        IMessage message,
+    private void finaliseMessage(
+        ServiceBusReceivedMessageContext messageContext,
         MessageProcessingResult processingResult
     ) {
-        return finaliseMessageAsync(message, processingResult)
-            .exceptionally(error -> {
-                log.error(
-                    "An error occurred when trying to finalise 'processed envelope' message with ID {}",
-                    message.getMessageId(),
-                    error
-                );
-
-                return null;
-            });
-    }
-
-    private CompletableFuture<Void> finaliseMessageAsync(IMessage message, MessageProcessingResult processingResult) {
+        var message = messageContext.getMessage();
         switch (processingResult.resultType) {
             case SUCCESS:
-                return messageCompletor
-                    .completeAsync(message.getLockToken())
-                    .thenRun(() ->
-                        log.info("Completed 'processed-envelope' message with ID {}", message.getMessageId())
-                    );
+                messageContext.complete();
+                break;
             case UNRECOVERABLE_FAILURE:
-                return messageCompletor
-                    .deadLetterAsync(
-                        message.getLockToken(),
-                        "Message processing error",
-                        processingResult.exception.getMessage()
-                    )
-                    .thenRun(() ->
-                        log.info("Dead-lettered 'processed-envelope' message with ID {}", message.getMessageId())
-                    );
+                messageContext.deadLetter(
+                    new DeadLetterOptions()
+                        .setDeadLetterErrorDescription("Message processing error")
+                        .setDeadLetterReason(processingResult.exception.getMessage())
+                );
+                break;
             default:
                 log.info(
                     "Letting 'processed envelope' message with ID {} return to the queue. Delivery attempt {}.",
                     message.getMessageId(),
                     message.getDeliveryCount() + 1
                 );
-
-                return CompletableFuture.completedFuture(null);
+                break;
         }
     }
 
-    private MessageProcessingResult tryProcessMessage(IMessage message) {
+    private MessageProcessingResult tryProcessMessage(ServiceBusReceivedMessage message) {
         try {
             log.info(
                 "Started processing 'processed envelope' message with ID {} (delivery {})",
@@ -164,10 +121,10 @@ public class ProcessedEnvelopeNotificationHandler implements IMessageHandler {
         }
     }
 
-    private ProcessedEnvelope readProcessedEnvelope(IMessage message) throws IOException {
+    private ProcessedEnvelope readProcessedEnvelope(ServiceBusReceivedMessage message) throws IOException {
         try {
             ProcessedEnvelope processedEnvelope = objectMapper.readValue(
-                MessageBodyRetriever.getBinaryData(message.getMessageBody()),
+                message.getBody().toBytes(),
                 ProcessedEnvelope.class
             );
             log.info(
