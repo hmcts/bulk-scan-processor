@@ -20,7 +20,7 @@ public class MessageHandlerConfig {
 
     @Autowired
     @Qualifier("processed-envelopes-client")
-    private ServiceBusProcessorClient processedEnvelopesQueueClient;
+    public ServiceBusProcessorClient processedEnvelopesQueueClient;
 
     @PostConstruct()
     public void registerMessageHandlers() {
