@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +75,7 @@ class EnvelopeCountSummaryRepositoryTest {
         );
 
         // when
-        List<EnvelopeCountSummaryItem> resultForYesterday = reportRepo.getReportFor(now().minusDays(1));
+        List<EnvelopeCountSummaryItem> resultForYesterday = reportRepo.getReportFor(LocalDate.parse("2021-07-01"));
 
         // then
         assertThat(resultForYesterday).isEmpty();
@@ -194,7 +193,8 @@ class EnvelopeCountSummaryRepositoryTest {
         );
 
         // when
-        List<EnvelopeCountSummaryItem> resultForYesterday = reportRepo.getSummaryReportFor(now().minusDays(1));
+        List<EnvelopeCountSummaryItem> resultForYesterday =
+                reportRepo.getSummaryReportFor(LocalDate.parse("2021-07-01"));
 
         // then
         assertThat(resultForYesterday).isEmpty();
