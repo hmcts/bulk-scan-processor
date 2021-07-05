@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
@@ -13,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Profiles;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
@@ -42,10 +42,10 @@ public class IntegrationContextInitializer implements ApplicationContextInitiali
         return WireMockConfiguration.options().port(port).notifier(new Slf4jNotifier(false));
     }
 
-    @Bean(name = "processed-envelopes-completor")
+    @Bean(name = "processed-envelopes-client")
     @Profile(SERVICE_BUS_STUB)
-    public MessageAutoCompletor processedEnvelopesCompletor() {
-        return mock(MessageAutoCompletor.class);
+    public ServiceBusProcessorClient processedEnvelopesQueueProcessor() {
+        return mock(ServiceBusProcessorClient.class);
     }
 
     @Bean

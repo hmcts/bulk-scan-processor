@@ -1,25 +1,27 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.azure.core.util.BinaryData;
+import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
+import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
+import com.azure.messaging.servicebus.models.DeadLetterOptions;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.azure.servicebus.IMessage;
-import com.microsoft.azure.servicebus.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.MessageAutoCompletor;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -30,9 +32,10 @@ public class ProcessedEnvelopeNotificationHandlerTest {
 
     @Mock
     private EnvelopeFinaliserService envelopeFinaliserService;
-
     @Mock
-    private MessageAutoCompletor messageCompletor;
+    private ServiceBusReceivedMessageContext messageContext = mock(ServiceBusReceivedMessageContext.class);
+    @Mock
+    private ServiceBusReceivedMessage message = mock(ServiceBusReceivedMessage.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -42,8 +45,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     public void setUp() {
         handler = new ProcessedEnvelopeNotificationHandler(
             envelopeFinaliserService,
-            objectMapper,
-            messageCompletor
+            objectMapper
         );
     }
 
@@ -53,30 +55,29 @@ public class ProcessedEnvelopeNotificationHandlerTest {
         UUID envelopeId = UUID.randomUUID();
         String ccdId = "123123";
         String envelopeCcdAction = "AUTO_ATTACHED_TO_CASE";
-        IMessage message = validMessage(envelopeId, ccdId, envelopeCcdAction);
+        String bodyStr = validMessage(envelopeId, ccdId, envelopeCcdAction);
 
-        given(message.getLockToken()).willReturn(UUID.randomUUID());
-
+        given(messageContext.getMessage()).willReturn(message);
+        given(message.getBody()).willReturn(BinaryData.fromString(bodyStr));
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(message);
-        future.join();
+        handler.processMessage(messageContext);
 
         // then
-        assertThat(future.isCompletedExceptionally()).isFalse();
+        verify(messageContext, times(2)).getMessage();
+        verify(messageContext).complete();
+        verifyNoMoreInteractions(messageContext);
         verify(envelopeFinaliserService).finaliseEnvelope(envelopeId, ccdId, envelopeCcdAction);
     }
 
     @Test
     public void should_not_call_envelope_finaliser_when_message_is_invalid() {
         // given
-        IMessage invalidMessage = new Message("invalid body");
-
+        given(messageContext.getMessage()).willReturn(message);
+        given(message.getBody()).willReturn(BinaryData.fromString("invalid body"));
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(invalidMessage);
-        future.join();
+        handler.processMessage(messageContext);
 
         // then
-        assertThat(future.isCompletedExceptionally()).isFalse();
         verifyNoMoreInteractions(envelopeFinaliserService);
     }
 
@@ -86,18 +87,18 @@ public class ProcessedEnvelopeNotificationHandlerTest {
         UUID envelopeId = UUID.randomUUID();
         String ccdId = "312312";
         String envelopeCcdAction = "EXCEPTION_RECORD";
-        IMessage message = validMessage(envelopeId, ccdId, envelopeCcdAction);
-
-        given(message.getLockToken()).willReturn(UUID.randomUUID());
+        String bodyStr = validMessage(envelopeId, ccdId, envelopeCcdAction);
+        given(messageContext.getMessage()).willReturn(message);
+        given(message.getBody()).willReturn(BinaryData.fromString(bodyStr));
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(message);
-        future.join();
+        handler.processMessage(messageContext);
 
         // then
-        assertThat(future.isCompletedExceptionally()).isFalse();
         verify(envelopeFinaliserService).finaliseEnvelope(envelopeId, ccdId, envelopeCcdAction);
-        verify(messageCompletor).completeAsync(message.getLockToken());
+        verify(messageContext, times(2)).getMessage();
+        verify(messageContext).complete();
+        verifyNoMoreInteractions(messageContext);
     }
 
     @Test
@@ -109,41 +110,49 @@ public class ProcessedEnvelopeNotificationHandlerTest {
             .finaliseEnvelope(any(), any(), any());
 
         UUID envelopeId = UUID.randomUUID();
-        IMessage message = validMessage(envelopeId, null, null);
-
-        given(message.getLockToken()).willReturn(UUID.randomUUID());
+        String bodyStr = validMessage(envelopeId, null, null);
+        given(messageContext.getMessage()).willReturn(message);
+        given(message.getBody()).willReturn(BinaryData.fromString(bodyStr));
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(message);
-        future.join();
+        handler.processMessage(messageContext);
 
         // then
-        assertThat(future.isCompletedExceptionally()).isFalse();
         verify(envelopeFinaliserService).finaliseEnvelope(envelopeId, null, null);
-        verify(messageCompletor).deadLetterAsync(
-            message.getLockToken(),
-            DEAD_LETTER_REASON_PROCESSING_ERROR,
-            exceptionMessage
+        ArgumentCaptor<DeadLetterOptions> deadLetterOptionsArgumentCaptor
+            = ArgumentCaptor.forClass(DeadLetterOptions.class);
+
+        verify(messageContext).deadLetter(
+            deadLetterOptionsArgumentCaptor.capture()
         );
+        var deadLetterOptions = deadLetterOptionsArgumentCaptor.getValue();
+        assertThat(deadLetterOptions.getDeadLetterReason())
+            .isEqualTo(exceptionMessage);
+        assertThat(deadLetterOptions.getDeadLetterErrorDescription())
+            .isEqualTo(DEAD_LETTER_REASON_PROCESSING_ERROR);
     }
 
     @Test
     public void should_dead_letter_message_when_invalid() {
         // given
-        IMessage invalidMessage = spy(new Message("invalid body"));
-        given(invalidMessage.getLockToken()).willReturn(UUID.randomUUID());
+        given(messageContext.getMessage()).willReturn(message);
+        given(message.getBody()).willReturn(BinaryData.fromString("invalid body"));
 
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(invalidMessage);
-        future.join();
+        handler.processMessage(messageContext);
 
         // then
-        assertThat(future.isCompletedExceptionally()).isFalse();
-        verify(messageCompletor).deadLetterAsync(
-            invalidMessage.getLockToken(),
-            DEAD_LETTER_REASON_PROCESSING_ERROR,
-            "Failed to parse 'processed envelope' message"
+        ArgumentCaptor<DeadLetterOptions> deadLetterOptionsArgumentCaptor
+            = ArgumentCaptor.forClass(DeadLetterOptions.class);
+
+        verify(messageContext).deadLetter(
+            deadLetterOptionsArgumentCaptor.capture()
         );
+        var deadLetterOptions = deadLetterOptionsArgumentCaptor.getValue();
+        assertThat(deadLetterOptions.getDeadLetterReason())
+            .isEqualTo("Failed to parse 'processed envelope' message");
+        assertThat(deadLetterOptions.getDeadLetterErrorDescription())
+            .isEqualTo(DEAD_LETTER_REASON_PROCESSING_ERROR);
     }
 
     @Test
@@ -153,26 +162,26 @@ public class ProcessedEnvelopeNotificationHandlerTest {
             .given(envelopeFinaliserService)
             .finaliseEnvelope(any(), any(), any());
 
-        UUID envelopeId = UUID.randomUUID();
-
+        given(messageContext.getMessage()).willReturn(message);
+        given(message.getBody())
+            .willReturn(BinaryData.fromString(validMessage(UUID.randomUUID(), null, null)));
         // when
-        CompletableFuture<Void> future = handler.onMessageAsync(validMessage(envelopeId, null, null));
-        future.join();
+        handler.processMessage(messageContext);
 
         // then
-        assertThat(future.isCompletedExceptionally()).isFalse();
-        verifyNoMoreInteractions(messageCompletor);
+        verify(messageContext, times(2)).getMessage();
+        verifyNoMoreInteractions(messageContext);
     }
 
     //ProcessedEnvelope should ignore unknown fields when json deserialization
-    private IMessage validMessage(UUID envelopeId, String ccdId, String envelopeCcdAction) {
-        return spy(new Message(
+    private String validMessage(UUID envelopeId, String ccdId, String envelopeCcdAction) {
+        return
             String.format(
                 " {\"envelope_id\":\"%1$s\",\"ccd_id\":%2$s,\"envelope_ccd_action\":%3$s,\"dummy\":\"xx\"}",
                 envelopeId,
                 ccdId == null ? null : ("\"" + ccdId + "\""),
                 envelopeCcdAction == null ? null : ("\"" + envelopeCcdAction + "\"")
-            )
-        ));
+        );
     }
+
 }
