@@ -18,6 +18,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotification
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class QueueClientConfig {
     public static final Logger log = LoggerFactory.getLogger(QueueClientConfig.class);
+    public static final String CONNECTION_STR_FORMAT =
+        "Endpoint=sb://%s.servicebus.windows.net;SharedAccessKeyName=%s;SharedAccessKey=%s;";
 
     @Value("${queues.default-namespace}")
     private String defaultNamespace;
@@ -46,15 +48,8 @@ public class QueueClientConfig {
         @Qualifier("processed-envelopes-config") QueueConfigurationProperties queueProperties,
         ProcessedEnvelopeNotificationHandler messageHandler
     ) {
-        String connectionString = String.format(
-            "Endpoint=sb://%s.servicebus.windows.net;SharedAccessKeyName=%s;SharedAccessKey=%s;",
-            queueProperties.getNamespaceOverride().orElse(defaultNamespace),
-            queueProperties.getAccessKeyName(),
-            queueProperties.getAccessKey()
-        );
-
         return new ServiceBusClientBuilder()
-            .connectionString(connectionString)
+            .connectionString(createConnectionString(queueProperties))
             .processor()
             .queueName(queueProperties.getQueueName())
             .receiveMode(ServiceBusReceiveMode.PEEK_LOCK)
@@ -80,19 +75,20 @@ public class QueueClientConfig {
     private ServiceBusSenderClient createSendClient(
         QueueConfigurationProperties queueProperties
     ) {
-        String connectionString = String.format(
-            "Endpoint=sb://%s.servicebus.windows.net;SharedAccessKeyName=%s;SharedAccessKey=%s;",
-            queueProperties.getNamespaceOverride().orElse(defaultNamespace),
-            queueProperties.getAccessKeyName(),
-            queueProperties.getAccessKey()
-        );
-
         return new ServiceBusClientBuilder()
-            .connectionString(connectionString)
+            .connectionString(createConnectionString(queueProperties))
             .sender()
             .queueName(queueProperties.getQueueName())
             .buildClient();
 
     }
 
+    private String createConnectionString(QueueConfigurationProperties queueProperties) {
+        return String.format(
+            CONNECTION_STR_FORMAT,
+            queueProperties.getNamespaceOverride().orElse(defaultNamespace),
+            queueProperties.getAccessKeyName(),
+            queueProperties.getAccessKey()
+        );
+    }
 }

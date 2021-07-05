@@ -255,10 +255,6 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.11.1'
 
-  implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.6.4', {
-    exclude group: 'javax.mail', module: 'mail'
-    exclude group: 'net.minidev', module: 'json-smart'
-  }
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.2.3'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
