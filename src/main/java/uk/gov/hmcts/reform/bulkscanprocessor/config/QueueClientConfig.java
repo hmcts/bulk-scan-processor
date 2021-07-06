@@ -1,22 +1,25 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
+import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
-import com.microsoft.azure.servicebus.IQueueClient;
-import com.microsoft.azure.servicebus.QueueClient;
-import com.microsoft.azure.servicebus.ReceiveMode;
-import com.microsoft.azure.servicebus.primitives.ConnectionStringBuilder;
-import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import com.azure.messaging.servicebus.models.ServiceBusReceiveMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
 public class QueueClientConfig {
+    public static final Logger log = LoggerFactory.getLogger(QueueClientConfig.class);
+    public static final String CONNECTION_STR_FORMAT =
+        "Endpoint=sb://%s.servicebus.windows.net;SharedAccessKeyName=%s;SharedAccessKey=%s;";
 
     @Value("${queues.default-namespace}")
     private String defaultNamespace;
@@ -41,10 +44,19 @@ public class QueueClientConfig {
     }
 
     @Bean("processed-envelopes-client")
-    public IQueueClient processedEnvelopesQueueClient(
-        @Qualifier("processed-envelopes-config") QueueConfigurationProperties queueProperties
-    ) throws InterruptedException, ServiceBusException {
-        return createQueueClient(queueProperties);
+    public ServiceBusProcessorClient processedEnvelopesQueueClient(
+        @Qualifier("processed-envelopes-config") QueueConfigurationProperties queueProperties,
+        ProcessedEnvelopeNotificationHandler messageHandler
+    ) {
+        return new ServiceBusClientBuilder()
+            .connectionString(createConnectionString(queueProperties))
+            .processor()
+            .queueName(queueProperties.getQueueName())
+            .receiveMode(ServiceBusReceiveMode.PEEK_LOCK)
+            .disableAutoComplete()
+            .processMessage(messageHandler::processMessage)
+            .processError(messageHandler::processException)
+            .buildProcessorClient();
     }
 
     @Bean("notifications-config")
@@ -63,32 +75,20 @@ public class QueueClientConfig {
     private ServiceBusSenderClient createSendClient(
         QueueConfigurationProperties queueProperties
     ) {
-        String connectionString = String.format(
-            "Endpoint=sb://%s.servicebus.windows.net;SharedAccessKeyName=%s;SharedAccessKey=%s;",
-            queueProperties.getNamespaceOverride().orElse(defaultNamespace),
-            queueProperties.getAccessKeyName(),
-            queueProperties.getAccessKey()
-        );
-
         return new ServiceBusClientBuilder()
-            .connectionString(connectionString)
+            .connectionString(createConnectionString(queueProperties))
             .sender()
             .queueName(queueProperties.getQueueName())
             .buildClient();
 
     }
 
-    private QueueClient createQueueClient(
-        QueueConfigurationProperties queueProperties
-    ) throws ServiceBusException, InterruptedException {
-        return new QueueClient(
-            new ConnectionStringBuilder(
-                queueProperties.getNamespaceOverride().orElse(defaultNamespace),
-                queueProperties.getQueueName(),
-                queueProperties.getAccessKeyName(),
-                queueProperties.getAccessKey()
-            ),
-            ReceiveMode.PEEKLOCK
+    private String createConnectionString(QueueConfigurationProperties queueProperties) {
+        return String.format(
+            CONNECTION_STR_FORMAT,
+            queueProperties.getNamespaceOverride().orElse(defaultNamespace),
+            queueProperties.getAccessKeyName(),
+            queueProperties.getAccessKey()
         );
     }
 }
