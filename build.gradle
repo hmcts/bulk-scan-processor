@@ -288,7 +288,7 @@ dependencies {
   implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
   // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
   // single import: io.vavr.control.Try
-  implementation group: 'io.vavr', name: 'vavr', version: '0.10.3'
+  implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
