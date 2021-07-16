@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.flywaydb.flyway' version '7.11.1'
+  id 'org.flywaydb.flyway' version '7.11.2'
   id 'org.springframework.boot' version '2.5.2'
   id 'org.owasp.dependencycheck' version '6.2.2'
   id 'com.github.ben-manes.versions' version '0.39.0'
@@ -250,8 +250,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.24.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.24.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.25.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.25.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.11.1'
 
@@ -267,7 +267,7 @@ dependencies {
 
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.11.1'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.11.2'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.12.1'
@@ -285,10 +285,10 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.4'
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-  implementation group: 'commons-io', name: 'commons-io', version: '2.10.0'
+  implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
   // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
   // single import: io.vavr.control.Try
-  implementation group: 'io.vavr', name: 'vavr', version: '0.10.3'
+  implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.8'
 
