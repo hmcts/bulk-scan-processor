@@ -382,7 +382,7 @@ public class OcrValidatorTest {
         // given
         InputEnvelope envelope = envelope(
             PO_BOX_1,
-            asList(
+                BlobProcessorTaskTestForMultiplePoBoxes            asList(
                 doc(OTHER, "other", null),
                 doc(OTHER, "other", null)
             ),

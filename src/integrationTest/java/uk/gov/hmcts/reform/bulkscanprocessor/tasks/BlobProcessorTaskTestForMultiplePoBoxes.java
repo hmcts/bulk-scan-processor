@@ -1,30 +1,19 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
-import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
-import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.io.Resources.getResource;
-import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.jsonpath.JsonPath.parse;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
