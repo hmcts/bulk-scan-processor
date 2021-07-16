@@ -3,18 +3,15 @@ package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ContainerJurisdictionPoBoxMismatchException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 
-import java.util.Arrays;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EnvelopeValidatorTest {
 
@@ -95,12 +92,12 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThrows(
-                ContainerJurisdictionPoBoxMismatchException.class,
-                () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                        singletonList(m),
-                        envelope,
-                        CONTAINER
-                )
+            ContainerJurisdictionPoBoxMismatchException.class,
+            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                    singletonList(m),
+                    envelope,
+                    CONTAINER
+            )
         );
     }
 
@@ -120,12 +117,12 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThrows(
-                ContainerJurisdictionPoBoxMismatchException.class,
-                () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                        singletonList(m),
-                        envelope,
-                        CONTAINER
-                )
+            ContainerJurisdictionPoBoxMismatchException.class,
+            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                    singletonList(m),
+                    envelope,
+                    CONTAINER
+            )
         );
     }
 
@@ -191,11 +188,11 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThrows(
-                ServiceDisabledException.class,
-                () -> envelopeValidator.assertServiceEnabled(
-                        envelope,
-                        singletonList(m)
-                )
+            ServiceDisabledException.class,
+            () -> envelopeValidator.assertServiceEnabled(
+                    envelope,
+                    singletonList(m)
+            )
         );
     }
 }
