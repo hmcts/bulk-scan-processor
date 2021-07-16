@@ -129,39 +129,47 @@ containers:
   mappings:
     - container: sscs
       jurisdiction: SSCS
-      poBox: 12626
+      poBoxes:
+        - 12626
       ocrValidationUrl: ${OCR_VALIDATION_URL_SSCS}
     - container: probate
       jurisdiction: PROBATE
-      poBox: 12625
+      poBoxes:
+        - 12625
       ocrValidationUrl: ${OCR_VALIDATION_URL_PROBATE}
       paymentsEnabled: true
     - container: divorce
       jurisdiction: DIVORCE
-      poBox: 12706
+      poBoxes:
+        - 12706
       ocrValidationUrl: ${OCR_VALIDATION_URL_DIVORCE}
       paymentsEnabled: true
     - container: finrem
       jurisdiction: DIVORCE
-      poBox: 12746
+      poBoxes:
+        - 12746
       ocrValidationUrl: ${OCR_VALIDATION_URL_FINREM}
       paymentsEnabled: true
     - container: cmc
       jurisdiction: CMC
-      poBox: 12747
+      poBoxes:
+        - 12747
     - container: bulkscan
       jurisdiction: BULKSCAN
-      poBox: BULKSCANPO
+      poBoxes:
+        - BULKSCANPO
       ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
       paymentsEnabled: true
     - container: bulkscanauto
       jurisdiction: BULKSCAN
-      poBox: BULKSCANPO
+      poBoxes:
+        - BULKSCANPO
       ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
       paymentsEnabled: true
     - container: publiclaw
       jurisdiction: PUBLICLAW
-      poBox: 12879
+      poBoxes:
+        - 12879
       paymentsEnabled: false
       enabled: ${PUBLICLAW_ENABLED}
 

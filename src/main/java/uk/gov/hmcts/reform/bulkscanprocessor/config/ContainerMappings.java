@@ -22,7 +22,7 @@ public class ContainerMappings {
 
         private String container;
         private String jurisdiction;
-        private String poBox;
+        private List<String> poBoxes;
         private String ocrValidationUrl;
         private boolean paymentsEnabled;
         private boolean enabled = true;
@@ -31,14 +31,14 @@ public class ContainerMappings {
         public Mapping(
             String container,
             String jurisdiction,
-            String poBox,
+            List<String> poBoxes,
             String ocrValidationUrl,
             boolean paymentsEnabled,
             boolean enabled
         ) {
             this.container = container;
             this.jurisdiction = jurisdiction;
-            this.poBox = poBox;
+            this.poBoxes = poBoxes;
             this.ocrValidationUrl = ocrValidationUrl;
             this.paymentsEnabled = paymentsEnabled;
             this.enabled = enabled;
@@ -64,12 +64,12 @@ public class ContainerMappings {
             this.jurisdiction = jurisdiction;
         }
 
-        public String getPoBox() {
-            return poBox;
+        public List<String> getPoBoxes() {
+            return poBoxes;
         }
 
-        public void setPoBox(String poBox) {
-            this.poBox = poBox;
+        public void setPoBoxes(List<String> poBoxes) {
+            this.poBoxes = poBoxes;
         }
 
         public String getOcrValidationUrl() {

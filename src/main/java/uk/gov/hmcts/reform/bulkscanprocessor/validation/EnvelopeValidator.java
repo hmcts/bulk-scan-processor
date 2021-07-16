@@ -199,7 +199,8 @@ public final class EnvelopeValidator {
             .anyMatch(mapping ->
                 mapping.getContainer().equalsIgnoreCase(containerName)
                     && mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
-                    && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
+                    && mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
+                        .contains(envelope.poBox.toLowerCase())
             );
 
         if (!isMatched) {
@@ -239,8 +240,8 @@ public final class EnvelopeValidator {
         Boolean isServiceEnabled = mappings
             .stream()
             .filter(mapping ->
-                mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
-                    && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
+                 mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
+                    .contains(envelope.poBox.toLowerCase())
             )
             .findFirst()
             .map(ContainerMappings.Mapping::isEnabled)
@@ -265,7 +266,8 @@ public final class EnvelopeValidator {
             .stream()
             .filter(mapping ->
                 mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
-                    && mapping.getPoBox().equalsIgnoreCase(envelope.poBox)
+                    && mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
+                        .contains(envelope.poBox.toLowerCase())
             )
             .findFirst()
             .map(ContainerMappings.Mapping::isPaymentsEnabled)

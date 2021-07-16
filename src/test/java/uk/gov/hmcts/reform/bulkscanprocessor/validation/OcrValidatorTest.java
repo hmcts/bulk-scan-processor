@@ -60,7 +60,8 @@ public class OcrValidatorTest {
 
     private static final String VALIDATION_URL = "https://example.com/validate-ocr";
     private static final String S2S_TOKEN = "sample-s2s-token";
-    private static final String PO_BOX = "sample PO box";
+    private static final String PO_BOX_1 = "sample PO box 1";
+    private static final String PO_BOX_2 = "sample PO box 2";
 
     @RegisterExtension
     public LogCapturer capturer = LogCapturer.create().captureForType(OcrValidator.class);
@@ -91,7 +92,7 @@ public class OcrValidatorTest {
         InputEnvelope envelope =
             inputEnvelope(
                 "BULKSCAN",
-                PO_BOX,
+                PO_BOX_1,
                 SUPPLEMENTARY_EVIDENCE_WITH_OCR,
                 docs
             );
@@ -114,7 +115,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, url, true, true)
+                new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), url, true, true)
             ));
 
         given(client.validate(eq(url), any(), any(), any()))
@@ -131,7 +132,55 @@ public class OcrValidatorTest {
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
-            PO_BOX,
+            PO_BOX_1,
+            SUPPLEMENTARY_EVIDENCE,
+            docs
+        );
+        // and
+        given(presenceValidator.assertHasProperlySetOcr(envelope.scannableItems))
+            .willReturn(Optional.of(docWithOcr));
+
+        // when
+        ocrValidator.assertOcrDataIsValid(envelope);
+
+        // then
+        verify(client).validate(eq(url), argCaptor.capture(), eq(docWithOcr.documentSubtype), eq(S2S_TOKEN));
+        assertThat(argCaptor.getValue().ocrDataFields)
+            .extracting(it -> tuple(it.name, it.value))
+            .containsExactlyElementsOf(
+                sampleOcr()
+                    .getFields()
+                    .stream()
+                    .map(it -> tuple(it.name.textValue(), it.value.textValue()))
+                    .collect(toList())
+            );
+    }
+
+    @Test
+    public void should_call_rest_client_with_correct_parameters_when_multiple_po_boxes() {
+        // given
+        String url = VALIDATION_URL;
+
+        given(containerMappings.getMappings())
+            .willReturn(singletonList(
+                new Mapping("container", "jurisdiction", asList(PO_BOX_1, PO_BOX_2), url, true, true)
+            ));
+
+        given(client.validate(eq(url), any(), any(), any()))
+            .willReturn(new ValidationResponse(Status.SUCCESS, emptyList(), emptyList()));
+
+        given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
+
+        // and
+        InputScannableItem docWithOcr = doc(FORM, "sample_document_subtype", sampleOcr());
+        List<InputScannableItem> docs =
+            asList(
+                docWithOcr,
+                doc(OTHER, "other", null)
+            );
+        InputEnvelope envelope = inputEnvelope(
+            "BULKSCAN",
+            PO_BOX_2,
             SUPPLEMENTARY_EVIDENCE,
             docs
         );
@@ -162,7 +211,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, url, true, true)
+                new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), url, true, true)
             ));
 
         given(client.validate(eq(url), any(), any(), any()))
@@ -179,7 +228,7 @@ public class OcrValidatorTest {
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
-            PO_BOX,
+             PO_BOX_1,
             SUPPLEMENTARY_EVIDENCE,
             docs
         );
@@ -206,7 +255,7 @@ public class OcrValidatorTest {
             );
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
-            PO_BOX,
+            PO_BOX_1,
             EXCEPTION,
             docs
         );
@@ -224,7 +273,7 @@ public class OcrValidatorTest {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true, true)
+                new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), VALIDATION_URL, true, true)
             ));
 
         List<String> expectedWarnings = ImmutableList.of("warning 1", "warning 2");
@@ -236,8 +285,8 @@ public class OcrValidatorTest {
 
         InputScannableItem scannableItem = doc(FORM, "subtype1", sampleOcr());
         InputEnvelope envelope = envelope(
-            PO_BOX,
-            asList(scannableItem),
+            PO_BOX_1,
+            singletonList(scannableItem),
             SUPPLEMENTARY_EVIDENCE
         );
 
@@ -258,7 +307,7 @@ public class OcrValidatorTest {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true, true)
+                new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), VALIDATION_URL, true, true)
             ));
 
         given(client.validate(any(), any(), any(), any()))
@@ -267,8 +316,8 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         InputEnvelope envelope = envelope(
-            PO_BOX,
-            asList(doc(FORM, "z", sampleOcr())),
+            PO_BOX_1,
+            singletonList(doc(FORM, "z", sampleOcr())),
             SUPPLEMENTARY_EVIDENCE
         );
 
@@ -305,10 +354,34 @@ public class OcrValidatorTest {
     }
 
     @Test
+    public void should_not_call_validation_if_url_is_not_configured_for_po_box() {
+        // given
+        given(containerMappings.getMappings())
+                .willReturn(singletonList(
+                        new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), VALIDATION_URL, true, true)
+                ));
+
+        InputEnvelope envelope = envelope(
+            PO_BOX_2,
+            asList(
+                doc(FORM, "D8", sampleOcr()),
+                doc(OTHER, "other", null)
+            ),
+            SUPPLEMENTARY_EVIDENCE
+        );
+
+        // when
+        ocrValidator.assertOcrDataIsValid(envelope);
+
+        // then
+        verify(client, never()).validate(any(), any(), any(), any());
+    }
+
+    @Test
     public void should_not_call_validation_there_are_no_documents_with_ocr() {
         // given
         InputEnvelope envelope = envelope(
-            PO_BOX,
+            PO_BOX_1,
             asList(
                 doc(OTHER, "other", null),
                 doc(OTHER, "other", null)
@@ -318,7 +391,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("c", "j", envelope.poBox, "https://example.com", true, true)
+                new Mapping("c", "j", singletonList(envelope.poBox), "https://example.com", true, true)
             ));
 
         // when
@@ -332,7 +405,7 @@ public class OcrValidatorTest {
     public void should_throw_an_exception_if_service_responded_with_error_response() {
         // given
         InputEnvelope envelope = envelope(
-            PO_BOX,
+            PO_BOX_1,
             asList(
                 doc(FORM, "y", sampleOcr()),
                 doc(OTHER, "other", null)
@@ -345,7 +418,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true, true)
+                new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), VALIDATION_URL, true, true)
             ));
 
         given(client.validate(any(), any(), any(), any()))
@@ -368,7 +441,7 @@ public class OcrValidatorTest {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true, true)
+                new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), VALIDATION_URL, true, true)
             ));
 
         given(client.validate(any(), any(), any(), any()))
@@ -377,8 +450,8 @@ public class OcrValidatorTest {
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
 
         InputEnvelope envelope = envelope(
-            PO_BOX,
-            asList(doc(FORM, "z", sampleOcr())),
+            PO_BOX_1,
+            singletonList(doc(FORM, "z", sampleOcr())),
             SUPPLEMENTARY_EVIDENCE
         );
 
@@ -397,7 +470,7 @@ public class OcrValidatorTest {
     public void should_throw_an_exception_if_service_responded_with_404() {
         // given
         InputEnvelope envelope = envelope(
-            PO_BOX,
+            PO_BOX_1,
             asList(
                 doc(FORM, "x", sampleOcr()),
                 doc(OTHER, "other", null)
@@ -410,7 +483,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("container", "jurisdiction", PO_BOX, VALIDATION_URL, true, true)
+                new Mapping("container", "jurisdiction", singletonList(PO_BOX_1), VALIDATION_URL, true, true)
             ));
 
         given(authTokenGenerator.generate()).willReturn(S2S_TOKEN);
@@ -432,7 +505,7 @@ public class OcrValidatorTest {
         // given
         InputScannableItem scannableItemWithOcr = doc(FORM, "form", sampleOcr());
         InputEnvelope envelope = envelope(
-            PO_BOX,
+            PO_BOX_1,
             asList(
                 scannableItemWithOcr,
                 doc(OTHER, "other", null)
@@ -445,7 +518,7 @@ public class OcrValidatorTest {
 
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new Mapping("c", "j", envelope.poBox, VALIDATION_URL, true, true)
+                new Mapping("c", "j", singletonList(envelope.poBox), VALIDATION_URL, true, true)
             ));
 
         given(client.validate(any(), any(), any(), any())).willThrow(new RuntimeException());
@@ -466,7 +539,7 @@ public class OcrValidatorTest {
     public void should_log_info_when_ocr_is_present_but_theres_not_service_configured_to_validate_it() {
         // given
         InputEnvelope envelope = envelope(
-            PO_BOX,
+            PO_BOX_1,
             asList(
                 doc(FORM, "form", sampleOcr()),
                 doc(OTHER, "other", null)
