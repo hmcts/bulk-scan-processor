@@ -158,6 +158,7 @@ containers:
       jurisdiction: BULKSCAN
       poBoxes:
         - BULKSCANPO
+        - BULKSCANPO2
       ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
       paymentsEnabled: true
     - container: bulkscanauto
