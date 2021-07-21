@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.flywaydb.flyway' version '7.11.2'
+  id 'org.flywaydb.flyway' version '7.11.3'
   id 'org.springframework.boot' version '2.5.2'
   id 'org.owasp.dependencycheck' version '6.2.2'
   id 'com.github.ben-manes.versions' version '0.39.0'
@@ -267,7 +267,7 @@ dependencies {
 
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.11.2'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.11.3'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.12.1'
@@ -278,7 +278,7 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.3'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.2'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.4'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '4.0.0'
   implementation group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '7.0.0'
@@ -311,10 +311,10 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.0', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.0'
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
