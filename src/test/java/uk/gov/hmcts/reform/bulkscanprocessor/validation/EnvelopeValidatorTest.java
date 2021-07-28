@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("checkstyle:LineLength")
 class EnvelopeValidatorTest {
 
     private static final String VALIDATION_URL = "https://example.com/validate-ocr";
@@ -86,8 +87,8 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThrows(
-                DisallowedDocumentTypesException.class,
-                () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
+            DisallowedDocumentTypesException.class,
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(envelope)
         );
     }
 
@@ -146,7 +147,7 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThatThrownBy(
-                () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
                 .isInstanceOf(OcrDataNotFoundException.class)
                 .hasMessage("No documents of type Form found");
@@ -169,7 +170,7 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThatThrownBy(
-                () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
                 .isInstanceOf(OcrDataNotFoundException.class)
                 .hasMessage("Missing OCR data");
@@ -192,7 +193,7 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThatThrownBy(
-                () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
                 .isInstanceOf(OcrDataNotFoundException.class)
                 .hasMessage("Missing OCR data");
@@ -234,7 +235,7 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThatThrownBy(
-                () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
                 .isInstanceOf(OcrDataNotFoundException.class)
                 .hasMessage("Missing OCR data");
@@ -257,7 +258,7 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertThatThrownBy(
-                () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
+            () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
                 .isInstanceOf(OcrDataNotFoundException.class)
                 .hasMessage("Missing OCR data");
