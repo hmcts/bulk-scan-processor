@@ -56,7 +56,14 @@ class ErrorNotificationSenderTest {
     void setUp() {
         given(containerMappings.getMappings())
             .willReturn(singletonList(
-                new ContainerMappings.Mapping(CONTAINER, JURISDICTION, PO_BOX, VALIDATION_URL, true, true)
+                new ContainerMappings.Mapping(
+                        CONTAINER,
+                        JURISDICTION,
+                        singletonList(PO_BOX),
+                        VALIDATION_URL,
+                        true,
+                        true
+                )
             ));
 
         errorNotificationSender = new ErrorNotificationSender(

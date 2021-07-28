@@ -9,6 +9,7 @@ import java.util.List;
 
 import static java.time.LocalDate.now;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ZeroRowFillerTest {
@@ -18,9 +19,9 @@ public class ZeroRowFillerTest {
         // given
         ContainerMappings containerMappings = new ContainerMappings();
         containerMappings.setMappings(asList(
-            new ContainerMappings.Mapping("c1", "j1", "123", "https://example.com/s1", true, true),
-            new ContainerMappings.Mapping("c2", "j2", "124", "https://example.com/s2", true, true),
-            new ContainerMappings.Mapping("c3", "j3", "125", "https://example.com/s3", true, true)
+            new ContainerMappings.Mapping("c1", "j1", singletonList("123"), "https://example.com/s1", true, true),
+            new ContainerMappings.Mapping("c2", "j2", singletonList("124"), "https://example.com/s2", true, true),
+            new ContainerMappings.Mapping("c3", "j3", singletonList("125"), "https://example.com/s3", true, true)
         ));
 
         ZeroRowFiller filler = new ZeroRowFiller(containerMappings);
@@ -48,8 +49,8 @@ public class ZeroRowFillerTest {
         // given
         ContainerMappings containerMappings = new ContainerMappings();
         containerMappings.setMappings(asList(
-            new ContainerMappings.Mapping("c1", "j1", "123", "https://example.com/s1", true, true),
-            new ContainerMappings.Mapping("c2", "j2", "124", "https://example.com/s1", true, true)
+            new ContainerMappings.Mapping("c1", "j1", singletonList("123"), "https://example.com/s1", true, true),
+            new ContainerMappings.Mapping("c2", "j2", singletonList("124"), "https://example.com/s1", true, true)
         ));
 
         ZeroRowFiller filler = new ZeroRowFiller(containerMappings);

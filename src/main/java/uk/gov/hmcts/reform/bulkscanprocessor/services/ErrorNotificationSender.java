@@ -63,7 +63,7 @@ public class ErrorNotificationSender {
                 eventId,
                 zipFilename,
                 containerName,
-                getPoBox(containerName),
+                getPoBoxes(containerName),
                 null,
                 errorCode,
                 message,
@@ -80,12 +80,12 @@ public class ErrorNotificationSender {
         );
     }
 
-    private String getPoBox(String containerName) {
+    private String getPoBoxes(String containerName) {
         return containerMappings
             .getMappings()
             .stream()
             .filter(m -> m.getContainer().equals(containerName))
-            .map(ContainerMappings.Mapping::getPoBox)
+            .map(m -> String.join(",", m.getPoBoxes()))
             .findFirst()
             .orElseThrow(() -> new ConfigurationException("Mapping not found for container " + containerName));
     }
