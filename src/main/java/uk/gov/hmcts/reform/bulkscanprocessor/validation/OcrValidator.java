@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.Vali
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.model.OcrValidationWarnings;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -158,12 +157,13 @@ public class OcrValidator {
         Optional<String> validationUrl = containerMappings
             .getMappings()
             .stream()
-            .filter(mapping -> Objects.equals(mapping.getPoBox(), poBox))
+            .filter(mapping -> mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
+                    .contains(poBox.toLowerCase()))
             .findFirst()
             .map(mapping -> mapping.getOcrValidationUrl())
             .filter(url -> !Strings.isNullOrEmpty(url));
 
-        if (!validationUrl.isPresent()) {
+        if (validationUrl.isEmpty()) {
             log.info("OCR validation URL for po box {} not configured. Skipping validation.", poBox);
         }
 

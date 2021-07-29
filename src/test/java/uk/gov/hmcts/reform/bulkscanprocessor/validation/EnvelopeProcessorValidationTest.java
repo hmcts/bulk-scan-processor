@@ -296,7 +296,8 @@ public class EnvelopeProcessorValidationTest {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "abc";
-        List<Mapping> mappings = singletonList(new Mapping(container, "ABC", "123", SAMPLE_URL, true, true));
+        List<Mapping> mappings =
+                singletonList(new Mapping(container, "ABC", singletonList("123"), SAMPLE_URL, true, true));
 
         // when
         Throwable err = catchThrowable(
@@ -313,7 +314,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "test";
         List<Mapping> mappings = singletonList(
-            new Mapping(container, "test_jurisdiction", "test_poBox", SAMPLE_URL, true, true)
+            new Mapping(container, "test_jurisdiction", singletonList("test_poBox"), SAMPLE_URL, true, true)
         );
 
         // when
@@ -331,7 +332,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
         List<Mapping> mappings = singletonList(
-            new Mapping(container, envelope.jurisdiction, envelope.poBox, SAMPLE_URL, true, true)
+            new Mapping(container, envelope.jurisdiction, singletonList(envelope.poBox), SAMPLE_URL, true, true)
         );
 
         // when
@@ -359,7 +360,7 @@ public class EnvelopeProcessorValidationTest {
         // when
         Throwable err = catchThrowable(
             () -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                envelope, false, singletonList(new Mapping("abc", "ABC", "test_poBox", null, true, true))
+                envelope, false, singletonList(new Mapping("abc", "ABC", singletonList("test_poBox"), null, true, true))
             ));
 
         // then
@@ -382,7 +383,7 @@ public class EnvelopeProcessorValidationTest {
         // when
         Throwable err = catchThrowable(
             () -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                envelope, true, singletonList(new Mapping("abc", "ABC", "test_poBox", null, false, true))
+                envelope, true, singletonList(new Mapping("abc", "ABC", singletonList("test_poBox"), null, false, true))
             ));
 
         // then
@@ -434,7 +435,7 @@ public class EnvelopeProcessorValidationTest {
         InputEnvelope envelope = inputEnvelope("DISABLED_SERVICE", "test_poBox");
         String container = "abc";
         List<Mapping> mappings = singletonList(
-            new Mapping(container, "DISABLED_SERVICE", "test_poBox", SAMPLE_URL, true, false)
+            new Mapping(container, "DISABLED_SERVICE", singletonList("test_poBox"), SAMPLE_URL, true, false)
         );
 
         // when
