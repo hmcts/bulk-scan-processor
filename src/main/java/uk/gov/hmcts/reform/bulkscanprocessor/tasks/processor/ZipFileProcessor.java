@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
+import static org.apache.commons.io.FileUtils.*;
 
 @Component
 public class ZipFileProcessor {
@@ -46,7 +48,7 @@ public class ZipFileProcessor {
     private void deleteFolder(String zipFileName) {
         String folderPath =  downloadPath +  zipFileName;
         try {
-            FileUtils.deleteDirectory(new File(folderPath));
+            deleteDirectory(new File(folderPath));
             log.info("Folder deleted {}", folderPath);
         } catch (IOException e) {
             log.error("Folder delete unsuccessful, path: {} ", folderPath, e);
@@ -70,7 +72,7 @@ public class ZipFileProcessor {
                     log.info(
                         "File: {}, Meta data size: {}",
                         zipFileName,
-                        FileUtils.byteCountToDisplaySize(metadata.length)
+                        byteCountToDisplaySize(metadata.length)
                     );
                     break;
                 case "pdf":
@@ -101,13 +103,13 @@ public class ZipFileProcessor {
                 String filePath =
                     folderPath + File.separator + FilenameUtils.getName(zipEntry.getName());
                 var pdfFile = new File(filePath);
-                FileUtils.copyToFile(extractedZis, pdfFile);
+                copyToFile(new ByteArrayInputStream(extractedZis.readAllBytes()), pdfFile);
                 pdfs.add(pdfFile);
                 log.info(
                     "ZipFile:{}, has {}, pdf size: {}",
                     zipFileName,
                     zipEntry.getName(),
-                    FileUtils.byteCountToDisplaySize(Files.size(pdfFile.toPath()))
+                    byteCountToDisplaySize(Files.size(pdfFile.toPath()))
                 );
             }
         }
