@@ -13,7 +13,28 @@ def component = "processor"
 
 def channel = '#bsp-build-notices'
 
+def secrets = [
+  'bulk-scan-${env}': [
+    secret('fortify-on-demand-username', 'FORTIFY_USER_NAME'),
+    secret('fortify-on-demand-password', 'FORTIFY_PASSWORD')
+  ]
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+  [$class     : 'AzureKeyVaultSecret',
+   secretType : 'Secret',
+   name       : secretName,
+   version    : '',
+   envVariable: envVar
+  ]
+}
+
 withNightlyPipeline(type, product, component) {
+  loadVaultSecrets(secrets)
+  enableFortifyScan('bulk-scan-aat')
   enableMutationTest()
   enableSlackNotifications(channel)
+  after('fortify-scan') {
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
+  }
 }
