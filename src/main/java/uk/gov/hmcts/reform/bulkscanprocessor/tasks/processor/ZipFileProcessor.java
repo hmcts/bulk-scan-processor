@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,9 +19,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
-import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
-import static org.apache.commons.io.FileUtils.copyToFile;
-import static org.apache.commons.io.FileUtils.deleteDirectory;
 
 @Component
 public class ZipFileProcessor {
@@ -49,7 +46,7 @@ public class ZipFileProcessor {
     private void deleteFolder(String zipFileName) {
         String folderPath =  downloadPath +  zipFileName;
         try {
-            deleteDirectory(new File(folderPath));
+            FileUtils.deleteDirectory(new File(folderPath));
             log.info("Folder deleted {}", folderPath);
         } catch (IOException e) {
             log.error("Folder delete unsuccessful, path: {} ", folderPath, e);
@@ -73,7 +70,7 @@ public class ZipFileProcessor {
                     log.info(
                         "File: {}, Meta data size: {}",
                         zipFileName,
-                        byteCountToDisplaySize(metadata.length)
+                        FileUtils.byteCountToDisplaySize(metadata.length)
                     );
                     break;
                 case "pdf":
@@ -104,13 +101,13 @@ public class ZipFileProcessor {
                 String filePath =
                     folderPath + File.separator + FilenameUtils.getName(zipEntry.getName());
                 var pdfFile = new File(filePath);
-                copyToFile(new ByteArrayInputStream(extractedZis.readAllBytes()), pdfFile);
+                FileUtils.copyToFile(extractedZis, pdfFile);
                 pdfs.add(pdfFile);
                 log.info(
                     "ZipFile:{}, has {}, pdf size: {}",
                     zipFileName,
                     zipEntry.getName(),
-                    byteCountToDisplaySize(Files.size(pdfFile.toPath()))
+                    FileUtils.byteCountToDisplaySize(Files.size(pdfFile.toPath()))
                 );
             }
         }
