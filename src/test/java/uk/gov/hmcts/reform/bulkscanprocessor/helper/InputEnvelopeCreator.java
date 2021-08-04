@@ -14,6 +14,8 @@ import static java.util.Collections.emptyList;
 
 public final class InputEnvelopeCreator {
 
+    public static final String ZIP_FILE_NAME = "file.zip";
+
     private InputEnvelopeCreator() {
         // util class
     }
@@ -54,7 +56,7 @@ public final class InputEnvelopeCreator {
             null,
             null,
             null,
-            "file.zip",
+            ZIP_FILE_NAME,
             null,
             "case_number",
             "previous_service_case_ref",
