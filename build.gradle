@@ -223,13 +223,7 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '30.1.1-jre') {
       entry 'guava'
     }
-    // force junit5 deps to use groovy v3 which fixes reflective call errors for java 11
-    // rest assured 4.2 -> 4.3 jumps to groovy v3. junit v5.6 still on v2.5
-    dependencySet(group: 'org.codehaus.groovy', version: '3.0.8') {
-      entry 'groovy'
-      entry 'groovy-json'
-      entry 'groovy-xml'
-    }
+
   }
 
 }
