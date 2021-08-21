@@ -19,9 +19,9 @@ public class ZipStatusController {
 
     private final ZipFileStatusService service;
     private static final int MIN_DCN_LENGTH = 6;
-    private final String ccdId = "ccd_id";
-    private final String dcn = "dcn";
-    private final String fileName = "name";
+    private static final String ccdId = "ccd_id";
+    private static final String dcn = "dcn";
+    private static final String fileName = "name";
 
     // region constructor
 
@@ -32,7 +32,7 @@ public class ZipStatusController {
     // endregion
 
     @GetMapping
-    public ResponseEntity getStatusByFilter(@RequestParam Map<String,String> filtersList) {
+    public ResponseEntity<?> getStatusByFilter(@RequestParam Map<String,String> filtersList) {
 
         if (filtersList.size() == 1) {
 

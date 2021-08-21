@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
-import com.google.common.collect.ImmutableMap;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.NonScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
@@ -29,7 +28,7 @@ public class EnvelopeMapper {
 
     // Maps metadata file document type to target ccd subtype.
     private static final Map<InputDocumentType, String> subtypeMapping =
-        ImmutableMap.of(
+        Map.of(
             InputDocumentType.SSCS1, DocumentSubtype.SSCS1,
             InputDocumentType.WILL, DocumentSubtype.WILL,
             InputDocumentType.COVERSHEET, DocumentSubtype.COVERSHEET
