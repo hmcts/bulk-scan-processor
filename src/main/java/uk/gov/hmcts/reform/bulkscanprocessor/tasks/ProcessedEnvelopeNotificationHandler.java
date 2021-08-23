@@ -18,8 +18,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Handler of messages form processed envelopes queue.
@@ -33,7 +31,6 @@ import java.util.concurrent.Executors;
 public class ProcessedEnvelopeNotificationHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessedEnvelopeNotificationHandler.class);
-    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final EnvelopeFinaliserService envelopeFinaliserService;
     private final ObjectMapper objectMapper;
@@ -137,7 +134,7 @@ public class ProcessedEnvelopeNotificationHandler {
         }
     }
 
-    class MessageProcessingResult {
+    static class MessageProcessingResult {
         public final MessageProcessingResultType resultType;
         public final Exception exception;
 

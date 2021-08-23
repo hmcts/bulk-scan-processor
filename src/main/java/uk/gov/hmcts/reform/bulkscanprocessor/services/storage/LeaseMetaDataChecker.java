@@ -17,7 +17,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON
 @Component
 public class LeaseMetaDataChecker {
 
-    private static final Logger logger = getLogger(LeaseAcquirer.class);
+    private static final Logger logger = getLogger(LeaseMetaDataChecker.class);
 
     public static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 

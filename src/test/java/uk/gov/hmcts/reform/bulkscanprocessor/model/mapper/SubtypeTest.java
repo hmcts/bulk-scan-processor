@@ -17,12 +17,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.WILL;
 
-public class SubtypeTest {
+class SubtypeTest {
 
     private static final String SOME_SUBTYPE = "foo";
 
     @Test
-    public void should_map_scannable_item_document_types_correctly() {
+    void should_map_scannable_item_document_types_correctly() {
         asList(
             // null subtype
             new TestCase(new Given(SSCS1, null), new Expect(DocumentType.FORM, DocumentSubtype.SSCS1)),

@@ -15,10 +15,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Document.fromScannableItem;
 
-public class DocumentTest {
+class DocumentTest {
 
     @Test
-    public void fromScannableItem_maps_to_document_correctly() {
+    void fromScannableItem_maps_to_document_correctly() {
         ScannableItem scannableItem = scannableItem(DocumentType.CHERISHED);
         Document document = fromScannableItem(scannableItem);
 

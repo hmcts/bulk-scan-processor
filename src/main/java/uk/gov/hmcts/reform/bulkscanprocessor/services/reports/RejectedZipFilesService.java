@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.RejectedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.RejectedZipFileRepository;
@@ -11,8 +9,6 @@ import java.util.List;
 
 @Service
 public class RejectedZipFilesService {
-
-    private static final Logger log = LoggerFactory.getLogger(RejectedZipFilesService.class);
 
     private final RejectedZipFileRepository rejectedZipFileRepository;
 
