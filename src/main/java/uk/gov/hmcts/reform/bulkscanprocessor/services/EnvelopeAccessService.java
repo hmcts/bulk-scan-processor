@@ -24,7 +24,7 @@ public class EnvelopeAccessService {
             .stream()
             .filter(m -> Objects.equals(m.getReadService(), serviceName))
             .findFirst()
-            .map(m -> m.getJurisdiction())
+            .map(EnvelopeAccessProperties.Mapping::getJurisdiction)
             .orElseThrow(() ->
                 new ServiceJuridictionConfigNotFoundException(
                     "No configuration mapping found for service " + serviceName

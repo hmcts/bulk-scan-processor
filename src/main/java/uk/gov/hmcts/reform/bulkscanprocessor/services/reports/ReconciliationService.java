@@ -106,15 +106,13 @@ public class ReconciliationService {
         reportedZipFilesMap.keySet()
             .stream()
             .filter(reportedZipFileKey -> !receivedZipFilesSet.contains(reportedZipFileKey))
-            .forEach(reportedZipFileKey -> {
-                discrepancies.add(
-                    new Discrepancy(
-                        reportedZipFileKey.getFirst(),
-                        reportedZipFileKey.getSecond(),
-                        REPORTED_BUT_NOT_RECEIVED
-                    )
-                );
-            });
+            .forEach(reportedZipFileKey -> discrepancies.add(
+                new Discrepancy(
+                    reportedZipFileKey.getFirst(),
+                    reportedZipFileKey.getSecond(),
+                    REPORTED_BUT_NOT_RECEIVED
+                )
+            ));
     }
 
     private void compareForNonRejectedEnvelope(

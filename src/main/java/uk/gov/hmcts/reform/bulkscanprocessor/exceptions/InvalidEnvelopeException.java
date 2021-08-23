@@ -5,11 +5,11 @@ package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
  */
 public abstract class InvalidEnvelopeException extends RuntimeException {
 
-    public InvalidEnvelopeException(String message) {
+    protected InvalidEnvelopeException(String message) {
         super(message);
     }
 
-    public InvalidEnvelopeException(String message, Throwable cause) {
+    protected InvalidEnvelopeException(String message, Throwable cause) {
         super(message, cause);
     }
 }
