@@ -8,21 +8,21 @@ public abstract class EnvelopeRejectionException extends RuntimeException {
     private final String errorDescription;
     private final ErrorCode errorCode;
 
-    public EnvelopeRejectionException(ErrorCode errorCode, String message) {
+    protected EnvelopeRejectionException(ErrorCode errorCode, String message) {
         super(message);
         //use message as error description
         this.errorDescription = message;
         this.errorCode = errorCode;
     }
 
-    public EnvelopeRejectionException(ErrorCode errorCode, String message, Throwable cause) {
+    protected EnvelopeRejectionException(ErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
         //use message as error description
         this.errorDescription = message;
         this.errorCode = errorCode;
     }
 
-    public EnvelopeRejectionException(ErrorCode errorCode, String message, String errorDescription) {
+    protected EnvelopeRejectionException(ErrorCode errorCode, String message, String errorDescription) {
         super(message);
         this.errorDescription = errorDescription;
         this.errorCode = errorCode;
