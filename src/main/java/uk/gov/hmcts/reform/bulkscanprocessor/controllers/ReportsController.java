@@ -119,7 +119,7 @@ public class ReportsController {
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ApiOperation("Retrieves zip files summary report in csv format for the given date and container")
-    public ResponseEntity<?> downloadZipFilesSummary(
+    public ResponseEntity downloadZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "container", required = false) String container
     ) throws IOException {
