@@ -64,7 +64,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 
 @WebMvcTest(ReportsController.class)
-public class ReportsControllerTest {
+class ReportsControllerTest {
 
     @MockBean
     private ReportsService reportsService;
@@ -82,7 +82,7 @@ public class ReportsControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void should_return_result_generated_by_the_service() throws Exception {
+    void should_return_result_generated_by_the_service() throws Exception {
 
         final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
             152, 11, "container1", LocalDate.of(2021, 3, 4)
@@ -122,27 +122,27 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_not_include_test_container_by_default() throws Exception {
+    void should_not_include_test_container_by_default() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14"));
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
     @Test
-    public void should_include_test_container_if_requested_by_the_client() throws Exception {
+    void should_include_test_container_if_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=true"));
 
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), true);
     }
 
     @Test
-    public void should_not_include_test_container_if_exlicitly_not_requested_by_the_client() throws Exception {
+    void should_not_include_test_container_if_exlicitly_not_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=false"));
 
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
     @Test
-    public void should_return_400_if_date_is_invalid() throws Exception {
+    void should_return_400_if_date_is_invalid() throws Exception {
         final String invalidDate = "2019-14-14";
 
         mockMvc
@@ -151,7 +151,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void summary_report_should_return_result_generated_by_the_service() throws Exception {
+    void summary_report_should_return_result_generated_by_the_service() throws Exception {
 
         final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
             152, 11, "container1", LocalDate.of(2021, 3, 4)
@@ -191,20 +191,20 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void summary_report_should_not_include_test_container_by_default() throws Exception {
+    void summary_report_should_not_include_test_container_by_default() throws Exception {
         mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14"));
         verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
     @Test
-    public void summary_report_should_include_test_container_if_requested_by_the_client() throws Exception {
+    void summary_report_should_include_test_container_if_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14&include-test=true"));
 
         verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), true);
     }
 
     @Test
-    public void summary_report_should_not_include_test_container_if_exlicitly_not_requested_by_the_client()
+    void summary_report_should_not_include_test_container_if_exlicitly_not_requested_by_the_client()
             throws Exception {
         mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14&include-test=false"));
 
@@ -212,7 +212,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void summary_report_should_return_400_if_date_is_invalid() throws Exception {
+    void summary_report_should_return_400_if_date_is_invalid() throws Exception {
         final String invalidDate = "2019-14-14";
 
         mockMvc
@@ -221,7 +221,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_400_if_date_is_invalid_for_zipfiles_summary_endpoint() throws Exception {
+    void should_return_400_if_date_is_invalid_for_zipfiles_summary_endpoint() throws Exception {
         final String invalidDate = "2019-14-14";
 
         mockMvc
@@ -231,7 +231,7 @@ public class ReportsControllerTest {
 
 
     @Test
-    public void should_return_zipfiles_summary_result_in_csv_format() throws Exception {
+    void should_return_zipfiles_summary_result_in_csv_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
 
@@ -270,7 +270,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_empty_zipfiles_summary_in_csv_format_when_no_data_exists() throws Exception {
+    void should_return_empty_zipfiles_summary_in_csv_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
@@ -289,7 +289,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_zipfiles_summary_result_in_json_format() throws Exception {
+    void should_return_zipfiles_summary_result_in_json_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
 
@@ -330,7 +330,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_total_count_summary_result() throws Exception {
+    void should_return_total_count_summary_result() throws Exception {
         LocalDate localDate = LocalDate.of(2021, 4, 8);
         LocalTime localTime = LocalTime.of(12, 30, 10, 0);
 
@@ -407,7 +407,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_empty_zipfiles_summary_in_json_format_when_no_data_exists() throws Exception {
+    void should_return_empty_zipfiles_summary_in_json_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
 
         given(reportsService.getZipFilesSummary(localDate, "bulkscan", null))
@@ -421,7 +421,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_rejected_files() throws Exception {
+    void should_return_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
             .willReturn(asList(
                 new RejectedFile("a.zip", "A"),
@@ -449,7 +449,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_proper_response_when_there_are_no_rejected_files() throws Exception {
+    void should_return_proper_response_when_there_are_no_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
             .willReturn(emptyList());
 
@@ -462,7 +462,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_discrepancies_for_a_given_date() throws Exception {
+    void should_return_discrepancies_for_a_given_date() throws Exception {
         // given
         given(reconciliationService.getReconciliationReport(any(ReconciliationStatement.class)))
             .willReturn(
@@ -498,7 +498,7 @@ public class ReportsControllerTest {
     }
 
     @Test
-    public void should_return_rejected_zip_files() throws Exception {
+    void should_return_rejected_zip_files() throws Exception {
         LocalDateTime dateTime = LocalDateTime.parse("2021-04-16T09:01:43.029000");
         UUID uuid1 = randomUUID();
         UUID uuid2 = randomUUID();

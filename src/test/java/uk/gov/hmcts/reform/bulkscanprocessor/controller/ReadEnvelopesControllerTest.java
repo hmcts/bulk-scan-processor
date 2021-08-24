@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 @WebMvcTest(EnvelopeController.class)
-public class ReadEnvelopesControllerTest {
+class ReadEnvelopesControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,7 +59,7 @@ public class ReadEnvelopesControllerTest {
     private IncompleteEnvelopesService incompleteEnvelopesService;
 
     @Test
-    public void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
+    void should_successfully_return_all_processed_envelopes_for_a_given_jurisdiction() throws Exception {
         List<EnvelopeResponse> envelopes = envelopesInDb();
 
         when(authService.authenticate("testServiceAuthHeader"))
@@ -79,7 +79,7 @@ public class ReadEnvelopesControllerTest {
     }
 
     @Test
-    public void should_return_status_code_500_when_envelope_retrieval_throws_exception() throws Exception {
+    void should_return_status_code_500_when_envelope_retrieval_throws_exception() throws Exception {
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("testServiceName");
 
         doThrow(new DataRetrievalFailureException("Cannot retrieve data"))
@@ -97,7 +97,7 @@ public class ReadEnvelopesControllerTest {
     }
 
     @Test
-    public void should_throw_unauthenticated_exception_when_service_auth_header_is_missing() throws Exception {
+    void should_throw_unauthenticated_exception_when_service_auth_header_is_missing() throws Exception {
         when(authService.authenticate(null)).thenThrow(UnAuthenticatedException.class);
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")).andReturn();
@@ -108,7 +108,7 @@ public class ReadEnvelopesControllerTest {
     }
 
     @Test
-    public void should_throw_service_jurisdiction_config_not_found_exc_when_service_jurisdiction_mapping_is_not_found()
+    void should_throw_service_jurisdiction_config_not_found_exc_when_service_jurisdiction_mapping_is_not_found()
         throws Exception {
         when(authService.authenticate("testServiceAuthHeader")).thenReturn("test");
 
@@ -126,7 +126,7 @@ public class ReadEnvelopesControllerTest {
     }
 
     @Test
-    public void should_not_accept_invalid_statuses_when_reading_envelopes_by_status() throws Exception {
+    void should_not_accept_invalid_statuses_when_reading_envelopes_by_status() throws Exception {
         mockMvc
             .perform(get("/envelopes?status=INVALID_STATUS"))
             .andExpect(status().is(400));
@@ -162,5 +162,4 @@ public class ReadEnvelopesControllerTest {
         URL url = getResource("envelope.json");
         return Resources.toString(url, Charsets.toCharset("UTF-8"));
     }
-
 }

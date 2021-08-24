@@ -31,10 +31,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.CH
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FORM;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
 
-public class EnvelopeMapperTest {
+class EnvelopeMapperTest {
 
     @Test
-    public void should_map_zip_envelope_correctly() throws Exception {
+    void should_map_zip_envelope_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile("/metafiles/valid/with-scannable-items.json");
         String container = "container1";
         OcrValidationWarnings ocrValidationWarnings = new OcrValidationWarnings(
@@ -64,7 +64,7 @@ public class EnvelopeMapperTest {
     }
 
     @Test
-    public void should_map_document_types_subtypes_and_ocr_data_correctly() throws Exception {
+    void should_map_document_types_subtypes_and_ocr_data_correctly() throws Exception {
         InputEnvelope zipEnvelope = getEnvelopeFromMetafile("/metafiles/valid/with-scannable-items.json");
         String container = "container1";
 

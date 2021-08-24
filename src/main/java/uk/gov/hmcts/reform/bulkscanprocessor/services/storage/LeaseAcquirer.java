@@ -69,26 +69,7 @@ public class LeaseAcquirer {
                 return;
             }
 
-            boolean isReady = false;
-            BlobErrorCode errorCode = LEASE_ALREADY_PRESENT;
-
-            try {
-                isReady = leaseMetaDataChecker.isReadyToUse(blobClient);
-            } catch (Exception ex) {
-                if (ex instanceof BlobStorageException) {
-                    errorCode = getErrorCode(blobClient, (BlobStorageException) ex);
-                }
-                logger.warn(
-                    "Could not check meta data for lease expiration on file {} in container {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName()
-                );
-            } finally {
-                if (!isReady) {
-                    //it means lease did not acquired let the failure function decide
-                    onFailure.accept(errorCode);
-                }
-            }
+            boolean isReady = isBlobReady(blobClient, onFailure);
 
             if (isReady) {
                 onLeaseSuccess.accept(null);
@@ -110,6 +91,31 @@ public class LeaseAcquirer {
 
             onFailure.accept(exc.getErrorCode());
         }
+    }
+
+    private boolean isBlobReady(BlobClient blobClient, Consumer<BlobErrorCode> onFailure) {
+        boolean isReady = false;
+        BlobErrorCode errorCode = LEASE_ALREADY_PRESENT;
+
+        try {
+            isReady = leaseMetaDataChecker.isReadyToUse(blobClient);
+        } catch (Exception ex) {
+            if (ex instanceof BlobStorageException) {
+                errorCode = getErrorCode(blobClient, (BlobStorageException) ex);
+            }
+            logger.warn(
+                "Could not check meta data for lease expiration on file {} in container {}",
+                blobClient.getBlobName(),
+                blobClient.getContainerName()
+            );
+        } finally {
+            if (!isReady) {
+                //it means lease did not acquired let the failure function decide
+                onFailure.accept(errorCode);
+            }
+        }
+
+        return isReady;
     }
 
     private void clearMetadataAndReleaseLease(

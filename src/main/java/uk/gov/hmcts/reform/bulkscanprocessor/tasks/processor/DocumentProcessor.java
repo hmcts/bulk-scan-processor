@@ -40,7 +40,7 @@ public class DocumentProcessor {
 
         Set<String> filesWithoutUrl =
             Sets.difference(
-                scannedItems.stream().map(it -> it.getFileName()).collect(toSet()),
+                scannedItems.stream().map(ScannableItem::getFileName).collect(toSet()),
                 response.keySet()
             );
 
