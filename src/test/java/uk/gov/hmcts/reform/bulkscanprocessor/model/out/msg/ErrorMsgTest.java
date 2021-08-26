@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ErrorMsgTest {
+class ErrorMsgTest {
 
     @Test
-    public void should_serialise_and_deserialise_correctly() throws Exception {
+    void should_serialise_and_deserialise_correctly() throws Exception {
         // given
         ErrorMsg original = new ErrorMsg(
             "id1",

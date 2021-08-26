@@ -35,7 +35,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeRespons
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toScannableItemsResponse;
 
 @ExtendWith(MockitoExtension.class)
-public class ZipFileStatusServiceTest {
+class ZipFileStatusServiceTest {
 
     @Mock private ProcessEventRepository eventRepo;
     @Mock private EnvelopeRepository envelopeRepo;
@@ -44,12 +44,12 @@ public class ZipFileStatusServiceTest {
     private ZipFileStatusService service;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.service = new ZipFileStatusService(eventRepo, envelopeRepo, scannableItemRepo);
     }
 
     @Test
-    public void should_return_envelopes_and_events_from_db() {
+    void should_return_envelopes_and_events_from_db() {
         // given
         List<ProcessEvent> events = asList(
             event(Event.DOC_UPLOADED, "A", now(), null),
@@ -137,7 +137,7 @@ public class ZipFileStatusServiceTest {
     }
 
     @Test
-    public void should_return_empty_lists_when_no_data_for_zip_file_was_found() {
+    void should_return_empty_lists_when_no_data_for_zip_file_was_found() {
         // given
         given(envelopeRepo.findByZipFileName("hello.zip")).willReturn(emptyList());
         given(eventRepo.findByZipFileName("hello.zip")).willReturn(emptyList());
@@ -154,7 +154,7 @@ public class ZipFileStatusServiceTest {
 
     @Test
     // A valid dcn parameter is at least 6 characters long
-    public void should_return_list_of_ZipFileStatus_for_valid_dcn_parameter_search() {
+    void should_return_list_of_ZipFileStatus_for_valid_dcn_parameter_search() {
         // given
         List<ProcessEvent> events1 = asList(
             event(Event.DOC_UPLOADED, "A", now(), null),
@@ -317,7 +317,7 @@ public class ZipFileStatusServiceTest {
     }
 
     @Test
-    public void should_return_envelopes_and_events_from_db_when_ccd_id_is_given() {
+    void should_return_envelopes_and_events_from_db_when_ccd_id_is_given() {
         // given
         List<ProcessEvent> events = asList(
             event(Event.DOC_UPLOADED, "A", now(), null),
@@ -403,7 +403,7 @@ public class ZipFileStatusServiceTest {
     }
 
     @Test
-    public void should_return_empty_lists_when_no_data_for_ccd_id_was_found() {
+    void should_return_empty_lists_when_no_data_for_ccd_id_was_found() {
         // when
         ZipFileStatus result = service.getStatusByCcdId("5744543854354");
         // then
@@ -416,7 +416,7 @@ public class ZipFileStatusServiceTest {
     }
 
     @Test
-    public void should_return_empty_lists_when_no_data_for_dcn_was_found() {
+    void should_return_empty_lists_when_no_data_for_dcn_was_found() {
         // when
         List<ZipFileStatus> result = service.getStatusByDcn("3743874343");
         // then

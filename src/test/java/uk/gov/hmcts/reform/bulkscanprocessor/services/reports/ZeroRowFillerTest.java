@@ -12,10 +12,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ZeroRowFillerTest {
+class ZeroRowFillerTest {
 
     @Test
-    public void should_add_missing_zero_row_when_needed() {
+    void should_add_missing_zero_row_when_needed() {
         // given
         ContainerMappings containerMappings = new ContainerMappings();
         containerMappings.setMappings(asList(
@@ -45,7 +45,7 @@ public class ZeroRowFillerTest {
     }
 
     @Test
-    public void should_not_change_input_list_if_all_jurisdictions_are_present() {
+    void should_not_change_input_list_if_all_jurisdictions_are_present() {
         // given
         ContainerMappings containerMappings = new ContainerMappings();
         containerMappings.setMappings(asList(

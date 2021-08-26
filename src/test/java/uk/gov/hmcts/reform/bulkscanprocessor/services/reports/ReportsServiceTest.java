@@ -36,7 +36,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsServ
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @ExtendWith(MockitoExtension.class)
-public class ReportsServiceTest {
+class ReportsServiceTest {
 
     @Mock private EnvelopeCountSummaryRepository repo;
     @Mock private ZeroRowFiller zeroRowFiller;
@@ -45,12 +45,12 @@ public class ReportsServiceTest {
     private ReportsService service;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.service = new ReportsService(this.repo, zeroRowFiller, zipFilesSummaryRepo);
     }
 
     @Test
-    public void should_map_repo_result_properly_when_requested_for_envelope_count_summary() {
+    void should_map_repo_result_properly_when_requested_for_envelope_count_summary() {
         given(repo.getReportFor(now()))
             .willReturn(asList(
                 new Item(now().plusDays(1), "A", 100, 1),
@@ -72,7 +72,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void should_filter_out_test_container_when_requested_for_envelope_count_summary() {
+    void should_filter_out_test_container_when_requested_for_envelope_count_summary() {
         given(repo.getReportFor(now()))
             .willReturn(asList(
                 new Item(now(), TEST_CONTAINER, 100, 1),
@@ -93,7 +93,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
+    void should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
         given(repo.getReportFor(now())).willReturn(emptyList());
         given(this.zeroRowFiller.fill(any(), any()))
             .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
@@ -106,7 +106,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void summary_report_should_map_repo_result_properly_when_requested_for_envelope_count_summary() {
+    void summary_report_should_map_repo_result_properly_when_requested_for_envelope_count_summary() {
         given(repo.getSummaryReportFor(now()))
             .willReturn(asList(
                 new Item(now().plusDays(1), "A", 100, 1),
@@ -128,7 +128,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void summary_report_should_filter_out_test_container_when_requested_for_envelope_count_summary() {
+    void summary_report_should_filter_out_test_container_when_requested_for_envelope_count_summary() {
         given(repo.getSummaryReportFor(now()))
             .willReturn(asList(
                 new Item(now(), TEST_CONTAINER, 100, 1),
@@ -149,7 +149,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void summary_report_should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
+    void summary_report_should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
         given(repo.getSummaryReportFor(now())).willReturn(emptyList());
         given(this.zeroRowFiller.fill(any(), any()))
             .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
@@ -162,7 +162,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void should_map_empty_list_from_repo_when_requested_for_zipfiles_summary() {
+    void should_map_empty_list_from_repo_when_requested_for_zipfiles_summary() {
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(emptyList());
 
@@ -174,7 +174,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void should_map_db_results_when_requested_for_zipfiles_summary() {
+    void should_map_db_results_when_requested_for_zipfiles_summary() {
         Instant instant = Instant.now();
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
@@ -241,7 +241,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void should_filter_zipfiles_by_container_when_requested_for_zipfiles_summary() {
+    void should_filter_zipfiles_by_container_when_requested_for_zipfiles_summary() {
         Instant instant = Instant.now();
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
@@ -283,7 +283,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void should_filter_zipfiles_by_classification_when_requested_for_zipfiles_summary() {
+    void should_filter_zipfiles_by_classification_when_requested_for_zipfiles_summary() {
         Instant instant = Instant.now();
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
@@ -351,7 +351,7 @@ public class ReportsServiceTest {
     }
 
     @Test
-    public void should_filter_zipfiles_by_container_and_classification_when_requested_for_zipfiles_summary() {
+    void should_filter_zipfiles_by_container_and_classification_when_requested_for_zipfiles_summary() {
         Instant instant = Instant.now();
         given(zipFilesSummaryRepo.getZipFileSummaryReportFor(now()))
             .willReturn(asList(
@@ -419,5 +419,4 @@ public class ReportsServiceTest {
     private LocalTime toLocalTime(Instant instant) {
         return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss").format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
     }
-
 }

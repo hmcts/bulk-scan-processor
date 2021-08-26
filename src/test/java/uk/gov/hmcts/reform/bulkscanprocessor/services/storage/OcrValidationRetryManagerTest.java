@@ -104,7 +104,7 @@ class OcrValidationRetryManagerTest {
 
         // then
         assertThat(res).isTrue();
-        assertThat(metadata.get("ocrValidationRetryCount")).isEqualTo("1");
+        assertThat(metadata).containsEntry("ocrValidationRetryCount", "1");
         LocalDateTime retryDelayExpiresAt = parse(metadata.get("ocrValidationRetryDelayExpirationTime"));
         assertThat(retryDelayExpiresAt.isAfter(now(EUROPE_LONDON_ZONE_ID))).isTrue();
     }
@@ -123,7 +123,7 @@ class OcrValidationRetryManagerTest {
 
         // then
         assertThat(res).isTrue();
-        assertThat(metadata.get("ocrValidationRetryCount")).isEqualTo("2");
+        assertThat(metadata).containsEntry("ocrValidationRetryCount", "2");
         LocalDateTime retryDelayExpiresAt = parse(metadata.get("ocrValidationRetryDelayExpirationTime"));
         assertThat(retryDelayExpiresAt.isAfter(now(EUROPE_LONDON_ZONE_ID))).isTrue();
         verify(blobClient)
@@ -149,7 +149,7 @@ class OcrValidationRetryManagerTest {
 
         // then
         assertThat(res).isTrue();
-        assertThat(metadata.get("ocrValidationRetryCount")).isEqualTo("3");
+        assertThat(metadata).containsEntry("ocrValidationRetryCount", "3");
         LocalDateTime retryDelayExpiresAt = parse(metadata.get("ocrValidationRetryDelayExpirationTime"));
         assertThat(retryDelayExpiresAt.isAfter(now(EUROPE_LONDON_ZONE_ID))).isTrue();
         verify(blobClient)

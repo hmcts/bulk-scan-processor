@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DocumentProcessorTest {
+class DocumentProcessorTest {
 
     @Mock
     private ScannableItemRepository scannableItemRepository;
@@ -40,7 +40,7 @@ public class DocumentProcessorTest {
     private DocumentProcessor documentProcessor;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         documentProcessor = new DocumentProcessor(
             documentManagementService,
             scannableItemRepository
@@ -48,7 +48,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void should_update_document_uuid_when_doc_response_conntains_matching_file_name_and_doc_url()
+    void should_update_document_uuid_when_doc_response_conntains_matching_file_name_and_doc_url()
         throws Exception {
         //Given
         File test1 = new File(getResource("test1.pdf").toURI());
@@ -75,7 +75,7 @@ public class DocumentProcessorTest {
     }
 
     @Test
-    public void should_throw_exception_when_doc_response_does_not_contain_matching_file_name_and_doc_url() {
+    void should_throw_exception_when_doc_response_does_not_contain_matching_file_name_and_doc_url() {
         // given
         List<ScannableItem> scannableItems =
             asList(

@@ -98,7 +98,7 @@ class EnvelopeMapperTest {
     private void assertDbEnvelopeSpecificProperties(String container, Envelope dbEnvelope) {
         assertThat(dbEnvelope.getId()).isNull();
         assertThat(dbEnvelope.getStatus()).isEqualTo(Status.CREATED);
-        assertThat(dbEnvelope.getUploadFailureCount()).isEqualTo(0);
+        assertThat(dbEnvelope.getUploadFailureCount()).isZero();
         assertThat(dbEnvelope.isZipDeleted()).isFalse();
         assertThat(dbEnvelope.getCreatedAt()).isBefore(Instant.now().plusMillis(1));
         assertThat(dbEnvelope.getCreatedAt()).isAfter(Instant.now().minusSeconds(1));

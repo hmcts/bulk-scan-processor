@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @ExtendWith(MockitoExtension.class)
-public class OrchestratorNotificationTaskTest {
+class OrchestratorNotificationTaskTest {
 
     @Mock private OrchestratorNotificationService orchestratorNotificationService;
     @Mock private EnvelopeRepository envelopeRepo;
@@ -31,7 +31,7 @@ public class OrchestratorNotificationTaskTest {
     private OrchestratorNotificationTask task;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         this.task = new OrchestratorNotificationTask(
             orchestratorNotificationService,
             envelopeRepo,
@@ -40,7 +40,7 @@ public class OrchestratorNotificationTaskTest {
     }
 
     @Test
-    public void should_try_to_send_all_envelopes_despite_previous_errors() {
+    void should_try_to_send_all_envelopes_despite_previous_errors() {
         // given
         final int numberOfEnvelopesToSend = 5;
 

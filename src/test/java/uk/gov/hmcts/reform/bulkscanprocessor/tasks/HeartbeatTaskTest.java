@@ -14,12 +14,12 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class HeartbeatTaskTest {
+class HeartbeatTaskTest {
 
     @Mock private ServiceBusSendHelper serviceBusHelper;
 
     @Test
-    public void should_send_heartbeat_message_to_the_queue() {
+    void should_send_heartbeat_message_to_the_queue() {
         // given
         HeartbeatTask task = new HeartbeatTask(serviceBusHelper);
 
@@ -31,7 +31,7 @@ public class HeartbeatTaskTest {
     }
 
     @Test
-    public void should_handle_exception_thrown_by_service_bus_client() {
+    void should_handle_exception_thrown_by_service_bus_client() {
         // given
         doThrow(new InvalidMessageException("msg"))
             .when(serviceBusHelper)

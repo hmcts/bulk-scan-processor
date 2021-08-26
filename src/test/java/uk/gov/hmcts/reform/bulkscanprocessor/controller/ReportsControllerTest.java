@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -141,12 +143,17 @@ class ReportsControllerTest {
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
-    @Test
-    void should_return_400_if_date_is_invalid() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/reports/count-summary?date=",
+            "/reports/count-summary-report?date=",
+            "/reports/zip-files-summary?date="
+    })
+    void should_return_400_if_date_is_invalid(String uri) throws Exception {
         final String invalidDate = "2019-14-14";
 
         mockMvc
-            .perform(get("/reports/count-summary?date=" + invalidDate))
+            .perform(get(uri + invalidDate))
             .andExpect(status().isBadRequest());
     }
 
@@ -210,25 +217,6 @@ class ReportsControllerTest {
 
         verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), false);
     }
-
-    @Test
-    void summary_report_should_return_400_if_date_is_invalid() throws Exception {
-        final String invalidDate = "2019-14-14";
-
-        mockMvc
-            .perform(get("/reports/count-summary-report?date=" + invalidDate))
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void should_return_400_if_date_is_invalid_for_zipfiles_summary_endpoint() throws Exception {
-        final String invalidDate = "2019-14-14";
-
-        mockMvc
-            .perform(get("/reports/zip-files-summary?date=" + invalidDate))
-            .andExpect(status().isBadRequest());
-    }
-
 
     @Test
     void should_return_zipfiles_summary_result_in_csv_format() throws Exception {

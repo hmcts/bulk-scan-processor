@@ -23,7 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class NewEnvelopesCheckerTest {
+class NewEnvelopesCheckerTest {
 
     private ListAppender<ILoggingEvent> loggingEvents;
 
@@ -33,13 +33,13 @@ public class NewEnvelopesCheckerTest {
     private NewEnvelopesChecker checker;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         loggingEvents = LoggerTestUtil.getListAppenderForClass(NewEnvelopesChecker.class);
         checker = new NewEnvelopesChecker(repo, () -> now);
     }
 
     @Test
-    public void should_not_check_outside_of_specified_hours() {
+    void should_not_check_outside_of_specified_hours() {
         // given
         given(now.getDayOfWeek()).willReturn(MONDAY);
         given(now.getHour()).willReturn(NewEnvelopesChecker.END_HOUR + 1);
@@ -53,7 +53,7 @@ public class NewEnvelopesCheckerTest {
     }
 
     @Test
-    public void should_not_check_on_weekend() {
+    void should_not_check_on_weekend() {
         // given
         given(now.getDayOfWeek()).willReturn(SATURDAY);
         given(now.getHour()).willReturn(NewEnvelopesChecker.END_HOUR - 1);
@@ -67,7 +67,7 @@ public class NewEnvelopesCheckerTest {
     }
 
     @Test
-    public void should_log_error_when_there_are_no_new_envelopes() {
+    void should_log_error_when_there_are_no_new_envelopes() {
         // given
         Instant instant = Instant.now();
         given(this.now.getDayOfWeek()).willReturn(MONDAY);
@@ -87,7 +87,7 @@ public class NewEnvelopesCheckerTest {
     }
 
     @Test
-    public void should_not_log_error_when_there_exists_at_least_one_new_envelope() {
+    void should_not_log_error_when_there_exists_at_least_one_new_envelope() {
         // given
         Instant instant = Instant.now();
         given(this.now.getDayOfWeek()).willReturn(MONDAY);

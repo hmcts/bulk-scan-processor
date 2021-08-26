@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
-public class ProcessedEnvelopeNotificationHandlerTest {
+class ProcessedEnvelopeNotificationHandlerTest {
 
     private static final String DEAD_LETTER_REASON_PROCESSING_ERROR = "Message processing error";
 
@@ -42,7 +42,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     private ProcessedEnvelopeNotificationHandler handler;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         handler = new ProcessedEnvelopeNotificationHandler(
             envelopeFinaliserService,
             objectMapper
@@ -50,7 +50,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     @Test
-    public void should_call_envelope_finaliser_when_message_is_valid() {
+    void should_call_envelope_finaliser_when_message_is_valid() {
         // given
         UUID envelopeId = UUID.randomUUID();
         String ccdId = "123123";
@@ -70,7 +70,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     @Test
-    public void should_not_call_envelope_finaliser_when_message_is_invalid() {
+    void should_not_call_envelope_finaliser_when_message_is_invalid() {
         // given
         given(messageContext.getMessage()).willReturn(message);
         given(message.getBody()).willReturn(BinaryData.fromString("invalid body"));
@@ -82,7 +82,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     @Test
-    public void should_complete_message_when_finaliser_completes_successfully() {
+    void should_complete_message_when_finaliser_completes_successfully() {
         // given
         UUID envelopeId = UUID.randomUUID();
         String ccdId = "312312";
@@ -102,7 +102,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     @Test
-    public void should_dead_letter_message_when_envelope_not_found() {
+    void should_dead_letter_message_when_envelope_not_found() {
         // given
         String exceptionMessage = "test exception";
         willThrow(new EnvelopeNotFoundException(exceptionMessage))
@@ -133,7 +133,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     @Test
-    public void should_dead_letter_message_when_invalid() {
+    void should_dead_letter_message_when_invalid() {
         // given
         given(messageContext.getMessage()).willReturn(message);
         given(message.getBody()).willReturn(BinaryData.fromString("invalid body"));
@@ -156,7 +156,7 @@ public class ProcessedEnvelopeNotificationHandlerTest {
     }
 
     @Test
-    public void should_not_finalise_message_when_finaliser_fails_for_unknown_reason() {
+    void should_not_finalise_message_when_finaliser_fails_for_unknown_reason() {
         // given
         willThrow(new RuntimeException("test exception"))
             .given(envelopeFinaliserService)

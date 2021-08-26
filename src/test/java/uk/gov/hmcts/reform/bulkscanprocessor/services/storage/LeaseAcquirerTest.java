@@ -113,9 +113,9 @@ class LeaseAcquirerTest {
         // then
         verify(leaseMetaDataChecker).isReadyToUse(blobClient);
         verify(blobClient).setMetadata(metadata);
-        assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
-        assertThat(metadata.containsKey("someProperty")).isTrue();
-        assertThat(metadata.get("someProperty")).isEqualTo("someValue");
+        assertThat(metadata).doesNotContainKey(LEASE_EXPIRATION_TIME);
+        assertThat(metadata).containsKey("someProperty");
+        assertThat(metadata).containsEntry("someProperty", "someValue");
         verifyNoMoreInteractions(leaseMetaDataChecker);
     }
 
@@ -164,9 +164,9 @@ class LeaseAcquirerTest {
         verify(onFailure, never()).accept(any());
         verify(leaseMetaDataChecker).isReadyToUse(blobClient);
         verify(blobClient).setMetadata(metadata);
-        assertThat(metadata.containsKey(LEASE_EXPIRATION_TIME)).isFalse();
-        assertThat(metadata.containsKey("someProperty")).isTrue();
-        assertThat(metadata.get("someProperty")).isEqualTo("someValue");
+        assertThat(metadata).doesNotContainKey(LEASE_EXPIRATION_TIME);
+        assertThat(metadata).containsKey("someProperty");
+        assertThat(metadata).containsEntry("someProperty", "someValue");
         verifyNoMoreInteractions(leaseMetaDataChecker);
 
     }

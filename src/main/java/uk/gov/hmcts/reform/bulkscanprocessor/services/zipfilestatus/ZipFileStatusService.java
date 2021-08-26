@@ -73,7 +73,7 @@ public class ZipFileStatusService {
 
     public ZipFileStatus getStatusByCcdId(String ccdId) {
         List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
-        if (envelopes.size() > 0) {
+        if (!envelopes.isEmpty()) {
             String zipFileName = envelopes.get(0).getZipFileName();
             List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
             return getZipFileStatus(null, ccdId, null, envelopes, events);
