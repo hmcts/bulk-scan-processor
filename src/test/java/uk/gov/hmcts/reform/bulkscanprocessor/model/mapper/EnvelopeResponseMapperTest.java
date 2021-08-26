@@ -10,17 +10,17 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EnvelopeResponseMapperTest {
+class EnvelopeResponseMapperTest {
 
     private Envelope envelope;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         envelope = EnvelopeCreator.envelope();
     }
 
     @Test
-    public void should_map_envelope_to_envelope_response() {
+    void should_map_envelope_to_envelope_response() {
         EnvelopeResponse response = EnvelopeResponseMapper.toEnvelopeResponse(envelope);
 
         assertThat(response)
@@ -29,5 +29,4 @@ public class EnvelopeResponseMapperTest {
             )
             .isEqualToComparingFieldByFieldRecursively(envelope);
     }
-
 }

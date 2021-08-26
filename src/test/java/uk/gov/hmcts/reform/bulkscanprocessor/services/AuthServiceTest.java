@@ -20,7 +20,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthServiceTest {
+class AuthServiceTest {
 
     private static final String SERVICE_HEADER = "some-header";
 
@@ -40,7 +40,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void should_throw_missing_header_exception_when_it_is_null() {
+    void should_throw_missing_header_exception_when_it_is_null() {
         // when
         Throwable exception = catchThrowable(() -> service.authenticate(null));
 
@@ -54,7 +54,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void should_track_failure_in_service_dependency_when_invalid_token_received() {
+    void should_track_failure_in_service_dependency_when_invalid_token_received() {
         // given
         willThrow(InvalidTokenException.class).given(validator).getServiceName(anyString());
 
@@ -66,7 +66,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void should_track_successful_service_dependency_when_valid_token_received() {
+    void should_track_successful_service_dependency_when_valid_token_received() {
         // given
         given(validator.getServiceName(SERVICE_HEADER)).willReturn("some-service");
 

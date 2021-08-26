@@ -31,7 +31,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 
 @WebMvcTest(ZipStatusController.class)
-public class ZipStatusControllerTest {
+class ZipStatusControllerTest {
 
     @MockBean
     private ZipFileStatusService service;
@@ -46,7 +46,7 @@ public class ZipStatusControllerTest {
     private static final String fileName = "hello.zip";
 
     @Test
-    public void should_return_data_returned_from_the_service() throws Exception {
+    void should_return_data_returned_from_the_service() throws Exception {
 
         String deliveryDate = "2020-03-23T13:17:20.000Z";
         String openingDate = "2020-05-03T23:19:00.159Z";
@@ -151,7 +151,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
+    void should_return_200_with_empty_model_if_no_results_were_found() throws Exception {
 
         given(service.getStatusByFileName("hello.zip"))
             .willReturn(new ZipFileStatus("hello.zip", null, null, emptyList(), emptyList()));
@@ -166,7 +166,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_data_returned_from_the_service_with_given_dcn() throws Exception {
+    void should_return_data_returned_from_the_service_with_given_dcn() throws Exception {
         String deliveryDate = "2020-03-23T13:17:20.000Z";
         String openingDate = "2020-05-03T23:19:54.159Z";
         String createdAt = "2021-06-03T00:00:54.000Z";
@@ -268,7 +268,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_400_with_invalid_dcn_as_parameter() throws Exception {
+    void should_return_400_with_invalid_dcn_as_parameter() throws Exception {
         //given
         String documentControlNumber = "1453";
         //when
@@ -282,7 +282,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_bad_request_when_empty_dcn_supplied() throws Exception {
+    void should_return_bad_request_when_empty_dcn_supplied() throws Exception {
         String emptyDcn = "";
         given(service.getStatusByDcn(emptyDcn))
             .willThrow(IllegalArgumentException.class);
@@ -293,7 +293,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_data_returned_from_the_service_with_given_ccdId() throws Exception {
+    void should_return_data_returned_from_the_service_with_given_ccdId() throws Exception {
 
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
@@ -354,7 +354,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_200_with_empty_model_if_no_results_were_found_with_given_ccdId() throws Exception {
+    void should_return_200_with_empty_model_if_no_results_were_found_with_given_ccdId() throws Exception {
         given(service.getStatusByCcdId("34643746765475"))
             .willReturn(new ZipFileStatus(null, "34643746765475", null, emptyList(), emptyList()));
         mockMvc
@@ -367,7 +367,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_400_if_more_than_one_parameter_provided() throws Exception {
+    void should_return_400_if_more_than_one_parameter_provided() throws Exception {
         given(service.getStatusByCcdId("34643746765475"))
             .willReturn(new ZipFileStatus(null, "34643746765475", null, emptyList(), emptyList()));
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
@@ -380,7 +380,7 @@ public class ZipStatusControllerTest {
     }
 
     @Test
-    public void should_return_400_if_no_parameter_provided() throws Exception {
+    void should_return_400_if_no_parameter_provided() throws Exception {
         mockMvc
             .perform(get("/zip-files"))
             .andDo(print())

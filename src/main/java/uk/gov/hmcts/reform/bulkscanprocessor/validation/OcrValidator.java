@@ -160,7 +160,7 @@ public class OcrValidator {
             .filter(mapping -> mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
                     .contains(poBox.toLowerCase()))
             .findFirst()
-            .map(mapping -> mapping.getOcrValidationUrl())
+            .map(ContainerMappings.Mapping::getOcrValidationUrl)
             .filter(url -> !Strings.isNullOrEmpty(url));
 
         if (validationUrl.isEmpty()) {

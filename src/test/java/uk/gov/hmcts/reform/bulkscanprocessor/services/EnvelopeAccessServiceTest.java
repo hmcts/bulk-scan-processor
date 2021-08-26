@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SuppressWarnings("checkstyle:LineLength")
 @ExtendWith(MockitoExtension.class)
-public class EnvelopeAccessServiceTest {
+class EnvelopeAccessServiceTest {
 
     @Mock
     private EnvelopeAccessProperties accessProps;
@@ -24,7 +24,7 @@ public class EnvelopeAccessServiceTest {
     private EnvelopeAccessService service;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         this.service = new EnvelopeAccessService(accessProps);
 
         BDDMockito
@@ -36,14 +36,14 @@ public class EnvelopeAccessServiceTest {
     }
 
     @Test
-    public void getReadJurisdictionForService_should_return_name_of_the_jurisdiction_from_which_service_can_read() {
+    void getReadJurisdictionForService_should_return_name_of_the_jurisdiction_from_which_service_can_read() {
         String jurisdiction = service.getReadJurisdictionForService("read_A");
 
         assertThat(jurisdiction).isEqualTo("jur_A");
     }
 
     @Test
-    public void getReadJurisdictionForService_should_throw_an_exception_if_there_is_no_jurisdiction_that_the_service_can_read_from() {
+    void getReadJurisdictionForService_should_throw_an_exception_if_there_is_no_jurisdiction_that_the_service_can_read_from() {
         assertThatThrownBy(() -> service.getReadJurisdictionForService("update_A"))
             .isInstanceOf(ServiceJuridictionConfigNotFoundException.class)
             .hasMessageContaining("update_A");

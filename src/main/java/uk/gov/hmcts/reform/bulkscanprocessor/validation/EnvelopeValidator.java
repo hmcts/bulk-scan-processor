@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.validation;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,12 +41,12 @@ public final class EnvelopeValidator {
 
     private static final InputDocumentType defaultOcrDocumentType = InputDocumentType.FORM;
     private static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
-        ImmutableMap.of(
+        Map.of(
             "SSCS", InputDocumentType.SSCS1
         );
 
     private static final Map<Classification, List<InputDocumentType>> disallowedDocumentTypes =
-        ImmutableMap.of(
+        Map.of(
             Classification.EXCEPTION, emptyList(),
             Classification.NEW_APPLICATION, emptyList(),
             Classification.SUPPLEMENTARY_EVIDENCE, asList(InputDocumentType.FORM, InputDocumentType.SSCS1),
@@ -106,7 +105,8 @@ public final class EnvelopeValidator {
                 .collect(toList());
 
             if (docsThatShouldHaveOcr.isEmpty()) {
-                String types = typesThatShouldHaveOcrData.stream().map(t -> t.toString()).collect(joining(", "));
+                String types = typesThatShouldHaveOcrData.stream()
+                        .map(InputDocumentType::toString).collect(joining(", "));
                 throw new OcrDataNotFoundException("No documents of type " + types + " found");
             }
 
@@ -247,7 +247,7 @@ public final class EnvelopeValidator {
             .map(ContainerMappings.Mapping::isEnabled)
             .orElse(false);
 
-        if (!isServiceEnabled) {
+        if (Boolean.FALSE.equals(isServiceEnabled)) {
             throw new ServiceDisabledException(
                 String.format(
                     "Envelope contains service that is not enabled. Jurisdiction: '%s' POBox: '%s'",
@@ -281,7 +281,7 @@ public final class EnvelopeValidator {
             .entrySet()
             .stream()
             .filter(entry -> entry.getValue() > 1)
-            .map(entry -> entry.getKey())
+            .map(Map.Entry::getKey)
             .collect(toList());
     }
 }

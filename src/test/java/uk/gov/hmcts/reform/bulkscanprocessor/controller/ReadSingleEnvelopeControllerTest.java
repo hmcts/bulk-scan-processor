@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @WebMvcTest(EnvelopeController.class)
-public class ReadSingleEnvelopeControllerTest {
+class ReadSingleEnvelopeControllerTest {
 
     @MockBean private EnvelopeRetrieverService readService;
     @MockBean private AuthService authService;
@@ -36,7 +36,7 @@ public class ReadSingleEnvelopeControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void should_return_200_if_envelope_exists() throws Exception {
+    void should_return_200_if_envelope_exists() throws Exception {
         // given
         UUID envelopeId = randomUUID();
         given(readService.findById(any(), eq(envelopeId)))
@@ -50,7 +50,7 @@ public class ReadSingleEnvelopeControllerTest {
     }
 
     @Test
-    public void should_return_404_if_envelope_does_not_exist() throws Exception {
+    void should_return_404_if_envelope_does_not_exist() throws Exception {
         // given
         given(readService.findById(any(), any()))
             .willReturn(Optional.empty());
@@ -63,7 +63,7 @@ public class ReadSingleEnvelopeControllerTest {
     }
 
     @Test
-    public void should_return_403_if_envelope_belongs_to_a_different_service() throws Exception {
+    void should_return_403_if_envelope_belongs_to_a_different_service() throws Exception {
         // given
         given(readService.findById(any(), any()))
             .willThrow(new ForbiddenException("msg"));
@@ -76,7 +76,7 @@ public class ReadSingleEnvelopeControllerTest {
     }
 
     @Test
-    public void should_return_401_if_service_is_not_authenticated() throws Exception {
+    void should_return_401_if_service_is_not_authenticated() throws Exception {
         // given
         given(authService.authenticate(any()))
             .willThrow(new UnAuthenticatedException("msg"));
