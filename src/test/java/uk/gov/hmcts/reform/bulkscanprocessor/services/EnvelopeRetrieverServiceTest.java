@@ -30,7 +30,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envelope;
 
 @ExtendWith(MockitoExtension.class)
-public class EnvelopeRetrieverServiceTest {
+class EnvelopeRetrieverServiceTest {
 
     @Mock
     private EnvelopeRepository envelopeRepository;
@@ -46,7 +46,7 @@ public class EnvelopeRetrieverServiceTest {
     }
 
     @Test
-    public void should_return_all_envelopes_successfully_for_a_given_jurisdiction_and_status() throws Exception {
+    void should_return_all_envelopes_successfully_for_a_given_jurisdiction_and_status() throws Exception {
         List<Envelope> envelopes = EnvelopeCreator.envelopes();
         List<EnvelopeResponse> envelopesResponse = EnvelopeResponseMapper.toEnvelopesResponse(envelopes);
 
@@ -76,7 +76,7 @@ public class EnvelopeRetrieverServiceTest {
     }
 
     @Test
-    public void should_return_all_envelopes_if_status_is_null() throws Exception {
+    void should_return_all_envelopes_if_status_is_null() throws Exception {
         // given
         List<Envelope> envelopes =
             asList(
@@ -104,7 +104,7 @@ public class EnvelopeRetrieverServiceTest {
     }
 
     @Test
-    public void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
+    void should_throw_data_retrieval_failure_exception_when_repository_fails_to_retrieve_envelopes() {
         when(envelopeAccess.getReadJurisdictionForService("testService"))
             .thenReturn("testJurisdiction");
 
@@ -119,7 +119,7 @@ public class EnvelopeRetrieverServiceTest {
     }
 
     @Test
-    public void should_throw_envelope_not_found_exception_when_there_is_no_envelope() {
+    void should_throw_envelope_not_found_exception_when_there_is_no_envelope() {
         given(envelopeRepository
                   .findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
                       "a.zip",
@@ -137,7 +137,7 @@ public class EnvelopeRetrieverServiceTest {
     }
 
     @Test
-    public void should_return_envelope_when_there_is_matching_envelope() {
+    void should_return_envelope_when_there_is_matching_envelope() {
 
         var envelope = envelope();
         var expectedResponse = EnvelopeResponseMapper.toEnvelopeResponse(envelope);
@@ -154,6 +154,4 @@ public class EnvelopeRetrieverServiceTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expectedResponse);
     }
-
-
 }

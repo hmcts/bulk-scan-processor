@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DocumentManagementServiceTest {
+class DocumentManagementServiceTest {
 
     private static final String AUTH_HEADER = "service-auth-header";
 
@@ -47,7 +47,7 @@ public class DocumentManagementServiceTest {
     private RestTemplate restTemplate;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(authTokenGenerator.generate()).thenReturn(AUTH_HEADER);
 
         this.httpEntityReqEntity = ArgumentCaptor.forClass(HttpEntity.class);
@@ -61,7 +61,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_return_upload_response_with_document_urls_when_docs_are_successfully_uploaded()
+    void should_return_upload_response_with_document_urls_when_docs_are_successfully_uploaded()
         throws Exception {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
@@ -93,7 +93,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_client_exception_when_service_auth_throws_unauthorized_exception() throws Exception {
+    void should_throw_client_exception_when_service_auth_throws_unauthorized_exception() throws Exception {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
@@ -111,7 +111,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_unable_to_upload_doc_exception_when_bulk_scan_service_throws_client_exception()
+    void should_throw_unable_to_upload_doc_exception_when_bulk_scan_service_throws_client_exception()
         throws Exception {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
@@ -135,7 +135,7 @@ public class DocumentManagementServiceTest {
     }
 
     @Test
-    public void should_throw_unable_to_upload_document_exception_when_document_storage_is_down() throws Exception {
+    void should_throw_unable_to_upload_document_exception_when_document_storage_is_down() throws Exception {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());

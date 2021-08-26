@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
-public class CleanUpRejectedFilesTaskTest {
+class CleanUpRejectedFilesTaskTest {
 
     @Mock private BlobManager blobManager;
     @Mock private LeaseMetaDataChecker leaseMetaDataChecker;
@@ -49,7 +49,7 @@ public class CleanUpRejectedFilesTaskTest {
     private static final String REJECTED_CONTAINER = "con-rejected";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         given(blobManager.listRejectedContainers()).willReturn(singletonList(containerClient));
     }
 

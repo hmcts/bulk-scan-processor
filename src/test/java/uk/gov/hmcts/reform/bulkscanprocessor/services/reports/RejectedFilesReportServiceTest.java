@@ -22,7 +22,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
-public class RejectedFilesReportServiceTest {
+class RejectedFilesReportServiceTest {
 
     @Mock private BlobManager blobManager;
     @Mock private BlobContainerClient containerA;
@@ -31,7 +31,7 @@ public class RejectedFilesReportServiceTest {
     private RejectedFilesReportService service;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         given(blobManager.listRejectedContainers())
             .willReturn(asList(containerA, containerB));
 
@@ -39,7 +39,7 @@ public class RejectedFilesReportServiceTest {
     }
 
     @Test
-    public void should_return_empty_list_when_there_are_no_rejected_files() {
+    void should_return_empty_list_when_there_are_no_rejected_files() {
         // given
         setUpContainer(containerA, emptyList());
         setUpContainer(containerB, emptyList());
@@ -52,7 +52,7 @@ public class RejectedFilesReportServiceTest {
     }
 
     @Test
-    public void should_get_files_from_rejected_containers() {
+    void should_get_files_from_rejected_containers() {
         // given
         given(containerA.getBlobContainerName()).willReturn("A");
         given(containerB.getBlobContainerName()).willReturn("B");

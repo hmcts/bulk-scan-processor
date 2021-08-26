@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -24,13 +24,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
-public class SasTokenGeneratorServiceTest {
+class SasTokenGeneratorServiceTest {
 
     private AccessTokenProperties accessTokenProperties;
     private SasTokenGeneratorService tokenGeneratorService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         StorageSharedKeyCredential storageCredentials =
             new StorageSharedKeyCredential("testAccountName", "dGVzdGtleQ==");
 
@@ -48,13 +48,13 @@ public class SasTokenGeneratorServiceTest {
     }
 
     @Test
-    public void should_generate_sas_token_when_service_configuration_is_available() {
+    void should_generate_sas_token_when_service_configuration_is_available() {
         String sasToken = tokenGeneratorService.generateSasToken("sscs");
 
         String currentDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(OffsetDateTime.now(UTC));
 
         Map<String, String> queryParams = URLEncodedUtils
-            .parse(sasToken, Charset.forName("UTF-8")).stream()
+            .parse(sasToken, StandardCharsets.UTF_8).stream()
             .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 
 
@@ -65,7 +65,7 @@ public class SasTokenGeneratorServiceTest {
     }
 
     @Test
-    public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
+    void should_throw_exception_when_requested_service_is_not_configured() {
         assertThatThrownBy(() -> tokenGeneratorService.generateSasToken("doesnotexist"))
             .isInstanceOf(ServiceConfigNotFoundException.class)
             .hasMessage("No service configuration found for service doesnotexist");

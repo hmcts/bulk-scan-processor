@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class ReportSenderTest {
+class ReportSenderTest {
 
     private static final String TEST_LOGIN = "test@localhost.com";
     private static final String TEST_PASSWORD = "test_password";
@@ -35,7 +35,7 @@ public class ReportSenderTest {
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
 
     @Test
-    public void should_send_email_to_all_recipients() throws Exception {
+    void should_send_email_to_all_recipients() throws Exception {
         // given
         String reportRecipient1 = "Foo <foo@hmcts.net>";
         String reportRecipient2 = "bar@hmcts.net";
@@ -74,7 +74,7 @@ public class ReportSenderTest {
     }
 
     @Test
-    public void should_handle_mail_exception() {
+    void should_handle_mail_exception() {
         // given
         ReportsService reportsService = mock(ReportsService.class);
         JavaMailSender mailSender = mock(JavaMailSender.class);

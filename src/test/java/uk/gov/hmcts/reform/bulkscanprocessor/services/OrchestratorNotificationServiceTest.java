@@ -98,6 +98,6 @@ class OrchestratorNotificationServiceTest {
         assertThat(argument.getValue().getContainer()).isEqualTo(env.getContainer());
         assertThat(argument.getValue().getZipFileName()).isEqualTo(env.getZipFileName());
         assertThat(argument.getValue().getEvent()).isEqualTo(DOC_PROCESSED_NOTIFICATION_SENT);
-        assertThat(successCount.get()).isEqualTo(0);
+        assertThat(successCount.get()).isZero();
     }
 }
