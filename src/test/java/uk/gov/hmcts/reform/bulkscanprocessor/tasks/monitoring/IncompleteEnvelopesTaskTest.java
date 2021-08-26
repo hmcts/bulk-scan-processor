@@ -14,7 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-public class IncompleteEnvelopesTaskTest {
+class IncompleteEnvelopesTaskTest {
 
     @Mock
     private EnvelopeRepository envelopeRepository;
@@ -22,19 +22,19 @@ public class IncompleteEnvelopesTaskTest {
     private IncompleteEnvelopesTask task;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         task = new IncompleteEnvelopesTask(envelopeRepository, Duration.ofHours(1));
     }
 
     @Test
-    public void should_finish_the_task_successfully_when_no_envelopes_are_present() {
+    void should_finish_the_task_successfully_when_no_envelopes_are_present() {
         given(envelopeRepository.getIncompleteEnvelopesCountBefore(any())).willReturn(0);
 
         assertThatCode(task::run).doesNotThrowAnyException();
     }
 
     @Test
-    public void should_finish_the_task_successfully_when_there_are_some_incomplete_envelopes() {
+    void should_finish_the_task_successfully_when_there_are_some_incomplete_envelopes() {
         given(envelopeRepository.getIncompleteEnvelopesCountBefore(any())).willReturn(1);
 
         assertThatCode(task::run).doesNotThrowAnyException();

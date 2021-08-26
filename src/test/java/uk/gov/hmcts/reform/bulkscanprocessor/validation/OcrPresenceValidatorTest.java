@@ -21,12 +21,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 
 @ExtendWith(MockitoExtension.class)
-public class OcrPresenceValidatorTest {
+class OcrPresenceValidatorTest {
 
     private final OcrPresenceValidator validator = new OcrPresenceValidator();
 
     @Test
-    public void should_throw_exception_if_multiple_docs_contain_ocr() {
+    void should_throw_exception_if_multiple_docs_contain_ocr() {
         assertThatThrownBy(
             () -> validator.assertHasProperlySetOcr(
                 asList(
@@ -41,7 +41,7 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_form_has_no_ocr() {
+    void should_throw_an_exception_when_form_has_no_ocr() {
         assertThatThrownBy(
             () -> validator.assertHasProperlySetOcr(
                 asList(
@@ -56,7 +56,7 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_a_doc_that_is_not_form_or_sscs1_has_ocr() {
+    void should_throw_an_exception_when_a_doc_that_is_not_form_or_sscs1_has_ocr() {
         EnumSet
             .allOf(InputDocumentType.class)
             .stream()
@@ -77,7 +77,7 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_throw_exception_doc_with_ocr_has_no_subtype() {
+    void should_throw_exception_doc_with_ocr_has_no_subtype() {
         assertThatThrownBy(
             () -> validator.assertHasProperlySetOcr(
                 asList(
@@ -91,7 +91,7 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_return_document_with_ocr_when_doctype_is_sscs1_and_subtype_is_not_set() {
+    void should_return_document_with_ocr_when_doctype_is_sscs1_and_subtype_is_not_set() {
         // given
         InputScannableItem docWithOcr = doc(SSCS1, null, new InputOcrData());
         List<InputScannableItem> docs =
@@ -110,7 +110,7 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_return_document_with_ocr() {
+    void should_return_document_with_ocr() {
         // given
         InputScannableItem docWithOcr = doc(FORM, new InputOcrData());
         List<InputScannableItem> docs =
@@ -129,7 +129,7 @@ public class OcrPresenceValidatorTest {
     }
 
     @Test
-    public void should_return_empty_optional_if_there_are_no_docs_with_ocr() {
+    void should_return_empty_optional_if_there_are_no_docs_with_ocr() {
         // given
         List<InputScannableItem> docs =
             asList(

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class InstantDeserializerTest {
+class InstantDeserializerTest {
 
     private static final StdDeserializer<Instant> DESERIALIZER = InstantDeserializer.INSTANCE;
 
@@ -27,7 +27,7 @@ public class InstantDeserializerTest {
     private static final DeserializationContext CONTEXT = mock(DeserializationContext.class);
 
     @Test
-    public void should_parse_json_date_field_as_instant() throws IOException {
+    void should_parse_json_date_field_as_instant() throws IOException {
         long milliseconds = 1530697192913L;
         Instant expected = Instant.ofEpochMilli(milliseconds);
 

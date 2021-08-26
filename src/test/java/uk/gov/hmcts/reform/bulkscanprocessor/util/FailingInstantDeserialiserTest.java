@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FailingInstantDeserialiserTest {
+class FailingInstantDeserialiserTest {
 
     private static final StdDeserializer<Instant> DESERIALIZER = InstantDeserializer.INSTANCE;
 
@@ -23,7 +23,7 @@ public class FailingInstantDeserialiserTest {
     private static final DeserializationContext CONTEXT = mock(DeserializationContext.class);
 
     @Test
-    public void should_fail_to_parse_when_there_is_no_dot_for_fraction() throws IOException {
+    void should_fail_to_parse_when_there_is_no_dot_for_fraction() throws IOException {
         when(PARSER.getText()).thenReturn("2019-12-23T03:04:05");
 
         Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(PARSER, CONTEXT));
@@ -32,7 +32,7 @@ public class FailingInstantDeserialiserTest {
     }
 
     @Test
-    public void should_fail_to_parse_when_having_incorrect_format() throws IOException {
+    void should_fail_to_parse_when_having_incorrect_format() throws IOException {
         when(PARSER.getText()).thenReturn("2019-12-23 03:04:05.098765");
 
         Throwable exception = catchThrowable(() -> DESERIALIZER.deserialize(PARSER, CONTEXT));

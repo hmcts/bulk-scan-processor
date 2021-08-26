@@ -18,16 +18,16 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.inputEnvelope;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
 
-public class DocumentTypesValidationTest {
+class DocumentTypesValidationTest {
     private EnvelopeValidator envelopeValidator;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         envelopeValidator = new EnvelopeValidator();
     }
 
     @Test
-    public void should_throw_exception_when_supplementary_evidence_envelope_contains_form() {
+    void should_throw_exception_when_supplementary_evidence_envelope_contains_form() {
         // given
         InputEnvelope envelope = envelope(
             Classification.SUPPLEMENTARY_EVIDENCE,
@@ -52,7 +52,7 @@ public class DocumentTypesValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_supplementary_evidence_envelope_contains_sscs1_doc() {
+    void should_throw_exception_when_supplementary_evidence_envelope_contains_sscs1_doc() {
         // given
         InputEnvelope envelope = envelope(
             Classification.SUPPLEMENTARY_EVIDENCE,
@@ -77,7 +77,7 @@ public class DocumentTypesValidationTest {
     }
 
     @Test
-    public void should_not_throw_exception_when_form_or_sscs1_doc_found_for_new_application() {
+    void should_not_throw_exception_when_form_or_sscs1_doc_found_for_new_application() {
         // given
         InputEnvelope envelope = envelope(
             Classification.NEW_APPLICATION,
@@ -94,7 +94,7 @@ public class DocumentTypesValidationTest {
     }
 
     @Test
-    public void should_not_throw_exception_when_form_or_sscs1_found_for_exception() {
+    void should_not_throw_exception_when_form_or_sscs1_found_for_exception() {
         // given
         InputEnvelope envelope = envelope(
             Classification.EXCEPTION,
@@ -111,7 +111,7 @@ public class DocumentTypesValidationTest {
     }
 
     @Test
-    public void should_not_throw_exception_when_forms_or_sscs1_docs_are_absent_for_supplementary_evidence() {
+    void should_not_throw_exception_when_forms_or_sscs1_docs_are_absent_for_supplementary_evidence() {
         // given
         InputEnvelope envelope = envelope(
             Classification.SUPPLEMENTARY_EVIDENCE,
