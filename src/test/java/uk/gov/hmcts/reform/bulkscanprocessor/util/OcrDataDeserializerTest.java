@@ -24,12 +24,12 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class OcrDataDeserializerTest {
+class OcrDataDeserializerTest {
 
     private final OcrDataDeserializer deserializer = new OcrDataDeserializer();
 
     @Test
-    public void should_convert_all_fields_to_their_string_representation() throws Exception {
+    void should_convert_all_fields_to_their_string_representation() throws Exception {
         InputOcrData resultOcrData = deserializeFromBase64("/ocr-data/valid/valid-ocr.json");
 
         InputOcrData expectedOcrData = new InputOcrData();
@@ -46,7 +46,7 @@ public class OcrDataDeserializerTest {
     }
 
     @Test
-    public void should_throw_exception_when_ocr_data_is_not_base64() throws Exception {
+    void should_throw_exception_when_ocr_data_is_not_base64() throws Exception {
         Throwable thrown = catchThrowable(() -> {
             JsonParser jsonParser = mock(JsonParser.class);
             given(jsonParser.getText()).willReturn("this is not a Base64 encoded string");
@@ -58,7 +58,7 @@ public class OcrDataDeserializerTest {
     }
 
     @Test
-    public void should_throw_exception_when_base64_decoded_ocr_data_is_invalid() throws Exception {
+    void should_throw_exception_when_base64_decoded_ocr_data_is_invalid() throws Exception {
         expectOcrParsingToFail("/ocr-data/invalid/missing-quotes-of-field-name.txt");
         expectOcrParsingToFail("/ocr-data/invalid/missing-metadata-file-field.json");
         expectOcrParsingToFail("/ocr-data/invalid/null-metadata-file-field.json");

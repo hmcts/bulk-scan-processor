@@ -56,7 +56,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR;
 
 @ExtendWith(MockitoExtension.class)
-public class OcrValidatorTest {
+class OcrValidatorTest {
 
     private static final String VALIDATION_URL = "https://example.com/validate-ocr";
     private static final String S2S_TOKEN = "sample-s2s-token";
@@ -77,12 +77,12 @@ public class OcrValidatorTest {
     private OcrValidator ocrValidator;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         this.ocrValidator = new OcrValidator(client, presenceValidator, containerMappings, authTokenGenerator);
     }
 
     @Test
-    public void should_validate_the_presence_of_ocr_data() {
+    void should_validate_the_presence_of_ocr_data() {
         // given
         List<InputScannableItem> docs =
             asList(
@@ -109,7 +109,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_call_rest_client_with_correct_parameters() {
+    void should_call_rest_client_with_correct_parameters() {
         // given
         String url = VALIDATION_URL;
 
@@ -157,7 +157,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_call_rest_client_with_correct_parameters_when_multiple_po_boxes() {
+    void should_call_rest_client_with_correct_parameters_when_multiple_po_boxes() {
         // given
         String url = VALIDATION_URL;
 
@@ -205,7 +205,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_handle_sscs1_forms_without_subtype() {
+    void should_handle_sscs1_forms_without_subtype() {
         // given
         String url = VALIDATION_URL;
 
@@ -245,7 +245,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_not_call_rest_client_for_exception_journey_classification() {
+    void should_not_call_rest_client_for_exception_journey_classification() {
         // given
         InputScannableItem docWithOcr = doc(FORM, "sample_document_subtype", sampleOcr());
         List<InputScannableItem> docs =
@@ -265,11 +265,11 @@ public class OcrValidatorTest {
 
         // then
         verifyNoInteractions(client);
-        assertThat(res.isPresent()).isFalse();
+        assertThat(res).isNotPresent();
     }
 
     @Test
-    public void should_return_warnings_from_successful_validation_result() {
+    void should_return_warnings_from_successful_validation_result() {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
@@ -303,7 +303,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_handle_null_warnings_from_successful_validation_result() {
+    void should_handle_null_warnings_from_successful_validation_result() {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
@@ -333,7 +333,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_not_call_validation_if_url_is_not_configured() {
+    void should_not_call_validation_if_url_is_not_configured() {
         // given
         InputEnvelope envelope = envelope(
             "samplePoBox",
@@ -354,7 +354,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_not_call_validation_if_url_is_not_configured_for_po_box() {
+    void should_not_call_validation_if_url_is_not_configured_for_po_box() {
         // given
         given(containerMappings.getMappings())
                 .willReturn(singletonList(
@@ -378,7 +378,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_not_call_validation_there_are_no_documents_with_ocr() {
+    void should_not_call_validation_there_are_no_documents_with_ocr() {
         // given
         InputEnvelope envelope = envelope(
             PO_BOX_1,
@@ -402,7 +402,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_throw_an_exception_if_service_responded_with_error_response() {
+    void should_throw_an_exception_if_service_responded_with_error_response() {
         // given
         InputEnvelope envelope = envelope(
             PO_BOX_1,
@@ -437,7 +437,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_handle_null_reponse_code() {
+    void should_handle_null_reponse_code() {
         // given
         given(containerMappings.getMappings())
             .willReturn(singletonList(
@@ -467,7 +467,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_throw_an_exception_if_service_responded_with_404() {
+    void should_throw_an_exception_if_service_responded_with_404() {
         // given
         InputEnvelope envelope = envelope(
             PO_BOX_1,
@@ -501,7 +501,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_continue_if_calling_validation_endpoint_fails() {
+    void should_continue_if_calling_validation_endpoint_fails() {
         // given
         InputScannableItem scannableItemWithOcr = doc(FORM, "form", sampleOcr());
         InputEnvelope envelope = envelope(
@@ -536,7 +536,7 @@ public class OcrValidatorTest {
     }
 
     @Test
-    public void should_log_info_when_ocr_is_present_but_theres_not_service_configured_to_validate_it() {
+    void should_log_info_when_ocr_is_present_but_theres_not_service_configured_to_validate_it() {
         // given
         InputEnvelope envelope = envelope(
             PO_BOX_1,

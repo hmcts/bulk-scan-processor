@@ -13,17 +13,17 @@ import java.io.InputStream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class MetafileJsonValidatorTest {
+class MetafileJsonValidatorTest {
 
     private MetafileJsonValidator validator;
 
     @BeforeEach
-    public void setUp() throws IOException, ProcessingException {
+    void setUp() throws IOException, ProcessingException {
         validator = new MetafileJsonValidator();
     }
 
     @Test
-    public void should_successfully_map_json_file_to_entities() throws IOException {
+    void should_successfully_map_json_file_to_entities() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
@@ -43,7 +43,7 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
-    public void should_parse_envelope_data_with_no_case_number() throws IOException {
+    void should_parse_envelope_data_with_no_case_number() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/no-case-number.json");
 
         assertThat(envelope.caseNumber).isNull();
@@ -53,33 +53,33 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
-    public void should_parse_envelope_data_with_no_rescan_for() throws IOException {
+    void should_parse_envelope_data_with_no_rescan_for() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/no-rescan-for.json");
 
         assertThat(envelope.rescanFor).isNull();
-        assertThat(envelope.nonScannableItems).hasSize(0);
+        assertThat(envelope.nonScannableItems).isEmpty();
         assertThat(envelope.scannableItems).hasSize(1);
-        assertThat(envelope.payments).hasSize(0);
+        assertThat(envelope.payments).isEmpty();
     }
 
     @Test
-    public void should_parse_envelope_data_with_null_rescan_for() throws IOException {
+    void should_parse_envelope_data_with_null_rescan_for() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/null-rescan-for.json");
 
         assertThat(envelope.rescanFor).isNull();
-        assertThat(envelope.nonScannableItems).hasSize(0);
+        assertThat(envelope.nonScannableItems).isEmpty();
         assertThat(envelope.scannableItems).hasSize(1);
-        assertThat(envelope.payments).hasSize(0);
+        assertThat(envelope.payments).isEmpty();
     }
 
     @Test
-    public void should_parse_envelope_data_with_no_previous_service_case_reference() throws IOException {
+    void should_parse_envelope_data_with_no_previous_service_case_reference() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/no-previous-service-case-reference.json");
         assertThat(envelope.previousServiceCaseReference).isNull();
     }
 
     @Test
-    public void should_parse_envelope_data_with_null_values_for_non_mandatory_fields() throws IOException {
+    void should_parse_envelope_data_with_null_values_for_non_mandatory_fields() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/fields-with-null-values-non-mandatory.json");
 
         assertThat(envelope.caseNumber).isNull();
@@ -90,25 +90,25 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
-    public void should_parse_envelope_data_with_no_payments_in() throws IOException {
+    void should_parse_envelope_data_with_no_payments_in() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/no-payment.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
         assertThat(envelope.scannableItems).hasSize(2);
-        assertThat(envelope.payments).hasSize(0);
+        assertThat(envelope.payments).isEmpty();
     }
 
     @Test
-    public void should_parse_envelope_data_with_no_non_scannable_items_in() throws IOException {
+    void should_parse_envelope_data_with_no_non_scannable_items_in() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/no-non-scannables.json");
 
-        assertThat(envelope.nonScannableItems).hasSize(0);
+        assertThat(envelope.nonScannableItems).isEmpty();
         assertThat(envelope.scannableItems).hasSize(2);
         assertThat(envelope.payments).hasSize(1);
     }
 
     @Test
-    public void should_parse_envelope_with_non_scannable_items() throws IOException {
+    void should_parse_envelope_with_non_scannable_items() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/from-spec.json");
 
         assertThat(envelope.nonScannableItems).hasSize(1);
@@ -118,7 +118,7 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
-    public void should_parse_envelope_data_with_supplementary_evidence_with_ocr() throws IOException {
+    void should_parse_envelope_data_with_supplementary_evidence_with_ocr() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/with-supplementary-evidence-with-ocr.json");
 
         assertThat(envelope.classification).isEqualTo(Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR);
@@ -127,7 +127,7 @@ public class MetafileJsonValidatorTest {
     }
 
     @Test
-    public void should_parse_envelope_data_with_payments() throws IOException {
+    void should_parse_envelope_data_with_payments() throws IOException {
         InputEnvelope envelope = getEnvelope("/metafiles/valid/with-payments.json");
 
         assertThat(envelope.payments).hasSize(2);
