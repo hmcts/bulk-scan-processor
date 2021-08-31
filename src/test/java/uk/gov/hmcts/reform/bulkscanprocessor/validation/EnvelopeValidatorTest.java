@@ -22,6 +22,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrDataField;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -297,10 +299,12 @@ class EnvelopeValidatorTest {
                 singletonList(scannableItem("file2.pdf", "dcn2"))
         );
 
+        final List<String> pdfs = asList("file1.pdf", "file2.pdf");
+
         // when
         // then
         assertThatThrownBy(
-            () -> envelopeValidator.assertEnvelopeHasPdfs(envelope, asList("file1.pdf", "file2.pdf"))
+            () -> envelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs)
         )
             .isInstanceOf(FileNameIrregularitiesException.class)
             .hasMessage("Not declared PDFs: file1.pdf");
@@ -320,9 +324,13 @@ class EnvelopeValidatorTest {
         );
 
         // when
+        final List<String> pdfs = singletonList("file2.pdf");
+
         // then
         assertThatThrownBy(
-            () -> envelopeValidator.assertEnvelopeHasPdfs(envelope, singletonList("file2.pdf"))
+            () -> {
+                envelopeValidator.assertEnvelopeHasPdfs(envelope, pdfs);
+            }
         )
             .isInstanceOf(FileNameIrregularitiesException.class)
             .hasMessage("Missing PDFs: file1.pdf");
@@ -407,12 +415,18 @@ class EnvelopeValidatorTest {
                 emptyList()
         );
 
+        final List<ContainerMappings.Mapping> mappings =
+                singletonList(
+                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true)
+                );
+
         // when
         // then
-        assertDoesNotThrow(() -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                envelope,
-                false,
-                singletonList(new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true))
+        assertDoesNotThrow(() ->
+                envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+                        envelope,
+                        false,
+                        mappings
                 )
         );
     }
@@ -428,12 +442,18 @@ class EnvelopeValidatorTest {
                 singletonList(new InputPayment("dcn1"))
         );
 
+        final List<ContainerMappings.Mapping> mappings =
+                singletonList(
+                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true)
+                );
+
         // when
         // then
-        assertDoesNotThrow(() -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                envelope,
-                true,
-                singletonList(new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true))
+        assertDoesNotThrow(() ->
+                envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+                        envelope,
+                        true,
+                        mappings
                 )
         );
     }
@@ -449,17 +469,23 @@ class EnvelopeValidatorTest {
                 singletonList(new InputPayment("dcn1"))
         );
 
+        final List<ContainerMappings.Mapping> mappings =
+                singletonList(
+                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true)
+                );
+
         // when
         // then
         assertThatThrownBy(
-            () -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+            () ->
+                envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
                     envelope,
                     false,
-                    singletonList(new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true))
-            )
+                    mappings
+                )
         )
-            .isInstanceOf(PaymentsDisabledException.class)
-            .hasMessage("Envelope contains payment(s) that are not allowed for jurisdiction 'SSCS', poBox: 'POBOX'");
+                .isInstanceOf(PaymentsDisabledException.class)
+                .hasMessage("Envelope contains payment(s) that are not allowed for jurisdiction 'SSCS', poBox: 'POBOX'");
     }
 
     @Test
@@ -473,14 +499,20 @@ class EnvelopeValidatorTest {
                 singletonList(new InputPayment("dcn1"))
         );
 
+        final List<ContainerMappings.Mapping> mappings =
+                singletonList(
+                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true)
+                );
+
         // when
         // then
         assertThatThrownBy(
-            () -> envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                    envelope,
-                    true,
-                    singletonList(new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true))
-            )
+            () ->
+                envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+                        envelope,
+                        true,
+                        mappings
+                )
         )
             .isInstanceOf(PaymentsDisabledException.class)
             .hasMessage("Envelope contains payment(s) that are not allowed for jurisdiction 'SSCS', poBox: 'POBOX'");
@@ -499,14 +531,16 @@ class EnvelopeValidatorTest {
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_1.toUpperCase());
 
+        final List<ContainerMappings.Mapping> mappings = singletonList(m);
+
         // when
         // then
         assertDoesNotThrow(() ->
-                envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                        singletonList(m),
-                        envelope,
-                        CONTAINER
-                )
+                    envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                            mappings,
+                            envelope,
+                            CONTAINER
+                    )
         );
     }
 
@@ -523,11 +557,13 @@ class EnvelopeValidatorTest {
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
+        final List<ContainerMappings.Mapping> mappings = singletonList(m);
+
         // when
         // then
         assertDoesNotThrow(() ->
                 envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                        singletonList(m),
+                        mappings,
                         envelope,
                         CONTAINER
                 )
@@ -547,17 +583,20 @@ class EnvelopeValidatorTest {
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
+        final List<ContainerMappings.Mapping> mappings = singletonList(m);
+
         // when
         // then
         assertThatThrownBy(
-            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                    singletonList(m),
+            () ->
+                envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                    mappings,
                     envelope,
                     CONTAINER
-            )
+                )
         )
-            .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
-            .hasMessage("Container, PO Box and jurisdiction mismatch. Jurisdiction: jurisdiction, PO Box: SAMPLE PO BOX 2, container: container");
+                .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
+                .hasMessage("Container, PO Box and jurisdiction mismatch. Jurisdiction: jurisdiction, PO Box: SAMPLE PO BOX 2, container: container");
     }
 
     @Test
@@ -573,17 +612,20 @@ class EnvelopeValidatorTest {
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope("wrong", PO_BOX_1.toUpperCase());
 
+        final List<ContainerMappings.Mapping> mappings = singletonList(m);
+
         // when
         // then
         assertThatThrownBy(
-            () -> envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                    singletonList(m),
+            () ->
+                envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                    mappings,
                     envelope,
                     CONTAINER
-            )
+                )
         )
-            .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
-            .hasMessage("Container, PO Box and jurisdiction mismatch. Jurisdiction: wrong, PO Box: SAMPLE PO BOX 1, container: container");
+                .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
+                .hasMessage("Container, PO Box and jurisdiction mismatch. Jurisdiction: wrong, PO Box: SAMPLE PO BOX 1, container: container");
     }
 
     @Test
@@ -599,12 +641,14 @@ class EnvelopeValidatorTest {
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_1.toUpperCase());
 
+        final List<ContainerMappings.Mapping> mappings = singletonList(m);
+
         // when
         // then
         assertDoesNotThrow(() ->
                 envelopeValidator.assertServiceEnabled(
                         envelope,
-                        singletonList(m)
+                        mappings
                 )
         );
     }
@@ -622,12 +666,14 @@ class EnvelopeValidatorTest {
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
+        final List<ContainerMappings.Mapping> mappings = singletonList(m);
+
         // when
         // then
         assertDoesNotThrow(() ->
                 envelopeValidator.assertServiceEnabled(
                         envelope,
-                        singletonList(m)
+                        mappings
                 )
         );
     }
@@ -645,12 +691,14 @@ class EnvelopeValidatorTest {
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
+        final List<ContainerMappings.Mapping> mappings = singletonList(m);
+
         // when
         // then
         assertThatThrownBy(
             () -> envelopeValidator.assertServiceEnabled(
                     envelope,
-                    singletonList(m)
+                    mappings
             )
         )
             .isInstanceOf(ServiceDisabledException.class)

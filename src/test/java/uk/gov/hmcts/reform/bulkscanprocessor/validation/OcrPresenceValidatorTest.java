@@ -27,50 +27,62 @@ class OcrPresenceValidatorTest {
 
     @Test
     void should_throw_exception_if_multiple_docs_contain_ocr() {
+        final List<InputScannableItem> docs = asList(
+                doc(FORM, new InputOcrData()),
+                doc(OTHER, new InputOcrData()),
+                doc(OTHER, null),
+                doc(CHERISHED, null)
+        );
+
         assertThatThrownBy(
-            () -> validator.assertHasProperlySetOcr(
-                asList(
-                    doc(FORM, new InputOcrData()),
-                    doc(OTHER, new InputOcrData()),
-                    doc(OTHER, null),
-                    doc(CHERISHED, null)
+            () ->
+                validator.assertHasProperlySetOcr(
+                        docs
                 )
-            ))
+            )
             .isInstanceOf(OcrPresenceException.class)
             .hasMessage(OcrPresenceValidator.MULTIPLE_OCR_MSG);
     }
 
     @Test
     void should_throw_an_exception_when_form_has_no_ocr() {
+        final List<InputScannableItem> docs = asList(
+                doc(FORM, null),
+                doc(OTHER, null),
+                doc(OTHER, null),
+                doc(CHERISHED, null)
+        );
+
         assertThatThrownBy(
-            () -> validator.assertHasProperlySetOcr(
-                asList(
-                    doc(FORM, null),
-                    doc(OTHER, null),
-                    doc(OTHER, null),
-                    doc(CHERISHED, null)
+            () ->
+                validator.assertHasProperlySetOcr(
+                        docs
                 )
-            ))
+            )
             .isInstanceOf(OcrPresenceException.class)
             .hasMessage(OcrPresenceValidator.MISSING_OCR_MSG);
     }
 
     @Test
     void should_throw_an_exception_when_a_doc_that_is_not_form_or_sscs1_has_ocr() {
+        List<InputScannableItem> docs = asList(
+                doc(FORM, null),
+                doc(OTHER, new InputOcrData()),
+                doc(OTHER, null),
+                doc(CHERISHED, null)
+        );
+
         EnumSet
             .allOf(InputDocumentType.class)
             .stream()
             .filter(docType -> !OcrPresenceValidator.OCR_DOC_TYPES.contains(docType))
             .forEach(invalidDocType -> {
                 assertThatThrownBy(
-                    () -> validator.assertHasProperlySetOcr(
-                        asList(
-                            doc(FORM, null),
-                            doc(OTHER, new InputOcrData()),
-                            doc(OTHER, null),
-                            doc(CHERISHED, null)
+                    () ->
+                        validator.assertHasProperlySetOcr(
+                                docs
                         )
-                    ))
+                    )
                     .isInstanceOf(OcrPresenceException.class)
                     .hasMessage(OcrPresenceValidator.MISPLACED_OCR_MSG);
             });
@@ -78,14 +90,18 @@ class OcrPresenceValidatorTest {
 
     @Test
     void should_throw_exception_doc_with_ocr_has_no_subtype() {
+        List<InputScannableItem> docs = asList(
+                doc(FORM, null, new InputOcrData()), // missing subtype
+                doc(OTHER, "some-subtype-1", null),
+                doc(CHERISHED, "some-subtype-2", null)
+        );
+
         assertThatThrownBy(
-            () -> validator.assertHasProperlySetOcr(
-                asList(
-                    doc(FORM, null, new InputOcrData()), // missing subtype
-                    doc(OTHER, "some-subtype-1", null),
-                    doc(CHERISHED, "some-subtype-2", null)
+            () ->
+                validator.assertHasProperlySetOcr(
+                        docs
                 )
-            ))
+            )
             .isInstanceOf(OcrPresenceException.class)
             .hasMessage(OcrPresenceValidator.MISSING_DOC_SUBTYPE_MSG);
     }
