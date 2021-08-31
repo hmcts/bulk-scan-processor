@@ -19,10 +19,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 
-public class CsvWriterTest {
+class CsvWriterTest {
 
     @Test
-    public void should_return_csv_file_with_headers_and_csv_records() throws IOException {
+    void should_return_csv_file_with_headers_and_csv_records() throws IOException {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
 
@@ -118,7 +118,7 @@ public class CsvWriterTest {
     }
 
     @Test
-    public void should_return_csv_file_with_only_headers_when_the_data_is_null() throws IOException {
+    void should_return_csv_file_with_only_headers_when_the_data_is_null() throws IOException {
         //when
         File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv(null);
 

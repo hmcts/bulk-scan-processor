@@ -20,7 +20,7 @@ import static org.mockito.BDDMockito.reset;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class FlywayNoOpStrategyTest {
+class FlywayNoOpStrategyTest {
 
     @Mock
     private Flyway flyway;
@@ -34,12 +34,12 @@ public class FlywayNoOpStrategyTest {
     private final FlywayMigrationStrategy strategy = new FlywayNoOpStrategy();
 
     @AfterAll
-    public void tearUp() {
+    void tearDown() {
         reset(flyway, infoService, info);
     }
 
     @Test
-    public void should_not_throw_exception_when_all_migrations_are_applied() {
+    void should_not_throw_exception_when_all_migrations_are_applied() {
         MigrationInfo[] infos = { info, info };
         given(flyway.info()).willReturn(infoService);
         given(infoService.all()).willReturn(infos);
@@ -50,7 +50,7 @@ public class FlywayNoOpStrategyTest {
     }
 
     @Test
-    public void should_throw_exception_when_one_migration_is_pending() {
+    void should_throw_exception_when_one_migration_is_pending() {
         MigrationInfo[] infos = { info, info };
         given(flyway.info()).willReturn(infoService);
         given(infoService.all()).willReturn(infos);

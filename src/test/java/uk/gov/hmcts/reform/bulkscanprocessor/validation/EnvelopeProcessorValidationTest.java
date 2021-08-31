@@ -30,19 +30,19 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.payment;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.InputEnvelopeCreator.scannableItem;
 
-public class EnvelopeProcessorValidationTest {
+class EnvelopeProcessorValidationTest {
 
     private static final String SAMPLE_URL = "https://example.com/";
 
     private EnvelopeValidator envelopeValidator;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         envelopeValidator = new EnvelopeValidator();
     }
 
     @Test
-    public void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
+    void should_throw_exception_when_zip_file_contains_fewer_pdfs() throws Exception {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -65,7 +65,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_zip_file_contains_more_pdfs() throws Exception {
+    void should_throw_exception_when_zip_file_contains_more_pdfs() throws Exception {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -92,7 +92,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_zip_file_has_mismatching_pdf() throws Exception {
+    void should_throw_exception_when_zip_file_has_mismatching_pdf() throws Exception {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -121,7 +121,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_multiple_scannable_items_refer_to_single_pdf() {
+    void should_throw_exception_when_multiple_scannable_items_refer_to_single_pdf() {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -148,7 +148,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_document_control_numbers_are_not_unique() {
+    void should_throw_exception_when_document_control_numbers_are_not_unique() {
         // given
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
@@ -173,7 +173,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_required_documents_are_missing() throws Exception {
+    void should_throw_exception_when_required_documents_are_missing() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
             "poBox",
@@ -193,7 +193,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_required_documents_dont_have_ocr() throws Exception {
+    void should_throw_exception_when_required_documents_dont_have_ocr() throws Exception {
         SoftAssertions softly = new SoftAssertions();
         Stream.of(InputDocumentType.FORM, InputDocumentType.SSCS1)
             .forEach(type -> {
@@ -219,7 +219,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_not_throw_exception_when_ocr_data_is_not_required() throws Exception {
+    void should_not_throw_exception_when_ocr_data_is_not_required() throws Exception {
         InputEnvelope envelope = inputEnvelope(
             "SSCS",
             "poBox",
@@ -238,7 +238,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_not_throw_exception_when_ocr_data_is_not_missing() throws Exception {
+    void should_not_throw_exception_when_ocr_data_is_not_missing() throws Exception {
         InputOcrData ocrData = new InputOcrData();
         InputOcrDataField field = new InputOcrDataField(new TextNode("name1"), new TextNode("value1"));
         ocrData.setFields(singletonList(field));
@@ -260,7 +260,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_jurisdiction_poBox_and_container_dont_match() {
+    void should_throw_an_exception_when_jurisdiction_poBox_and_container_dont_match() {
         // given
         InputEnvelope envelope = inputEnvelope("test_jurisdiction");
         String container = "container_not_matching_jurisdiction";
@@ -276,7 +276,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_zip_filename_does_not_match_with_metadata() {
+    void should_throw_an_exception_when_zip_filename_does_not_match_with_metadata() {
         // given
         InputEnvelope envelope = inputEnvelope("test_jurisdiction"); // metadata zip file name "file.zip"
 
@@ -292,7 +292,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_poBox_doesnt_match_with_jurisdiction_and_container() {
+    void should_throw_an_exception_when_poBox_doesnt_match_with_jurisdiction_and_container() {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "abc";
@@ -309,7 +309,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_jurisdiction_doesnt_match_with_poBox_and_container() {
+    void should_throw_an_exception_when_jurisdiction_doesnt_match_with_poBox_and_container() {
         // given
         InputEnvelope envelope = inputEnvelope("ABC", "test_poBox");
         String container = "test";
@@ -327,7 +327,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_not_throw_an_exception_when_jurisdiction_poBox_and_container_match() {
+    void should_not_throw_an_exception_when_jurisdiction_poBox_and_container_match() {
         // given
         InputEnvelope envelope = inputEnvelope("Aaa");
         String container = "AaA";
@@ -345,7 +345,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_payments_present_but_payment_processing_disabled() {
+    void should_throw_an_exception_when_payments_present_but_payment_processing_disabled() {
         // given
         InputEnvelope envelope = inputEnvelope(
             "ABC",
@@ -368,7 +368,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_an_exception_when_payments_present_but_disabled_for_container() {
+    void should_throw_an_exception_when_payments_present_but_disabled_for_container() {
         // given
         InputEnvelope envelope = inputEnvelope(
             "ABC",
@@ -391,7 +391,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_required_documents_missing_for_supplementary_evidence_with_ocr() {
+    void should_throw_exception_when_required_documents_missing_for_supplementary_evidence_with_ocr() {
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
             "bulkscanpo",
@@ -411,7 +411,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_when_ocr_data_is_missing_for_supplementary_evidence_with_ocr() {
+    void should_throw_exception_when_ocr_data_is_missing_for_supplementary_evidence_with_ocr() {
         InputEnvelope envelope = inputEnvelope(
             "BULKSCAN",
             "bulkscanpo",
@@ -430,7 +430,7 @@ public class EnvelopeProcessorValidationTest {
     }
 
     @Test
-    public void should_throw_exception_for_disabled_service() {
+    void should_throw_exception_for_disabled_service() {
         // given
         InputEnvelope envelope = inputEnvelope("DISABLED_SERVICE", "test_poBox");
         String container = "abc";

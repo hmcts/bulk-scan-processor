@@ -11,19 +11,19 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-public class MetafileJsonValidatorTestForInvalidFiles {
+class MetafileJsonValidatorTestForInvalidFiles {
 
     private static final String SAMPLE_ZIP_FILE_NAME = "zip-file-123";
 
     private MetafileJsonValidator validator;
 
     @BeforeEach
-    public void setUp() throws IOException, ProcessingException {
+    void setUp() throws IOException, ProcessingException {
         validator = new MetafileJsonValidator();
     }
 
     @Test
-    public void should_not_parse_envelope_with_no_scannable_items_in() throws IOException {
+    void should_not_parse_envelope_with_no_scannable_items_in() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/no-scannables.json");
 
@@ -40,7 +40,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_unknown_properties() throws IOException {
+    void should_not_parse_envelope_with_unknown_properties() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/unrecognised-fields.json");
 
@@ -59,7 +59,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_missing_top_level_fields() throws IOException {
+    void should_not_parse_envelope_with_missing_top_level_fields() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/missing-top-level-fields.json");
 
@@ -84,7 +84,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     //    object has missing required properties (["scanning_date"])
     //    object has missing required properties (["document_type","file_name"])
     @Test
-    public void should_not_parse_envelope_with_missing_required_fields() throws IOException {
+    void should_not_parse_envelope_with_missing_required_fields() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/missing-required-fields.json");
 
@@ -108,7 +108,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_invalid_date_format() throws IOException {
+    void should_not_parse_envelope_with_invalid_date_format() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-date-format.json");
 
@@ -129,7 +129,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_invalid_zip_file_name_format() throws IOException {
+    void should_not_parse_envelope_with_invalid_zip_file_name_format() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-zip-file-name-format.json");
 
@@ -145,7 +145,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_wrong_enum_for_classification_provided() throws IOException {
+    void should_not_parse_envelope_with_wrong_enum_for_classification_provided() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/enum-boundaries-for-clasification.json");
 
@@ -166,7 +166,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_wrong_enum_for_document_type_provided() throws IOException {
+    void should_not_parse_envelope_with_wrong_enum_for_document_type_provided() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/enum-boundaries-for-document-type.json");
 
@@ -186,7 +186,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_specified_non_pdf_file() throws IOException {
+    void should_not_parse_envelope_with_specified_non_pdf_file() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/non-pdf-extension.json");
 
@@ -202,7 +202,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_no_required_fields_in_scannable_items() throws IOException {
+    void should_not_parse_envelope_with_no_required_fields_in_scannable_items() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-scannable-items.json");
 
@@ -221,7 +221,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_no_required_fields_in_non_scannable_items() throws IOException {
+    void should_not_parse_envelope_with_no_required_fields_in_non_scannable_items() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-non-scannable-items.json");
 
@@ -241,7 +241,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_duplicate_payment_dcn_numbers() throws Exception {
+    void should_not_parse_envelope_with_duplicate_payment_dcn_numbers() throws Exception {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/duplicate-payment-dcns.json");
 
@@ -259,7 +259,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_invalid_zip_file_name_in_rescan_for_property() throws IOException {
+    void should_not_parse_envelope_with_invalid_zip_file_name_in_rescan_for_property() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/invalid-rescan-for-zip-file-name-format.json");
 
@@ -275,7 +275,7 @@ public class MetafileJsonValidatorTestForInvalidFiles {
     }
 
     @Test
-    public void should_not_parse_envelope_with_long_case_num() throws IOException {
+    void should_not_parse_envelope_with_long_case_num() throws IOException {
         // given
         byte[] metafile = getMetafile("/metafiles/invalid/long-case-number.json");
 

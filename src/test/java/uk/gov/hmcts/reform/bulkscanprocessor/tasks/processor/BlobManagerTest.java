@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
-public class BlobManagerTest {
+class BlobManagerTest {
 
     private static final String INPUT_CONTAINER_NAME = "container-name";
     private static final String REJECTED_CONTAINER_NAME = INPUT_CONTAINER_NAME + "-rejected";
@@ -69,12 +69,12 @@ public class BlobManagerTest {
     private BlobManager blobManager;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
     }
 
     @Test
-    public void listContainer_retrieves_container_from_client() {
+    void listContainer_retrieves_container_from_client() {
         BlobContainerClient expectedContainer = mock(BlobContainerClient.class);
         String containerName = "container-name";
 
@@ -115,7 +115,7 @@ public class BlobManagerTest {
     }
 
     @Test
-    public void listRejectedContainers_retrieves_rejected_containers_only() {
+    void listRejectedContainers_retrieves_rejected_containers_only() {
         // given
         List<BlobContainerItem> allContainers = Arrays.asList(
             mockBlobContainerItem("test1"),
