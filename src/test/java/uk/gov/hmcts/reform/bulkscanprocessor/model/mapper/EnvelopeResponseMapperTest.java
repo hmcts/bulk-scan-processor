@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.mapper;
 
+import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -24,9 +25,14 @@ class EnvelopeResponseMapperTest {
         EnvelopeResponse response = EnvelopeResponseMapper.toEnvelopeResponse(envelope);
 
         assertThat(response)
-            .usingComparatorForFields(
-                new ToStringComparator<Classification>(), new String[]{"classification"}
+            .usingRecursiveComparison(
+                RecursiveComparisonConfiguration
+                    .builder()
+                    .withComparatorForFields(
+                        new ToStringComparator<Classification>(),
+                        new String[]{"classification"}
+                    ).build()
             )
-            .isEqualToComparingFieldByFieldRecursively(envelope);
+            .ignoringFields("scannableItems.hasOcrData").isEqualTo(envelope);
     }
 }

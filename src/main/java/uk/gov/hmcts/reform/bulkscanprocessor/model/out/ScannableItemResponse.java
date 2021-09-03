@@ -44,6 +44,9 @@ public class ScannableItemResponse {
     @JsonProperty("document_subtype")
     public final String documentSubtype;
 
+    @JsonProperty("has_ocr_data")
+    public final boolean hasOcrData;
+
     @JsonCreator
     public ScannableItemResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
@@ -57,7 +60,8 @@ public class ScannableItemResponse {
         @JsonProperty("file_name") String fileName,
         @JsonProperty("document_uuid") String documentUuid,
         @JsonProperty("document_type") DocumentType documentType,
-        @JsonProperty("document_subtype") String documentSubtype
+        @JsonProperty("document_subtype") String documentSubtype,
+        @JsonProperty("has_ocr_data") boolean hasOcrData
     ) {
         this.documentControlNumber = documentControlNumber;
         this.scanningDate = scanningDate;
@@ -69,6 +73,7 @@ public class ScannableItemResponse {
         this.documentUuid = documentUuid;
         this.documentType = documentType;
         this.documentSubtype = documentSubtype;
+        this.hasOcrData = hasOcrData;
     }
 
     @Override
