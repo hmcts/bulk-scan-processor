@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public final class EnvelopeResponseMapper {
 
@@ -78,7 +79,8 @@ public final class EnvelopeResponseMapper {
             scannableItem.getFileName(),
             scannableItem.getDocumentUuid(),
             scannableItem.getDocumentType(),
-            scannableItem.getDocumentSubtype()
+            scannableItem.getDocumentSubtype(),
+            scannableItem.getOcrData() != null && !isEmpty(scannableItem.getOcrData().fields)
         );
     }
 
