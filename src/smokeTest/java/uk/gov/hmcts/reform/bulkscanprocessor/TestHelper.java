@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
@@ -200,15 +201,18 @@ public class TestHelper {
                 .relaxedHTTPSValidation()
                 .baseUri(baseUrl)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
                 .when()
                 .get("/envelopes/{container}/{fileName}", container, fileName)
                 .andReturn();
 
-        return response.getStatusCode() == 404
-            ? null
-            : response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
+        try {
+            return response.getStatusCode() == 404
+                ? null
+                : new ObjectMapper().readValue(response.getBody().asString(), EnvelopeResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("parse error" + response.getBody().asString(), e);
+        }
     }
 
     private void assertSuccessfulEnvelopesResponse(Response response) {
