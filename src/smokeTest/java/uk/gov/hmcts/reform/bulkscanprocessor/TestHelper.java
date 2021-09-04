@@ -200,6 +200,7 @@ public class TestHelper {
                 .relaxedHTTPSValidation()
                 .baseUri(baseUrl)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, TEST_SOURCE_NAME)
                 .when()
                 .get("/envelopes/{container}/{fileName}", container, fileName)
