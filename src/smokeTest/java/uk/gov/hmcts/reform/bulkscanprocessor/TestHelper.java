@@ -4,7 +4,6 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
@@ -14,8 +13,6 @@ import io.restassured.RestAssured;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.assertj.core.api.SoftAssertions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -39,8 +36,6 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestHelper {
-
-    private static final Logger log = LoggerFactory.getLogger(TestHelper.class);
 
     private static final String TEST_SOURCE_NAME = "Bulk Scan Processor tests";
     private static final Random RANDOM = new Random();
@@ -210,15 +205,9 @@ public class TestHelper {
                 .get("/envelopes/{container}/{fileName}", container, fileName)
                 .andReturn();
 
-
-        try {
-            log.info("response.getBody().asString {} ", response.getBody().asString());
-            return response.getStatusCode() == 404
-                ? null
-                : new ObjectMapper().readValue(response.getBody().asString(), EnvelopeResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("parse error" + response.getBody().asString(), e);
-        }
+        return response.getStatusCode() == 404
+            ? null
+            : response.getBody().as(EnvelopeResponse.class, ObjectMapperType.JACKSON_2);
     }
 
     private void assertSuccessfulEnvelopesResponse(Response response) {
