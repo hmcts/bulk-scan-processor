@@ -189,12 +189,11 @@ public class TestHelper {
         return deserialisedResponse;
     }
 
-    public EnvelopeResponse getEnvelopeByContainerAndFileName(
+    public EnvelopeResponse queryEnvelopeByContainerAndFileName(
         String baseUrl,
         String container,
         String fileName
     ) {
-
         Response response =
             RestAssured
                 .given()
@@ -205,7 +204,6 @@ public class TestHelper {
                 .when()
                 .get("/envelopes/{container}/{fileName}", container, fileName)
                 .andReturn();
-
 
         return response.getStatusCode() == 404
             ? null
