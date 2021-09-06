@@ -65,5 +65,7 @@ public class OrchestratorNotificationService {
     private void updateStatus(Envelope envelope) {
         envelope.setStatus(Status.NOTIFICATION_SENT);
         envelopeRepo.saveAndFlush(envelope);
+
+        log.info("Envelope {} status chaged to NOTIFICATION_SENT", envelope.getZipFileName());
     }
 }
