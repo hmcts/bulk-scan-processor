@@ -71,12 +71,12 @@ public abstract class BaseFunctionalTest {
             .until(
                 () -> {
                     var envelope
-                        = testHelper.queryEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, fileName);
+                        = testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, fileName);
                     return envelope != null && awaitedStatuses.contains(envelope.getStatus());
                 }
             );
 
-        EnvelopeResponse envelope = testHelper.queryEnvelopeByContainerAndFileName(
+        EnvelopeResponse envelope = testHelper.getEnvelopeByContainerAndFileName(
             TEST_URL,
             STORAGE_CONTAINER_NAME,
             fileName

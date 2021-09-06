@@ -88,7 +88,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private Boolean hasNotificationBeenSent(String zipFilename) {
-        var envelope = testHelper.queryEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
+        var envelope = testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
         return envelope != null && COMPLETED_OR_NOTIFICATION_SENT.contains(envelope.getStatus());
         // Ideally, we'd like to wait until the envelope is in NOTIFICATION_SENT status,
         // but there's a risk of it becoming completed if there's an orchestrator working
@@ -109,7 +109,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     private EnvelopeResponse getEnvelope(String zipFilename) {
-        return testHelper.queryEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
+        return testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
     }
 
     //unknown fields should be ignored

@@ -189,7 +189,7 @@ public class TestHelper {
         return deserialisedResponse;
     }
 
-    public EnvelopeResponse queryEnvelopeByContainerAndFileName(
+    public EnvelopeResponse getEnvelopeByContainerAndFileName(
         String baseUrl,
         String container,
         String fileName
