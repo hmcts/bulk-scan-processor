@@ -127,6 +127,8 @@ public class EnvelopeProcessor {
         envelope.setStatus(UPLOAD_FAILURE);
 
         envelopeRepository.saveAndFlush(envelope);
+
+        log.info("Envelope {} status changed to UPLOAD_FAILURE", envelope.getZipFileName());
     }
 
     public long createEvent(Event event, String containerName, String zipFileName, String reason, UUID envelopeId) {
@@ -158,6 +160,8 @@ public class EnvelopeProcessor {
         Status.fromEvent(event).ifPresent(status -> {
             envelope.setStatus(status);
             envelopeRepository.saveAndFlush(envelope);
+
+            log.info("Envelope {} status changed to {}", envelope.getZipFileName(), status.name());
         });
     }
 

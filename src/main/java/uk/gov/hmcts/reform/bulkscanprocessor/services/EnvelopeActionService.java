@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_ST
 
 @Service
 public class EnvelopeActionService {
+    private static final Logger log = LoggerFactory.getLogger(EnvelopeActionService.class);
+
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final long notificationTimeoutHr;
@@ -58,6 +62,8 @@ public class EnvelopeActionService {
 
         envelope.setStatus(UPLOADED);
         envelopeRepository.save(envelope);
+
+        log.info("Envelope {} status chaged to UPLOADED", envelope.getZipFileName());
     }
 
     @Transactional
@@ -77,6 +83,8 @@ public class EnvelopeActionService {
 
         envelope.setStatus(COMPLETED);
         envelopeRepository.save(envelope);
+
+        log.info("Envelope {} status chaged to COMPLETED", envelope.getZipFileName());
     }
 
     private void createEvent(Envelope envelope, Event event, String reason) {
