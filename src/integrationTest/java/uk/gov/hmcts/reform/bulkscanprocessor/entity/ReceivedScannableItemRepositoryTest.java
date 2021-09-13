@@ -18,7 +18,6 @@ import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
