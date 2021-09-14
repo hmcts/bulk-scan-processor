@@ -9,11 +9,18 @@
     <cve>CVE-2018-9116</cve>
     <cve>CVE-2018-9117</cve>
   </suppress>
-  <suppress until="2021-09-02">
-   <notes><![CDATA[
-   file name: hibernate-validator-6.2.0.Final.jar
+  <suppress until="2021-12-02">
+    <notes><![CDATA[
+   file name: tomcat-embed-core-9.0.52.jar
    ]]></notes>
-   <packageUrl regex="true">^pkg:maven/org\.hibernate\.validator/hibernate\-validator@.*$</packageUrl>
-   <vulnerabilityName>CVE-2020-10693</vulnerabilityName>
-</suppress>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
+    <cve>CVE-2020-0822</cve>
+  </suppress>
+  <suppress until="2021-12-02">
+    <notes><![CDATA[
+   file name: tomcat-embed-websocket-9.0.52.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
+    <cve>CVE-2020-0822</cve>
+  </suppress>
 </suppressions>
