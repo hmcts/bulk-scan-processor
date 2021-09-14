@@ -328,6 +328,8 @@ dependencies {
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured'
+  smokeTestCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
+
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.1'
 
   contractTestImplementation sourceSets.main.runtimeClasspath
