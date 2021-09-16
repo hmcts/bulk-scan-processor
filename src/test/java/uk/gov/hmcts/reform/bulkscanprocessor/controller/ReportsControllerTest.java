@@ -572,4 +572,20 @@ class ReportsControllerTest {
                                 + "}"
                 ));
     }
+
+    @Test
+    void should_handle_no_received_scannable_items() throws Exception {
+        given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
+                .willReturn(emptyList());
+
+        mockMvc
+                .perform(get("/reports/received-scannable-items?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'total': 0,"
+                                + "'received_scannable_items': []"
+                                + "}"
+                ));
+    }
 }
