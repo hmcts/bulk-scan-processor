@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFileItem;
@@ -79,6 +81,9 @@ class ReportsControllerTest {
 
     @MockBean
     private RejectedZipFilesService rejectedZipFilesService;
+
+    @MockBean
+    private ReceivedScannableItemsService receivedScannableItemsService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -528,6 +533,40 @@ class ReportsControllerTest {
                                 + "    'processing_started_date_time': '2021-04-16T09:01:44.029',"
                                 + "    'envelope_id': '" + uuid2 + "',"
                                 + "    'event': 'DOC_SIGNATURE_FAILURE'"
+                                + "  }"
+                                + "]"
+                                + "}"
+                ));
+    }
+
+    @Test
+    void should_return_received_scannable_items() throws Exception {
+        given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
+                .willReturn(asList(
+                        new ReceivedScannableItemItem(
+                                "A",
+                                3
+                        ),
+                        new ReceivedScannableItemItem(
+                                "B",
+                                5
+                        )
+                ));
+
+        mockMvc
+                .perform(get("/reports/received-scannable-items?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'total': 8,"
+                                + "'received_scannable_items': ["
+                                + "  {"
+                                + "    'container': 'A',"
+                                + "    'count': 3"
+                                + "  },"
+                                + "  {"
+                                + "    'container': 'B',"
+                                + "    'count': 5"
                                 + "  }"
                                 + "]"
                                 + "}"

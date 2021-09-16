@@ -12,22 +12,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.RejectedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.DiscrepancyItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReceivedScannableItemsResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedZipFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFilesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedScannableItemsData;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedZipFileData;
@@ -41,6 +45,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
@@ -54,18 +59,21 @@ public class ReportsController {
     private final RejectedFilesReportService rejectedFilesReportService;
     private final RejectedZipFilesService rejectedZipFilesService;
     private final ReconciliationService reconciliationService;
+    private final ReceivedScannableItemsService receivedScannableItemsService;
 
     // region constructor
     public ReportsController(
             ReportsService reportsService,
             RejectedFilesReportService rejectedFilesReportService,
             RejectedZipFilesService rejectedZipFilesService,
-            ReconciliationService reconciliationService
+            ReconciliationService reconciliationService,
+            ReceivedScannableItemsService receivedScannableItemsService
     ) {
         this.reportsService = reportsService;
         this.rejectedFilesReportService = rejectedFilesReportService;
         this.rejectedZipFilesService = rejectedZipFilesService;
         this.reconciliationService = reconciliationService;
+        this.receivedScannableItemsService = receivedScannableItemsService;
     }
     // endregion
 
@@ -181,6 +189,30 @@ public class ReportsController {
                     item.actual
                 ))
                 .collect(toList())
+        );
+    }
+
+    @GetMapping(path = "/received-scannable-items", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Retrieves scannable items")
+    public ReceivedScannableItemsResponse getReceivedScannableItems(
+            @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
+    ) {
+        List<ReceivedScannableItem> result = receivedScannableItemsService.getReceivedScannableItems(date);
+        AtomicInteger total = new AtomicInteger(0);
+        List<ReceivedScannableItemsData> receivedScannableItems = result
+                .stream()
+                .map(file -> {
+                    total.addAndGet(file.getCount());
+                    return new ReceivedScannableItemsData(
+                                    file.getContainer(),
+                                    file.getCount()
+                            );
+                        }
+                )
+                .collect(toList());
+        return new ReceivedScannableItemsResponse(
+                total.get(),
+                receivedScannableItems
         );
     }
 
