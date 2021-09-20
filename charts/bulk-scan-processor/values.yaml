@@ -46,6 +46,8 @@ java:
     QUEUE_NOTIFICATIONS_NAME: "notifications"
     QUEUE_NOTIFICATIONS_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
     NOTIFICATION_STALE_TIMEOUT_HR: 48
+    IDAM_API_URL: "https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net"
+    IDAM_CLIENT_REDIRECT_URI: "https://bulk-scan-orchestrator-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
   keyVaults:
     "bulk-scan":
       secrets:
@@ -73,6 +75,32 @@ java:
           alias: SMTP_PASSWORD
         - name:  reports-recipients
           alias: REPORTS_RECIPIENTS
+        - name: idam-client-secret
+          alias: IDAM_CLIENT_SECRET
+        - name: idam-users-bulkscan-username
+          alias: idam.users.bulkscan.username
+        - name: idam-users-bulkscan-password
+          alias: idam.users.bulkscan.password
+        - name: idam-users-cmc-username
+          alias: idam.users.cmc.username
+        - name: idam-users-cmc-password
+          alias: idam.users.cmc.password
+        - name: idam-users-div-username
+          alias: idam.users.divorce.username
+        - name: idam-users-div-password
+          alias: idam.users.divorce.password
+        - name: idam-users-probate-username
+          alias: idam.users.probate.username
+        - name: idam-users-probate-password
+          alias: idam.users.probate.password
+        - name: idam-users-publiclaw-username
+          alias: idam.users.publiclaw.username
+        - name: idam-users-publiclaw-password
+          alias: idam.users.publiclaw.password
+        - name: idam-users-sscs-username
+          alias: idam.users.sscs.username
+        - name: idam-users-sscs-password
+          alias: idam.users.sscs.password
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 servicebus:
   enabled: false

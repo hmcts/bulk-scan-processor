@@ -26,6 +26,32 @@ java:
           alias: SMTP_PASSWORD
         - name:  reports-recipients
           alias: REPORTS_RECIPIENTS
+        - name: idam-client-secret
+          alias: IDAM_CLIENT_SECRET
+        - name: idam-users-bulkscan-username
+          alias: idam.users.bulkscan.username
+        - name: idam-users-bulkscan-password
+          alias: idam.users.bulkscan.password
+        - name: idam-users-cmc-username
+          alias: idam.users.cmc.username
+        - name: idam-users-cmc-password
+          alias: idam.users.cmc.password
+        - name: idam-users-div-username
+          alias: idam.users.divorce.username
+        - name: idam-users-div-password
+          alias: idam.users.divorce.password
+        - name: idam-users-probate-username
+          alias: idam.users.probate.username
+        - name: idam-users-probate-password
+          alias: idam.users.probate.password
+        - name: idam-users-publiclaw-username
+          alias: idam.users.publiclaw.username
+        - name: idam-users-publiclaw-password
+          alias: idam.users.publiclaw.password
+        - name: idam-users-sscs-username
+          alias: idam.users.sscs.username
+        - name: idam-users-sscs-password
+          alias: idam.users.sscs.password
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

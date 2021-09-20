@@ -50,6 +50,13 @@ java:
       secrets:
         - name: s2s-secret
           alias: S2S_SECRET
+        - name: idam-client-secret
+          alias: IDAM_CLIENT_SECRET
+        - name: idam-users-bulkscan-username
+          alias: idam.users.bulkscan.username
+        - name: idam-users-bulkscan-password
+          alias: idam.users.bulkscan.password
+
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
