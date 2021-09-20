@@ -22,4 +22,17 @@ public interface ReceivedScannableItemRepository extends JpaRepository<Envelope,
                     + "GROUP BY e.container"
     )
     List<ReceivedScannableItem> getReceivedScannableItemsFor(@Param("date") LocalDate date);
+
+    @Query(
+            nativeQuery = true,
+            value = "SELECT COUNT(*) AS COUNT, e.container, s.documenttype "
+                    + "FROM scannable_items s "
+                    + "LEFT JOIN envelopes e "
+                    + "ON s.envelope_id=e.id "
+                    + "WHERE date(s.scanningdate) = :date "
+                    + "GROUP BY e.container, s.documenttype"
+    )
+    List<ReceivedScannableItemPerDocumentType> getReceivedScannableItemsPerDocumentTypeFor(
+            @Param("date") LocalDate date
+    );
 }
