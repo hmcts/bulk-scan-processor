@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItemPerDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItemRepository;
 
 import java.time.LocalDate;
@@ -18,5 +19,9 @@ public class ReceivedScannableItemsService {
 
     public List<ReceivedScannableItem> getReceivedScannableItems(LocalDate date) {
         return receivedScannableItemRepository.getReceivedScannableItemsFor(date);
+    }
+
+    public List<ReceivedScannableItemPerDocumentType> getReceivedScannableItemsPerDocumentType(LocalDate date) {
+        return receivedScannableItemRepository.getReceivedScannableItemsPerDocumentTypeFor(date);
     }
 }
