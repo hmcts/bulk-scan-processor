@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItemPerDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItemRepository;
 
 import java.time.LocalDate;
@@ -16,6 +17,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.CHERISHED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
 
 @ExtendWith(MockitoExtension.class)
 class ReceivedScannableItemsServiceTest {
@@ -59,6 +62,41 @@ class ReceivedScannableItemsServiceTest {
         // then
         assertThatThrownBy(
             () -> receivedScannableItemsService.getReceivedScannableItems(date)
+        )
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("msg");
+    }
+
+    @Test
+    void should_return_received_scannable_items_per_document_type() {
+        // given
+        LocalDate date = LocalDate.now();
+        List<ReceivedScannableItemPerDocumentType> receivedScannableItems = asList(
+                new ReceivedScannableItemPerDocumentTypeItem("c1", OTHER.toString(), 3),
+                new ReceivedScannableItemPerDocumentTypeItem("c2", CHERISHED.toString(),4)
+        );
+        given(receivedScannableItemRepository.getReceivedScannableItemsPerDocumentTypeFor(date))
+                .willReturn(receivedScannableItems);
+
+        // when
+        List<ReceivedScannableItemPerDocumentType> res =
+                receivedScannableItemsService.getReceivedScannableItemsPerDocumentType(date);
+
+        // then
+        assertThat(res).isSameAs(receivedScannableItems);
+    }
+
+    @Test
+    void should_rethrow_exception_for_scannable_items_per_document_type() {
+        // given
+        LocalDate date = LocalDate.now();
+        given(receivedScannableItemRepository.getReceivedScannableItemsPerDocumentTypeFor(date))
+                .willThrow(new EntityNotFoundException("msg"));
+
+        // when
+        // then
+        assertThatThrownBy(
+            () -> receivedScannableItemsService.getReceivedScannableItemsPerDocumentType(date)
         )
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessage("msg");
