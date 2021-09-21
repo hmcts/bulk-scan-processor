@@ -155,8 +155,7 @@ class AuthenticationCheckerTest {
             .containsExactlyInAnyOrder(
                 tuple(SUCCESSFUL_JURISDICTION, true, null),
                 tuple(LOCKED_ACCOUNT_JURISDICTION, false, HttpStatus.LOCKED.value())
-            )
-            .withFailMessage("Result should contain a correct entry for each configured jurisdiction");
+            );
     }
 
     private FeignException createFeignException(int httpStatus) {
