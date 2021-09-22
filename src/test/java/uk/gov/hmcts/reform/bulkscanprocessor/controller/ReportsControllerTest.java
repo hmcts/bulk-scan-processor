@@ -639,6 +639,40 @@ class ReportsControllerTest {
     }
 
     @Test
+    void should_return_received_scannable_items_per_document_type_false() throws Exception {
+        given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
+                .willReturn(asList(
+                        new ReceivedScannableItemItem(
+                                "A",
+                                3
+                        ),
+                        new ReceivedScannableItemItem(
+                                "B",
+                                5
+                        )
+                ));
+
+        mockMvc
+                .perform(get("/reports/received-scannable-items?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'total': 8,"
+                                + "'received_scannable_items': ["
+                                + "  {"
+                                + "    'container': 'A',"
+                                + "    'count': 3"
+                                + "  },"
+                                + "  {"
+                                + "    'container': 'B',"
+                                + "    'count': 5"
+                                + "  }"
+                                + "]"
+                                + "}"
+                ));
+    }
+
+    @Test
     void should_handle_no_received_scannable_items_per_document_type() throws Exception {
         given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
                 .willReturn(emptyList());
