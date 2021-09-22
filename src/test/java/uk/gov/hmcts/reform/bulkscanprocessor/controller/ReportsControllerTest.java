@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemPerDocumentTypeItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
@@ -580,6 +581,70 @@ class ReportsControllerTest {
 
         mockMvc
                 .perform(get("/reports/received-scannable-items?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'total': 0,"
+                                + "'received_scannable_items': []"
+                                + "}"
+                ));
+    }
+
+    @Test
+    void should_return_received_scannable_items_per_document_type() throws Exception {
+        given(receivedScannableItemsService.getReceivedScannableItemsPerDocumentType(LocalDate.parse("2021-04-16")))
+                .willReturn(asList(
+                        new ReceivedScannableItemPerDocumentTypeItem(
+                                "A",
+                                "other",
+                                3
+                        ),
+                        new ReceivedScannableItemPerDocumentTypeItem(
+                                "A",
+                                "form",
+                                1
+                        ),
+                        new ReceivedScannableItemPerDocumentTypeItem(
+                                "B",
+                                "cherished",
+                                5
+                        )
+                ));
+
+        mockMvc
+                .perform(get("/reports/received-scannable-items?date=2021-04-16&per_document_type=true"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'total': 9,"
+                                + "'received_scannable_items': ["
+                                + "  {"
+                                + "    'container': 'A',"
+                                + "    'document_type': 'other',"
+                                + "    'count': 3"
+                                + "  },"
+                                + "  {"
+                                + "    'container': 'A',"
+                                + "    'document_type': 'form',"
+                                + "    'count': 1"
+                                + "  },"
+                                + "  {"
+                                + "    'container': 'B',"
+                                + "    'document_type': 'cherished',"
+                                + "    'count': 5"
+                                + "  }"
+                                + "]"
+                                + "}"
+                ));
+    }
+
+    @Test
+    void should_handle_no_received_scannable_items_per_document_type() throws Exception {
+        given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
+                .willReturn(emptyList());
+
+        mockMvc
+                .perform(get("/reports/received-scannable-items?date=2021-04-16&per_document_type=true"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(
                         "{"
