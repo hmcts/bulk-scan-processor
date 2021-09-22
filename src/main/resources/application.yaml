@@ -12,7 +12,7 @@ management:
     web:
       base-path: /
       exposure:
-        include: health, info
+        include: health, info, idam-config-status
   health:
     mail:
       enabled: false
