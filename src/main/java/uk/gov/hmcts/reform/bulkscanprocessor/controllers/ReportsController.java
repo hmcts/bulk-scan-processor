@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItemPerDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.RejectedZipFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.DiscrepancyItem;
@@ -32,6 +33,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedScannableItemsData;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedScannableItemsPerDocumentTypeData;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedZipFileData;
@@ -195,21 +197,42 @@ public class ReportsController {
     @GetMapping(path = "/received-scannable-items", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Retrieves scannable items")
     public ReceivedScannableItemsResponse getReceivedScannableItems(
-            @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
+            @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+            @RequestParam(name = "per_document_type", required = false) boolean perDocumentType
     ) {
-        List<ReceivedScannableItem> result = receivedScannableItemsService.getReceivedScannableItems(date);
         AtomicInteger total = new AtomicInteger(0);
-        List<ReceivedScannableItemsData> receivedScannableItems = result
-                .stream()
-                .map(file -> {
-                    total.addAndGet(file.getCount());
-                    return new ReceivedScannableItemsData(
-                                    file.getContainer(),
-                                    file.getCount()
-                            );
-                        }
-                )
-                .collect(toList());
+        List<ReceivedScannableItemsData> receivedScannableItems;
+
+        if (perDocumentType) {
+            List<ReceivedScannableItemPerDocumentType> result =
+                    receivedScannableItemsService.getReceivedScannableItemsPerDocumentType(date);
+            receivedScannableItems = result
+                    .stream()
+                    .map(scannableItem -> {
+                                total.addAndGet(scannableItem.getCount());
+                                return new ReceivedScannableItemsPerDocumentTypeData(
+                                        scannableItem.getContainer(),
+                                        scannableItem.getDocumentType(),
+                                        scannableItem.getCount()
+                                );
+                            }
+                    )
+                    .collect(toList());
+        } else {
+            List<ReceivedScannableItem> result = receivedScannableItemsService.getReceivedScannableItems(date);
+            receivedScannableItems = result
+                    .stream()
+                    .map(scannableItem -> {
+                                total.addAndGet(scannableItem.getCount());
+                                return new ReceivedScannableItemsData(
+                                        scannableItem.getContainer(),
+                                        scannableItem.getCount()
+                                );
+                            }
+                    )
+                    .collect(toList());
+        }
+
         return new ReceivedScannableItemsResponse(
                 total.get(),
                 receivedScannableItems
