@@ -210,11 +210,12 @@ dependencyCheck {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
-  junit: '5.7.2',
+  junit: '5.8.1',
   junitPlatform: '1.8.1',
   mockitoJupiter: '3.3.3',
   springfoxSwagger: '2.9.2',
-  reformLogging: '5.1.5'
+  reformLogging: '5.1.5',
+  apiguardian     : '1.0.0'
 ]
 
 dependencyManagement {
@@ -240,7 +241,8 @@ ext.libraries = [
     "org.junit.jupiter:junit-jupiter-engine:${versions.junit}",
     "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
     "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
-    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
+    "org.junit.platform:junit-platform-engine:${versions.junitPlatform}",
+    "org.apiguardian:apiguardian-api:${versions.apiguardian}"
   ]
 ]
 ext["rest-assured.version"] = '4.3.0'
