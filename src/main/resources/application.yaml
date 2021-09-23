@@ -12,7 +12,7 @@ management:
     web:
       base-path: /
       exposure:
-        include: health, info
+        include: health, info, idam-config-status
   health:
     mail:
       enabled: false
@@ -182,6 +182,12 @@ idam:
     url: ${S2S_URL:http://localhost:4552}
     secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME:bulk_scan_processor}
+  client:
+    id: 'bsp'
+    secret: ${IDAM_CLIENT_SECRET:123456}
+    redirect_uri: http://localhost/receiver
+    cache:
+      refresh-before-expire-in-sec: 300
 
 document_management:
   url: http://dm-store:4460

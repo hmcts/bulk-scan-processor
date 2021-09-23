@@ -292,6 +292,8 @@ dependencies {
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.3'
+  implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '2.0.0'
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {

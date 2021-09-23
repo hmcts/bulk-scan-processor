@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.config;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -11,11 +12,13 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGeneratorFactory;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.authorisation.validators.ServiceAuthTokenValidator;
+import uk.gov.hmcts.reform.idam.client.IdamApi;
 
 import java.util.List;
 
 @Configuration
 @Lazy
+@EnableFeignClients(clients = IdamApi.class)
 public class AuthServiceConfig {
 
     @Bean
