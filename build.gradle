@@ -139,7 +139,7 @@ project.tasks['sonarqube'].dependsOn jacocoTestReport
 pitest {
   group = "Verification"
   pitestVersion.set('1.5.1')
-  junit5PluginVersion.set('0.12')
+  junit5PluginVersion.set('0.15')
   testSourceSets = [sourceSets.test]
   mainSourceSets = [sourceSets.main]
   targetClasses = ['uk.gov.hmcts.reform.bulkscanprocessor.*']
