@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'org.flywaydb.flyway' version '7.15.0'
-  id 'org.springframework.boot' version '2.5.4'
+  id 'org.springframework.boot' version '2.5.5'
   id 'org.owasp.dependencycheck' version '6.3.1'
   id 'com.github.ben-manes.versions' version '0.39.0'
   id 'org.sonarqube' version '3.3'
@@ -215,7 +215,7 @@ def versions = [
   mockitoJupiter: '3.3.3',
   springfoxSwagger: '2.9.2',
   reformLogging: '5.1.5',
-  apiguardian     : '1.0.0'
+  apiguardian     : '1.1.2'
 ]
 
 dependencyManagement {
@@ -294,7 +294,7 @@ dependencies {
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.3'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.4'
   implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '2.0.0'
 
   testImplementation libraries.junit5
