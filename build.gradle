@@ -215,7 +215,7 @@ def versions = [
   mockitoJupiter: '3.3.3',
   springfoxSwagger: '2.9.2',
   reformLogging: '5.1.5',
-  apiguardian     : '1.0.0'
+  apiguardian     : '1.1.2'
 ]
 
 dependencyManagement {
