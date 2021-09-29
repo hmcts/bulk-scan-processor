@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedPayment;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.ReceivedScannableItemPerDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.RejectedZipFile;
@@ -19,12 +20,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.DiscrepancyItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReceivedPaymentsResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReceivedScannableItemsResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.RejectedZipFilesResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.ZipFilesSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedPaymentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReconciliationService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedFilesReportService;
@@ -32,6 +35,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.RejectedZipFilesSe
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Discrepancy;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedPaymentsData;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedScannableItemsData;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedScannableItemsPerDocumentTypeData;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReconciliationStatement;
@@ -62,6 +66,7 @@ public class ReportsController {
     private final RejectedZipFilesService rejectedZipFilesService;
     private final ReconciliationService reconciliationService;
     private final ReceivedScannableItemsService receivedScannableItemsService;
+    private final ReceivedPaymentsService receivedPaymentsService;
 
     // region constructor
     public ReportsController(
@@ -69,13 +74,15 @@ public class ReportsController {
             RejectedFilesReportService rejectedFilesReportService,
             RejectedZipFilesService rejectedZipFilesService,
             ReconciliationService reconciliationService,
-            ReceivedScannableItemsService receivedScannableItemsService
+            ReceivedScannableItemsService receivedScannableItemsService,
+            ReceivedPaymentsService receivedPaymentsService
     ) {
         this.reportsService = reportsService;
         this.rejectedFilesReportService = rejectedFilesReportService;
         this.rejectedZipFilesService = rejectedZipFilesService;
         this.reconciliationService = reconciliationService;
         this.receivedScannableItemsService = receivedScannableItemsService;
+        this.receivedPaymentsService = receivedPaymentsService;
     }
     // endregion
 
@@ -236,6 +243,33 @@ public class ReportsController {
         return new ReceivedScannableItemsResponse(
                 total.get(),
                 receivedScannableItems
+        );
+    }
+
+    @GetMapping(path = "/received-payments", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Retrieves payments")
+    public ReceivedPaymentsResponse getReceivedPayments(
+            @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+            @RequestParam(name = "per_document_type", required = false) boolean perDocumentType
+    ) {
+        AtomicInteger total = new AtomicInteger(0);
+
+        List<ReceivedPayment> result = receivedPaymentsService.getReceivedPayments(date);
+        List<ReceivedPaymentsData> receivedPayments = result
+                .stream()
+                .map(scannableItem -> {
+                            total.addAndGet(scannableItem.getCount());
+                            return new ReceivedPaymentsData(
+                                    scannableItem.getContainer(),
+                                    scannableItem.getCount()
+                            );
+                        }
+                )
+                .collect(toList());
+
+        return new ReceivedPaymentsResponse(
+                total.get(),
+                receivedPayments
         );
     }
 

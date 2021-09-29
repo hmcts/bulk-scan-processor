@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedPaymentItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedPaymentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemPerDocumentTypeItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedScannableItemsService;
@@ -85,6 +87,9 @@ class ReportsControllerTest {
 
     @MockBean
     private ReceivedScannableItemsService receivedScannableItemsService;
+
+    @MockBean
+    private ReceivedPaymentsService receivedPaymentsService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -684,6 +689,56 @@ class ReportsControllerTest {
                         "{"
                                 + "'total': 0,"
                                 + "'received_scannable_items': []"
+                                + "}"
+                ));
+    }
+
+    @Test
+    void should_return_received_payments() throws Exception {
+        given(receivedPaymentsService.getReceivedPayments(LocalDate.parse("2021-04-16")))
+                .willReturn(asList(
+                        new ReceivedPaymentItem(
+                                "A",
+                                3
+                        ),
+                        new ReceivedPaymentItem(
+                                "B",
+                                5
+                        )
+                ));
+
+        mockMvc
+                .perform(get("/reports/received-payments?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'total': 8,"
+                                + "'received_payments': ["
+                                + "  {"
+                                + "    'container': 'A',"
+                                + "    'count': 3"
+                                + "  },"
+                                + "  {"
+                                + "    'container': 'B',"
+                                + "    'count': 5"
+                                + "  }"
+                                + "]"
+                                + "}"
+                ));
+    }
+
+    @Test
+    void should_handle_no_payments() throws Exception {
+        given(receivedPaymentsService.getReceivedPayments(LocalDate.parse("2021-04-16")))
+                .willReturn(emptyList());
+
+        mockMvc
+                .perform(get("/reports/received-payments?date=2021-04-16"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{"
+                                + "'total': 0,"
+                                + "'received_payments': []"
                                 + "}"
                 ));
     }
