@@ -253,7 +253,7 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.27.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.28.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.28.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.11.1'
