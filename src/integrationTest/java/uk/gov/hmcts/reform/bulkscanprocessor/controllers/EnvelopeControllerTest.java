@@ -74,9 +74,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 @ActiveProfiles({
-    IntegrationContextInitializer.PROFILE_WIREMOCK,
-    Profiles.SERVICE_BUS_STUB,
-    Profiles.STORAGE_STUB
+        IntegrationContextInitializer.PROFILE_WIREMOCK,
+        Profiles.SERVICE_BUS_STUB,
+        Profiles.STORAGE_STUB
 })
 @AutoConfigureMockMvc
 @IntegrationTest
@@ -95,11 +95,12 @@ public class EnvelopeControllerTest {
     @Autowired private DocumentProcessor documentProcessor;
     @Autowired private LeaseAcquirer leaseAcquirer;
     @Autowired private OcrValidationRetryManager ocrValidationRetryManager;
+    @Autowired private EnvelopeProcessor envelopeProcessor;
+    @Autowired private OcrValidator ocrValidator;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
     @MockBean private DocumentManagementService documentManagementService;
-    @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
     @MockBean private FileRejector fileRejector;
     @MockBean private IncompleteEnvelopesService incompleteEnvelopesService;
@@ -107,7 +108,6 @@ public class EnvelopeControllerTest {
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
     private BlobContainerClient testContainer;
-
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
@@ -117,8 +117,8 @@ public class EnvelopeControllerTest {
         File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
 
         dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000)
-            .withLocalCompose(true);
+                .withExposedService("azure-storage", 10000)
+                .withLocalCompose(true);
 
         dockerComposeContainer.start();
         dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
@@ -138,44 +138,35 @@ public class EnvelopeControllerTest {
 
         BlobManager blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
-        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            envelopeRepository,
-            processEventRepository
-        );
         EnvelopeHandler envelopeHandler = new EnvelopeHandler(
-            envelopeValidator,
-            containerMappings,
-            envelopeProcessor,
-            ocrValidator,
-            paymentsEnabled
+                envelopeValidator,
+                containerMappings,
+                envelopeProcessor,
+                ocrValidator,
+                paymentsEnabled
         );
 
         FileContentProcessor fileContentProcessor = new FileContentProcessor(
-            zipFileProcessor,
-            envelopeProcessor,
-            envelopeHandler,
-            fileRejector
-        );
-
-        LeaseAcquirer leaseAcquirer = new LeaseAcquirer(
-            leaseMetaDataChecker
+                zipFileProcessor,
+                envelopeProcessor,
+                envelopeHandler,
+                fileRejector
         );
 
         blobProcessorTask = new BlobProcessorTask(
-            blobManager,
-            envelopeProcessor,
-            fileContentProcessor,
-            leaseAcquirer,
-            ocrValidationRetryManager
+                blobManager,
+                envelopeProcessor,
+                fileContentProcessor,
+                leaseAcquirer,
+                ocrValidationRetryManager
         );
 
         UploadEnvelopeDocumentsService uploadService =  new UploadEnvelopeDocumentsService(
-            blobManager,
-            zipFileProcessor,
-            documentProcessor,
-            envelopeProcessor,
-            leaseAcquirer
+                blobManager,
+                zipFileProcessor,
+                documentProcessor,
+                envelopeProcessor,
+                leaseAcquirer
         );
 
         uploadTask = new UploadEnvelopeDocumentsTask(envelopeRepository, uploadService, 1);
@@ -197,15 +188,15 @@ public class EnvelopeControllerTest {
 
     @Test
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
-        throws Exception {
+            throws Exception {
 
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
         uploadZipToBlobStore("zipcontents/mismatching_pdfs", "8_24-06-2018-00-00-00.zip");
 
         given(documentManagementService.uploadDocuments(anyList()))
-            .willReturn(
-                ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
-            );
+                .willReturn(
+                        ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
+                );
 
         blobProcessorTask.processBlobs();
         uploadTask.run();
@@ -213,20 +204,20 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes?status=" + UPLOADED)
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
-            // Envelope id is checked explicitly as it is dynamically generated.
-            .andExpect(jsonPath("envelopes[0].id").exists());
+                .header("ServiceAuthorization", "testServiceAuthHeader"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(content().json(Resources.toString(getResource("envelope.json"), UTF_8)))
+                // Envelope id is checked explicitly as it is dynamically generated.
+                .andExpect(jsonPath("envelopes[0].id").exists());
 
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
         assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
-            .uploadDocuments(pdfListCaptor.capture());
+                .uploadDocuments(pdfListCaptor.capture());
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
@@ -237,22 +228,22 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
 
         mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().string("{\"envelopes\":[]}"));
+                .header("ServiceAuthorization", "testServiceAuthHeader"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("{\"envelopes\":[]}"));
 
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
     @Test
     public void should_throw_service_jurisdiction_config_not_found_exc_when_service_jurisdiction_mapping_is_not_found()
-        throws Exception {
+            throws Exception {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test");
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
-            .header("ServiceAuthorization", "testServiceAuthHeader"))
-            .andReturn();
+                .header("ServiceAuthorization", "testServiceAuthHeader"))
+                .andReturn();
 
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
 
@@ -277,47 +268,47 @@ public class EnvelopeControllerTest {
         UUID uuid1 = UUID.randomUUID();
         UUID uuid2 = UUID.randomUUID();
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
-            .willReturn(asList(
-                new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27.000Z")),
-                new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28.000Z"))
-            ));
+                .willReturn(asList(
+                        new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27.000Z")),
+                        new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28.000Z"))
+                ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
-                            .header("ServiceAuthorization", "testServiceAuthHeader"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("data[0].container").value("cmc"))
-            .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
-            .andExpect(jsonPath("data[0].envelope_id").value(uuid1.toString()))
-            .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27.000Z"))
-            .andExpect(jsonPath("data[1].container").value("sscs"))
-            .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
-            .andExpect(jsonPath("data[1].envelope_id").value(uuid2.toString()))
-            .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28.000Z"));
+                .header("ServiceAuthorization", "testServiceAuthHeader"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("data[0].container").value("cmc"))
+                .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
+                .andExpect(jsonPath("data[0].envelope_id").value(uuid1.toString()))
+                .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27.000Z"))
+                .andExpect(jsonPath("data[1].container").value("sscs"))
+                .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
+                .andExpect(jsonPath("data[1].envelope_id").value(uuid2.toString()))
+                .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28.000Z"));
     }
 
     @Test
     public void should_find_envelope_by_file_name_and_container()
-        throws Exception {
+            throws Exception {
 
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
 
         given(documentManagementService.uploadDocuments(anyList()))
-            .willReturn(
-                ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
-            );
+                .willReturn(
+                        ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
+                );
 
         blobProcessorTask.processBlobs();
         uploadTask.run();
 
         mockMvc.perform(get("/envelopes/bulkscan/1_24-06-2018-00-00-00.zip"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-            .andExpect(content().json(Resources.toString(getResource("envelopeResponse.json"), UTF_8)))
-            // Envelope id is checked explicitly as it is dynamically generated.
-            .andExpect(jsonPath("$.id").exists());
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(content().json(Resources.toString(getResource("envelopeResponse.json"), UTF_8)))
+                // Envelope id is checked explicitly as it is dynamically generated.
+                .andExpect(jsonPath("$.id").exists());
 
         List<Envelope> envelopes = envelopeRepository.findAll();
         assertThat(envelopes).hasSize(1);
@@ -326,7 +317,7 @@ public class EnvelopeControllerTest {
         assertThat(envelopes.get(0).getContainer()).isEqualTo("bulkscan");
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
-            .uploadDocuments(pdfListCaptor.capture());
+                .uploadDocuments(pdfListCaptor.capture());
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
     }
@@ -336,15 +327,15 @@ public class EnvelopeControllerTest {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willThrow(UnAuthenticatedException.class);
 
         mockMvc.perform(get("/envelopes/containarX/1_24-06-2018-00-00-00.zip"))
-            .andDo(print())
-            .andExpect(status().isNotFound());
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     private void uploadZipToBlobStore(String dirToZip, String zipFilename) throws Exception {
         byte[] zipFile = DirectoryZipper.zipDir(dirToZip);
 
         testContainer
-            .getBlobClient(zipFilename)
-            .upload(new ByteArrayInputStream(zipFile), zipFile.length);
+                .getBlobClient(zipFilename)
+                .upload(new ByteArrayInputStream(zipFile), zipFile.length);
     }
 }
