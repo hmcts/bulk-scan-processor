@@ -74,9 +74,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 @ActiveProfiles({
-        IntegrationContextInitializer.PROFILE_WIREMOCK,
-        Profiles.SERVICE_BUS_STUB,
-        Profiles.STORAGE_STUB
+    IntegrationContextInitializer.PROFILE_WIREMOCK,
+    Profiles.SERVICE_BUS_STUB,
+    Profiles.STORAGE_STUB
 })
 @AutoConfigureMockMvc
 @IntegrationTest
@@ -188,14 +188,14 @@ public class EnvelopeControllerTest {
 
     @Test
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
-            throws Exception {
+         throws Exception {
 
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
         uploadZipToBlobStore("zipcontents/mismatching_pdfs", "8_24-06-2018-00-00-00.zip");
 
         given(documentManagementService.uploadDocuments(anyList()))
             .willReturn(
-                    ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
+                ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
             );
 
         blobProcessorTask.processBlobs();
@@ -238,7 +238,7 @@ public class EnvelopeControllerTest {
 
     @Test
     public void should_throw_service_jurisdiction_config_not_found_exc_when_service_jurisdiction_mapping_is_not_found()
-            throws Exception {
+        throws Exception {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test");
 
         MvcResult result = this.mockMvc.perform(get("/envelopes")
@@ -269,8 +269,8 @@ public class EnvelopeControllerTest {
         UUID uuid2 = UUID.randomUUID();
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                    new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27.000Z")),
-                    new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28.000Z"))
+                new EnvelopeInfo("cmc", "file1.zip", uuid1, Instant.parse("2021-01-15T10:39:27.000Z")),
+                new EnvelopeInfo("sscs", "file2.zip", uuid2, Instant.parse("2021-01-14T11:38:28.000Z"))
             ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
@@ -296,7 +296,7 @@ public class EnvelopeControllerTest {
 
         given(documentManagementService.uploadDocuments(anyList()))
             .willReturn(
-                    ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
+                ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
             );
 
         blobProcessorTask.processBlobs();
@@ -317,7 +317,7 @@ public class EnvelopeControllerTest {
         assertThat(envelopes.get(0).getContainer()).isEqualTo("bulkscan");
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
-                .uploadDocuments(pdfListCaptor.capture());
+            .uploadDocuments(pdfListCaptor.capture());
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
     }
