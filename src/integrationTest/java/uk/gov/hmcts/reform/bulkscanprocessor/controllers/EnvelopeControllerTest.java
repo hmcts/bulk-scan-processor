@@ -95,11 +95,12 @@ public class EnvelopeControllerTest {
     @Autowired private DocumentProcessor documentProcessor;
     @Autowired private LeaseAcquirer leaseAcquirer;
     @Autowired private OcrValidationRetryManager ocrValidationRetryManager;
+    @Autowired private EnvelopeProcessor envelopeProcessor;
+    @Autowired private OcrValidator ocrValidator;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
     @MockBean private DocumentManagementService documentManagementService;
-    @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
     @MockBean private FileRejector fileRejector;
     @MockBean private IncompleteEnvelopesService incompleteEnvelopesService;
@@ -107,7 +108,6 @@ public class EnvelopeControllerTest {
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
     private BlobContainerClient testContainer;
-
 
     private static DockerComposeContainer dockerComposeContainer;
     private static String dockerHost;
@@ -138,11 +138,6 @@ public class EnvelopeControllerTest {
 
         BlobManager blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
-        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            envelopeRepository,
-            processEventRepository
-        );
         EnvelopeHandler envelopeHandler = new EnvelopeHandler(
             envelopeValidator,
             containerMappings,
@@ -156,10 +151,6 @@ public class EnvelopeControllerTest {
             envelopeProcessor,
             envelopeHandler,
             fileRejector
-        );
-
-        LeaseAcquirer leaseAcquirer = new LeaseAcquirer(
-            leaseMetaDataChecker
         );
 
         blobProcessorTask = new BlobProcessorTask(
@@ -283,7 +274,7 @@ public class EnvelopeControllerTest {
             ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
-                            .header("ServiceAuthorization", "testServiceAuthHeader"))
+            .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
