@@ -188,7 +188,7 @@ public class EnvelopeControllerTest {
 
     @Test
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
-         throws Exception {
+        throws Exception {
 
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
         uploadZipToBlobStore("zipcontents/mismatching_pdfs", "8_24-06-2018-00-00-00.zip");
