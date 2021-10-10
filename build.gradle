@@ -281,7 +281,8 @@ dependencies {
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.2'
-  
+  implementation group: 'com.github.hmcts:idam-java-client', name: 'idam-client', version: '2.0.1'
+            
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.4'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.6'
 
@@ -296,7 +297,7 @@ dependencies {
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.4'
-  implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: '2.0.0'
+
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
