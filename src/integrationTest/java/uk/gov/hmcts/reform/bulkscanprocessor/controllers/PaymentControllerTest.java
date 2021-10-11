@@ -16,8 +16,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestUtil;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.List.of;
 import static org.mockito.BDDMockito.given;
@@ -125,10 +127,15 @@ public class PaymentControllerTest {
 
     @Test
     void should_get_paymentDcns() throws Exception {
+        UUID p1Uuid = UUID.randomUUID();
+        String p1Time = "2021-01-03T11:15:30.003Z";
+        UUID p2Uuid = UUID.randomUUID();
+        String p2Time = "2020-12-20T16:15:30.000Z";
+
         List<Payment> payments = of(
-            new Payment("11234"),
-            new Payment("33234")
-        );
+            new Payment(p1Uuid, "11234", "Done", Instant.parse(p1Time)),
+            new Payment(p2Uuid, "33234", "Waiting", Instant.parse(p2Time))
+            );
 
         List<String> dcns = of("11234", "22234", "33234");
         given(paymentRepository.findByDocumentControlNumberIn(dcns))
@@ -137,8 +144,15 @@ public class PaymentControllerTest {
         mockMvc.perform(get("/payment?dcns=" + String.join(",", dcns)))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].documentControlNumber").value("11234"))
-            .andExpect(jsonPath("$[1].documentControlNumber").value("33234"));
+            .andExpect(jsonPath("$.count").value(2))
+            .andExpect(jsonPath("$.data[0].id").value(p1Uuid.toString()))
+            .andExpect(jsonPath("$.data[0].document_control_number").value("11234"))
+            .andExpect(jsonPath("$.data[0].status").value("Done"))
+            .andExpect(jsonPath("$.data[0].last_modified").value(p1Time))
+            .andExpect(jsonPath("$.data[1].id").value(p2Uuid.toString()))
+            .andExpect(jsonPath("$.data[1].document_control_number").value("33234"))
+            .andExpect(jsonPath("$.data[1].status").value("Waiting"))
+            .andExpect(jsonPath("$.data[1].last_modified").value(p2Time));
     }
 
     @Test
@@ -151,6 +165,7 @@ public class PaymentControllerTest {
         mockMvc.perform(get("/payment?dcns=" + String.join(",", dcns)))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$").doesNotExist());
+            .andExpect(jsonPath("$.count").value(0))
+            .andExpect(jsonPath("$.data").isEmpty());
     }
 }
