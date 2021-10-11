@@ -30,7 +30,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.FileRejector;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.document.DocumentManagementService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -86,14 +85,14 @@ class ZipStatusControllerTest {
     @Autowired private DocumentProcessor documentProcessor;
     @Autowired private LeaseAcquirer leaseAcquirer;
     @Autowired private OcrValidationRetryManager ocrValidationRetryManager;
+    @Autowired private EnvelopeProcessor envelopeProcessor;
+    @Autowired private OcrValidator ocrValidator;
 
     @Value("${process-payments.enabled}") private boolean paymentsEnabled;
 
     @MockBean private DocumentManagementService documentManagementService;
-    @MockBean private OcrValidator ocrValidator;
     @MockBean private AuthTokenValidator tokenValidator;
     @MockBean private FileRejector fileRejector;
-    @MockBean private IncompleteEnvelopesService incompleteEnvelopesService;
 
     private BlobProcessorTask blobProcessorTask;
     private UploadEnvelopeDocumentsTask uploadTask;
@@ -129,11 +128,6 @@ class ZipStatusControllerTest {
 
         BlobManager blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
-        EnvelopeProcessor envelopeProcessor = new EnvelopeProcessor(
-            schemaValidator,
-            envelopeRepository,
-            processEventRepository
-        );
         EnvelopeHandler envelopeHandler = new EnvelopeHandler(
             envelopeValidator,
             containerMappings,
@@ -147,10 +141,6 @@ class ZipStatusControllerTest {
             envelopeProcessor,
             envelopeHandler,
             fileRejector
-        );
-
-        LeaseAcquirer leaseAcquirer = new LeaseAcquirer(
-            leaseMetaDataChecker
         );
 
         blobProcessorTask = new BlobProcessorTask(
