@@ -32,6 +32,13 @@ public class Payment implements EnvelopeAssignable {
         // For use by hibernate.
     }
 
+    public Payment(UUID id, String documentControlNumber, String status, Instant lastmodified) {
+        this.id = id;
+        this.status = status;
+        this.documentControlNumber = documentControlNumber;
+        this.lastmodified = lastmodified;
+    }
+
     public Payment(String documentControlNumber) {
         this.documentControlNumber = documentControlNumber;
     }
@@ -43,5 +50,17 @@ public class Payment implements EnvelopeAssignable {
 
     public String getDocumentControlNumber() {
         return documentControlNumber;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Instant getLastmodified() {
+        return lastmodified;
     }
 }
