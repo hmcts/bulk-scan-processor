@@ -1,24 +1,25 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Resources;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
-import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClientApi;
-import uk.gov.hmcts.reform.ccd.document.am.model.Document;
-import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
-import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static java.util.Arrays.asList;
@@ -37,25 +38,25 @@ class DocumentManagementServiceTest {
 
     private DocumentManagementService documentManagementService;
 
-    private ArgumentCaptor<DocumentUploadRequest> documentUploadRequestCaptor;
+    private ArgumentCaptor<HttpEntity> httpEntityReqEntity;
 
     @Mock
     private AuthTokenGenerator authTokenGenerator;
 
     @Mock
-    private CaseDocumentClientApi caseDocumentClientApi;
-
-    private static final String hashToken = UUID.randomUUID().toString();
+    private RestTemplate restTemplate;
 
     @BeforeEach
     void setUp() {
         when(authTokenGenerator.generate()).thenReturn(AUTH_HEADER);
 
-        this.documentUploadRequestCaptor = ArgumentCaptor.forClass(DocumentUploadRequest.class);
+        this.httpEntityReqEntity = ArgumentCaptor.forClass(HttpEntity.class);
 
         documentManagementService = new DocumentManagementService(
             authTokenGenerator,
-            caseDocumentClientApi
+            "http://localhost:8080",
+            restTemplate,
+            new ObjectMapper()
         );
     }
 
@@ -65,35 +66,30 @@ class DocumentManagementServiceTest {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
-        var s2sToken =  "233132";
-        given(authTokenGenerator.generate()).willReturn(s2sToken);
-        UUID docStoreUuid1 = UUID.randomUUID();
-        UUID docStoreUuid2 = UUID.randomUUID();
 
-
-        given(caseDocumentClientApi.uploadDocuments(
-            eq(null),
-            eq(s2sToken),
-            documentUploadRequestCaptor.capture()
-        )).willReturn(getResponse(docStoreUuid1, docStoreUuid2));
+        given(restTemplate.postForObject(
+            eq("http://localhost:8080/documents"),
+            httpEntityReqEntity.capture(),
+            any())
+        ).willReturn(getResponse());
 
         //when
-        Map<String, String> actualUploadResponse
-            = documentManagementService.uploadDocuments(asList(pdf1, pdf2));
+        Map<String, String> actualUploadResponse = documentManagementService.uploadDocuments(asList(pdf1, pdf2));
 
         //then
-
         assertThat(actualUploadResponse).containsValues(
-            "http://localhost:samplefile/" + docStoreUuid1,
-            "http://localhost:samplefile/" + docStoreUuid2
+            "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d",
+            "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
         );
-        assertThat(actualUploadResponse).containsKeys("template1.pdf", "template2.pdf");
-        var docReq = documentUploadRequestCaptor.getValue();
-        verify(authTokenGenerator).generate();
-        assertThat(docReq.getCaseTypeId()).isEqualTo("caseTypeId");
-        assertThat(docReq.getClassification()).isEqualTo("RESTRICTED");
-        assertThat(docReq.getJurisdictionId()).isEqualTo("jurisdictionId");
 
+        assertThat(actualUploadResponse).containsKeys("test1.pdf", "test2.pdf");
+
+        verify(authTokenGenerator).generate();
+        verify(restTemplate).postForObject(
+            eq("http://localhost:8080/documents"),
+            httpEntityReqEntity.capture(),
+            any()
+        );
     }
 
     @Test
@@ -115,18 +111,15 @@ class DocumentManagementServiceTest {
     }
 
     @Test
-    void should_throw_unable_to_upload_document_exception_when_document_storage_is_down()
+    void should_throw_unable_to_upload_doc_exception_when_bulk_scan_service_throws_client_exception()
         throws Exception {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
 
-        var s2sToken =  "233132";
-        given(authTokenGenerator.generate()).willReturn(s2sToken);
-
-        given(caseDocumentClientApi.uploadDocuments(
-            eq(null),
-            eq(s2sToken),
+        given(restTemplate.postForObject(
+            eq("http://localhost:8080/documents"),
+            httpEntityReqEntity.capture(),
             any())
         ).willThrow(new HttpClientErrorException(HttpStatus.FORBIDDEN));
 
@@ -141,35 +134,30 @@ class DocumentManagementServiceTest {
         verify(authTokenGenerator).generate();
     }
 
+    @Test
+    void should_throw_unable_to_upload_document_exception_when_document_storage_is_down() throws Exception {
+        //Given
+        File pdf1 = new File(getResource("test1.pdf").toURI());
+        File pdf2 = new File(getResource("test2.pdf").toURI());
 
-    private UploadResponse getResponse(UUID docStoreUuid1, UUID docStoreUuid2) {
-        Document testDoc1 = Document.builder().originalDocumentName("template1.pdf")
-            .hashToken("token")
-            .links(getLinks(docStoreUuid1))
-            .build();
+        given(restTemplate.postForObject(
+            eq("http://localhost:8080/documents"),
+            httpEntityReqEntity.capture(),
+            any())
+        ).willThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        Document testDoc2 = Document.builder().originalDocumentName("template2.pdf")
-            .hashToken("token")
-            .links(getLinks(docStoreUuid2))
-            .build();
-        return new UploadResponse(List.of(testDoc1, testDoc2));
+        //when
+        Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
+
+        //then
+        assertThat(exc)
+            .isInstanceOf(UnableToUploadDocumentException.class)
+            .hasCauseExactlyInstanceOf(HttpServerErrorException.class);
+
+        verify(authTokenGenerator).generate();
     }
 
-    static Document.Links getLinks(UUID docStoreUuid) {
-        Document.Links links = new Document.Links();
-
-        Document.Link self = new Document.Link();
-        Document.Link binary = new Document.Link();
-
-        var selfLink = "http://localhost:samplefile/" + docStoreUuid;
-        var binaryLink = "http://localhost:samplefile/" + docStoreUuid + "/binary";
-
-        self.href = selfLink;
-        binary.href = binaryLink;
-
-        links.self = self;
-        links.binary = binary;
-
-        return links;
+    private String getResponse() throws IOException {
+        return Resources.toString(getResource("fileuploadresponse.json"), Charset.defaultCharset());
     }
 }
