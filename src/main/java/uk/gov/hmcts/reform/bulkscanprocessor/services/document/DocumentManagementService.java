@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -14,11 +13,10 @@ import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -30,12 +28,8 @@ public class DocumentManagementService {
     private final AuthTokenGenerator authTokenGenerator;
     private CaseDocumentClientApi caseDocumentClientApi;
 
-    private static final String CLASSIFICATION = "classification";
     private static final String CASE_TYPE_ID = "caseTypeId";
     private static final String JURISDICTION_ID = "jurisdictionId";
-
-    private static final String FILES = "files";
-    private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
 
 
     public DocumentManagementService(
@@ -86,7 +80,11 @@ public class DocumentManagementService {
         List<File> pdfs
     ) {
 
-        var multipartFileList = buildMultipartFileList(pdfs);
+        List<MultipartFile> multipartFileList =
+            pdfs
+                .stream()
+                .map(pdf -> new CdamMultipartFile(pdf, pdf.getName(), MediaType.APPLICATION_PDF))
+                .collect(Collectors.toList());
 
         DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(
             uk.gov.hmcts.reform.ccd.document.am.model.Classification.RESTRICTED.toString(),
@@ -101,29 +99,7 @@ public class DocumentManagementService {
                 serviceAuth,
                 documentUploadRequest
             );
-        ;
 
         return uploadResponse;
-
-    }
-
-
-    private List<MultipartFile> buildMultipartFileList(List<File> pdfs) {
-
-        List<MultipartFile> multipartFileList = new ArrayList<MultipartFile>();
-        for (File pdf : pdfs) {
-            try {
-                multipartFileList.add(
-                    ByteArrayMultipartFile.builder()
-                        .content(FileUtils.readFileToByteArray(pdf))
-                        .name(pdf.getName())
-                        .contentType(MediaType.valueOf("application/pdf"))
-                        .build()
-                );
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-        return multipartFileList;
     }
 }
