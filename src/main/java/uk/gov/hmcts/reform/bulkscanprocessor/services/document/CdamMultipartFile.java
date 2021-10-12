@@ -26,7 +26,7 @@ public class CdamMultipartFile implements MultipartFile {
 
     @Override
     public String getOriginalFilename() {
-        return name;
+        return file.getName();
     }
 
     @Override

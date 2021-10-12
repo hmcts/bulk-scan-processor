@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
+import static uk.gov.hmcts.reform.ccd.document.am.model.Classification.RESTRICTED;
 
 @Service
 public class DocumentManagementService {
@@ -87,7 +88,7 @@ public class DocumentManagementService {
                 .collect(Collectors.toList());
 
         DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(
-            uk.gov.hmcts.reform.ccd.document.am.model.Classification.RESTRICTED.toString(),
+            RESTRICTED.toString(),
             CASE_TYPE_ID,
             JURISDICTION_ID,
             multipartFileList
