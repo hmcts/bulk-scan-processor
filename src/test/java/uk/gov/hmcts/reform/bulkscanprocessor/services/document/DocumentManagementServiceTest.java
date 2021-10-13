@@ -99,9 +99,9 @@ class DocumentManagementServiceTest {
         assertThat(actualUploadResponse).containsKeys("template1.pdf", "template2.pdf");
         var docReq = documentUploadRequestCaptor.getValue();
         verify(authTokenGenerator).generate();
-        assertThat(docReq.getCaseTypeId()).isEqualTo("caseTypeId");
-        assertThat(docReq.getClassification()).isEqualTo("RESTRICTED");
-        assertThat(docReq.getJurisdictionId()).isEqualTo("jurisdictionId");
+        assertThat(docReq.getCaseTypeId()).isEqualTo("Bulk_Scanned");
+        assertThat(docReq.getClassification()).isEqualTo("PUBLIC");
+        assertThat(docReq.getJurisdictionId()).isEqualTo("BULKSCAN");
 
     }
 

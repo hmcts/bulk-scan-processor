@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
-import static uk.gov.hmcts.reform.ccd.document.am.model.Classification.RESTRICTED;
+import static uk.gov.hmcts.reform.ccd.document.am.model.Classification.PUBLIC;
 
 @Service
 public class DocumentManagementService {
@@ -30,8 +30,8 @@ public class DocumentManagementService {
     private final AuthTokenGenerator authTokenGenerator;
     private CaseDocumentClientApi caseDocumentClientApi;
 
-    private static final String CASE_TYPE_ID = "caseTypeId";
-    private static final String JURISDICTION_ID = "jurisdictionId";
+    private static final String CASE_TYPE_ID = "Bulk_Scanned";
+    private static final String JURISDICTION_ID = "BULKSCAN";
     private IdamCachedClient idamClient;
 
     public DocumentManagementService(
@@ -92,7 +92,7 @@ public class DocumentManagementService {
                 .collect(Collectors.toList());
 
         DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(
-            RESTRICTED.toString(),
+            PUBLIC.toString(),
             CASE_TYPE_ID,
             JURISDICTION_ID,
             multipartFileList
