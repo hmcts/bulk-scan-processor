@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.idam.cache.CachedIdamCredential;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.idam.cache.IdamCachedClient;
 import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClientApi;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
@@ -44,6 +46,8 @@ class DocumentManagementServiceTest {
 
     @Mock
     private CaseDocumentClientApi caseDocumentClientApi;
+    @Mock
+    private IdamCachedClient idamClient;
 
     private static final String hashToken = UUID.randomUUID().toString();
 
@@ -55,7 +59,8 @@ class DocumentManagementServiceTest {
 
         documentManagementService = new DocumentManagementService(
             authTokenGenerator,
-            caseDocumentClientApi
+            caseDocumentClientApi,
+            idamClient
         );
     }
 
@@ -66,13 +71,17 @@ class DocumentManagementServiceTest {
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
         var s2sToken =  "233132";
+        var idamToken =  "12321";
+        CachedIdamCredential cachedIdamCredential =
+            new CachedIdamCredential(idamToken, "user_id_1", 123213);
         given(authTokenGenerator.generate()).willReturn(s2sToken);
+        given(idamClient.getIdamCredentials("BULKSCAN")).willReturn(cachedIdamCredential);
         UUID docStoreUuid1 = UUID.randomUUID();
         UUID docStoreUuid2 = UUID.randomUUID();
 
 
         given(caseDocumentClientApi.uploadDocuments(
-            eq(null),
+            eq(idamToken),
             eq(s2sToken),
             documentUploadRequestCaptor.capture()
         )).willReturn(getResponse(docStoreUuid1, docStoreUuid2));
@@ -123,9 +132,13 @@ class DocumentManagementServiceTest {
 
         var s2sToken =  "233132";
         given(authTokenGenerator.generate()).willReturn(s2sToken);
+        var idamToken =  "12321";
+        CachedIdamCredential cachedIdamCredential =
+            new CachedIdamCredential(idamToken, "user_id_1", 123213);
+        given(idamClient.getIdamCredentials("BULKSCAN")).willReturn(cachedIdamCredential);
 
         given(caseDocumentClientApi.uploadDocuments(
-            eq(null),
+            eq(idamToken),
             eq(s2sToken),
             any())
         ).willThrow(new HttpClientErrorException(HttpStatus.FORBIDDEN));
@@ -139,6 +152,7 @@ class DocumentManagementServiceTest {
             .hasCauseExactlyInstanceOf(HttpClientErrorException.class);
 
         verify(authTokenGenerator).generate();
+        verify(idamClient).getIdamCredentials("BULKSCAN");
     }
 
 

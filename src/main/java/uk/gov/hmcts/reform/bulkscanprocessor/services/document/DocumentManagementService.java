@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.idam.cache.IdamCachedClient;
 import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClientApi;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
@@ -31,22 +32,25 @@ public class DocumentManagementService {
 
     private static final String CASE_TYPE_ID = "caseTypeId";
     private static final String JURISDICTION_ID = "jurisdictionId";
-
+    private IdamCachedClient idamClient;
 
     public DocumentManagementService(
         AuthTokenGenerator authTokenGenerator,
-        CaseDocumentClientApi caseDocumentClientApi
+        CaseDocumentClientApi caseDocumentClientApi,
+        IdamCachedClient idamClient
     ) {
         this.authTokenGenerator = authTokenGenerator;
         this.caseDocumentClientApi = caseDocumentClientApi;
+        this.idamClient = idamClient;
     }
 
     public Map<String, String> uploadDocuments(List<File> pdfs) {
 
         String s2sToken = authTokenGenerator.generate();
+
         try {
             UploadResponse upload = uploadDocs(
-                null,
+                idamClient.getIdamCredentials("BULKSCAN").accessToken,
                 s2sToken,
                 pdfs
             );
