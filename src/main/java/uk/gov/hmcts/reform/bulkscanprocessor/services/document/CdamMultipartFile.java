@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +47,11 @@ public class CdamMultipartFile implements MultipartFile {
 
     @Override
     public byte[] getBytes() {
-        throw new UnsupportedOperationException("Use InputStream");
+        try {
+            return Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new ZipFileLoadException("File readAllBytes failed for " + file.getName(), e);
+        }
     }
 
     @Override

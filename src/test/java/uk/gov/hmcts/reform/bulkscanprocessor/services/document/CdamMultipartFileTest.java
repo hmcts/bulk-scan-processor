@@ -29,14 +29,6 @@ class CdamMultipartFileTest {
     }
 
     @Test
-    void testGetBytes() {
-        assertThrows(
-            UnsupportedOperationException.class,
-            () -> cdamMultipartFile.getBytes()
-        );
-    }
-
-    @Test
     void testGetSize() {
         assertThrows(
             UnsupportedOperationException.class,
