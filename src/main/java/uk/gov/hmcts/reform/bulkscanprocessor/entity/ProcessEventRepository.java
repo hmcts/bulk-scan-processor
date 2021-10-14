@@ -12,7 +12,7 @@ public interface ProcessEventRepository extends JpaRepository<ProcessEvent, Long
 
     @Query(
             nativeQuery = true,
-            value = "SELECT * "
+            value = "SELECT id, container, zipFileName, createdAt, event, reason "
                     + "FROM process_events "
                     + "WHERE zipFileName LIKE :dcnPrefix"
                     + "% "
