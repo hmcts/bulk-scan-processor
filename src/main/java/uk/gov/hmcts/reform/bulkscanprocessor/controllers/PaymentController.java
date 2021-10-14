@@ -13,15 +13,18 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Payment;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.PaymentStatusReponse;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.SearchResult;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.payment.PaymentService;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
+
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentResponse;
 
 @Validated
 @RestController
@@ -54,9 +57,19 @@ public class PaymentController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Optional<List<Payment>> getPaymentDcns(
+    public SearchResult getPaymentDcns(
         @RequestParam(name = "dcns") List<String> dcns) {
-        return paymentService.getPayment(dcns);
+        final List<PaymentResponse> data = new ArrayList<>();
+        paymentService
+            .getPayment(dcns)
+            .ifPresentOrElse(
+                payments -> payments.stream()
+                    .map(p -> toPaymentResponse(p))
+                    .forEach(p -> data.add(p)),
+                () -> new ArrayList<>()
+            );
+
+        return new SearchResult(data);
     }
 }
 
