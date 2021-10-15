@@ -47,7 +47,7 @@ java:
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
     S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
     IDAM_API_URL: "https://idam-api.aat.platform.hmcts.net"
-    CDAM_URL: "http://ccd-case-document-am-api-aat.service.core-compute-aat.internal"
+    CDAM_URL: "http://ccd-case-document-am-api-pr-491.service.core-compute-preview.internal"
   keyVaults:
     "bulk-scan":
       secrets:
