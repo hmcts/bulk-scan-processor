@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 
 import java.io.File;
@@ -26,10 +26,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentManagementServiceTest {
@@ -41,22 +41,27 @@ class DocumentManagementServiceTest {
     private ArgumentCaptor<HttpEntity> httpEntityReqEntity;
 
     @Mock
-    private AuthTokenGenerator authTokenGenerator;
+    private DocumentServiceHelper documentServiceHelper;
 
     @Mock
     private RestTemplate restTemplate;
 
+    private DocumentUploadCredential documentUploadCredential = new DocumentUploadCredential(
+        "s2s-21321231",
+        "idam-9943",
+        "BULKSCAN_Exception"
+    );
+
     @BeforeEach
     void setUp() {
-        when(authTokenGenerator.generate()).thenReturn(AUTH_HEADER);
 
         this.httpEntityReqEntity = ArgumentCaptor.forClass(HttpEntity.class);
 
         documentManagementService = new DocumentManagementService(
-            authTokenGenerator,
+            documentServiceHelper,
             "http://localhost:8080",
             restTemplate,
-            new ObjectMapper()
+            new ObjectMapper().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         );
     }
 
@@ -67,6 +72,9 @@ class DocumentManagementServiceTest {
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
 
+        given(documentServiceHelper.createDocumentUploadCredential("BULKSCAN","bulkscan"))
+            .willReturn(documentUploadCredential);
+
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
             httpEntityReqEntity.capture(),
@@ -74,17 +82,18 @@ class DocumentManagementServiceTest {
         ).willReturn(getResponse());
 
         //when
-        Map<String, String> actualUploadResponse = documentManagementService.uploadDocuments(asList(pdf1, pdf2));
+        Map<String, String> actualUploadResponse =
+            documentManagementService.uploadDocuments(asList(pdf1, pdf2));
 
         //then
         assertThat(actualUploadResponse).containsValues(
             "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d",
-            "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe"
+            "http://dm-store:8080/documents/46f068e9-a395-49b3-a819-18e8c1327f11"
         );
 
         assertThat(actualUploadResponse).containsKeys("test1.pdf", "test2.pdf");
 
-        verify(authTokenGenerator).generate();
+        verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
         verify(restTemplate).postForObject(
             eq("http://localhost:8080/documents"),
             httpEntityReqEntity.capture(),
@@ -98,7 +107,8 @@ class DocumentManagementServiceTest {
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
 
-        given(authTokenGenerator.generate()).willThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
+        given(documentServiceHelper.createDocumentUploadCredential(anyString(), anyString()))
+            .willThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
         //when
         Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
@@ -107,7 +117,7 @@ class DocumentManagementServiceTest {
         assertThat(exc)
             .isInstanceOf(HttpClientErrorException.class);
 
-        verify(authTokenGenerator).generate();
+        verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
     }
 
     @Test
@@ -116,6 +126,8 @@ class DocumentManagementServiceTest {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
+        given(documentServiceHelper.createDocumentUploadCredential("BULKSCAN","bulkscan"))
+            .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
@@ -131,7 +143,7 @@ class DocumentManagementServiceTest {
             .isInstanceOf(UnableToUploadDocumentException.class)
             .hasCauseExactlyInstanceOf(HttpClientErrorException.class);
 
-        verify(authTokenGenerator).generate();
+        verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
     }
 
     @Test
@@ -139,6 +151,8 @@ class DocumentManagementServiceTest {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
+        given(documentServiceHelper.createDocumentUploadCredential("BULKSCAN","bulkscan"))
+            .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
             eq("http://localhost:8080/documents"),
@@ -154,7 +168,7 @@ class DocumentManagementServiceTest {
             .isInstanceOf(UnableToUploadDocumentException.class)
             .hasCauseExactlyInstanceOf(HttpServerErrorException.class);
 
-        verify(authTokenGenerator).generate();
+        verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
     }
 
     private String getResponse() throws IOException {
