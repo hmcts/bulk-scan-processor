@@ -24,7 +24,6 @@ public class Document {
 
     public final Links links;
 
-    @JsonCreator
     public Document(
         @JsonProperty("classification") Classification classification,
         @JsonProperty("size") long size,

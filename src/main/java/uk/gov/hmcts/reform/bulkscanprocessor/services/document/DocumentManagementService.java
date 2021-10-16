@@ -40,7 +40,7 @@ public class DocumentManagementService {
 
     public DocumentManagementService(
         DocumentServiceHelper documentServiceHelper,
-        @Value("${document_management.url}") String dmUrl,
+        @Value("${case_document_am.url}") String dmUrl,
         RestTemplate restTemplate,
         ObjectMapper objectMapper
     ) {
