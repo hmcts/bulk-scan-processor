@@ -47,7 +47,7 @@ public class DocumentManagementService {
         this.documentServiceHelper = documentServiceHelper;
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
-        this.docUploadUrl = dmUrl + "" + "/documents";
+        this.docUploadUrl = dmUrl + "" + "/cases/documents";
     }
 
     public Map<String, String> uploadDocuments(List<File> pdfs) {
