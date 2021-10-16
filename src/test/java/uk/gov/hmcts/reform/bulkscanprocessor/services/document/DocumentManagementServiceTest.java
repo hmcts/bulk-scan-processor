@@ -76,7 +76,7 @@ class DocumentManagementServiceTest {
             .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
-            eq("http://localhost:8080/documents"),
+            eq("http://localhost:8080/cases/documents"),
             httpEntityReqEntity.capture(),
             any())
         ).willReturn(getResponse());
@@ -95,7 +95,7 @@ class DocumentManagementServiceTest {
 
         verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
         verify(restTemplate).postForObject(
-            eq("http://localhost:8080/documents"),
+            eq("http://localhost:8080/cases/documents"),
             httpEntityReqEntity.capture(),
             any()
         );
@@ -130,7 +130,7 @@ class DocumentManagementServiceTest {
             .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
-            eq("http://localhost:8080/documents"),
+            eq("http://localhost:8080/cases/documents"),
             httpEntityReqEntity.capture(),
             any())
         ).willThrow(new HttpClientErrorException(HttpStatus.FORBIDDEN));
@@ -155,7 +155,7 @@ class DocumentManagementServiceTest {
             .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
-            eq("http://localhost:8080/documents"),
+            eq("http://localhost:8080/cases/documents"),
             httpEntityReqEntity.capture(),
             any())
         ).willThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
