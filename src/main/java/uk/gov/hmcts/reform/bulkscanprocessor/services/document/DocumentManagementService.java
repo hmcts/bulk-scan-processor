@@ -67,12 +67,13 @@ public class DocumentManagementService {
             log.error("Exception occurred while uploading documents ", exception);
             throw new UnableToUploadDocumentException(exception.getMessage(), exception);
         }
-        List<Document> documents = upload.getDocuments();
-        if (upload == null || documents == null) {
+        List<Document> documents;
+        if (upload == null || (documents = upload.getDocuments()) == null) {
             throw new DocumentUrlNotRetrievedException(
                 pdfs.stream().map(File::getName).collect(Collectors.toSet())
             );
         }
+
         log.debug("File upload response from Document Storage service is {}", documents);
 
         return createFileUploadResponse(documents);
