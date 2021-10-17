@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentEx
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
@@ -30,29 +28,32 @@ public class DocumentManagementService {
 
     private final DocumentServiceHelper documentServiceHelper;
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
     private final String docUploadUrl;
 
     private static final String CLASSIFICATION = "classification";
     private static final String FILES = "files";
     private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
 
-
     public DocumentManagementService(
         DocumentServiceHelper documentServiceHelper,
         @Value("${case_document_am.url}") String dmUrl,
-        RestTemplate restTemplate,
-        ObjectMapper objectMapper
+        RestTemplate restTemplate
     ) {
         this.documentServiceHelper = documentServiceHelper;
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
         this.docUploadUrl = dmUrl + "" + "/cases/documents";
     }
 
-    public Map<String, String> uploadDocuments(List<File> pdfs) {
+    public Map<String, String> uploadDocuments(
+        List<File> pdfs,
+        String jurisdiction,
+        String container
+    ) {
 
-        var credential = documentServiceHelper.createDocumentUploadCredential("BULKSCAN","bulkscan");
+        var credential = documentServiceHelper.createDocumentUploadCredential(
+            jurisdiction,
+            container
+        );
 
         try {
             UploadResponse upload = uploadDocs(
@@ -89,22 +90,16 @@ public class DocumentManagementService {
         DocumentUploadCredential credential
     ) {
         Classification classification = Classification.RESTRICTED;
-        try {
-            MultiValueMap<String, Object> body
-                = prepareRequest(pdfs, classification, credential.caseTypeId, "BULKSCAN");
+        MultiValueMap<String, Object> body
+            = prepareRequest(pdfs, classification, credential.caseTypeId, "BULKSCAN");
 
-            HttpHeaders httpHeaders = setHttpHeaders(credential.idamAccessToken, credential.s2sToken);
+        HttpHeaders httpHeaders = setHttpHeaders(credential.idamAccessToken, credential.s2sToken);
 
-            HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(
-                body, httpHeaders
-            );
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(
+            body, httpHeaders
+        );
 
-            final String t = this.restTemplate.postForObject(docUploadUrl, httpEntity, String.class);
-
-            return objectMapper.readValue(t, UploadResponse.class);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        return this.restTemplate.postForObject(docUploadUrl, httpEntity, UploadResponse.class);
     }
 
     private HttpHeaders setHttpHeaders(String authorizationToken, String serviceAuth) {

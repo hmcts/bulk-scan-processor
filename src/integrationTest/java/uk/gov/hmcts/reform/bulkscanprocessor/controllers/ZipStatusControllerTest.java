@@ -54,6 +54,8 @@ import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -182,7 +184,7 @@ class ZipStatusControllerTest {
 
         uploadZipToBlobStore("zipcontents/all_items", "1_24-06-2018-00-00-00.zip");
 
-        given(documentManagementService.uploadDocuments(any()))
+        given(documentManagementService.uploadDocuments(any(), anyString(), anyString()))
             .willReturn(
                 ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
             );
@@ -200,7 +202,8 @@ class ZipStatusControllerTest {
             .andExpect(content().json(Resources.toString(getResource("zipstatus.json"), UTF_8)));
 
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
-        verify(documentManagementService,times(1)).uploadDocuments(pdfListCaptor.capture());
+        verify(documentManagementService,times(1))
+            .uploadDocuments(pdfListCaptor.capture(), eq("BULKSCAN"), eq("bulkscan"));
         assertThat(pdfListCaptor.getValue().get(0).getName()).isEqualTo("1111002.pdf");
     }
 

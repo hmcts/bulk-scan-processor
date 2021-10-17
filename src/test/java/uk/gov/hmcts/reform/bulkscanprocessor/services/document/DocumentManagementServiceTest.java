@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.document;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,8 +33,6 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class DocumentManagementServiceTest {
 
-    private static final String AUTH_HEADER = "service-auth-header";
-
     private DocumentManagementService documentManagementService;
 
     private ArgumentCaptor<HttpEntity> httpEntityReqEntity;
@@ -52,6 +49,8 @@ class DocumentManagementServiceTest {
         "BULKSCAN_Exception"
     );
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @BeforeEach
     void setUp() {
 
@@ -60,8 +59,7 @@ class DocumentManagementServiceTest {
         documentManagementService = new DocumentManagementService(
             documentServiceHelper,
             "http://localhost:8080",
-            restTemplate,
-            new ObjectMapper().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            restTemplate
         );
     }
 
@@ -72,7 +70,7 @@ class DocumentManagementServiceTest {
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
 
-        given(documentServiceHelper.createDocumentUploadCredential("BULKSCAN","bulkscan"))
+        given(documentServiceHelper.createDocumentUploadCredential("DIVORCE","finrem"))
             .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
@@ -83,7 +81,7 @@ class DocumentManagementServiceTest {
 
         //when
         Map<String, String> actualUploadResponse =
-            documentManagementService.uploadDocuments(asList(pdf1, pdf2));
+            documentManagementService.uploadDocuments(asList(pdf1, pdf2), "DIVORCE", "finrem");
 
         //then
         assertThat(actualUploadResponse).containsValues(
@@ -93,7 +91,7 @@ class DocumentManagementServiceTest {
 
         assertThat(actualUploadResponse).containsKeys("test1.pdf", "test2.pdf");
 
-        verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
+        verify(documentServiceHelper).createDocumentUploadCredential("DIVORCE", "finrem");
         verify(restTemplate).postForObject(
             eq("http://localhost:8080/cases/documents"),
             httpEntityReqEntity.capture(),
@@ -111,13 +109,14 @@ class DocumentManagementServiceTest {
             .willThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
         //when
-        Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
+        Throwable exc = catchThrowable(() -> documentManagementService
+            .uploadDocuments(asList(pdf1, pdf2), "SSCS", "sscs"));
 
         //then
         assertThat(exc)
             .isInstanceOf(HttpClientErrorException.class);
 
-        verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
+        verify(documentServiceHelper).createDocumentUploadCredential("SSCS", "sscs");
     }
 
     @Test
@@ -126,7 +125,7 @@ class DocumentManagementServiceTest {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
-        given(documentServiceHelper.createDocumentUploadCredential("BULKSCAN","bulkscan"))
+        given(documentServiceHelper.createDocumentUploadCredential("BULKSCAN", "bulkscan"))
             .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
@@ -136,14 +135,16 @@ class DocumentManagementServiceTest {
         ).willThrow(new HttpClientErrorException(HttpStatus.FORBIDDEN));
 
         //when
-        Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
+        Throwable exc = catchThrowable(() -> documentManagementService
+            .uploadDocuments(asList(pdf1, pdf2), "BULKSCAN", "bulkscan"));
 
         //then
         assertThat(exc)
             .isInstanceOf(UnableToUploadDocumentException.class)
             .hasCauseExactlyInstanceOf(HttpClientErrorException.class);
 
-        verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
+        verify(documentServiceHelper)
+            .createDocumentUploadCredential("BULKSCAN", "bulkscan");
     }
 
     @Test
@@ -151,7 +152,8 @@ class DocumentManagementServiceTest {
         //Given
         File pdf1 = new File(getResource("test1.pdf").toURI());
         File pdf2 = new File(getResource("test2.pdf").toURI());
-        given(documentServiceHelper.createDocumentUploadCredential("BULKSCAN","bulkscan"))
+        given(documentServiceHelper
+                  .createDocumentUploadCredential("BULKSCAN", "bulkscan"))
             .willReturn(documentUploadCredential);
 
         given(restTemplate.postForObject(
@@ -161,7 +163,10 @@ class DocumentManagementServiceTest {
         ).willThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         //when
-        Throwable exc = catchThrowable(() -> documentManagementService.uploadDocuments(asList(pdf1, pdf2)));
+        Throwable exc = catchThrowable(
+            () -> documentManagementService
+                .uploadDocuments(asList(pdf1, pdf2), "BULKSCAN","bulkscan")
+        );
 
         //then
         assertThat(exc)
@@ -171,7 +176,11 @@ class DocumentManagementServiceTest {
         verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
     }
 
-    private String getResponse() throws IOException {
-        return Resources.toString(getResource("fileuploadresponse.json"), Charset.defaultCharset());
+    private UploadResponse getResponse() throws IOException {
+        return
+            objectMapper.readValue(
+                Resources.toString(getResource("fileuploadresponse.json"), Charset.defaultCharset()),
+                UploadResponse.class
+            );
     }
 }

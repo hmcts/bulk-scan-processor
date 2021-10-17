@@ -63,6 +63,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -193,7 +194,7 @@ public class EnvelopeControllerTest {
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
         uploadZipToBlobStore("zipcontents/mismatching_pdfs", "8_24-06-2018-00-00-00.zip");
 
-        given(documentManagementService.uploadDocuments(anyList()))
+        given(documentManagementService.uploadDocuments(anyList(), eq("BULKSCAN"), eq("bulkscan")))
             .willReturn(
                 ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
             );
@@ -217,7 +218,7 @@ public class EnvelopeControllerTest {
         assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
-            .uploadDocuments(pdfListCaptor.capture());
+            .uploadDocuments(pdfListCaptor.capture(), "BULKSCAN", "bulkscan");
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
@@ -294,7 +295,7 @@ public class EnvelopeControllerTest {
 
         uploadZipToBlobStore("zipcontents/ok", "1_24-06-2018-00-00-00.zip");
 
-        given(documentManagementService.uploadDocuments(anyList()))
+        given(documentManagementService.uploadDocuments(anyList(), eq("BULKSCAN"), eq("bulkscan")))
             .willReturn(
                 ImmutableMap.of("1111002.pdf", "http://localhost:8080/documents/0fa1ab60-f836-43aa-8c65-b07cc9bebcbe")
             );
@@ -317,7 +318,7 @@ public class EnvelopeControllerTest {
         assertThat(envelopes.get(0).getContainer()).isEqualTo("bulkscan");
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
-            .uploadDocuments(pdfListCaptor.capture());
+            .uploadDocuments(pdfListCaptor.capture(), "BULKSCAN", "bulkscan");
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
     }
