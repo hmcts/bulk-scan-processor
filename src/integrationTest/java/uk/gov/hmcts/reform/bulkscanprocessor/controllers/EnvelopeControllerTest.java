@@ -218,7 +218,7 @@ public class EnvelopeControllerTest {
         assertThat(envelopes.get(0).getStatus()).isEqualTo(UPLOADED);
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
-            .uploadDocuments(pdfListCaptor.capture(), "BULKSCAN", "bulkscan");
+            .uploadDocuments(pdfListCaptor.capture(), eq("BULKSCAN"), eq("bulkscan"));
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
@@ -318,7 +318,7 @@ public class EnvelopeControllerTest {
         assertThat(envelopes.get(0).getContainer()).isEqualTo("bulkscan");
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
         verify(documentManagementService)
-            .uploadDocuments(pdfListCaptor.capture(), "BULKSCAN", "bulkscan");
+            .uploadDocuments(pdfListCaptor.capture(), eq("BULKSCAN"), eq("bulkscan"));
         assertThat(pdfListCaptor.getAllValues()).hasSize(1);
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
     }
