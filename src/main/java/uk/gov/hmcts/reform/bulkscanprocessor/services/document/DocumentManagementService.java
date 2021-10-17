@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 
@@ -17,6 +18,7 @@ import java.io.File;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -54,22 +56,26 @@ public class DocumentManagementService {
             jurisdiction,
             container
         );
+        UploadResponse upload = null;
 
         try {
-            UploadResponse upload = uploadDocs(
+            upload = uploadDocs(
                 pdfs,
                 credential
             );
-
-            List<Document> documents = upload.getDocuments();
-            log.debug("File upload response from Document Storage service is {}", documents);
-
-            return createFileUploadResponse(documents);
-
         } catch (Exception exception) {
             log.error("Exception occurred while uploading documents ", exception);
             throw new UnableToUploadDocumentException(exception.getMessage(), exception);
         }
+        List<Document> documents = upload.getDocuments();
+        if (documents == null) {
+            throw new DocumentUrlNotRetrievedException(
+                pdfs.stream().map(File::getName).collect(Collectors.toSet())
+            );
+        }
+        log.debug("File upload response from Document Storage service is {}", documents);
+
+        return createFileUploadResponse(documents);
     }
 
     private Map.Entry<String, String> createResponse(Document document) {

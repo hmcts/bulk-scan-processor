@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.DocumentUrlNotRetrievedException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToUploadDocumentException;
 
 import java.io.File;
@@ -174,6 +175,34 @@ class DocumentManagementServiceTest {
             .hasCauseExactlyInstanceOf(HttpServerErrorException.class);
 
         verify(documentServiceHelper).createDocumentUploadCredential(anyString(), anyString());
+    }
+
+    @Test
+    void should_throw_DocumentUrlNotRetrievedException_when_documents_null() throws Exception {
+        //Given
+        File pdf1 = new File(getResource("test1.pdf").toURI());
+        File pdf2 = new File(getResource("test2.pdf").toURI());
+        given(documentServiceHelper
+                  .createDocumentUploadCredential("BULKSCAN", "bulkscan"))
+            .willReturn(documentUploadCredential);
+
+        given(restTemplate.postForObject(
+            eq("http://localhost:8080/cases/documents"),
+            httpEntityReqEntity.capture(),
+            any())
+        ).willReturn(new UploadResponse(null));
+
+        //when
+        Throwable exc = catchThrowable(
+            () -> documentManagementService
+                .uploadDocuments(asList(pdf1, pdf2), "BULKSCAN","bulkscan")
+        );
+
+        //then
+        assertThat(exc)
+            .isInstanceOf(DocumentUrlNotRetrievedException.class);
+
+        verify(documentServiceHelper).createDocumentUploadCredential("BULKSCAN", "bulkscan");
     }
 
     private UploadResponse getResponse() throws IOException {
