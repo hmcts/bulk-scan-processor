@@ -68,7 +68,7 @@ public class DocumentManagementService {
             throw new UnableToUploadDocumentException(exception.getMessage(), exception);
         }
         List<Document> documents = upload.getDocuments();
-        if (documents == null) {
+        if (upload == null || documents == null) {
             throw new DocumentUrlNotRetrievedException(
                 pdfs.stream().map(File::getName).collect(Collectors.toSet())
             );
