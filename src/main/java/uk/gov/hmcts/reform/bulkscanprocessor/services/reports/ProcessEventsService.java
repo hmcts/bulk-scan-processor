@@ -13,16 +13,16 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 
 @Service
-public class ProcessedEventsService {
+public class ProcessEventsService {
     private final ProcessEventRepository processEventRepository;
 
     @Autowired
-    public ProcessedEventsService(ProcessEventRepository processEventRepository) {
+    public ProcessEventsService(ProcessEventRepository processEventRepository) {
         this.processEventRepository = processEventRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<ProcessEvent> getProcessedEventsByDcnPrefix(String dcnPrefix, LocalDate fromDate, LocalDate toDate) {
+    public List<ProcessEvent> getProcessEventsByDcnPrefix(String dcnPrefix, LocalDate fromDate, LocalDate toDate) {
         var events = processEventRepository.findEventsByDcnPrefix(dcnPrefix, fromDate, toDate);
         return events.isEmpty() ? emptyList() : ImmutableList.copyOf(events);
     }
