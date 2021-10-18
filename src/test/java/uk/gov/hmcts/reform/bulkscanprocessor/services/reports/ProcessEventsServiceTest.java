@@ -18,15 +18,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class ProcessedEventsServiceTest {
-    private ProcessedEventsService processedEventsService;
+class ProcessEventsServiceTest {
+    private ProcessEventsService processEventsService;
 
     @Mock
     private ProcessEventRepository processEventRepository;
 
     @BeforeEach
     public void setUp() {
-        processedEventsService = new ProcessedEventsService(processEventRepository);
+        processEventsService = new ProcessEventsService(processEventRepository);
     }
 
     @Test
@@ -38,7 +38,7 @@ class ProcessedEventsServiceTest {
         given(processEventRepository.findEventsByDcnPrefix(dcnPrefix, fromDate, toDate)).willReturn(emptyList());
 
         // when
-        List<ProcessEvent> events = processedEventsService.getProcessedEventsByDcnPrefix(dcnPrefix, fromDate, toDate);
+        List<ProcessEvent> events = processEventsService.getProcessEventsByDcnPrefix(dcnPrefix, fromDate, toDate);
 
         // then
         assertThat(events).isEmpty();
@@ -64,7 +64,7 @@ class ProcessedEventsServiceTest {
                 .willReturn(asList(e2, e1));
 
         // when
-        List<ProcessEvent> events = processedEventsService.getProcessedEventsByDcnPrefix(dcnPrefix, fromDate, toDate);
+        List<ProcessEvent> events = processEventsService.getProcessEventsByDcnPrefix(dcnPrefix, fromDate, toDate);
 
         // then
         assertThat(events).isEqualTo(asList(e2, e1));
