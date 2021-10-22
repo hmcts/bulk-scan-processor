@@ -224,7 +224,11 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '31.0.1-jre') {
       entry 'guava'
     }
-
+    // CVE-2021-42340
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.54') {
+      entry 'tomcat-embed-websocket'
+      entry 'tomcat-embed-core'
+    }
   }
 
 }
