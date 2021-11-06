@@ -74,7 +74,7 @@ public class DocumentManagementService {
             );
         }
 
-        log.debug("File upload response from Document Storage service is {}", documents);
+        log.info("File upload response from Document Storage service is {}", documents);
 
         return createFileUploadResponse(documents);
     }
