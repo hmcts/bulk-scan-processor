@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.controller;
+package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
@@ -8,10 +8,11 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.bulkscanprocessor.controllers.ReportsController;
+import uk.gov.hmcts.reform.bulkscanprocessor.config.TestClockProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReceivedPaymentItem;
@@ -31,15 +32,18 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Reconciliat
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFile;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ZipFileSummaryResponse;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import javax.validation.ClockProvider;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -69,8 +73,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @WebMvcTest(ReportsController.class)
+@Import(TestClockProvider.class)
 class ReportsControllerTest {
 
     @MockBean
@@ -94,8 +100,14 @@ class ReportsControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ClockProvider clockProvider;
+
     @Test
     void should_return_result_generated_by_the_service() throws Exception {
+
+        Instant fiveAM = ZonedDateTime.now(EUROPE_LONDON_ZONE_ID).withHour(5).toInstant();
+        givenTheRequestWasMadeAt(fiveAM);
 
         final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
             152, 11, "container1", LocalDate.of(2021, 3, 4)
@@ -117,16 +129,23 @@ class ReportsControllerTest {
                     item.container,
                     item.date
                 ))
-                .collect(toList())
+                .collect(toList()),
+            clockProvider
         );
 
+        String expectedTimestamp = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(EUROPE_LONDON_ZONE_ID)
+            .format(fiveAM);
+
+        assertThat(response.timeStamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                       .equals(expectedTimestamp));
         mockMvc
             .perform(get("/reports/count-summary?date=2021-03-04"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.total_received").value(response.totalReceived))
             .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
-            .andExpect(jsonPath("$.time_stamp").value(response.timeStamp.format(
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+            .andExpect(jsonPath("$.time_stamp").value(expectedTimestamp))
             .andExpect(jsonPath("$.data.length()").value(2))
             .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))
             .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))
@@ -191,7 +210,8 @@ class ReportsControllerTest {
                     item.container,
                     item.date
                 ))
-                .collect(toList())
+                .collect(toList()),
+            clockProvider
         );
 
         mockMvc
@@ -199,7 +219,8 @@ class ReportsControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.total_received").value(response.totalReceived))
             .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
-            .andExpect(jsonPath("$.time_stamp").value(response.timeStamp.format(
+            .andExpect(jsonPath("$.time_stamp").value(
+                response.timeStamp.format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
             .andExpect(jsonPath("$.data.length()").value(2))
             .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))
@@ -742,4 +763,9 @@ class ReportsControllerTest {
                                 + "}"
                 ));
     }
+
+    private void givenTheRequestWasMadeAt(Instant time) {
+        TestClockProvider.stoppedInstant = time;
+    }
+
 }

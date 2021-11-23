@@ -52,6 +52,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.validation.ClockProvider;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
@@ -67,6 +68,7 @@ public class ReportsController {
     private final ReconciliationService reconciliationService;
     private final ReceivedScannableItemsService receivedScannableItemsService;
     private final ReceivedPaymentsService receivedPaymentsService;
+    private final ClockProvider clockProvider;
 
     // region constructor
     public ReportsController(
@@ -75,7 +77,8 @@ public class ReportsController {
             RejectedZipFilesService rejectedZipFilesService,
             ReconciliationService reconciliationService,
             ReceivedScannableItemsService receivedScannableItemsService,
-            ReceivedPaymentsService receivedPaymentsService
+            ReceivedPaymentsService receivedPaymentsService,
+            ClockProvider clockProvider
     ) {
         this.reportsService = reportsService;
         this.rejectedFilesReportService = rejectedFilesReportService;
@@ -83,6 +86,7 @@ public class ReportsController {
         this.reconciliationService = reconciliationService;
         this.receivedScannableItemsService = receivedScannableItemsService;
         this.receivedPaymentsService = receivedPaymentsService;
+        this.clockProvider = clockProvider;
     }
     // endregion
 
@@ -276,14 +280,17 @@ public class ReportsController {
     private EnvelopeCountSummaryReportListResponse getEnvelopeCountSummaryReportListResponse(
             List<EnvelopeCountSummary> result
     ) {
-        return new EnvelopeCountSummaryReportListResponse(result
+        return new EnvelopeCountSummaryReportListResponse(
+            result
                 .stream()
                 .map(item -> new EnvelopeCountSummaryReportItem(
-                        item.received,
-                        item.rejected,
-                        item.container,
-                        item.date
+                    item.received,
+                    item.rejected,
+                    item.container,
+                    item.date
                 ))
-                .collect(toList()));
+                .collect(toList()),
+            clockProvider
+        );
     }
 }
