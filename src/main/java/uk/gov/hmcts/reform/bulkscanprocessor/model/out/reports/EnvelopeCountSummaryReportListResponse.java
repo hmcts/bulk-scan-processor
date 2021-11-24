@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.validation.ClockProvider;
 
 public class EnvelopeCountSummaryReportListResponse {
 
@@ -22,7 +23,8 @@ public class EnvelopeCountSummaryReportListResponse {
     public final List<EnvelopeCountSummaryReportItem> items;
 
     public EnvelopeCountSummaryReportListResponse(
-        List<EnvelopeCountSummaryReportItem> items
+        List<EnvelopeCountSummaryReportItem> items,
+        ClockProvider clockProvider
     ) {
         this.items = items;
         int totalReceivedEnvelopes = 0;
@@ -35,6 +37,6 @@ public class EnvelopeCountSummaryReportListResponse {
 
         this.totalReceived = totalReceivedEnvelopes;
         this.totalRejected = totalRejectedEnvelopes;
-        timeStamp = LocalDateTime.now().withNano(0);
+        timeStamp = LocalDateTime.now(clockProvider.getClock()).withNano(0);
     }
 }
