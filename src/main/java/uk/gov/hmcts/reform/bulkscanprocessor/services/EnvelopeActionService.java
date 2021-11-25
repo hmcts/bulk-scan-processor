@@ -131,6 +131,7 @@ public class EnvelopeActionService {
     }
 
     private boolean isStale(Envelope envelope) {
+        log.info("Envelope {} has status {}", envelope.getId(), envelope.getStatus());
         if (envelope.getStatus() != Status.NOTIFICATION_SENT) {
             return false;
         }
@@ -141,6 +142,14 @@ public class EnvelopeActionService {
             .map(ProcessEvent::getCreatedAt)
             .max(naturalOrder())
             .orElseThrow(); // no events for the envelope is normally impossible
+        log.info(
+                "Envelope {} lastEventTimeStamp {} is {} hours before now {}, notificationTimeoutHr is {}",
+                envelope.getId(),
+                lastEventTimeStamp,
+                between(lastEventTimeStamp, now()).toHours(),
+                Instant.now(),
+                notificationTimeoutHr
+        );
         return between(lastEventTimeStamp, now()).toHours() > notificationTimeoutHr;
     }
 
