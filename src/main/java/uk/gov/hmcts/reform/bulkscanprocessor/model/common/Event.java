@@ -7,7 +7,6 @@ public enum Event {
     DOC_FAILURE, // generic failure while processing zip file. before uploading to document management
     FILE_VALIDATION_FAILURE,
     DISABLED_SERVICE_FAILURE,
-    DOC_SIGNATURE_FAILURE, // Signature verification failure while processing zip file
     DOC_UPLOADED,
     DOC_UPLOAD_FAILURE,
     DOC_PROCESSED_NOTIFICATION_SENT, // when document processed notification is posted (to servicebus queue)

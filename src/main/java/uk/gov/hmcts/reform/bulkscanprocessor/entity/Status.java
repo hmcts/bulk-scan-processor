@@ -8,7 +8,6 @@ public enum Status {
 
     CREATED,
     METADATA_FAILURE,   // when we are aware of envelope, but there are inconsistency among files and metadata info
-    SIGNATURE_FAILURE,  // the zip archive failed signature verification
     UPLOADED,
     UPLOAD_FAILURE,
     NOTIFICATION_SENT,  // after notifying about a new envelope
@@ -18,8 +17,6 @@ public enum Status {
         switch (event) {
             case DOC_FAILURE:
                 return Optional.of(METADATA_FAILURE);
-            case DOC_SIGNATURE_FAILURE:
-                return Optional.of(SIGNATURE_FAILURE);
             case DOC_UPLOADED:
                 return Optional.of(UPLOADED);
             case DOC_UPLOAD_FAILURE:
@@ -30,5 +27,4 @@ public enum Status {
                 return Optional.empty();
         }
     }
-
 }
