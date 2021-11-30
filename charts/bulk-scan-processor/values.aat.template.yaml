@@ -55,7 +55,6 @@ java:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
-  devApplicationInsightsInstrumentKey: "f666440f-43c0-4abb-9c20-2ce175a374f0"
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
     LEASE_ACQUIRE_DELAY_IN_SECONDS: "15"
