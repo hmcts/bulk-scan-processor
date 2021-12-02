@@ -233,6 +233,10 @@ dependencyManagement {
     dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
       entry 'spring-cloud-starter-openfeign'
     }
+    // CVE-2014-3488 CVE-2015-2156
+    dependencySet(group: 'io.netty', version: '2.0.43.Final') {
+      entry 'netty-tcnative-boringssl-static'
+    }
   }
 
 }
@@ -291,7 +295,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.2'
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '2.0.1'
   implementation group: 'com.github.hmcts', name: 'document-management-client', version: '7.0.1'
-            
+
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.4'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.7'
 
