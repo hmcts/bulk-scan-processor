@@ -233,10 +233,6 @@ dependencyManagement {
     dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
       entry 'spring-cloud-starter-openfeign'
     }
-    // CVE-2014-3488 CVE-2015-2156
-    dependencySet(group: 'io.netty', version: '2.0.43.Final') {
-      entry 'netty-tcnative-boringssl-static'
-    }
   }
 
 }
