@@ -230,7 +230,7 @@ dependencyManagement {
       entry 'tomcat-embed-core'
     }
     // CVE-2021-22044
-    dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
+    dependencySet(group: 'org.springframework.cloud', version: '3.1.0') {
       entry 'spring-cloud-starter-openfeign'
     }
   }
