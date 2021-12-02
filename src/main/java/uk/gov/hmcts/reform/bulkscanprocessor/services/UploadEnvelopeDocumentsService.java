@@ -6,6 +6,7 @@ import com.azure.storage.blob.models.BlobStorageException;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileSizeExceedMaxUploadLimit;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -22,6 +23,7 @@ import java.util.zip.ZipInputStream;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_SIZE_EXCEED_UPLOAD_LIMIT_FAILURE;
 
 /**
  * Service responsible to upload envelopes ended in state after main processor task.
@@ -133,6 +135,15 @@ public class UploadEnvelopeDocumentsService {
         UUID envelopeId = envelope.getId();
         try (ZipInputStream zis = new ZipInputStream(blobClient.openInputStream())) {
             zipFileProcessor.extractPdfFiles(zis, zipFileName, pdfList -> uploadParsedZipFileName(envelope, pdfList));
+        } catch (FileSizeExceedMaxUploadLimit exception) {
+            log.error(
+                "PDF size exceeds max upload limit. Container: {}, File: {}, Envelope ID: {}",
+                containerName,
+                zipFileName,
+                envelopeId,
+                exception
+            );
+            rejectBlob(zipFileName, containerName, exception.getMessage(), envelopeId);
         } catch (Exception exception) {
             String message = String.format(
                 "Failed to process zip. File: %s, Container: %s, Envelope ID: %s",
@@ -179,6 +190,17 @@ public class UploadEnvelopeDocumentsService {
     private void createDocUploadFailureEvent(String containerName, String zipFileName, String reason, UUID envelopeId) {
         envelopeProcessor.createEvent(
             DOC_UPLOAD_FAILURE,
+            containerName,
+            zipFileName,
+            reason,
+            envelopeId
+        );
+    }
+
+    private void rejectBlob(String containerName, String zipFileName, String reason, UUID envelopeId) {
+        blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName);
+        envelopeProcessor.createEvent(
+            FILE_SIZE_EXCEED_UPLOAD_LIMIT_FAILURE,
             containerName,
             zipFileName,
             reason,
