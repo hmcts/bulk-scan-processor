@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_SIZE_EXCEED_UPLOAD_LIMIT_FAILURE;
@@ -136,14 +137,15 @@ public class UploadEnvelopeDocumentsService {
         try (ZipInputStream zis = new ZipInputStream(blobClient.openInputStream())) {
             zipFileProcessor.extractPdfFiles(zis, zipFileName, pdfList -> uploadParsedZipFileName(envelope, pdfList));
         } catch (FileSizeExceedMaxUploadLimit exception) {
-            log.error(
-                "PDF size exceeds max upload limit. Container: {}, File: {}, Envelope ID: {}",
+            String message = String.format(
+                "PDF size exceeds max upload limit. Container: %s, File: %s, Envelope ID:  %s",
                 containerName,
                 zipFileName,
-                envelopeId,
-                exception
+                envelopeId
             );
-            rejectBlob(zipFileName, containerName, exception.getMessage(), envelopeId);
+            log.error(message);
+            rejectBlob(containerName, zipFileName, exception.getMessage(), envelope);
+            throw new FailedUploadException(message, exception);
         } catch (Exception exception) {
             String message = String.format(
                 "Failed to process zip. File: %s, Container: %s, Envelope ID: %s",
@@ -197,15 +199,17 @@ public class UploadEnvelopeDocumentsService {
         );
     }
 
-    private void rejectBlob(String containerName, String zipFileName, String reason, UUID envelopeId) {
+    private void rejectBlob(String containerName, String zipFileName, String reason, Envelope envelope) {
         blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName);
         envelopeProcessor.createEvent(
             FILE_SIZE_EXCEED_UPLOAD_LIMIT_FAILURE,
             containerName,
             zipFileName,
             reason,
-            envelopeId
+            envelope.getId()
         );
+        envelope.setStatus(COMPLETED);
+        envelopeProcessor.saveEnvelope(envelope);
     }
 
     private static class FailedUploadException extends RuntimeException {
