@@ -238,7 +238,13 @@ class UploadEnvelopeDocumentsServiceTest {
         // then
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
         verify(envelopeProcessor, times(1))
-            .createEvent(eventCaptor.capture(), eq(CONTAINER_1), eq(ZIP_FILE_NAME), eq("PDF size exceeds the max upload size limit"), eq(envelopeId));
+            .createEvent(
+                eventCaptor.capture(),
+                eq(CONTAINER_1),
+                eq(ZIP_FILE_NAME),
+                eq("PDF size exceeds the max upload size limit"),
+                eq(envelopeId)
+            );
         assertThat(eventCaptor.getValue()).isEqualTo(Event.FILE_SIZE_EXCEED_UPLOAD_LIMIT_FAILURE);
 
         // and
