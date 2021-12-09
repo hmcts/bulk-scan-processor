@@ -10,6 +10,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileSizeExceedMaxUploadLimit;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -210,6 +212,46 @@ class UploadEnvelopeDocumentsServiceTest {
         verify(envelopeProcessor, times(1)).markAsUploadFailure(envelope);
     }
 
+    @Test
+    void should_mark_as_file_size_failure_when_any_pdf_exceeds_upload_limit() throws IOException {
+        // given
+        given(blobManager.listContainerClient(CONTAINER_1)).willReturn(blobContainer);
+        given(blobContainer.getBlobContainerName()).willReturn(CONTAINER_1);
+        given(blobContainer.getBlobClient(ZIP_FILE_NAME)).willReturn(blobClient);
+        leaseAcquired();
+        given(blobClient.openInputStream()).willReturn(mock(BlobInputStream.class));
+
+        // and
+        willThrow(new FileSizeExceedMaxUploadLimit("PDF size exceeds the max upload size limit"))
+            .given(zipFileProcessor).extractPdfFiles(any(ZipInputStream.class), eq(ZIP_FILE_NAME), any());
+
+        // and
+        Envelope envelope = mock(Envelope.class);
+        UUID envelopeId = UUID.randomUUID();
+        given(envelope.getId()).willReturn(envelopeId);
+        given(envelope.getZipFileName()).willReturn(ZIP_FILE_NAME);
+        given(blobClient.getContainerName()).willReturn(CONTAINER_1);
+
+        // when
+        uploadService.processByContainer(CONTAINER_1, singletonList(envelope));
+
+        // then
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        verify(envelopeProcessor, times(1))
+            .createEvent(
+                eventCaptor.capture(),
+                eq(CONTAINER_1),
+                eq(ZIP_FILE_NAME),
+                eq("PDF size exceeds the max upload size limit"),
+                eq(envelopeId)
+            );
+        assertThat(eventCaptor.getValue()).isEqualTo(Event.FILE_SIZE_EXCEED_UPLOAD_LIMIT_FAILURE);
+
+        // and
+        verify(blobManager).tryMoveFileToRejectedContainer(ZIP_FILE_NAME, CONTAINER_1);
+        verify(envelope).setStatus(Status.COMPLETED);
+        verify(envelopeProcessor, times(1)).saveEnvelope(envelope);
+    }
 
     @Test
     void should_mark_as_uploaded_when_everything_went_well() throws Exception {
