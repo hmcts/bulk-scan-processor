@@ -321,7 +321,7 @@ dependencies {
     exclude group: 'junit', module: 'junit'
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
-  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '1.1.0'
+  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '1.1.1'
   testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.2.2', classifier: 'all', {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
