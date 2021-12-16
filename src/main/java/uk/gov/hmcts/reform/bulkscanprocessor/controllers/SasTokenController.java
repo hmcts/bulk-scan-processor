@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +22,8 @@ public class SasTokenController {
     }
 
     @GetMapping(path = "/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get SAS Token to access blob storage")
-    @ApiResponse(code = 200, message = "Success")
+    @Operation(description = "Get SAS Token to access blob storage")
+    @ApiResponse(responseCode = "200", description = "Success")
     public ResponseEntity<SasTokenResponse> getSasToken(@PathVariable String serviceName) {
         String sasToken = tokenGeneratorService.generateSasToken(serviceName);
 

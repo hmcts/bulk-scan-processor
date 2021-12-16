@@ -213,7 +213,6 @@ def versions = [
   junit: '5.8.2',
   junitPlatform: '1.8.2',
   mockitoJupiter: '3.3.3',
-  springfoxSwagger: '2.9.2',
   reformLogging: '5.1.9',
   apiguardian     : '1.1.2'
 ]
@@ -224,13 +223,8 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '31.0.1-jre') {
       entry 'guava'
     }
-    // CVE-2021-42340
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.54') {
-      entry 'tomcat-embed-websocket'
-      entry 'tomcat-embed-core'
-    }
     // CVE-2021-22044
-    dependencySet(group: 'org.springframework.cloud', version: '3.0.5') {
+    dependencySet(group: 'org.springframework.cloud', version: '3.1.0') {
       entry 'spring-cloud-starter-openfeign'
     }
     // CVE-2014-3488 CVE-2015-2156
@@ -291,8 +285,7 @@ dependencies {
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.14.0'
 
-  implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
-  implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.5.13'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
@@ -300,7 +293,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '2.0.1'
   implementation group: 'com.github.hmcts', name: 'document-management-client', version: '7.0.1'
 
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.4'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.0'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.7'
 
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.0'

@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,14 +21,14 @@ public class ActionController {
     }
 
     @PutMapping(path = "/reprocess/{id}")
-    @ApiOperation("Reprocess envelope by ID")
+    @Operation(description = "Reprocess envelope by ID")
     public ResponseEntity<Void> reprocess(@PathVariable UUID id) {
         envelopeActionService.reprocessEnvelope(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping(path = "/{id}/complete")
-    @ApiOperation("Reprocess envelope by ID")
+    @Operation(description = "Reprocess envelope by ID")
     public ResponseEntity<Void> makeCompleted(@PathVariable UUID id) {
         envelopeActionService.moveEnvelopeToCompleted(id);
         return new ResponseEntity<>(HttpStatus.OK);
