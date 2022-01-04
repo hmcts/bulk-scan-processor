@@ -4,17 +4,20 @@ import com.azure.storage.blob.models.BlobStorageException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileSizeExceedMaxUploadLimit;
 import uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -54,5 +57,20 @@ class ZipFileProcessorTest {
             () -> zipFileProcessor.extractPdfFiles(extractedZis, zipFileName, consumer)
         );
         assertThat(new File(FOLDER_NAME + File.separator + zipFileName)).doesNotExist();
+    }
+
+
+    @Test
+    void should_throw_file_size_exceed_exception_when_file_is_large() throws IOException {
+        File file1 = mock(File.class);
+        given(file1.length()).willReturn(200_000_000L);
+        File  file2 = mock(File.class);
+        given(file2.length()).willReturn(314_572_801L);
+        given(file2.getName()).willReturn("mock_file2.pdf");
+        List<File> fileList = List.of(file1, file2);
+        assertThrows(
+            FileSizeExceedMaxUploadLimit.class,
+            () -> zipFileProcessor.checkFileSizeAgainstUploadLimit(fileList)
+        );
     }
 }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.FileSizeExceedMaxUploadLimit;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.NonPdfFileFoundException;
 
 import java.io.File;
@@ -22,6 +23,7 @@ import static com.google.common.io.ByteStreams.toByteArray;
 
 @Component
 public class ZipFileProcessor {
+    private static final long MAX_PDF_SIZE = 314_572_800; //300 mb
 
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
     public final String downloadPath;
@@ -36,11 +38,27 @@ public class ZipFileProcessor {
         Consumer<List<File>> pdfListConsumer
     ) throws IOException {
         try {
-            pdfListConsumer.accept(createPdfAndSaveToTemp(extractedZis, zipFileName));
+            List<File> fileList = createPdfAndSaveToTemp(extractedZis, zipFileName);
+            checkFileSizeAgainstUploadLimit(fileList);
+            pdfListConsumer.accept(fileList);
             log.info("Function consumed, zipFileName {}", zipFileName);
         } finally {
             deleteFolder(zipFileName);
         }
+    }
+
+    public void checkFileSizeAgainstUploadLimit(List<File> fileList) {
+        long totalSize = 0;
+        for (File file : fileList) {
+            long fileSize = file.length();
+            if (fileSize > MAX_PDF_SIZE) {
+                log.info("PDF size exceeds the max upload size limit, {} {} ", file.getName(), fileSize);
+                throw new FileSizeExceedMaxUploadLimit("Pdf size =" + fileSize
+                                                           + " exceeds the max limit=" + MAX_PDF_SIZE);
+            }
+            totalSize += fileSize;
+        }
+        log.info("Total upload size {}", totalSize);
     }
 
     private void deleteFolder(String zipFileName) {

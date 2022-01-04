@@ -4,13 +4,13 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.flywaydb.flyway' version '8.0.2'
-  id 'org.springframework.boot' version '2.5.6'
-  id 'org.owasp.dependencycheck' version '6.3.2'
-  id 'com.github.ben-manes.versions' version '0.39.0'
+  id 'org.flywaydb.flyway' version '8.3.0'
+  id 'org.springframework.boot' version '2.6.2'
+  id 'org.owasp.dependencycheck' version '6.5.2.1'
+  id 'com.github.ben-manes.versions' version '0.40.0'
   id 'org.sonarqube' version '3.3'
   id "info.solidsoft.pitest" version '1.7.0'
-  id 'au.com.dius.pact' version '4.2.14'
+  id 'au.com.dius.pact' version '4.3.2'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -210,10 +210,9 @@ dependencyCheck {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
-  junit: '5.8.1',
-  junitPlatform: '1.8.1',
+  junit: '5.8.2',
+  junitPlatform: '1.8.2',
   mockitoJupiter: '3.3.3',
-  springfoxSwagger: '2.9.2',
   reformLogging: '5.1.9',
   apiguardian     : '1.1.2'
 ]
@@ -224,10 +223,17 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '31.0.1-jre') {
       entry 'guava'
     }
-    // CVE-2021-42340
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.54') {
-      entry 'tomcat-embed-websocket'
-      entry 'tomcat-embed-core'
+    // CVE-2021-22044
+    dependencySet(group: 'org.springframework.cloud', version: '3.1.0') {
+      entry 'spring-cloud-starter-openfeign'
+    }
+    // CVE-2014-3488 CVE-2015-2156
+    dependencySet(group: 'io.netty', version: '2.0.43.Final') {
+      entry 'netty-tcnative-boringssl-static'
+    }
+    dependencySet(group: 'org.apache.logging.log4j', version: '2.17.1') {
+      entry 'log4j-api'
+      entry 'log4j-to-slf4j'
     }
   }
 
@@ -257,8 +263,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.29.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.29.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.30.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.30.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.11.1'
 
@@ -275,12 +281,11 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.15.0'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.0'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.1'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.14.0'
 
-  implementation group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
-  implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.5.13'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
@@ -290,7 +295,10 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.0.4'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.7'
 
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.0'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.0'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.8'
+
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.1'
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
   implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
@@ -299,7 +307,7 @@ dependencies {
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.4'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.5'
 
 
   testImplementation libraries.junit5
@@ -312,19 +320,19 @@ dependencies {
     exclude group: 'junit', module: 'junit'
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
-  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '1.1.0'
-  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.2.1', classifier: 'all', {
+  testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '1.1.2'
+  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.2.2', classifier: 'all', {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
-  testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.0'
+  testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.2'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.0.4', {
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.0', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.32.0'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.2', {
     exclude group: 'junit', module: 'junit'
   }

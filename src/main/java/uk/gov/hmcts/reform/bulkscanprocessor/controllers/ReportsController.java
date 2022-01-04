@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -52,6 +52,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.validation.ClockProvider;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
@@ -67,6 +68,7 @@ public class ReportsController {
     private final ReconciliationService reconciliationService;
     private final ReceivedScannableItemsService receivedScannableItemsService;
     private final ReceivedPaymentsService receivedPaymentsService;
+    private final ClockProvider clockProvider;
 
     // region constructor
     public ReportsController(
@@ -75,7 +77,8 @@ public class ReportsController {
             RejectedZipFilesService rejectedZipFilesService,
             ReconciliationService reconciliationService,
             ReceivedScannableItemsService receivedScannableItemsService,
-            ReceivedPaymentsService receivedPaymentsService
+            ReceivedPaymentsService receivedPaymentsService,
+            ClockProvider clockProvider
     ) {
         this.reportsService = reportsService;
         this.rejectedFilesReportService = rejectedFilesReportService;
@@ -83,11 +86,12 @@ public class ReportsController {
         this.reconciliationService = reconciliationService;
         this.receivedScannableItemsService = receivedScannableItemsService;
         this.receivedPaymentsService = receivedPaymentsService;
+        this.clockProvider = clockProvider;
     }
     // endregion
 
     @GetMapping(path = "/count-summary", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves envelope count summary report")
+    @Operation(description = "Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getCountSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
@@ -97,7 +101,7 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/count-summary-report", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves envelope count summary report")
+    @Operation(description = "Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getSummaryCountFor(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
@@ -107,7 +111,7 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves zip files summary report in json format for the given date and container")
+    @Operation(description = "Retrieves zip files summary report in json format for the given date and container")
     public ZipFilesSummaryReportListResponse getZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "container", required = false) String container,
@@ -135,7 +139,7 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @ApiOperation("Retrieves zip files summary report in csv format for the given date and container")
+    @Operation(description = "Retrieves zip files summary report in csv format for the given date and container")
     public ResponseEntity downloadZipFilesSummary(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
         @RequestParam(name = "container", required = false) String container
@@ -150,14 +154,14 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/rejected", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves rejected files")
+    @Operation(description = "Retrieves rejected files")
     public RejectedFilesResponse getRejectedFiles() {
         List<RejectedFile> rejectedEnvs = rejectedFilesReportService.getRejectedFiles();
         return new RejectedFilesResponse(rejectedEnvs.size(), rejectedEnvs);
     }
 
     @GetMapping(path = "/rejected-zip-files", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves rejected files")
+    @Operation(description = "Retrieves rejected files")
     public RejectedZipFilesResponse getRejectedZipFiles(
             @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
     ) {
@@ -182,7 +186,7 @@ public class ReportsController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @ApiOperation("Retrieves reconciliation report")
+    @Operation(description = "Retrieves reconciliation report")
     public ReconciliationReportResponse getReconciliationReport(
         @RequestBody ReconciliationStatement statement
     ) {
@@ -202,7 +206,7 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/received-scannable-items", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves scannable items")
+    @Operation(description = "Retrieves scannable items")
     public ReceivedScannableItemsResponse getReceivedScannableItems(
             @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
             @RequestParam(name = "per_document_type", required = false) boolean perDocumentType
@@ -247,7 +251,7 @@ public class ReportsController {
     }
 
     @GetMapping(path = "/received-payments", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Retrieves payments")
+    @Operation(description = "Retrieves payments")
     public ReceivedPaymentsResponse getReceivedPayments(
             @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
             @RequestParam(name = "per_document_type", required = false) boolean perDocumentType
@@ -276,14 +280,17 @@ public class ReportsController {
     private EnvelopeCountSummaryReportListResponse getEnvelopeCountSummaryReportListResponse(
             List<EnvelopeCountSummary> result
     ) {
-        return new EnvelopeCountSummaryReportListResponse(result
+        return new EnvelopeCountSummaryReportListResponse(
+            result
                 .stream()
                 .map(item -> new EnvelopeCountSummaryReportItem(
-                        item.received,
-                        item.rejected,
-                        item.container,
-                        item.date
+                    item.received,
+                    item.rejected,
+                    item.container,
+                    item.date
                 ))
-                .collect(toList()));
+                .collect(toList()),
+            clockProvider
+        );
     }
 }
