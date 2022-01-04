@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -40,12 +40,12 @@ public class PaymentController {
     }
 
     @PutMapping(path = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Update's payment status to SUBMITTED")
+    @Operation(description = "Update's payment status to SUBMITTED")
     @ApiResponses({
-        @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE),
-        @ApiResponse(code = 401, message = "Invalid service authorisation header"),
-        @ApiResponse(code = 403, message = "Service not configured"),
-        @ApiResponse(code = 400, message = "Bad request")
+        @ApiResponse(responseCode = "200", description = SUCCESSFUL_UPDATE),
+        @ApiResponse(responseCode = "401", description = "Invalid service authorisation header"),
+        @ApiResponse(responseCode = "403", description = "Service not configured"),
+        @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<PaymentStatusReponse> updatePayments(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,

@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class SasTokenResponse {
-    @ApiModelProperty(
+    @Schema(
         name = "SAS Token",
-        notes = "Shared access token to access blob"
+        description = "Shared access token to access blob"
     )
     @JsonProperty("sas_token")
     public final String sasToken;

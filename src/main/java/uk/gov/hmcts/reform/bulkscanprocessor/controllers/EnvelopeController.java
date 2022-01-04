@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,11 +45,15 @@ public class EnvelopeController {
     }
 
     @GetMapping
-    @ApiOperation(
-        value = "Retrieves all envelopes",
-        notes = "Returns an empty list when no envelopes were found"
+    @Operation(
+        summary = "Retrieves all envelopes",
+        description = "Returns an empty list when no envelopes were found"
     )
-    @ApiResponse(code = 200, message = "Success", response = EnvelopeListResponse.class)
+    @ApiResponse(
+        responseCode = "200",
+        description = "Success",
+        content = @Content(schema = @Schema(implementation = EnvelopeListResponse.class))
+    )
     public EnvelopeListResponse getAll(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,
         @RequestParam(name = "status", required = false) Status status
@@ -60,7 +66,7 @@ public class EnvelopeController {
     }
 
     @GetMapping(path = "/{id}")
-    @ApiOperation("Read single envelope by ID")
+    @Operation(description = "Read single envelope by ID")
     public EnvelopeResponse getById(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,
         @PathVariable UUID id
@@ -72,7 +78,7 @@ public class EnvelopeController {
     }
 
     @GetMapping(path = "/{container}/{file_name}")
-    @ApiOperation(value = "Read single envelope by filename and container", hidden = true)
+    @Operation(description = "Read single envelope by filename and container", hidden = true)
     public EnvelopeResponse getByContainerAndFileName(
         @PathVariable(name = "container") String container,
         @PathVariable(name = "file_name") String fileName
@@ -82,11 +88,15 @@ public class EnvelopeController {
     }
 
     @GetMapping(path = "/stale-incomplete-envelopes")
-    @ApiOperation(
-        value = "Retrieves incomplete stale envelopes",
-        notes = "Returns an empty list when no incomplete stale envelopes were found"
+    @Operation(
+        summary = "Retrieves incomplete stale envelopes",
+        description = "Returns an empty list when no incomplete stale envelopes were found"
     )
-    @ApiResponse(code = 200, message = "Success", response = EnvelopeListResponse.class)
+    @ApiResponse(
+        responseCode = "200",
+        description = "Success",
+        content = @Content(schema = @Schema(implementation = EnvelopeListResponse.class))
+    )
     public SearchResult getIncomplete(
         @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
             int staleTime

@@ -47,8 +47,6 @@ public class BlobContainerInfoContributorTest {
         this.mockMvc.perform(get("/info"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.app.name").value("Bulk Scan Processor"))
-            .andExpect(jsonPath("$.app.description").isNotEmpty())
             .andExpect(jsonPath("$.containers[0]").value("sscs"))
             .andExpect(jsonPath("$.containers[1]").value("bulkscan"))
             .andExpect(jsonPath("$.containers[2]").value("sscs-rejected"));
