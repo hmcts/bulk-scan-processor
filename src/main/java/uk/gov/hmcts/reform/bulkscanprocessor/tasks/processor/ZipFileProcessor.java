@@ -58,7 +58,7 @@ public class ZipFileProcessor {
             }
             totalSize += fileSize;
         }
-        log.info("Total upload size ", totalSize);
+        log.info("Total upload size {}", totalSize);
     }
 
     private void deleteFolder(String zipFileName) {
