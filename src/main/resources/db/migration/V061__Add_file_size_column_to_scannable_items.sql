@@ -1,0 +1,2 @@
+ALTER TABLE scannable_items
+    ADD COLUMN fileSize INTEGER NOT NULL DEFAULT 0;
