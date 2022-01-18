@@ -227,10 +227,6 @@ dependencyManagement {
     dependencySet(group: 'org.springframework.cloud', version: '3.1.0') {
       entry 'spring-cloud-starter-openfeign'
     }
-    // CVE-2014-3488 CVE-2015-2156
-    dependencySet(group: 'io.netty', version: '2.0.47.Final') {
-      entry 'netty-tcnative-boringssl-static'
-    }
     dependencySet(group: 'org.apache.logging.log4j', version: '2.17.1') {
       entry 'log4j-api'
       entry 'log4j-to-slf4j'
