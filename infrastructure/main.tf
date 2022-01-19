@@ -129,7 +129,6 @@ module "bulk-scan" {
     OCR_VALIDATION_URL_PROBATE             = "${var.ocr_validation_url_probate}"
 
     NO_NEW_ENVELOPES_TASK_ENABLED     = "false"
-    PUBLICLAW_ENABLED                 = "true"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
