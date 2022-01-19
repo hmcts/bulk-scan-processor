@@ -124,6 +124,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: publiclaw
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: privatelaw
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 containers:
   mappings:
@@ -174,6 +176,12 @@ containers:
         - 12879
       paymentsEnabled: false
       enabled: ${PUBLICLAW_ENABLED}
+    - container: privatelaw
+      jurisdiction: PRIVATELAW
+      poBoxes:
+        - 12345
+      paymentsEnabled: false
+      enabled: ${PRIVATELAW_ENABLED}
 
 # clients region
 

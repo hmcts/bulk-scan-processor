@@ -35,6 +35,7 @@ java:
     INCOMPLETE_ENVELOPES_TASK_CRON: "0 */15 * * * *"
     DELETE_REJECTED_FILES_TTL: PT72H
     PUBLICLAW_ENABLED: "true"
+    PRIVATELAW_ENABLED: "true"
     NO_NEW_ENVELOPES_TASK_ENABLED: "true"
     DELETE_COMPLETE_FILES_ENABLED: "true"
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
@@ -97,6 +98,10 @@ java:
           alias: idam.users.publiclaw.username
         - name: idam-users-publiclaw-password
           alias: idam.users.publiclaw.password
+        - name: idam-users-privatelaw-username
+          alias: idam.users.privatelaw.username
+        - name: idam-users-privatelaw-password
+          alias: idam.users.privatelaw.password
         - name: idam-users-sscs-username
           alias: idam.users.sscs.username
         - name: idam-users-sscs-password

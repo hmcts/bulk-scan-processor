@@ -130,6 +130,7 @@ module "bulk-scan" {
 
     NO_NEW_ENVELOPES_TASK_ENABLED     = "false"
     PUBLICLAW_ENABLED                 = "true"
+    PRIVATELAW_ENABLED                = "false"
 
     // silence the "bad implementation" logs
     LOGBACK_REQUIRE_ALERT_LEVEL = "false"
