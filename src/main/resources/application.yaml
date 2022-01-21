@@ -173,7 +173,6 @@ containers:
       poBoxes:
         - 12879
       paymentsEnabled: false
-      enabled: ${PUBLICLAW_ENABLED}
 
 # clients region
 
