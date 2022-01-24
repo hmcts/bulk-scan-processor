@@ -259,8 +259,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.31.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.31.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.32.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.32.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.11.1'
 
@@ -285,7 +285,7 @@ dependencies {
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
-  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.2'
+  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.3'
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '2.0.1'
   implementation group: 'com.github.hmcts', name: 'document-management-client', version: '7.0.1'
 
