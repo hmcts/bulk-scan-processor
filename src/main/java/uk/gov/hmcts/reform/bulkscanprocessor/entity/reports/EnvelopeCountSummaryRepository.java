@@ -68,4 +68,17 @@ public interface EnvelopeCountSummaryRepository extends JpaRepository<Envelope, 
                 + "GROUP BY first_events.container\n"
     )
     List<EnvelopeCountSummaryItem> getSummaryReportFor(@Param("date") LocalDate date);
+
+    @Query(
+        nativeQuery = true,
+            value = "SELECT\n"
+                + "    container,\n"
+                + "    date(:date) AS date,\n"
+                + "    count(*) AS received,\n"
+                + "    SUM(CASE WHEN status IN ('METADATA_FAILURE', 'UPLOAD_FAILURE') THEN 1 ELSE 0 END) AS rejected\n"
+                + "FROM envelopes\n"
+                + "WHERE date(zipfilecreateddate)=date(:date)\n"
+                + "GROUP BY container\n"
+    )
+    List<EnvelopeCountSummaryItem> getEnvelopeCountSummary(@Param("date") LocalDate date);
 }
