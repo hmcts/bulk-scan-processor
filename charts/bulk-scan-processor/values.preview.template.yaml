@@ -45,6 +45,9 @@ java:
     LEASE_ACQUIRE_DELAY_IN_SECONDS: "15"
     UPLOAD_TASK_DELAY: "2000"
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
+    S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
+    IDAM_API_URL: "https://idam-api.aat.platform.hmcts.net"
+    CDAM_URL: "http://ccd-case-document-am-api-aat.service.core-compute-aat.internal"
   keyVaults:
     "bulk-scan":
       secrets:
