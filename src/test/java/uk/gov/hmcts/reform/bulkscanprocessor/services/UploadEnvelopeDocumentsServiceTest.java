@@ -189,8 +189,7 @@ class UploadEnvelopeDocumentsServiceTest {
 
 
         // and
-        willThrow(new RuntimeException("oh no")).given(documentProcessor)
-            .uploadPdfFiles(emptyList(), emptyList(), "FB_BULK", CONTAINER_1);
+        willThrow(new RuntimeException("oh no")).given(documentProcessor).uploadPdfFiles(emptyList(), emptyList());
 
         // and
 
@@ -199,7 +198,6 @@ class UploadEnvelopeDocumentsServiceTest {
         given(envelope.getId()).willReturn(envelopeId);
         given(envelope.getZipFileName()).willReturn(ZIP_FILE_NAME);
         given(envelope.getContainer()).willReturn(CONTAINER_1);
-        given(envelope.getJurisdiction()).willReturn("FB_BULK");
 
         // when
         uploadService.processByContainer(CONTAINER_1, singletonList(envelope));
@@ -280,7 +278,7 @@ class UploadEnvelopeDocumentsServiceTest {
         assertThat(eventCaptor.getValue()).isEqualTo(Event.DOC_UPLOADED);
 
         // and
-        verify(documentProcessor, times(1)).uploadPdfFiles(files, emptyList(), "jurisdiction", CONTAINER_1);
+        verify(documentProcessor, times(1)).uploadPdfFiles(files, emptyList());
 
     }
 

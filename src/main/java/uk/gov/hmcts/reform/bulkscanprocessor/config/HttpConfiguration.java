@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.ccd.document.am.config.CaseDocumentManagementClientAutoConfiguration;
+import uk.gov.hmcts.reform.document.DocumentManagementClientAutoConfiguration;
 
-@AutoConfigureBefore(CaseDocumentManagementClientAutoConfiguration.class)
+@AutoConfigureBefore(DocumentManagementClientAutoConfiguration.class)
 @Configuration
 public class HttpConfiguration {
 

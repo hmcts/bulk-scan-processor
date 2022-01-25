@@ -24,7 +24,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,11 +57,11 @@ class DocumentProcessorTest {
 
         Map<String, String> response = ImmutableMap.of("test1.pdf", "http://localhost/documents/5fef5f98-e875-4084-b115-47188bc9066b");
 
-        when(documentManagementService.uploadDocuments(pdfs, "BULKSCAN","bulkscanauto")).thenReturn(response);
+        when(documentManagementService.uploadDocuments(pdfs)).thenReturn(response);
 
         //when
         ScannableItem scannableItem = scannableItem("test1.pdf");
-        documentProcessor.uploadPdfFiles(pdfs, ImmutableList.of(scannableItem),  "BULKSCAN","bulkscanauto");
+        documentProcessor.uploadPdfFiles(pdfs, ImmutableList.of(scannableItem));
 
         //then
 
@@ -72,7 +71,7 @@ class DocumentProcessorTest {
         //Verify scanned item was saved with doc url updated
         verify(scannableItemRepository).saveAll(ImmutableList.of(scannableItem));
 
-        verify(documentManagementService).uploadDocuments(pdfs, "BULKSCAN","bulkscanauto");
+        verify(documentManagementService).uploadDocuments(pdfs);
     }
 
     @Test
@@ -86,15 +85,14 @@ class DocumentProcessorTest {
             );
 
         // 'c' is missing
-        given(documentManagementService.uploadDocuments(any(), eq("BULKSCAN"), eq("bulkscanauto")))
+        given(documentManagementService.uploadDocuments(any()))
             .willReturn(ImmutableMap.of(
                 "a.pdf", "http://localhost/documents/uuida",
                 "b.pdf", "http://localhost/documents/uuidb"
             ));
 
         // when
-        Throwable exc = catchThrowable(() -> documentProcessor
-            .uploadPdfFiles(emptyList(), scannableItems, "BULKSCAN","bulkscanauto"));
+        Throwable exc = catchThrowable(() -> documentProcessor.uploadPdfFiles(emptyList(), scannableItems));
 
         // then
         assertThat(exc)

@@ -161,13 +161,7 @@ public class UploadEnvelopeDocumentsService {
 
     private void uploadParsedZipFileName(Envelope envelope, List<File> pdfs) {
         try {
-
-            documentProcessor.uploadPdfFiles(
-                pdfs,
-                envelope.getScannableItems(),
-                envelope.getJurisdiction(),
-                envelope.getContainer()
-            );
+            documentProcessor.uploadPdfFiles(pdfs, envelope.getScannableItems());
 
             log.info(
                 "Uploaded PDF files to Document Management. File {}, Container: {}, Envelope ID: {}",
