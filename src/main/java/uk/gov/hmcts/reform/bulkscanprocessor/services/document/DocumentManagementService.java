@@ -74,7 +74,7 @@ public class DocumentManagementService {
             );
         }
 
-        log.info("File upload response from Document Storage service is {}", documents);
+        log.info("File uploaded to CDAM, hash null != {}", (documents.get(0).hashToken != null));
 
         return createFileUploadResponse(documents);
     }
