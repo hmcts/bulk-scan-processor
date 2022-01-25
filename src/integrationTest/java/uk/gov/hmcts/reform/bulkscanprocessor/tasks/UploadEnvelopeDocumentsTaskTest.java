@@ -35,6 +35,7 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -88,7 +89,7 @@ public class UploadEnvelopeDocumentsTaskTest {
 
         // and
         given(tokenGenerator.generate()).willReturn("token");
-        given(documentManagementService.uploadDocuments(any()))
+        given(documentManagementService.uploadDocuments(any(), eq("BULKSCAN"), eq("bulkscan")))
             .willReturn(ImmutableMap.of(
                 "1111002.pdf", "http://localhost:8080/documents/" + UUID.randomUUID().toString()
             ));
@@ -123,7 +124,8 @@ public class UploadEnvelopeDocumentsTaskTest {
             .extracting(Envelope::getStatus)
             .isEqualTo(UPLOADED);
         ArgumentCaptor<List<File>> pdfListCaptor = ArgumentCaptor.forClass(List.class);
-        verify(documentManagementService, times(1)).uploadDocuments(pdfListCaptor.capture());
+        verify(documentManagementService, times(1))
+            .uploadDocuments(pdfListCaptor.capture(), eq("BULKSCAN"), eq("bulkscan"));
         assertThat(pdfListCaptor.getValue().get(0).getName()).isEqualTo("1111002.pdf");
     }
 
