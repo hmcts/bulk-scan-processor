@@ -74,7 +74,11 @@ public class DocumentManagementService {
             );
         }
 
-        log.info("File uploaded to CDAM, hash null != {}", (documents.get(0).hashToken != null));
+        log.info(
+            "File uploaded to CDAM, is hash null ={}, Url = {}",
+            (documents.get(0).hashToken != null),
+            documents.get(0).links.self.href
+        );
 
         return createFileUploadResponse(documents);
     }
