@@ -97,6 +97,18 @@ public class ReportsService {
                 .collect(toList());
     }
 
+    public List<EnvelopeCountSummary> getEnvelopeSummaryCountFor(LocalDate date, boolean includeTestContainer) {
+        long start = System.currentTimeMillis();
+        List<EnvelopeCountSummaryItem> countSummaryItems = repo.getEnvelopeCountSummary(date);
+        final List<EnvelopeCountSummary> reportResult = getEnvelopeCountSummaries(
+                date,
+                includeTestContainer,
+                countSummaryItems
+        );
+        log.info("Envelope count summary report took {} ms", System.currentTimeMillis() - start);
+        return reportResult;
+    }
+
     private List<EnvelopeCountSummary> getEnvelopeCountSummaries(
             LocalDate date,
             boolean includeTestContainer,
