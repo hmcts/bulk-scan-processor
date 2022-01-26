@@ -492,6 +492,41 @@ class EnvelopeCountSummaryRepositoryTest {
                 ));
     }
 
+    @Test
+    void should_handle_file_validation_failure_events() {
+        // given
+        dbHas(
+                event("service_A", "A1.zip", Instant.parse("2021-07-02T10:15:30Z"), ZIPFILE_PROCESSING_STARTED),
+                event("service_A", "A1.zip", Instant.parse("2021-07-02T10:15:31Z"), FILE_VALIDATION_FAILURE),
+
+                event("service_B", "B1.zip", Instant.parse("2021-07-02T10:15:32Z"), ZIPFILE_PROCESSING_STARTED),
+                event("service_B", "B1.zip", Instant.parse("2021-07-02T10:15:33Z"), FILE_VALIDATION_FAILURE),
+
+                event("service_C", "C1.zip", Instant.parse("2021-07-02T10:15:34Z"), ZIPFILE_PROCESSING_STARTED),
+                event("service_C", "C2.zip", Instant.parse("2021-07-02T10:15:35Z"), FILE_VALIDATION_FAILURE),
+
+                event("service_D", "D1.zip", Instant.parse("2021-07-02T10:15:36Z"), ZIPFILE_PROCESSING_STARTED),
+                event("service_D", "D1.zip", Instant.parse("2021-07-02T10:15:37Z"), DOC_UPLOADED),
+                event("service_D", "D1.zip", Instant.parse("2021-07-02T10:15:38Z"), DOC_PROCESSED_NOTIFICATION_SENT),
+                event("service_D", "D2.zip", Instant.parse("2021-07-02T10:15:39Z"), COMPLETED),
+
+                event("service_E", "E1.zip", Instant.parse("2021-07-03T10:15:41Z"), ZIPFILE_PROCESSING_STARTED),
+                event("service_E", "E1.zip", Instant.parse("2021-07-03T10:15:42Z"), FILE_VALIDATION_FAILURE)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getFileValidationFailureCountSummary(SUMMARY_DATE);
+
+        // then
+        assertThat(result)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyElementsOf(asList(
+                        new Item(SUMMARY_DATE, "service_A", 1, 1),
+                        new Item(SUMMARY_DATE, "service_B", 1, 1),
+                        new Item(SUMMARY_DATE, "service_C", 1, 1)
+                ));
+    }
+
     private void dbHas(ProcessEvent... events) {
         eventRepo.saveAll(asList(events));
     }

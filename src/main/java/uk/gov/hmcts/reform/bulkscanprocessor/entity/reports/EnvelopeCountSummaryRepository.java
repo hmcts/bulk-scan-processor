@@ -81,4 +81,17 @@ public interface EnvelopeCountSummaryRepository extends JpaRepository<Envelope, 
                 + "GROUP BY container\n"
     )
     List<EnvelopeCountSummaryItem> getEnvelopeCountSummary(@Param("date") LocalDate date);
+
+    @Query(
+        nativeQuery = true,
+            value = "SELECT\n"
+                + "    container,\n"
+                + "    date(:date) AS date,\n"
+                + "    count(*) AS received,\n"
+                + "    count(*) AS rejected\n"
+                + "FROM process_events\n"
+                + "WHERE event='FILE_VALIDATION_FAILURE' AND date(createdat)=date(:date)\n"
+                + "GROUP BY container\n"
+    )
+    List<EnvelopeCountSummaryItem> getFileValidationFailureCountSummary(@Param("date") LocalDate date);
 }
