@@ -176,6 +176,7 @@ class ReportsControllerTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "/reports/count-summary?date=",
+            "/reports/envelopes-count-summary?date=",
             "/reports/count-summary-report?date=",
             "/reports/zip-files-summary?date="
     })
@@ -248,6 +249,69 @@ class ReportsControllerTest {
         mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14&include-test=false"));
 
         verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), false);
+    }
+
+    @Test
+    void envelopes_count_summary_report_should_return_result_generated_by_the_service() throws Exception {
+
+        final EnvelopeCountSummary countSummaryOne = new EnvelopeCountSummary(
+                152, 11, "container1", LocalDate.of(2021, 3, 4)
+        );
+        final EnvelopeCountSummary countSummaryTwo = new EnvelopeCountSummary(
+                178, 13, "container2", LocalDate.of(2021, 3, 4)
+        );
+        List<EnvelopeCountSummary> envelopeCountSummaryList = new ArrayList<>();
+        envelopeCountSummaryList.add(countSummaryOne);
+        envelopeCountSummaryList.add(countSummaryTwo);
+        given(reportsService.getEnvelopeSummaryCountFor(LocalDate.of(2021, 3, 4), false))
+                .willReturn(envelopeCountSummaryList);
+
+        EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
+                envelopeCountSummaryList.stream()
+                        .map(item -> new EnvelopeCountSummaryReportItem(
+                                item.received,
+                                item.rejected,
+                                item.container,
+                                item.date
+                        ))
+                        .collect(toList()),
+                clockProvider
+        );
+
+        mockMvc
+                .perform(get("/reports/envelopes-count-summary?date=2021-03-04"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total_received").value(response.totalReceived))
+                .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
+                .andExpect(jsonPath("$.time_stamp").value(
+                        response.timeStamp.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))
+                .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))
+                .andExpect(jsonPath("$.data[0].container").value(response.items.get(0).container))
+                .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
+    }
+
+    @Test
+    void envelopes_count_summary_report_should_not_include_test_container_by_default() throws Exception {
+        mockMvc.perform(get("/reports/envelopes-count-summary?date=2019-01-14"));
+        verify(reportsService).getEnvelopeSummaryCountFor(LocalDate.of(2019, 1, 14), false);
+    }
+
+    @Test
+    void envelopes_count_summary_report_should_include_test_container_if_requested_by_the_client() throws Exception {
+        mockMvc.perform(get("/reports/envelopes-count-summary?date=2019-01-14&include-test=true"));
+
+        verify(reportsService).getEnvelopeSummaryCountFor(LocalDate.of(2019, 1, 14), true);
+    }
+
+    @Test
+    void envelopes_count_summary_report_should_not_include_test_container_if_explicitly_not_requested_by_the_client()
+            throws Exception {
+        mockMvc.perform(get("/reports/envelopes-count-summary?date=2019-01-14&include-test=false"));
+
+        verify(reportsService).getEnvelopeSummaryCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
     @Test

@@ -100,6 +100,16 @@ public class ReportsController {
         return getEnvelopeCountSummaryReportListResponse(result);
     }
 
+    @GetMapping(path = "/envelopes-count-summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Retrieves count summary report for envelopes")
+    public EnvelopeCountSummaryReportListResponse getEnvelopeCountSummary(
+        @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date,
+        @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
+    ) {
+        List<EnvelopeCountSummary> result = reportsService.getEnvelopeSummaryCountFor(date, includeTestContainer);
+        return getEnvelopeCountSummaryReportListResponse(result);
+    }
+
     @GetMapping(path = "/count-summary-report", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getSummaryCountFor(
