@@ -124,6 +124,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: publiclaw
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: nfd
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
 containers:
   mappings:
@@ -173,6 +175,12 @@ containers:
       poBoxes:
         - 12879
       paymentsEnabled: false
+    - container: nfd
+      jurisdiction: DIVORCE
+      poBoxes:
+        - 1111111
+      ocrValidationUrl: ${OCR_VALIDATION_URL_NFD}
+      paymentsEnabled: true
 
 # clients region
 
@@ -188,8 +196,8 @@ idam:
     cache:
       refresh-before-expire-in-sec: 300
 
-document_management:
-  url: http://dm-store:4460
+case_document_am:
+  url: ${CDAM_URL:http://localhost:4455}
 
 tmp-folder-path-for-download: "/var/tmp/download/blobs"
 # end of clients region

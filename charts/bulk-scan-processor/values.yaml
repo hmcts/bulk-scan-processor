@@ -7,12 +7,12 @@ java:
     S2S_NAME: "bulk_scan_processor"
     SMTP_HOST: "false"
     S2S_URL: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-    DOCUMENT_MANAGEMENT_URL: http://dm-store-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP: http://bulk-scan-sample-app-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_PROBATE: http://probate-back-office-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_DIVORCE: http://div-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_FINREM: http://finrem-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_SSCS: http://sscs-bulk-scan-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    OCR_VALIDATION_URL_NFD: http://div-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     SCAN_ENABLED: "true"
     SCAN_DELAY: "4000"
     LEASE_ACQUIRE_DELAY_IN_SECONDS: "300"
@@ -47,6 +47,7 @@ java:
     NOTIFICATION_STALE_TIMEOUT_HR: 48
     IDAM_API_URL: "https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net"
     IDAM_CLIENT_REDIRECT_URI: "https://bulk-scan-orchestrator-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
+    CDAM_URL: "http://ccd-case-document-am-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
   keyVaults:
     "bulk-scan":
       secrets:

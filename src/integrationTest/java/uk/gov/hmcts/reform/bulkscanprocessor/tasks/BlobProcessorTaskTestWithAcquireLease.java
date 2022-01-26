@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
@@ -28,7 +29,7 @@ public class BlobProcessorTaskTestWithAcquireLease extends ProcessorTestSuite {
         // Given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/ok"));
 
-        given(documentManagementService.uploadDocuments(any()))
+        given(documentManagementService.uploadDocuments(any(), eq("BULKSCAN"), eq("bulkscan")))
             .willReturn(ImmutableMap.of(
                 "1111002.pdf", DOCUMENT_URL2
             ));

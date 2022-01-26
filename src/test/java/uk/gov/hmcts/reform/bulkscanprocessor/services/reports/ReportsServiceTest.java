@@ -416,6 +416,62 @@ class ReportsServiceTest {
         assertThat(result.get(0).classification).isEqualTo(NEW_APPLICATION.name());
     }
 
+    @Test
+    void envelope_summary_count_report_should_map_repo_result_properly_when_requested_for_envelope_count_summary() {
+        given(repo.getEnvelopeCountSummary(now()))
+                .willReturn(asList(
+                        new Item(now().plusDays(1), "A", 100, 1),
+                        new Item(now().minusDays(1), "B", 200, 9)
+                ));
+        given(this.zeroRowFiller.fill(any(), any()))
+                .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
+
+        // when
+        List<EnvelopeCountSummary> result = service.getEnvelopeSummaryCountFor(now(), false);
+
+        // then
+        assertThat(result)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactly(
+                        new EnvelopeCountSummary(100, 1, "A", now().plusDays(1)),
+                        new EnvelopeCountSummary(200, 9, "B", now().minusDays(1))
+            );
+    }
+
+    @Test
+    void envelope_summary_count_report_should_filter_out_test_container_when_requested_for_envelope_count_summary() {
+        given(repo.getEnvelopeCountSummary(now()))
+                .willReturn(asList(
+                        new Item(now(), TEST_CONTAINER, 100, 1),
+                        new Item(now(), "some_other_container", 10, 0)
+                ));
+        given(this.zeroRowFiller.fill(any(), any()))
+                .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
+
+        // when
+        List<EnvelopeCountSummary> resultWithoutTestContainer = service.getEnvelopeSummaryCountFor(now(), false);
+        List<EnvelopeCountSummary> resultWithTestContainer = service.getEnvelopeSummaryCountFor(now(), true);
+
+        // then
+        assertThat(resultWithoutTestContainer).hasSize(1);
+        assertThat(resultWithoutTestContainer.get(0).container).isEqualTo("some_other_container");
+
+        assertThat(resultWithTestContainer).hasSize(2);
+    }
+
+    @Test
+    void envelope_summary_count_report_should_map_empty_list_from_repo_when_requested_for_envelope_count_summary() {
+        given(repo.getEnvelopeCountSummary(now())).willReturn(emptyList());
+        given(this.zeroRowFiller.fill(any(), any()))
+                .willAnswer(invocation -> invocation.getArgument(0)); // return data unchanged
+
+        // when
+        List<EnvelopeCountSummary> result = service.getEnvelopeSummaryCountFor(now(), false);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
     private LocalTime toLocalTime(Instant instant) {
         return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss").format(instant.atZone(EUROPE_LONDON_ZONE_ID)));
     }
