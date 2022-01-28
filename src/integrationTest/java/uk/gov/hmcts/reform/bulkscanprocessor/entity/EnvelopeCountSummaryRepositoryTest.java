@@ -492,6 +492,67 @@ class EnvelopeCountSummaryRepositoryTest {
                 ));
     }
 
+    @Test
+    void envelope_summary_report_should_provide_counts_for_date_with_failure_events() {
+        // given
+        dbHas(
+                envelope("service_A", Status.COMPLETED, Instant.parse("2021-07-02T10:15:30Z")),
+                envelope("service_A", Status.METADATA_FAILURE, Instant.parse("2021-07-02T10:15:31Z")),
+                envelope("service_B", Status.COMPLETED, Instant.parse("2021-07-02T10:15:32Z")),
+                envelope("service_B", Status.COMPLETED, Instant.parse("2021-07-02T10:15:33Z")),
+                envelope("service_B", Status.UPLOAD_FAILURE, Instant.parse("2021-07-02T10:15:34Z")),
+                envelope("service_B", Status.NOTIFICATION_SENT, Instant.parse("2021-07-02T10:15:35Z")),
+
+                // next day
+                envelope("service_B", Status.COMPLETED, Instant.parse("2021-07-03T10:15:36Z"))
+        );
+        dbHas(
+                event("service_A", Instant.parse("2021-07-02T10:15:37Z"), FILE_VALIDATION_FAILURE),
+
+                // another event type
+                event("service_A", Instant.parse("2021-07-02T10:15:38Z"), DOC_FAILURE),
+
+                // next day
+                event("service_A", Instant.parse("2021-07-03T10:15:39Z"), FILE_VALIDATION_FAILURE)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getEnvelopeCountSummary(SUMMARY_DATE);
+
+        // then
+        assertThat(result)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyElementsOf(asList(
+                        new Item(SUMMARY_DATE, "service_A", 3, 2),
+                        new Item(SUMMARY_DATE, "service_B", 4, 1)
+                ));
+    }
+
+    @Test
+    void envelope_summary_report_should_provide_counts_for_date_with_failure_events_only() {
+        // given
+        dbHas(
+                event("service_A", Instant.parse("2021-07-02T10:15:37Z"), FILE_VALIDATION_FAILURE),
+                event("service_A", Instant.parse("2021-07-02T10:15:38Z"), FILE_VALIDATION_FAILURE),
+                event("service_B", Instant.parse("2021-07-02T10:15:39Z"), FILE_VALIDATION_FAILURE),
+
+                // next day
+                event("service_A", Instant.parse("2021-07-03T10:15:40Z"), FILE_VALIDATION_FAILURE),
+                event("service_A", Instant.parse("2021-07-03T10:15:41Z"), FILE_VALIDATION_FAILURE)
+        );
+
+        // when
+        List<EnvelopeCountSummaryItem> result = reportRepo.getEnvelopeCountSummary(SUMMARY_DATE);
+
+        // then
+        assertThat(result)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyElementsOf(asList(
+                        new Item(SUMMARY_DATE, "service_A", 2, 2),
+                        new Item(SUMMARY_DATE, "service_B", 1, 1)
+                ));
+    }
+
     private void dbHas(ProcessEvent... events) {
         eventRepo.saveAll(asList(events));
     }
