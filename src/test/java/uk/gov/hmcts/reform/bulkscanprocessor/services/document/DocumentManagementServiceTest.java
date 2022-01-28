@@ -86,8 +86,8 @@ class DocumentManagementServiceTest {
 
         //then
         assertThat(actualUploadResponse).containsValues(
-            "http://localhost:8080/documents/1971cadc-9f79-4e1d-9033-84543bbbbc1d",
-            "http://dm-store:8080/documents/46f068e9-a395-49b3-a819-18e8c1327f11"
+            "http://localhost:8080/documents/1971cadc",
+            "http://dm:8080/documents/46f068e9"
         );
 
         assertThat(actualUploadResponse).containsKeys("test1.pdf", "test2.pdf");
