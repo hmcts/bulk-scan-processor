@@ -37,7 +37,7 @@ public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite 
         File pdf =
             new File(DOWNLOAD_PATH + SAMPLE_ZIP_FILE_NAME +  "1111002.pdf");
 
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf), "BULKSCAN", "bulkscan"))
             .willReturn(ImmutableMap.of(
                 "1111002.pdf", DOCUMENT_URL2
             ));

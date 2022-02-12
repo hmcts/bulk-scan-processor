@@ -37,7 +37,7 @@ public class BlobProcessorTaskTestForDisabledPayments extends ProcessorTestSuite
         File pdf = new File(getResource("zipcontents/disabled_payments/1111002.pdf").toURI());
 
 
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf)))
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf), "BULKSCAN", "bulkscan"))
             .willReturn(ImmutableMap.of(
                 "1111002.pdf", DOCUMENT_URL2
             ));
