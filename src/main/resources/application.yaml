@@ -177,13 +177,12 @@ containers:
       poBoxes:
         - 12879
       paymentsEnabled: false
-      enabled: true
     - container: privatelaw
       jurisdiction: PRIVATELAW
       poBoxes:
         - 12345
       paymentsEnabled: false
-      enabled: false
+      enabled: ${PRIVATELAW_ENABLED}
     - container: nfd
       jurisdiction: DIVORCE
       poBoxes:
