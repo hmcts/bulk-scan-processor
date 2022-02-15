@@ -72,7 +72,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "sscs", "finrem", "probate", "publiclaw" })
+    @ValueSource(strings = { "sscs", "finrem", "probate", "publiclaw", "privatelaw" })
     public void should_return_sas_token_when_service_configuration_is_available(String container) throws Exception {
         verifySasTokenProperties(sendSasTokenRequest(container));
     }
