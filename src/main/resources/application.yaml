@@ -124,6 +124,8 @@ accesstoken:
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: publiclaw
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: privatelaw
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: nfd
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
 
@@ -175,6 +177,12 @@ containers:
       poBoxes:
         - 12879
       paymentsEnabled: false
+    - container: privatelaw
+      jurisdiction: PRIVATELAW
+      poBoxes:
+        - 12345
+      paymentsEnabled: false
+      enabled: ${PRIVATELAW_ENABLED:false}
     - container: nfd
       jurisdiction: DIVORCE
       poBoxes:
