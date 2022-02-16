@@ -186,7 +186,7 @@ containers:
     - container: nfd
       jurisdiction: DIVORCE
       poBoxes:
-        - 1111111
+        - 13226
       ocrValidationUrl: ${OCR_VALIDATION_URL_NFD}
       paymentsEnabled: true
 
