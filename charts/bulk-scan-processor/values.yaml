@@ -98,10 +98,6 @@ java:
           alias: idam.users.publiclaw.username
         - name: idam-users-publiclaw-password
           alias: idam.users.publiclaw.password
-        - name: idam-users-privatelaw-username
-          alias: idam.users.privatelaw.username
-        - name: idam-users-privatelaw-password
-          alias: idam.users.privatelaw.password
         - name: idam-users-sscs-username
           alias: idam.users.sscs.username
         - name: idam-users-sscs-password
