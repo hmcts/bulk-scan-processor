@@ -182,6 +182,7 @@ containers:
       poBoxes:
         - 12345
       paymentsEnabled: false
+      enabled: ${PRIVATELAW_ENABLED:false}
     - container: nfd
       jurisdiction: DIVORCE
       poBoxes:
