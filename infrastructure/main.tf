@@ -41,15 +41,23 @@ module "bulk-scan-db" {
   subscription       = var.subscription
 }
 
+data "azurerm_subnet" "postgres" {
+  name                 = "core-infra-subnet-0-${var.env}"
+  resource_group_name  = "core-infra-${var.env}"
+  virtual_network_name = "core-infra-vnet-${var.env}"
+}
+
 module "bulk-scan-db-v11" {
-  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  source             = "git@github.com:hmcts/cnp-module-postgres?ref=postgresql_tf"
   product            = var.product
   component          = var.component
+  name               = join("-", [var.product,var.component,"postgres-db-v11"])
   location           = var.location_db
   env                = var.env
   database_name      = var.database_name
   postgresql_user    = var.postgresql_user
   postgresql_version = "11"
+  subnet_id          = data.azurerm_subnet.postgres.id
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
   common_tags        = var.common_tags
