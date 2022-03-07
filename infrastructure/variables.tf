@@ -157,11 +157,3 @@ variable "process_payments_enabled" {
 variable "enable_ase" {
   default = false
 }
-
-variable "database_name" {
-  default = "bulk_scan"
-}
-
-variable "postgresql_user" {
-  default = "bulk_scanner"
-}

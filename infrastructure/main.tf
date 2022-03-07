@@ -32,32 +32,9 @@ module "bulk-scan-db" {
   component          = var.component
   location           = var.location_db
   env                = var.env
-  database_name      = var.database_name
-  postgresql_user    = var.postgresql_user
+  database_name      = "bulk_scan"
+  postgresql_user    = "bulk_scanner"
   postgresql_version = "10"
-  sku_name           = "GP_Gen5_2"
-  sku_tier           = "GeneralPurpose"
-  common_tags        = var.common_tags
-  subscription       = var.subscription
-}
-
-data "azurerm_subnet" "postgres" {
-  name                 = "core-infra-subnet-0-${var.env}"
-  resource_group_name  = "core-infra-${var.env}"
-  virtual_network_name = "core-infra-vnet-${var.env}"
-}
-
-module "bulk-scan-db-v11" {
-  source             = "git@github.com:hmcts/cnp-module-postgres?ref=postgresql_tf"
-  product            = var.product
-  component          = var.component
-  name               = join("-", [var.product,var.component,"postgres-db-v11"])
-  location           = var.location_db
-  env                = var.env
-  database_name      = var.database_name
-  postgresql_user    = var.postgresql_user
-  postgresql_version = "11"
-  subnet_id          = data.azurerm_subnet.postgres.id
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
   common_tags        = var.common_tags
@@ -72,8 +49,8 @@ module "bulk-scan-staging-db" {
   component          = var.component
   location           = var.location_db
   env                = var.env
-  database_name      = var.database_name
-  postgresql_user    = var.postgresql_user
+  database_name      = "bulk_scan"
+  postgresql_user    = "bulk_scanner"
   postgresql_version = "11"
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
@@ -202,36 +179,6 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-DATABASE"
   value        = "${module.bulk-scan-db.postgresql_database}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-USER-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-USER-V11"
-  value        = "${module.bulk-scan-db-v11.user_name}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-PASS-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-PASS-V11"
-  value        = "${module.bulk-scan-db-v11.postgresql_password}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_HOST-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-HOST-V11"
-  value        = "${module.bulk-scan-db-v11.host_name}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_PORT-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-PORT-V11"
-  value        = "${module.bulk-scan-db-v11.postgresql_listen_port}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-DATABASE-V11"
-  value        = "${module.bulk-scan-db-v11.postgresql_database}"
 }
 
 # region staging DB secrets
