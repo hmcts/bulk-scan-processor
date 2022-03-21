@@ -64,3 +64,5 @@ java:
     QUEUE_ENVELOPE_NAME: "envelopes-staging"
     QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes-staging"
     STORAGE_URL: https://bulkscanaatstaging.blob.core.windows.net
+    QUEUE_NAMESPACE: bulk-scan-servicebus-{{ .Values.global.environment }}
+
