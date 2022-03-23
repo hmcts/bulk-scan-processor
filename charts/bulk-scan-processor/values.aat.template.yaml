@@ -10,7 +10,7 @@ java:
           alias: flyway.password
         - name: envelopes-staging-queue-send-shared-access-key
           alias: QUEUE_ENVELOPE_SEND_ACCESS_KEY
-        - name: notifications-queue-send-shared-access-key
+        - name: notifications-queue-send-shared-access-key-premium
           alias: QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY
         - name: processed-envelopes-staging-queue-listen-shared-access-key
           alias: QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY
