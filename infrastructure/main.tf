@@ -216,12 +216,6 @@ resource "azurerm_key_vault_secret" "POSTGRES-PASS-V11" {
   value        = "${module.bulk-scan-db-v11.postgresql_password}"
 }
 
-resource "azurerm_key_vault_secret" "POSTGRES_HOST-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-HOST-V11"
-  value        = "${module.bulk-scan-db-v11.host_name}"
-}
-
 resource "azurerm_key_vault_secret" "POSTGRES_PORT-V11" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-PORT-V11"
