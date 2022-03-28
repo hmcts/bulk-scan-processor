@@ -10,7 +10,7 @@ java:
           alias: flyway.password
         - name: envelopes-staging-queue-send-shared-access-key
           alias: QUEUE_ENVELOPE_SEND_ACCESS_KEY
-        - name: notifications-queue-send-shared-access-key-premium
+        - name: notifications-queue-send-shared-access-key
           alias: QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY
         - name: processed-envelopes-staging-queue-listen-shared-access-key
           alias: QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY
@@ -65,4 +65,4 @@ java:
     QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes-staging"
     STORAGE_URL: https://bulkscanaatstaging.blob.core.windows.net
     QUEUE_NAMESPACE: bulk-scan-servicebus-{{ .Values.global.environment }}
-
+    QUEUE_NOTIFICATIONS_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
