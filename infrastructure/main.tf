@@ -99,17 +99,6 @@ module "bulk-scan" {
   enable_ase                      = "${var.enable_ase}"
 
   app_settings = {
-    // db
-    BULK_SCANNING_DB_HOST         = "${module.bulk-scan-db-v11.host_name}"
-    BULK_SCANNING_DB_PORT         = "${module.bulk-scan-db-v11.postgresql_listen_port}"
-    BULK_SCANNING_DB_USER_NAME    = "${module.bulk-scan-db-v11.user_name}"
-    BULK_SCANNING_DB_PASSWORD     = "${module.bulk-scan-db-v11.postgresql_password}"
-    BULK_SCANNING_DB_NAME         = "${module.bulk-scan-db-v11.postgresql_database}"
-    BULK_SCANNING_DB_CONN_OPTIONS = "${local.db_connection_options}"
-    FLYWAY_URL                    = "jdbc:postgresql://${module.bulk-scan-db-v11.host_name}:${module.bulk-scan-db-v11.postgresql_listen_port}/${module.bulk-scan-db-v11.postgresql_database}${local.db_connection_options}"
-    FLYWAY_USER                   = "${module.bulk-scan-db-v11.user_name}"
-    FLYWAY_PASSWORD               = "${module.bulk-scan-db-v11.postgresql_password}"
-    FLYWAY_NOOP_STRATEGY          = "true"
 
     STORAGE_ACCOUNT_NAME  = "${local.storage_account_name}"
     STORAGE_KEY           = "${local.storage_account_primary_key}"
