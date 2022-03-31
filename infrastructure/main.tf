@@ -164,7 +164,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V11" {
 resource "azurerm_key_vault_secret" "flyway_password" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "flyway-password"
-  value        = "${module.bulk-scan-db-v11.postgresql_password}"
+  value        = "${module.bulk-scan-db.postgresql_password}"
 }
 # endregion
 
@@ -262,14 +262,8 @@ data "azurerm_key_vault_secret" "smtp_password" {
 }
 # endregion
 
-# Copy postgres password for flyway migration
-resource "azurerm_key_vault_secret" "flyway_password" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "flyway-password"
-  value        = "${module.bulk-scan-db.postgresql_password}"
-}
-
 # TODO: remove V10-BCKP secrets after moving to V11 database
+# region: DB backup secrets
 resource "azurerm_key_vault_secret" "POSTGRES-USER-V10-BCKP" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-USER-V10-BCKP"
@@ -305,3 +299,4 @@ resource "azurerm_key_vault_secret" "flyway_password_v10_bckp" {
   name         = "flyway-password-v10-bckp"
   value        = "${module.bulk-scan-db.postgresql_password}"
 }
+# endregion
