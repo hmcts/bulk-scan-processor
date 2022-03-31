@@ -325,3 +325,40 @@ resource "azurerm_key_vault_secret" "flyway_password" {
   name         = "flyway-password"
   value        = "${module.bulk-scan-db.postgresql_password}"
 }
+
+# TODO: remove V10-BCKP secrets after moving to V11 database
+resource "azurerm_key_vault_secret" "POSTGRES-USER-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-USER-V10-BCKP"
+  value        = "${module.bulk-scan-db.user_name}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-PASS-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PASS-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_password}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_HOST-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-HOST-V10-BCKP"
+  value        = "${module.bulk-scan-db.host_name}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_PORT-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PORT-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_listen_port}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-DATABASE-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_database}"
+}
+
+resource "azurerm_key_vault_secret" "flyway_password_v10_bckp" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "flyway-password-v10-bckp"
+  value        = "${module.bulk-scan-db.postgresql_password}"
+}
