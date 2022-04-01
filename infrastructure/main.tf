@@ -134,7 +134,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 resource "azurerm_key_vault_secret" "flyway_password" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "flyway-password"
-  value        = "${module.bulk-scan-db.postgresql_password}"
+  value        = "${module.bulk-scan-db-v11.postgresql_password}"
 }
 # endregion
 
