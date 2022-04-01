@@ -81,73 +81,7 @@ module "bulk-scan-staging-db" {
   subscription       = var.subscription
 }
 
-module "bulk-scan" {
-  source                          = "git@github.com:hmcts/cnp-module-webapp?ref=master"
-  product                         = "${var.product}-${var.component}"
-  location                        = "${var.location}"
-  env                             = "${var.env}"
-  ilbIp                           = "${var.ilbIp}"
-  subscription                    = "${var.subscription}"
-  is_frontend                     = "false"
-  capacity                        = "${var.capacity}"
-  common_tags                     = "${var.common_tags}"
-  appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
-  instance_size                   = "${local.sku_size}"
-  asp_name                        = "${var.product}-${var.env}"
-  asp_rg                          = "${var.product}-${var.env}"
-  java_container_version          = "9.0"
-  enable_ase                      = "${var.enable_ase}"
-
-  app_settings = {
-
-    STORAGE_ACCOUNT_NAME  = "${local.storage_account_name}"
-    STORAGE_KEY           = "${local.storage_account_primary_key}"
-    STORAGE_URL           = "${local.storage_account_url}"
-    STORAGE_PROXY_ENABLED = "${var.storage_proxy_enabled}"
-    SAS_TOKEN_VALIDITY    = "${var.token_validity}"
-
-    DOCUMENT_MANAGEMENT_URL = "${local.dm_store_url}"
-
-    S2S_URL    = "${local.s2s_url}"
-    S2S_NAME   = "${var.s2s_name}"
-    S2S_SECRET = "${data.azurerm_key_vault_secret.s2s_secret.value}"
-
-    SCAN_DELAY         = "${var.scan_delay}"
-    SCAN_ENABLED       = "${var.scan_enabled}"
-
-    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED = "${var.orchestrator_notifications_task_enabled}"
-    NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY   = "${var.orchestrator_notifications_task_delay}"
-
-    DELETE_REJECTED_FILES_ENABLED = "${var.delete_rejected_files_enabled}"
-    DELETE_REJECTED_FILES_CRON    = "${var.delete_rejected_files_cron}"
-    DELETE_REJECTED_FILES_TTL     = "${var.delete_rejected_files_ttl}"
-
-    STORAGE_BLOB_LEASE_TIMEOUT               = "${var.blob_lease_timeout}"               // In seconds
-
-    STORAGE_BLOB_SELECTED_CONTAINER = "${var.blob_selected_container}"
-
-    SMTP_HOST          = "${var.smtp_host}"
-    SMTP_USERNAME      = "${data.azurerm_key_vault_secret.smtp_username.value}"
-    SMTP_PASSWORD      = "${data.azurerm_key_vault_secret.smtp_password.value}"
-    REPORTS_CRON       = "${var.reports_cron}"
-    REPORTS_RECIPIENTS = "${data.azurerm_key_vault_secret.reports_recipients.value}"
-
-    INCOMPLETE_ENVELOPES_TASK_CRON    = "${var.incomplete_envelopes_cron}"
-    INCOMPLETE_ENVELOPES_TASK_ENABLED = "${var.incomplete_envelopes_enabled}"
-
-    PROCESS_PAYMENTS_ENABLED          = "${var.process_payments_enabled}"
-
-    OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP = "${var.ocr_validation_url_bulkscan_sample_app}"
-    OCR_VALIDATION_URL_PROBATE             = "${var.ocr_validation_url_probate}"
-
-    NO_NEW_ENVELOPES_TASK_ENABLED     = "false"
-
-    // silence the "bad implementation" logs
-    LOGBACK_REQUIRE_ALERT_LEVEL = "false"
-    LOGBACK_REQUIRE_ERROR_CODE  = "false"
-  }
-}
-
+# region: key vault definitions
 data "azurerm_key_vault" "key_vault" {
   name                = "${local.vaultName}"
   resource_group_name = "${local.vaultName}"
@@ -162,7 +96,9 @@ data "azurerm_key_vault" "reform_scan_key_vault" {
   name                = "reform-scan-${local.local_env}"
   resource_group_name = "reform-scan-${local.local_env}"
 }
+# endregion
 
+# region DB secrets
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-USER"
@@ -192,37 +128,15 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name         = "${var.component}-POSTGRES-DATABASE"
   value        = "${module.bulk-scan-db-v11.postgresql_database}"
 }
+# endregion
 
-//TODO: remove V10-BCKP secrets after moving to V11 database
-resource "azurerm_key_vault_secret" "POSTGRES-USER-V10-BCKP" {
+# Copy postgres password for flyway migration
+resource "azurerm_key_vault_secret" "flyway_password" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-USER-V10-BCKP"
-  value        = "${module.bulk-scan-db.user_name}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-PASS-V10-BCKP" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-PASS-V10-BCKP"
+  name         = "flyway-password"
   value        = "${module.bulk-scan-db.postgresql_password}"
 }
-
-resource "azurerm_key_vault_secret" "POSTGRES_HOST-V10-BCKP" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-HOST-V10-BCKP"
-  value        = "${module.bulk-scan-db.host_name}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_PORT-V10-BCKP" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-PORT-V10-BCKP"
-  value        = "${module.bulk-scan-db.postgresql_listen_port}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V10-BCKP" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-DATABASE-V10-BCKP"
-  value        = "${module.bulk-scan-db.postgresql_database}"
-}
+# endregion
 
 # region staging DB secrets
 resource "azurerm_key_vault_secret" "staging_db_user" {
@@ -256,6 +170,7 @@ resource "azurerm_key_vault_secret" "staging_db_name" {
 }
 # endregion
 
+# region: notification queue access key
 resource "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "notifications-queue-send-shared-access-key"
@@ -267,12 +182,16 @@ resource "azurerm_key_vault_secret" "notifications_queue_send_access_key_premium
   name         = "notifications-queue-send-shared-access-key-premium"
   value        = "${data.azurerm_key_vault_secret.notifications_queue_send_access_key_premium.value}"
 }
+# endregion
 
+# region: copy s2s secret to bulk-scan key vault
 data "azurerm_key_vault_secret" "s2s_secret" {
   key_vault_id = "${data.azurerm_key_vault.s2s_key_vault.id}"
   name         = "microservicekey-bulk-scan-processor"
 }
+# endregion
 
+# region: storage secrets
 data "azurerm_key_vault_secret" "storage_account_name" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "storage-account-name"
@@ -282,7 +201,9 @@ data "azurerm_key_vault_secret" "storage_account_primary_key" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "storage-account-primary-key"
 }
+# endregion
 
+# region: copy notification queue secrets to bulk-scan key vault
 data "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   name         = "notification-queue-send-shared-access-key"
@@ -292,8 +213,9 @@ data "azurerm_key_vault_secret" "notifications_queue_send_access_key_premium" {
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   name         = "notification-queue-send-shared-access-key-premium"
 }
+# endregion
 
-
+# region: reports secrets
 data "azurerm_key_vault_secret" "reports_recipients" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "reports-recipients"
@@ -308,17 +230,43 @@ data "azurerm_key_vault_secret" "smtp_password" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "reports-email-password"
 }
+# endregion
 
-# Copy postgres password for flyway migration
-resource "azurerm_key_vault_secret" "flyway_password" {
+# TODO: remove V10-BCKP secrets after moving to V11 database
+# region: DB backup secrets
+resource "azurerm_key_vault_secret" "POSTGRES-USER-V10-BCKP" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "flyway-password"
-  value        = "${module.bulk-scan-db-v11.postgresql_password}"
+  name         = "${var.component}-POSTGRES-USER-V10-BCKP"
+  value        = "${module.bulk-scan-db.user_name}"
 }
 
-//TODO: remove after moving to Postgres V11 database
+resource "azurerm_key_vault_secret" "POSTGRES-PASS-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PASS-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_password}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_HOST-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-HOST-V10-BCKP"
+  value        = "${module.bulk-scan-db.host_name}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_PORT-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PORT-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_listen_port}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-DATABASE-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_database}"
+}
+
 resource "azurerm_key_vault_secret" "flyway_password_v10_bckp" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "flyway-password-v10-bckp"
   value        = "${module.bulk-scan-db.postgresql_password}"
 }
+# endregion
