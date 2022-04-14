@@ -281,7 +281,7 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.33.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.34.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.33.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.15.0'
@@ -351,7 +351,7 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.32.0'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.3', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.1', {
     exclude group: 'junit', module: 'junit'
   }
   integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.3'
