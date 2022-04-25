@@ -102,60 +102,30 @@ data "azurerm_key_vault" "reform_scan_key_vault" {
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-USER"
-  value        = "${module.bulk-scan-db.user_name}"
+  value        = "${module.bulk-scan-db-v11.user_name}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-PASS"
-  value        = "${module.bulk-scan-db.postgresql_password}"
+  value        = "${module.bulk-scan-db-v11.postgresql_password}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-HOST"
-  value        = "${module.bulk-scan-db.host_name}"
+  value        = "${module.bulk-scan-db-v11.host_name}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-PORT"
-  value        = "${module.bulk-scan-db.postgresql_listen_port}"
+  value        = "${module.bulk-scan-db-v11.postgresql_listen_port}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "${var.component}-POSTGRES-DATABASE"
-  value        = "${module.bulk-scan-db.postgresql_database}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-USER-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-USER-V11"
-  value        = "${module.bulk-scan-db-v11.user_name}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-PASS-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-PASS-V11"
-  value        = "${module.bulk-scan-db-v11.postgresql_password}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_HOST-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-HOST-V11"
-  value        = "${module.bulk-scan-db-v11.host_name}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_PORT-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-PORT-V11"
-  value        = "${module.bulk-scan-db-v11.postgresql_listen_port}"
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V11" {
-  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
-  name         = "${var.component}-POSTGRES-DATABASE-V11"
   value        = "${module.bulk-scan-db-v11.postgresql_database}"
 }
 # endregion
@@ -164,7 +134,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V11" {
 resource "azurerm_key_vault_secret" "flyway_password" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "flyway-password"
-  value        = "${module.bulk-scan-db.postgresql_password}"
+  value        = "${module.bulk-scan-db-v11.postgresql_password}"
 }
 # endregion
 
