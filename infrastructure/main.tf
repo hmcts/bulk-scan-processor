@@ -26,6 +26,21 @@ locals {
   storage_account_url         = "${var.env == "prod" ? local.storage_account_url_prod : local.storage_account_url_notprod}"
 }
 
+module "bulk-scan-db" {
+  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  product            = var.product
+  component          = var.component
+  location           = var.location_db
+  env                = var.env
+  database_name      = var.database_name
+  postgresql_user    = var.postgresql_user
+  postgresql_version = "10"
+  sku_name           = "GP_Gen5_2"
+  sku_tier           = "GeneralPurpose"
+  common_tags        = var.common_tags
+  subscription       = var.subscription
+}
+
 data "azurerm_subnet" "postgres" {
   name                 = "core-infra-subnet-0-${var.env}"
   resource_group_name  = "core-infra-${var.env}"
@@ -214,5 +229,44 @@ data "azurerm_key_vault_secret" "smtp_username" {
 data "azurerm_key_vault_secret" "smtp_password" {
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
   name         = "reports-email-password"
+}
+# endregion
+
+# TODO: remove V10-BCKP secrets after moving to V11 database
+# region: DB backup secrets
+resource "azurerm_key_vault_secret" "POSTGRES-USER-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-USER-V10-BCKP"
+  value        = "${module.bulk-scan-db.user_name}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-PASS-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PASS-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_password}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_HOST-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-HOST-V10-BCKP"
+  value        = "${module.bulk-scan-db.host_name}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_PORT-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-PORT-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_listen_port}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE-V10-BCKP" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "${var.component}-POSTGRES-DATABASE-V10-BCKP"
+  value        = "${module.bulk-scan-db.postgresql_database}"
+}
+
+resource "azurerm_key_vault_secret" "flyway_password_v10_bckp" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "flyway-password-v10-bckp"
+  value        = "${module.bulk-scan-db.postgresql_password}"
 }
 # endregion
