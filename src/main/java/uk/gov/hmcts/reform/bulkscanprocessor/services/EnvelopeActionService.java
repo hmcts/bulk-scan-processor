@@ -22,6 +22,7 @@ import java.util.UUID;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static java.util.Comparator.naturalOrder;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.ABORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
@@ -87,6 +88,27 @@ public class EnvelopeActionService {
         log.info("Envelope {} status chaged to COMPLETED", envelope.getZipFileName());
     }
 
+    @Transactional
+    public void moveEnvelopeToAborted(UUID envelopeId) {
+        Envelope envelope = envelopeRepository.findById(envelopeId)
+            .orElseThrow(
+                () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
+            );
+
+        validateEnvelopeIsInInconsistentState(envelope);
+
+        createEvent(
+            envelope,
+            MANUAL_STATUS_CHANGE,
+            "Moved to ABORTED status to fix inconsistent state unresolved by the service"
+        );
+
+        envelope.setStatus(ABORTED);
+        envelopeRepository.save(envelope);
+
+        log.info("Envelope {} status chaged to COMPLETED", envelope.getZipFileName());
+    }
+
     private void createEvent(Envelope envelope, Event event, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
             envelope.getContainer(),
@@ -112,7 +134,7 @@ public class EnvelopeActionService {
     }
 
     private void validateEnvelopeIsInInconsistentState(Envelope envelope) {
-        if (envelope.getStatus() == COMPLETED) {
+        if (envelope.getStatus() == COMPLETED || envelope.getStatus() == ABORTED) {
             throw new EnvelopeNotInInconsistentStateException(
                     getErrorMessage(envelope.getId(), "is not in inconsistent state")
             );
