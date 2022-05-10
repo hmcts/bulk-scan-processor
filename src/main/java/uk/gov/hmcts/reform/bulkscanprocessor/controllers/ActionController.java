@@ -28,9 +28,16 @@ public class ActionController {
     }
 
     @PutMapping(path = "/{id}/complete")
-    @Operation(description = "Reprocess envelope by ID")
+    @Operation(description = "Complete envelope by ID")
     public ResponseEntity<Void> makeCompleted(@PathVariable UUID id) {
         envelopeActionService.moveEnvelopeToCompleted(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/{id}/abort")
+    @Operation(description = "Abort envelope by ID")
+    public ResponseEntity<Void> makeAborted(@PathVariable UUID id) {
+        envelopeActionService.moveEnvelopeToAborted(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
