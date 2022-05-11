@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.ABORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
@@ -343,6 +344,80 @@ class EnvelopeActionServiceTest {
         )
             .isInstanceOf(EnvelopeNotInInconsistentStateException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( does not have COMPLETED event)$");
+    }
+
+    @Test
+    void moveEnvelopeToAborted_should_throw_exception_if_envelope_does_not_exist() {
+        // given
+        var uuid = UUID.randomUUID();
+
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                               envelopeActionService.moveEnvelopeToAborted(uuid)
+        )
+            .isInstanceOf(EnvelopeNotFoundException.class)
+            .hasMessageContaining("Envelope with id " + uuid + " not found");
+    }
+
+    @Test
+    void moveEnvelopeToAborted_should_save_envelope_and_event_if_envelope_has_completed_event() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(
+            NOTIFICATION_SENT,
+            "ccdId",
+            null
+        );
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(asList(
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), ZIPFILE_PROCESSING_STARTED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.COMPLETED),
+                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT)
+            ));
+
+        // when
+        envelopeActionService.moveEnvelopeToAborted(uuid);
+
+        // then
+        var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
+        verify(processEventRepository).save(processEventCaptor.capture());
+        assertThat(processEventCaptor.getValue().getContainer())
+            .isEqualTo(envelope.getContainer());
+        assertThat(processEventCaptor.getValue().getZipFileName())
+            .isEqualTo(envelope.getZipFileName());
+        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_STATUS_CHANGE);
+        assertThat(processEventCaptor.getValue().getReason())
+            .isEqualTo("Moved to ABORTED status to fix inconsistent state unresolved by the service");
+
+        var envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
+        verify(envelopeRepository).save(envelopeCaptor.capture());
+        assertThat(envelopeCaptor.getValue().getStatus()).isEqualTo(ABORTED);
+        assertThat(envelopeCaptor.getValue().getId()).isEqualTo(envelope.getId());
+    }
+
+    @Test
+    void moveEnvelopeToAborted_should_throw_exception_if_status_is_not_notification_sent() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(
+            COMPLETED,
+            null,
+            null
+        );
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                               envelopeActionService.moveEnvelopeToAborted(uuid)
+        )
+            .isInstanceOf(EnvelopeNotInInconsistentStateException.class)
+            .hasMessageMatching("^(Envelope with id )[\\S]+( is not in inconsistent state)$");
     }
 
     private Envelope envelope(

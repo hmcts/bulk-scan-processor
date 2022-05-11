@@ -11,6 +11,7 @@ public enum Status {
     UPLOADED,
     UPLOAD_FAILURE,
     NOTIFICATION_SENT,  // after notifying about a new envelope
+    ABORTED,            // envelope in inconsistent state has been aborted
     COMPLETED;          // final state - the envelope has been successfully processed by the service
 
     public static Optional<Status> fromEvent(Event event) {
