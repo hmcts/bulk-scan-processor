@@ -363,22 +363,28 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void moveEnvelopeToAborted_should_save_envelope_and_event_if_envelope_has_completed_event() {
+    void moveEnvelopeToAborted_should_save_envelope_and_event_if_envelope_is_stale() {
         // given
-        var uuid = UUID.randomUUID();
+        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
+        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
+        Instant fourHoursAgo = Instant.now().minus(4, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(twoHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(threeHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fourHoursAgo);
+
         var envelope = envelope(
-            NOTIFICATION_SENT,
-            "ccdId",
-            null
+                NOTIFICATION_SENT,
+                null,
+                null
         );
-        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
-            .willReturn(asList(
-                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), ZIPFILE_PROCESSING_STARTED),
-                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED),
-                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), Event.COMPLETED),
-                new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_PROCESSED_NOTIFICATION_SENT)
-            ));
+                .willReturn(asList(event1, event2, event3));
+
+        var uuid = UUID.randomUUID();
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
 
         // when
         envelopeActionService.moveEnvelopeToAborted(uuid);
@@ -387,12 +393,12 @@ class EnvelopeActionServiceTest {
         var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
         verify(processEventRepository).save(processEventCaptor.capture());
         assertThat(processEventCaptor.getValue().getContainer())
-            .isEqualTo(envelope.getContainer());
+                .isEqualTo(envelope.getContainer());
         assertThat(processEventCaptor.getValue().getZipFileName())
-            .isEqualTo(envelope.getZipFileName());
+                .isEqualTo(envelope.getZipFileName());
         assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_STATUS_CHANGE);
         assertThat(processEventCaptor.getValue().getReason())
-            .isEqualTo("Moved to ABORTED status to fix inconsistent state unresolved by the service");
+                .isEqualTo("Moved to ABORTED status to fix inconsistent state unresolved by the service");
 
         var envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
         verify(envelopeRepository).save(envelopeCaptor.capture());
@@ -401,23 +407,98 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void moveEnvelopeToAborted_should_throw_exception_if_status_is_not_notification_sent() {
+    void moveEnvelopeToAborted_should_throw_exception_if_envelope_is_not_stale() {
+        // given
+        Instant halfHourAgo = Instant.now().minus(30, MINUTES);
+        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
+        Instant fourHoursAgo = Instant.now().minus(4, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(halfHourAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(threeHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fourHoursAgo);
+
+        var envelope = envelope(
+                NOTIFICATION_SENT,
+                null,
+                null
+        );
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+                .willReturn(asList(event1, event2, event3));
+
+        var uuid = UUID.randomUUID();
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                envelopeActionService.moveEnvelopeToAborted(uuid)
+        )
+                .isInstanceOf(EnvelopeNotCompletedOrStaleException.class)
+                .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed or stale)$");
+    }
+
+    @Test
+    void moveEnvelopeToAborted_should_throw_exception_if_no_events_for_envelope() {
+        // given
+        var envelope = envelope(
+                NOTIFICATION_SENT,
+                null,
+                null
+        );
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+                .willReturn(emptyList());
+
+        var uuid = UUID.randomUUID();
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                envelopeActionService.moveEnvelopeToAborted(uuid)
+        )
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    void moveEnvelopeToAborted_should_throw_exception_if_envelope_has_uploaded_status() {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(
-            COMPLETED,
-            null,
-            null
+                UPLOADED,
+                null,
+                null
         );
         given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
 
         // when
         // then
         assertThatThrownBy(() ->
-                               envelopeActionService.moveEnvelopeToAborted(uuid)
+                envelopeActionService.moveEnvelopeToAborted(uuid)
         )
-            .isInstanceOf(EnvelopeNotInInconsistentStateException.class)
-            .hasMessageMatching("^(Envelope with id )[\\S]+( is not in inconsistent state)$");
+                .isInstanceOf(EnvelopeNotCompletedOrStaleException.class)
+                .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed or stale)$");
+    }
+
+    @Test
+    void moveEnvelopeToAborted_should_throw_exception_if_envelope_has_ccdid() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(
+                NOTIFICATION_SENT,
+                "111222333",
+                "create"
+        );
+        given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
+
+        // when
+        // then
+        assertThatThrownBy(() ->
+                envelopeActionService.moveEnvelopeToAborted(uuid)
+        )
+                .isInstanceOf(EnvelopeProcessedInCcdException.class)
+                .hasMessageMatching("^(Envelope with id )[\\S]+( has already been processed in CCD)$");
     }
 
     private Envelope envelope(

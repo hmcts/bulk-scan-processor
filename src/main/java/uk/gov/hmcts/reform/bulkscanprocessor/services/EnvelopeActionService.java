@@ -64,7 +64,7 @@ public class EnvelopeActionService {
         envelope.setStatus(UPLOADED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status chaged to UPLOADED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to UPLOADED", envelope.getZipFileName());
     }
 
     @Transactional
@@ -85,7 +85,7 @@ public class EnvelopeActionService {
         envelope.setStatus(COMPLETED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status chaged to COMPLETED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to COMPLETED", envelope.getZipFileName());
     }
 
     @Transactional
@@ -95,7 +95,7 @@ public class EnvelopeActionService {
                 () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
-        validateEnvelopeIsInInconsistentState(envelope);
+        validateEnvelopeState(envelope);
 
         createEvent(
             envelope,
@@ -106,7 +106,7 @@ public class EnvelopeActionService {
         envelope.setStatus(ABORTED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status chaged to COMPLETED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to ABORTED", envelope.getZipFileName());
     }
 
     private void createEvent(Envelope envelope, Event event, String reason) {
@@ -126,7 +126,7 @@ public class EnvelopeActionService {
             );
         }
 
-        if (envelope.getStatus() != COMPLETED && !isStale(envelope)) {
+        if (envelope.getStatus() != COMPLETED && envelope.getStatus() != ABORTED && !isStale(envelope)) {
             throw new EnvelopeNotCompletedOrStaleException(
                     getErrorMessage(envelope.getId(), "is not completed or stale")
             );
