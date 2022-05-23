@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
@@ -21,6 +22,7 @@ public class Document {
     public final String subtype;
 
     @JsonProperty("scanned_at")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'", timezone = "UTC")
     public final Instant scannedAt;
 
     @JsonProperty("uuid")
