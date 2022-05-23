@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
+import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
 import java.time.Instant;
 
@@ -20,6 +22,7 @@ public class Document {
     @JsonProperty("subtype")
     public final String subtype;
 
+    @JsonSerialize(using = InstantSerializer.class)
     @JsonProperty("scanned_at")
     public final Instant scannedAt;
 
