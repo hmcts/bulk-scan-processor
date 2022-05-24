@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
@@ -38,7 +39,7 @@ public class OcrDataSerializationJourneyTest {
     private EnvelopeRepository repository;
 
     @Test
-    public void should_deserialize_all_ocr_fields_in_insertion_order() throws Exception {
+    public void should_deserialize_scanned_documents_and_all_ocr_fields_in_insertion_order() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         mapper.registerModule(new JavaTimeModule());
         InputEnvelope inputEnvelope;
@@ -67,7 +68,7 @@ public class OcrDataSerializationJourneyTest {
 
         UUID envelopeId = repository.saveAndFlush(dbEnvelope).getId();
 
-        Envelope readEnvelope = repository.getOne(envelopeId);
+        Envelope readEnvelope = repository.getById(envelopeId);
         AssertionsForInterfaceTypes.assertThat(readEnvelope.getScannableItems().get(0).getOcrData())
             .isInstanceOf(OcrData.class);
 
@@ -77,8 +78,9 @@ public class OcrDataSerializationJourneyTest {
         JsonNode jsonNode = mapper.readTree(bytes);
 
         JsonNode ocrData = jsonNode.get("ocr_data");
+        JsonNode documents = jsonNode.get("documents");
 
-        OcrField[] expecteOcrFields = {
+        OcrField[] expectedOcrFields = {
             new OcrField("text_field", "some text"),
             new OcrField("number_field", "123"),
             new OcrField("boolean_field", "true"),
@@ -87,8 +89,17 @@ public class OcrDataSerializationJourneyTest {
 
         OcrField[] actualOcrFields = mapper.convertValue(ocrData, OcrField[].class);
 
+        assertThat(documents.size()).isEqualTo(1);
+        assertScannedDocument(documents.get(0));
         AssertionsForInterfaceTypes.assertThat(actualOcrFields)
-            .usingFieldByFieldElementComparator()
-            .isEqualTo(expecteOcrFields);
+            .usingRecursiveFieldByFieldElementComparator()
+            .isEqualTo(expectedOcrFields);
+    }
+
+    private void assertScannedDocument(JsonNode jsonNode) {
+        assertThat(jsonNode.get("file_name").asText()).isEqualTo("1111001.pdf");
+        assertThat(jsonNode.get("control_number").asText()).isEqualTo("1111001");
+        assertThat(jsonNode.get("type").asText()).isEqualTo("cherished");
+        assertThat(jsonNode.get("scanned_at").asText()).isEqualTo("2017-02-24T10:12:22.445000Z");
     }
 }
