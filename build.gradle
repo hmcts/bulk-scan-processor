@@ -4,13 +4,13 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.flywaydb.flyway' version '8.5.10'
-  id 'org.springframework.boot' version '2.6.7'
+  id 'org.flywaydb.flyway' version '8.5.11'
+  id 'org.springframework.boot' version '2.7.0'
   id 'org.owasp.dependencycheck' version '7.1.0.1'
   id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.3'
   id "info.solidsoft.pitest" version '1.7.0'
-  id 'au.com.dius.pact' version '4.3.6'
+  id 'au.com.dius.pact' version '4.3.7'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -227,14 +227,21 @@ dependencyManagement {
     dependencySet(group: 'org.springframework.cloud', version: '3.1.2') {
       entry 'spring-cloud-starter-openfeign'
     }
-    // CVE-2022-22950
-    dependencySet(group: 'org.springframework', version: '5.3.19') {
+    // CVE-2022-22970, CVE-2022-22971
+    dependencySet(group: 'org.springframework', version: '5.3.20') {
       entry 'spring-aop'
+      entry 'spring-aspects'
       entry 'spring-beans'
       entry 'spring-context'
+      entry 'spring-context-support'
       entry 'spring-core'
       entry 'spring-expression'
       entry 'spring-jcl'
+      entry 'spring-jdbc'
+      entry 'spring-orm'
+      entry 'spring-tx'
+      entry 'spring-web'
+      entry 'spring-webmvc'
     }
     dependencySet(group: 'org.apache.logging.log4j', version: '2.17.2') {
       entry 'log4j-api'
@@ -246,12 +253,34 @@ dependencyManagement {
       entry 'tomcat-embed-websocket'
     }
     // CVE-2020-36518
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.13.2.2') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.13.3') {
       entry 'jackson-databind'
     }
     // CVE-2021-42550
     dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
       entry 'logback-classic'
+    }
+    //CVE-2022-24823
+    dependencySet(group: 'io.netty', version: '4.1.77.Final') {
+      entry 'netty-buffer'
+      entry 'netty-codec'
+      entry 'netty-codec-dns'
+      entry 'netty-codec-http'
+      entry 'netty-codec-http2'
+      entry 'netty-codec-socks'
+      entry 'netty-common'
+      entry 'netty-handler'
+      entry 'netty-handler-proxy'
+      entry 'netty-resolver'
+      entry 'netty-resolver-dns'
+      entry 'netty-resolver-dns-classes-macos'
+      entry 'netty-resolver-dns-native-macos'
+      entry 'netty-transport'
+      entry 'netty-transport-classes-epoll'
+      entry 'netty-transport-classes-kqueue'
+      entry 'netty-transport-native-epoll'
+      entry 'netty-transport-native-kqueue'
+      entry 'netty-transport-native-unix-common'
     }
   }
 
@@ -286,7 +315,7 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.15.0'
 
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.4.2'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.9.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
@@ -299,7 +328,7 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.15.0'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.5'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.6'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.16.2'
 
@@ -316,7 +345,7 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.2'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.8'
 
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.2'
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.3'
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
   implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
@@ -351,10 +380,10 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.33.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.1', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.2', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.1'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.2'
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
