@@ -311,7 +311,7 @@ dependencies {
   }
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.35.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.35.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.36.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.16.1'
 
@@ -332,7 +332,7 @@ dependencies {
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.16.2'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.8'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.9'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
