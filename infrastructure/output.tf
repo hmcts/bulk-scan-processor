@@ -8,6 +8,7 @@ output "TEST_SCAN_DELAY" {
 
 output "TEST_STORAGE_ACCOUNT_NAME" {
   value = "${local.storage_account_name}"
+  sensitive = true
 }
 
 output "TEST_S2S_URL" {
