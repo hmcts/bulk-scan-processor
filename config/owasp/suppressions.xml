@@ -6,4 +6,7 @@
   <suppress until="2022-08-23">
     <cve>CVE-2022-29885</cve>
   </suppress>
+  <suppress until="2022-09-06">
+    <cve>CVE-2022-22976</cve>
+  </suppress>
 </suppressions>

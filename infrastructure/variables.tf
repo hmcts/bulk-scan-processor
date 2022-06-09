@@ -62,7 +62,7 @@ variable "test_s2s_name" {
 }
 
 variable "common_tags" {
-  type = "map"
+  type = map
 }
 
 variable "scan_delay" {
