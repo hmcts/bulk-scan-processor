@@ -80,7 +80,7 @@ servicebus:
       - name: notifications
       - name: processed-envelopes
   enabled: true
-  applicationName: "bulk-scan-processor"
+  applicationName: "bulk-scan-print"
   builtFrom: "https://github.com/hmcts/bulk-scan-processor"
   businessArea: "CFT"
   environment: "preview"
@@ -94,7 +94,7 @@ blobstorage:
       - bulkscan
       - bulkscan-rejected
   enabled: true
-  applicationName: "bulk-scan-processor"
+  applicationName: "bulk-scan-print"
   builtFrom: "https://github.com/hmcts/bulk-scan-processor"
   businessArea: "CFT"
   environment: "preview"
