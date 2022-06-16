@@ -43,6 +43,10 @@ public class TestHelper {
     private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMAT =
         DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
 
+    public static void main(String[] args) {
+        System.out.println(new GoogleAuthenticator().getTotpPassword("MXUVX2MJKVNAUOEF"));
+    }
+
     public String s2sSignIn(String s2sName, String s2sSecret, String s2sUrl) {
         Map<String, Object> params = ImmutableMap.of(
             "microservice", s2sName,
