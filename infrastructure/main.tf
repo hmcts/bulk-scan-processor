@@ -113,7 +113,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name         = "${var.component}-POSTGRES-DATABASE"
   value        = "${module.bulk-scan-db-v11.postgresql_database}"
 }
-# #endregion
+# endregion
 
 # Copy postgres password for flyway migration
 resource "azurerm_key_vault_secret" "flyway_password" {
