@@ -53,6 +53,8 @@ java:
       secrets:
         - name: s2s-secret
           alias: S2S_SECRET
+        - name: actions-api-key
+          alias: ACTIONS_API_KEY
         - name: idam-client-secret
           alias: IDAM_CLIENT_SECRET
         - name: idam-users-bulkscan-username
