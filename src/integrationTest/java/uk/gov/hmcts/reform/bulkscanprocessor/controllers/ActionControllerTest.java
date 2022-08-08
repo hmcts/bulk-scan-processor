@@ -6,6 +6,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationContextInitializer;
@@ -32,6 +33,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.ABORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
@@ -96,6 +99,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isOk());
 
@@ -140,6 +144,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isConflict());
 
@@ -173,6 +178,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isConflict());
 
@@ -204,6 +210,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isConflict());
 
@@ -217,11 +224,60 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/reprocess/" + "corrupted")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isBadRequest());
 
         verifyNoInteractions(envelopeRepository);
         verifyNoInteractions(processEventRepository);
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_invalid_for_reprocess() throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_bearer_prefix_for_reprocess()
+            throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "valid-report-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_for_reprocess() throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/reprocess/" + envelopeId)
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("API Key is missing"));
     }
 
     @Test
@@ -248,6 +304,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/" + envelopeId + "/complete")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isOk());
 
@@ -290,6 +347,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/" + envelopeId + "/complete")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isConflict());
 
@@ -318,6 +376,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/" + envelopeId + "/complete")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isConflict());
 
@@ -331,11 +390,60 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/" + "corrupted" + "/complete")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isBadRequest());
 
         verifyNoInteractions(envelopeRepository);
         verifyNoInteractions(processEventRepository);
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_invalid_for_complete() throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/" + envelopeId + "/complete")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_bearer_prefix_for_complete()
+            throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/" + envelopeId + "/complete")
+                    .header(HttpHeaders.AUTHORIZATION, "valid-report-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_for_complete() throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/" + envelopeId + "/complete")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("API Key is missing"));
     }
 
     @Test
@@ -362,6 +470,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/" + envelopeId + "/abort")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isOk());
 
@@ -404,6 +513,7 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/" + envelopeId + "/abort")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isConflict());
 
@@ -417,11 +527,60 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/" + "corrupted" + "/abort")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isBadRequest());
 
         verifyNoInteractions(envelopeRepository);
         verifyNoInteractions(processEventRepository);
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_invalid_for_abort() throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/" + envelopeId + "/abort")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_bearer_prefix_for_abort()
+            throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/" + envelopeId + "/abort")
+                    .header(HttpHeaders.AUTHORIZATION, "valid-report-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_for_abort() throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/" + envelopeId + "/abort")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("API Key is missing"));
     }
 
     private ProcessEvent createProcessEvent(Envelope envelope, Event completed, Instant timestamp) {

@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeStateException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PaymentRecordsException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfigNotFoundException;
@@ -116,5 +117,11 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ErrorResponse> handlePaymentException(PaymentRecordsException exc) {
         log.error(exc.getMessage(), exc);
         return status(BAD_REQUEST).body(new ErrorResponse(exc.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidApiKeyException.class)
+    protected ResponseEntity<ErrorResponse> handleInvalidApiKeyException(InvalidApiKeyException exc) {
+        log.error(exc.getMessage(), exc);
+        return status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(exc.getMessage()));
     }
 }
