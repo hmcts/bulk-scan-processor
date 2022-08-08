@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.exceptions;
+package uk.gov.hmcts.reform.bulkscanprocessor.exceptions;
 
 public class InvalidApiKeyException extends RuntimeException {
 
