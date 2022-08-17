@@ -26,6 +26,8 @@ java:
           alias: SMTP_PASSWORD
         - name:  reports-recipients
           alias: REPORTS_RECIPIENTS
+        - name: actions-api-key
+          alias: ACTIONS_API_KEY
         - name: idam-client-secret
           alias: IDAM_CLIENT_SECRET
         - name: idam-users-bulkscan-username
