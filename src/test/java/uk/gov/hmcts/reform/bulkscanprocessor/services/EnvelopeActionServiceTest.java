@@ -181,7 +181,7 @@ class EnvelopeActionServiceTest {
             envelopeActionService.reprocessEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeNotCompletedOrStaleException.class)
-            .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed or stale)$");
+            .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed, aborted or stale)$");
     }
 
     @Test
@@ -223,7 +223,7 @@ class EnvelopeActionServiceTest {
             envelopeActionService.reprocessEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeNotCompletedOrStaleException.class)
-            .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed or stale)$");
+            .hasMessageMatching("^(Envelope with id )[\\S]+( is not completed, aborted or stale)$");
     }
 
     @Test

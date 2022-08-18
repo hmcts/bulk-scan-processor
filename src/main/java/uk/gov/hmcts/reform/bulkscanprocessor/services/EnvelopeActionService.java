@@ -53,7 +53,7 @@ public class EnvelopeActionService {
                 () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
-        validateEnvelopeState(envelope);
+        validateEnvelopeStateForReprocess(envelope);
 
         createEvent(
             envelope,
@@ -95,7 +95,7 @@ public class EnvelopeActionService {
                 () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
-        validateEnvelopeState(envelope);
+        validateEnvelopeStateForAbort(envelope);
 
         createEvent(
             envelope,
@@ -119,16 +119,30 @@ public class EnvelopeActionService {
         processEventRepository.save(processEvent);
     }
 
-    private void validateEnvelopeState(Envelope envelope) {
-        if (envelope.getCcdId() != null) {
-            throw new EnvelopeProcessedInCcdException(
-                    getErrorMessage(envelope.getId(), "has already been processed in CCD")
-            );
-        }
+    private void validateEnvelopeStateForReprocess(Envelope envelope) {
+        validateNotProcessedInCcd(envelope);
 
         if (envelope.getStatus() != COMPLETED && envelope.getStatus() != ABORTED && !isStale(envelope)) {
             throw new EnvelopeNotCompletedOrStaleException(
+                    getErrorMessage(envelope.getId(), "is not completed, aborted or stale")
+            );
+        }
+    }
+
+    private void validateEnvelopeStateForAbort(Envelope envelope) {
+        validateNotProcessedInCcd(envelope);
+
+        if (envelope.getStatus() != COMPLETED && !isStale(envelope)) {
+            throw new EnvelopeNotCompletedOrStaleException(
                     getErrorMessage(envelope.getId(), "is not completed or stale")
+            );
+        }
+    }
+
+    private void validateNotProcessedInCcd(Envelope envelope) {
+        if (envelope.getCcdId() != null) {
+            throw new EnvelopeProcessedInCcdException(
+                    getErrorMessage(envelope.getId(), "has already been processed in CCD")
             );
         }
     }
