@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.13.RELEASE'
-  id 'org.flywaydb.flyway' version '9.1.5'
+  id 'org.flywaydb.flyway' version '9.1.6'
   id 'org.springframework.boot' version '2.7.2'
   id 'org.owasp.dependencycheck' version '7.1.0.1'
   id 'com.github.ben-manes.versions' version '0.42.0'
@@ -310,8 +310,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.40.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.40.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.41.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.41.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.19.0'
 
@@ -328,7 +328,7 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.15.0'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.4.1'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.4.2'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.18.0'
 
