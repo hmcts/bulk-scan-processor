@@ -91,7 +91,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 
     @Query("select e from Envelope e \n"
-            + "WHERE createdat < :datetime AND status != 'COMPLETED'"
+            + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED'"
     )
     List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime);
 
