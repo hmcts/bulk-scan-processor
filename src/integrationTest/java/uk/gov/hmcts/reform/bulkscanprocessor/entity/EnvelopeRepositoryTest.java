@@ -18,6 +18,7 @@ import static java.time.LocalDateTime.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.ABORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.CREATED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
@@ -279,7 +280,8 @@ public class EnvelopeRepositoryTest {
             envelope("B.zip", "Y", COMPLETED),
             envelope("C.zip", "Z", UPLOAD_FAILURE),
             envelope("D.zip", "Z", NOTIFICATION_SENT),
-            envelope("E.zip", "Z", COMPLETED)
+            envelope("E.zip", "Z", COMPLETED),
+            envelope("F.zip", "Z", ABORTED)
         );
 
         // and update createAt to 2h ago

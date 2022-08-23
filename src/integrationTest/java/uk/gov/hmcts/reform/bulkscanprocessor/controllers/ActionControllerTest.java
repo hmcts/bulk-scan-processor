@@ -219,6 +219,38 @@ public class ActionControllerTest {
     }
 
     @Test
+    void should_respond_conflict_if_envelope_already_aborted_for_reprocess() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(ABORTED, "111222333", "created");
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fourtyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+            .perform(
+                put("/actions/reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
     void should_respond_bad_request_if_uuid_corrupted_for_reprocess() throws Exception {
 
         mockMvc
@@ -447,8 +479,8 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events_when_abort()
-        throws Exception {
+    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events_for_abort()
+            throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
@@ -456,33 +488,34 @@ public class ActionControllerTest {
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
-        Instant oneHourAgo = Instant.now().minus(1, HOURS);
-        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
-        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
-        Instant fourOneHoursAgo = Instant.now().minus(4, HOURS);
-        ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, fourOneHoursAgo);
-        ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, threeHoursAgo);
-        ProcessEvent event3 = createProcessEvent(envelope, Event.COMPLETED, twoHoursAgo);
-        ProcessEvent event4 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, oneHourAgo);
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fourtyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
-            .willReturn(asList(event1, event2, event3, event4));
+                .willReturn(asList(event1, event2, event3));
 
         mockMvc
-            .perform(
-                put("/actions/" + envelopeId + "/abort")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
-            )
+                .perform(
+                    put("/actions/" + envelopeId + "/abort")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+                )
             .andExpect(status().isOk());
 
         var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
         verify(processEventRepository).save(processEventCaptor.capture());
         assertThat(processEventCaptor.getValue().getContainer())
-            .isEqualTo(envelope.getContainer());
+                .isEqualTo(envelope.getContainer());
         assertThat(processEventCaptor.getValue().getZipFileName())
-            .isEqualTo(envelope.getZipFileName());
+                .isEqualTo(envelope.getZipFileName());
         assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_STATUS_CHANGE);
         assertThat(processEventCaptor.getValue().getReason())
-            .isEqualTo("Moved to ABORTED status to fix inconsistent state unresolved by the service");
+                .isEqualTo("Moved to ABORTED status to fix inconsistent state unresolved by the service");
 
         var envelopeCaptor = ArgumentCaptor.forClass(Envelope.class);
         verify(envelopeRepository).save(envelopeCaptor.capture());
@@ -491,29 +524,129 @@ public class ActionControllerTest {
     }
 
     @Test
-    void should_respond_conflict_if_envelope_has_aborted_status_for_abort() throws Exception {
+    void should_respond_conflict_if_envelope_has_notification_sent_status_and_not_stale_events_for_abort()
+            throws Exception {
 
         UUID envelopeId = UUID.randomUUID();
 
-        Envelope envelope = envelope(ABORTED, null, null);
+        Envelope envelope = envelope(NOTIFICATION_SENT, null, null);
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
-        Instant oneHourAgo = Instant.now().minus(1, HOURS);
-        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
-        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
-        Instant fourHoursAgo = Instant.now().minus(4, HOURS);
-        ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, fourHoursAgo);
-        ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, threeHoursAgo);
-        ProcessEvent event3 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, twoHoursAgo);
-        ProcessEvent event4 = createProcessEvent(envelope, Event.COMPLETED, oneHourAgo);
+        Instant fourtySevenHoursAgo = Instant.now().minus(47, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fourtySevenHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
         given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
-            .willReturn(asList(event1, event2, event3, event4));
+                .willReturn(asList(event1, event2, event3));
 
         mockMvc
-            .perform(
-                put("/actions/" + envelopeId + "/abort")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+                .perform(
+                    put("/actions/" + envelopeId + "/abort")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+                )
+                .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+        verify(processEventRepository).findByZipFileName(envelope.getZipFileName());
+        verifyNoMoreInteractions(processEventRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_has_uploaded_status_for_abort() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(UPLOADED, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fourtyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+                .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+                .perform(
+                    put("/actions/" + envelopeId + "/abort")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+                )
+                .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_already_processed_for_abort() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(COMPLETED, "111222333", "created");
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fourtyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+                .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+                .perform(
+                        put("/actions/" + envelopeId + "/abort")
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+                )
+                .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_already_aborted_for_abort() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(ABORTED, "111222333", "created");
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fourtyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fourtyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+                .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+                .perform(
+                    put("/actions/" + envelopeId + "/abort")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
             )
             .andExpect(status().isConflict());
 

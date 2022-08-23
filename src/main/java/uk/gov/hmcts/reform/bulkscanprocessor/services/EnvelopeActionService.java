@@ -53,7 +53,7 @@ public class EnvelopeActionService {
                 () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
-        validateEnvelopeState(envelope);
+        validateEnvelopeStateForReprocess(envelope);
 
         createEvent(
             envelope,
@@ -64,7 +64,7 @@ public class EnvelopeActionService {
         envelope.setStatus(UPLOADED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status chaged to UPLOADED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to UPLOADED", envelope.getZipFileName());
     }
 
     @Transactional
@@ -85,7 +85,7 @@ public class EnvelopeActionService {
         envelope.setStatus(COMPLETED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status chaged to COMPLETED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to COMPLETED", envelope.getZipFileName());
     }
 
     @Transactional
@@ -95,7 +95,7 @@ public class EnvelopeActionService {
                 () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
-        validateEnvelopeIsInInconsistentState(envelope);
+        validateEnvelopeStateForAbort(envelope);
 
         createEvent(
             envelope,
@@ -106,7 +106,7 @@ public class EnvelopeActionService {
         envelope.setStatus(ABORTED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status chaged to COMPLETED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to ABORTED", envelope.getZipFileName());
     }
 
     private void createEvent(Envelope envelope, Event event, String reason) {
@@ -119,16 +119,30 @@ public class EnvelopeActionService {
         processEventRepository.save(processEvent);
     }
 
-    private void validateEnvelopeState(Envelope envelope) {
-        if (envelope.getCcdId() != null) {
-            throw new EnvelopeProcessedInCcdException(
-                    getErrorMessage(envelope.getId(), "has already been processed in CCD")
+    private void validateEnvelopeStateForReprocess(Envelope envelope) {
+        validateNotProcessedInCcd(envelope);
+
+        if (envelope.getStatus() != COMPLETED && envelope.getStatus() != ABORTED && !isStale(envelope)) {
+            throw new EnvelopeNotCompletedOrStaleException(
+                    getErrorMessage(envelope.getId(), "is not completed, aborted or stale")
             );
         }
+    }
+
+    private void validateEnvelopeStateForAbort(Envelope envelope) {
+        validateNotProcessedInCcd(envelope);
 
         if (envelope.getStatus() != COMPLETED && !isStale(envelope)) {
             throw new EnvelopeNotCompletedOrStaleException(
                     getErrorMessage(envelope.getId(), "is not completed or stale")
+            );
+        }
+    }
+
+    private void validateNotProcessedInCcd(Envelope envelope) {
+        if (envelope.getCcdId() != null) {
+            throw new EnvelopeProcessedInCcdException(
+                    getErrorMessage(envelope.getId(), "has already been processed in CCD")
             );
         }
     }
