@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ProcessEventRepository extends JpaRepository<ProcessEvent, Long> {
-    List<ProcessEvent> findByZipFileName(String zipFileName);
+    List<ProcessEvent> findByZipFileNameOrderByCreatedAtDesc(String zipFileName);
 
     @Query(
             nativeQuery = true,

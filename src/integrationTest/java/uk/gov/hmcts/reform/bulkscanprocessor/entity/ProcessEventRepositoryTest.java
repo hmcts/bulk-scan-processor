@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import org.assertj.core.api.SoftAssertions;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,26 +29,49 @@ public class ProcessEventRepositoryTest {
     public void findByZipFileName_should_find_events_in_db() {
         // given
         repo.saveAll(asList(
-            new ProcessEvent("A", "hello.zip", Event.DOC_UPLOADED),
-            new ProcessEvent("B", "hello.zip", Event.DOC_UPLOADED),
-            new ProcessEvent("C", "world.zip", Event.DOC_UPLOADED)
+            getProcessEvent(
+                "A",
+                "hello.zip",
+                Event.DOC_UPLOADED,
+                "2021-02-07T14:16:23Z"
+            ),
+            getProcessEvent(
+                "B",
+                "hello.zip",
+                Event.DOC_UPLOADED,
+                "2021-02-07T14:15:23Z"
+            ),
+            getProcessEvent(
+                "C",
+                "world.zip",
+                Event.DOC_UPLOADED,
+                "2021-02-07T14:15:23Z"
+            )
         ));
 
         // when
-        List<ProcessEvent> res = repo.findByZipFileName("hello.zip");
-        List<ProcessEvent> resultForX = repo.findByZipFileName("x.zip");
+        List<ProcessEvent> res = repo.findByZipFileNameOrderByCreatedAtDesc("hello.zip");
+        List<ProcessEvent> resultForX = repo.findByZipFileNameOrderByCreatedAtDesc("x.zip");
 
         // then
-        SoftAssertions softly = new SoftAssertions();
-
-        softly.assertThat(res)
-            .usingElementComparatorOnFields("container", "zipFileName", "event")
-            .containsExactlyInAnyOrder(
-                new ProcessEvent("A", "hello.zip", Event.DOC_UPLOADED),
-                new ProcessEvent("B", "hello.zip", Event.DOC_UPLOADED)
+        assertThat(res)
+            .usingRecursiveFieldByFieldElementComparatorOnFields("container", "zipFileName", "event", "createdAt")
+            .containsExactly(
+                getProcessEvent(
+                    "A",
+                    "hello.zip",
+                    Event.DOC_UPLOADED,
+                    "2021-02-07T14:16:23Z"
+                ),
+                getProcessEvent(
+                    "B",
+                    "hello.zip",
+                    Event.DOC_UPLOADED,
+                    "2021-02-07T14:15:23Z"
+                )
             );
 
-        softly.assertThat(resultForX).hasSize(0);
+        assertThat(resultForX).hasSize(0);
     }
 
     @Test
@@ -64,13 +87,21 @@ public class ProcessEventRepositoryTest {
         );
 
         // then
-        SoftAssertions softly = new SoftAssertions();
-
-        softly.assertThat(res)
-            .usingElementComparatorOnFields("container", "zipFileName", "event")
+        assertThat(res)
+            .usingRecursiveFieldByFieldElementComparatorOnFields("container", "zipFileName", "event", "createdAt")
             .containsExactly(
-                new ProcessEvent("B", "2103404021053_07-02-2021-13-11-17.zip", Event.FILE_VALIDATION_FAILURE),
-                new ProcessEvent("B", "2103404021053_07-02-2021-13-11-17.zip", Event.ZIPFILE_PROCESSING_STARTED)
+                getProcessEvent(
+                    "B",
+                    "2103404021053_07-02-2021-13-11-17.zip",
+                    Event.FILE_VALIDATION_FAILURE,
+                    "2021-02-07T14:15:39Z"
+                ),
+                getProcessEvent(
+                    "B",
+                    "2103404021053_07-02-2021-13-11-17.zip",
+                    Event.ZIPFILE_PROCESSING_STARTED,
+                    "2021-02-07T14:15:23Z"
+                )
             );
     }
 
@@ -87,15 +118,33 @@ public class ProcessEventRepositoryTest {
         );
 
         // then
-        SoftAssertions softly = new SoftAssertions();
-
-        softly.assertThat(res)
-            .usingElementComparatorOnFields("container", "zipFileName", "event")
+        assertThat(res)
+            .usingRecursiveFieldByFieldElementComparatorOnFields("container", "zipFileName", "event", "createdAt")
             .containsExactly(
-                new ProcessEvent("A", "2103404021053_07-02-2021-13-11-17.zip", Event.FILE_VALIDATION_FAILURE),
-                new ProcessEvent("A", "2103404021053_07-02-2021-13-11-17.zip", Event.ZIPFILE_PROCESSING_STARTED),
-                new ProcessEvent("B", "2103404021052_07-02-2021-13-11-17.zip", Event.FILE_VALIDATION_FAILURE),
-                new ProcessEvent("B", "2103404021052_07-02-2021-13-11-17.zip", Event.ZIPFILE_PROCESSING_STARTED)
+                getProcessEvent(
+                    "A",
+                    "2103404021052_05-02-2021-13-11-17.zip",
+                    Event.FILE_VALIDATION_FAILURE,
+                    "2021-02-05T14:15:39Z"
+                ),
+                getProcessEvent(
+                    "A",
+                    "2103404021052_05-02-2021-13-11-17.zip",
+                    Event.ZIPFILE_PROCESSING_STARTED,
+                    "2021-02-05T14:15:23Z"
+                ),
+                getProcessEvent(
+                    "B",
+                    "2103404021053_07-02-2021-13-11-17.zip",
+                    Event.FILE_VALIDATION_FAILURE,
+                    "2021-02-07T14:15:39Z"
+                ),
+                getProcessEvent(
+                    "B",
+                    "2103404021053_07-02-2021-13-11-17.zip",
+                    Event.ZIPFILE_PROCESSING_STARTED,
+                    "2021-02-07T14:15:23Z"
+                )
             );
     }
 
@@ -116,54 +165,72 @@ public class ProcessEventRepositoryTest {
     }
 
     private void saveEvents() {
-        ProcessEvent e11 = new ProcessEvent(
-                "A",
-                "2103404021051_2021-02-03-13-11-17.zip",
-                Event.ZIPFILE_PROCESSING_STARTED
+        ProcessEvent e11 = getProcessEvent(
+            "A",
+            "2103404021051_2021-02-03-13-11-17.zip",
+            Event.ZIPFILE_PROCESSING_STARTED,
+            "2021-02-03T14:15:23Z"
         );
-        e11.setCreatedAt(Instant.parse("2021-02-03T14:15:23Z"));
-        ProcessEvent e12 = new ProcessEvent(
-                "A",
-                "2103404021051_2021-02-03-13-11-17.zip",
-                Event.FILE_VALIDATION_FAILURE
+        ProcessEvent e12 = getProcessEvent(
+            "A",
+            "2103404021051_2021-02-03-13-11-17.zip",
+            Event.FILE_VALIDATION_FAILURE,
+            "2021-02-03T14:15:39Z"
         );
-        e12.setCreatedAt(Instant.parse("2021-02-03T14:15:39Z"));
-        ProcessEvent e21 = new ProcessEvent(
-                "A",
-                "2103404021052_05-02-2021-13-11-17.zip",
-                Event.ZIPFILE_PROCESSING_STARTED
+        ProcessEvent e21 = getProcessEvent(
+            "A",
+            "2103404021052_05-02-2021-13-11-17.zip",
+            Event.ZIPFILE_PROCESSING_STARTED,
+            "2021-02-05T14:15:23Z"
         );
-        e21.setCreatedAt(Instant.parse("2021-02-05T14:15:23Z"));
-        ProcessEvent e22 = new ProcessEvent(
-                "A",
-                "2103404021052_2021-02-05-13-11-17.zip",
-                Event.FILE_VALIDATION_FAILURE
+        ProcessEvent e22 = getProcessEvent(
+            "A",
+            "2103404021052_05-02-2021-13-11-17.zip",
+            Event.FILE_VALIDATION_FAILURE,
+            "2021-02-05T14:15:39Z"
         );
-        e22.setCreatedAt(Instant.parse("2021-02-05T14:15:39Z"));
-        ProcessEvent e31 = new ProcessEvent(
-                "B",
-                "2103404021053_07-02-2021-13-11-17.zip",
-                Event.ZIPFILE_PROCESSING_STARTED
+        ProcessEvent e31 = getProcessEvent(
+            "B",
+            "2103404021053_07-02-2021-13-11-17.zip",
+            Event.ZIPFILE_PROCESSING_STARTED,
+            "2021-02-07T14:15:23Z"
         );
-        e31.setCreatedAt(Instant.parse("2021-02-07T14:15:23Z"));
-        ProcessEvent e32 = new ProcessEvent(
-                "B",
-                "2103404021053_07-02-2021-13-11-17.zip",
-                Event.FILE_VALIDATION_FAILURE
+        ProcessEvent e32 = getProcessEvent(
+            "B",
+            "2103404021053_07-02-2021-13-11-17.zip",
+            Event.FILE_VALIDATION_FAILURE,
+            "2021-02-07T14:15:39Z"
         );
-        e32.setCreatedAt(Instant.parse("2021-02-07T14:15:39Z"));
-        ProcessEvent e41 = new ProcessEvent(
-                "B",
-                "2103404021054_09-02-2021-13-11-17.zip",
-                Event.ZIPFILE_PROCESSING_STARTED
+        ProcessEvent e41 = getProcessEvent(
+            "B",
+            "2103404021054_09-02-2021-13-11-17.zip",
+            Event.ZIPFILE_PROCESSING_STARTED,
+            "2021-02-09T14:15:23Z"
         );
-        e41.setCreatedAt(Instant.parse("2021-02-09T14:15:23Z"));
-        ProcessEvent e42 = new ProcessEvent(
-                "B",
-                "2103404021054_09-02-2021-13-11-17.zip",
-                Event.FILE_VALIDATION_FAILURE
+        ProcessEvent e42 = getProcessEvent(
+            "B",
+            "2103404021054_09-02-2021-13-11-17.zip",
+            Event.FILE_VALIDATION_FAILURE,
+            "2021-02-09T14:15:39Z"
         );
-        e42.setCreatedAt(Instant.parse("2021-02-09T14:15:39Z"));
         repo.saveAll(asList(e11, e12, e21, e22, e31, e32, e41, e42));
+    }
+
+    @NotNull
+    private ProcessEvent getProcessEvent(
+            String container,
+            String zipFileName,
+            Event event,
+            String createdAt
+    ) {
+        ProcessEvent processEvent = new ProcessEvent(
+            container,
+            zipFileName,
+            event
+        );
+
+        processEvent.setCreatedAt(Instant.parse(createdAt));
+
+        return processEvent;
     }
 }

@@ -93,7 +93,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -138,7 +138,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -150,7 +150,7 @@ public class ActionControllerTest {
 
         verify(envelopeRepository).findById(envelopeId);
         verifyNoMoreInteractions(envelopeRepository);
-        verify(processEventRepository).findByZipFileName(envelope.getZipFileName());
+        verify(processEventRepository).findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName());
         verifyNoMoreInteractions(processEventRepository);
     }
 
@@ -172,7 +172,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -204,7 +204,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -236,7 +236,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -330,7 +330,7 @@ public class ActionControllerTest {
         ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, threeHoursAgo);
         ProcessEvent event3 = createProcessEvent(envelope, Event.COMPLETED, twoHoursAgo);
         ProcessEvent event4 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, oneHourAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3, event4));
 
         mockMvc
@@ -373,7 +373,7 @@ public class ActionControllerTest {
         ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, threeHoursAgo);
         ProcessEvent event3 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, twoHoursAgo);
         ProcessEvent event4 = createProcessEvent(envelope, Event.COMPLETED, oneHourAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3, event4));
 
         mockMvc
@@ -402,7 +402,7 @@ public class ActionControllerTest {
         ProcessEvent event1 = createProcessEvent(envelope, ZIPFILE_PROCESSING_STARTED, threeHoursAgo);
         ProcessEvent event2 = createProcessEvent(envelope, DOC_UPLOADED, twoHoursAgo);
         ProcessEvent event3 = createProcessEvent(envelope, DOC_PROCESSED_NOTIFICATION_SENT, oneHourAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -497,7 +497,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -542,7 +542,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -554,7 +554,7 @@ public class ActionControllerTest {
 
         verify(envelopeRepository).findById(envelopeId);
         verifyNoMoreInteractions(envelopeRepository);
-        verify(processEventRepository).findByZipFileName(envelope.getZipFileName());
+        verify(processEventRepository).findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName());
         verifyNoMoreInteractions(processEventRepository);
     }
 
@@ -576,7 +576,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -608,7 +608,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(asList(event1, event2, event3));
 
         mockMvc
@@ -640,7 +640,7 @@ public class ActionControllerTest {
         event2.setCreatedAt(fiftyHoursAgo);
         ProcessEvent event3 = new ProcessEvent();
         event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(asList(event1, event2, event3));
 
         mockMvc
