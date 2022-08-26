@@ -70,14 +70,4 @@ public class ProcessEvent {
     public void setReason(String reason) {
         this.reason = reason;
     }
-
-    @Override
-    public String toString() {
-        return "ProcessEvent{" +
-                "container='" + container + '\'' +
-                ", zipFileName='" + zipFileName + '\'' +
-                ", createdAt=" + createdAt +
-                ", event=" + event +
-                '}';
-    }
 }
