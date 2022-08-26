@@ -192,7 +192,8 @@ public class EnvelopeFinaliserServiceTest {
         envelopeFinaliserService.finaliseEnvelope(envelopeId, "2321", "EXCEPTION_RECORD");
 
         // then
-        List<ProcessEvent> savedEvents = processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName());
+        List<ProcessEvent> savedEvents = processEventRepository
+                .findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName());
         assertThat(savedEvents.size()).isOne();
 
         ProcessEvent savedEvent = savedEvents.get(0);
