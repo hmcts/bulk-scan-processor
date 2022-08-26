@@ -60,7 +60,7 @@ class ZipFileStatusServiceTest {
         List<Envelope> envelopes = asList(envelope("A"), envelope("B"));
 
         given(envelopeRepo.findByZipFileName("hello.zip")).willReturn(envelopes);
-        given(eventRepo.findByZipFileName("hello.zip")).willReturn(events);
+        given(eventRepo.findByZipFileNameOrderByCreatedAtDesc("hello.zip")).willReturn(events);
 
         // when
         ZipFileStatus result = service.getStatusByFileName("hello.zip");
@@ -140,7 +140,7 @@ class ZipFileStatusServiceTest {
     void should_return_empty_lists_when_no_data_for_zip_file_was_found() {
         // given
         given(envelopeRepo.findByZipFileName("hello.zip")).willReturn(emptyList());
-        given(eventRepo.findByZipFileName("hello.zip")).willReturn(emptyList());
+        given(eventRepo.findByZipFileNameOrderByCreatedAtDesc("hello.zip")).willReturn(emptyList());
 
         // when
         ZipFileStatus result = service.getStatusByFileName("hello.zip");
@@ -173,9 +173,9 @@ class ZipFileStatusServiceTest {
 
         given(scannableItemRepo.findByDcn(documentControlNumber)).willReturn(zipFileNames);
         given(envelopeRepo.findByZipFileName("hello1.zip")).willReturn(envelopes1);
-        given(eventRepo.findByZipFileName("hello1.zip")).willReturn(events1);
+        given(eventRepo.findByZipFileNameOrderByCreatedAtDesc("hello1.zip")).willReturn(events1);
         given(envelopeRepo.findByZipFileName("hello2.zip")).willReturn(envelopes2);
-        given(eventRepo.findByZipFileName("hello2.zip")).willReturn(events2);
+        given(eventRepo.findByZipFileNameOrderByCreatedAtDesc("hello2.zip")).willReturn(events2);
 
         // when
         var zipFileStatusList = service.getStatusByDcn(documentControlNumber);
@@ -328,7 +328,7 @@ class ZipFileStatusServiceTest {
         List<Envelope> envelopes = asList(envelope("A"), envelope("B"));
         given(envelopes.get(0).getZipFileName()).willReturn("hello.zip");
         given(envelopeRepo.findByCcdId(ccdId)).willReturn(envelopes);
-        given(eventRepo.findByZipFileName("hello.zip")).willReturn(events);
+        given(eventRepo.findByZipFileNameOrderByCreatedAtDesc("hello.zip")).willReturn(events);
         // when
         ZipFileStatus result = service.getStatusByCcdId(ccdId);
         // then

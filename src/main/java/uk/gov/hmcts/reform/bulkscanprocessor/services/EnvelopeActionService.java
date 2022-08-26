@@ -154,7 +154,7 @@ public class EnvelopeActionService {
             );
         }
 
-        if (processEventRepository.findByZipFileName(envelope.getZipFileName())
+        if (processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName())
             .stream()
             .filter(ev -> ev.getEvent() == Event.COMPLETED)
             .findFirst()
@@ -173,7 +173,7 @@ public class EnvelopeActionService {
         }
 
         Instant lastEventTimeStamp = processEventRepository
-            .findByZipFileName(envelope.getZipFileName())
+            .findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName())
             .stream()
             .map(ProcessEvent::getCreatedAt)
             .max(naturalOrder())

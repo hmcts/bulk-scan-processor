@@ -42,7 +42,7 @@ public class ZipFileStatusService {
 
     public ZipFileStatus getStatusByFileName(String zipFileName) {
         List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
-        List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
+        List<ProcessEvent> events = eventRepo.findByZipFileNameOrderByCreatedAtDesc(zipFileName);
         return getZipFileStatus(zipFileName, null, null, envelopes, events);
 
     }
@@ -60,7 +60,7 @@ public class ZipFileStatusService {
                         null,
                         documentControlNumber,
                         envelopeRepo.findByZipFileName(zipFileName),
-                        eventRepo.findByZipFileName(zipFileName)
+                        eventRepo.findByZipFileNameOrderByCreatedAtDesc(zipFileName)
                     )
                 )
             );
@@ -75,7 +75,7 @@ public class ZipFileStatusService {
         List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
         if (!envelopes.isEmpty()) {
             String zipFileName = envelopes.get(0).getZipFileName();
-            List<ProcessEvent> events = eventRepo.findByZipFileName(zipFileName);
+            List<ProcessEvent> events = eventRepo.findByZipFileNameOrderByCreatedAtDesc(zipFileName);
             return getZipFileStatus(null, ccdId, null, envelopes, events);
         }
         return getZipFileStatus(null, ccdId, null, emptyList(), emptyList());

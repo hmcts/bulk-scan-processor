@@ -125,7 +125,7 @@ class EnvelopeActionServiceTest {
             null,
             null
         );
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         var uuid = UUID.randomUUID();
@@ -169,7 +169,7 @@ class EnvelopeActionServiceTest {
             null,
             null
         );
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(event1, event2, event3));
 
         var uuid = UUID.randomUUID();
@@ -192,7 +192,7 @@ class EnvelopeActionServiceTest {
             null,
             null
         );
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(emptyList());
 
         var uuid = UUID.randomUUID();
@@ -272,7 +272,7 @@ class EnvelopeActionServiceTest {
             null
         );
         given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(
                 new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), ZIPFILE_PROCESSING_STARTED),
                 new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED),
@@ -330,7 +330,7 @@ class EnvelopeActionServiceTest {
             null
         );
         given(envelopeRepository.findById(uuid)).willReturn(Optional.of(envelope));
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
             .willReturn(asList(
                 new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), ZIPFILE_PROCESSING_STARTED),
                 new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), DOC_UPLOADED),
@@ -380,7 +380,7 @@ class EnvelopeActionServiceTest {
                 null,
                 null
         );
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(asList(event1, event2, event3));
 
         var uuid = UUID.randomUUID();
@@ -424,7 +424,7 @@ class EnvelopeActionServiceTest {
                 null,
                 null
         );
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(asList(event1, event2, event3));
 
         var uuid = UUID.randomUUID();
@@ -447,7 +447,7 @@ class EnvelopeActionServiceTest {
                 null,
                 null
         );
-        given(processEventRepository.findByZipFileName(envelope.getZipFileName()))
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
                 .willReturn(emptyList());
 
         var uuid = UUID.randomUUID();
