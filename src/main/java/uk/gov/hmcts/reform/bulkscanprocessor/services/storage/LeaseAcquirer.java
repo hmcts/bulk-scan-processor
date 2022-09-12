@@ -85,6 +85,8 @@ public class LeaseAcquirer {
 
             if (exc.getErrorCode() == LEASE_ALREADY_PRESENT) {
                 logger.info(logContext, exc);
+            } else if (exc.getErrorCode() == BLOB_NOT_FOUND) {
+                logger.warn(logContext, exc);
             } else {
                 logger.error(logContext, exc);
             }
