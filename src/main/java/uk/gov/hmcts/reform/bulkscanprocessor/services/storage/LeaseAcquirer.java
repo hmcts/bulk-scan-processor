@@ -83,10 +83,10 @@ public class LeaseAcquirer {
                 + "File name: " + blobClient.getBlobName()
                 + ", Container: " + blobClient.getContainerName();
 
-            if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
-                logger.error(logContext, exc);
-            } else {
+            if (exc.getErrorCode() == LEASE_ALREADY_PRESENT) {
                 logger.info(logContext, exc);
+            } else {
+                logger.error(logContext, exc);
             }
 
             onFailure.accept(exc.getErrorCode());
