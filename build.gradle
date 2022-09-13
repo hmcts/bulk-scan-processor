@@ -283,7 +283,7 @@ dependencyManagement {
       entry 'netty-transport-native-unix-common'
     }
     // CVE-2022-25857
-    dependencySet(group: 'org.yaml', version: '1.31') {
+    dependencySet(group: 'org.yaml', version: '1.32') {
       entry 'snakeyaml'
     }
   }
