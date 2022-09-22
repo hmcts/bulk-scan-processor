@@ -82,7 +82,7 @@ public interface EnvelopeCountSummaryRepository extends JpaRepository<Envelope, 
             + "      env.container,\n"
             + "      date(:date) AS date,\n"
             + "      count(env.*) AS received,\n"
-            + "      SUM(CASE WHEN env.status IN ('METADATA_FAILURE', 'UPLOAD_FAILURE') THEN 1 ELSE 0 END) AS rejected\n"
+            + "      SUM(CASE WHEN env.status='METADATA_FAILURE' THEN 1 ELSE 0 END) AS rejected\n"
             + "    FROM envelopes env\n"
             + "    WHERE date(env.zipfilecreateddate)=date(:date)\n"
             + "    GROUP BY container\n"
