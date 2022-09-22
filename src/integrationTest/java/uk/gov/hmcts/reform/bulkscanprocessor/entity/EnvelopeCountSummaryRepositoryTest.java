@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
