@@ -484,12 +484,15 @@ class EnvelopeCountSummaryRepositoryTest {
         List<EnvelopeCountSummaryItem> result = reportRepo.getEnvelopeCountSummary(SUMMARY_DATE);
 
         // then
-        assertThat(result)
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(SUMMARY_DATE, "service_A", 2, 1),
-                        new Item(SUMMARY_DATE, "service_B", 4, 1)
-                ));
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getDate()).isEqualTo(SUMMARY_DATE);
+        assertThat(result.get(0).getContainer()).isEqualTo("service_A");
+        assertThat(result.get(0).getReceived()).isEqualTo(2);
+        assertThat(result.get(0).getRejected()).isEqualTo(1);
+        assertThat(result.get(1).getDate()).isEqualTo(SUMMARY_DATE);
+        assertThat(result.get(1).getContainer()).isEqualTo("service_B");
+        assertThat(result.get(1).getReceived()).isEqualTo(4);
+        assertThat(result.get(1).getRejected()).isEqualTo(0);
     }
 
     @Test
@@ -520,12 +523,15 @@ class EnvelopeCountSummaryRepositoryTest {
         List<EnvelopeCountSummaryItem> result = reportRepo.getEnvelopeCountSummary(SUMMARY_DATE);
 
         // then
-        assertThat(result)
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(SUMMARY_DATE, "service_A", 3, 2),
-                        new Item(SUMMARY_DATE, "service_B", 4, 1)
-                ));
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getDate()).isEqualTo(SUMMARY_DATE);
+        assertThat(result.get(0).getContainer()).isEqualTo("service_A");
+        assertThat(result.get(0).getReceived()).isEqualTo(3);
+        assertThat(result.get(0).getRejected()).isEqualTo(2);
+        assertThat(result.get(1).getDate()).isEqualTo(SUMMARY_DATE);
+        assertThat(result.get(1).getContainer()).isEqualTo("service_B");
+        assertThat(result.get(1).getReceived()).isEqualTo(4);
+        assertThat(result.get(1).getRejected()).isEqualTo(0);
     }
 
     @Test
@@ -545,12 +551,15 @@ class EnvelopeCountSummaryRepositoryTest {
         List<EnvelopeCountSummaryItem> result = reportRepo.getEnvelopeCountSummary(SUMMARY_DATE);
 
         // then
-        assertThat(result)
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyElementsOf(asList(
-                        new Item(SUMMARY_DATE, "service_A", 2, 2),
-                        new Item(SUMMARY_DATE, "service_B", 1, 1)
-                ));
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getDate()).isEqualTo(SUMMARY_DATE);
+        assertThat(result.get(0).getContainer()).isEqualTo("service_A");
+        assertThat(result.get(0).getReceived()).isEqualTo(2);
+        assertThat(result.get(0).getRejected()).isEqualTo(2);
+        assertThat(result.get(1).getDate()).isEqualTo(SUMMARY_DATE);
+        assertThat(result.get(1).getContainer()).isEqualTo("service_B");
+        assertThat(result.get(1).getReceived()).isEqualTo(1);
+        assertThat(result.get(1).getRejected()).isEqualTo(1);
     }
 
     private void dbHas(ProcessEvent... events) {
