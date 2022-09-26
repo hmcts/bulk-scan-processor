@@ -64,7 +64,7 @@ class ReportsServiceTest {
 
         // then
         assertThat(result)
-            .usingFieldByFieldElementComparator()
+            .usingRecursiveFieldByFieldElementComparator()
             .containsExactly(
                 new EnvelopeCountSummary(100, 1, "A", now().plusDays(1)),
                 new EnvelopeCountSummary(200, 9, "B", now().minusDays(1))
@@ -120,7 +120,7 @@ class ReportsServiceTest {
 
         // then
         assertThat(result)
-            .usingFieldByFieldElementComparator()
+            .usingRecursiveFieldByFieldElementComparator()
             .containsExactly(
                 new EnvelopeCountSummary(100, 1, "A", now().plusDays(1)),
                 new EnvelopeCountSummary(200, 9, "B", now().minusDays(1))
@@ -209,7 +209,7 @@ class ReportsServiceTest {
 
         // then
         assertThat(result)
-            .usingFieldByFieldElementComparator()
+            .usingRecursiveFieldByFieldElementComparator()
             .containsExactly(
                 new ZipFileSummaryResponse(
                     "t1.zip",
@@ -277,7 +277,6 @@ class ReportsServiceTest {
         // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).container).isEqualTo("c2");
-
         assertThat(result.get(0).fileName).isEqualTo("t2.zip");
         assertThat(result.get(0).classification).isEqualTo(EXCEPTION.name());
     }
@@ -411,7 +410,6 @@ class ReportsServiceTest {
         // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).container).isEqualTo("c2");
-
         assertThat(result.get(0).fileName).isEqualTo("t4.zip");
         assertThat(result.get(0).classification).isEqualTo(NEW_APPLICATION.name());
     }
