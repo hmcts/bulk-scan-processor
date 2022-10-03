@@ -6,8 +6,10 @@
   <suppress until="2022-11-23">
     <cve>CVE-2022-29885</cve>
   </suppress>
-  <suppress until="2022-12-30">
+  <suppress until="2023-01-01">
+    <notes>no updates found for tomcat-embed-core and tomcat-embed-websocket</notes>
     <cve>CVE-2022-34305</cve>
+    <cve>CVE-2021-43980</cve>
   </suppress>
   <suppress until="2023-01-01">
     <cve>CVE-2021-43980</cve>
