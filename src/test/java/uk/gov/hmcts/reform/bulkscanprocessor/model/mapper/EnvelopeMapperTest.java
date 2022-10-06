@@ -219,8 +219,6 @@ class EnvelopeMapperTest {
                     switch (documentSubtype) {
                         case SSCS1:
                             return InputDocumentType.SSCS1;
-                        case WILL:
-                            return InputDocumentType.WILL;
                         case COVERSHEET:
                             return InputDocumentType.COVERSHEET;
                         default:

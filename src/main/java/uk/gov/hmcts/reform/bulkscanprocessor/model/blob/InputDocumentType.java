@@ -6,7 +6,12 @@ public enum InputDocumentType {
     WILL("Will"),
     SSCS1("SSCS1"),
     FORM("Form"),
-    COVERSHEET("Coversheet");
+    COVERSHEET("Coversheet"),
+    SUPPORTING_DOCUMENTS("Supporting Documents"),
+    FORENSIC_SHEETS("Forensic Sheets"),
+    IHT("IHT"),
+    PPS_LEGAL_STATEMENT("PP's Legal Statement"),
+    DEATH_CERTIFICATE("Death Certificate");
 
     private final String value;
 
