@@ -84,7 +84,11 @@ class EnvelopeMapperTest {
             DocumentType.WILL,
             FORM,
             DocumentType.COVERSHEET,
-            FORM
+            FORM,
+            SUPPORTING_DOCUMENTS,
+            FORENSIC_SHEETS,
+            IHT,
+            PPS_LEGAL_STATEMENT
         );
         assertDocumentSubTypes(
             dbEnvelope,
@@ -95,7 +99,11 @@ class EnvelopeMapperTest {
             null,
             SSCS1,
             null,
-            "PERSONAL"
+            "PERSONAL",
+            "PA11",
+            "Will",
+            "205",
+            null
         );
     }
 

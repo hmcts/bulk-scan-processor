@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.blob;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum InputDocumentType {
     CHERISHED("Cherished"),
     OTHER("Other"),
@@ -17,6 +19,11 @@ public enum InputDocumentType {
 
     InputDocumentType(String value) {
         this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 
     @Override
