@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -113,7 +114,8 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
 
         var updatedEnvelope = getEnvelope(zipFilename);
-        assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
+        assertThat(updatedEnvelope.getScannableItems()).hasSize(1);
+        assertThat(updatedEnvelope.getNonScannableItems()).hasSize(1);
 
         if (FLUX_FUNC_TEST) {
             assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
@@ -155,7 +157,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
         testHelper.uploadZipFile(
             inputContainer,
-            Arrays.asList("1111006.pdf", "1111002.pdf"),
+            Collections.singletonList("1111006.pdf"),
             "exception_metadata.json",
             zipFilename
         );
