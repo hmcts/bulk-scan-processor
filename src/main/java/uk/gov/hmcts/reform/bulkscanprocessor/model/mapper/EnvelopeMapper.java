@@ -128,18 +128,6 @@ public class EnvelopeMapper {
             case FORM:
             case SSCS1:
                 return DocumentType.FORM;
-            case SUPPORTING_DOCUMENTS:
-                return DocumentType.SUPPORTING_DOCUMENTS;
-            case WILL:
-                return DocumentType.WILL;
-            case FORENSIC_SHEETS:
-                return DocumentType.FORENSIC_SHEETS;
-            case IHT:
-                return DocumentType.IHT;
-            case PPS_LEGAL_STATEMENT:
-                return DocumentType.PPS_LEGAL_STATEMENT;
-            case DEATH_CERTIFICATE:
-                return DocumentType.DEATH_CERTIFICATE;
             default:
                 return DocumentType.OTHER;
         }
@@ -147,6 +135,7 @@ public class EnvelopeMapper {
 
     private static String extractDocumentSubtype(InputDocumentType inputDocumentType, String inputDocumentSubtype) {
         switch (inputDocumentType) {
+            case WILL:
             case SSCS1:
                 return subtypeMapping.get(inputDocumentType);
             default:

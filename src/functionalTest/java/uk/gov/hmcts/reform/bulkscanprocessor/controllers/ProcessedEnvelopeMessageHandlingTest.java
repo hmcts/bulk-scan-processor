@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -88,49 +87,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .until(() -> testHelper.storageHasFile(inputContainer, zipFilename), is(false));
     }
 
-    @Test
-    public void should_complete_envelope_with_new_document_type() throws Exception {
-        // given
-        var zipFilename = uploadEnvelopeWithDocumentType();
-
-        await(
-            "File " + zipFilename + " should be created in the service and notification should be put on the queue"
-        )
-            .atMost(SCAN_DELAY + MESSAGE_PROCESSING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-            .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until(() -> hasNotificationBeenSent(zipFilename));
-
-        UUID envelopeId = getEnvelope(zipFilename).getId();
-
-        // when
-        var ccdAction = FLUX_FUNC_TEST ? "EXCEPTION_RECORD" : "ccd-action";
-        if (!FLUX_FUNC_TEST) {
-            sendProcessedEnvelopeMessage(envelopeId, "ccd-id", ccdAction);
-        }
-        // then
-        await("File " + zipFilename + " should change status to 'COMPLETED'")
-            .atMost(ENVELOPE_FINALISATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-            .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
-
-        var updatedEnvelope = getEnvelope(zipFilename);
-        assertThat(updatedEnvelope.getScannableItems()).hasSize(1);
-        assertThat(updatedEnvelope.getNonScannableItems()).hasSize(1);
-
-        if (FLUX_FUNC_TEST) {
-            assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
-        } else {
-            assertThat(updatedEnvelope.getCcdId()).isEqualTo("ccd-id");
-        }
-        assertThat(updatedEnvelope.getEnvelopeCcdAction()).isEqualTo(ccdAction);
-
-
-        await("File " + zipFilename + " should be deleted")
-            .atMost(DELETE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-            .pollInterval(2, TimeUnit.SECONDS)
-            .until(() -> testHelper.storageHasFile(inputContainer, zipFilename), is(false));
-    }
-
     private Boolean hasNotificationBeenSent(String zipFilename) {
         var envelope = testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
         return envelope != null && COMPLETED_OR_NOTIFICATION_SENT.contains(envelope.getStatus());
@@ -146,19 +102,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             inputContainer,
             Arrays.asList("1111006.pdf", "1111002.pdf"),
             "exception_with_ocr_metadata.json",
-            zipFilename
-        );
-
-        return zipFilename;
-    }
-
-    private String uploadEnvelopeWithDocumentType() {
-        String zipFilename = testHelper.getRandomFilename();
-
-        testHelper.uploadZipFile(
-            inputContainer,
-            Collections.singletonList("1111006.pdf"),
-            "exception_metadata.json",
             zipFilename
         );
 
