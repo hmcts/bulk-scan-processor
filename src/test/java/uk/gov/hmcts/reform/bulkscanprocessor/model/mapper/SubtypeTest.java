@@ -15,6 +15,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.OTHER;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SUPPORTING_DOCUMENTS;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.WILL;
 
 class SubtypeTest {
@@ -26,14 +27,15 @@ class SubtypeTest {
         asList(
             // null subtype
             new TestCase(new Given(SSCS1, null), new Expect(DocumentType.FORM, DocumentSubtype.SSCS1)),
-            new TestCase(new Given(WILL, null), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
+            new TestCase(new Given(WILL, null), new Expect(DocumentType.WILL, null)),
             new TestCase(new Given(COVERSHEET, null), new Expect(DocumentType.COVERSHEET, null)),
             new TestCase(new Given(CHERISHED, null), new Expect(DocumentType.CHERISHED, null)),
             new TestCase(new Given(OTHER, null), new Expect(DocumentType.OTHER, null)),
             new TestCase(new Given(FORM, null), new Expect(DocumentType.FORM, null)),
+            new TestCase(new Given(SUPPORTING_DOCUMENTS, null), new Expect(DocumentType.SUPPORTING_DOCUMENTS, null)),
             // non-null subtype
             new TestCase(new Given(SSCS1, SOME_SUBTYPE), new Expect(DocumentType.FORM, DocumentSubtype.SSCS1)),
-            new TestCase(new Given(WILL, SOME_SUBTYPE), new Expect(DocumentType.OTHER, DocumentSubtype.WILL)),
+            new TestCase(new Given(WILL, SOME_SUBTYPE), new Expect(DocumentType.WILL, SOME_SUBTYPE)),
             new TestCase(new Given(COVERSHEET, SOME_SUBTYPE), new Expect(DocumentType.COVERSHEET, SOME_SUBTYPE)),
             new TestCase(new Given(CHERISHED, SOME_SUBTYPE), new Expect(DocumentType.CHERISHED, SOME_SUBTYPE)),
             new TestCase(new Given(OTHER, SOME_SUBTYPE), new Expect(DocumentType.OTHER, SOME_SUBTYPE)),

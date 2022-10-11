@@ -40,8 +40,8 @@
       "next_action_date": "2017-02-25T00:00:00.000Z",
       "file_name": "1111002.pdf",
       "notes": "Cheque will be forwarded to court to bank it",
-      "document_type": "Other",
-      "document_sub_type": "Will"
+      "document_type": "Will",
+      "document_sub_type": "Copy Will"
     },
     {
       "document_control_number": "1111002",
@@ -97,6 +97,50 @@
       "document_type": "Form",
       "document_sub_type": "PERSONAL",
       "ocr_data": "eyJNZXRhZGF0YV9maWxlIjogW3sgIm1ldGFkYXRhX2ZpZWxkX25hbWUiOiAibmFtZTIiLCAibWV0YWRhdGFfZmllbGRfdmFsdWUiOiAidmFsdWUyIn1dfQo="
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "Supporting Documents",
+      "document_sub_type": "PA11"
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "Forensic Sheets",
+      "document_sub_type": "Will"
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "IHT",
+      "document_sub_type": "205"
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "PP's Legal statement",
+      "document_sub_type": null
     }
   ],
   "payments": [
