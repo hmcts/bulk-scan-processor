@@ -18,7 +18,7 @@ public enum DocumentType {
     private final String value;
 
     DocumentType(String value) {
-        this.value = value;
+        this.value = value.toLowerCase();
     }
 
     @Override
