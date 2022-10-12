@@ -11,7 +11,7 @@ public enum DocumentType {
     SUPPORTING_DOCUMENTS("supporting_documents"),
     WILL("will"),
     FORENSIC_SHEETS("forensic_sheets"),
-    IHT("IHT"),
+    IHT("iht"),
     PPS_LEGAL_STATEMENT("pps_legal_statement"),
     DEATH_CERTIFICATE("death_certificate");
 
