@@ -30,7 +30,6 @@ public class EnvelopeMapper {
     private static final Map<InputDocumentType, String> subtypeMapping =
         Map.of(
             InputDocumentType.SSCS1, DocumentSubtype.SSCS1,
-            InputDocumentType.WILL, DocumentSubtype.WILL,
             InputDocumentType.COVERSHEET, DocumentSubtype.COVERSHEET
         );
 
