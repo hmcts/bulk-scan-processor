@@ -92,7 +92,7 @@ class DocumentTest {
         value = InputDocumentType.class,
         names = {
             "CHERISHED", "SUPPORTING_DOCUMENTS", "WILL", "FORENSIC_SHEETS",
-            "IHT", "PPS_LEGAL_STATEMENT", "DEATH_CERTIFICATE"
+            "IHT", "PPS_LEGAL_STATEMENT"
         }
     )
     void fromScannableItem_maps_to_document_correctly() {

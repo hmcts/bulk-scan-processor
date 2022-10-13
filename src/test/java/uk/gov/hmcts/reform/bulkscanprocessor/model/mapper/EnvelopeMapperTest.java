@@ -26,7 +26,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.COVERSHEET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.SSCS1;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.WILL;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.CHERISHED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FORENSIC_SHEETS;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FORM;
@@ -251,8 +250,6 @@ class EnvelopeMapperTest {
                 return InputDocumentType.IHT;
             case PPS_LEGAL_STATEMENT:
                 return InputDocumentType.PPS_LEGAL_STATEMENT;
-            case DEATH_CERTIFICATE:
-                return InputDocumentType.DEATH_CERTIFICATE;
             default:
                 throw new AssertionError(
                     String.format("Expected a valid document type but got: %s", documentType)

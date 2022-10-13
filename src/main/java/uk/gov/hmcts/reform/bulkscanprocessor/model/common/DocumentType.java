@@ -12,8 +12,7 @@ public enum DocumentType {
     WILL("will"),
     FORENSIC_SHEETS("forensic_sheets"),
     IHT("iht"),
-    PPS_LEGAL_STATEMENT("pps_legal_statement"),
-    DEATH_CERTIFICATE("death_certificate");
+    PPS_LEGAL_STATEMENT("pps_legal_statement");
 
     private final String value;
 

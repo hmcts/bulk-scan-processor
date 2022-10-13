@@ -137,8 +137,6 @@ public class EnvelopeMapper {
                 return DocumentType.IHT;
             case PPS_LEGAL_STATEMENT:
                 return DocumentType.PPS_LEGAL_STATEMENT;
-            case DEATH_CERTIFICATE:
-                return DocumentType.DEATH_CERTIFICATE;
             default:
                 return DocumentType.OTHER;
         }

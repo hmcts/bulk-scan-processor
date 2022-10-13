@@ -12,8 +12,7 @@ public enum InputDocumentType {
     SUPPORTING_DOCUMENTS("Supporting Documents"),
     FORENSIC_SHEETS("Forensic Sheets"),
     IHT("IHT"),
-    PPS_LEGAL_STATEMENT("PP's Legal Statement"),
-    DEATH_CERTIFICATE("Death Certificate");
+    PPS_LEGAL_STATEMENT("PP's Legal Statement");
 
     private final String value;
 
