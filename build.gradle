@@ -253,7 +253,7 @@ dependencyManagement {
       entry 'tomcat-embed-websocket'
     }
     // CVE-2020-36518
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.13.4') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.13.4.2') {
       entry 'jackson-databind'
     }
     // CVE-2021-42550
@@ -261,7 +261,7 @@ dependencyManagement {
       entry 'logback-classic'
     }
     //CVE-2022-24823
-    dependencySet(group: 'io.netty', version: '4.1.82.Final') {
+    dependencySet(group: 'io.netty', version: '4.1.84.Final') {
       entry 'netty-buffer'
       entry 'netty-codec'
       entry 'netty-codec-dns'
