@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
@@ -33,8 +32,10 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private static final long MESSAGE_PROCESSING_TIMEOUT_MILLIS = 60_000;
     private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 60_000;
     private static final int DELETE_TIMEOUT_MILLIS = 60_000;
-    private static final List<Status> COMPLETED_OR_NOTIFICATION_SENT = ImmutableList.of(
-        Status.NOTIFICATION_SENT, Status.COMPLETED);
+    private static final List<Status> COMPLETED_OR_NOTIFICATION_SENT = List.of(
+        Status.NOTIFICATION_SENT,
+        Status.COMPLETED
+    );
 
     private String s2sToken;
     private ServiceBusSenderClient queueSendClient;
@@ -52,7 +53,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         // given
         var zipFilename = uploadEnvelope(asList("1111006.pdf", "1111002.pdf"), "exception_with_ocr_metadata.json");
 
-        assertZipFileContentProcessed(zipFilename);
+        assertZipFileContentProcessed(zipFilename, 2);
     }
 
     @Test
@@ -60,10 +61,10 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         // given
         var zipFilename = uploadEnvelope(singletonList("1111006.pdf"), "exception_metadata.json");
 
-        assertZipFileContentProcessed(zipFilename);
+        assertZipFileContentProcessed(zipFilename, 1);
     }
 
-    private void assertZipFileContentProcessed(String zipFilename) {
+    private void assertZipFileContentProcessed(String zipFilename, int expectedDocumentsSize) {
         await(
             "File " + zipFilename + " should be created in the service and notification should be put on the queue"
         )
@@ -85,7 +86,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
 
         var updatedEnvelope = getEnvelope(zipFilename);
-        assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
+        assertThat(updatedEnvelope.getScannableItems()).hasSize(expectedDocumentsSize);
 
         if (FLUX_FUNC_TEST) {
             assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
