@@ -1,0 +1,27 @@
+{
+  "case_number": "1111222233334446",
+  "previous_service_case_reference": "12345678",
+  "po_box": "BULKSCANPO",
+  "jurisdiction": "BULKSCAN",
+  "delivery_date": "2018-06-23T00:00:00.000Z",
+  "opening_date": "2018-06-23T00:00:00.000Z",
+  "zip_file_createddate": "2018-06-23T00:00:00.000Z",
+  "zip_file_name": "1_24-06-2018-00-00-00.zip",
+  "envelope_classification": "supplementary_evidence",
+  "scannable_items": [
+    {
+      "document_control_number": "1111002",
+      "scanning_date": "2018-06-23T00:00:00.000Z",
+      "manual_intervention": "test",
+      "next_action": "return",
+      "next_action_date": "2018-06-23T00:00:00.000Z",
+      "file_name": "1111002.pdf",
+      "document_sub_type": "Original Will",
+      "document_type": "Will"
+    }
+  ],
+  "payments": [
+  ],
+  "non_scannable_items": [
+  ]
+}
