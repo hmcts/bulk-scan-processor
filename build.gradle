@@ -335,7 +335,7 @@ dependencies {
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.19.2'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.11'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.12'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
