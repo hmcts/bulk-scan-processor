@@ -54,10 +54,10 @@ class EnvelopeValidatorTest {
     void assertEnvelopeContainsDocsOfAllowedTypesOnly_should_pass() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                Classification.EXCEPTION,
-                singletonList(scannableItem("file1", InputDocumentType.OTHER))
+            "BULKSCAN",
+            "POBOX",
+            Classification.EXCEPTION,
+            singletonList(scannableItem("file1", InputDocumentType.OTHER))
         );
 
         // when
@@ -69,10 +69,10 @@ class EnvelopeValidatorTest {
     void assertEnvelopeContainsDocsOfAllowedTypesOnly_should_pass_for_supplementary_evidence() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                singletonList(scannableItem("file1", InputDocumentType.OTHER))
+            "BULKSCAN",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            singletonList(scannableItem("file1", InputDocumentType.OTHER))
         );
 
         // when
@@ -82,16 +82,16 @@ class EnvelopeValidatorTest {
 
     @ParameterizedTest
     @EnumSource(
-            value = InputDocumentType.class,
-            names = {"FORM", "SSCS1"}
+        value = InputDocumentType.class,
+        names = {"FORM", "SSCS1"}
     )
     void assertEnvelopeContainsDocsOfAllowedTypesOnly_should_throw_for_disallowed_document_type(InputDocumentType documentType) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                singletonList(scannableItem("file1", documentType))
+            "BULKSCAN",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            singletonList(scannableItem("file1", documentType))
         );
 
         // when
@@ -104,16 +104,16 @@ class EnvelopeValidatorTest {
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"EXCEPTION", "SUPPLEMENTARY_EVIDENCE"}
+        value = Classification.class,
+        names = {"EXCEPTION", "SUPPLEMENTARY_EVIDENCE"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_pass_for_allowed_classification(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                classification,
-                singletonList(scannableItem("file1", InputDocumentType.OTHER))
+            "BULKSCAN",
+            "POBOX",
+            classification,
+            singletonList(scannableItem("file1", InputDocumentType.OTHER))
         );
 
         // when
@@ -123,16 +123,16 @@ class EnvelopeValidatorTest {
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
+        value = Classification.class,
+        names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_pass_for_allowed_with_default_document_type(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                classification,
-                singletonList(scannableItem(InputDocumentType.FORM, getOcrData()))
+            "BULKSCAN",
+            "POBOX",
+            classification,
+            singletonList(scannableItem(InputDocumentType.FORM, getOcrData()))
         );
 
         // when
@@ -142,16 +142,16 @@ class EnvelopeValidatorTest {
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
+        value = Classification.class,
+        names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_throw_if_no_documents_should_have_ocr_data(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                classification,
-                singletonList(scannableItem(InputDocumentType.CHERISHED, getOcrData()))
+            "BULKSCAN",
+            "POBOX",
+            classification,
+            singletonList(scannableItem(InputDocumentType.CHERISHED, getOcrData()))
         );
 
         // when
@@ -159,22 +159,22 @@ class EnvelopeValidatorTest {
         assertThatThrownBy(
             () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
-                .isInstanceOf(OcrDataNotFoundException.class)
-                .hasMessage("No documents of type Form found");
+            .isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessage("No documents of type Form found");
     }
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
+        value = Classification.class,
+        names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_throw_if_form_document_has_no_ocr_data(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                classification,
-                singletonList(scannableItem(InputDocumentType.FORM, null))
+            "BULKSCAN",
+            "POBOX",
+            classification,
+            singletonList(scannableItem(InputDocumentType.FORM, null))
         );
 
         // when
@@ -182,22 +182,22 @@ class EnvelopeValidatorTest {
         assertThatThrownBy(
             () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
-                .isInstanceOf(OcrDataNotFoundException.class)
-                .hasMessage("Missing OCR data");
+            .isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessage("Missing OCR data");
     }
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
+        value = Classification.class,
+        names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_throw_if_form_document_has_empty_ocr_data(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "BULKSCAN",
-                "POBOX",
-                classification,
-                singletonList(scannableItem(InputDocumentType.FORM, new InputOcrData()))
+            "BULKSCAN",
+            "POBOX",
+            classification,
+            singletonList(scannableItem(InputDocumentType.FORM, new InputOcrData()))
         );
 
         // when
@@ -205,22 +205,22 @@ class EnvelopeValidatorTest {
         assertThatThrownBy(
             () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
-                .isInstanceOf(OcrDataNotFoundException.class)
-                .hasMessage("Missing OCR data");
+            .isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessage("Missing OCR data");
     }
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
+        value = Classification.class,
+        names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_pass_if_sscs_document_has_ocr_data(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                classification,
-                singletonList(scannableItem(InputDocumentType.SSCS1, getOcrData()))
+            "SSCS",
+            "POBOX",
+            classification,
+            singletonList(scannableItem(InputDocumentType.SSCS1, getOcrData()))
         );
 
         // when
@@ -230,16 +230,16 @@ class EnvelopeValidatorTest {
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
+        value = Classification.class,
+        names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_throw_if_sscs1_document_has_no_ocr_data(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                classification,
-                singletonList(scannableItem(InputDocumentType.SSCS1, null))
+            "SSCS",
+            "POBOX",
+            classification,
+            singletonList(scannableItem(InputDocumentType.SSCS1, null))
         );
 
         // when
@@ -247,22 +247,22 @@ class EnvelopeValidatorTest {
         assertThatThrownBy(
             () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
-                .isInstanceOf(OcrDataNotFoundException.class)
-                .hasMessage("Missing OCR data");
+            .isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessage("Missing OCR data");
     }
 
     @ParameterizedTest
     @EnumSource(
-            value = Classification.class,
-            names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
+        value = Classification.class,
+        names = {"NEW_APPLICATION", "SUPPLEMENTARY_EVIDENCE_WITH_OCR"}
     )
     void assertEnvelopeContainsOcrDataIfRequired_should_throw_if_sscs1_document_has_empty_ocr_data(Classification classification) {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                classification,
-                singletonList(scannableItem(InputDocumentType.SSCS1, new InputOcrData()))
+            "SSCS",
+            "POBOX",
+            classification,
+            singletonList(scannableItem(InputDocumentType.SSCS1, new InputOcrData()))
         );
 
         // when
@@ -270,18 +270,18 @@ class EnvelopeValidatorTest {
         assertThatThrownBy(
             () -> envelopeValidator.assertEnvelopeContainsOcrDataIfRequired(envelope)
         )
-                .isInstanceOf(OcrDataNotFoundException.class)
-                .hasMessage("Missing OCR data");
+            .isInstanceOf(OcrDataNotFoundException.class)
+            .hasMessage("Missing OCR data");
     }
 
     @Test
     void assertEnvelopeHasPdfs_should_pass_for_valid_pdfs() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                asList(scannableItem("file1.pdf", "dcn1"), scannableItem("file2.pdf", "dcn2"))
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            asList(scannableItem("file1.pdf", "dcn1"), scannableItem("file2.pdf", "dcn2"))
         );
 
         // when
@@ -293,10 +293,10 @@ class EnvelopeValidatorTest {
     void assertEnvelopeHasPdfs_should_throw_for_not_declared_pdfs() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                singletonList(scannableItem("file2.pdf", "dcn2"))
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            singletonList(scannableItem("file2.pdf", "dcn2"))
         );
 
         final List<String> pdfs = asList("file1.pdf", "file2.pdf");
@@ -314,13 +314,13 @@ class EnvelopeValidatorTest {
     void assertEnvelopeHasPdfs_should_throw_for_missing_pdfs() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                asList(
-                        scannableItem("file1.pdf", "dcn1"),
-                        scannableItem("file2.pdf", "dcn2")
-                )
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            asList(
+                scannableItem("file1.pdf", "dcn1"),
+                scannableItem("file2.pdf", "dcn2")
+            )
         );
 
         // when
@@ -340,13 +340,13 @@ class EnvelopeValidatorTest {
     void assertDocumentControlNumbersAreUnique_should_pass_for_correct_dcns() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                asList(
-                        scannableItem("file1.pdf", "dcn1"),
-                        scannableItem("file2.pdf", "dcn2")
-                )
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            asList(
+                scannableItem("file1.pdf", "dcn1"),
+                scannableItem("file2.pdf", "dcn2")
+            )
         );
 
         // when
@@ -358,16 +358,16 @@ class EnvelopeValidatorTest {
     void assertDocumentControlNumbersAreUnique_should_throw_for_duplicate_dcns() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                asList(
-                        scannableItem("file1.pdf", "dcn1"),
-                        scannableItem("file2.pdf", "dcn1"),
-                        scannableItem("file3.pdf", "dcn2"),
-                        scannableItem("file4.pdf", "dcn2"),
-                        scannableItem("file5.pdf", "dcn3")
-                )
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            asList(
+                scannableItem("file1.pdf", "dcn1"),
+                scannableItem("file2.pdf", "dcn1"),
+                scannableItem("file3.pdf", "dcn2"),
+                scannableItem("file4.pdf", "dcn2"),
+                scannableItem("file5.pdf", "dcn3")
+            )
         );
 
         // when
@@ -408,26 +408,26 @@ class EnvelopeValidatorTest {
         // given
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                emptyList(),
-                emptyList()
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            emptyList(),
+            emptyList()
         );
 
         final List<ContainerMappings.Mapping> mappings =
-                singletonList(
-                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true)
-                );
+            singletonList(
+                new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true)
+            );
 
         // when
         // then
         assertDoesNotThrow(() ->
-                envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                        envelope,
-                        false,
-                        mappings
-                )
+                               envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+                                   envelope,
+                                   false,
+                                   mappings
+                               )
         );
     }
 
@@ -435,26 +435,26 @@ class EnvelopeValidatorTest {
     void assertPaymentsEnabledForContainerIfPaymentsArePresent_should_pass_if_there_are_payments_and_payments_enabled() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                emptyList(),
-                singletonList(new InputPayment("dcn1"))
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            emptyList(),
+            singletonList(new InputPayment("dcn1"))
         );
 
         final List<ContainerMappings.Mapping> mappings =
-                singletonList(
-                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true)
-                );
+            singletonList(
+                new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true)
+            );
 
         // when
         // then
         assertDoesNotThrow(() ->
-                envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                        envelope,
-                        true,
-                        mappings
-                )
+                               envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
+                                   envelope,
+                                   true,
+                                   mappings
+                               )
         );
     }
 
@@ -462,17 +462,17 @@ class EnvelopeValidatorTest {
     void assertPaymentsEnabledForContainerIfPaymentsArePresent_should_throw_if_there_are_payments_and_payments_disabled() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                emptyList(),
-                singletonList(new InputPayment("dcn1"))
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            emptyList(),
+            singletonList(new InputPayment("dcn1"))
         );
 
         final List<ContainerMappings.Mapping> mappings =
-                singletonList(
-                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true)
-                );
+            singletonList(
+                new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", true, true)
+            );
 
         // when
         // then
@@ -484,34 +484,34 @@ class EnvelopeValidatorTest {
                     mappings
                 )
         )
-                .isInstanceOf(PaymentsDisabledException.class)
-                .hasMessage("Envelope contains payment(s) that are not allowed for jurisdiction 'SSCS', poBox: 'POBOX'");
+            .isInstanceOf(PaymentsDisabledException.class)
+            .hasMessage("Envelope contains payment(s) that are not allowed for jurisdiction 'SSCS', poBox: 'POBOX'");
     }
 
     @Test
     void assertPaymentsEnabledForContainerIfPaymentsArePresent_should_throw_if_there_are_payments_and_payments_disabled_for_jurisdiction() {
         // given
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-                "SSCS",
-                "POBOX",
-                SUPPLEMENTARY_EVIDENCE,
-                emptyList(),
-                singletonList(new InputPayment("dcn1"))
+            "SSCS",
+            "POBOX",
+            SUPPLEMENTARY_EVIDENCE,
+            emptyList(),
+            singletonList(new InputPayment("dcn1"))
         );
 
         final List<ContainerMappings.Mapping> mappings =
-                singletonList(
-                        new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true)
-                );
+            singletonList(
+                new ContainerMappings.Mapping("sscs", "SSCS", singletonList("POBOX"), "http://url", false, true)
+            );
 
         // when
         // then
         assertThatThrownBy(
             () ->
                 envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
-                        envelope,
-                        true,
-                        mappings
+                    envelope,
+                    true,
+                    mappings
                 )
         )
             .isInstanceOf(PaymentsDisabledException.class)
@@ -522,12 +522,12 @@ class EnvelopeValidatorTest {
     void assertContainerMatchesJurisdictionAndPoBox_passes_if_jurisdiction_and_pobox_are_correct() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(
-                CONTAINER,
-                JURISDICTION,
-                singletonList(PO_BOX_1),
-                VALIDATION_URL,
-                true,
-                true
+            CONTAINER,
+            JURISDICTION,
+            singletonList(PO_BOX_1),
+            VALIDATION_URL,
+            true,
+            true
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_1.toUpperCase());
 
@@ -536,11 +536,11 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertDoesNotThrow(() ->
-                    envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                            mappings,
-                            envelope,
-                            CONTAINER
-                    )
+                               envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                                   mappings,
+                                   envelope,
+                                   CONTAINER
+                               )
         );
     }
 
@@ -548,12 +548,12 @@ class EnvelopeValidatorTest {
     void assertContainerMatchesJurisdictionAndPoBox_passes_if_jurisdiction_and_pobox_are_correct_multiple_poboxes() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(
-                CONTAINER,
-                JURISDICTION,
-                asList(PO_BOX_1, PO_BOX_2),
-                VALIDATION_URL,
-                true,
-                true
+            CONTAINER,
+            JURISDICTION,
+            asList(PO_BOX_1, PO_BOX_2),
+            VALIDATION_URL,
+            true,
+            true
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
@@ -562,11 +562,11 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertDoesNotThrow(() ->
-                envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
-                        mappings,
-                        envelope,
-                        CONTAINER
-                )
+                               envelopeValidator.assertContainerMatchesJurisdictionAndPoBox(
+                                   mappings,
+                                   envelope,
+                                   CONTAINER
+                               )
         );
     }
 
@@ -574,12 +574,12 @@ class EnvelopeValidatorTest {
     void assertContainerMatchesJurisdictionAndPoBox_throws_if_pobox_is_incorrect() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(
-                CONTAINER,
-                JURISDICTION,
-                singletonList(PO_BOX_1),
-                VALIDATION_URL,
-                true,
-                true
+            CONTAINER,
+            JURISDICTION,
+            singletonList(PO_BOX_1),
+            VALIDATION_URL,
+            true,
+            true
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
@@ -595,20 +595,21 @@ class EnvelopeValidatorTest {
                     CONTAINER
                 )
         )
-                .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
-                .hasMessage("Container, PO Box and jurisdiction mismatch. Jurisdiction: jurisdiction, PO Box: SAMPLE PO BOX 2, container: container");
+            .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
+            .hasMessage(
+                "Container, PO Box and jurisdiction mismatch. Jurisdiction: jurisdiction, PO Box: SAMPLE PO BOX 2, container: container");
     }
 
     @Test
     void assertContainerMatchesJurisdictionAndPoBox_throws_if_jurisdiction_is_incorrect() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(
-                CONTAINER,
-                JURISDICTION,
-                singletonList(PO_BOX_1),
-                VALIDATION_URL,
-                true,
-                true
+            CONTAINER,
+            JURISDICTION,
+            singletonList(PO_BOX_1),
+            VALIDATION_URL,
+            true,
+            true
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope("wrong", PO_BOX_1.toUpperCase());
 
@@ -624,20 +625,21 @@ class EnvelopeValidatorTest {
                     CONTAINER
                 )
         )
-                .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
-                .hasMessage("Container, PO Box and jurisdiction mismatch. Jurisdiction: wrong, PO Box: SAMPLE PO BOX 1, container: container");
+            .isInstanceOf(ContainerJurisdictionPoBoxMismatchException.class)
+            .hasMessage(
+                "Container, PO Box and jurisdiction mismatch. Jurisdiction: wrong, PO Box: SAMPLE PO BOX 1, container: container");
     }
 
     @Test
     void assertServiceEnabled_passes_if_pobox_is_correct() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(
-                CONTAINER,
-                JURISDICTION,
-                singletonList(PO_BOX_1),
-                VALIDATION_URL,
-                true,
-                true
+            CONTAINER,
+            JURISDICTION,
+            singletonList(PO_BOX_1),
+            VALIDATION_URL,
+            true,
+            true
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_1.toUpperCase());
 
@@ -646,10 +648,10 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertDoesNotThrow(() ->
-                envelopeValidator.assertServiceEnabled(
-                        envelope,
-                        mappings
-                )
+                               envelopeValidator.assertServiceEnabled(
+                                   envelope,
+                                   mappings
+                               )
         );
     }
 
@@ -657,12 +659,12 @@ class EnvelopeValidatorTest {
     void assertServiceEnabled_passes_if_pobox_is_correct_multiple_poboxes() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(
-                CONTAINER,
-                JURISDICTION,
-                asList(PO_BOX_1, PO_BOX_2),
-                VALIDATION_URL,
-                true,
-                true
+            CONTAINER,
+            JURISDICTION,
+            asList(PO_BOX_1, PO_BOX_2),
+            VALIDATION_URL,
+            true,
+            true
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
@@ -671,10 +673,10 @@ class EnvelopeValidatorTest {
         // when
         // then
         assertDoesNotThrow(() ->
-                envelopeValidator.assertServiceEnabled(
-                        envelope,
-                        mappings
-                )
+                               envelopeValidator.assertServiceEnabled(
+                                   envelope,
+                                   mappings
+                               )
         );
     }
 
@@ -693,7 +695,8 @@ class EnvelopeValidatorTest {
 
         // when
         // then
-        assertDoesNotThrow(() -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesForService(envelope));
+        assertDoesNotThrow(
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesForService(envelope, "bulkscan"));
     }
 
     @Test
@@ -713,10 +716,11 @@ class EnvelopeValidatorTest {
 
         // when
         // then
-        assertThatThrownBy(() -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesForService(envelope))
+        assertThatThrownBy(
+            () -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesForService(envelope, "bulkscan"))
             .isInstanceOf(DisallowedDocumentTypesException.class)
             .hasMessage(
-                "Envelope contains scannable item(s) of types that are not allowed for jurisdiction 'BULKSCAN': [IHT]"
+                "Envelope contains scannable item(s) of types that are not allowed for service 'BULKSCAN': [IHT]"
             );
     }
 
@@ -724,12 +728,12 @@ class EnvelopeValidatorTest {
     void assertServiceEnabled_throws_if_pobox_is_incorrect() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(
-                CONTAINER,
-                JURISDICTION,
-                singletonList(PO_BOX_1),
-                VALIDATION_URL,
-                true,
-                true
+            CONTAINER,
+            JURISDICTION,
+            singletonList(PO_BOX_1),
+            VALIDATION_URL,
+            true,
+            true
         );
         InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(JURISDICTION, PO_BOX_2.toUpperCase());
 
@@ -739,12 +743,13 @@ class EnvelopeValidatorTest {
         // then
         assertThatThrownBy(
             () -> envelopeValidator.assertServiceEnabled(
-                    envelope,
-                    mappings
+                envelope,
+                mappings
             )
         )
             .isInstanceOf(ServiceDisabledException.class)
-            .hasMessage("Envelope contains service that is not enabled. Jurisdiction: 'jurisdiction' POBox: 'SAMPLE PO BOX 2'");
+            .hasMessage(
+                "Envelope contains service that is not enabled. Jurisdiction: 'jurisdiction' POBox: 'SAMPLE PO BOX 2'");
     }
 
     private InputOcrData getOcrData() {

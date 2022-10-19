@@ -46,13 +46,13 @@ public final class EnvelopeValidator {
             "SSCS", InputDocumentType.SSCS1
         );
 
-    private static final String probateJurisdiction = "PROBATE";
-    private static final Map<InputDocumentType, List<String>> jurisdictionSpecificDocumentTypes =
-        Map.of(InputDocumentType.WILL, singletonList(probateJurisdiction),
-               InputDocumentType.IHT, singletonList(probateJurisdiction),
-               InputDocumentType.FORENSIC_SHEETS, singletonList(probateJurisdiction),
-               InputDocumentType.SUPPORTING_DOCUMENTS, List.of(probateJurisdiction, "BULKSCAN"),
-               InputDocumentType.PPS_LEGAL_STATEMENT, singletonList(probateJurisdiction)
+    private static final String probateContainer = "probate";
+    private static final Map<InputDocumentType, List<String>> containerSpecificDocumentTypes =
+        Map.of(InputDocumentType.WILL, singletonList(probateContainer),
+               InputDocumentType.IHT, singletonList(probateContainer),
+               InputDocumentType.FORENSIC_SHEETS, singletonList(probateContainer),
+               InputDocumentType.SUPPORTING_DOCUMENTS, List.of(probateContainer, "bulkscan"),
+               InputDocumentType.PPS_LEGAL_STATEMENT, singletonList(probateContainer)
         );
 
     private static final Map<Classification, List<InputDocumentType>> disallowedDocumentTypes =
@@ -69,21 +69,24 @@ public final class EnvelopeValidator {
      *
      * @param envelope to assert against
      */
-    public void assertEnvelopeContainsDocsOfAllowedTypesForService(InputEnvelope envelope) {
+    public void assertEnvelopeContainsDocsOfAllowedTypesForService(
+        InputEnvelope envelope,
+        String containerName
+    ) {
         List<String> disallowedDocTypesFound =
             envelope
                 .scannableItems
                 .stream()
-                .filter(item -> jurisdictionSpecificDocumentTypes.containsKey(item.documentType)
-                    && !jurisdictionSpecificDocumentTypes.get(item.documentType).contains(envelope.jurisdiction))
+                .filter(item -> containerSpecificDocumentTypes.containsKey(item.documentType)
+                    && !containerSpecificDocumentTypes.get(item.documentType).contains(containerName))
                 .map(item -> item.documentType.toString())
                 .collect(toList());
 
         if (!disallowedDocTypesFound.isEmpty()) {
 
             String errorMessage = String.format(
-                "Envelope contains scannable item(s) of types that are not allowed for jurisdiction '%s': [%s]",
-                envelope.jurisdiction,
+                "Envelope contains scannable item(s) of types that are not allowed for service '%s': [%s]",
+                containerName.toUpperCase(),
                 StringUtils.join(disallowedDocTypesFound, ", ")
             );
 
