@@ -20,12 +20,12 @@
     <cve>CVE-2022-42003</cve>
     <cve>CVE-2022-42004</cve>
   </suppress>
-  <suppress until="2023-01-07">
+  <suppress until="2023-02-03">
     <notes>spring-security 2.7.2 vulnerabilities</notes>
     <cve>CVE-2022-31692</cve>
     <cve>CVE-2022-31690</cve>
   </suppress>
-  <suppress until="2023-01-07">
+  <suppress until="2023-02-03">
     <notes>tomcat-embed 9.0.58 vulnerability</notes>
     <cve>CVE-2022-42252</cve>
   </suppress>
