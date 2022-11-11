@@ -1,0 +1,12 @@
+dependencies:
+- name: java
+  repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+  version: 4.0.1
+- name: servicebus
+  repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+  version: 0.4.0
+- name: blobstorage
+  repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+  version: 0.4.1-alpha
+digest: sha256:ac0c5e276d1901b9e8f01d7c4c45c1a9a378750d7a1fa8fa0eb43e0113ba841b
+generated: "2022-11-11T08:21:39.165166Z"
