@@ -84,7 +84,7 @@ servicebus:
   enabled: true
 
 blobstorage:
-  resourceGroup: bulk-scan-aks
+  resourceGroup: bulk-scan-aks-rg
   teamName: "Software Engineering"
   location: ukwest
   setup:
