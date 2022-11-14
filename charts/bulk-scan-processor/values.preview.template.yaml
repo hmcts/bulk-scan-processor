@@ -8,19 +8,19 @@ java:
       key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
+      key: blobEndpoint
     TEST_STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
+      key: key1
     TEST_STORAGE_CONTAINER_NAME:
       secretRef: container-secret-{{ .Release.Name }}-bulkscan
       key: containerName
     STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
+      key: blobEndpoint
     STORAGE_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
+      key: key1
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
