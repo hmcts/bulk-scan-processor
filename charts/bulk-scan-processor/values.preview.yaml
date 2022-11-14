@@ -12,9 +12,6 @@ java:
     TEST_STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: key1
-    TEST_STORAGE_CONTAINER_NAME:
-      secretRef: container-secret-{{ .Release.Name }}-bulkscan
-      key: containerName
     STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-{{ .Release.Name }}
       key: blobEndpoint
