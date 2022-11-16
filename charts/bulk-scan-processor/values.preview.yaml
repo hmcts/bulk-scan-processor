@@ -20,7 +20,7 @@ java:
       key: key1
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
-    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
+    STORAGE_URL: "$(STORAGE_ACCOUNT_NAME)"
     QUEUE_ACCESS_KEY_LISTEN_NAME: "RootManageSharedAccessKey"
     QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     QUEUE_ENVELOPE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
