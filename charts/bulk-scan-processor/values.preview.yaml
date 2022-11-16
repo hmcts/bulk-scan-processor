@@ -80,7 +80,6 @@ servicebus:
       - name: processed-envelopes
   enabled: true
 
-
 blobstorage:
   resourceGroup: bulk-scan-aks-rg
   teamName: "Software Engineering"
