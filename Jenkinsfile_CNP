@@ -74,6 +74,10 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_NAME = env.TEST_STORAGE_ACCOUNT_URL.split("//")[1].split(".blob.core.windows.net/")[0]
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
 
+      echo "storage account url : ${env.TEST_STORAGE_ACCOUNT_URL}"
+      echo "storage account name : ${env.TEST_STORAGE_ACCOUNT_NAME}"
+      echo "storage account key : ${env.TEST_STORAGE_ACCOUNT_KEY}"
+
       // Get envelopes queue connection string
       env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes'
       env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = kubectl.getSecret(serviceBusSecret, namespace, "{.data.namespaceName}")
