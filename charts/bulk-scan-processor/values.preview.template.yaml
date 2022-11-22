@@ -7,12 +7,18 @@ java:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
+      secretRef: storage-account-{{ .Release.Name }}
+      key: storage_account_name
+    TEST_STORAGE_ACCOUNT_URL:
       secretRef: storage-secret-{{ .Release.Name }}
       key: blobEndpoint
     TEST_STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: key1
     STORAGE_ACCOUNT_NAME:
+      secretRef: storage-account-{{ .Release.Name }}
+      key: storage_account_name
+    STORAGE_URL:
       secretRef: storage-secret-{{ .Release.Name }}
       key: blobEndpoint
     STORAGE_KEY:
@@ -20,7 +26,7 @@ java:
       key: key1
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
-    STORAGE_URL: "$(STORAGE_ACCOUNT_NAME)"
+    #STORAGE_URL: "$(STORAGE_ACCOUNT_NAME)"
     QUEUE_ACCESS_KEY_LISTEN_NAME: "RootManageSharedAccessKey"
     QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     QUEUE_ENVELOPE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
