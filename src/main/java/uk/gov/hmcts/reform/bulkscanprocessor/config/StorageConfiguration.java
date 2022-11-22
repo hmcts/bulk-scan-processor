@@ -31,7 +31,7 @@ public class StorageConfiguration {
             accountName,
             key
         );
-        log.info("connectionString : "+connectionString );
+        log.info("connectionString :" + connectionString);
         return new BlobServiceClientBuilder()
             .connectionString(connectionString)
             .httpClient(httpClient)
