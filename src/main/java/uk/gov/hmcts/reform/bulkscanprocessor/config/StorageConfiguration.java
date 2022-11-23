@@ -4,8 +4,6 @@ import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +13,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvide
 @Configuration
 @Profile(Profiles.NOT_STORAGE_STUB)
 public class StorageConfiguration {
-
-    private static final Logger log = LoggerFactory.getLogger(StorageConfiguration.class);
 
     @Bean
     public BlobServiceClient getStorageClient(
@@ -31,7 +27,6 @@ public class StorageConfiguration {
             accountName,
             key
         );
-        log.info("connectionString :" + connectionString);
         return new BlobServiceClientBuilder()
             .connectionString(connectionString)
             .httpClient(httpClient)
