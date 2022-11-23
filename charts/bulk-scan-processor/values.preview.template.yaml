@@ -14,7 +14,7 @@ java:
       key: blobEndpoint
     TEST_STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: key1
+      key: accessKey
     STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-{{ .Release.Name }}
       key: storage_account_name
@@ -23,7 +23,7 @@ java:
       key: blobEndpoint
     STORAGE_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: key1
+      key: accessKey
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
     STORAGE_URL: "$(STORAGE_URL)"
