@@ -3,7 +3,7 @@
   <suppress until="2023-02-20">
     <cve>CVE-2016-1000027</cve>
   </suppress>
-  <suppress until="2022-11-23">
+  <suppress until="2023-02-23">
     <cve>CVE-2022-29885</cve>
   </suppress>
   <suppress until="2023-01-01">
