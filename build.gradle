@@ -357,7 +357,7 @@ dependencies {
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.2'
 
 
   testImplementation libraries.junit5
