@@ -86,3 +86,4 @@ To run migration gradle task expects `FLYWAY_URL` to be present. In case db requ
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
+
