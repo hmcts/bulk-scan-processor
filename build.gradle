@@ -4,9 +4,9 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.0'
-  id 'org.flywaydb.flyway' version '9.8.2'
+  id 'org.flywaydb.flyway' version '9.8.3'
   id 'org.springframework.boot' version '2.7.2'
-  id 'org.owasp.dependencycheck' version '7.3.2'
+  id 'org.owasp.dependencycheck' version '7.4.0'
   id 'com.github.ben-manes.versions' version '0.44.0'
   id 'org.sonarqube' version '3.5.0.2730'
   id "info.solidsoft.pitest" version '1.7.0'
@@ -228,7 +228,7 @@ dependencyManagement {
       entry 'spring-cloud-starter-openfeign'
     }
     // CVE-2022-22970, CVE-2022-22971
-    dependencySet(group: 'org.springframework', version: '5.3.23') {
+    dependencySet(group: 'org.springframework', version: '5.3.24') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
@@ -248,7 +248,7 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.58') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.69') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
@@ -313,8 +313,8 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.42.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.42.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.43.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.43.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.20.1'
 
@@ -331,7 +331,7 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.15.0'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.0'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.1'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.20.0'
 
@@ -357,7 +357,7 @@ dependencies {
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.2'
 
 
   testImplementation libraries.junit5

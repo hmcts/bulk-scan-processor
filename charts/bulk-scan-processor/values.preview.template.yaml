@@ -7,23 +7,26 @@ java:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
+      secretRef: storage-account-{{ .Release.Name }}
+      key: storage_account_name
+    TEST_STORAGE_ACCOUNT_URL:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
+      key: blobEndpoint
     TEST_STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
-    TEST_STORAGE_CONTAINER_NAME:
-      secretRef: container-secret-{{ .Release.Name }}-bulkscan
-      key: containerName
     STORAGE_ACCOUNT_NAME:
+      secretRef: storage-account-{{ .Release.Name }}
+      key: storage_account_name
+    STORAGE_URL:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
+      key: blobEndpoint
     STORAGE_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
-    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
+    STORAGE_URL: "$(STORAGE_URL)"
     QUEUE_ACCESS_KEY_LISTEN_NAME: "RootManageSharedAccessKey"
     QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     QUEUE_ENVELOPE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
@@ -84,7 +87,7 @@ servicebus:
   enabled: true
 
 blobstorage:
-  resourceGroup: bulk-scan-aks
+  resourceGroup: bulk-scan-aks-rg
   teamName: "Software Engineering"
   location: ukwest
   setup:
@@ -92,4 +95,3 @@ blobstorage:
       - bulkscan
       - bulkscan-rejected
   enabled: true
-
