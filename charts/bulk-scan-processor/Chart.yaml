@@ -15,6 +15,6 @@ dependencies:
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: servicebus.enabled
   - name: blobstorage
-    version: 0.4.7-alpha
+    version: 0.4.8-alpha
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: blobstorage.enabled
