@@ -8,13 +8,13 @@ maintainers:
     email: bspteam@hmcts.net
 dependencies:
   - name: java
-    version: 4.0.3
+    version: 4.0.6
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
   - name: servicebus
     version: 0.4.0
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: servicebus.enabled
   - name: blobstorage
-    version: 0.3.0
+    version: 0.4.7-alpha
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: blobstorage.enabled
