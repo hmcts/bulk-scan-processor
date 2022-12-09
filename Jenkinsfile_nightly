@@ -34,7 +34,7 @@ withNightlyPipeline(type, product, component) {
   enableFortifyScan('bulk-scan-aat')
   enableMutationTest()
   enableSlackNotifications(channel)
-  after('fortify-scan') {
+  afterSuccess('fortify-scan') {
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
   }
 }
