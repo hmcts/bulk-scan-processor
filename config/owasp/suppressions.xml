@@ -30,4 +30,8 @@
     <notes>tomcat-embed 9.0.58 vulnerability</notes>
     <cve>CVE-2022-42252</cve>
   </suppress>
+  <suppress until="2023-03-08">
+    <notes>apache:commons_net:1.15 and apache:commons_fileupload:1.4 vulnerability</notes>
+    <cve>CVE-2021-37533</cve>
+  </suppress>
 </suppressions>
