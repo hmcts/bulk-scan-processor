@@ -63,7 +63,7 @@ public final class EnvelopeCreator {
         return validator.parseMetafile(metafile);
     }
 
-    public static List<EnvelopeResponse> envelopeResponses() throws Exception {
+    public static List<EnvelopeResponse> envelopeResponses() {
         return EnvelopeResponseMapper.toEnvelopesResponse(envelopes());
     }
 
@@ -102,9 +102,8 @@ public final class EnvelopeCreator {
     }
 
     public static Envelope envelope(List<Payment> payments) {
-        return envelope(randomUUID() + ".zip","SSCS", Status.UPLOADED, scannableItems(), payments);
+        return envelope(randomUUID() + ".zip", "SSCS", Status.UPLOADED, scannableItems(), payments);
     }
-
 
     public static Envelope envelope(
         String zipFileName,
@@ -149,6 +148,26 @@ public final class EnvelopeCreator {
         List<ScannableItem> scannableItems,
         String container
     ) {
+        return envelope(zipFileName, jurisdiction, status, scannableItems, container, Classification.EXCEPTION);
+    }
+
+    public static Envelope envelope(
+        String jurisdiction,
+        Status status,
+        String container,
+        Classification classification
+    ) {
+        return envelope(randomUUID() + ".zip", jurisdiction, status, scannableItems(), container, classification);
+    }
+
+    public static Envelope envelope(
+        String zipFileName,
+        String jurisdiction,
+        Status status,
+        List<ScannableItem> scannableItems,
+        String container,
+        Classification classification
+    ) {
         Instant timestamp = getInstant();
 
         Envelope envelope = new Envelope(
@@ -160,7 +179,7 @@ public final class EnvelopeCreator {
             zipFileName,
             "1111222233334446",
             "123654789",
-            Classification.EXCEPTION,
+            classification,
             scannableItems,
             payments(),
             nonScannableItems(),
@@ -269,12 +288,12 @@ public final class EnvelopeCreator {
 
     public static OcrData ocrData(Map<String, String> data) {
         return new OcrData(data
-            .entrySet()
-            .stream()
-            .map(
-                e -> new OcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
-            )
-            .collect(Collectors.toList())
+                               .entrySet()
+                               .stream()
+                               .map(
+                                   e -> new OcrDataField(new TextNode(e.getKey()), new TextNode(e.getValue()))
+                               )
+                               .collect(Collectors.toList())
         );
     }
 
