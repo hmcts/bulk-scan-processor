@@ -10,10 +10,12 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotCompletedOrStaleException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotInInconsistentStateException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeProcessedInCcdException;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
@@ -109,6 +111,28 @@ public class EnvelopeActionService {
         log.info("Envelope {} status changed to ABORTED", envelope.getZipFileName());
     }
 
+    @Transactional
+    public void updateClassificationAndReprocessEnvelope(UUID envelopeId) {
+        Envelope envelope = envelopeRepository.findById(envelopeId)
+            .orElseThrow(
+                () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
+            );
+
+        validateEnvelopeClassification(envelope);
+        validateEnvelopeStateForReprocess(envelope);
+
+        createEvent(
+            envelope,
+            MANUAL_RETRIGGER_PROCESSING,
+            "Updated envelope classification to EXCEPTION and status to UPLOADED to reprocess the envelope"
+        );
+
+        envelopeRepository.updateEnvelopeClassificationAndStatus(envelopeId, envelope.getContainer());
+
+        log.info(
+            "Updated Envelope {} classification to 'EXCEPTION' and status to 'UPLOADED'", envelope.getZipFileName());
+    }
+
     private void createEvent(Envelope envelope, Event event, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
             envelope.getContainer(),
@@ -125,6 +149,14 @@ public class EnvelopeActionService {
         if (envelope.getStatus() != COMPLETED && envelope.getStatus() != ABORTED && !isStale(envelope)) {
             throw new EnvelopeNotCompletedOrStaleException(
                     getErrorMessage(envelope.getId(), "is not completed, aborted or stale")
+            );
+        }
+    }
+
+    private void validateEnvelopeClassification(Envelope envelope) {
+        if (envelope.getClassification() != Classification.SUPPLEMENTARY_EVIDENCE) {
+            throw new EnvelopeClassificationException(
+                getErrorMessage(envelope.getId(), "does not have SUPPLEMENTARY_EVIDENCE classification")
             );
         }
     }
