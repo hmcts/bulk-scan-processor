@@ -68,6 +68,26 @@ public class EnvelopeActionService {
     }
 
     @Transactional
+    public void updateEnvelopeClassification(UUID envelopeId) {
+        Envelope envelope = envelopeRepository.findById(envelopeId)
+            .orElseThrow(
+                () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
+            );
+
+        validateEnvelopeStateForReprocess(envelope);
+
+        createEvent(
+            envelope,
+            MANUAL_RETRIGGER_PROCESSING,
+            "Change envelope classification to EXCEPTION and status to UPLOADED to reprocess the envelope"
+        );
+
+        envelopeRepository.updateEnvelopeClassificationAndStatus(envelopeId, envelope.getContainer());
+
+        log.info("Envelope {} status changed to UPLOADED", envelope.getZipFileName());
+    }
+
+    @Transactional
     public void moveEnvelopeToCompleted(UUID envelopeId) {
         Envelope envelope = envelopeRepository.findById(envelopeId)
             .orElseThrow(

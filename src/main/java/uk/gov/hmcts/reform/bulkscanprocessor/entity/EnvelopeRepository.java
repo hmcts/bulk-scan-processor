@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -103,4 +104,15 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> getCompleteEnvelopesFromContainer(
         @Param("container") String container
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Envelope e SET e.classification = 'EXCEPTION', e.status = 'UPLOADED' \n"
+            + "WHERE e.id = :id "
+            + "AND e.container = :container"
+    )
+    int updateEnvelopeClassificationAndStatus(
+        @Param("id") UUID id,
+        @Param("container") String container
+    );
+
 }

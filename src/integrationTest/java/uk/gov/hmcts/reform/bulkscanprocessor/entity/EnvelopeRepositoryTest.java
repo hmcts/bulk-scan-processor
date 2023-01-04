@@ -8,9 +8,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManager;
 
@@ -144,7 +146,7 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    public void  should_not_find_envelopes_when_ccdid_does_not_match() {
+    public void should_not_find_envelopes_when_ccdid_does_not_match() {
         // given
         Envelope e1 = envelope("A.zip", "X", Status.CREATED);
         Envelope e2 = envelope("A.zip", "Y", UPLOAD_FAILURE);
@@ -347,9 +349,9 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(result)
-            .hasFieldOrPropertyWithValue("zipFileName","A.zip")
-            .hasFieldOrPropertyWithValue("container","c1")
-            .hasFieldOrPropertyWithValue("status",COMPLETED);
+            .hasFieldOrPropertyWithValue("zipFileName", "A.zip")
+            .hasFieldOrPropertyWithValue("container", "c1")
+            .hasFieldOrPropertyWithValue("status", COMPLETED);
     }
 
     @Test
@@ -459,6 +461,54 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(results).hasSize(0);
+    }
+
+    @Test
+    void updateEnvelopeClassificationAndStatus_should_change_classification_and_status() {
+        // given
+        Envelope e1 = envelope("X", NOTIFICATION_SENT, "c1", Classification.SUPPLEMENTARY_EVIDENCE);
+        Envelope e2 = envelope("X", COMPLETED, "c2", Classification.NEW_APPLICATION);
+        dbHas(e1, e2);
+
+        // when
+        int updateCount = repo.updateEnvelopeClassificationAndStatus(e1.getId(), e1.getContainer());
+
+        // then
+        assertThat(updateCount).isEqualTo(1);
+        assertThat(repo.findAll())
+            .extracting(e ->
+                            tuple(e.getId(), e.getClassification(), e.getStatus())
+            )
+            .containsExactlyInAnyOrder(
+                tuple(e1.getId(), Classification.EXCEPTION, UPLOADED),
+                tuple(e2.getId(), Classification.NEW_APPLICATION, COMPLETED)
+            );
+    }
+
+    @Test
+    void updateEnvelopeClassificationAndStatus_should_not_change_values_for_different_envelope_id() {
+        // given
+        Envelope e1 = envelope("X", NOTIFICATION_SENT, "c1", Classification.SUPPLEMENTARY_EVIDENCE);
+        dbHas(e1);
+
+        // when
+        int updateCount = repo.updateEnvelopeClassificationAndStatus(UUID.randomUUID(), e1.getContainer());
+
+        // then
+        assertThat(updateCount).isEqualTo(0);
+    }
+
+    @Test
+    void updateEnvelopeClassificationAndStatus_should_not_change_values_for_different_container() {
+        // given
+        Envelope e1 = envelope("X", NOTIFICATION_SENT, "c1", Classification.SUPPLEMENTARY_EVIDENCE);
+        dbHas(e1);
+
+        // when
+        int updateCount = repo.updateEnvelopeClassificationAndStatus(e1.getId(), "test");
+
+        // then
+        assertThat(updateCount).isEqualTo(0);
     }
 
     private Envelope envelopeWithFailureCount(int failCount) {
