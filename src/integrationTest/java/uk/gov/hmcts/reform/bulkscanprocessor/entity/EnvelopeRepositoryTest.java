@@ -511,6 +511,32 @@ public class EnvelopeRepositoryTest {
         assertThat(updateCount).isEqualTo(0);
     }
 
+    @Test
+    void updateEnvelopeClassificationAndStatus_should_not_change_values_for_different_classification() {
+        // given
+        Envelope e1 = envelope("X", NOTIFICATION_SENT, "c1", Classification.NEW_APPLICATION);
+        dbHas(e1);
+
+        // when
+        int updateCount = repo.updateEnvelopeClassificationAndStatus(e1.getId(), "test");
+
+        // then
+        assertThat(updateCount).isEqualTo(0);
+    }
+
+    @Test
+    void updateEnvelopeClassificationAndStatus_should_not_change_values_for_different_status() {
+        // given
+        Envelope e1 = envelope("X", ABORTED, "c1", Classification.SUPPLEMENTARY_EVIDENCE);
+        dbHas(e1);
+
+        // when
+        int updateCount = repo.updateEnvelopeClassificationAndStatus(e1.getId(), "test");
+
+        // then
+        assertThat(updateCount).isEqualTo(0);
+    }
+
     private Envelope envelopeWithFailureCount(int failCount) {
         Envelope envelope = envelope("X", UPLOAD_FAILURE);
         envelope.setUploadFailureCount(failCount);

@@ -108,7 +108,9 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Envelope e SET e.classification = 'EXCEPTION', e.status = 'UPLOADED' \n"
             + "WHERE e.id = :id "
-            + "AND e.container = :container"
+            + "AND e.container = :container "
+            + "AND e.classification = 'SUPPLEMENTARY_EVIDENCE' "
+            + "AND e.status = 'NOTIFICATION_SENT' "
     )
     int updateEnvelopeClassificationAndStatus(
         @Param("id") UUID id,
