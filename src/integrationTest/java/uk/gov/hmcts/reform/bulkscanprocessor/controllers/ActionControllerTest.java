@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeActionService;
 
@@ -40,6 +41,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.ABORTED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.COMPLETED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_PROCESSED_NOTIFICATION_SENT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOADED;
@@ -306,6 +309,279 @@ public class ActionControllerTest {
         mockMvc
             .perform(
                 put("/actions/reprocess/" + envelopeId)
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("API Key is missing"));
+    }
+
+    @Test
+    void should_respond_ok_if_envelope_has_notification_sent_status_and_stale_events_for_classification_update()
+        throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(SUPPLEMENTARY_EVIDENCE, NOTIFICATION_SENT, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fortyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fortyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isOk());
+
+        var processEventCaptor = ArgumentCaptor.forClass(ProcessEvent.class);
+        verify(processEventRepository).save(processEventCaptor.capture());
+        assertThat(processEventCaptor.getValue().getContainer())
+            .isEqualTo(envelope.getContainer());
+        assertThat(processEventCaptor.getValue().getZipFileName())
+            .isEqualTo(envelope.getZipFileName());
+        assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_RETRIGGER_PROCESSING);
+        assertThat(processEventCaptor.getValue().getReason())
+            .isEqualTo(
+                "Updated envelope classification to EXCEPTION and status to UPLOADED "
+                    + "to create Exception Record for the envelope"
+            );
+
+        verify(envelopeRepository).updateEnvelopeClassificationAndStatus(envelopeId, envelope.getContainer());
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_status_notification_sent_and_not_stale_events_for_classification_change()
+        throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(SUPPLEMENTARY_EVIDENCE, NOTIFICATION_SENT, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fourtySevenHoursAgo = Instant.now().minus(47, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fourtySevenHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+        verify(processEventRepository).findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName());
+        verifyNoMoreInteractions(processEventRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_has_uploaded_status_for_classification_update() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(SUPPLEMENTARY_EVIDENCE, UPLOADED, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fortyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fortyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_already_processed_for_classification_update() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(SUPPLEMENTARY_EVIDENCE, COMPLETED, "111222333", "created");
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fortyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fortyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_already_aborted_for_classification_update() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(SUPPLEMENTARY_EVIDENCE, ABORTED, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        Instant fortyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fortyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));
+
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_conflict_if_envelope_classification_is_not_supplementary_evidence_for_classification_update()
+        throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Envelope envelope = envelope(NEW_APPLICATION, NOTIFICATION_SENT, null, null);
+        Optional<Envelope> envelopeOpt = Optional.of(envelope);
+        given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
+
+        /*Instant fortyNineHoursAgo = Instant.now().minus(49, HOURS);
+        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
+        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
+        ProcessEvent event1 = new ProcessEvent();
+        event1.setCreatedAt(fortyNineHoursAgo);
+        ProcessEvent event2 = new ProcessEvent();
+        event2.setCreatedAt(fiftyHoursAgo);
+        ProcessEvent event3 = new ProcessEvent();
+        event3.setCreatedAt(fiftyOneHoursAgo);
+        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
+            .willReturn(asList(event1, event2, event3));*/
+
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isConflict());
+
+        verify(envelopeRepository).findById(envelopeId);
+        verifyNoMoreInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_respond_bad_request_if_uuid_corrupted_for_classification_update() throws Exception {
+
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + "corrupted")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-actions-api-key")
+            )
+            .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(envelopeRepository);
+        verifyNoInteractions(processEventRepository);
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_invalid_for_classification_update()
+        throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_bearer_prefix_for_classification_update()
+        throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
+                    .header(HttpHeaders.AUTHORIZATION, "valid-report-api-key")
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.message").value("Invalid API Key"));
+    }
+
+    @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_for_classification_update()
+        throws Exception {
+        // given
+        UUID envelopeId = UUID.randomUUID();
+
+        // when
+        mockMvc
+            .perform(
+                put("/actions/update-classification-reprocess/" + envelopeId)
             )
             .andDo(print())
             .andExpect(status().isUnauthorized())
@@ -731,6 +1007,15 @@ public class ActionControllerTest {
         String ccdId,
         String ccdAction
     ) {
+        return envelope(SUPPLEMENTARY_EVIDENCE_WITH_OCR, status, ccdId, ccdAction);
+    }
+
+    private Envelope envelope(
+        Classification classification,
+        Status status,
+        String ccdId,
+        String ccdAction
+    ) {
         Envelope envelope = new Envelope(
             "poBox",
             "jurisdiction1",
@@ -740,7 +1025,7 @@ public class ActionControllerTest {
             "fileName.zip",
             "1234432112344321",
             null,
-            SUPPLEMENTARY_EVIDENCE_WITH_OCR,
+            classification,
             emptyList(),
             emptyList(),
             emptyList(),
