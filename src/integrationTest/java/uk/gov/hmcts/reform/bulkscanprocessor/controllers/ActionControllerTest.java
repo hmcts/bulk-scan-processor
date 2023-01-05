@@ -464,7 +464,7 @@ public class ActionControllerTest {
 
         UUID envelopeId = UUID.randomUUID();
 
-        Envelope envelope = envelope(SUPPLEMENTARY_EVIDENCE, ABORTED, null, null);
+        Envelope envelope = envelope(SUPPLEMENTARY_EVIDENCE, ABORTED, "111222333", "created");
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
 
@@ -500,18 +500,6 @@ public class ActionControllerTest {
         Envelope envelope = envelope(NEW_APPLICATION, NOTIFICATION_SENT, null, null);
         Optional<Envelope> envelopeOpt = Optional.of(envelope);
         given(envelopeRepository.findById(envelopeId)).willReturn(envelopeOpt);
-
-        /*Instant fortyNineHoursAgo = Instant.now().minus(49, HOURS);
-        Instant fiftyHoursAgo = Instant.now().minus(50, HOURS);
-        Instant fiftyOneHoursAgo = Instant.now().minus(51, HOURS);
-        ProcessEvent event1 = new ProcessEvent();
-        event1.setCreatedAt(fortyNineHoursAgo);
-        ProcessEvent event2 = new ProcessEvent();
-        event2.setCreatedAt(fiftyHoursAgo);
-        ProcessEvent event3 = new ProcessEvent();
-        event3.setCreatedAt(fiftyOneHoursAgo);
-        given(processEventRepository.findByZipFileNameOrderByCreatedAtDesc(envelope.getZipFileName()))
-            .willReturn(asList(event1, event2, event3));*/
 
         mockMvc
             .perform(
