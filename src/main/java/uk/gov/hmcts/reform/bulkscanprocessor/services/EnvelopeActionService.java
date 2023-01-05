@@ -118,13 +118,14 @@ public class EnvelopeActionService {
                 () -> new EnvelopeNotFoundException(getErrorMessage(envelopeId, "not found"))
             );
 
-        validateEnvelopeClassification(envelope);
+        validateEnvelopeClassification(envelopeId, envelope.getClassification());
         validateEnvelopeStateForReprocess(envelope);
 
         createEvent(
             envelope,
             MANUAL_RETRIGGER_PROCESSING,
-            "Updated envelope classification to EXCEPTION and status to UPLOADED to reprocess the envelope"
+            "Updated envelope classification to EXCEPTION and status to UPLOADED "
+                + "to create Exception Record for the envelope"
         );
 
         envelopeRepository.updateEnvelopeClassificationAndStatus(envelopeId, envelope.getContainer());
@@ -153,10 +154,10 @@ public class EnvelopeActionService {
         }
     }
 
-    private void validateEnvelopeClassification(Envelope envelope) {
-        if (envelope.getClassification() != Classification.SUPPLEMENTARY_EVIDENCE) {
+    private void validateEnvelopeClassification(UUID id, Classification classification) {
+        if (classification != Classification.SUPPLEMENTARY_EVIDENCE) {
             throw new EnvelopeClassificationException(
-                getErrorMessage(envelope.getId(), "does not have SUPPLEMENTARY_EVIDENCE classification")
+                getErrorMessage(id, "does not have SUPPLEMENTARY_EVIDENCE classification")
             );
         }
     }

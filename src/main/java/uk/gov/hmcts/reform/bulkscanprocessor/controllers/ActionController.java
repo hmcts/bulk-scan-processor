@@ -47,6 +47,18 @@ public class ActionController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PutMapping(path = "/update-classification-reprocess/{id}")
+    @Operation(description = "Update classification to EXCEPTION and reprocess envelope by ID")
+    public ResponseEntity<Void> updateClassificationAndReprocess(
+        @RequestHeader(value = AUTHORIZATION, required = false) String authHeader,
+        @PathVariable UUID id
+    ) {
+        validateAuthorization(authHeader);
+
+        envelopeActionService.updateClassificationAndReprocessEnvelope(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PutMapping(path = "/{id}/complete")
     @Operation(description = "Complete envelope by ID")
     public ResponseEntity<Void> makeCompleted(

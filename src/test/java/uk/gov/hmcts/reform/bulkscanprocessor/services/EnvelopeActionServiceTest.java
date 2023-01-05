@@ -515,7 +515,8 @@ class EnvelopeActionServiceTest {
         assertThat(processEventCaptor.getValue().getEvent()).isEqualTo(MANUAL_RETRIGGER_PROCESSING);
         assertThat(processEventCaptor.getValue().getReason())
             .isEqualTo(
-                "Updated envelope classification to EXCEPTION and status to UPLOADED to reprocess the envelope");
+                "Updated envelope classification to EXCEPTION and status to UPLOADED "
+                    + "to create Exception Record for the envelope");
 
         verify(envelopeRepository).updateEnvelopeClassificationAndStatus(uuid, envelope.getContainer());
     }
