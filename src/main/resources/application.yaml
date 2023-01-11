@@ -141,6 +141,7 @@ containers:
       jurisdiction: PROBATE
       poBoxes:
         - 12625
+        - 12624
       ocrValidationUrl: ${OCR_VALIDATION_URL_PROBATE}
       paymentsEnabled: true
     - container: divorce
