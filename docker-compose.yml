@@ -3,7 +3,7 @@ version: '3'
 
 services:
 
-  bulk_scan_processor-db:
+  bulk-scan-processor-db:
     build:
       context: ./docker/database
     image: hmcts/dm-store-db:latest
