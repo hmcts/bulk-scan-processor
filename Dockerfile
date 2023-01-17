@@ -4,7 +4,6 @@ ARG APP_INSIGHTS_AGENT_VERSION=2.5.1
 
 FROM busybox:1 as downloader
 
-# changed for testing master build
 RUN wget -P /tmp http://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-agent-2.5.1.jar
 
 # Application image
