@@ -261,7 +261,7 @@ dependencyManagement {
       entry 'logback-classic'
     }
     //CVE-2022-24823
-    dependencySet(group: 'io.netty', version: '4.1.87.Final') {
+    dependencySet(group: 'io.netty', version: '4.1.86.Final') {
       entry 'netty-buffer'
       entry 'netty-codec'
       entry 'netty-codec-dns'
