@@ -248,7 +248,7 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.71') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '10.1.5') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
