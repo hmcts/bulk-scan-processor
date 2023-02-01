@@ -20,12 +20,12 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 
 @IntegrationTest
 @TestPropertySource(properties = {
-        "containers.mappings[0].container=bulkscan",
-        "containers.mappings[0].jurisdiction=BULKSCAN",
-        "containers.mappings[0].poBoxes[0]=BULKSCANPO",
-        "containers.mappings[0].poBoxes[1]=BULKSCANPO1",
-        "containers.mappings[0].paymentsEnabled=true",
-        "containers.mappings[0].enabled=true"
+    "containers.mappings[0].container=bulkscan",
+    "containers.mappings[0].jurisdiction=BULKSCAN",
+    "containers.mappings[0].poBoxes[0]=BULKSCANPO",
+    "containers.mappings[0].poBoxes[1]=BULKSCANPO1",
+    "containers.mappings[0].paymentsEnabled=true",
+    "containers.mappings[0].enabled=true"
 })
 public class BlobProcessorTaskTestForMultiplePoBoxes extends ProcessorTestSuite {
 

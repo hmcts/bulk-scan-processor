@@ -175,10 +175,10 @@ class ReportsControllerTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/reports/count-summary?date=",
-            "/reports/envelopes-count-summary?date=",
-            "/reports/count-summary-report?date=",
-            "/reports/zip-files-summary?date="
+        "/reports/count-summary?date=",
+        "/reports/envelopes-count-summary?date=",
+        "/reports/count-summary-report?date=",
+        "/reports/zip-files-summary?date="
     })
     void should_return_400_if_date_is_invalid(String uri) throws Exception {
         final String invalidDate = "2019-14-14";
