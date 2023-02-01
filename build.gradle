@@ -16,8 +16,11 @@ plugins {
 group = 'uk.gov.hmcts.reform'
 version = '0.1.0' // all the time it was 0.0.1. 0.1.0 marks migration to java 11
 
-sourceCompatibility = 11
-targetCompatibility = 11
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
 
 sourceSets {
   contractTest {
@@ -51,6 +54,10 @@ sourceSets {
 
 tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+}
+
+tasks.withType(JavaExec).configureEach {
+  javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
 }
 
 test {
@@ -104,7 +111,7 @@ task fortifyScan(type: JavaExec)  {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '8.29'
+  toolVersion = '9.2.1'
   // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
   configDirectory.set(new File(rootDir, 'config/checkstyle'))
 }
