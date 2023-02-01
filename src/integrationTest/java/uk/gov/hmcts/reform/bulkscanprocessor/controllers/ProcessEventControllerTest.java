@@ -30,9 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles({
-        IntegrationContextInitializer.PROFILE_WIREMOCK,
-        Profiles.SERVICE_BUS_STUB,
-        Profiles.STORAGE_STUB
+    IntegrationContextInitializer.PROFILE_WIREMOCK,
+    Profiles.SERVICE_BUS_STUB,
+    Profiles.STORAGE_STUB
 })
 @AutoConfigureMockMvc
 @IntegrationTest
