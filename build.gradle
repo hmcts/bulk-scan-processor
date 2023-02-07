@@ -4,10 +4,10 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.0'
-  id 'org.flywaydb.flyway' version '9.11.0'
+  id 'org.flywaydb.flyway' version '9.14.1'
   id 'org.springframework.boot' version '2.7.2'
-  id 'org.owasp.dependencycheck' version '7.4.3'
-  id 'com.github.ben-manes.versions' version '0.44.0'
+  id 'org.owasp.dependencycheck' version '8.0.2'
+  id 'com.github.ben-manes.versions' version '0.45.0'
   id 'org.sonarqube' version '3.5.0.2730'
   id "info.solidsoft.pitest" version '1.7.0'
   id 'au.com.dius.pact' version '4.3.15'
@@ -16,8 +16,11 @@ plugins {
 group = 'uk.gov.hmcts.reform'
 version = '0.1.0' // all the time it was 0.0.1. 0.1.0 marks migration to java 11
 
-sourceCompatibility = 11
-targetCompatibility = 11
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
 
 sourceSets {
   contractTest {
@@ -51,6 +54,10 @@ sourceSets {
 
 tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+}
+
+tasks.withType(JavaExec).configureEach {
+  javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
 }
 
 test {
@@ -104,13 +111,13 @@ task fortifyScan(type: JavaExec)  {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '8.29'
+  toolVersion = '9.3'
   // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
   configDirectory.set(new File(rootDir, 'config/checkstyle'))
 }
 
 pmd {
-  toolVersion = "6.53.0"
+  toolVersion = "6.54.0"
   ignoreFailures = true
   sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
   reportsDir = file("$project.buildDir/reports/pmd")
@@ -228,7 +235,7 @@ dependencyManagement {
       entry 'spring-cloud-starter-openfeign'
     }
     // CVE-2022-22970, CVE-2022-22971
-    dependencySet(group: 'org.springframework', version: '5.3.24') {
+    dependencySet(group: 'org.springframework', version: '5.3.25') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
@@ -248,7 +255,7 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.70') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.71') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
@@ -316,9 +323,9 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.44.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '4.44.0'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.20.1'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.20.2'
 
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.0'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.1'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
@@ -331,7 +338,7 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.15.0'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.1'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.3'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.21.1'
 
@@ -349,7 +356,7 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.5'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '12.1'
 
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.1'
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.2'
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
   implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
@@ -357,7 +364,7 @@ dependencies {
   // single import: io.vavr.control.Try
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
 
-  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
+  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.10.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.2'
 
 
@@ -367,7 +374,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
   testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.12', {
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.13', {
     exclude group: 'junit', module: 'junit'
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
