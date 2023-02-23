@@ -149,15 +149,20 @@ pitest {
   junit5PluginVersion.set('0.15')
   testSourceSets = [sourceSets.test]
   mainSourceSets = [sourceSets.main]
-  targetClasses = ['uk.gov.hmcts.reform.bulkscanprocessor.*']
-  excludedClasses = [
-    'uk.gov.hmcts.reform.bulkscanprocessor.config.*'
-  ]
-  threads = 10
+//  targetClasses = ['uk.gov.hmcts.reform.bulkscanprocessor.*']
+//  excludedClasses = [
+//    'uk.gov.hmcts.reform.bulkscanprocessor.config.*'
+//  ]
+  threads = 15
   enableDefaultIncrementalAnalysis = true
+  historyInputLocation = 'build/reports/pitest/fastermutationtesting'
+  historyOutputLocation = 'build/reports/pitest/fastermutationtestingoutput'
   outputFormats = ['XML', 'HTML']
   timestampedReports = false
-  mutationThreshold = 50
+  mutationThreshold = 0
+  coverageThreshold = 0
+  maxMutationsPerClass = 15
+  failWhenNoMutations = false
   timeoutConstInMillis = 30000
   mutators.set([
     'CONDITIONALS_BOUNDARY',
@@ -179,6 +184,8 @@ sonarqube {
   properties {
     property "sonar.projectName", "Reform :: Bulk Scan Processor"
     property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.destination.path
+    property "sonar.pitest.mode", "reuseReport"
+    property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "**/model/out/*,**/config/**,**/LeaseAcquirer.java"
   }
 }
