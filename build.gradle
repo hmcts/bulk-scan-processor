@@ -161,7 +161,6 @@ pitest {
   timestampedReports = false
   mutationThreshold = 0
   coverageThreshold = 0
-  maxMutationsPerClass = 15
   failWhenNoMutations = false
   timeoutConstInMillis = 30000
   mutators.set([
