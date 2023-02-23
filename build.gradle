@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.0'
-  id 'org.flywaydb.flyway' version '9.15.0'
+  id 'org.flywaydb.flyway' version '9.15.1'
   id 'org.springframework.boot' version '2.7.2'
   id 'org.owasp.dependencycheck' version '8.1.0'
   id 'com.github.ben-manes.versions' version '0.46.0'
@@ -257,7 +257,7 @@ dependencyManagement {
       entry 'spring-web'
       entry 'spring-webmvc'
     }
-    dependencySet(group: 'org.apache.logging.log4j', version: '2.19.0') {
+    dependencySet(group: 'org.apache.logging.log4j', version: '2.20.0') {
       entry 'log4j-api'
       entry 'log4j-to-slf4j'
     }
@@ -332,7 +332,7 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.20.3'
 
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.1'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.2'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
