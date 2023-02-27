@@ -5,4 +5,7 @@
     <cve>CVE-2022-31692</cve>
     <cve>CVE-2022-31690</cve>
   </suppress>
+  <suppress until="2023-05-27">
+    <cve>CVE-2022-45688</cve>
+  </suppress>
 </suppressions>
