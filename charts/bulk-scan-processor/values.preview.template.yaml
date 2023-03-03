@@ -1,10 +1,10 @@
 java:
   secrets:
     SB_ACCESS_KEY:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
+      secretRef: servicebus-access
       key: primaryKey
     SB_NAMESPACE:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
+      secretRef: servicebus-access
       key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-{{ .Release.Name }}
@@ -75,7 +75,7 @@ java:
     postgresqlPassword: bsppassword
     postgresqlDatabase: bulk_scan
 servicebus:
-  resourceGroup: bulk-scan-aks
+  resourceGroup: bulk-scan-aso-preview-rg
   teamName: "Software Engineering"
   location: uksouth
   serviceplan: basic
