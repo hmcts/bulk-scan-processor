@@ -299,6 +299,10 @@ dependencyManagement {
     dependencySet(group: 'org.yaml', version: '1.33') {
       entry 'snakeyaml'
     }
+    // CVE-2023-24998
+    dependencySet(group: 'commons-fileupload', version: '1.5') {
+      entry 'commons-fileupload'
+    }
   }
 }
 
