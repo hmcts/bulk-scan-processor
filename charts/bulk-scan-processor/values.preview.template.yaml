@@ -81,9 +81,9 @@ servicebus:
   serviceplan: basic
   setup:
     queues:
-      - name: envelopes-{{ .Release.Name }}
-      - name: notifications-{{ .Release.Name }}
-      - name: processed-envelopes-{{ .Release.Name }}
+      - name: envelopes
+      - name: notifications
+      - name: processed-envelopes
   enabled: true
 
 blobstorage:
