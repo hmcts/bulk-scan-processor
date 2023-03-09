@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeClassificationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeStateException;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
@@ -103,6 +104,12 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EnvelopeStateException.class)
     protected ResponseEntity<ErrorResponse> handleEnvelopeState(EnvelopeStateException exc) {
+        log.error(exc.getMessage(), exc);
+        return status(HttpStatus.CONFLICT).body(new ErrorResponse(exc.getMessage()));
+    }
+
+    @ExceptionHandler(EnvelopeClassificationException.class)
+    protected ResponseEntity<ErrorResponse> handleEnvelopeState(EnvelopeClassificationException exc) {
         log.error(exc.getMessage(), exc);
         return status(HttpStatus.CONFLICT).body(new ErrorResponse(exc.getMessage()));
     }

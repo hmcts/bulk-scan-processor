@@ -16,16 +16,21 @@ public enum Status {
 
     public static Optional<Status> fromEvent(Event event) {
         switch (event) {
-            case DOC_FAILURE:
+            case DOC_FAILURE -> {
                 return Optional.of(METADATA_FAILURE);
-            case DOC_UPLOADED:
+            }
+            case DOC_UPLOADED -> {
                 return Optional.of(UPLOADED);
-            case DOC_UPLOAD_FAILURE:
+            }
+            case DOC_UPLOAD_FAILURE -> {
                 return Optional.of(UPLOAD_FAILURE);
-            case DOC_PROCESSED_NOTIFICATION_SENT:
+            }
+            case DOC_PROCESSED_NOTIFICATION_SENT -> {
                 return Optional.of(NOTIFICATION_SENT);
-            default:
+            }
+            default -> {
                 return Optional.empty();
+            }
         }
     }
 }
