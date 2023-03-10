@@ -19,3 +19,5 @@
 *.ipr
 
 .DS_store
+
+.env
