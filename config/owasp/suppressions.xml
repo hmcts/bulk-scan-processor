@@ -1,29 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-  <suppress until="2023-02-20">
-    <cve>CVE-2016-1000027</cve>
-  </suppress>
-  <suppress until="2023-02-23">
-    <cve>CVE-2022-29885</cve>
-  </suppress>
-  <suppress until="2023-02-03">
+  <suppress until="2023-05-03">
     <notes>spring-security 2.7.2 vulnerabilities</notes>
     <cve>CVE-2022-31692</cve>
     <cve>CVE-2022-31690</cve>
   </suppress>
-  <suppress until="2023-02-03">
-    <notes>tomcat-embed 9.0.58 vulnerability</notes>
-    <cve>CVE-2022-42252</cve>
+  <suppress until="2023-05-27">
+    <cve>CVE-2022-45688</cve>
   </suppress>
-  <suppress until="2023-03-08">
-    <notes>apache:commons_net:1.15 and apache:commons_fileupload:1.4 vulnerability</notes>
-    <cve>CVE-2021-37533</cve>
-  </suppress>
-  <suppress until="2023-04-06">
-    <cve>CVE-2021-4277</cve>
-  </suppress>
-  <suppress until="2023-04-09">
-    <cve>CVE-2021-4235</cve>
-    <cve>CVE-2022-3064</cve>
+  <suppress until="2023-06-17">
+    <cve>CVE-2022-40152</cve>
   </suppress>
 </suppressions>

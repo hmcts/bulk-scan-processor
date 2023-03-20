@@ -1,0 +1,13 @@
+---
+version: '3'
+
+services:
+
+  bulk-scan-processor-db:
+    build:
+      context: ./docker/database
+    image: hmcts/dm-store-db:latest
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5435:5432 # Different port to run more than one DB locally
