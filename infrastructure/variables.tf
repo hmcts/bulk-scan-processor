@@ -24,8 +24,6 @@ variable "subscription" {
   type = string
 }
 
-variable "ilbIp" {}
-
 variable "tenant_id" {}
 
 variable "jenkins_AAD_objectId" {
