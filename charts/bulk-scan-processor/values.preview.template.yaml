@@ -3,9 +3,6 @@ java:
     SB_ACCESS_KEY:
       secretRef: bsp-sb-preview
       key: primaryKey
-    SB_NAMESPACE:
-      secretRef: servicebus-access
-      key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-{{ .Release.Name }}
       key: storage_account_name
@@ -27,6 +24,7 @@ java:
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
     STORAGE_URL: "$(STORAGE_URL)"
+    SB_NAMESPACE: "bsp-sb-preview"
     QUEUE_ACCESS_KEY_LISTEN_NAME: "RootManageSharedAccessKey"
     QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     QUEUE_ENVELOPE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
