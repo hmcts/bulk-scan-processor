@@ -89,7 +89,7 @@ servicebus:
 blobstorage:
   resourceGroup: bulk-scan-aks-rg
   teamName: "Software Engineering"
-  location: ukwest
+  location: uksouth
   setup:
     containers:
       - bulkscan
