@@ -8,6 +8,9 @@
   <suppress until="2023-05-27">
     <cve>CVE-2022-45688</cve>
   </suppress>
+  <suppress until="2023-06-02">
+    <cve>CVE-2023-24998</cve>
+  </suppress>
   <suppress until="2023-06-17">
     <cve>CVE-2022-40152</cve>
   </suppress>
