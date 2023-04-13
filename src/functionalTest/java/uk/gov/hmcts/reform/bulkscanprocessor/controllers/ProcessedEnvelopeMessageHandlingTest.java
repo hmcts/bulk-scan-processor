@@ -3,18 +3,18 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.FLUX_FUNC_TEST;
@@ -32,7 +32,10 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     private static final long MESSAGE_PROCESSING_TIMEOUT_MILLIS = 60_000;
     private static final long ENVELOPE_FINALISATION_TIMEOUT_MILLIS = 60_000;
     private static final int DELETE_TIMEOUT_MILLIS = 60_000;
-    private static List COMPLETED_OR_NOTIFICATION_SENT = ImmutableList.of(Status.NOTIFICATION_SENT, Status.COMPLETED);
+    private static final List<Status> COMPLETED_OR_NOTIFICATION_SENT = List.of(
+        Status.NOTIFICATION_SENT,
+        Status.COMPLETED
+    );
 
     private String s2sToken;
     private ServiceBusSenderClient queueSendClient;
@@ -46,10 +49,22 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     @Test
-    public void should_complete_envelope_referenced_by_queue_message() throws Exception {
+    public void should_complete_envelope_referenced_by_queue_message() {
         // given
-        var zipFilename = uploadEnvelope();
+        var zipFilename = uploadEnvelope(asList("1111006.pdf", "1111002.pdf"), "exception_with_ocr_metadata.json");
 
+        assertZipFileContentProcessed(zipFilename, 2);
+    }
+
+    @Test
+    public void should_complete_envelope_with_new_document_type() {
+        // given
+        var zipFilename = uploadEnvelope(singletonList("1111006.pdf"), "exception_metadata.json");
+
+        assertZipFileContentProcessed(zipFilename, 1);
+    }
+
+    private void assertZipFileContentProcessed(String zipFilename, int expectedDocumentsSize) {
         await(
             "File " + zipFilename + " should be created in the service and notification should be put on the queue"
         )
@@ -71,7 +86,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
             .until(() -> getEnvelope(zipFilename).getStatus() == Status.COMPLETED);
 
         var updatedEnvelope = getEnvelope(zipFilename);
-        assertThat(updatedEnvelope.getScannableItems()).hasSize(2);
+        assertThat(updatedEnvelope.getScannableItems()).hasSize(expectedDocumentsSize);
 
         if (FLUX_FUNC_TEST) {
             assertThat(updatedEnvelope.getCcdId()).isNotEmpty();
@@ -95,13 +110,13 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         // in the same environment.
     }
 
-    private String uploadEnvelope() {
+    private String uploadEnvelope(List<String> documents, String fileName) {
         String zipFilename = testHelper.getRandomFilename();
 
         testHelper.uploadZipFile(
             inputContainer,
-            Arrays.asList("1111006.pdf", "1111002.pdf"),
-            "exception_with_ocr_metadata.json",
+            documents,
+            fileName,
             zipFilename
         );
 
@@ -113,7 +128,7 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
     }
 
     //unknown fields should be ignored
-    private void sendProcessedEnvelopeMessage(UUID envelopeId, String ccdId, String ccdAction) throws Exception {
+    private void sendProcessedEnvelopeMessage(UUID envelopeId, String ccdId, String ccdAction) {
         ServiceBusMessage message = new ServiceBusMessage(
             " {"
                 + "\"envelope_id\":\"" + envelopeId + "\","
