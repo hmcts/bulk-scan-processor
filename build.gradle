@@ -223,8 +223,8 @@ dependencyCheck {
 // it is important to specify logback classic and core packages explicitly as libraries like spring boot
 // enforces it's own (older) version which is not recommended.
 def versions = [
-  junit: '5.9.2',
-  junitPlatform: '1.9.2',
+  junit: '5.9.3',
+  junitPlatform: '1.9.3',
   mockitoJupiter: '3.3.3',
   reformLogging: '6.0.1',
   apiguardian     : '1.1.2'
