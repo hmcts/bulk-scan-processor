@@ -1,9 +1,6 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
+package uk.gov.hmcts.reform.bulkscanprocessor.tasks.jms;
 
 import com.azure.messaging.servicebus.ServiceBusErrorContext;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
-import com.azure.messaging.servicebus.models.DeadLetterOptions;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +16,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.in.msg.ProcessedEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import javax.jms.JMSException;
+import javax.jms.Message;
 
 /**
  * Handler of messages form processed envelopes queue.
@@ -29,15 +29,15 @@ import java.io.IOException;
  */
 @Service
 @Profile(Profiles.NOT_SERVICE_BUS_STUB) // only active when interaction with Service Bus isn't disabled
-@ConditionalOnExpression("!${jms.enabled}")
-public class ProcessedEnvelopeNotificationHandler {
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsProcessedEnvelopeNotificationHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(ProcessedEnvelopeNotificationHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(JmsProcessedEnvelopeNotificationHandler.class);
 
     private final EnvelopeFinaliserService envelopeFinaliserService;
     private final ObjectMapper objectMapper;
 
-    public ProcessedEnvelopeNotificationHandler(
+    public JmsProcessedEnvelopeNotificationHandler(
         EnvelopeFinaliserService envelopeFinaliserService,
         ObjectMapper objectMapper
     ) {
@@ -45,9 +45,9 @@ public class ProcessedEnvelopeNotificationHandler {
         this.objectMapper = objectMapper;
     }
 
-    public void processMessage(ServiceBusReceivedMessageContext messageContext) {
-        var message = messageContext.getMessage();
-        var processingResult = tryProcessMessage(message);
+    public void processMessage(Message messageContext, String messageBody) throws JMSException {
+        //var message = messageContext.getMessage();
+        var processingResult = tryProcessMessage(messageContext, messageBody);
         finaliseMessage(messageContext, processingResult);
     }
 
@@ -56,61 +56,60 @@ public class ProcessedEnvelopeNotificationHandler {
     }
 
     private void finaliseMessage(
-        ServiceBusReceivedMessageContext messageContext,
+        Message messageContext,
         MessageProcessingResult processingResult
-    ) {
-        var message = messageContext.getMessage();
+    ) throws JMSException {
         switch (processingResult.resultType) {
             case SUCCESS:
-                messageContext.complete();
+                messageContext.acknowledge();
                 break;
             case UNRECOVERABLE_FAILURE:
-                messageContext.deadLetter(
-                    new DeadLetterOptions()
-                        .setDeadLetterErrorDescription("Message processing error")
-                        .setDeadLetterReason(processingResult.exception.getMessage())
+                log.info("Processed envelope Message with ID {} has been dead-lettered. "
+                             + "Error description: Message processing error. "
+                             + "Reason: {}",
+                         messageContext.getJMSMessageID(), processingResult.exception.getMessage()
                 );
                 break;
             default:
                 log.info(
                     "Letting 'processed envelope' message with ID {} return to the queue. Delivery attempt {}.",
-                    message.getMessageId(),
-                    message.getDeliveryCount() + 1
+                    messageContext.getJMSMessageID(),
+                    Long.parseLong(messageContext.getStringProperty("JMSXDeliveryCount")) + 1
                 );
                 break;
         }
     }
 
-    private MessageProcessingResult tryProcessMessage(ServiceBusReceivedMessage message) {
+    private MessageProcessingResult tryProcessMessage(Message message, String messageBody) throws JMSException {
         try {
             log.info(
                 "Started processing 'processed envelope' message with ID {} (delivery {})",
-                message.getMessageId(),
-                message.getDeliveryCount() + 1
+                message.getJMSMessageID(),
+                message.getStringProperty("JMSXDeliveryCount")
             );
 
-            ProcessedEnvelope processedEnvelope = readProcessedEnvelope(message);
+            ProcessedEnvelope processedEnvelope = readProcessedEnvelope(messageBody);
             envelopeFinaliserService.finaliseEnvelope(
                 processedEnvelope.envelopeId,
                 processedEnvelope.ccdId,
                 processedEnvelope.envelopeCcdAction
             );
-            log.info("'Processed envelope' message with ID {} processed successfully", message.getMessageId());
+            log.info("'Processed envelope' message with ID {} processed successfully", message.getJMSMessageID());
             return new MessageProcessingResult(MessageProcessingResultType.SUCCESS);
         } catch (InvalidMessageException e) {
-            log.error("Invalid 'processed envelope' message with ID {}", message.getMessageId(), e);
+            log.error("Invalid 'processed envelope' message with ID {}", message.getJMSMessageID(), e);
             return new MessageProcessingResult(MessageProcessingResultType.UNRECOVERABLE_FAILURE, e);
         } catch (EnvelopeNotFoundException e) {
             log.error(
                 "Failed to handle 'processed envelope' message with ID {} - envelope not found",
-                message.getMessageId(),
+                message.getJMSMessageID(),
                 e
             );
             return new MessageProcessingResult(MessageProcessingResultType.UNRECOVERABLE_FAILURE, e);
         } catch (Exception e) {
             log.error(
                 "An error occurred when handling 'processed envelope' message with ID {}",
-                message.getMessageId(),
+                message.getJMSMessageID(),
                 e
             );
 
@@ -118,10 +117,10 @@ public class ProcessedEnvelopeNotificationHandler {
         }
     }
 
-    private ProcessedEnvelope readProcessedEnvelope(ServiceBusReceivedMessage message) throws IOException {
+    private ProcessedEnvelope readProcessedEnvelope(String messageBody) throws IOException {
         try {
             ProcessedEnvelope processedEnvelope = objectMapper.readValue(
-                message.getBody().toBytes(),
+                messageBody.getBytes(StandardCharsets.UTF_8),
                 ProcessedEnvelope.class
             );
             log.info(
