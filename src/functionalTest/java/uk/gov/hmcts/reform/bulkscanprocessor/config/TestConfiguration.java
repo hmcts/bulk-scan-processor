@@ -31,6 +31,8 @@ public class TestConfiguration {
 
     public static final String PROCESSED_ENVELOPES_QUEUE_NAME;
 
+    public static final boolean JMS_ENABLED;
+
     static {
         config = ConfigFactory.load();
         TEST_URL = config.getString("test-url");
@@ -43,6 +45,7 @@ public class TestConfiguration {
         STORAGE_ACCOUNT_NAME = config.getString("test-storage-account-name");
         STORAGE_ACCOUNT_KEY = config.getString("test-storage-account-key");
         STORAGE_CONTAINER_NAME = config.getString("test-storage-container-name");
+        JMS_ENABLED = config.getBoolean("jms-enabled");
 
         PROCESSED_ENVELOPES_QUEUE_CONN_STRING = String.format(
             "Endpoint=sb://%s.servicebus.windows.net;SharedAccessKeyName=%s;SharedAccessKey=%s;",

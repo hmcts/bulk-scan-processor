@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
+package uk.gov.hmcts.reform.bulkscanprocessor.tasks.jms;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ZipFileLoadException;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.FileContentProcessor;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.jms.JmsFileContentProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.OcrValidationRetryManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
@@ -36,25 +36,25 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor.
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-@ConditionalOnExpression("!${jms.enabled}")
-public class BlobProcessorTask {
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsBlobProcessorTask {
 
-    private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
+    private static final Logger log = LoggerFactory.getLogger(JmsBlobProcessorTask.class);
 
     private final BlobManager blobManager;
 
     private final EnvelopeProcessor envelopeProcessor;
 
-    private final FileContentProcessor fileContentProcessor;
+    private final JmsFileContentProcessor fileContentProcessor;
 
-    private final  LeaseAcquirer leaseAcquirer;
+    private final LeaseAcquirer leaseAcquirer;
 
     private final OcrValidationRetryManager ocrValidationRetryManager;
 
-    public BlobProcessorTask(
+    public JmsBlobProcessorTask(
         BlobManager blobManager,
         EnvelopeProcessor envelopeProcessor,
-        FileContentProcessor fileContentProcessor,
+        JmsFileContentProcessor fileContentProcessor,
         LeaseAcquirer leaseAcquirer,
         OcrValidationRetryManager ocrValidationRetryManager
     ) {
@@ -131,7 +131,8 @@ public class BlobProcessorTask {
                     processZipFile(container, blobClient, zipFilename);
                 }
             },
-            s -> {},
+            s -> {
+            },
             true
         );
     }
@@ -146,7 +147,7 @@ public class BlobProcessorTask {
 
         if (envelope == null) {
             // Zip file will include metadata.json and collection of pdf documents
-            try (ZipInputStream zis =  new ZipInputStream(blobClient.openInputStream())) {
+            try (ZipInputStream zis = new ZipInputStream(blobClient.openInputStream())) {
                 envelopeProcessor.createEvent(
                     ZIPFILE_PROCESSING_STARTED,
                     container.getBlobContainerName(),

@@ -56,6 +56,8 @@ withPipeline(type, product, component) {
   env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes-staging'
   env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = 'bulk-scan-servicebus-aat'
   env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'SendSharedAccessKey'
+  env.JMS_ENABLED = false
+  env.SPRING_PROFILES_ACTIVE = 'default'
 
   before('smoketest:preview') {
     withAksClient('nonprod', product) {
