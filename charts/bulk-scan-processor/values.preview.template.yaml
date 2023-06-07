@@ -1,11 +1,8 @@
 java:
   secrets:
     SB_ACCESS_KEY:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
+      secretRef: bsp-sb-preview
       key: primaryKey
-    SB_NAMESPACE:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
-      key: namespaceName
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-{{ .Release.Name }}-blobstorage
       key: storage_account_name
@@ -30,8 +27,11 @@ java:
     QUEUE_ACCESS_KEY_LISTEN_NAME: "RootManageSharedAccessKey"
     QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     QUEUE_ENVELOPE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
-    QUEUE_NAMESPACE: "$(SB_NAMESPACE)"
-    QUEUE_NOTIFICATIONS_NAMESPACE: "$(SB_NAMESPACE)"
+    QUEUE_ENVELOPE_NAME: "{{ .Release.Name }}-servicebus-envelopes"
+    QUEUE_PROCESSED_ENVELOPES_NAME: "{{ .Release.Name }}-servicebus-processed-envelopes"
+    QUEUE_NOTIFICATIONS_NAME: "{{ .Release.Name }}-servicebus-notifications"
+    QUEUE_NAMESPACE: "bsp-sb-preview"
+    QUEUE_NOTIFICATIONS_NAMESPACE: "bsp-sb-preview"
     QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.auth.username}}"
@@ -75,10 +75,11 @@ java:
     postgresqlPassword: bsppassword
     postgresqlDatabase: bulk_scan
 servicebus:
-  resourceGroup: bulk-scan-aks
+  resourceGroup: bulk-scan-aso-preview-rg
   teamName: "Software Engineering"
   location: uksouth
   serviceplan: basic
+  sbNamespace: bsp
   setup:
     queues:
       - name: envelopes
