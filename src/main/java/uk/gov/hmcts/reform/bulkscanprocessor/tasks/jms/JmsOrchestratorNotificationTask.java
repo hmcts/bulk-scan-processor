@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
+package uk.gov.hmcts.reform.bulkscanprocessor.tasks.jms;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEvent;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.OrchestratorNotificationService;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.jms.JmsOrchestratorNotificationService;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,22 +24,22 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.notifications_to_orchestrator.enabled", matchIfMissing = true)
-@ConditionalOnExpression("!${jms.enabled}")
-public class OrchestratorNotificationTask {
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsOrchestratorNotificationTask {
 
-    private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
-    private static final String TASK_NAME = "send-orchestrator-notification";
+    private static final Logger log = LoggerFactory.getLogger(JmsOrchestratorNotificationTask.class);
+    private static final String TASK_NAME = "jms-send-orchestrator-notification";
 
-    private final OrchestratorNotificationService orchestratorNotificationService;
+    private final JmsOrchestratorNotificationService jmsOrchestratorNotificationService;
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
     // region constructor
-    public OrchestratorNotificationTask(
-        OrchestratorNotificationService orchestratorNotificationService,
+    public JmsOrchestratorNotificationTask(
+        JmsOrchestratorNotificationService jmsOrchestratorNotificationService,
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository processEventRepo) {
-        this.orchestratorNotificationService = orchestratorNotificationService;
+        this.jmsOrchestratorNotificationService = jmsOrchestratorNotificationService;
         this.envelopeRepo = envelopeRepo;
         this.processEventRepo = processEventRepo;
     }
@@ -57,7 +57,7 @@ public class OrchestratorNotificationTask {
         envelopesToSend
             .forEach(env -> {
                 try {
-                    orchestratorNotificationService.processEnvelope(successCount, env);
+                    jmsOrchestratorNotificationService.processEnvelope(successCount, env);
                 } catch (Exception exc) {
                     createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_FAILURE);
                     // log error and try with another envelope.

@@ -56,6 +56,8 @@ withPipeline(type, product, component) {
   env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes-staging'
   env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = 'bulk-scan-servicebus-aat'
   env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'SendSharedAccessKey'
+  env.JMS_ENABLED = false
+  env.SPRING_PROFILES_ACTIVE = 'default'
 
   before('smoketest:preview') {
     withAksClient('nonprod', product) {
@@ -63,7 +65,7 @@ withPipeline(type, product, component) {
       def subscription = env.SUBSCRIPTION_NAME
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def storageSecret = "storage-secret-${aksServiceName}-blobstorage"
-      def serviceBusSecret = "servicebus-secret-namespace-${aksServiceName}-servicebus"
+      def serviceBusSecret = "bsp-sb-preview"
       def storageSecretName = "storage-account-${aksServiceName}-blobstorage"
       def namespace = new TeamConfig(this).getNameSpace(product)
       def kubectl = new Kubectl(this, subscription, namespace)
@@ -82,8 +84,8 @@ withPipeline(type, product, component) {
 
 
       // Get envelopes queue connection string
-      env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes'
-      env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = kubectl.getSecret(serviceBusSecret, namespace, "{.data.namespaceName}")
+      env.PROCESSED_ENVELOPES_QUEUE_NAME = "${aksServiceName}-servicebus-processed-envelopes"
+      env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = "bsp-sb-preview"
       env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY = kubectl.getSecret(serviceBusSecret, namespace, "{.data.primaryKey}")
       env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'RootManageSharedAccessKey'
 

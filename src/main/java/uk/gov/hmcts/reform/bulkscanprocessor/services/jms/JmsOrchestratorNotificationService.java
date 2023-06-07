@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.jms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,26 +12,25 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ProcessEventRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.transaction.Transactional;
 
 @Service
-@ConditionalOnExpression("!${jms.enabled}")
-public class OrchestratorNotificationService {
-    private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationService.class);
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsOrchestratorNotificationService {
+    private static final Logger log = LoggerFactory.getLogger(JmsOrchestratorNotificationService.class);
 
-    private final ServiceBusSendHelper serviceBusHelper;
+    private final JmsQueueSendHelper jmsQueueSendHelper;
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
-    public OrchestratorNotificationService(
-        @Qualifier("envelopes-helper") ServiceBusSendHelper serviceBusHelper,
+    public JmsOrchestratorNotificationService(
+        @Qualifier("jms-envelopes-helper") JmsQueueSendHelper jmsQueueSendHelper,
         EnvelopeRepository envelopeRepo,
         ProcessEventRepository processEventRepo
     ) {
-        this.serviceBusHelper = serviceBusHelper;
+        this.jmsQueueSendHelper = jmsQueueSendHelper;
         this.envelopeRepo = envelopeRepo;
         this.processEventRepo = processEventRepo;
     }
@@ -40,7 +39,7 @@ public class OrchestratorNotificationService {
     public void processEnvelope(AtomicInteger successCount, Envelope env) {
         updateStatus(env);
         createEvent(env, Event.DOC_PROCESSED_NOTIFICATION_SENT);
-        serviceBusHelper.sendMessage(new EnvelopeMsg(env));
+        jmsQueueSendHelper.sendMessage(new EnvelopeMsg(env));
         logEnvelopeSent(env);
         successCount.incrementAndGet();
     }

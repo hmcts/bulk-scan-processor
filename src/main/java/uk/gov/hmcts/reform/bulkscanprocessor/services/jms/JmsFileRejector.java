@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.jms;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -8,16 +8,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-@ConditionalOnExpression("!${jms.enabled}")
-public class FileRejector {
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsFileRejector {
 
     private final BlobManager blobManager;
 
-    private final ErrorNotificationSender errorNotificationSender;
+    private final JmsErrorNotificationSender errorNotificationSender;
 
-    public FileRejector(
+    public JmsFileRejector(
         BlobManager blobManager,
-        ErrorNotificationSender errorNotificationSender
+        JmsErrorNotificationSender errorNotificationSender
     ) {
         this.blobManager = blobManager;
         this.errorNotificationSender = errorNotificationSender;

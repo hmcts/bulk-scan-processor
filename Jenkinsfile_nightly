@@ -2,7 +2,7 @@
 
 properties([
   // H allow predefined but random minute see https://en.wikipedia.org/wiki/Cron#Non-standard_characters
-  pipelineTriggers([cron('H 07 * * *')])
+  pipelineTriggers([cron('H 8 * * 1-5')])
 ])
 
 @Library("Infrastructure")
