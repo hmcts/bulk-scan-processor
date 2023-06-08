@@ -371,7 +371,7 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.2'
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-  implementation group: 'commons-io', name: 'commons-io', version: '2.12.0'
+  implementation group: 'commons-io', name: 'commons-io', version: '2.13.0'
   // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
   // single import: io.vavr.control.Try
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
