@@ -4,7 +4,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.0'
-  id 'org.flywaydb.flyway' version '9.17.0'
+  id 'org.flywaydb.flyway' version '9.19.3'
   id 'org.springframework.boot' version '2.7.12'
   id 'org.owasp.dependencycheck' version '8.2.1'
   id 'com.github.ben-manes.versions' version '0.46.0'
@@ -233,7 +233,7 @@ def versions = [
 dependencyManagement {
   dependencies {
     // CVE-2018-10237 - Unbounded memory allocation
-    dependencySet(group: 'com.google.guava', version: '32.0.0-jre') {
+    dependencySet(group: 'com.google.guava', version: '32.0.1-jre') {
       entry 'guava'
     }
     // CVE-2021-22044
@@ -261,7 +261,7 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.75') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.76') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
@@ -395,7 +395,7 @@ dependencies {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
-  testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '1.1.3'
+  testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '2.0.0'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
