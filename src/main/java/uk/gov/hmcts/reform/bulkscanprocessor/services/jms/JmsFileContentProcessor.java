@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.jms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PreviouslyFailedToUpload
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
+import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeHandler;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileContentDetail;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
@@ -25,9 +26,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALI
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-@ConditionalOnExpression("!${jms.enabled}")
-public class FileContentProcessor {
-    private static final Logger log = LoggerFactory.getLogger(FileContentProcessor.class);
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsFileContentProcessor {
+    private static final Logger log = LoggerFactory.getLogger(JmsFileContentProcessor.class);
 
     private final ZipFileProcessor zipFileProcessor;
 
@@ -35,13 +36,13 @@ public class FileContentProcessor {
 
     private final EnvelopeHandler envelopeHandler;
 
-    private final FileRejector fileRejector;
+    private final JmsFileRejector fileRejector;
 
-    public FileContentProcessor(
+    public JmsFileContentProcessor(
         ZipFileProcessor zipFileProcessor,
         EnvelopeProcessor envelopeProcessor,
         EnvelopeHandler envelopeHandler,
-        FileRejector fileRejector
+        JmsFileRejector fileRejector
     ) {
         this.zipFileProcessor = zipFileProcessor;
         this.envelopeProcessor = envelopeProcessor;

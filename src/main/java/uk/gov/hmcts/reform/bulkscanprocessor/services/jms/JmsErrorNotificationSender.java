@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.bulkscanprocessor.services;
+package uk.gov.hmcts.reform.bulkscanprocessor.services.jms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -13,23 +13,22 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectingExcepti
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
-import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
-@ConditionalOnExpression("!${jms.enabled}")
-public class ErrorNotificationSender {
-    private static final Logger log = LoggerFactory.getLogger(ErrorNotificationSender.class);
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsErrorNotificationSender {
+    private static final Logger log = LoggerFactory.getLogger(JmsErrorNotificationSender.class);
 
-    private final ServiceBusSendHelper notificationsSendQueueHelper;
+    private final JmsQueueSendHelper notificationsJmsQueueHelper;
 
     private final ContainerMappings containerMappings;
 
-    public ErrorNotificationSender(
-        @Qualifier("notifications-helper") ServiceBusSendHelper notificationsQueueHelper,
+    public JmsErrorNotificationSender(
+        @Qualifier("jms-notifications-helper") JmsQueueSendHelper notificationsJmsQueueHelper,
         ContainerMappings containerMappings
     ) {
-        this.notificationsSendQueueHelper = notificationsQueueHelper;
+        this.notificationsJmsQueueHelper = notificationsJmsQueueHelper;
         this.containerMappings = containerMappings;
     }
 
@@ -59,7 +58,7 @@ public class ErrorNotificationSender {
     ) {
         String messageId = StringUtils.joinWith("_", containerName, zipFilename);
 
-        notificationsSendQueueHelper.sendMessage(
+        notificationsJmsQueueHelper.sendMessage(
             new ErrorMsg(
                 messageId,
                 eventId,

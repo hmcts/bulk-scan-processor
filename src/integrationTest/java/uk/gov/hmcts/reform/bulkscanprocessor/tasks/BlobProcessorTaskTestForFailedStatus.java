@@ -137,6 +137,21 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
     }
 
     @Test
+    public void should_record_validation_failure_when_document_type_is_not_supported_for_service() throws Exception {
+        // given
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/invalid-document-type-for-service"));
+
+        // when
+        processor.processBlobs();
+
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_METAFILE_INVALID);
+    }
+
+    @Test
     public void should_record_validation_failure_when_document_type_is_not_supported() throws Exception {
         // given
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipDir("zipcontents/invalid_document_type"));

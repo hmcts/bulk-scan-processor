@@ -1,17 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-  <suppress until="2023-05-03">
-    <notes>spring-security 2.7.2 vulnerabilities</notes>
-    <cve>CVE-2022-31692</cve>
-    <cve>CVE-2022-31690</cve>
-  </suppress>
-  <suppress until="2023-05-27">
-    <cve>CVE-2022-45688</cve>
-  </suppress>
-  <suppress until="2023-06-17">
-    <cve>CVE-2022-40152</cve>
-  </suppress>
-  <suppress until="2023-06-22">
-    <cve>CVE-2022-1471</cve>
-  </suppress>
 </suppressions>
