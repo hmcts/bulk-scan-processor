@@ -266,7 +266,7 @@ dependencyManagement {
       entry 'tomcat-embed-websocket'
     }
     // CVE-2020-36518
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.13.4.2') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.15.2') {
       entry 'jackson-databind'
     }
     // CVE-2021-42550
