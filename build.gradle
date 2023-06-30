@@ -237,7 +237,7 @@ dependencyManagement {
       entry 'guava'
     }
     // CVE-2021-22044
-    dependencySet(group: 'org.springframework.cloud', version: '3.1.8') {
+    dependencySet(group: 'org.springframework.cloud', version: '4.0.3') {
       entry 'spring-cloud-starter-openfeign'
     }
     // CVE-2022-22970, CVE-2022-22971
