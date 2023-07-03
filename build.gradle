@@ -233,7 +233,7 @@ def versions = [
 dependencyManagement {
   dependencies {
     // CVE-2018-10237 - Unbounded memory allocation
-    dependencySet(group: 'com.google.guava', version: '32.0.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '32.1.1-jre') {
       entry 'guava'
     }
     // CVE-2021-22044
