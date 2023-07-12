@@ -5,7 +5,7 @@ properties([
   pipelineTriggers([cron('H 8 * * 1-5')])
 ])
 
-@Library("Infrastructure")
+@Library("Infrastructure@dtspo-13636-swap-clusters")
 
 def type = "java"
 def product = "bulk-scan"

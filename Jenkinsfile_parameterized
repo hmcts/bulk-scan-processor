@@ -1,6 +1,6 @@
 #!groovy
 
-@Library(value="Infrastructure", changelog=false)
+@Library(value="Infrastructure@dtspo-13636-swap-clusters", changelog=false)
 
 def channel = '#bsp-build-notices'
 
