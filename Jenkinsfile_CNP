@@ -1,5 +1,5 @@
 #!groovy
-@Library("Infrastructure")
+@Library("Infrastructure@dtspo-13636-swap-clusters\"")
 
 import uk.gov.hmcts.contino.AppPipelineDsl
 import uk.gov.hmcts.contino.GradleBuilder
