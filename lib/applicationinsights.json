@@ -2,5 +2,44 @@
   "connectionString": "${file:/mnt/secrets/bulk-scan/app-insights-connection-string}",
   "role": {
     "name": "bulk-scan-processor"
+  },
+  "preview": {
+    "sampling": {
+      "overrides": [
+        {
+          "telemetryType": "request",
+          "attributes": [
+            {
+              "key": "http.url",
+              "value": "https?://[^/]+/health.*",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 1
+        },
+        {
+          "telemetryType": "dependency",
+          "attributes": [
+            {
+              "key": "name",
+              "value": "Azure blob: bulkscan[^.]+/[^.]+",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 1
+        },
+        {
+          "telemetryType": "dependency",
+          "attributes": [
+            {
+              "key": "name",
+              "value": "^AzureBlobStorage(?:Cont\\.listBlobFlatSegment|Blob\\.getProperties)$",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 1
+        }
+      ]
+    }
   }
 }
