@@ -50,6 +50,7 @@ java:
     IDAM_API_URL: "https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net"
     IDAM_CLIENT_REDIRECT_URI: "https://bulk-scan-orchestrator-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
     CDAM_URL: "http://ccd-case-document-am-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+    JMS_ENABLED: false
   keyVaults:
     "bulk-scan":
       secrets:

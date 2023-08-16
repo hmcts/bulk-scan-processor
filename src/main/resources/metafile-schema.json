@@ -133,7 +133,11 @@
               "SSCS1",
               "Will",
               "Coversheet",
-              "Form"
+              "Form",
+              "Supporting Documents",
+              "Forensic Sheets",
+              "IHT",
+              "PP's Legal Statement"
             ],
             "default": "Other"
           },

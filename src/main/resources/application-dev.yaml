@@ -91,23 +91,6 @@ storage:
   blob_selected_container: ${STORAGE_BLOB_SELECTED_CONTAINER}
   blob_lease_acquire_delay_in_seconds: ${LEASE_ACQUIRE_DELAY_IN_SECONDS}
 
-# will remove conn strings when chart is released
-queues:
-  default-namespace: ${QUEUE_NAMESPACE}
-  envelopes:
-    access-key: ${QUEUE_ENVELOPE_SEND_ACCESS_KEY}
-    access-key-name: ${QUEUE_ACCESS_KEY_SEND_NAME}
-    queue-name: ${QUEUE_ENVELOPE_NAME}
-  processed-envelopes:
-    access-key: ${QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY}
-    access-key-name: ${QUEUE_ACCESS_KEY_LISTEN_NAME}
-    queue-name: ${QUEUE_PROCESSED_ENVELOPES_NAME}
-  notifications:
-    access-key: ${QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY}
-    access-key-name: ${QUEUE_ACCESS_KEY_SEND_NAME}
-    queue-name: ${QUEUE_NOTIFICATIONS_NAME}
-    namespace-override: ${QUEUE_NOTIFICATIONS_NAMESPACE}
-
 accesstoken:
   serviceConfig:
     - serviceName: sscs
@@ -249,8 +232,7 @@ envelope-access:
       readService: bulk_scan_processor_tests
 
 flyway:
-  noop:
-    strategy: "false"
+  noop: false
 
 process-payments:
   enabled: ${PROCESS_PAYMENTS_ENABLED:true}
@@ -264,4 +246,12 @@ actions:
   api-key: ${ACTIONS_API_KEY}
 
 jms:
-  enabled: ${JMS_ENABLED:false}
+  # JMS Configuration for local dev
+  application-name: BulkScanProcessorServiceDev
+  enabled: ${JMS_ENABLED:true}
+  namespace: ${JMS_NAMESPACE:5672}
+  amqp-connection-string-template: ${JMS_AMQP_CONNECTION_TEMPLATE:amqp://localhost:%1s?amqp.idleTimeout=%2d}
+  username: ${JMS_USERNAME:admin}
+  password: ${JMS_PASSWORD:admin}
+  receiveTimeout: ${JMS_RECEIVE_TIMEOUT:30000}
+  idleTimeout: ${JMS_IDLE_TIMEOUT:30000}
