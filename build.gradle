@@ -332,6 +332,10 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.5.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '5.5.0'
 
+  implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.0.2'
+
+  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '6.2.1'
+
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.21.1'
 
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.14.1'
