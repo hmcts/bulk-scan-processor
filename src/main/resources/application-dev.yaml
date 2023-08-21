@@ -255,3 +255,15 @@ jms:
   password: ${JMS_PASSWORD:admin}
   receiveTimeout: ${JMS_RECEIVE_TIMEOUT:30000}
   idleTimeout: ${JMS_IDLE_TIMEOUT:30000}
+
+resilience4j:
+  ratelimiter:
+    instances:
+      default:
+        limitForPeriod: 15
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+
+launchdarkly:
+  sdk-key: ${LAUNCH_DARKLY_SDK_KEY:XXXXX}
+  offline-mode: ${LAUNCH_DARKLY_OFFLINE_MODE:false}
