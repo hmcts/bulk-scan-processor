@@ -13,9 +13,11 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 public class FeatureFlagController {
     private final LaunchDarklyClient featureToggleService;
+
     public FeatureFlagController(LaunchDarklyClient featureToggleService) {
         this.featureToggleService = featureToggleService;
     }
+
     @GetMapping("/feature-flags/{flag}")
     public ResponseEntity<String> flagStatus(@PathVariable String flag) {
         boolean isEnabled = featureToggleService.isFeatureEnabled(flag);
