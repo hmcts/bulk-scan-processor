@@ -31,7 +31,7 @@ java:
     QUEUE_PROCESSED_ENVELOPES_NAME: "{{ .Release.Name }}-servicebus-processed-envelopes"
     QUEUE_NOTIFICATIONS_NAME: "{{ .Release.Name }}-servicebus-notifications"
     QUEUE_NAMESPACE: "bsp-servicebus-preview"
-    QUEUE_NOTIFICATIONS_NAMESPACE: "bsp-sb-preview"
+    QUEUE_NOTIFICATIONS_NAMESPACE: "bsp-servicebus-preview"
     QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.auth.username}}"
