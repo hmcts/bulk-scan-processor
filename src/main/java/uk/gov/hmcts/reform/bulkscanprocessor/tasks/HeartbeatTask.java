@@ -32,7 +32,7 @@ public class HeartbeatTask {
     public void run() {
         try {
             serviceBusHelper.sendMessage(new HeartbeatMsg());
-            log.info("Heartbeat sent");
+            log.debug("Heartbeat sent");
         } catch (Exception exc) {
             log.error("Error sending heartbeat message", exc);
         }

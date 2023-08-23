@@ -48,7 +48,7 @@ public class OrchestratorNotificationTask {
     @SchedulerLock(name = TASK_NAME)
     @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
-        log.info("Started {} job", TASK_NAME);
+        log.debug("Started {} job", TASK_NAME);
 
         AtomicInteger successCount = new AtomicInteger(0);
 
@@ -70,7 +70,7 @@ public class OrchestratorNotificationTask {
             successCount.get(),
             envelopesToSend.size() - successCount.get()
         );
-        log.info("Finished {} job", TASK_NAME);
+        log.debug("Finished {} job", TASK_NAME);
     }
 
     private void createEvent(Envelope envelope, Event event) {
