@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LaunchDarklyClient {
-    public static final LDUser BULK_SCAN_PROCESSOR_USER = new LDUser.Builder("bulk-scan-processor")
+    public static final LDUser BULK_SCAN_PRINT_USER = new LDUser.Builder("bulk-scan-print")
         .anonymous(true)
         .build();
 
@@ -25,7 +25,7 @@ public class LaunchDarklyClient {
     }
 
     public boolean isFeatureEnabled(String feature) {
-        return internalClient.boolVariation(feature, LaunchDarklyClient.BULK_SCAN_PROCESSOR_USER, false);
+        return internalClient.boolVariation(feature, LaunchDarklyClient.BULK_SCAN_PRINT_USER, false);
     }
 
     public boolean isFeatureEnabled(String feature, LDUser user) {
