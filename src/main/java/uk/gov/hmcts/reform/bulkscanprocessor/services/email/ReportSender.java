@@ -62,6 +62,7 @@ public class ReportSender {
     @SchedulerLock(name = "report-sender")
     public void send() {
         try {
+            log.info("Start writing email for: {}", ATTACHMENT_PREFIX + getPreviousDay() + ".csv");
             MimeMessage msg = mailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
@@ -72,6 +73,7 @@ public class ReportSender {
             helper.addAttachment(ATTACHMENT_PREFIX + getPreviousDay() + ".csv", getCsvReport());
 
             mailSender.send(msg);
+            log.info("Email sent");
 
         } catch (Exception exc) {
             log.error("Error sending report", exc);
