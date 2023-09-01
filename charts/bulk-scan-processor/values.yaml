@@ -15,7 +15,7 @@ java:
     OCR_VALIDATION_URL_NFD: http://nfdiv-case-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_PRIVATELAW: http://fis-bulk-scan-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     SCAN_ENABLED: "true"
-    SCAN_DELAY: "4000"
+    SCAN_DELAY: "4000" 
     LEASE_ACQUIRE_DELAY_IN_SECONDS: "300"
     UPLOAD_TASK_ENABLED: "true"
     UPLOAD_TASK_DELAY: "4000"
