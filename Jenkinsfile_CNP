@@ -17,7 +17,9 @@ def combinedSecrets = [
   'bulk-scan-${env}': [
     secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-    secret('processed-envelopes-staging-queue-send-shared-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY')
+    secret('processed-envelopes-staging-queue-send-shared-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
+    secret('launch-darkly-sdk-key', 'LAUNCH_DARKLY_SDK_KEY'),
+    secret('launch-darkly-offline-mode', 'LAUNCH_DARKLY_OFFLINE_MODE')
   ],
   's2s-${env}': [
     // to be removed later
