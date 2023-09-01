@@ -91,6 +91,7 @@ public class OcrValidator {
     }
 
     private OcrValidationWarnings ocrValidationWarnings(InputScannableItem scannableItem, List<String> warnings) {
+        log.info("Case validation warnings found: {}", warnings);
         return new OcrValidationWarnings(
             scannableItem.documentControlNumber,
             warnings != null ? warnings : emptyList()

@@ -77,14 +77,14 @@ public class BlobProcessorTask {
     }
 
     private void processZipFiles(BlobContainerClient container) {
-        log.info("Processing blobs for container {}", container.getBlobContainerName());
+        log.debug("Processing blobs for container {}", container.getBlobContainerName());
         List<String> zipFilenames = getShuffledZipFileNames(container);
 
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
         }
 
-        log.info("Finished processing blobs for container {}", container.getBlobContainerName());
+        log.debug("Finished processing blobs for container {}", container.getBlobContainerName());
     }
 
     private void tryProcessZipFile(BlobContainerClient container, String zipFilename) {
