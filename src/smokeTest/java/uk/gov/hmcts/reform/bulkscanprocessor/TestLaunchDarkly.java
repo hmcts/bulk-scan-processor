@@ -15,7 +15,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.launchdarkly.Flags.BULK_SCAN
 
 @TestPropertySource("classpath:application.properties")
 @ExtendWith(SpringExtension.class)
-class SmokeTestLaunchDarkly {
+class TestLaunchDarkly {
 
     @Value("${sdk-key:YYYYY}")
     private String sdkKey;
@@ -35,7 +35,7 @@ class SmokeTestLaunchDarkly {
     void checkLaunchDarklyStatus() throws InterruptedException {
 
         long startTime = System.currentTimeMillis();
-        long endTime = startTime + 60000; // One minute in milliseconds
+        long endTime = startTime + 60_000; // One minute in milliseconds
 
         DataSourceStatusProvider.Status ldStatus;
 
@@ -44,7 +44,7 @@ class SmokeTestLaunchDarkly {
             if (ldStatus.getState() == DataSourceStatusProvider.State.VALID) {
                 break; // Exit the loop if status is VALID
             }
-            Thread.sleep(5000); // Wait 5 seconds before polling again
+            Thread.sleep(5_000); // Wait 5 seconds before polling again
         } while (System.currentTimeMillis() < endTime);
 
         assertThat(ldStatus.getState()).isEqualTo(DataSourceStatusProvider.State.VALID);
