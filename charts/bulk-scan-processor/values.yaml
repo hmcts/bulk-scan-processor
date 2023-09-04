@@ -3,6 +3,7 @@ java:
   ingressHost: bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   aadIdentityName: bsp
   readinessPath: '/health/readiness'
+  memoryLimits: 4Gi
   environment:
     S2S_NAME: "bulk_scan_processor"
     SMTP_HOST: "false"
