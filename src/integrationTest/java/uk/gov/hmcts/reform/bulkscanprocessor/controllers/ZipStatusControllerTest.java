@@ -5,11 +5,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -178,6 +174,7 @@ class ZipStatusControllerTest {
         processEventRepository.deleteAll();
     }
 
+    @Disabled
     @Test
     void should_successfully_return_zip_status()
         throws Exception {

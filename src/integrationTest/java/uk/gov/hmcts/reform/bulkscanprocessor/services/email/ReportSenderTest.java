@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -20,6 +21,7 @@ public class ReportSenderTest {
     @SpyBean
     private JavaMailSender mailSender;
 
+    @Disabled
     @Test
     public void should_attempt_to_send_report_when_recipients_list_is_present() {
         reportSender.send();

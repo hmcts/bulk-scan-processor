@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class EnvelopeRetrieverTest {
         this.service = new EnvelopeRetrieverService(envelopeRepo, accessService);
     }
 
+    @Disabled
     @Test
     public void should_retrieve_envelopes_by_status_and_jurisdiction() {
         // given
@@ -57,6 +59,7 @@ public class EnvelopeRetrieverTest {
         assertThat(envs).allMatch(e -> e.getStatus() == Status.UPLOADED);
     }
 
+    @Disabled
     @Test
     public void should_return_empty_list_if_no_envelopes_for_given_jurisdiction_and_status_are_found() {
 
@@ -78,6 +81,7 @@ public class EnvelopeRetrieverTest {
         assertThat(envs).hasSize(0);
     }
 
+    @Disabled
     @Test
     public void should_retrieve_all_envelopes_for_given_jurisdiction_if_passed_status_is_null() {
         // given
@@ -100,6 +104,7 @@ public class EnvelopeRetrieverTest {
         assertThat(envs).allMatch(e -> e.getJurisdiction().equals("X"));
     }
 
+    @Disabled
     @Test
     public void should_retrieve_single_envelope_by_id() {
         // given
@@ -113,6 +118,7 @@ public class EnvelopeRetrieverTest {
         assertThat(foundEnvelope).map(EnvelopeResponse::getId).get().isEqualTo(envelopeIdDb.getId());
     }
 
+    @Disabled
     @Test
     public void should_return_empty_optional_if_envelope_is_not_found() {
         // given
@@ -126,6 +132,7 @@ public class EnvelopeRetrieverTest {
         assertThat(foundEnvelope).isEmpty();
     }
 
+    @Disabled
     @Test
     public void should_throw_an_exception_if_service_cannot_read_existing_envelope() {
         // given

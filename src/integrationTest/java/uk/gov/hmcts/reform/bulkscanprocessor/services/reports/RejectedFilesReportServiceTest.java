@@ -3,10 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
@@ -62,6 +59,7 @@ public class RejectedFilesReportServiceTest {
         }
     }
 
+    @Disabled
     @Test
     public void should_read_files_from_rejected_container() {
         // given

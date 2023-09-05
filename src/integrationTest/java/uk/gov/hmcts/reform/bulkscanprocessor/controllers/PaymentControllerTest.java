@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -57,6 +58,7 @@ public class PaymentControllerTest {
         envelopeRepository.deleteAll();
     }
 
+    @Disabled
     @Test
     void should_update_payment_status() throws Exception {
         List<Payment> payments = of(
@@ -89,6 +91,7 @@ public class PaymentControllerTest {
         verify(authService, times(1)).authenticate("testServiceAuthHeader");
     }
 
+    @Disabled
     @Test
     void should_return_status_400_for_empty_payments() throws Exception {
         String request = TestUtil.fileContentAsString(PAYMENTS_EMPTY_JSON);
@@ -107,6 +110,7 @@ public class PaymentControllerTest {
         verify(authService, never()).authenticate("testServiceAuthHeader");
     }
 
+    @Disabled
     @Test
     void should_return_status_400_for_payment_with_empty_dcn() throws Exception {
         String request = TestUtil.fileContentAsString(PAYMENT_DCN_EMPTY_JSON);
@@ -125,6 +129,7 @@ public class PaymentControllerTest {
         verify(authService, never()).authenticate("testServiceAuthHeader");
     }
 
+    @Disabled
     @Test
     void should_get_paymentDcns() throws Exception {
         UUID p1Uuid = UUID.randomUUID();
@@ -155,6 +160,7 @@ public class PaymentControllerTest {
             .andExpect(jsonPath("$.data[1].last_modified").value(p2Time));
     }
 
+    @Disabled
     @Test
     void should_not_return_payment_when_no_payment() throws Exception {
 

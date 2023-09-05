@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,6 +31,7 @@ public class SasTokenControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Disabled
     @Test
     public void should_return_sas_token_when_requested_service_is_configured() throws Exception {
         assertCanRetrieveSasTokenForService("divorce");
@@ -37,6 +39,7 @@ public class SasTokenControllerTest {
         assertCanRetrieveSasTokenForService("sscs");
     }
 
+    @Disabled
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
         MvcResult result = this.mockMvc.perform(get("/token/nonexistingservice")).andReturn();

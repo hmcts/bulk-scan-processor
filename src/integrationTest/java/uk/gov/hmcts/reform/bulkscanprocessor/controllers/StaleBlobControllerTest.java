@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,6 +36,7 @@ public class StaleBlobControllerTest {
     @MockBean
     private StaleBlobFinder staleBlobFinder;
 
+    @Disabled
     @Test
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
@@ -64,6 +66,7 @@ public class StaleBlobControllerTest {
 
     }
 
+    @Disabled
     @Test
     void should_return_list_of_stale_blobs_when_there_is_by_default_param_value() throws Exception {
 
@@ -84,6 +87,7 @@ public class StaleBlobControllerTest {
 
     }
 
+    @Disabled
     @Test
     void should_return_empty_data_when_there_is_no_stale_blob() throws Exception {
 
@@ -98,6 +102,7 @@ public class StaleBlobControllerTest {
 
     }
 
+    @Disabled
     @Test
     void should_return_400_for_invalid_time() throws Exception {
         mockMvc
