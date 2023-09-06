@@ -20,9 +20,8 @@ public class ReportSenderDisabledTest {
     @Autowired
     private ApplicationContext context;
 
-    @Disabled
-    @Test
-    public void should_not_have_report_sender_in_context() {
-        assertThat(context.getBeanNamesForType(ReportSender.class)).isEmpty();
-    }
+//    @Test
+//    public void should_not_have_report_sender_in_context() {
+//        assertThat(context.getBeanNamesForType(ReportSender.class)).isEmpty();
+//    }
 }
