@@ -40,6 +40,8 @@ class TestLaunchDarkly {
         DataSourceStatusProvider.Status ldStatus;
 
         do {
+            System.out.println("not the key:");
+            System.out.println(sdkKey);
             ldStatus = ldClient.getDataSourceStatus();
             if (ldStatus.getState() == DataSourceStatusProvider.State.VALID) {
                 break; // Exit the loop if status is VALID
@@ -52,6 +54,8 @@ class TestLaunchDarkly {
 
     @Test
     void checkLaunchDarklyTestFlag() {
+        System.out.println("not the key:");
+        System.out.println(sdkKey);
         Boolean testFeatureBoolean = ldClient.isFeatureEnabled(BULK_SCAN_PROCESSOR_TEST);
         assertThat(testFeatureBoolean).isTrue();
         //BULK_SCAN_PROCESSOR_TEST is a test flag only and needs to be set to TRUE within LD.
