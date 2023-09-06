@@ -54,10 +54,6 @@ java:
           alias: idam.users.sscs.username
         - name: idam-users-sscs-password
           alias: idam.users.sscs.password
-        - name: sdk-key
-          alias: LAUNCH_DARKLY_SDK_KEY
-        - name: offline-mode
-          alias: LAUNCH_DARKLY_OFFLINE_MODE
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
