@@ -17,10 +17,10 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.launchdarkly.Flags.BULK_SCAN
 @ExtendWith(SpringExtension.class)
 class TestLaunchDarkly {
 
-    @Value("${sdk-key:YYYYY}")
+    @Value("${sdk-key}")
     private String sdkKey;
 
-    @Value("${offline-mode:false}")
+    @Value("${offline-mode}")
     private Boolean offlineMode;
 
     private LaunchDarklyClient ldClient;
@@ -53,6 +53,7 @@ class TestLaunchDarkly {
     @Test
     void checkLaunchDarklyTestFlag() {
         Boolean testFeatureBoolean = ldClient.isFeatureEnabled(BULK_SCAN_PROCESSOR_TEST);
+        assertThat(sdkKey.substring(0,3)).isEqualTo("fakekey");
         assertThat(testFeatureBoolean).isTrue();
         //BULK_SCAN_PROCESSOR_TEST is a test flag only and needs to be set to TRUE within LD.
     }

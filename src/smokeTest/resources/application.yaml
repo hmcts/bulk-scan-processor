@@ -3,7 +3,7 @@ test-s2s-name: ${TEST_S2S_NAME}
 test-s2s-url: ${TEST_S2S_URL}
 test-s2s-secret: ${TEST_S2S_SECRET}
 
-sdk-key: ${LAUNCH_DARKLY_SDK_KEY:AAAAAAAAAAAAAAAA}
+sdk-key: ${LAUNCH_DARKLY_SDK_KEY:AAAAAA}
 offline-mode: ${:false}
 
 # no communication with Service Bus
