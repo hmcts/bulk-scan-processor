@@ -3,8 +3,8 @@ test-s2s-name: ${TEST_S2S_NAME}
 test-s2s-url: ${TEST_S2S_URL}
 test-s2s-secret: ${TEST_S2S_SECRET}
 
-sdk-key: ${LAUNCH_DARKLY_SDK_KEY}
-offline-mode: ${LAUNCH_DARKLY_OFFLINE_MODE}
+sdk-key: ${LAUNCH_DARKLY_SDK_KEY:AAAAAAAAAAAAAAAA}
+offline-mode: ${:false}
 
 # no communication with Service Bus
 spring.profiles.active=service-bus-stub
