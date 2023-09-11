@@ -53,7 +53,6 @@ class TestLaunchDarkly {
     @Test
     void checkLaunchDarklyTestFlag() {
         Boolean testFeatureBoolean = ldClient.isFeatureEnabled(BULK_SCAN_PROCESSOR_TEST);
-        assertThat(sdkKey.substring(0,3)).isEqualTo("fakekey");
         assertThat(testFeatureBoolean).isTrue();
         //BULK_SCAN_PROCESSOR_TEST is a test flag only and needs to be set to TRUE within LD.
     }
