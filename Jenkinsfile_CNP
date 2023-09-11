@@ -33,6 +33,10 @@ def commonSecrets = [
     // to be removed later
     secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
     secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
+  ],
+  'bulk-scan-${env}': [
+    secret('launch-darkly-sdk-key', 'LAUNCH_DARKLY_SDK_KEY'),
+    secret('launch-darkly-offline-mode', 'LAUNCH_DARKLY_OFFLINE_MODE')
   ]
 ]
 
@@ -69,7 +73,6 @@ withPipeline(type, product, component) {
       def storageSecret = "storage-secret-${aksServiceName}-blobstorage"
       def serviceBusSecret = "bsp-servicebus-preview"
       def storageSecretName = "storage-account-${aksServiceName}-blobstorage"
-      def bulkScanEnv = "bulk-scan-aat"
       def namespace = new TeamConfig(this).getNameSpace(product)
       def kubectl = new Kubectl(this, subscription, namespace)
       kubectl.login()
@@ -79,8 +82,6 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
       env.TEST_STORAGE_ACCOUNT_URL = kubectl.getSecret(storageSecret, namespace, "{.data.blobEndpoint}")
       env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecretName, namespace, "{.data.storage_account_name}")
-      env.LAUNCH_DARKLY_SDK_KEY = kubectl.getSecret(bulkScanEnv, namespace, "{.data.launch-darkly-sdk-key}")
-      env.LAUNCH_DARKLY_OFFLINE_MODE = kubectl.getSecret(bulkScanEnv, namespace, "{.data.launch-darkly-offline-mode}")
 
       // log the values
       echo "storage account url : ${env.TEST_STORAGE_ACCOUNT_URL}"
