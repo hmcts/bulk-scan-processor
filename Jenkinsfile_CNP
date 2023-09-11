@@ -78,8 +78,8 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
       env.TEST_STORAGE_ACCOUNT_URL = kubectl.getSecret(storageSecret, namespace, "{.data.blobEndpoint}")
       env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecretName, namespace, "{.data.storage_account_name}")
-      env.LAUNCH_DARKLY_SDK_KEY = "tomato"
-      env.LAUNCH_DARKLY_OFFLINE_MODE = false
+      env.LAUNCH_DARKLY_SDK_KEY = kubectl.getSecret(storageSecretName, namespace, "{.data.launch-darkly-sdk-key}")
+      env.LAUNCH_DARKLY_OFFLINE_MODE = kubectl.getSecret(storageSecretName, namespace, "{.data.launch-darkly-offline-mode}")
 
       // log the values
       echo "storage account url : ${env.TEST_STORAGE_ACCOUNT_URL}"
