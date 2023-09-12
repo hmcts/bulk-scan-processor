@@ -66,7 +66,7 @@ public abstract class BaseFunctionalTest {
         String s2sToken = testHelper.s2sSignIn(S2S_NAME, S2S_SECRET, S2S_URL);
 
         await("File " + fileName + " should be processed")
-            .atMost(SCAN_DELAY + 600_000, TimeUnit.MILLISECONDS)
+            .atMost(SCAN_DELAY + 60_000, TimeUnit.MILLISECONDS)
             .pollInterval(500, TimeUnit.MILLISECONDS)
             .until(
                 () -> {
