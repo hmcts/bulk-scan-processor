@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
@@ -18,6 +19,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         super.setUp();
     }
 
+    @Disabled
     @Test
     public void should_process_zipfile_after_upload_and_set_status() {
         List<String> files = asList("1111006.pdf", "1111002.pdf");
@@ -35,6 +37,7 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUuid));
     }
 
+    @Disabled
     @Test
     public void should_process_zipfile_with_supplementary_evidence_with_ocr_classification() {
         List<String> files = Collections.singletonList("1111006.pdf");

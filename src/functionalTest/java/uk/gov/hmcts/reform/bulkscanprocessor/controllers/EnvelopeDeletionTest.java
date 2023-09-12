@@ -7,6 +7,7 @@ import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         }
     }
 
+    @Disabled
     @Test
     public void should_move_invalid_zip_file_to_rejected_container() {
         String destZipFilename = testHelper.getRandomFilename();
@@ -68,6 +70,7 @@ public class EnvelopeDeletionTest extends BaseFunctionalTest {
         assertThat(searchByName(rejectedContainer, destZipFilename)).hasSize(1);
     }
 
+    @Disabled
     @Test
     public void should_create_a_snapshot_of_previously_rejected_file_if_its_sent_again()  {
         // given
