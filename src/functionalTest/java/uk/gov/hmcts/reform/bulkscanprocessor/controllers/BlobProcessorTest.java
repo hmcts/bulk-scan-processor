@@ -19,7 +19,6 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         super.setUp();
     }
 
-    @Disabled
     @Test
     public void should_process_zipfile_after_upload_and_set_status() {
         List<String> files = asList("1111006.pdf", "1111002.pdf");
