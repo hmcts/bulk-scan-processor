@@ -36,7 +36,6 @@ public class BlobProcessorTest extends BaseFunctionalTest {
         assertThat(envelope.getScannableItems()).noneMatch(item -> Strings.isNullOrEmpty(item.documentUuid));
     }
 
-    @Disabled
     @Test
     public void should_process_zipfile_with_supplementary_evidence_with_ocr_classification() {
         List<String> files = Collections.singletonList("1111006.pdf");
