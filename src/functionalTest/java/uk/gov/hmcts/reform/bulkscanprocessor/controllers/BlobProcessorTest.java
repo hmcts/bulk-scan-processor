@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import org.assertj.core.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 
