@@ -4,7 +4,6 @@ import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
@@ -49,7 +48,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         this.queueSendClient = getSendClient();
     }
 
-    @Disabled
     @Test
     public void should_complete_envelope_referenced_by_queue_message() {
         // given
@@ -58,7 +56,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         assertZipFileContentProcessed(zipFilename, 2);
     }
 
-    @Disabled
     @Test
     public void should_complete_envelope_with_new_document_type() {
         // given
