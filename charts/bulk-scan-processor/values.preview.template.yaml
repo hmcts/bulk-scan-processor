@@ -31,7 +31,7 @@ java:
     QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     QUEUE_ENVELOPE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     QUEUE_ENVELOPE_NAME: "{{ .Release.Name }}-servicebus-envelopes"
-    QUEUE_PROCESSED_ENVELOPES_NAME: "{{ .Release.Name }}-servicebus-processed-envelopes"
+    QUEUE_PROCESSED_ENVELOPES_NAME: "{{ .Release.Name }}-sb-processed-envelopes"
     QUEUE_NOTIFICATIONS_NAME: "{{ .Release.Name }}-servicebus-notifications"
     QUEUE_NAMESPACE: "bsp-sb-preview"
     QUEUE_NOTIFICATIONS_NAMESPACE: "bsp-sb-preview"
