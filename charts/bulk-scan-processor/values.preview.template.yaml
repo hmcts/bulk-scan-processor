@@ -75,11 +75,11 @@ java:
     postgresqlPassword: bsppassword
     postgresqlDatabase: bulk_scan
 servicebus:
-  resourceGroup: bulk-scan-aso-preview-rg
+  resourceGroup: bsp-aso-preview-rg
   teamName: "Software Engineering"
   location: uksouth
   serviceplan: basic
-  sbNamespace: bsp-servicebus-preview
+  sbNamespace: bsp-sb-preview
   setup:
     queues:
       - name: envelopes
