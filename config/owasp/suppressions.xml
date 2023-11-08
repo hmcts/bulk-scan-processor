@@ -4,22 +4,19 @@
         <packageUrl regex="true">^pkg:maven/com.fasterxml.jackson.core/jackson-databind@.*$</packageUrl>
         <cve>CVE-2023-35116</cve>
   </suppress>
-  <suppress until="2023-11-05">
+  <suppress until="2023-11-15">
     <cve>CVE-2023-4586</cve>
   </suppress>
-  <suppress until="2023-11-05">
+  <suppress until="2023-11-15">
     <cve>CVE-2023-44487</cve>
   </suppress>
-  <suppress until="2023-11-05">
+  <suppress until="2023-11-15">
     <cve>CVE-2023-42794</cve>
   </suppress>
-  <suppress until="2023-11-05">
+  <suppress until="2023-11-15">
     <cve>CVE-2023-41080</cve>
   </suppress>
-  <suppress until="2023-11-05">
+  <suppress until="2023-11-15">
     <cve>CVE-2023-42795</cve>
-  </suppress>
-  <suppress until="2023-11-05">
-    <cve>CVE-2023-45648</cve>
   </suppress>
 </suppressions>
