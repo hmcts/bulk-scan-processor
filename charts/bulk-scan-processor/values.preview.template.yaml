@@ -1,8 +1,11 @@
 java:
   secrets:
     SB_ACCESS_KEY:
-      secretRef: bsp-servicebus-preview
+      secretRef: bsp-sb-preview
       key: primaryKey
+    SB_CONNECTION_STRING:
+      secretRef: bsp-sb-preview
+      key: connectionString
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-{{ .Release.Name }}-blobstorage
       key: storage_account_name
@@ -79,7 +82,7 @@ servicebus:
   teamName: "Software Engineering"
   location: uksouth
   serviceplan: basic
-  sbNamespace: bsp-sb-preview
+  sbNamespace: bsp-servicebus-preview
   setup:
     queues:
       - name: envelopes
