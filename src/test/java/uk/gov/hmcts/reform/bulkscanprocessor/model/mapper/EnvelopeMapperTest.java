@@ -250,6 +250,10 @@ class EnvelopeMapperTest {
                 return InputDocumentType.IHT;
             case PPS_LEGAL_STATEMENT:
                 return InputDocumentType.PPS_LEGAL_STATEMENT;
+            /*
+                no case for PPS Legal Statement without apostrophe as we can't differentiate between the two
+                going backwards from DocumentType to InputDocumentType
+            */
             default:
                 throw new AssertionError(
                     String.format("Expected a valid document type but got: %s", documentType)
