@@ -35,10 +35,6 @@ def commonSecrets = [
 ]
 
 def prSecrets = [
-  's2s-${env}': [
-    secret('microservicekey-bulk-scan-orchestrator', 'S2S_SECRET'),
-    secret('microservicekey-bulk-scan-processor', 'PROCESSOR_S2S_SECRET')
-  ],
   'bulk-scan-${env}': [
     secret('idam-users-bulkscan-username', 'IDAM_USER_NAME'),
     secret('idam-users-bulkscan-password', 'IDAM_USER_PASSWORD'),
