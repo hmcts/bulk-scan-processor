@@ -17,7 +17,15 @@ def combinedSecrets = [
   'bulk-scan-${env}': [
     secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-    secret('processed-envelopes-staging-queue-send-shared-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY')
+    secret('processed-envelopes-staging-queue-send-shared-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
+    secret('idam-users-bulkscan-username', 'IDAM_USER_NAME'),
+    secret('idam-users-bulkscan-password', 'IDAM_USER_PASSWORD'),
+    secret('bsp-servicebus-preview', 'QUEUE_READ_ACCESS_KEY_NAME'),
+    secret('bsp-servicebus-preview', 'QUEUE_WRITE_ACCESS_KEY_NAME'),
+    secret('bsp-servicebus-preview', 'ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
+    secret('bsp-servicebus-preview', 'ENVELOPES_QUEUE_READ_ACCESS_KEY'),
+    secret('bsp-servicebus-preview', 'PAYMENTS_QUEUE_WRITE_ACCESS_KEY'),
+    secret('idam-client-secret', 'IDAM_CLIENT_SECRET')
   ],
   's2s-${env}': [
     // to be removed later
@@ -31,19 +39,6 @@ def commonSecrets = [
     // to be removed later
     secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
     secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
-  ]
-]
-
-def prSecrets = [
-  'bulk-scan-${env}': [
-    secret('idam-users-bulkscan-username', 'IDAM_USER_NAME'),
-    secret('idam-users-bulkscan-password', 'IDAM_USER_PASSWORD'),
-    secret('bsp-servicebus-preview', 'QUEUE_READ_ACCESS_KEY_NAME'),
-    secret('bsp-servicebus-preview', 'QUEUE_WRITE_ACCESS_KEY_NAME'),
-    secret('bsp-servicebus-preview', 'ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
-    secret('bsp-servicebus-preview', 'ENVELOPES_QUEUE_READ_ACCESS_KEY'),
-    secret('bsp-servicebus-preview', 'PAYMENTS_QUEUE_WRITE_ACCESS_KEY'),
-    secret('idam-client-secret', 'IDAM_CLIENT_SECRET')
   ]
 ]
 
@@ -118,7 +113,6 @@ withPipeline(type, product, component) {
 
   onPR() {
     loadVaultSecrets(commonSecrets)
-    loadVaultSecrets(prSecrets)
   }
 
   onNonPR() {
