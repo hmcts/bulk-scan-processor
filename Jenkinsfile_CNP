@@ -34,6 +34,23 @@ def commonSecrets = [
   ]
 ]
 
+def prSecrets = [
+  's2s-${env}': [
+    secret('microservicekey-bulk-scan-orchestrator', 'S2S_SECRET'),
+    secret('microservicekey-bulk-scan-processor', 'PROCESSOR_S2S_SECRET')
+  ],
+  'bulk-scan-${env}': [
+    secret('idam-users-bulkscan-username', 'IDAM_USER_NAME'),
+    secret('idam-users-bulkscan-password', 'IDAM_USER_PASSWORD'),
+    secret('bsp-servicebus-preview', 'QUEUE_READ_ACCESS_KEY_NAME'),
+    secret('bsp-servicebus-preview', 'QUEUE_WRITE_ACCESS_KEY_NAME'),
+    secret('bsp-servicebus-preview', 'ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
+    secret('bsp-servicebus-preview', 'ENVELOPES_QUEUE_READ_ACCESS_KEY'),
+    secret('bsp-servicebus-preview', 'PAYMENTS_QUEUE_WRITE_ACCESS_KEY'),
+    secret('idam-client-secret', 'IDAM_CLIENT_SECRET')
+  ]
+]
+
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
   [ $class: 'AzureKeyVaultSecret',
     secretType: 'Secret',
@@ -105,6 +122,7 @@ withPipeline(type, product, component) {
 
   onPR() {
     loadVaultSecrets(commonSecrets)
+    loadVaultSecrets(prSecrets)
   }
 
   onNonPR() {
