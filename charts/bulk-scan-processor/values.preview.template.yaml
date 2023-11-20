@@ -92,7 +92,7 @@ servicebus:
   teamName: "Software Engineering"
   location: uksouth
   serviceplan: basic
-  sbNamespace: bsp-servicebus-preview
+  sbNamespace: bsp-sb-preview
   setup:
     queues:
       - name: envelopes
