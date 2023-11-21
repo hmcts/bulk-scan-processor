@@ -60,16 +60,6 @@ java:
           alias: idam.users.bulkscan.username
         - name: idam-users-bulkscan-password
           alias: idam.users.bulkscan.password
-        - name: bsp-servicebus-preview
-          alias: QUEUE_READ_ACCESS_KEY_NAME
-        - name: bsp-servicebus-preview
-          alias: QUEUE_WRITE_ACCESS_KEY_NAME
-        - name: bsp-servicebus-preview
-          alias: ENVELOPES_QUEUE_WRITE_ACCESS_KEY
-        - name: bsp-servicebus-preview
-          alias: ENVELOPES_QUEUE_READ_ACCESS_KEY
-        - name: bsp-servicebus-preview
-          alias: PAYMENTS_QUEUE_WRITE_ACCESS_KEY
         - name: all-preview-queue-access-key
           alias: QUEUE_ENVELOPE_SEND_ACCESS_KEY
         - name: all-preview-queue-access-key
