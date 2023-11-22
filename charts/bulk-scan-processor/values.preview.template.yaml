@@ -1,8 +1,5 @@
 java:
   secrets:
-    SB_ACCESS_KEY:
-      secretRef: bsp-servicebus-preview
-      key: primaryKey
     TEST_STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-{{ .Release.Name }}-blobstorage
       key: storage_account_name
@@ -24,16 +21,15 @@ java:
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "bulkscan"
     STORAGE_URL: "$(STORAGE_URL)"
+    PROCESSED_ENVELOPES_QUEUE_NAMESPACE: "bsp-sb-preview"
+    PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME: "RootManageSharedAccessKey"
     QUEUE_ACCESS_KEY_LISTEN_NAME: "RootManageSharedAccessKey"
     QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
-    QUEUE_ENVELOPE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     QUEUE_ENVELOPE_NAME: "{{ .Release.Name }}-servicebus-envelopes"
     QUEUE_PROCESSED_ENVELOPES_NAME: "{{ .Release.Name }}-servicebus-processed-envelopes"
     QUEUE_NOTIFICATIONS_NAME: "{{ .Release.Name }}-servicebus-notifications"
     QUEUE_NAMESPACE: "bsp-sb-preview"
     QUEUE_NOTIFICATIONS_NAMESPACE: "bsp-sb-preview"
-    QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
-    QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.auth.username}}"
     BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.auth.password}}"
     BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.auth.database}}"
@@ -64,6 +60,14 @@ java:
           alias: idam.users.bulkscan.username
         - name: idam-users-bulkscan-password
           alias: idam.users.bulkscan.password
+        - name: all-preview-queue-access-key
+          alias: QUEUE_ENVELOPE_SEND_ACCESS_KEY
+        - name: all-preview-queue-access-key
+          alias: QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY
+        - name: all-preview-queue-access-key
+          alias: QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY
+        - name: all-preview-queue-access-key
+          alias: PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY
 
   # Don't modify below here
   image: ${IMAGE_NAME}
@@ -75,17 +79,14 @@ java:
     postgresqlPassword: bsppassword
     postgresqlDatabase: bulk_scan
 servicebus:
-  resourceGroup: bulk-scan-aso-preview-rg
-  teamName: "Software Engineering"
-  location: uksouth
-  serviceplan: basic
+  enabled: true
+  resourceGroup: bsp-aso-preview-rg
   sbNamespace: bsp-servicebus-preview
   setup:
     queues:
       - name: envelopes
       - name: notifications
       - name: processed-envelopes
-  enabled: true
 
 blobstorage:
   resourceGroup: bulk-scan-aks-rg
