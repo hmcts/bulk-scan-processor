@@ -1,0 +1,15 @@
+test-url: ${TEST_URL:http://localhost:8581}
+test-s2s-name: ${TEST_S2S_NAME}
+test-s2s-url: ${TEST_S2S_URL}
+test-s2s-secret: ${TEST_S2S_SECRET}
+test-scan-delay: ${TEST_SCAN_DELAY}
+test-storage-account-name: ${TEST_STORAGE_ACCOUNT_NAME}
+test-storage-account-key: ${TEST_STORAGE_ACCOUNT_KEY}
+test-storage-account-url: ${TEST_STORAGE_ACCOUNT_URL}
+test-storage-container-name: ${TEST_STORAGE_CONTAINER_NAME}
+processed-envelopes-queue-access-key: ${PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY}
+processed-envelopes-queue-access-key-name: ${PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME:RootManageSharedAccessKey}
+processed-envelopes-queue-name: ${PROCESSED_ENVELOPES_QUEUE_NAME}
+processed-envelopes-queue-namespace: ${PROCESSED_ENVELOPES_QUEUE_NAMESPACE:bsp-sb-preview}
+flux-func-test: ${FLUX_FUNC_TEST}
+jms-enabled: false
