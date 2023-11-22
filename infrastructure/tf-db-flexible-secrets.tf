@@ -26,18 +26,21 @@ locals {
     }
   ]
 
-  flexible_secrets_staging = [
+  flexible_secrets_staging = var.env == "aat" ? [
     {
       name_suffix = "pass"
       value       = module.postgresql-staging[0].password
+      count       = var.num_staging_dbs
     },
     {
       name_suffix = "host"
       value       = module.postgresql-staging[0].fqdn
+      count       = var.num_staging_dbs
     },
     {
       name_suffix = "user"
       value       = module.postgresql-staging[0].username
+      count       = var.num_staging_dbs
     },
     {
       name_suffix = "port"
@@ -47,7 +50,7 @@ locals {
       name_suffix = "database"
       value       = local.db_name
     }
-  ]
+  ]: []
 }
 
 resource "azurerm_key_vault_secret" "flexible_secret" {

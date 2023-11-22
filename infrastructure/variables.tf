@@ -165,3 +165,7 @@ variable "postgresql_user" {
 }
 
 variable "aks_subscription_id" {}
+
+variable "num_staging_dbs" {
+  default = 0
+}

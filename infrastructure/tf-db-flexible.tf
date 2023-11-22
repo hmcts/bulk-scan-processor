@@ -1,6 +1,7 @@
 # Postgres 15 flexible servers
 locals {
   db_host_name = "${var.product}-${var.component}-flexible-postgres-db-v15"
+  db_name = "bulk_scan"
 }
 
 module "postgresql" {
@@ -9,7 +10,7 @@ module "postgresql" {
   }
 
   source               = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
-  name                 = var.db_host_name
+  name                 = local.db_host_name
   product              = var.product
   component            = var.component
   location             = var.location_db
@@ -34,8 +35,9 @@ module "postgresql-staging" {
     azurerm.postgres_network = azurerm.postgres_network
   }
   source               = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
-  name                 = "${var.product}-${var.component}-flexible-v15-staging"
-  product              = var.product
+  name                 = "${local.db_host_name}-staging"
+  product              = "${var.product}-${var.component}-staging"
+
   component            = var.component
   location             = var.location_db
   env                  = "aat"
