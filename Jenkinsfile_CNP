@@ -87,7 +87,8 @@ withPipeline(type, product, component) {
 
       // Get envelopes queue connection string
       env.PROCESSED_ENVELOPES_QUEUE_NAME = "${aksServiceName}-servicebus-processed-envelopes"
-      env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'RootManageSharedAccessKey'
+      env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = "RootManageSharedAccessKey"
+      env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = "bsp-servicebus-preview"
 
     }
   }
