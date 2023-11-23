@@ -15,7 +15,8 @@ def channel = '#bsp-build-notices'
 
 def combinedSecrets = [
   'bulk-scan-${env}': [
-    secret('all-preview-queue-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
+    secret('processed-envelopes-queue-send-shared-access-key-premium',
+      'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
     secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME')
   ],
