@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 
-//import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @IntegrationTest
 @TestPropertySource(
