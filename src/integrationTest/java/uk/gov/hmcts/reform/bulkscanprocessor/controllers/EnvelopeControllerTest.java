@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -188,7 +187,6 @@ public class EnvelopeControllerTest {
         processEventRepository.deleteAll();
     }
 
-    @Disabled
     @Test
     public void should_successfully_return_all_envelopes_with_processed_status_for_a_given_jurisdiction()
         throws Exception {
@@ -226,7 +224,6 @@ public class EnvelopeControllerTest {
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
-    @Disabled
     @Test
     public void should_return_empty_list_when_no_envelopes_are_available() throws Exception {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willReturn("test_service");
@@ -240,7 +237,6 @@ public class EnvelopeControllerTest {
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
-    @Disabled
     @Test
     public void should_throw_service_jurisdiction_config_not_found_exc_when_service_jurisdiction_mapping_is_not_found()
         throws Exception {
@@ -257,7 +253,6 @@ public class EnvelopeControllerTest {
         verify(tokenValidator).getServiceName("testServiceAuthHeader");
     }
 
-    @Disabled
     @Test
     public void should_throw_unauthenticated_exception_when_service_auth_header_is_missing() throws Exception {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willThrow(UnAuthenticatedException.class);
@@ -269,7 +264,6 @@ public class EnvelopeControllerTest {
         assertThat(result.getResolvedException()).isInstanceOf(UnAuthenticatedException.class);
     }
 
-    @Disabled
     @Test
     public void should_return_incomplete_stale_envelopes() throws Exception {
         UUID uuid1 = UUID.randomUUID();
@@ -295,7 +289,6 @@ public class EnvelopeControllerTest {
             .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28.000Z"));
     }
 
-    @Disabled
     @Test
     public void should_find_envelope_by_file_name_and_container()
         throws Exception {
@@ -330,7 +323,6 @@ public class EnvelopeControllerTest {
         assertThat(pdfListCaptor.getAllValues().get(0).get(0).getName()).isEqualTo("1111002.pdf");
     }
 
-    @Disabled
     @Test
     public void should_throw_404_when_envelope_not_exists() throws Exception {
         given(tokenValidator.getServiceName("testServiceAuthHeader")).willThrow(UnAuthenticatedException.class);
