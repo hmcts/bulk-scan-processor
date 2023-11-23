@@ -31,16 +31,14 @@ def commonSecrets = [
   'bulk-scan-${env}': [
     secret('all-preview-queue-access-key', 'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
     secret('idam-users-bulkscan-username', 'IDAM_USER_NAME'),
-    secret('idam-users-bulkscan-password', 'IDAM_USER_PASSWORD')
+    secret('idam-users-bulkscan-password', 'IDAM_USER_PASSWORD'),
+    secret('launch-darkly-sdk-key', 'LAUNCH_DARKLY_SDK_KEY'),
+    secret('launch-darkly-offline-mode', 'LAUNCH_DARKLY_OFFLINE_MODE')
   ],
   's2s-${env}': [
     // to be removed later
     secret('microservicekey-bulk-scan-processor-tests', 'TEST_S2S_SECRET'),
     secret('microservicekey-bulk-scan-processor-tests', 'S2S_SECRET')
-  ],
-  'bulk-scan-${env}': [
-    secret('launch-darkly-sdk-key', 'LAUNCH_DARKLY_SDK_KEY'),
-    secret('launch-darkly-offline-mode', 'LAUNCH_DARKLY_OFFLINE_MODE')
   ]
 ]
 
