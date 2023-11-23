@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 
-//import org.junit.jupiter.api.Disabled;
-//import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
@@ -20,8 +19,8 @@ public class ReportSenderDisabledTest {
     @Autowired
     private ApplicationContext context;
 
-//    @Test
-//    public void should_not_have_report_sender_in_context() {
-//        assertThat(context.getBeanNamesForType(ReportSender.class)).isEmpty();
-//    }
+    @Test
+    public void should_not_have_report_sender_in_context() {
+        assertThat(context.getBeanNamesForType(ReportSender.class)).isEmpty();
+    }
 }

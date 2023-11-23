@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.google.common.io.Resources;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -104,7 +103,6 @@ class ReportsControllerTest {
     @Autowired
     private ClockProvider clockProvider;
 
-    @Disabled
     @Test
     void should_return_result_generated_by_the_service() throws Exception {
 
@@ -155,14 +153,12 @@ class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
     }
 
-    @Disabled
     @Test
     void should_not_include_test_container_by_default() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14"));
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
-    @Disabled
     @Test
     void should_include_test_container_if_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=true"));
@@ -170,7 +166,6 @@ class ReportsControllerTest {
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), true);
     }
 
-    @Disabled
     @Test
     void should_not_include_test_container_if_exlicitly_not_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary?date=2019-01-14&include-test=false"));
@@ -178,7 +173,6 @@ class ReportsControllerTest {
         verify(reportsService).getCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
-    @Disabled
     @ParameterizedTest
     @ValueSource(strings = {
         "/reports/count-summary?date=",
@@ -194,7 +188,6 @@ class ReportsControllerTest {
             .andExpect(status().isBadRequest());
     }
 
-    @Disabled
     @Test
     void summary_report_should_return_result_generated_by_the_service() throws Exception {
 
@@ -237,14 +230,12 @@ class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
     }
 
-    @Disabled
     @Test
     void summary_report_should_not_include_test_container_by_default() throws Exception {
         mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14"));
         verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
-    @Disabled
     @Test
     void summary_report_should_include_test_container_if_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/count-summary-report?date=2019-01-14&include-test=true"));
@@ -252,7 +243,6 @@ class ReportsControllerTest {
         verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), true);
     }
 
-    @Disabled
     @Test
     void summary_report_should_not_include_test_container_if_exlicitly_not_requested_by_the_client()
             throws Exception {
@@ -261,7 +251,6 @@ class ReportsControllerTest {
         verify(reportsService).getSummaryCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
-    @Disabled
     @Test
     void envelopes_count_summary_report_should_return_result_generated_by_the_service() throws Exception {
 
@@ -304,14 +293,12 @@ class ReportsControllerTest {
                 .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
     }
 
-    @Disabled
     @Test
     void envelopes_count_summary_report_should_not_include_test_container_by_default() throws Exception {
         mockMvc.perform(get("/reports/envelopes-count-summary?date=2019-01-14"));
         verify(reportsService).getEnvelopeSummaryCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
-    @Disabled
     @Test
     void envelopes_count_summary_report_should_include_test_container_if_requested_by_the_client() throws Exception {
         mockMvc.perform(get("/reports/envelopes-count-summary?date=2019-01-14&include-test=true"));
@@ -319,7 +306,6 @@ class ReportsControllerTest {
         verify(reportsService).getEnvelopeSummaryCountFor(LocalDate.of(2019, 1, 14), true);
     }
 
-    @Disabled
     @Test
     void envelopes_count_summary_report_should_not_include_test_container_if_explicitly_not_requested_by_the_client()
             throws Exception {
@@ -328,7 +314,6 @@ class ReportsControllerTest {
         verify(reportsService).getEnvelopeSummaryCountFor(LocalDate.of(2019, 1, 14), false);
     }
 
-    @Disabled
     @Test
     void should_return_zipfiles_summary_result_in_csv_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
@@ -368,7 +353,6 @@ class ReportsControllerTest {
             .andExpect(content().string(expectedContent));
     }
 
-    @Disabled
     @Test
     void should_return_empty_zipfiles_summary_in_csv_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
@@ -388,7 +372,6 @@ class ReportsControllerTest {
             ));
     }
 
-    @Disabled
     @Test
     void should_return_zipfiles_summary_result_in_json_format() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
@@ -430,7 +413,6 @@ class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].ccd_action").value(response.ccdAction));
     }
 
-    @Disabled
     @Test
     void should_return_total_count_summary_result() throws Exception {
         LocalDate localDate = LocalDate.of(2021, 4, 8);
@@ -508,7 +490,6 @@ class ReportsControllerTest {
             .andExpect(jsonPath("$.auto_attached_to_case").value(0));
     }
 
-    @Disabled
     @Test
     void should_return_empty_zipfiles_summary_in_json_format_when_no_data_exists() throws Exception {
         LocalDate localDate = LocalDate.of(2019, 1, 14);
@@ -523,7 +504,6 @@ class ReportsControllerTest {
             .andExpect(jsonPath("$.data.length()").value(0));
     }
 
-    @Disabled
     @Test
     void should_return_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
@@ -552,7 +532,6 @@ class ReportsControllerTest {
             ));
     }
 
-    @Disabled
     @Test
     void should_return_proper_response_when_there_are_no_rejected_files() throws Exception {
         given(rejectedFilesReportService.getRejectedFiles())
@@ -566,7 +545,6 @@ class ReportsControllerTest {
             ));
     }
 
-    @Disabled
     @Test
     void should_return_discrepancies_for_a_given_date() throws Exception {
         // given
@@ -603,7 +581,6 @@ class ReportsControllerTest {
         assertThat(reconciliationStatement.date).isEqualTo(LocalDate.of(2020, 8, 20));
     }
 
-    @Disabled
     @Test
     void should_return_rejected_zip_files() throws Exception {
         LocalDateTime dateTime = LocalDateTime.parse("2021-04-16T09:01:43.029000");
@@ -653,7 +630,6 @@ class ReportsControllerTest {
                 ));
     }
 
-    @Disabled
     @Test
     void should_return_received_scannable_items() throws Exception {
         given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
@@ -688,7 +664,6 @@ class ReportsControllerTest {
                 ));
     }
 
-    @Disabled
     @Test
     void should_handle_no_received_scannable_items() throws Exception {
         given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
@@ -705,7 +680,6 @@ class ReportsControllerTest {
                 ));
     }
 
-    @Disabled
     @Test
     void should_return_received_scannable_items_per_document_type() throws Exception {
         given(receivedScannableItemsService.getReceivedScannableItemsPerDocumentType(LocalDate.parse("2021-04-16")))
@@ -754,7 +728,6 @@ class ReportsControllerTest {
                 ));
     }
 
-    @Disabled
     @Test
     void should_return_received_scannable_items_per_document_type_false() throws Exception {
         given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
@@ -789,7 +762,6 @@ class ReportsControllerTest {
                 ));
     }
 
-    @Disabled
     @Test
     void should_handle_no_received_scannable_items_per_document_type() throws Exception {
         given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
@@ -806,7 +778,6 @@ class ReportsControllerTest {
                 ));
     }
 
-    @Disabled
     @Test
     void should_return_received_payments() throws Exception {
         given(receivedPaymentsService.getReceivedPayments(LocalDate.parse("2021-04-16")))
@@ -841,7 +812,6 @@ class ReportsControllerTest {
                 ));
     }
 
-    @Disabled
     @Test
     void should_handle_no_payments() throws Exception {
         given(receivedPaymentsService.getReceivedPayments(LocalDate.parse("2021-04-16")))

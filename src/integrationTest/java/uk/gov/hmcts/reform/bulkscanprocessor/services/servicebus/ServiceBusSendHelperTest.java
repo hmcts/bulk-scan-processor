@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -81,7 +80,6 @@ public class ServiceBusSendHelperTest {
         mockEnvelopeData();
     }
 
-    @Disabled
     @Test
     public void should_send_message_with_messageId() throws Exception {
         Msg msg = new EnvelopeMsg(envelope);
@@ -95,7 +93,6 @@ public class ServiceBusSendHelperTest {
             .contains(msg.getMsgId());
     }
 
-    @Disabled
     @Test
     public void should_throw_exception_for_empty_messageId() {
         when(envelope.getId()).thenReturn(null);
@@ -112,7 +109,6 @@ public class ServiceBusSendHelperTest {
         assertThat(busMessage.getSubject()).isEqualTo(MsgLabel.TEST.toString());
     }
 
-    @Disabled
     @Test
     public void should_not_add_any_label_to_standard_message() {
         Msg msg = new EnvelopeMsg(envelope);
@@ -120,7 +116,6 @@ public class ServiceBusSendHelperTest {
         assertThat(busMessage.getSubject()).isNullOrEmpty();
     }
 
-    @Disabled
     @Test
     public void should_throw_exception_when_message_null() {
         Throwable exc = catchThrowable(() -> serviceBusHelper.mapToBusMessage(null));
@@ -130,7 +125,6 @@ public class ServiceBusSendHelperTest {
             .hasMessage("Msg == null");
     }
 
-    @Disabled
     @Test
     public void should_throw_exception_when_service_bus_connection_times_out() throws Exception {
         // given
@@ -147,7 +141,6 @@ public class ServiceBusSendHelperTest {
     }
 
     @SuppressWarnings("unchecked")
-    @Disabled
     @Test
     public void should_send_message_with_envelope_data() throws Exception {
 

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -65,7 +64,6 @@ class ProcessEventControllerTest {
                 .andExpect(jsonPath("$.data", hasSize(0)));
     }
 
-    @Disabled
     @Test
     void should_use_earliest_date_as_from_date_when_searching_by_dncPrefix() throws Exception {
         final String dcnPrefix = "123456789§";
@@ -86,7 +84,6 @@ class ProcessEventControllerTest {
         verify(processEventsService).getProcessEventsByDcnPrefix(dcnPrefix, fromDate, toDate);
     }
 
-    @Disabled
     @Test
     void should_return_400_when_dncPrefix_shorter_than_10_chars() throws Exception {
         final String dcnPrefix = "123456789";
@@ -101,7 +98,6 @@ class ProcessEventControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Disabled
     @Test
     void should_return_events_if_events_for_given_dncPrefix_and_dates_exists() throws Exception {
 

@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +62,6 @@ public class EnvelopeFinaliserServiceTest {
         processEventRepository.deleteAll();
     }
 
-    @Disabled
     @Test
     public void finaliseEnvelope_should_update_envelope_status_and_clear_all_ocr_data() {
         // given
@@ -90,7 +88,6 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(finalisedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelopeCcdAction);
     }
 
-    @Disabled
     @Test
     public void finaliseEnvelope_should_update_envelope_status_and_clear_all_ocr_data_and_warnings() {
         // given
@@ -117,7 +114,6 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(finalisedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelopeCcdAction);
     }
 
-    @Disabled
     @Test
     public void finaliseEnvelope_should_not_update_other_envelopes_with_ocr_data() {
         // given
@@ -151,7 +147,6 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isNull();
     }
 
-    @Disabled
     @Test
     public void finaliseEnvelope_should_not_update_other_envelopes_with_ocr_data_and_warnings() {
         // given
@@ -187,7 +182,6 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(unaffectedEnvelope.get().getEnvelopeCcdAction()).isEqualTo(envelope2.getEnvelopeCcdAction());
     }
 
-    @Disabled
     @Test
     public void finaliseEnvelope_should_create_event_of_type_completed() {
         // given
@@ -208,7 +202,6 @@ public class EnvelopeFinaliserServiceTest {
         assertThat(savedEvent.getZipFileName()).isEqualTo(envelope.getZipFileName());
     }
 
-    @Disabled
     @Test
     public void finaliseEnvelope_should_throw_exception_when_envelope_is_not_found() {
         UUID nonExistingId = UUID.fromString("ef2565fd-74f5-418e-9d8c-7bf847edde80");
