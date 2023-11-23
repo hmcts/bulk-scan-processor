@@ -75,7 +75,6 @@ withPipeline(type, product, component) {
       def subscription = env.SUBSCRIPTION_NAME
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def storageSecret = "storage-secret-${aksServiceName}-blobstorage"
-      def serviceBusSecret = "bsp-servicebus-preview"
       def storageSecretName = "storage-account-${aksServiceName}-blobstorage"
       def namespace = new TeamConfig(this).getNameSpace(product)
       def kubectl = new Kubectl(this, subscription, namespace)
@@ -97,7 +96,6 @@ withPipeline(type, product, component) {
       env.PROCESSED_ENVELOPES_QUEUE_NAME = "${aksServiceName}-servicebus-processed-envelopes"
       env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = "RootManageSharedAccessKey"
       env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = "bsp-sb-preview"
-      env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY = kubectl.getSecret(serviceBusSecret, namespace, "{.data.primaryKey}")
 
     }
   }
