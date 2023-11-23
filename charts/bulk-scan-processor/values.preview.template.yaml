@@ -66,6 +66,8 @@ java:
           alias: QUEUE_NOTIFICATIONS_SEND_ACCESS_KEY
         - name: all-preview-queue-access-key
           alias: QUEUE_PROCESSED_ENVELOPES_READ_ACCESS_KEY
+        - name: all-preview-queue-access-key
+          alias: PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY
 
   # Don't modify below here
   image: ${IMAGE_NAME}
