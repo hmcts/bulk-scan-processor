@@ -75,7 +75,7 @@ withPipeline(type, product, component) {
       def subscription = env.SUBSCRIPTION_NAME
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
       def storageSecret = "storage-secret-${aksServiceName}-blobstorage"
-      def serviceBusSecret = "bsp-sb-preview"
+      def serviceBusSecret = "bsp-servicebus-preview"
       def storageSecretName = "storage-account-${aksServiceName}-blobstorage"
       def namespace = new TeamConfig(this).getNameSpace(product)
       def kubectl = new Kubectl(this, subscription, namespace)
