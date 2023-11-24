@@ -17,7 +17,6 @@ class LaunchDarklyClientFactoryTest {
         factory = new LaunchDarklyClientFactory();
     }
 
-    @Disabled
     @Test
     void testCreate() throws IOException {
         try (LDClientInterface client = factory.create("test key", true)) {

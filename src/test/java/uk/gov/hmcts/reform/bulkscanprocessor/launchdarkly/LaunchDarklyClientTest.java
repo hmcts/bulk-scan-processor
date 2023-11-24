@@ -38,28 +38,24 @@ class LaunchDarklyClientTest {
         launchDarklyClient = new LaunchDarklyClient(launchDarklyClientFactory, SDK_KEY, true);
     }
 
-    @Disabled
     @Test
     void testFeatureEnabled() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(true);
         assertTrue(launchDarklyClient.isFeatureEnabled(FAKE_FEATURE, ldUser));
     }
 
-    @Disabled
     @Test
     void testFeatureDisabled() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(false);
         assertFalse(launchDarklyClient.isFeatureEnabled(FAKE_FEATURE, ldUser));
     }
 
-    @Disabled
     @Test
     void testFeatureEnabledWithoutUser() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(true);
         assertTrue(launchDarklyClient.isFeatureEnabled(FAKE_FEATURE));
     }
 
-    @Disabled
     @Test
     void testFeatureDisabledWithoutUser() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(false);
