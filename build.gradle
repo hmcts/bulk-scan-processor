@@ -62,6 +62,7 @@ tasks.withType(JavaExec).configureEach {
 
 test {
   failFast = true
+  maxHeapSize = "2g"
 }
 
 task contract(type: Test, description: 'Runs the contract tests.', group: 'Verification') {
