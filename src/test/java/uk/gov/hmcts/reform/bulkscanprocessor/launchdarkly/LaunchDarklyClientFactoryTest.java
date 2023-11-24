@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.launchdarkly;
 
 import com.launchdarkly.sdk.server.interfaces.LDClientInterface;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
