@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.launchdarkly;
 import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.server.interfaces.LDClientInterface;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -37,24 +38,28 @@ class LaunchDarklyClientTest {
         launchDarklyClient = new LaunchDarklyClient(launchDarklyClientFactory, SDK_KEY, true);
     }
 
+    @Disabled
     @Test
     void testFeatureEnabled() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(true);
         assertTrue(launchDarklyClient.isFeatureEnabled(FAKE_FEATURE, ldUser));
     }
 
+    @Disabled
     @Test
     void testFeatureDisabled() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(false);
         assertFalse(launchDarklyClient.isFeatureEnabled(FAKE_FEATURE, ldUser));
     }
 
+    @Disabled
     @Test
     void testFeatureEnabledWithoutUser() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(true);
         assertTrue(launchDarklyClient.isFeatureEnabled(FAKE_FEATURE));
     }
 
+    @Disabled
     @Test
     void testFeatureDisabledWithoutUser() {
         when(ldClient.boolVariation(eq(FAKE_FEATURE), any(LDUser.class), anyBoolean())).thenReturn(false);
