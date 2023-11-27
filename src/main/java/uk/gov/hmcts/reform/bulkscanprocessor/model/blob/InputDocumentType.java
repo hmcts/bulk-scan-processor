@@ -13,7 +13,7 @@ public enum InputDocumentType {
     FORENSIC_SHEETS("Forensic Sheets"),
     IHT("IHT"),
     PPS_LEGAL_STATEMENT("PP's Legal Statement"),
-    PPS_LEGAL_STATEMENT_WITHOUT_APOSTROPHE("PPs Legal Statement");;
+    PPS_LEGAL_STATEMENT_WITHOUT_APOSTROPHE("PPs Legal Statement");
 
     private final String value;
 
