@@ -60,7 +60,7 @@ variable "test_s2s_name" {
 }
 
 variable "common_tags" {
-  type = map
+  type = map(any)
 }
 
 variable "scan_delay" {
@@ -162,4 +162,10 @@ variable "database_name" {
 
 variable "postgresql_user" {
   default = "bulk_scanner"
+}
+
+variable "aks_subscription_id" {}
+
+variable "num_staging_dbs" {
+  default = 0
 }

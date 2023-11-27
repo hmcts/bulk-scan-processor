@@ -1,7 +1,7 @@
 vault_section = "prod"
-capacity = "2"
+capacity      = "2"
 
-scan_delay = "300000"
+scan_delay   = "300000"
 scan_enabled = "true"
 
 orchestrator_notifications_task_enabled = "true"
