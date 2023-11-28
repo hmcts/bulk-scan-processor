@@ -87,6 +87,7 @@ class EnvelopeMapperTest {
             SUPPORTING_DOCUMENTS,
             FORENSIC_SHEETS,
             IHT,
+            PPS_LEGAL_STATEMENT,
             PPS_LEGAL_STATEMENT
         );
         assertDocumentSubTypes(
@@ -102,6 +103,7 @@ class EnvelopeMapperTest {
             "PA11",
             "Will",
             "205",
+            null,
             null
         );
     }
