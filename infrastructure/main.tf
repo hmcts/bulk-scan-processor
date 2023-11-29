@@ -74,8 +74,8 @@ data "azurerm_key_vault" "s2s_key_vault" {
 }
 
 data "azurerm_key_vault" "reform_scan_key_vault" {
-  name                = "reform-scan-${local.local_env}"
-  resource_group_name = "reform-scan-${local.local_env}"
+  name                = "reform-scan-${var.env}"
+  resource_group_name = "reform-scan-${var.env}"
 }
 # endregion
 
