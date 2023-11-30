@@ -74,8 +74,8 @@ data "azurerm_key_vault" "s2s_key_vault" {
 }
 
 data "azurerm_key_vault" "reform_scan_key_vault" {
-  name                = "reform-scan-${local.local_env}"
-  resource_group_name = "reform-scan-${local.local_env}"
+  name                = "reform-scan-${var.env}"
+  resource_group_name = "reform-scan-${var.env}"
 }
 # endregion
 
@@ -187,7 +187,7 @@ data "azurerm_key_vault_secret" "storage_account_primary_key" {
 # region: copy notification queue secrets to bulk-scan key vault
 data "azurerm_key_vault_secret" "notifications_queue_send_access_key" {
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
-  name         = "notification-queue-send-shared-access-key"
+  name         = "notification-queue-send-shared-access-key-premium"
 }
 
 data "azurerm_key_vault_secret" "notifications_queue_send_access_key_premium" {
