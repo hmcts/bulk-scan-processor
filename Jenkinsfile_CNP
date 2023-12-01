@@ -15,6 +15,8 @@ def channel = '#bsp-build-notices'
 
 def combinedSecrets = [
   'bulk-scan-${env}': [
+    secret('processed-envelopes-staging-queue-send-shared-access-key',
+      'PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY'),
     secret('storage-account-staging-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
     secret('launch-darkly-sdk-key', 'LAUNCH_DARKLY_SDK_KEY'),
@@ -61,6 +63,7 @@ withPipeline(type, product, component) {
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://bulkscanaatstaging.blob.core.windows.net'
   env.FLUX_FUNC_TEST = false
+  env.PROCESSED_ENVELOPES_QUEUE_NAMESPACE = 'bulk-scan-servicebus-aat-premium'
   env.PROCESSED_ENVELOPES_QUEUE_NAME = 'processed-envelopes-staging'
   env.PROCESSED_ENVELOPES_QUEUE_WRITE_ACCESS_KEY_NAME = 'SendSharedAccessKey'
   env.JMS_ENABLED = false
