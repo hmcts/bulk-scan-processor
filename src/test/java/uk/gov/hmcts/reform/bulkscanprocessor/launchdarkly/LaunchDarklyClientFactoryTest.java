@@ -9,10 +9,10 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LaunchDarklyClientFactoryTest {
-    private LaunchDarklyClientFactory factory;
+    private static LaunchDarklyClientFactory factory;
 
     @BeforeAll
-    void setUp() {
+    static void setUp() {
         factory = new LaunchDarklyClientFactory();
     }
 
