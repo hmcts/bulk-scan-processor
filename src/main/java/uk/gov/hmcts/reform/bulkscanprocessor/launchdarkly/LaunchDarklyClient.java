@@ -25,12 +25,10 @@ public class LaunchDarklyClient {
     }
 
     public boolean isFeatureEnabled(String feature) {
-        System.gc();
         return internalClient.boolVariation(feature, LaunchDarklyClient.BULK_SCAN_PROCESSOR_USER, false);
     }
 
     public boolean isFeatureEnabled(String feature, LDUser user) {
-        System.gc();
         return internalClient.boolVariation(feature, user, false);
     }
 
