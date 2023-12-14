@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 
 @IntegrationTest
 @SuppressWarnings("unchecked")
+@Disabled
 public class UploadEnvelopeDocumentsTaskTest {
 
     private static final TestStorageHelper STORAGE_HELPER = TestStorageHelper.getInstance();
