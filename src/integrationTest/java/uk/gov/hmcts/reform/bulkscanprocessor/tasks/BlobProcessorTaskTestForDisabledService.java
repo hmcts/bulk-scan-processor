@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
@@ -23,7 +22,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
     "containers.mappings[0].paymentsEnabled=false",
     "containers.mappings[0].enabled=false"
 })
-@Disabled
 public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite {
 
     public static final String DOWNLOAD_PATH = "/var/tmp/download/blobs";
