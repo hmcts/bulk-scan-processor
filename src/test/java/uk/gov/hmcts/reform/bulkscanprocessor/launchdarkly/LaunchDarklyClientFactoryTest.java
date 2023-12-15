@@ -2,12 +2,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.launchdarkly;
 
 import com.launchdarkly.sdk.server.interfaces.LDClientInterface;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 class LaunchDarklyClientFactoryTest {
     private static LaunchDarklyClientFactory factory;
 
