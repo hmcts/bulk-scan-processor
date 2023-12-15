@@ -141,6 +141,17 @@
       "notes": "sscs1 doc",
       "document_type": "PP's Legal statement",
       "document_sub_type": null
+    },
+    {
+      "document_control_number": "1111003",
+      "scanning_date": "2017-02-24T00:00:00.000Z",
+      "manual_intervention": "string",
+      "next_action": "forward",
+      "next_action_date": "2017-02-25T00:00:00.000Z",
+      "file_name": "1111003.pdf",
+      "notes": "sscs1 doc",
+      "document_type": "PPs Legal statement",
+      "document_sub_type": null
     }
   ],
   "payments": [

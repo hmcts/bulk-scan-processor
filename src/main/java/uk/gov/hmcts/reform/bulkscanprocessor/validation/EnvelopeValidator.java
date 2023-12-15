@@ -52,7 +52,8 @@ public final class EnvelopeValidator {
                InputDocumentType.IHT, singletonList(probateJurisdiction),
                InputDocumentType.FORENSIC_SHEETS, singletonList(probateJurisdiction),
                InputDocumentType.SUPPORTING_DOCUMENTS, List.of(probateJurisdiction, "BULKSCAN"),
-               InputDocumentType.PPS_LEGAL_STATEMENT, singletonList(probateJurisdiction)
+               InputDocumentType.PPS_LEGAL_STATEMENT, singletonList(probateJurisdiction),
+               InputDocumentType.PPS_LEGAL_STATEMENT_WITHOUT_APOSTROPHE, singletonList(probateJurisdiction)
         );
 
     private static final Map<Classification, List<InputDocumentType>> disallowedDocumentTypes =
