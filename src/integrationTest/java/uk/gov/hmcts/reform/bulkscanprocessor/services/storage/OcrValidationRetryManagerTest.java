@@ -22,7 +22,6 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-
 @Disabled
 @IntegrationTest
 class OcrValidationRetryManagerTest {
