@@ -137,6 +137,8 @@ public class EnvelopeMapper {
                 return DocumentType.IHT;
             case PPS_LEGAL_STATEMENT:
                 return DocumentType.PPS_LEGAL_STATEMENT;
+            case PPS_LEGAL_STATEMENT_WITHOUT_APOSTROPHE:
+                return DocumentType.PPS_LEGAL_STATEMENT;
             default:
                 return DocumentType.OTHER;
         }
