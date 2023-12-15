@@ -220,8 +220,8 @@ scheduling:
   task:
     # 1 - scan storage for new envelopes and process them
     scan:
-      delay: ${SCAN_DELAY:30000} # In milliseconds
-      enabled: ${SCAN_ENABLED:false}
+      delay: 30000000 # In milliseconds
+      enabled: false
     # 2 - upload all documents for successfully scanned envelopes
     upload-documents:
       delay: ${UPLOAD_TASK_DELAY} # In milliseconds
