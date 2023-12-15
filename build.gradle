@@ -363,10 +363,10 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.1'
   implementation group: 'com.github.hmcts', name: 'ccd-case-document-am-client', version: '1.59'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.7'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '12.3'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '12.5'
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.7'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '12.3'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '12.5'
 
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.2'
 
