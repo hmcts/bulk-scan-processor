@@ -51,8 +51,7 @@ public class CleanUpRejectedFilesTaskTest {
     public static void initialize() {
         dockerComposeContainer =
             new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
-                .withExposedService("azure-storage", 10000)
-                .withLocalCompose(true);
+                .withExposedService("azure-storage", 10000);
 
         dockerComposeContainer.start();
         dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
