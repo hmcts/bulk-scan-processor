@@ -415,7 +415,7 @@ dependencies {
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured'
-  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.2'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.3'
 
   contractTestImplementation sourceSets.main.runtimeClasspath
   contractTestImplementation sourceSets.test.runtimeClasspath
