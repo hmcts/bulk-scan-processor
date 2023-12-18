@@ -241,7 +241,7 @@ dependencyManagement {
       entry 'spring-cloud-starter-openfeign'
     }
     // CVE-2022-22970, CVE-2022-22971
-    dependencySet(group: 'org.springframework', version: '5.3.28') {
+    dependencySet(group: 'org.springframework', version: '5.3.31') {
       entry 'spring-aop'
       entry 'spring-aspects'
       entry 'spring-beans'
