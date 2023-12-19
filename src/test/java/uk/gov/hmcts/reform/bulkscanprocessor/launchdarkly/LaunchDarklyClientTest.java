@@ -4,7 +4,6 @@ import com.launchdarkly.sdk.LDUser;
 import com.launchdarkly.sdk.server.interfaces.LDClientInterface;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,7 +19,6 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class LaunchDarklyClientTest {
     private static final String SDK_KEY = "fake-key";
     private static final String FAKE_FEATURE = "fake-feature";

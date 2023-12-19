@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.bulkscanprocessor;
 
 import com.launchdarkly.sdk.server.interfaces.DataSourceStatusProvider;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +15,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.launchdarkly.Flags.BULK_SCAN
 
 @TestPropertySource("classpath:application.yaml")
 @ExtendWith(SpringExtension.class)
-@Disabled
 class LaunchDarklyTest {
 
     @Value("${sdk-key:YYYYY}")
