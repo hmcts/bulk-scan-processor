@@ -380,7 +380,7 @@ dependencies {
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.6'
 
   implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.0.2'
-  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '6.3.0'
+  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.1.1'
 
 
   testImplementation libraries.junit5

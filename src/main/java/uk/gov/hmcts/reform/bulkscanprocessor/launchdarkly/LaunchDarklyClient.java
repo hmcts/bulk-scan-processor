@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.launchdarkly;
 
-import com.launchdarkly.sdk.LDUser;
+import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.server.interfaces.DataSourceStatusProvider;
 import com.launchdarkly.sdk.server.interfaces.LDClientInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +9,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LaunchDarklyClient {
-    public static final LDUser BULK_SCAN_PROCESSOR_USER = new LDUser.Builder("bulk-scan-processor-user")
-            .anonymous(true)
-            .build();
 
+    private final LDContext bulkScanProcessorContext;
     private final LDClientInterface internalClient;
 
     @Autowired
@@ -22,18 +20,19 @@ public class LaunchDarklyClient {
         @Value("${launchdarkly.offline-mode:false}") Boolean offlineMode
     ) {
         this.internalClient = launchDarklyClientFactory.create(sdkKey, offlineMode);
+        this.bulkScanProcessorContext = LDContext.builder(sdkKey).build();
     }
 
     public boolean isFeatureEnabled(String feature) {
         internalClient.flush();
         System.gc();
-        return internalClient.boolVariation(feature, LaunchDarklyClient.BULK_SCAN_PROCESSOR_USER, false);
+        return internalClient.boolVariation(feature, bulkScanProcessorContext, false);
     }
 
-    public boolean isFeatureEnabled(String feature, LDUser user) {
+    public boolean isFeatureEnabled(String feature, LDContext context) {
         internalClient.flush();
         System.gc();
-        return internalClient.boolVariation(feature, user, false);
+        return internalClient.boolVariation(feature, context, false);
     }
 
     public DataSourceStatusProvider.Status getDataSourceStatus() {
