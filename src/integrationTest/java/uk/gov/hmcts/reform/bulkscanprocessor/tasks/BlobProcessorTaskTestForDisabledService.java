@@ -23,7 +23,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
     "containers.mappings[0].paymentsEnabled=false",
     "containers.mappings[0].enabled=false"
 })
-@Disabled
 public class BlobProcessorTaskTestForDisabledService extends ProcessorTestSuite {
 
     public static final String DOWNLOAD_PATH = "/var/tmp/download/blobs";
