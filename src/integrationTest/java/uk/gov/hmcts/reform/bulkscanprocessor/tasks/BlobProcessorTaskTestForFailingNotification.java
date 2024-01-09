@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
@@ -15,7 +14,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALI
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @IntegrationTest
-@Disabled
 public class BlobProcessorTaskTestForFailingNotification extends ProcessorTestSuite {
 
     @Test
