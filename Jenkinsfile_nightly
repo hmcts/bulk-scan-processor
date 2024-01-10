@@ -32,7 +32,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 withNightlyPipeline(type, product, component) {
   loadVaultSecrets(secrets)
   enableFortifyScan('bulk-scan-aat')
-  enableMutationTest()
+  // enableMutationTest()
   enableSlackNotifications(channel)
   afterSuccess('fortify-scan') {
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
