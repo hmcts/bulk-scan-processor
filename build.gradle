@@ -145,7 +145,7 @@ project.tasks['sonarqube'].dependsOn jacocoTestReport
 
 pitest {
   group = "Verification"
-  pitestVersion.set('1.5.1')
+  pitestVersion.set('1.15.0')
   junit5PluginVersion.set('0.15')
   testSourceSets = [sourceSets.test]
   mainSourceSets = [sourceSets.main]
