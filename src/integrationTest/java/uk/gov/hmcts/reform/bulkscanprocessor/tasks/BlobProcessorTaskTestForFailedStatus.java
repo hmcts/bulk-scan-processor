@@ -240,18 +240,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         // then
         errorWasSent(filenameForDuplicate, ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(envelopeRepository.findAll()).hasSize(1);
-
-        // start from BlobProcessorTaskTestForDisabledService
-        File pdf = new File(DOWNLOAD_PATH + SAMPLE_ZIP_FILE_NAME +  "1111002.pdf");
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf), "BULKSCAN", "bulkscan"))
-            .willReturn(ImmutableMap.of(
-                "1111002.pdf", DOCUMENT_URL2
-            ));
-        envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE);
-        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
-        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
-        // end from BlobProcessorTaskTestForDisabledService
     }
 
     @Test
@@ -307,6 +295,16 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         // upload metadata with zip_file_name value "1_24-06-2018-00-00-00.zip"
         uploadToBlobStorage(zipFilename, zipDir("zipcontents/ok"));
 
+        // start from BlobProcessorTaskTestForDisabledService
+        byte[] zipBytes = zipDir("zipcontents/ok");
+        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
+        File pdf = new File(DOWNLOAD_PATH + SAMPLE_ZIP_FILE_NAME +  "1111002.pdf");
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf), "BULKSCAN", "bulkscan"))
+            .willReturn(ImmutableMap.of(
+                "1111002.pdf", DOCUMENT_URL2
+            ));
+        // end from BlobProcessorTaskTestForDisabledService
+
         // when
         processor.processBlobs();
 
@@ -315,6 +313,12 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         fileWasDeleted(zipFilename);
         errorWasSent(zipFilename, ErrorCode.ERR_METAFILE_INVALID);
+
+        // start from BlobProcessorTaskTestForDisabledService
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
+        // end from BlobProcessorTaskTestForDisabledService
     }
 
 }
