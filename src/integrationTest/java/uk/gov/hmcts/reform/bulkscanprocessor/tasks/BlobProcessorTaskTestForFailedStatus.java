@@ -1,23 +1,29 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @IntegrationTest
 public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
 
+    //For BlobProcessorTaskTestForDisabledService
+    public static final String DOWNLOAD_PATH = "/var/tmp/download/blobs";
 
     @Test
     public void should_record_validation_failure_when_zip_does_not_contain_metadata_json() throws Exception {
@@ -218,8 +224,19 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
     public void should_reject_file_which_has_duplicate_dcn_number() throws Exception {
         // given
         byte[] zipBytes = zipDir("zipcontents/ok");
-
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
+
+        // start from BlobProcessorTaskTestForDisabledService
+        File pdf = new File(DOWNLOAD_PATH + SAMPLE_ZIP_FILE_NAME +  "1111002.pdf");
+        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf), "BULKSCAN", "bulkscan"))
+            .willReturn(ImmutableMap.of(
+                "1111002.pdf", DOCUMENT_URL2
+            ));
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE);
+        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
+        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
+        // end from BlobProcessorTaskTestForDisabledService
 
         // when
         processor.processBlobs();
