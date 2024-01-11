@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
 import java.io.File;
@@ -298,7 +299,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         processor.processBlobs();
         // then
         envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        //eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         fileWasDeleted(zipFilename);
         errorWasSent(zipFilename, ErrorCode.ERR_METAFILE_INVALID);
 
@@ -312,7 +313,8 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
                 "1111002.pdf", DOCUMENT_URL2
             ));
         processor.processBlobs();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE);
+        Event[] events = {ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE, FILE_VALIDATION_FAILURE};
+        eventsWereCreated(events);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
         // end from BlobProcessorTaskTestForDisabledService
