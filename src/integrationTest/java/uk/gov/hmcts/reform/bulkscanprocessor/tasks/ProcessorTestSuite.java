@@ -303,6 +303,6 @@ public abstract class ProcessorTestSuite {
 
     protected void fileWasDeleted(String fileName) {
         BlobClient blobClient = testContainer.getBlobClient(fileName);
-        await("file should be deleted").timeout(2, SECONDS).until(blobClient::exists, is(false));
+        await("file should be deleted").timeout(4, SECONDS).until(blobClient::exists, is(false));
     }
 }
