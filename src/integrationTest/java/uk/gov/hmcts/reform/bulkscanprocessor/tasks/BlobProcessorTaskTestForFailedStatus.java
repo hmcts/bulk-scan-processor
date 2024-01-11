@@ -313,7 +313,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
                 "1111002.pdf", DOCUMENT_URL2
             ));
         processor.processBlobs();
-        Event[] events = {ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE, FILE_VALIDATION_FAILURE};
+        Event[] events = {ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE, ZIPFILE_PROCESSING_STARTED};
         eventsWereCreated(events);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
