@@ -297,7 +297,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         processor.processBlobs();
         // then
         envelopeWasNotCreated();
-        //eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         fileWasDeleted(zipFilename);
         errorWasSent(zipFilename, ErrorCode.ERR_METAFILE_INVALID);
 
