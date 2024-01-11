@@ -1,14 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.OcrValidationException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputEnvelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 
-import java.io.File;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -300,21 +297,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
         fileWasDeleted(zipFilename);
         errorWasSent(zipFilename, ErrorCode.ERR_METAFILE_INVALID);
-
-
-        // start from BlobProcessorTaskTestForDisabledService
-        byte[] zipBytes = zipDir("zipcontents/ok");
-        uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
-        File pdf = new File(DOWNLOAD_PATH + SAMPLE_ZIP_FILE_NAME +  "1111002.pdf");
-        given(documentManagementService.uploadDocuments(ImmutableList.of(pdf), "BULKSCAN", "bulkscan"))
-            .willReturn(ImmutableMap.of(
-                "1111002.pdf", DOCUMENT_URL2
-            ));
-        processor.processBlobs();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE, ZIPFILE_PROCESSING_STARTED);
-        fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
-        errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
-        // end from BlobProcessorTaskTestForDisabledService
     }
 
 }
