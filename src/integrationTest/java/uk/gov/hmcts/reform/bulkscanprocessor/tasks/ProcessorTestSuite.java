@@ -260,10 +260,15 @@ public abstract class ProcessorTestSuite {
             );
     }
 
-    protected void eventsWereCreated(Event[] events) {
-        assertThat(processEventRepository.findAll()).hasSizeGreaterThan(0)
+    protected void eventsWereCreated(Event event1, Event event2, Event event3) {
+        assertThat(processEventRepository.findAll())
+            .hasSize(3)
             .extracting(e -> tuple(e.getContainer(), e.getEvent()))
-            .containsExactlyInAnyOrder(tuple(testContainer.getBlobContainerName(), events));
+            .containsExactlyInAnyOrder(
+                tuple(testContainer.getBlobContainerName(), event1),
+                tuple(testContainer.getBlobContainerName(), event2),
+                tuple(testContainer.getBlobContainerName(), event3)
+            );
     }
 
     protected void errorWasSent(String zipFileName, ErrorCode code) {
