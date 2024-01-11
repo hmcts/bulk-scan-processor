@@ -294,6 +294,14 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         String zipFilename = "1233_24-06-2018-00-00-00.zip";
         // upload metadata with zip_file_name value "1_24-06-2018-00-00-00.zip"
         uploadToBlobStorage(zipFilename, zipDir("zipcontents/ok"));
+        // when
+        processor.processBlobs();
+        // then
+        envelopeWasNotCreated();
+        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
+        fileWasDeleted(zipFilename);
+        errorWasSent(zipFilename, ErrorCode.ERR_METAFILE_INVALID);
+
 
         // start from BlobProcessorTaskTestForDisabledService
         byte[] zipBytes = zipDir("zipcontents/ok");
@@ -303,18 +311,7 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
             .willReturn(ImmutableMap.of(
                 "1111002.pdf", DOCUMENT_URL2
             ));
-        // end from BlobProcessorTaskTestForDisabledService
-
-        // when
         processor.processBlobs();
-
-        // then
-        envelopeWasNotCreated();
-        eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);
-        fileWasDeleted(zipFilename);
-        errorWasSent(zipFilename, ErrorCode.ERR_METAFILE_INVALID);
-
-        // start from BlobProcessorTaskTestForDisabledService
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, DISABLED_SERVICE_FAILURE);
         fileWasDeleted(SAMPLE_ZIP_FILE_NAME);
         errorWasSent(SAMPLE_ZIP_FILE_NAME, ErrorCode.ERR_SERVICE_DISABLED);
