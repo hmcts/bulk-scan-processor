@@ -47,7 +47,6 @@ import static com.jayway.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 
@@ -264,9 +263,7 @@ public abstract class ProcessorTestSuite {
     protected void eventsWereCreated(Event[] events) {
         assertThat(processEventRepository.findAll()).hasSizeGreaterThan(0)
             .extracting(e -> tuple(e.getContainer(), e.getEvent()))
-            .containsExactlyInAnyOrder(
-                tuple(testContainer.getBlobContainerName(), events)
-            );
+            .containsExactlyInAnyOrder(tuple(testContainer.getBlobContainerName(), events));
     }
 
     protected void errorWasSent(String zipFileName, ErrorCode code) {
