@@ -112,6 +112,10 @@ java:
           alias: idam.users.sscs.username
         - name: idam-users-sscs-password
           alias: idam.users.sscs.password
+        - name: launch-darkly-sdk-key
+          alias: LAUNCH_DARKLY_SDK_KEY
+        - name: launch-darkly-offline-mode
+          alias: LAUNCH_DARKLY_OFFLINE_MODE
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 servicebus:
   enabled: false

@@ -379,6 +379,9 @@ dependencies {
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.10.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
 
+  implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.0.2'
+  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.1.1'
+
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
