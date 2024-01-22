@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
@@ -26,7 +26,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
+@Validated
 @RestController
 @RequestMapping(path = "envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
 public class EnvelopeController {
@@ -120,8 +123,9 @@ public class EnvelopeController {
         content = @Content(schema = @Schema(implementation = EnvelopeListResponse.class))
     )
     public SearchResult deleteOneStaleEnvelope(
-        @RequestParam(name = "stale_time", required = false, defaultValue = "168") // a week
-            int staleTime,
+        @RequestParam(name = "stale_time", required = false, defaultValue = "168")
+        @Min(value = 168, message = "stale_time must be at least 168 hours (a week)")
+        int staleTime,
         @PathVariable UUID envelopeId
     ) {
         incompleteEnvelopesService.deleteIncompleteEnvelope(staleTime, envelopeId);
@@ -139,8 +143,9 @@ public class EnvelopeController {
         content = @Content(schema = @Schema(implementation = EnvelopeListResponse.class))
     )
     public SearchResult deleteAllStaleEnvelopes(
-        @RequestParam(name = "stale_time", required = false, defaultValue = "168") // a week
-            int staleTime
+        @RequestParam(name = "stale_time", required = false, defaultValue = "168")
+        @Min(value = 48, message = "stale_time must be at least 48 hours")
+        int staleTime
     ) {
         List<EnvelopeInfo> envelopeInfo = incompleteEnvelopesService.getIncompleteEnvelopes(staleTime);
         List<String> envelopeIds = envelopeInfo.stream().map(s -> s.envelopeId.toString()).collect(Collectors.toList());

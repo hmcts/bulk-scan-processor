@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
@@ -25,7 +26,13 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors.ErrorResponse;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors.FieldError;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.errors.ModelValidationError;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -118,6 +125,21 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Void> handleInternalException(Exception exception) {
         log.error(exception.getMessage(), exception);
         return status(INTERNAL_SERVER_ERROR).build();
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Map<String, String>> handleInternalException(ConstraintViolationException exception) {
+        log.error(exception.getMessage(), exception);
+        Map<String, String> errors = new HashMap<>();
+        Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
+
+        for (ConstraintViolation<?> violation : violations) {
+            String propertyPath = violation.getPropertyPath().toString();
+            String message = violation.getMessage();
+            errors.put(propertyPath, message);
+        }
+        return ResponseEntity.badRequest().body(errors);
     }
 
     @ExceptionHandler(PaymentRecordsException.class)
