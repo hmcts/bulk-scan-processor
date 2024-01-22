@@ -1,10 +1,16 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.time.LocalDateTime.now;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -14,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 public class IncompleteEnvelopesService {
 
     private final EnvelopeRepository envelopeRepository;
+    private static final Logger log = LoggerFactory.getLogger(IncompleteEnvelopesService.class);
 
     public IncompleteEnvelopesService(EnvelopeRepository envelopeRepository) {
         this.envelopeRepository = envelopeRepository;
@@ -33,4 +40,30 @@ public class IncompleteEnvelopesService {
             .collect(toList());
     }
 
+    @Transactional
+    public void deleteIncompleteEnvelope(int staleTimeHr, UUID envelopeToRemove) {
+        int rowsDeleted = envelopeRepository.deleteEnvelopesBefore(
+            now().minus(staleTimeHr, HOURS),
+            List.of(envelopeToRemove)
+        );
+        if (rowsDeleted == 0)
+            throw new EnvelopeNotFoundException("Envelope not removed, as it is not found/not stale");
+        log.info("{} row has been deleted: {}", rowsDeleted, envelopeToRemove);
+    }
+
+    @Transactional
+    public void deleteIncompleteEnvelopes(int staleTimeHr, List<String> envelopesToRemove) {
+        List<UUID> envelopeIds = envelopesToRemove.stream()
+            .map(UUID::fromString)
+            .collect(Collectors.toList());
+
+        if (!envelopeIds.isEmpty()) {
+            int rowsDeleted = envelopeRepository.deleteEnvelopesBefore(
+                now().minus(staleTimeHr, HOURS),
+                envelopeIds
+            );
+            log.info("{} rows have been deleted: {}", rowsDeleted, envelopesToRemove);
+        } else
+            log.info("No stale envelopes older than a week found");
+    }
 }

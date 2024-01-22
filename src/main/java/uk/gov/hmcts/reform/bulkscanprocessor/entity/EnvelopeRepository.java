@@ -92,14 +92,21 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 
     @Query("select e from Envelope e \n"
-            + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED'"
+        + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED'"
     )
     List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime);
 
+    @Modifying
+    @Query(value = "DELETE FROM envelopes e " +
+        "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED' AND e.id IN :envelopeIds",
+        nativeQuery = true)
+    int deleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime,
+                              @Param("envelopeIds") List<UUID> envelopeIds);
+
     @Query("select e from Envelope e \n"
-            + "WHERE e.container = :container "
-            + "AND (status = 'COMPLETED' OR status = 'NOTIFICATION_SENT') "
-            + "AND zipdeleted=false"
+        + "WHERE e.container = :container "
+        + "AND (status = 'COMPLETED' OR status = 'NOTIFICATION_SENT') "
+        + "AND zipdeleted=false"
     )
     List<Envelope> getCompleteEnvelopesFromContainer(
         @Param("container") String container
@@ -107,10 +114,10 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Envelope e SET e.classification = 'EXCEPTION', e.status = 'UPLOADED' \n"
-            + "WHERE e.id = :id "
-            + "AND e.container = :container "
-            + "AND e.classification = 'SUPPLEMENTARY_EVIDENCE' "
-            + "AND e.status = 'NOTIFICATION_SENT' "
+        + "WHERE e.id = :id "
+        + "AND e.container = :container "
+        + "AND e.classification = 'SUPPLEMENTARY_EVIDENCE' "
+        + "AND e.status = 'NOTIFICATION_SENT' "
     )
     int updateEnvelopeClassificationAndStatus(
         @Param("id") UUID id,
