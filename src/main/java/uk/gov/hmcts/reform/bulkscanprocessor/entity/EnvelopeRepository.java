@@ -97,8 +97,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime);
 
     @Modifying
-    @Query(value = "DELETE FROM envelopes e " +
-        "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED' AND e.id IN :envelopeIds",
+    @Query(value = "DELETE FROM envelopes e "
+        + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED' AND e.id IN :envelopeIds",
         nativeQuery = true)
     int deleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime,
                               @Param("envelopeIds") List<UUID> envelopeIds);

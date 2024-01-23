@@ -38,9 +38,7 @@ public class EnvelopeControllerTest {
     @MockBean
     private AuthService mockAuthService;
 
-    private final int DEFAULT_STALE_TIME = 168;
-    private final int INVALID_DEFAULT_STATE_TIME_SINGLE_ENVELOPE = 72;
-    private final int INVALID_DEFAULT_STATE_TIME_ALL_ENVELOPES = 1;
+    private int defaultStaleTime = 168;
     private final String testUuidOne = "1533e145-bb63-4e7a-9a59-b193cb878ea7";
     private final String testUuidTwo = "1533e145-bb63-4e7a-9a59-b193cb878ea8";
     private final String testUuidThree = "1533e145-bb63-4e7a-9a59-b193cb878ea9";
@@ -59,12 +57,12 @@ public class EnvelopeControllerTest {
     @Test
     void should_successfully_remove_stale_envelopes() throws Exception {
         given(mockIncompleteEnvelopeService
-                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(
+                  .deleteIncompleteEnvelopes(defaultStaleTime, List.of(
                       testUuidOne, testUuidTwo, testUuidThree
                   ))).willReturn(1);
         given(mockIncompleteEnvelopeService.getIncompleteEnvelopes(anyInt()))
             .willReturn(envelopeInfos);
-        performDeleteOneStaleEnvelopes(DEFAULT_STALE_TIME)
+        performDeleteOneStaleEnvelopes(defaultStaleTime)
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(3))
             // mockmvc does not support comparing entire lists, so check each item separately
@@ -76,8 +74,8 @@ public class EnvelopeControllerTest {
     @Test
     void should_fail_to_remove_all_stale_envelopes_when_invalid_stale_time() throws Exception {
         given(mockIncompleteEnvelopeService
-                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidOne))).willReturn(1);
-        performDeleteOneStaleEnvelopes(INVALID_DEFAULT_STATE_TIME_ALL_ENVELOPES)
+                  .deleteIncompleteEnvelopes(defaultStaleTime, List.of(testUuidOne))).willReturn(1);
+        performDeleteOneStaleEnvelopes(1)
             .andExpect(status().isBadRequest())
             .andExpect(content().string(containsString("stale_time must be at least 48 hours")));
     }
@@ -85,8 +83,8 @@ public class EnvelopeControllerTest {
     @Test
     void should_successfully_remove_stale_envelope() throws Exception {
         given(mockIncompleteEnvelopeService
-                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidOne))).willReturn(1);
-        performDeleteOneStaleEnvelope(DEFAULT_STALE_TIME, testUuidOne)
+                  .deleteIncompleteEnvelopes(defaultStaleTime, List.of(testUuidOne))).willReturn(1);
+        performDeleteOneStaleEnvelope(defaultStaleTime, testUuidOne)
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.data").value(testUuidOne));
@@ -95,16 +93,16 @@ public class EnvelopeControllerTest {
     @Test
     void should_return_not_found_exception_for_not_found_envelope() throws Exception {
         given(mockIncompleteEnvelopeService
-                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidOne))).willReturn(0);
-        performDeleteOneStaleEnvelope(DEFAULT_STALE_TIME, testUuidOne)
+                  .deleteIncompleteEnvelopes(defaultStaleTime, List.of(testUuidOne))).willReturn(0);
+        performDeleteOneStaleEnvelope(defaultStaleTime, testUuidOne)
             .andExpect(status().isNotFound());
     }
 
     @Test
     void should_fail_to_remove_stale_envelope_when_invalid_stale_time() throws Exception {
         given(mockIncompleteEnvelopeService
-                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidTwo))).willReturn(1);
-        performDeleteOneStaleEnvelope(INVALID_DEFAULT_STATE_TIME_SINGLE_ENVELOPE, testUuidTwo)
+                  .deleteIncompleteEnvelopes(defaultStaleTime, List.of(testUuidTwo))).willReturn(1);
+        performDeleteOneStaleEnvelope(72, testUuidTwo)
             .andExpect(status().isBadRequest())
             .andExpect(content().string(containsString("stale_time must be at least 168 hours (a week)")));
     }

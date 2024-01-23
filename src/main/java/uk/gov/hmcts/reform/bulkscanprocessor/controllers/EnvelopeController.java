@@ -128,8 +128,9 @@ public class EnvelopeController {
             int staleTime,
         @PathVariable UUID envelopeId
     ) {
-        if (incompleteEnvelopesService.deleteIncompleteEnvelopes(staleTime, List.of(envelopeId.toString())) == 0)
+        if (incompleteEnvelopesService.deleteIncompleteEnvelopes(staleTime, List.of(envelopeId.toString())) == 0) {
             throw new EnvelopeNotFoundException("Envelope not removed, as it is not found/not stale");
+        }
         return new SearchResult(List.of(envelopeId));
     }
 
