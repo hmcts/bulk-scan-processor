@@ -6,14 +6,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.AuthService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeRetrieverService;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.doNothing;
+import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,12 +40,52 @@ public class EnvelopeControllerTest {
 
     private final int DEFAULT_STALE_TIME = 168;
     private final int INVALID_DEFAULT_STATE_TIME_SINGLE_ENVELOPE = 72;
+    private final int INVALID_DEFAULT_STATE_TIME_ALL_ENVELOPES = 1;
     private final String testUuidOne = "1533e145-bb63-4e7a-9a59-b193cb878ea7";
+    private final String testUuidTwo = "1533e145-bb63-4e7a-9a59-b193cb878ea8";
+    private final String testUuidThree = "1533e145-bb63-4e7a-9a59-b193cb878ea9";
+    private final List<EnvelopeInfo> envelopeInfos = List.of(
+        new EnvelopeInfo("container", "file name",
+                         UUID.fromString(testUuidOne), Instant.parse("2024-01-18T15:31:45Z")
+        ),
+        new EnvelopeInfo("container two", "file name two",
+                         UUID.fromString(testUuidTwo), Instant.parse("2024-02-19T15:32:46Z")
+        ),
+        new EnvelopeInfo("container three", "file name three",
+                         UUID.fromString(testUuidThree), Instant.parse("2024-03-20T15:33:47Z")
+        )
+    );
+
+    @Test
+    void should_successfully_remove_stale_envelopes() throws Exception {
+        given(mockIncompleteEnvelopeService
+                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(
+                      testUuidOne, testUuidTwo, testUuidThree
+                  ))).willReturn(1);
+        given(mockIncompleteEnvelopeService.getIncompleteEnvelopes(anyInt()))
+            .willReturn(envelopeInfos);
+        performDeleteOneStaleEnvelopes(DEFAULT_STALE_TIME)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(3))
+            // mockmvc does not support comparing entire lists, so check each item separately
+            .andExpect(jsonPath("$.data", hasItem(testUuidOne)))
+            .andExpect(jsonPath("$.data", hasItem(testUuidTwo)))
+            .andExpect(jsonPath("$.data", hasItem(testUuidThree)));
+    }
+
+    @Test
+    void should_fail_to_remove_all_stale_envelopes_when_invalid_stale_time() throws Exception {
+        given(mockIncompleteEnvelopeService
+                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidOne))).willReturn(1);
+        performDeleteOneStaleEnvelopes(INVALID_DEFAULT_STATE_TIME_ALL_ENVELOPES)
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("stale_time must be at least 48 hours")));
+    }
 
     @Test
     void should_successfully_remove_stale_envelope() throws Exception {
-        doNothing().when(mockIncompleteEnvelopeService)
-            .deleteIncompleteEnvelope(DEFAULT_STALE_TIME, UUID.fromString(testUuidOne));
+        given(mockIncompleteEnvelopeService
+                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidOne))).willReturn(1);
         performDeleteOneStaleEnvelope(DEFAULT_STALE_TIME, testUuidOne)
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(1))
@@ -48,17 +93,29 @@ public class EnvelopeControllerTest {
     }
 
     @Test
+    void should_return_not_found_exception_for_not_found_envelope() throws Exception {
+        given(mockIncompleteEnvelopeService
+                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidOne))).willReturn(0);
+        performDeleteOneStaleEnvelope(DEFAULT_STALE_TIME, testUuidOne)
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     void should_fail_to_remove_stale_envelope_when_invalid_stale_time() throws Exception {
-        doNothing().when(mockIncompleteEnvelopeService)
-            .deleteIncompleteEnvelope(INVALID_DEFAULT_STATE_TIME_SINGLE_ENVELOPE,
-                                      UUID.fromString(testUuidOne));
-        performDeleteOneStaleEnvelope(INVALID_DEFAULT_STATE_TIME_SINGLE_ENVELOPE, testUuidOne)
+        given(mockIncompleteEnvelopeService
+                  .deleteIncompleteEnvelopes(DEFAULT_STALE_TIME, List.of(testUuidTwo))).willReturn(1);
+        performDeleteOneStaleEnvelope(INVALID_DEFAULT_STATE_TIME_SINGLE_ENVELOPE, testUuidTwo)
             .andExpect(status().isBadRequest())
             .andExpect(content().string(containsString("stale_time must be at least 168 hours (a week)")));
     }
 
     private ResultActions performDeleteOneStaleEnvelope(int staleTime, String envelopeId) throws Exception {
         return mockMvc.perform(delete("/envelopes/stale/{envelopeId}", envelopeId)
+                                   .param("stale_time", String.valueOf(staleTime)));
+    }
+
+    private ResultActions performDeleteOneStaleEnvelopes(int staleTime) throws Exception {
+        return mockMvc.perform(delete("/envelopes/stale/all")
                                    .param("stale_time", String.valueOf(staleTime)));
     }
 }

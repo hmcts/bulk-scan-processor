@@ -41,18 +41,7 @@ public class IncompleteEnvelopesService {
     }
 
     @Transactional
-    public void deleteIncompleteEnvelope(int staleTimeHr, UUID envelopeToRemove) {
-        int rowsDeleted = envelopeRepository.deleteEnvelopesBefore(
-            now().minus(staleTimeHr, HOURS),
-            List.of(envelopeToRemove)
-        );
-        if (rowsDeleted == 0)
-            throw new EnvelopeNotFoundException("Envelope not removed, as it is not found/not stale");
-        log.info("{} row has been deleted: {}", rowsDeleted, envelopeToRemove);
-    }
-
-    @Transactional
-    public void deleteIncompleteEnvelopes(int staleTimeHr, List<String> envelopesToRemove) {
+    public int deleteIncompleteEnvelopes(int staleTimeHr, List<String> envelopesToRemove) {
         List<UUID> envelopeIds = envelopesToRemove.stream()
             .map(UUID::fromString)
             .collect(Collectors.toList());
@@ -63,7 +52,10 @@ public class IncompleteEnvelopesService {
                 envelopeIds
             );
             log.info("{} rows have been deleted: {}", rowsDeleted, envelopesToRemove);
-        } else
+            return rowsDeleted;
+        } else {
             log.info("No stale envelopes older than a week found");
+            return 0;
+        }
     }
 }

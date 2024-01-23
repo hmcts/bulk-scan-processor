@@ -26,7 +26,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 
 @Validated
@@ -122,13 +121,15 @@ public class EnvelopeController {
         description = "Success",
         content = @Content(schema = @Schema(implementation = EnvelopeListResponse.class))
     )
+    @ApiResponse(responseCode = "404", description = "envelope not found")
     public SearchResult deleteOneStaleEnvelope(
         @RequestParam(name = "stale_time", required = false, defaultValue = "168")
         @Min(value = 168, message = "stale_time must be at least 168 hours (a week)")
-        int staleTime,
+            int staleTime,
         @PathVariable UUID envelopeId
     ) {
-        incompleteEnvelopesService.deleteIncompleteEnvelope(staleTime, envelopeId);
+        if (incompleteEnvelopesService.deleteIncompleteEnvelopes(staleTime, List.of(envelopeId.toString())) == 0)
+            throw new EnvelopeNotFoundException("Envelope not removed, as it is not found/not stale");
         return new SearchResult(List.of(envelopeId));
     }
 
@@ -145,7 +146,7 @@ public class EnvelopeController {
     public SearchResult deleteAllStaleEnvelopes(
         @RequestParam(name = "stale_time", required = false, defaultValue = "168")
         @Min(value = 48, message = "stale_time must be at least 48 hours")
-        int staleTime
+            int staleTime
     ) {
         List<EnvelopeInfo> envelopeInfo = incompleteEnvelopesService.getIncompleteEnvelopes(staleTime);
         List<String> envelopeIds = envelopeInfo.stream().map(s -> s.envelopeId.toString()).collect(Collectors.toList());
