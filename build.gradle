@@ -380,13 +380,6 @@ dependencies {
   implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.0.2'
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.1.1'
 
-  implementation("org.jetbrains.kotlinx:kotlinx-io:0.1.16") {
-    exclude group: 'org.jetbrains.kotlinx', module: 'kotlinx-io'
-  }
-
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-io:0.1.16") {
-    exclude group: 'org.jetbrains.kotlinx', module: 'kotlinx-coroutines-io'
-  }
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
