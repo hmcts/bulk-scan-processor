@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -23,7 +25,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.validation.constraints.Min;
 
+@Validated
 @RestController
 @RequestMapping(path = "envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
 public class EnvelopeController {
@@ -104,5 +109,49 @@ public class EnvelopeController {
         List<EnvelopeInfo> envelopes = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         return new SearchResult(envelopes);
+    }
+
+    @DeleteMapping(path = "/stale/{envelopeId}")
+    @Operation(
+        summary = "Remove one stale envelope",
+        description = "If an envelope is older than a certain period of time, remove it"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Success",
+        content = @Content(schema = @Schema(implementation = EnvelopeListResponse.class))
+    )
+    @ApiResponse(responseCode = "404", description = "envelope not found")
+    public SearchResult deleteOneStaleEnvelope(
+        @RequestParam(name = "stale_time", required = false, defaultValue = "168")
+        @Min(value = 168, message = "stale_time must be at least 168 hours (a week)")
+            int staleTime,
+        @PathVariable UUID envelopeId
+    ) {
+        if (incompleteEnvelopesService.deleteIncompleteEnvelopes(staleTime, List.of(envelopeId.toString())) == 0) {
+            throw new EnvelopeNotFoundException("Envelope not removed, as it is not found/not stale");
+        }
+        return new SearchResult(List.of(envelopeId));
+    }
+
+    @DeleteMapping(path = "stale/all")
+    @Operation(
+        summary = "Remove all stale envelopes",
+        description = "If an envelope is older than a certain period of time, remove it"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Success",
+        content = @Content(schema = @Schema(implementation = EnvelopeListResponse.class))
+    )
+    public SearchResult deleteAllStaleEnvelopes(
+        @RequestParam(name = "stale_time", required = false, defaultValue = "168")
+        @Min(value = 48, message = "stale_time must be at least 48 hours")
+            int staleTime
+    ) {
+        List<EnvelopeInfo> envelopeInfo = incompleteEnvelopesService.getIncompleteEnvelopes(staleTime);
+        List<String> envelopeIds = envelopeInfo.stream().map(s -> s.envelopeId.toString()).collect(Collectors.toList());
+        incompleteEnvelopesService.deleteIncompleteEnvelopes(staleTime, envelopeIds);
+        return new SearchResult(envelopeIds);
     }
 }
