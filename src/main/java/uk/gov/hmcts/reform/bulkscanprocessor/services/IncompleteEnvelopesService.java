@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.util.List;
@@ -19,10 +20,13 @@ import static java.util.stream.Collectors.toList;
 public class IncompleteEnvelopesService {
 
     private final EnvelopeRepository envelopeRepository;
+    private final ScannableItemRepository scannableItemRepository;
     private static final Logger log = LoggerFactory.getLogger(IncompleteEnvelopesService.class);
 
-    public IncompleteEnvelopesService(EnvelopeRepository envelopeRepository) {
+    public IncompleteEnvelopesService(EnvelopeRepository envelopeRepository,
+                                      ScannableItemRepository scannableItemRepository) {
         this.envelopeRepository = envelopeRepository;
+        this.scannableItemRepository = scannableItemRepository;
     }
 
     public List<EnvelopeInfo> getIncompleteEnvelopes(int staleTimeHr) {
@@ -46,6 +50,10 @@ public class IncompleteEnvelopesService {
             .collect(Collectors.toList());
 
         if (!envelopeIds.isEmpty()) {
+            // Remove foreign key link - if it exists
+            scannableItemRepository.deleteScannableItemsBy(envelopeIds);
+
+            // Remove envelope row
             int rowsDeleted = envelopeRepository.deleteEnvelopesBefore(
                 now().minus(staleTimeHr, HOURS),
                 envelopeIds
