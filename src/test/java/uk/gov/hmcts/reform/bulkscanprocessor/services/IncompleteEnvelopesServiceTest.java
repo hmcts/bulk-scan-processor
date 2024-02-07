@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
+import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.time.LocalDateTime;
@@ -28,10 +29,12 @@ class IncompleteEnvelopesServiceTest {
 
     @Mock
     private EnvelopeRepository envelopeRepository;
+    @Mock
+    private ScannableItemRepository scannableItemRepository;
 
     @BeforeEach
     void setUp() {
-        incompleteEnvelopesService = new IncompleteEnvelopesService(envelopeRepository);
+        incompleteEnvelopesService = new IncompleteEnvelopesService(envelopeRepository, scannableItemRepository);
     }
 
     @Test
@@ -73,6 +76,7 @@ class IncompleteEnvelopesServiceTest {
     @Test
     void should_delete_multiple_envelopes() {
         // given
+        given(scannableItemRepository.deleteScannableItemsBy(anyList())).willReturn(3);
         given(envelopeRepository.deleteEnvelopesBefore(any(), anyList())).willReturn(3);
 
         // when
