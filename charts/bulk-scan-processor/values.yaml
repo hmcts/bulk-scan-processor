@@ -25,6 +25,7 @@ java:
     STORAGE_URL: https://bulkscan{{ .Values.global.environment }}.blob.core.windows.net
     FLYWAY_URL: jdbc:postgresql://bulk-scan-processor-flexible-postgres-db-v15-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
     FLYWAY_USER: bulk_scanner
+    BULK_SCANNING_DB_PORT: "5432"
     FLYWAY_NOOP_STRATEGY: "true"
     PROCESS_PAYMENTS_ENABLED: "true"
     DELETE_REJECTED_FILES_ENABLED: "true"
@@ -62,7 +63,7 @@ java:
           alias: BULK_SCANNING_DB_PORT
         - name: s2s-secret
           alias: S2S_SECRET
-        - name: flyway-password
+        - name: processor-POSTGRES-PASS
           alias: flyway.password
         - name: envelopes-queue-send-shared-access-key-premium
           alias: QUEUE_ENVELOPE_SEND_ACCESS_KEY
