@@ -18,7 +18,6 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_P
 @IntegrationTest
 public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
 
-
     @Test
     public void should_record_validation_failure_when_zip_does_not_contain_metadata_json() throws Exception {
         // given
@@ -218,7 +217,6 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
     public void should_reject_file_which_has_duplicate_dcn_number() throws Exception {
         // given
         byte[] zipBytes = zipDir("zipcontents/ok");
-
         uploadToBlobStorage(SAMPLE_ZIP_FILE_NAME, zipBytes);
 
         // when
@@ -289,10 +287,8 @@ public class BlobProcessorTaskTestForFailedStatus extends ProcessorTestSuite {
         String zipFilename = "1233_24-06-2018-00-00-00.zip";
         // upload metadata with zip_file_name value "1_24-06-2018-00-00-00.zip"
         uploadToBlobStorage(zipFilename, zipDir("zipcontents/ok"));
-
         // when
         processor.processBlobs();
-
         // then
         envelopeWasNotCreated();
         eventsWereCreated(ZIPFILE_PROCESSING_STARTED, FILE_VALIDATION_FAILURE);

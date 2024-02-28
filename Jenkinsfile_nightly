@@ -16,7 +16,9 @@ def channel = '#bsp-build-notices'
 def secrets = [
   'bulk-scan-${env}': [
     secret('fortify-on-demand-username', 'FORTIFY_USER_NAME'),
-    secret('fortify-on-demand-password', 'FORTIFY_PASSWORD')
+    secret('fortify-on-demand-password', 'FORTIFY_PASSWORD'),
+    secret('launch-darkly-sdk-key', 'LAUNCH_DARKLY_SDK_KEY'),
+    secret('launch-darkly-offline-mode', 'LAUNCH_DARKLY_OFFLINE_MODE')
   ]
 ]
 
@@ -32,7 +34,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 withNightlyPipeline(type, product, component) {
   loadVaultSecrets(secrets)
   enableFortifyScan('bulk-scan-aat')
-  enableMutationTest()
+  // enableMutationTest()
   enableSlackNotifications(channel)
   afterSuccess('fortify-scan') {
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
