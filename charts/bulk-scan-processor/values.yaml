@@ -116,6 +116,14 @@ java:
           alias: LAUNCH_DARKLY_SDK_KEY
         - name: launch-darkly-offline-mode
           alias: LAUNCH_DARKLY_OFFLINE_MODE
+        - name: processor-POSTGRES-USER
+          alias: BULK_SCANNING_DB_USER_NAME
+        - name: processor-POSTGRES-DATABASE
+          alias: BULK_SCANNING_DB_NAME
+        - name: processor-POSTGRES-HOST
+          alias: BULK_SCANNING_DB_HOST
+        - name: processor-POSTGRES-PORT
+          alias: BULK_SCANNING_DB_PORT
   image: hmctspublic.azurecr.io/bulk-scan/processor:latest
 servicebus:
   enabled: false
