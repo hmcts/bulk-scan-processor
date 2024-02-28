@@ -25,7 +25,6 @@ java:
     STORAGE_URL: https://bulkscan{{ .Values.global.environment }}.blob.core.windows.net
     BULK_SCANNING_DB_USER_NAME: bulk_scanner@bulk-scan-processor-postgres-db-v11-{{ .Values.global.environment }}
     BULK_SCANNING_DB_NAME: bulk_scan
-    BULK_SCANNING_DB_HOST: bulk-scan-processor-postgres-db-v11-{{ .Values.global.environment }}.postgres.database.azure.com
     BULK_SCANNING_DB_PORT: "5432"
     FLYWAY_URL: jdbc:postgresql://bulk-scan-processor-postgres-db-v11-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
     FLYWAY_USER: bulk_scanner@bulk-scan-processor-postgres-db-v11-{{ .Values.global.environment }}
