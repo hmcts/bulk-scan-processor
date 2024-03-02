@@ -13,3 +13,4 @@ smtp_host = "smtp.office365.com"
 incomplete_envelopes_enabled = "true"
 
 process_payments_enabled = "false"
+deploy_single_server_db = 1

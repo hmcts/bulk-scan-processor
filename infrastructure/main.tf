@@ -29,6 +29,7 @@ data "azurerm_subnet" "postgres" {
 }
 
 module "bulk-scan-db-v11" {
+  count              = var.deploy_single_server_db
   source             = "git@github.com:hmcts/cnp-module-postgres?ref=postgresql_tf"
   product            = var.product
   component          = var.component
@@ -39,23 +40,6 @@ module "bulk-scan-db-v11" {
   postgresql_user    = var.postgresql_user
   postgresql_version = "11"
   subnet_id          = data.azurerm_subnet.postgres.id
-  sku_name           = "GP_Gen5_2"
-  sku_tier           = "GeneralPurpose"
-  common_tags        = var.common_tags
-  subscription       = var.subscription
-}
-
-# Staging DB to be used by AAT staging pod for functional tests
-module "bulk-scan-staging-db" {
-  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  name               = "${var.product}-${var.component}-staging"
-  product            = var.product
-  component          = var.component
-  location           = var.location_db
-  env                = var.env
-  database_name      = var.database_name
-  postgresql_user    = var.postgresql_user
-  postgresql_version = "11"
   sku_name           = "GP_Gen5_2"
   sku_tier           = "GeneralPurpose"
   common_tags        = var.common_tags
@@ -81,30 +65,35 @@ data "azurerm_key_vault" "reform_scan_key_vault" {
 
 # region DB secrets
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
+  count        = var.deploy_single_server_db
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "${var.component}-POSTGRES-USER"
   value        = module.bulk-scan-db-v11.user_name
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
+  count        = var.deploy_single_server_db
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "${var.component}-POSTGRES-PASS"
   value        = module.bulk-scan-db-v11.postgresql_password
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
+  count        = var.deploy_single_server_db
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "${var.component}-POSTGRES-HOST"
   value        = module.bulk-scan-db-v11.host_name
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
+  count        = var.deploy_single_server_db
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "${var.component}-POSTGRES-PORT"
   value        = module.bulk-scan-db-v11.postgresql_listen_port
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
+  count        = var.deploy_single_server_db
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "${var.component}-POSTGRES-DATABASE"
   value        = module.bulk-scan-db-v11.postgresql_database
@@ -113,41 +102,10 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 
 # Copy postgres password for flyway migration
 resource "azurerm_key_vault_secret" "flyway_password" {
+  count        = var.deploy_single_server_db
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "flyway-password"
   value        = module.bulk-scan-db-v11.postgresql_password
-}
-# endregion
-
-# region staging DB secrets
-resource "azurerm_key_vault_secret" "staging_db_user" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-user"
-  value        = module.bulk-scan-staging-db.user_name
-}
-
-resource "azurerm_key_vault_secret" "staging_db_password" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-password"
-  value        = module.bulk-scan-staging-db.postgresql_password
-}
-
-resource "azurerm_key_vault_secret" "staging_db_host" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-host"
-  value        = module.bulk-scan-staging-db.host_name
-}
-
-resource "azurerm_key_vault_secret" "staging_db_port" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-port"
-  value        = module.bulk-scan-staging-db.postgresql_listen_port
-}
-
-resource "azurerm_key_vault_secret" "staging_db_name" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-name"
-  value        = module.bulk-scan-staging-db.postgresql_database
 }
 # endregion
 
