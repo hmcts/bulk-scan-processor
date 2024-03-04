@@ -54,17 +54,17 @@ java:
           alias: LAUNCH_DARKLY_SDK_KEY
         - name: launch-darkly-offline-mode
           alias: LAUNCH_DARKLY_OFFLINE_MODE
-        - name: processor-POSTGRES-PASS
+        - name: processor-staging-db-password
           alias: BULK_SCANNING_DB_PASSWORD
-        - name: processor-POSTGRES-USER
+        - name: processor-staging-db-user
           alias: BULK_SCANNING_DB_USER_NAME
-        - name: processor-POSTGRES-DATABASE
+        - name: processor-staging-db-name
           alias: BULK_SCANNING_DB_NAME
-        - name: processor-POSTGRES-HOST
+        - name: processor-staging-db-host
           alias: BULK_SCANNING_DB_HOST
-        - name: processor-POSTGRES-PORT
+        - name: processor-staging-db-port
           alias: BULK_SCANNING_DB_PORT
-        - name: processor-POSTGRES-PASS
+        - name: processor-staging-db-password
           alias: flyway.password
   # Don't modify below here
   image: ${IMAGE_NAME}
