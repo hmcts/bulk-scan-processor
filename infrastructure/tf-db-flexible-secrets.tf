@@ -1,6 +1,6 @@
 # Postgres 15 flexible server store secrets in key vault
 locals {
-  flexible_secret_prefix         = "${var.component}-POSTGRES-FLEXIBLE"
+  flexible_secret_prefix         = "${var.component}-POSTGRES"
   flexible_secret_prefix_staging = "${var.component}-staging-db-flexible"
 
   flexible_secrets = [
