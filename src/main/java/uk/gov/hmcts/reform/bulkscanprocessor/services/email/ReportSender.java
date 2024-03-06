@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import javax.mail.internet.MimeMessage;
 
 @Component
 @ConditionalOnProperty(prefix = "spring.mail", name = "host")
@@ -29,7 +29,6 @@ public class ReportSender {
     public static final String EMAIL_SUBJECT = "Bulk Scan daily report";
     public static final String EMAIL_BODY = "This is an auto generated email. Do not respond to it.";
     public static final String ATTACHMENT_PREFIX = "Bulk-Scan-Daily-Report-";
-
     private final JavaMailSender mailSender;
     private final ReportsService reportsService;
     private final String from;
@@ -63,6 +62,7 @@ public class ReportSender {
     public void send() {
         try {
             MimeMessage msg = mailSender.createMimeMessage();
+
 
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
             helper.setFrom(from);

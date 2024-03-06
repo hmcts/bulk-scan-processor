@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeNotFoundExceptio
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.util.UUID;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 @Service
 public class EnvelopeFinaliserService {

@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 
 import java.util.List;
 import java.util.Optional;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import static java.util.stream.Collectors.toList;
 

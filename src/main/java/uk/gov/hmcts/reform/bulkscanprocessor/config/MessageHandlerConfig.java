@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @AutoConfigureAfter(ServiceBusHelpersConfiguration.class)
 @Configuration

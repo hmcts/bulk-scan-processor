@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 
 import java.util.UUID;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 @Service
 public class EnvelopeMarkAsDeletedService {

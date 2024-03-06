@@ -9,7 +9,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import javax.validation.ClockProvider;
+import jakarta.validation.ClockProvider;
 
 @TestConfiguration
 public class TestClockProvider {

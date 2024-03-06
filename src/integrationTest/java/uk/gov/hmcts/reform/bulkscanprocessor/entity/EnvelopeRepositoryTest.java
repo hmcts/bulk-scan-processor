@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Arrays.asList;

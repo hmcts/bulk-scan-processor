@@ -14,8 +14,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.time.LocalDate;
 import java.util.Properties;
-import javax.mail.Address;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Address;
+import jakarta.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;

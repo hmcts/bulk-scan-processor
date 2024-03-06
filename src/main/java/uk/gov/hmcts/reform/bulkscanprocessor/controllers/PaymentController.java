@@ -22,7 +22,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.payment.PaymentService;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentResponse;
 

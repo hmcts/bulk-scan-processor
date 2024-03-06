@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.0'
   id 'org.flywaydb.flyway' version '9.15.1'
-  id 'org.springframework.boot' version '2.7.2'
+  id 'org.springframework.boot' version '3.2.3'
   id 'org.owasp.dependencycheck' version '8.1.0'
   id 'com.github.ben-manes.versions' version '0.46.0'
   id 'org.sonarqube' version '4.0.0.2929'
@@ -230,77 +230,77 @@ def versions = [
   apiguardian     : '1.1.2'
 ]
 
-dependencyManagement {
-  dependencies {
-    // CVE-2018-10237 - Unbounded memory allocation
-    dependencySet(group: 'com.google.guava', version: '31.1-jre') {
-      entry 'guava'
-    }
-    // CVE-2021-22044
-    dependencySet(group: 'org.springframework.cloud', version: '3.1.6') {
-      entry 'spring-cloud-starter-openfeign'
-    }
-    // CVE-2022-22970, CVE-2022-22971
-    dependencySet(group: 'org.springframework', version: '5.3.25') {
-      entry 'spring-aop'
-      entry 'spring-aspects'
-      entry 'spring-beans'
-      entry 'spring-context'
-      entry 'spring-context-support'
-      entry 'spring-core'
-      entry 'spring-expression'
-      entry 'spring-jcl'
-      entry 'spring-jdbc'
-      entry 'spring-orm'
-      entry 'spring-tx'
-      entry 'spring-web'
-      entry 'spring-webmvc'
-    }
-    dependencySet(group: 'org.apache.logging.log4j', version: '2.20.0') {
-      entry 'log4j-api'
-      entry 'log4j-to-slf4j'
-    }
-    //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.72') {
-      entry 'tomcat-embed-core'
-      entry 'tomcat-embed-websocket'
-    }
-    // CVE-2020-36518
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.13.4.2') {
-      entry 'jackson-databind'
-    }
-    // CVE-2021-42550
-    dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
-      entry 'logback-classic'
-    }
-    //CVE-2022-24823
-    dependencySet(group: 'io.netty', version: '4.1.89.Final') {
-      entry 'netty-buffer'
-      entry 'netty-codec'
-      entry 'netty-codec-dns'
-      entry 'netty-codec-http'
-      entry 'netty-codec-http2'
-      entry 'netty-codec-socks'
-      entry 'netty-common'
-      entry 'netty-handler'
-      entry 'netty-handler-proxy'
-      entry 'netty-resolver'
-      entry 'netty-resolver-dns'
-      entry 'netty-resolver-dns-classes-macos'
-      entry 'netty-resolver-dns-native-macos'
-      entry 'netty-transport'
-      entry 'netty-transport-classes-epoll'
-      entry 'netty-transport-classes-kqueue'
-      entry 'netty-transport-native-epoll'
-      entry 'netty-transport-native-kqueue'
-      entry 'netty-transport-native-unix-common'
-    }
-    // CVE-2022-25857
-    dependencySet(group: 'org.yaml', version: '1.33') {
-      entry 'snakeyaml'
-    }
-  }
-}
+//dependencyManagement {
+//  dependencies {
+//    // CVE-2018-10237 - Unbounded memory allocation
+//    dependencySet(group: 'com.google.guava', version: '31.1-jre') {
+//      entry 'guava'
+//    }
+//    // CVE-2021-22044
+//    dependencySet(group: 'org.springframework.cloud', version: '3.1.6') {
+//      entry 'spring-cloud-starter-openfeign'
+//    }
+//    // CVE-2022-22970, CVE-2022-22971
+//    dependencySet(group: 'org.springframework', version: '5.3.25') {
+//      entry 'spring-aop'
+//      entry 'spring-aspects'
+//      entry 'spring-beans'
+//      entry 'spring-context'
+//      entry 'spring-context-support'
+//      entry 'spring-core'
+//      entry 'spring-expression'
+//      entry 'spring-jcl'
+//      entry 'spring-jdbc'
+//      entry 'spring-orm'
+//      entry 'spring-tx'
+//      entry 'spring-web'
+//      entry 'spring-webmvc'
+//    }
+//    dependencySet(group: 'org.apache.logging.log4j', version: '2.20.0') {
+//      entry 'log4j-api'
+//      entry 'log4j-to-slf4j'
+//    }
+//    //CVE-2022-23181
+//    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.72') {
+//      entry 'tomcat-embed-core'
+//      entry 'tomcat-embed-websocket'
+//    }
+//    // CVE-2020-36518
+//    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.13.4.2') {
+//      entry 'jackson-databind'
+//    }
+//    // CVE-2021-42550
+//    dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
+//      entry 'logback-classic'
+//    }
+//    //CVE-2022-24823
+//    dependencySet(group: 'io.netty', version: '4.1.89.Final') {
+//      entry 'netty-buffer'
+//      entry 'netty-codec'
+//      entry 'netty-codec-dns'
+//      entry 'netty-codec-http'
+//      entry 'netty-codec-http2'
+//      entry 'netty-codec-socks'
+//      entry 'netty-common'
+//      entry 'netty-handler'
+//      entry 'netty-handler-proxy'
+//      entry 'netty-resolver'
+//      entry 'netty-resolver-dns'
+//      entry 'netty-resolver-dns-classes-macos'
+//      entry 'netty-resolver-dns-native-macos'
+//      entry 'netty-transport'
+//      entry 'netty-transport-classes-epoll'
+//      entry 'netty-transport-classes-kqueue'
+//      entry 'netty-transport-native-epoll'
+//      entry 'netty-transport-native-kqueue'
+//      entry 'netty-transport-native-unix-common'
+//    }
+//    // CVE-2022-25857
+//    dependencySet(group: 'org.yaml', version: '1.33') {
+//      entry 'snakeyaml'
+//    }
+//  }
+//}
 
 repositories {
   mavenLocal()
@@ -318,7 +318,7 @@ ext.libraries = [
     "org.apiguardian:apiguardian-api:${versions.apiguardian}"
   ]
 ]
-ext["rest-assured.version"] = '4.3.0'
+ext["rest-assured.version"] = '5.4.0'
 
 dependencies {
 
@@ -341,6 +341,10 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
 
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.1.0'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '13.1'
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '13.1'
+
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.15.0'
@@ -349,6 +353,12 @@ dependencies {
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.21.1'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
+
+  implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
+  implementation group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
+  implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging

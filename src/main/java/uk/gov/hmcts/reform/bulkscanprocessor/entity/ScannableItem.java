@@ -2,30 +2,29 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
+//import org.hibernate.annotations.Type;
+//import org.hibernate.annotations.TypeDef;
+//import org.hibernate.annotations.TypeDefs;
+import jakarta.persistence.*;
+//import org.hibernate.annotations.JdbcTypeCode;
+//import org.hibernate.type.SqlTypes;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
 import java.time.Instant;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+
 
 @Entity
 @Table(name = "scannable_items")
-@TypeDefs({
-    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class),
-    @TypeDef(name = "string-array", typeClass = StringArrayType.class)
+//@TypeDefs({
+//    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class),
+//    @TypeDef(name = "string-array", typeClass = StringArrayType.class)
+//})
+
+@Converts({
+    @Convert(attributeName = "jsonb", converter = JsonBinaryType.class),
+    @Convert(attributeName = "string-array", converter = StringArrayType.class)
 })
 public class ScannableItem implements EnvelopeAssignable {
 
@@ -45,7 +44,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private Instant nextActionDate;
 
-    @Type(type = "jsonb")
+    @Convert(attributeName = "jsonb", converter = JsonBinaryType.class)
     @Column(name = "ocrData", columnDefinition = "jsonb")
     private OcrData ocrData;
 
@@ -64,7 +63,7 @@ public class ScannableItem implements EnvelopeAssignable {
     @JoinColumn(name = "envelope_id", nullable = false)
     private Envelope envelope;
 
-    @Type(type = "string-array")
+    @Convert(attributeName = "string-array", converter = StringArrayType.class)
     @Column(name = "ocrValidationWarnings", columnDefinition = "varchar[]")
     private String[] ocrValidationWarnings;
 

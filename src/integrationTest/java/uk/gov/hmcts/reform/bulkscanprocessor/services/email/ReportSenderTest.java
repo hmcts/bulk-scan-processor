@@ -6,7 +6,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.mail.javamail.JavaMailSender;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;

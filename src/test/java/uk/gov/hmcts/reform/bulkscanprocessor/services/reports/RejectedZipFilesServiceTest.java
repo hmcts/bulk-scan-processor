@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.reports.RejectedZipFileRepos
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import javax.validation.ClockProvider;
+import jakarta.validation.ClockProvider;
 
 public class EnvelopeCountSummaryReportListResponse {
 

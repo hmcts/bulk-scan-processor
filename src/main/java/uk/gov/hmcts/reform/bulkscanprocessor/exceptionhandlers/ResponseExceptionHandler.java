@@ -38,7 +38,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ResponseExceptionHandler.class);
 
-    @Override
+
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
         MethodArgumentNotValidException exception,
         HttpHeaders headers,
