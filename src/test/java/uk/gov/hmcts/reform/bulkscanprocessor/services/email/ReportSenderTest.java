@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 
 import com.icegreen.greenmail.util.ServerSetupTest;
+import jakarta.mail.Address;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.Multipart;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +16,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.time.LocalDate;
 import java.util.Properties;
-import jakarta.mail.Address;
-import jakarta.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -70,7 +70,7 @@ class ReportSenderTest {
         assertThat(mainMultipart.getBodyPart(0)).isEqualTo(ReportSender.EMAIL_BODY);
         //assertThat(msg.getAttachmentList()).hasSize(1);
         LocalDate yesterday = LocalDate.now().minusDays(1);
-       // assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + yesterday + ".csv");
+        //assertThat(msg.getAttachmentList().get(0).getName()).isEqualTo(ReportSender.ATTACHMENT_PREFIX + yesterday + ".csv");
 
         verify(reportsService).getZipFilesSummary(yesterday, null, null);
     }
