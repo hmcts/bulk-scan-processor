@@ -31,12 +31,13 @@ public class JmsQueueSendHelper {
             jmsMessage,
             new MessagePostProcessor() {
                 @Override
-                public Message postProcessMessage(Message message) throws JMSException {
+                public jakarta.jms.Message postProcessMessage(jakarta.jms.Message message) throws jakarta.jms.JMSException {
                     message.setJMSMessageID(msg.getMsgId());
                     message.setStringProperty("contentType", "application/json");
                     message.setStringProperty("subject", msg.getLabel());
                     return message;
                 }
+
             }
         );
     }

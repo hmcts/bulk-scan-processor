@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 @Service
 @ConditionalOnExpression("${jms.enabled}")

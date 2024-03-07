@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config.jms;
 
-import org.apache.qpid.jms.JmsConnectionFactory;
-import org.apache.qpid.jms.policy.JmsDefaultRedeliveryPolicy;
+import jakarta.jms.ConnectionFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.RedeliveryPolicy;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +20,6 @@ import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.Session;
 
 @Configuration
@@ -53,14 +52,14 @@ public class JmsQueueClientConfig {
     @Bean
     public ConnectionFactory processorJmsConnectionFactory(@Value("${jms.application-name}") final String clientId) {
         String connection = String.format(amqpConnectionStringTemplate, namespace, idleTimeout);
-        JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
-        jmsConnectionFactory.setUsername(username);
-        jmsConnectionFactory.setPassword(password);
-        JmsDefaultRedeliveryPolicy jmsDefaultRedeliveryPolicy = new JmsDefaultRedeliveryPolicy();
-        jmsDefaultRedeliveryPolicy.setMaxRedeliveries(3);
-        jmsConnectionFactory.setRedeliveryPolicy(jmsDefaultRedeliveryPolicy);
-        jmsConnectionFactory.setClientID(clientId);
-        return new CachingConnectionFactory(jmsConnectionFactory);
+        ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(connection);
+        activeMQConnectionFactory.setUserName(username);
+        activeMQConnectionFactory.setPassword(password);
+        RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
+        redeliveryPolicy.setMaximumRedeliveries(3);
+        activeMQConnectionFactory.setRedeliveryPolicy(redeliveryPolicy);
+        activeMQConnectionFactory.setClientID(clientId);
+        return new CachingConnectionFactory(activeMQConnectionFactory);
     }
 
     @Bean(name = "envelopes-jms-template")
@@ -98,12 +97,12 @@ public class JmsQueueClientConfig {
     public static class CustomMessageConverter implements MessageConverter {
 
         @Override
-        public Message toMessage(Object object, Session session) throws JMSException, MessageConversionException {
+        public jakarta.jms.Message toMessage(Object object, jakarta.jms.Session session) throws jakarta.jms.JMSException, MessageConversionException {
             return session.createTextMessage(object.toString());
         }
 
         @Override
-        public Object fromMessage(Message message) throws MessageConversionException {
+        public Object fromMessage(jakarta.jms.Message message) throws jakarta.jms.JMSException, MessageConversionException {
             return message;
         }
     }
