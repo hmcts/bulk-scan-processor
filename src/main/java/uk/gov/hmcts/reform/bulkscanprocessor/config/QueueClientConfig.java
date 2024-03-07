@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotification
 
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
+@ConditionalOnExpression("!${jms.enabled}")
 public class QueueClientConfig {
     public static final Logger log = LoggerFactory.getLogger(QueueClientConfig.class);
     public static final String CONNECTION_STR_FORMAT =

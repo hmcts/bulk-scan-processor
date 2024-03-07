@@ -1,0 +1,261 @@
+server:
+  port: 8581
+
+management:
+  endpoint:
+    health:
+      show-details: always
+      group:
+        readiness:
+          include: db
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health, info, idam-config-status
+  health:
+    mail:
+      enabled: false
+
+# liveness alert settings depend on application name, if it is changed alert configuration must also be adjusted
+# https://github.com/hmcts/bulk-scan-shared-infrastructure/blob/master/liveness-alert.tf
+spring:
+  application:
+    name: Bulk Scan Processor
+  config:
+    import: "optional:configtree:/mnt/secrets/bulk-scan/"
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${BULK_SCANNING_DB_HOST:localhost}:${BULK_SCANNING_DB_PORT:5435}/${BULK_SCANNING_DB_NAME:bulkscans}${BULK_SCANNING_DB_CONN_OPTIONS:}
+    username: ${BULK_SCANNING_DB_USER_NAME:bulkscans}
+    password: ${BULK_SCANNING_DB_PASSWORD:}
+    properties:
+      charSet: UTF-8
+    hikari:
+      minimumIdle: 2
+      maximumPoolSize: 10
+      idleTimeout: 10000
+      poolName: BulkScanHikariCP
+      maxLifetime: 7200000
+      connectionTimeout: 30000
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration,org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        jdbc:
+          lob:
+            # silence the 'wall-of-text' - unnecessary exception throw about blob types
+            non_contextual_creation: true
+  mail:
+    host: ${SMTP_HOST}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: true
+
+# setting env vars + defaults as env vars will be overridden otherwise
+monitoring:
+  incomplete-envelopes:
+    cron: ${INCOMPLETE_ENVELOPES_TASK_CRON:0 */15 * * * *}
+    enabled: ${INCOMPLETE_ENVELOPES_TASK_ENABLED:true}
+    stale-after: PT1H #ISO-8601
+  no-new-envelopes:
+    enabled: ${NO_NEW_ENVELOPES_TASK_ENABLED}
+
+reports:
+  cron: ${REPORTS_CRON:0 0 6 ? * *}
+  recipients: ${REPORTS_RECIPIENTS:}
+
+info:
+  app:
+    name: Bulk Scan Processor
+    description: Ingest scanned documents.
+
+storage:
+  account_name: ${STORAGE_ACCOUNT_NAME:bulkscansandbox}
+  key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
+  blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
+  blob_copy_timeout_in_millis: ${BLOB_COPY_TIMEOUT_IN_MILLIS:30000}
+  blob_copy_polling_delay_in_millis: ${BLOB_COPY_POLLING_DELAY_IN_MILLIS:500}
+  blob_selected_container: ${STORAGE_BLOB_SELECTED_CONTAINER}
+  blob_lease_acquire_delay_in_seconds: ${LEASE_ACQUIRE_DELAY_IN_SECONDS}
+
+accesstoken:
+  serviceConfig:
+    - serviceName: sscs
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: bulkscan
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: bulkscanauto
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: probate
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: divorce
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: finrem
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: cmc
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: publiclaw
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: privatelaw
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: nfd
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+
+containers:
+  mappings:
+    - container: sscs
+      jurisdiction: SSCS
+      poBoxes:
+        - 12626
+        - 13150
+      ocrValidationUrl: ${OCR_VALIDATION_URL_SSCS}
+    - container: probate
+      jurisdiction: PROBATE
+      poBoxes:
+        - 12625
+        - 12624
+      ocrValidationUrl: ${OCR_VALIDATION_URL_PROBATE}
+      paymentsEnabled: true
+    - container: divorce
+      jurisdiction: DIVORCE
+      poBoxes:
+        - 12706
+      ocrValidationUrl: ${OCR_VALIDATION_URL_DIVORCE}
+      paymentsEnabled: true
+    - container: finrem
+      jurisdiction: DIVORCE
+      poBoxes:
+        - 12746
+      ocrValidationUrl: ${OCR_VALIDATION_URL_FINREM}
+      paymentsEnabled: true
+    - container: cmc
+      jurisdiction: CMC
+      poBoxes:
+        - 12747
+    - container: bulkscan
+      jurisdiction: BULKSCAN
+      poBoxes:
+        - BULKSCANPO
+        - BULKSCANPO2
+      ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
+      paymentsEnabled: true
+    - container: bulkscanauto
+      jurisdiction: BULKSCAN
+      poBoxes:
+        - BULKSCANPO
+      ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
+      paymentsEnabled: true
+    - container: publiclaw
+      jurisdiction: PUBLICLAW
+      poBoxes:
+        - 12879
+      paymentsEnabled: false
+    - container: privatelaw
+      jurisdiction: PRIVATELAW
+      poBoxes:
+        - 13235
+      paymentsEnabled: false
+      enabled: ${PRIVATELAW_ENABLED:false}
+      ocrValidationUrl: ${OCR_VALIDATION_URL_PRIVATELAW}
+    - container: nfd
+      jurisdiction: DIVORCE
+      poBoxes:
+        - 13226
+      ocrValidationUrl: ${OCR_VALIDATION_URL_NFD}
+      paymentsEnabled: true
+
+# clients region
+
+idam:
+  s2s-auth:
+    url: ${S2S_URL:http://localhost:4552}
+    secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
+    name: ${S2S_NAME:bulk_scan_processor}
+  client:
+    id: 'bsp'
+    secret: ${IDAM_CLIENT_SECRET:123456}
+    redirect_uri: http://localhost/receiver
+    cache:
+      refresh-before-expire-in-sec: 300
+
+case_document_am:
+  url: ${CDAM_URL:http://localhost:4455}
+
+tmp-folder-path-for-download: "/var/tmp/download/blobs"
+# end of clients region
+
+scheduling:
+  pool: ${SCHEDULING_POOL:10}
+  lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
+  task:
+    # 1 - scan storage for new envelopes and process them
+    scan:
+      delay: ${SCAN_DELAY:30000} # In milliseconds
+      enabled: ${SCAN_ENABLED:false}
+    # 2 - upload all documents for successfully scanned envelopes
+    upload-documents:
+      delay: ${UPLOAD_TASK_DELAY} # In milliseconds
+      enabled: ${UPLOAD_TASK_ENABLED}
+      max_tries: ${UPLOAD_MAX_TRIES:5}
+    # 3 - send notification to orchestrator once all documents are uploaded
+    notifications_to_orchestrator:
+      delay: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY:30000} # in ms
+      enabled: ${NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED:false}
+    # 4 - delete completed files by orchestrator (message is received whenever envelope has been processed by it)
+    delete-complete-files:
+      enabled: ${DELETE_COMPLETE_FILES_ENABLED}
+      cron: ${DELETE_COMPLETE_FILES_CRON}
+
+    delete-rejected-files:
+      enabled: ${DELETE_REJECTED_FILES_ENABLED:false}
+      cron: ${DELETE_REJECTED_FILES_CRON}
+      ttl: ${DELETE_REJECTED_FILES_TTL}
+
+envelope-access:
+  mappings:
+    - jurisdiction: SSCS
+      readService: sscs
+    - jurisdiction: BULKSCAN
+      readService: bulk_scan_processor_tests
+
+flyway:
+  noop: false
+
+process-payments:
+  enabled: ${PROCESS_PAYMENTS_ENABLED:true}
+
+ocr-validation-max-retries: 2
+ocr-validation-delay-retry-sec: 300
+
+notification-stale-timeout-hr: ${NOTIFICATION_STALE_TIMEOUT_HR}
+
+actions:
+  api-key: ${ACTIONS_API_KEY}
+
+jms:
+  # JMS Configuration for local dev
+  application-name: BulkScanProcessorServiceDev
+  enabled: ${JMS_ENABLED:true}
+  namespace: ${JMS_NAMESPACE:5672}
+  amqp-connection-string-template: ${JMS_AMQP_CONNECTION_TEMPLATE:amqp://localhost:%1s?amqp.idleTimeout=%2d}
+  username: ${JMS_USERNAME:admin}
+  password: ${JMS_PASSWORD:admin}
+  receiveTimeout: ${JMS_RECEIVE_TIMEOUT:30000}
+  idleTimeout: ${JMS_IDLE_TIMEOUT:30000}
+
+launchdarkly:
+  sdk-key: ${LAUNCH_DARKLY_SDK_KEY:XXXXX}
+  offline-mode: ${LAUNCH_DARKLY_OFFLINE_MODE:false}

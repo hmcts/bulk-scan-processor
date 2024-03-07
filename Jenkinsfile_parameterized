@@ -7,6 +7,8 @@ def channel = '#bsp-build-notices'
 def combinedSecrets = [
   'bulk-scan-${env}': [
     secret('storage-account-primary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+    secret('launch-darkly-sdk-key', 'LAUNCH_DARKLY_SDK_KEY'),
+    secret('launch-darkly-offline-mode', 'LAUNCH_DARKLY_OFFLINE_MODE')
   ],
   's2s-${env}': [
     // to be removed later

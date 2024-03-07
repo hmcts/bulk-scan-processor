@@ -38,6 +38,8 @@ spring:
       poolName: BulkScanHikariCP
       maxLifetime: 7200000
       connectionTimeout: 30000
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration,org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration
   jpa:
     hibernate:
       naming:
@@ -141,6 +143,7 @@ containers:
       jurisdiction: PROBATE
       poBoxes:
         - 12625
+        - 12624
       ocrValidationUrl: ${OCR_VALIDATION_URL_PROBATE}
       paymentsEnabled: true
     - container: divorce
@@ -259,3 +262,10 @@ notification-stale-timeout-hr: ${NOTIFICATION_STALE_TIMEOUT_HR}
 
 actions:
   api-key: ${ACTIONS_API_KEY}
+
+jms:
+  enabled: ${JMS_ENABLED:false}
+
+launchdarkly:
+  sdk-key: ${LAUNCH_DARKLY_SDK_KEY:XXXXX}
+  offline-mode: ${LAUNCH_DARKLY_OFFLINE_MODE:false}

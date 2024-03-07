@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -16,6 +17,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendH
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
+@ConditionalOnExpression("!${jms.enabled}")
 public class ErrorNotificationSender {
     private static final Logger log = LoggerFactory.getLogger(ErrorNotificationSender.class);
 

@@ -26,10 +26,13 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.getEnvelopeFromMetafile;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.COVERSHEET;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.SSCS1;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype.WILL;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.CHERISHED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FORENSIC_SHEETS;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.FORM;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.IHT;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.OTHER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.PPS_LEGAL_STATEMENT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType.SUPPORTING_DOCUMENTS;
 
 class EnvelopeMapperTest {
 
@@ -75,23 +78,33 @@ class EnvelopeMapperTest {
             dbEnvelope,
             CHERISHED,
             OTHER,
+            DocumentType.WILL,
             OTHER,
-            OTHER,
-            OTHER,
+            DocumentType.WILL,
             FORM,
             DocumentType.COVERSHEET,
-            FORM
+            FORM,
+            SUPPORTING_DOCUMENTS,
+            FORENSIC_SHEETS,
+            IHT,
+            PPS_LEGAL_STATEMENT,
+            PPS_LEGAL_STATEMENT
         );
         assertDocumentSubTypes(
             dbEnvelope,
             null,
             null,
-            InputDocumentType.WILL.toString(),
+            "Copy Will",
             InputDocumentType.COVERSHEET.toString(),
-            WILL,
+            null,
             SSCS1,
             null,
-            "PERSONAL"
+            "PERSONAL",
+            "PA11",
+            "Will",
+            "205",
+            null,
+            null
         );
     }
 
@@ -219,8 +232,6 @@ class EnvelopeMapperTest {
                     switch (documentSubtype) {
                         case SSCS1:
                             return InputDocumentType.SSCS1;
-                        case WILL:
-                            return InputDocumentType.WILL;
                         case COVERSHEET:
                             return InputDocumentType.COVERSHEET;
                         default:
@@ -231,6 +242,20 @@ class EnvelopeMapperTest {
                 return InputDocumentType.COVERSHEET;
             case FORM:
                 return InputDocumentType.FORM;
+            case WILL:
+                return InputDocumentType.WILL;
+            case SUPPORTING_DOCUMENTS:
+                return InputDocumentType.SUPPORTING_DOCUMENTS;
+            case FORENSIC_SHEETS:
+                return InputDocumentType.FORENSIC_SHEETS;
+            case IHT:
+                return InputDocumentType.IHT;
+            case PPS_LEGAL_STATEMENT:
+                return InputDocumentType.PPS_LEGAL_STATEMENT;
+            /*
+                no case for PPS Legal Statement without apostrophe as we can't differentiate between the two
+                going backwards from DocumentType to InputDocumentType
+            */
             default:
                 throw new AssertionError(
                     String.format("Expected a valid document type but got: %s", documentType)

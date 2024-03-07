@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -45,6 +46,16 @@ public final class EnvelopeValidator {
             "SSCS", InputDocumentType.SSCS1
         );
 
+    private static final String probateJurisdiction = "PROBATE";
+    private static final Map<InputDocumentType, List<String>> jurisdictionSpecificDocumentTypes =
+        Map.of(InputDocumentType.WILL, singletonList(probateJurisdiction),
+               InputDocumentType.IHT, singletonList(probateJurisdiction),
+               InputDocumentType.FORENSIC_SHEETS, singletonList(probateJurisdiction),
+               InputDocumentType.SUPPORTING_DOCUMENTS, List.of(probateJurisdiction, "BULKSCAN"),
+               InputDocumentType.PPS_LEGAL_STATEMENT, singletonList(probateJurisdiction),
+               InputDocumentType.PPS_LEGAL_STATEMENT_WITHOUT_APOSTROPHE, singletonList(probateJurisdiction)
+        );
+
     private static final Map<Classification, List<InputDocumentType>> disallowedDocumentTypes =
         Map.of(
             Classification.EXCEPTION, emptyList(),
@@ -52,6 +63,34 @@ public final class EnvelopeValidator {
             Classification.SUPPLEMENTARY_EVIDENCE, asList(InputDocumentType.FORM, InputDocumentType.SSCS1),
             Classification.SUPPLEMENTARY_EVIDENCE_WITH_OCR, emptyList()
         );
+
+    /**
+     * Assert envelope contains only scannable items of types that are allowed for the envelope's jurisdiction.
+     * Otherwise, throws an exception.
+     *
+     * @param envelope to assert against
+     */
+    public void assertEnvelopeContainsDocsOfAllowedTypesForService(InputEnvelope envelope) {
+        List<String> disallowedDocTypesFound =
+            envelope
+                .scannableItems
+                .stream()
+                .filter(item -> jurisdictionSpecificDocumentTypes.containsKey(item.documentType)
+                    && !jurisdictionSpecificDocumentTypes.get(item.documentType).contains(envelope.jurisdiction))
+                .map(item -> item.documentType.toString())
+                .collect(toList());
+
+        if (!disallowedDocTypesFound.isEmpty()) {
+
+            String errorMessage = String.format(
+                "Envelope contains scannable item(s) of types that are not allowed for jurisdiction '%s': [%s]",
+                envelope.jurisdiction,
+                StringUtils.join(disallowedDocTypesFound, ", ")
+            );
+
+            throw new DisallowedDocumentTypesException(errorMessage);
+        }
+    }
 
     /**
      * Assert envelope contains only scannable items of types that are allowed for the envelope's classification.
@@ -93,9 +132,9 @@ public final class EnvelopeValidator {
 
             List<InputDocumentType> typesThatShouldHaveOcrData =
                 Stream.of(
-                    defaultOcrDocumentType,
-                    ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction)
-                ).filter(Objects::nonNull)
+                        defaultOcrDocumentType,
+                        ocrDocumentTypePerJurisdiction.get(envelope.jurisdiction)
+                    ).filter(Objects::nonNull)
                     .collect(toList());
 
             List<InputScannableItem> docsThatShouldHaveOcr = envelope
@@ -106,7 +145,7 @@ public final class EnvelopeValidator {
 
             if (docsThatShouldHaveOcr.isEmpty()) {
                 String types = typesThatShouldHaveOcrData.stream()
-                        .map(InputDocumentType::toString).collect(joining(", "));
+                    .map(InputDocumentType::toString).collect(joining(", "));
                 throw new OcrDataNotFoundException("No documents of type " + types + " found");
             }
 
@@ -197,10 +236,10 @@ public final class EnvelopeValidator {
     ) {
         boolean isMatched = mappings.stream()
             .anyMatch(mapping ->
-                mapping.getContainer().equalsIgnoreCase(containerName)
-                    && mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
-                    && mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
-                        .contains(envelope.poBox.toLowerCase())
+                          mapping.getContainer().equalsIgnoreCase(containerName)
+                              && mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
+                              && mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
+                              .contains(envelope.poBox.toLowerCase())
             );
 
         if (!isMatched) {
@@ -240,8 +279,8 @@ public final class EnvelopeValidator {
         Boolean isServiceEnabled = mappings
             .stream()
             .filter(mapping ->
-                 mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
-                    .contains(envelope.poBox.toLowerCase())
+                        mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
+                            .contains(envelope.poBox.toLowerCase())
             )
             .findFirst()
             .map(ContainerMappings.Mapping::isEnabled)
@@ -265,9 +304,9 @@ public final class EnvelopeValidator {
         return mappings
             .stream()
             .filter(mapping ->
-                mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
-                    && mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
-                        .contains(envelope.poBox.toLowerCase())
+                        mapping.getJurisdiction().equalsIgnoreCase(envelope.jurisdiction)
+                            && mapping.getPoBoxes().stream().map(String::toLowerCase).collect(toList())
+                            .contains(envelope.poBox.toLowerCase())
             )
             .findFirst()
             .map(ContainerMappings.Mapping::isPaymentsEnabled)

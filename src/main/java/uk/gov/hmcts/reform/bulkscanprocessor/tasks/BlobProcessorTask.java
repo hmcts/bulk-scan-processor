@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.services.FileNamesExtractor.
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
+@ConditionalOnExpression("!${jms.enabled}")
 public class BlobProcessorTask {
 
     private static final Logger log = LoggerFactory.getLogger(BlobProcessorTask.class);
@@ -75,14 +77,14 @@ public class BlobProcessorTask {
     }
 
     private void processZipFiles(BlobContainerClient container) {
-        log.info("Processing blobs for container {}", container.getBlobContainerName());
+        log.debug("Processing blobs for container {}", container.getBlobContainerName());
         List<String> zipFilenames = getShuffledZipFileNames(container);
 
         for (String zipFilename : zipFilenames) {
             tryProcessZipFile(container, zipFilename);
         }
 
-        log.info("Finished processing blobs for container {}", container.getBlobContainerName());
+        log.debug("Finished processing blobs for container {}", container.getBlobContainerName());
     }
 
     private void tryProcessZipFile(BlobContainerClient container, String zipFilename) {

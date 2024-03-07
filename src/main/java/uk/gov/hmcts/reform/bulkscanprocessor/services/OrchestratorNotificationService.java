@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jakarta.transaction.Transactional;
 
 @Service
+@ConditionalOnExpression("!${jms.enabled}")
 public class OrchestratorNotificationService {
     private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationService.class);
 
@@ -66,6 +68,6 @@ public class OrchestratorNotificationService {
         envelope.setStatus(Status.NOTIFICATION_SENT);
         envelopeRepo.saveAndFlush(envelope);
 
-        log.info("Envelope {} status chaged to NOTIFICATION_SENT", envelope.getZipFileName());
+        log.info("Envelope {} status changed to NOTIFICATION_SENT", envelope.getZipFileName());
     }
 }

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.tasks;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
  */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.notifications_to_orchestrator.enabled", matchIfMissing = true)
+@ConditionalOnExpression("!${jms.enabled}")
 public class OrchestratorNotificationTask {
 
     private static final Logger log = LoggerFactory.getLogger(OrchestratorNotificationTask.class);
@@ -46,7 +48,7 @@ public class OrchestratorNotificationTask {
     @SchedulerLock(name = TASK_NAME)
     @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
-        log.info("Started {} job", TASK_NAME);
+        log.debug("Started {} job", TASK_NAME);
 
         AtomicInteger successCount = new AtomicInteger(0);
 
@@ -68,7 +70,7 @@ public class OrchestratorNotificationTask {
             successCount.get(),
             envelopesToSend.size() - successCount.get()
         );
-        log.info("Finished {} job", TASK_NAME);
+        log.debug("Finished {} job", TASK_NAME);
     }
 
     private void createEvent(Envelope envelope, Event event) {

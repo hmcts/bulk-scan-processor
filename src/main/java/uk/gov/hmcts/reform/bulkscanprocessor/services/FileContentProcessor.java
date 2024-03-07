@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
@@ -24,6 +25,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALI
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
+@ConditionalOnExpression("!${jms.enabled}")
 public class FileContentProcessor {
     private static final Logger log = LoggerFactory.getLogger(FileContentProcessor.class);
 

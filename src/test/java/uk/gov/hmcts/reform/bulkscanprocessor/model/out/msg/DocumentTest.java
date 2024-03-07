@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItem;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentSubtype;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
@@ -84,7 +87,14 @@ class DocumentTest {
         assertThat(documentSerialized.contains("2022-05-23T10:11:22.145000Z")).isTrue();
     }
 
-    @Test
+    @ParameterizedTest
+    @EnumSource(
+        value = InputDocumentType.class,
+        names = {
+            "CHERISHED", "SUPPORTING_DOCUMENTS", "WILL", "FORENSIC_SHEETS",
+            "IHT", "PPS_LEGAL_STATEMENT", "PPS_LEGAL_STATEMENT_WITHOUT_APOSTROPHE"
+        }
+    )
     void fromScannableItem_maps_to_document_correctly() {
         ScannableItem scannableItem = scannableItem(DocumentType.CHERISHED, Instant.now().minus(1, DAYS));
         Document document = fromScannableItem(scannableItem);

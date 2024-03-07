@@ -25,6 +25,15 @@ To build the project execute the following command:
 
 ### Running the application
 
+You will either need to add a .env file if one does not already exist, or add environment variables to your
+Application tasks configuration.
+
+If you choose to add a .env file, you will need to add all the
+environment variables listed in the [application.yaml](/src/main/resources/application.yaml) file.
+
+For example, ${BULK_SCANNING_DB_PASSWORD:} in the application.yaml file will need to be
+added as BULK_SCANNING_DB_PASSWORD="value from keyvault" in your .env file.
+
 Create the image of the application by executing the following command:
 
 ```bash
@@ -85,4 +94,3 @@ To run migration gradle task expects `FLYWAY_URL` to be present. In case db requ
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-
