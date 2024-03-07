@@ -3,14 +3,14 @@ plugins {
   id 'checkstyle'
   id 'pmd'
   id 'jacoco'
-  id 'io.spring.dependency-management' version '1.1.0'
-  id 'org.flywaydb.flyway' version '9.15.1'
+  id 'io.spring.dependency-management' version '1.1.4'
+  id 'org.flywaydb.flyway' version '9.22.3'
   id 'org.springframework.boot' version '3.2.3'
-  id 'org.owasp.dependencycheck' version '8.1.0'
-  id 'com.github.ben-manes.versions' version '0.46.0'
-  id 'org.sonarqube' version '4.0.0.2929'
-  id "info.solidsoft.pitest" version '1.7.0'
-  id 'au.com.dius.pact' version '4.3.15'
+  id 'org.owasp.dependencycheck' version '9.0.9'
+  id 'com.github.ben-manes.versions' version '0.50.0'
+  id 'org.sonarqube' version '4.4.1.3373'
+  id 'info.solidsoft.pitest' version '1.15.0'
+  id 'au.com.dius.pact' version '4.6.5'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -277,7 +277,7 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.15.0'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.4'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.0'
   // review following dependency after integrating db structure
   implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.21.1'
 
