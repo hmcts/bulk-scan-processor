@@ -27,7 +27,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService
 
 import java.io.IOException;
 import java.net.URL;
-
 import java.util.List;
 
 import static com.google.common.io.Resources.getResource;
