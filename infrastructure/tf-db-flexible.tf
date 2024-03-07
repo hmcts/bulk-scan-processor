@@ -27,6 +27,9 @@ module "postgresql" {
   subnet_suffix = "expanded"
 
   admin_user_object_id = var.jenkins_AAD_objectId
+
+  enable_schema_ownership = true
+  force_schema_ownership_trigger = "true"
 }
 
 module "postgresql-staging" {
