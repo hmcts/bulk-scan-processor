@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +27,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.IncompleteEnvelopesService
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import jakarta.validation.constraints.Min;
 
 @Validated
 @RestController

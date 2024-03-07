@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.payment;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.in.PaymentRequest;
 
 import java.util.List;
 import java.util.Optional;
-import jakarta.transaction.Transactional;
 
 import static java.util.stream.Collectors.toList;
 

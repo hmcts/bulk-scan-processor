@@ -1,16 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.google.common.base.Strings;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,6 +11,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @SuppressWarnings("PMD.TooManyFields") // entity class
 @Entity

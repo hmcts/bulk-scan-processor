@@ -1,8 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.in;
 
-import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+
+import java.util.List;
 
 public class PaymentRequest {
 

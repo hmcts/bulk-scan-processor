@@ -3,14 +3,14 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.jms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.InvalidMessageException;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
 import java.util.Objects;
-import javax.jms.JMSException;
-import javax.jms.Message;
 
 public class JmsQueueSendHelper {
 
@@ -31,7 +31,7 @@ public class JmsQueueSendHelper {
             jmsMessage,
             new MessagePostProcessor() {
                 @Override
-                public jakarta.jms.Message postProcessMessage(jakarta.jms.Message message) throws jakarta.jms.JMSException {
+                public Message postProcessMessage(Message message) throws JMSException {
                     message.setJMSMessageID(msg.getMsgId());
                     message.setStringProperty("contentType", "application/json");
                     message.setStringProperty("subject", msg.getLabel());

@@ -2,12 +2,18 @@ package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-//import org.hibernate.annotations.Type;
-//import org.hibernate.annotations.TypeDef;
-//import org.hibernate.annotations.TypeDefs;
-import jakarta.persistence.*;
-//import org.hibernate.annotations.JdbcTypeCode;
-//import org.hibernate.type.SqlTypes;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Converts;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
@@ -17,11 +23,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "scannable_items")
-//@TypeDefs({
-//    @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class),
-//    @TypeDef(name = "string-array", typeClass = StringArrayType.class)
-//})
-
 @Converts({
     @Convert(attributeName = "jsonb", converter = JsonBinaryType.class),
     @Convert(attributeName = "string-array", converter = StringArrayType.class)

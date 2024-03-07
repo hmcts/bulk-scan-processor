@@ -1,9 +1,11 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config.jms;
 
 import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +21,6 @@ import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
-
-import javax.jms.Session;
 
 @Configuration
 @EnableJms
@@ -97,12 +97,12 @@ public class JmsQueueClientConfig {
     public static class CustomMessageConverter implements MessageConverter {
 
         @Override
-        public jakarta.jms.Message toMessage(Object object, jakarta.jms.Session session) throws jakarta.jms.JMSException, MessageConversionException {
+        public Message toMessage(Object object, Session session) throws JMSException, MessageConversionException {
             return session.createTextMessage(object.toString());
         }
 
         @Override
-        public Object fromMessage(jakarta.jms.Message message) throws jakarta.jms.JMSException, MessageConversionException {
+        public Object fromMessage(Message message) throws JMSException, MessageConversionException {
             return message;
         }
     }
