@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
-
+import jakarta.jms.ConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
 import org.slf4j.Logger;
@@ -9,7 +9,6 @@ import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import java.util.UUID;
-import jakarta.jms.ConnectionFactory;
 
 public class JmsProcessedEnvelopeMessageSender {
 

@@ -237,7 +237,7 @@ dependencyManagement {
       entry 'guava'
     }
   }
-  }
+}
 
 repositories {
   mavenLocal()
