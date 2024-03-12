@@ -28,6 +28,8 @@ module "postgresql" {
 
   admin_user_object_id = var.jenkins_AAD_objectId
 
+  enable_schema_ownership = true
+  force_schema_ownership_trigger = "true"
   force_user_permissions_trigger = "1"
 }
 
