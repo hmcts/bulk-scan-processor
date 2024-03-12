@@ -230,14 +230,6 @@ def versions = [
   apiguardian     : '1.1.2'
 ]
 
-dependencyManagement {
-  dependencies {
-    // CVE-2023-2976, CVE-2020-8908
-    dependencySet(group: 'com.google.guava', version: '33.0.0-jre') {
-      entry 'guava'
-    }
-  }
-}
 
 repositories {
   mavenLocal()
@@ -279,6 +271,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-activemq'
 
+
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.1.0'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '13.1'
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '13.1'
@@ -288,7 +281,8 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.22.3'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.1'
   // review following dependency after integrating db structure
-  implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.21.1'
+  //implementation group: 'com.vladmihalcea', name: 'hibernate-types-60', version: '2.21.1'
+  implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.7.3'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
 
@@ -306,9 +300,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'ccd-case-document-am-client', version: '1.59'
 
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.8'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '13.1'
 
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.3'
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
   implementation group: 'commons-io', name: 'commons-io', version: '2.13.0'

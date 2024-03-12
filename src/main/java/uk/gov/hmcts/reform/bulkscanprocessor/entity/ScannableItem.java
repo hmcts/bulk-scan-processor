@@ -1,19 +1,18 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.entity;
 
-import com.vladmihalcea.hibernate.type.array.StringArrayType;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Converts;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.OcrData;
 
@@ -23,14 +22,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "scannable_items")
-@Converts({
-    @Convert(attributeName = "jsonb", converter = JsonBinaryType.class),
-    @Convert(attributeName = "string-array", converter = StringArrayType.class)
-})
 public class ScannableItem implements EnvelopeAssignable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String documentControlNumber;
@@ -45,7 +40,7 @@ public class ScannableItem implements EnvelopeAssignable {
 
     private Instant nextActionDate;
 
-    @Convert(attributeName = "jsonb", converter = JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "ocrData", columnDefinition = "jsonb")
     private OcrData ocrData;
 
@@ -64,7 +59,7 @@ public class ScannableItem implements EnvelopeAssignable {
     @JoinColumn(name = "envelope_id", nullable = false)
     private Envelope envelope;
 
-    @Convert(attributeName = "string-array", converter = StringArrayType.class)
+    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "ocrValidationWarnings", columnDefinition = "varchar[]")
     private String[] ocrValidationWarnings;
 
