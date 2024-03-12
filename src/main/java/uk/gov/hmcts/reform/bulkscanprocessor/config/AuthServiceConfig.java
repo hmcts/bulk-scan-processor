@@ -18,7 +18,6 @@ import java.util.List;
 
 @Configuration
 @Lazy
-@EnableFeignClients(clients = IdamApi.class)
 public class AuthServiceConfig {
 
     @Bean

@@ -283,13 +283,14 @@ dependencies {
   // review following dependency after integrating db structure
   implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.7.3'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
+  //implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
 
   implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
   implementation group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
   implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
+
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
