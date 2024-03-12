@@ -1,10 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
-import org.hibernate.annotations.JdbcType;
 
 public class OcrDataField {
 

@@ -281,7 +281,6 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.22.3'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.1'
   // review following dependency after integrating db structure
-  //implementation group: 'com.vladmihalcea', name: 'hibernate-types-60', version: '2.21.1'
   implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.7.3'
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
@@ -313,6 +312,7 @@ dependencies {
 
   implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.0.2'
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.1.1'
+  implementation group: 'com.google.guava', name: 'guava', version: '33.0.0-jre'
 
 
   testImplementation libraries.junit5

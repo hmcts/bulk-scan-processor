@@ -6,8 +6,6 @@ import org.hibernate.type.descriptor.jdbc.BinaryJdbcType;
 
 import java.util.List;
 
-import static java.sql.JDBCType.VARBINARY;
-
 public class OcrData {
 
     @JsonProperty("Metadata_file")
