@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,7 +45,7 @@ class IncompleteEnvelopesServiceTest {
             envelope("file1.zip", "CMC", COMPLETED, emptyList(), "cmc"),
             envelope("file2.zip", "SSCS", COMPLETED, emptyList(), "sscs")
         );
-        given(envelopeRepository.getIncompleteEnvelopesBefore(any(LocalDateTime.class)))
+        given(envelopeRepository.getIncompleteEnvelopesBefore(any(Instant.class)))
             .willReturn(envelopes);
 
         // when
@@ -63,7 +64,7 @@ class IncompleteEnvelopesServiceTest {
     @Test
     void should_propagate_empty_result() {
         // given
-        given(envelopeRepository.getIncompleteEnvelopesBefore(any(LocalDateTime.class)))
+        given(envelopeRepository.getIncompleteEnvelopesBefore(any(Instant.class)))
             .willReturn(emptyList());
 
         // when

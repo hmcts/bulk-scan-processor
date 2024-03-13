@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -271,7 +272,7 @@ public class EnvelopeRepositoryTest {
 
     @Test
     public void should_get_empty_result_when_no_incomplete_envelopes_are_there_in_db() {
-        assertThat(repo.getIncompleteEnvelopesBefore(now())).isEmpty();
+        assertThat(repo.getIncompleteEnvelopesBefore(Instant.now())).isEmpty();
     }
 
     @Test
@@ -289,12 +290,12 @@ public class EnvelopeRepositoryTest {
         // and update createAt to 2h ago
         entityManager.createNativeQuery(
             "UPDATE envelopes "
-                + "SET createdat = '" + now().minusHours(2) + "' "
+                + "SET createdat = '" + Instant.now().minus(2, ChronoUnit.HOURS) + "' "
                 + "WHERE zipfilename IN ('A.zip', 'B.zip', 'D.zip')"
         ).executeUpdate();
 
         // when
-        List<Envelope> result = repo.getIncompleteEnvelopesBefore(now().minusHours(1));
+        List<Envelope> result = repo.getIncompleteEnvelopesBefore(Instant.now().minus(1, ChronoUnit.HOURS));
 
         // then
         assertThat(result)
