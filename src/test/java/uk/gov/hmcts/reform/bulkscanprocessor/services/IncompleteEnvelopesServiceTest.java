@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.Arrays.asList;
