@@ -283,7 +283,7 @@ dependencies {
   // review following dependency after integrating db structure
   implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.7.3'
 
-  //implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
+
 
   implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
   implementation group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
@@ -340,7 +340,7 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.1.1', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '3.0.1'
+  integrationTestImplementation group: 'org.wiremock', name: 'wiremock-standalone', version: '3.4.2'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.19.7', {
     exclude group: 'junit', module: 'junit'
   }

@@ -103,11 +103,11 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     int deleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime,
                               @Param("envelopeIds") List<UUID> envelopeIds);
 
-    @Query(value = "select e from Envelope e \n"
+    @Query("select e from Envelope e \n"
         + "WHERE e.container = :container "
-        + "AND (status = 'COMPLETED' OR status = 'NOTIFICATION_SENT') "
-        + "AND zipdeleted=false",
-        nativeQuery = true)
+        + "AND (e.status = 'COMPLETED' OR e.status = 'NOTIFICATION_SENT') "
+        + "AND e.zipDeleted=false"
+    )
     List<Envelope> getCompleteEnvelopesFromContainer(
         @Param("container") String container
     );
