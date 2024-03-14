@@ -63,7 +63,6 @@ public class ReportSender {
         try {
             MimeMessage msg = mailSender.createMimeMessage();
 
-
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
             helper.setFrom(from);
             helper.setTo(this.recipients);

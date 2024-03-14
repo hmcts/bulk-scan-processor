@@ -37,7 +37,6 @@ public class JmsQueueSendHelper {
                     message.setStringProperty("subject", msg.getLabel());
                     return message;
                 }
-
             }
         );
     }
