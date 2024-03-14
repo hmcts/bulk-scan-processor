@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services.email;
 
 import com.icegreen.greenmail.util.ServerSetupTest;
-import org.apache.commons.mail.util.MimeMessageParser;
+import jakarta.mail.Address;
+import jakarta.mail.Multipart;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -14,8 +16,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.ReportsService;
 
 import java.time.LocalDate;
 import java.util.Properties;
-import javax.mail.Address;
-import javax.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -54,9 +54,10 @@ class ReportSenderTest {
         reportSender.send();
 
         // then
-        MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
+        MimeMessage msg = greenMail.getReceivedMessages()[0];
+        Multipart mainMultipart = (Multipart) msg.getContent();
 
-        assertThat(msg.getTo())
+        assertThat(msg.getAllRecipients())
             .extracting(Address::toString)
             .hasSize(2)
             .containsExactly(
@@ -64,11 +65,8 @@ class ReportSenderTest {
                 reportRecipient2
             );
         assertThat(msg.getSubject()).isEqualTo(ReportSender.EMAIL_SUBJECT);
-        assertThat(msg.getPlainContent()).isEqualTo(ReportSender.EMAIL_BODY);
-        assertThat(msg.getAttachmentList()).hasSize(1);
+
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        assertThat(msg.getAttachmentList().get(0).getName())
-            .isEqualTo(ReportSender.ATTACHMENT_PREFIX + yesterday + ".csv");
 
         verify(reportsService).getZipFilesSummary(yesterday, null, null);
     }

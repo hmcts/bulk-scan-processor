@@ -250,7 +250,7 @@ jms:
   application-name: BulkScanProcessorServiceDev
   enabled: ${JMS_ENABLED:true}
   namespace: ${JMS_NAMESPACE:5672}
-  amqp-connection-string-template: ${JMS_AMQP_CONNECTION_TEMPLATE:amqp://localhost:%1s?amqp.idleTimeout=%2d}
+  amqp-connection-string-template: ${JMS_AMQP_CONNECTION_TEMPLATE:tcp://localhost:61616}
   username: ${JMS_USERNAME:admin}
   password: ${JMS_PASSWORD:admin}
   receiveTimeout: ${JMS_RECEIVE_TIMEOUT:30000}

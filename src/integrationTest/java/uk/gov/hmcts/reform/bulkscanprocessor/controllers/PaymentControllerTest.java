@@ -100,8 +100,8 @@ public class PaymentControllerTest {
             .content(request))
             .andDo(print())
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errors[0].field_name").value("payments"))
-            .andExpect(jsonPath("$.errors[0].message").value("Payment list can't be empty"));
+            .andExpect(jsonPath("$.detail").value("Invalid request content."))
+            .andExpect(jsonPath("$.instance").value("/payment/status"));
 
         //Then
         verify(authService, never()).authenticate("testServiceAuthHeader");
@@ -118,8 +118,8 @@ public class PaymentControllerTest {
             .content(request))
             .andDo(print())
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.errors[0].field_name").value("payments[2].documentControlNumber"))
-            .andExpect(jsonPath("$.errors[0].message").value("Document control number is empty or null"));
+            .andExpect(jsonPath("$.detail").value("Invalid request content."))
+            .andExpect(jsonPath("$.instance").value("/payment/status"));
 
         //Then
         verify(authService, never()).authenticate("testServiceAuthHeader");

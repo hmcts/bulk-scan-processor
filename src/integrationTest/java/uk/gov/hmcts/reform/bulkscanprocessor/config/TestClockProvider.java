@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
+import jakarta.validation.ClockProvider;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -9,7 +10,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import javax.validation.ClockProvider;
 
 @TestConfiguration
 public class TestClockProvider {

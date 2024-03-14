@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusHelpersConfiguration;
 
 @SpringBootApplication
-@EnableFeignClients
+@EnableFeignClients(basePackages = {"uk.gov.hmcts.reform"})
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
 public class Application {
 

@@ -91,10 +91,10 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 
-    @Query("select e from Envelope e \n"
-        + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED'"
+    @Query("select e from Envelope e "
+        + "where e.createdAt < :datetime AND e.status != 'COMPLETED' AND e.status != 'ABORTED'"
     )
-    List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime);
+    List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") Instant dateTime);
 
     @Modifying
     @Query(value = "DELETE FROM envelopes e "
@@ -105,8 +105,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     @Query("select e from Envelope e \n"
         + "WHERE e.container = :container "
-        + "AND (status = 'COMPLETED' OR status = 'NOTIFICATION_SENT') "
-        + "AND zipdeleted=false"
+        + "AND (e.status = 'COMPLETED' OR e.status = 'NOTIFICATION_SENT') "
+        + "AND e.zipDeleted=false"
     )
     List<Envelope> getCompleteEnvelopesFromContainer(
         @Param("container") String container

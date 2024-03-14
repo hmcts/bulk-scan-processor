@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.ClockProvider;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -52,7 +53,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.validation.ClockProvider;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
