@@ -16,11 +16,21 @@ import uk.gov.hmcts.reform.idam.client.IdamApi;
 
 import java.util.List;
 
+/**
+ * Configuration for auth service.
+ */
 @Configuration
 @Lazy
 @EnableFeignClients(clients = IdamApi.class)
 public class AuthServiceConfig {
 
+    /**
+     * Bean for AuthTokenGenerator.
+     * @param secret The secret
+     * @param name The name
+     * @param serviceAuthorisationApi The ServiceAuthorisationApi
+     * @return The AuthTokenGenerator
+     */
     @Bean
     @ConditionalOnProperty(name = "idam.s2s-auth.url")
     public AuthTokenGenerator authTokenGenerator(
@@ -31,6 +41,10 @@ public class AuthServiceConfig {
         return AuthTokenGeneratorFactory.createDefaultGenerator(secret, name, serviceAuthorisationApi);
     }
 
+    /**
+     * Bean for AuthTokenGenerator.
+     * @return The AuthTokenGenerator
+     */
     @Bean
     @ConditionalOnProperty(name = "idam.s2s-auth.url", havingValue = "false")
     public AuthTokenGenerator authTokenGeneratorStub() {
@@ -39,12 +53,21 @@ public class AuthServiceConfig {
         };
     }
 
+    /**
+     * Bean for AuthTokenValidator.
+     * @param s2sApi The ServiceAuthorisationApi
+     * @return The AuthTokenValidator
+     */
     @Bean
     @ConditionalOnProperty(name = "idam.s2s-auth.url")
     public AuthTokenValidator tokenValidator(ServiceAuthorisationApi s2sApi) {
         return new ServiceAuthTokenValidator(s2sApi);
     }
 
+    /**
+     * Bean for AuthTokenValidator.
+     * @return The AuthTokenValidator
+     */
     @Bean
     @ConditionalOnProperty(name = "idam.s2s-auth.url", havingValue = "false")
     public AuthTokenValidator tokenValidatorStub() {

@@ -28,6 +28,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Min;
 
+/**
+ * Controller for envelope actions.
+ */
 @Validated
 @RestController
 @RequestMapping(path = "envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,6 +42,12 @@ public class EnvelopeController {
 
     private static final String DEFAULT_STALE_TIME_HOURS = "2";
 
+    /**
+     * Constructor for the envelope controller.
+     * @param envelopeRetrieverService The service for retrieving envelopes
+     * @param incompleteEnvelopesService The service for incomplete envelopes
+     * @param authService The service for authentication
+     */
     public EnvelopeController(
         EnvelopeRetrieverService envelopeRetrieverService,
         IncompleteEnvelopesService incompleteEnvelopesService,
@@ -49,6 +58,12 @@ public class EnvelopeController {
         this.authService = authService;
     }
 
+    /**
+     * Retrieves all envelopes.
+     * @param serviceAuthHeader The service authorization header
+     * @param status The status of the envelope
+     * @return The list of envelopes
+     */
     @GetMapping
     @Operation(
         summary = "Retrieves all envelopes",
@@ -70,6 +85,12 @@ public class EnvelopeController {
         return new EnvelopeListResponse(envelopes);
     }
 
+    /**
+     * Retrieves a single envelope by ID.
+     * @param serviceAuthHeader The service authorization header
+     * @param id The ID of the envelope
+     * @return The envelope
+     */
     @GetMapping(path = "/{id}")
     @Operation(description = "Read single envelope by ID")
     public EnvelopeResponse getById(
@@ -82,6 +103,12 @@ public class EnvelopeController {
             .orElseThrow(EnvelopeNotFoundException::new);
     }
 
+    /**
+     * Retrieves a single envelope by filename and container.
+     * @param container The container of the envelope
+     * @param fileName The filename of the envelope
+     * @return The envelope
+     */
     @GetMapping(path = "/{container}/{file_name}")
     @Operation(description = "Read single envelope by filename and container", hidden = true)
     public EnvelopeResponse getByContainerAndFileName(
@@ -92,6 +119,11 @@ public class EnvelopeController {
             .findByFileNameAndContainer(fileName, container);
     }
 
+    /**
+     * Retrieves incomplete stale envelopes.
+     * @param staleTime The time after which an envelope is considered stale
+     * @return The list of incomplete stale envelopes
+     */
     @GetMapping(path = "/stale-incomplete-envelopes")
     @Operation(
         summary = "Retrieves incomplete stale envelopes",
@@ -111,6 +143,12 @@ public class EnvelopeController {
         return new SearchResult(envelopes);
     }
 
+    /**
+     * Deletes a single stale envelope by ID.
+     * @param staleTime The time after which an envelope is considered stale
+     * @param envelopeId The ID of the envelope
+     * @return The list of deleted envelopes
+     */
     @DeleteMapping(path = "/stale/{envelopeId}")
     @Operation(
         summary = "Remove one stale envelope",
@@ -134,6 +172,11 @@ public class EnvelopeController {
         return new SearchResult(List.of(envelopeId));
     }
 
+    /**
+     * Deletes all stale envelopes.
+     * @param staleTime The time after which an envelope is considered stale
+     * @return The list of deleted envelopes
+     */
     @DeleteMapping(path = "stale/all")
     @Operation(
         summary = "Remove all stale envelopes",

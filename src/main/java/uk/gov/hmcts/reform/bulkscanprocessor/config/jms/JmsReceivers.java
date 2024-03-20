@@ -10,6 +10,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.jms.JmsProcessedEnvelopeNotif
 import javax.jms.JMSException;
 import javax.jms.Message;
 
+/**
+ * JMS receivers configuration.
+ */
 @Configuration()
 @ConditionalOnProperty(name = "jms.enabled", havingValue = "true")
 public class JmsReceivers {
@@ -18,12 +21,21 @@ public class JmsReceivers {
 
     private final JmsProcessedEnvelopeNotificationHandler messageHandler;
 
+    /**
+     * Constructor.
+     * @param messageHandler The message handler
+     */
     public JmsReceivers(
         JmsProcessedEnvelopeNotificationHandler messageHandler
     ) {
         this.messageHandler = messageHandler;
     }
 
+    /**
+     * Receives processed envelopes.
+     * @param message The message
+     * @throws JMSException JMSException
+     */
     @JmsListener(destination = "processed-envelopes", containerFactory = "processedEnvelopesQueueConnectionFactory")
     public void receiveJmsMessage(Message message) throws JMSException {
         String messageBody = ((javax.jms.TextMessage) message).getText();

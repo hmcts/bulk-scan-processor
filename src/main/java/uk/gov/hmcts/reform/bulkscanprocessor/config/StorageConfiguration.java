@@ -14,6 +14,14 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvide
 @Profile(Profiles.NOT_STORAGE_STUB)
 public class StorageConfiguration {
 
+    /**
+     * Get the storage client.
+     * @param accountName The account name
+     * @param key The key
+     * @param url The URL
+     * @param httpClient The HttpClient
+     * @return The BlobServiceClient
+     */
     @Bean
     public BlobServiceClient getStorageClient(
         @Value("${storage.account_name}") String accountName,
@@ -34,6 +42,10 @@ public class StorageConfiguration {
             .buildClient();
     }
 
+    /**
+     * Get the lease client provider.
+     * @return The LeaseClientProvider
+     */
     @Bean
     public LeaseClientProvider getLeaseClientProvider() {
         return blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();

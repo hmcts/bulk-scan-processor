@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Profile;
 
 import javax.annotation.PostConstruct;
 
+/**
+ * Configuration for message handlers.
+ */
 @AutoConfigureAfter(ServiceBusHelpersConfiguration.class)
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
@@ -24,6 +27,9 @@ public class MessageHandlerConfig {
     @Qualifier("processed-envelopes-client")
     public ServiceBusProcessorClient processedEnvelopesQueueClient;
 
+    /**
+     * Registers message handlers.
+     */
     @PostConstruct()
     public void registerMessageHandlers() {
         processedEnvelopesQueueClient.start();

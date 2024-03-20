@@ -15,16 +15,29 @@ import java.util.List;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
+/**
+ * Controller for process events.
+ */
 @Validated
 @RestController
 @RequestMapping(path = "/process-events")
 public class ProcessEventController {
     private final ProcessEventsService processEventsService;
 
+    /**
+     * Constructor for the process event controller.
+     * @param processEventsService The service for process events
+     */
     public ProcessEventController(ProcessEventsService processEventsService) {
         this.processEventsService = processEventsService;
     }
 
+    /**
+     * Get process events by dcn prefix and date.
+     * @param dcnPrefix The dcn prefix
+     * @param dates The dates
+     * @return Process events by dcn prefix and date
+     */
     @GetMapping(params = {"dcn_prefix", "between_dates"})
     public ResponseEntity findProcessEventsByDcnPrefixAndDate(
             @RequestParam(name = "dcn_prefix") String dcnPrefix,

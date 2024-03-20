@@ -23,6 +23,9 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
+/**
+ * Configuration for JMS queues.
+ */
 @Configuration
 @EnableJms
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
@@ -50,6 +53,10 @@ public class JmsQueueClientConfig {
     @Value("${jms.application-name}")
     public String clientId;
 
+    /**
+     * Bean for JmsConnectionFactory.
+     * @param clientId The client id
+     */
     @Bean
     public ConnectionFactory processorJmsConnectionFactory(@Value("${jms.application-name}") final String clientId) {
         String connection = String.format(amqpConnectionStringTemplate, namespace, idleTimeout);
@@ -63,6 +70,11 @@ public class JmsQueueClientConfig {
         return new CachingConnectionFactory(jmsConnectionFactory);
     }
 
+    /**
+     * Bean for JmsTemplate.
+     * @param connectionFactory The connection factory
+     * @return The JmsTemplate
+     */
     @Bean(name = "envelopes-jms-template")
     public JmsTemplate envelopesJmsTemplate(ConnectionFactory connectionFactory) {
         JmsTemplate jmsTemplate = new JmsTemplate();
@@ -72,6 +84,11 @@ public class JmsQueueClientConfig {
         return jmsTemplate;
     }
 
+    /**
+     * Bean for JmsTemplate.
+     * @param connectionFactory The connection factory
+     * @return The JmsTemplate
+     */
     @Bean(name = "notifications-jms-template")
     public JmsTemplate notificationsJmsTemplate(ConnectionFactory connectionFactory) {
         JmsTemplate jmsTemplate = new JmsTemplate();
@@ -81,6 +98,11 @@ public class JmsQueueClientConfig {
         return jmsTemplate;
     }
 
+    /**
+     * Bean for JmsListenerContainerFactory.
+     * @param processorJmsConnectionFactory The connection factory
+     * @return The JmsListenerContainerFactory
+     */
     @Bean
     public JmsListenerContainerFactory<DefaultMessageListenerContainer> processedEnvelopesQueueConnectionFactory(
         ConnectionFactory processorJmsConnectionFactory) {
@@ -94,14 +116,31 @@ public class JmsQueueClientConfig {
         return factory;
     }
 
+    /**
+     * Custom message converter for JMS.
+     */
     @Component
     public static class CustomMessageConverter implements MessageConverter {
 
+        /**
+         * Converts an object to a JMS message.
+         * @param object The object
+         * @param session The session
+         * @return The JMS message
+         * @throws JMSException If an error occurs
+         * @throws MessageConversionException If an error occurs
+         */
         @Override
         public Message toMessage(Object object, Session session) throws JMSException, MessageConversionException {
             return session.createTextMessage(object.toString());
         }
 
+        /**
+         * Converts a JMS message to an object.
+         * @param message The JMS message
+         * @return The object
+         * @throws MessageConversionException If an error occurs
+         */
         @Override
         public Object fromMessage(Message message) throws MessageConversionException {
             return message;
