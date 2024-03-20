@@ -6,17 +6,28 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+/**
+ * Repository for envelopes.
+ */
 @Repository
 public class EnvelopeJdbcRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor.
+     * @param jdbcTemplate the JDBC template
+     */
     public EnvelopeJdbcRepository(
         NamedParameterJdbcTemplate jdbcTemplate
     ) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Marks the envelope as deleted.
+     * @param envelopeId the envelope ID
+     */
     public void markEnvelopeAsDeleted(UUID envelopeId) {
         jdbcTemplate.update(
             "UPDATE envelopes SET zipdeleted = true "
