@@ -8,15 +8,26 @@ import org.springframework.stereotype.Component;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Contributes information about the blob containers to the /info endpoint.
+ */
 @Component
 public class BlobContainerInfoContributor implements InfoContributor {
 
     private final BlobServiceClient client;
 
+    /**
+     * Creates a new instance of the contributor.
+     * @param client the blob service client
+     */
     public BlobContainerInfoContributor(BlobServiceClient client) {
         this.client = client;
     }
 
+    /**
+     * Contributes information about the blob containers to the /info endpoint.
+     * @param builder the info builder
+     */
     @Override
     public void contribute(Builder builder) {
         builder.withDetail(
