@@ -129,16 +129,16 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
      * Find list of envelopes by container and status and zipDeleted.
-     * @param container
-     * @param status
-     * @param zipDeleted
+     * @param container container
+     * @param status status
+     * @param zipDeleted zipDeleted
      * @return list of envelopes
      */
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 
     /**
      * Get incomplete envelopes before a given date time.
-     * @param dateTime
+     * @param dateTime date time
      * @return list of envelopes
      */
     @Query("select e from Envelope e \n"
@@ -148,8 +148,8 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
      * Delete envelopes before a given date time.
-     * @param dateTime
-     * @param envelopeIds
+     * @param dateTime date time
+     * @param envelopeIds envelope ids
      * @return number of envelopes deleted
      */
     @Modifying
@@ -161,7 +161,7 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
      * Get complete envelopes from a container.
-     * @param container
+     * @param container container
      * @return list of envelopes
      */
     @Query("select e from Envelope e \n"

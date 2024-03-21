@@ -122,8 +122,8 @@ public final class EnvelopeValidator {
     }
 
     /**
-     * Assert scannable items contain ocr data
-     * when envelope classification is NEW_APPLICATION or SUPPLEMENTARY_EVIDENCE_WITH_OCR
+     * Assert scannable items contain ocr data when envelope classification is
+     * NEW_APPLICATION or SUPPLEMENTARY_EVIDENCE_WITH_OCR.
      *
      * @param envelope to assert against
      * @throws OcrDataNotFoundException if OCR data is missing

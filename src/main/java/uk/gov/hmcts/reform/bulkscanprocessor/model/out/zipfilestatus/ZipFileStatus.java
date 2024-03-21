@@ -29,6 +29,7 @@ public class ZipFileStatus {
     public final List<ZipFileEvent> events;
 
     /**
+     * Constructor for the ZipFileStatus.
      * @param fileName name of the zip file
      * @param ccdId CCD ID of the zip file
      * @param dcn DCN of the zip file

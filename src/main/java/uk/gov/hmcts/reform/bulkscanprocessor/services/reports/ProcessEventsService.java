@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+
 /**
  * Service to handle process events.
  */

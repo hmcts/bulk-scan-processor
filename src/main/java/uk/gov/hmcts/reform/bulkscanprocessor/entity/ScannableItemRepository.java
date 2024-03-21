@@ -24,13 +24,6 @@ public interface ScannableItemRepository extends JpaRepository<ScannableItem, UU
         + " where si.documentControlNumber LIKE :documentControlNumber%"
         + " order by si.scanningDate desc"
     )
-
-    /**
-     * Finds using document control number.
-     *
-     * @param documentControlNumber of scannable item.
-     * @return A list of envelopes.
-     */
     List<String> findByDcn(
         @Param("documentControlNumber") String documentControlNumber
     );

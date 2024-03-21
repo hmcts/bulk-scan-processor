@@ -103,11 +103,10 @@ public class LeaseAcquirer {
     }
 
     /**
-     * Acquires lease for blobs.
-     *
+     * Checks if blob is ready to be leased.
      * @param blobClient Represents blob
-     * @param onLeaseSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
      * @param onFailure Extra step to execute in case an error occurred
+     * @return boolean
      */
     private boolean isBlobReady(BlobClient blobClient, Consumer<BlobErrorCode> onFailure) {
         boolean isReady = false;

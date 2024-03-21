@@ -13,6 +13,7 @@ public class QueueConfigurationProperties {
     private Optional<String> namespaceOverride = Optional.empty();
 
     /**
+     * Get the access key.
      * @return the access key
      */
     public String getAccessKey() {
@@ -20,6 +21,7 @@ public class QueueConfigurationProperties {
     }
 
     /**
+     * Get the access key name.
      * @return the access key name
      */
     public String getAccessKeyName() {
@@ -27,6 +29,7 @@ public class QueueConfigurationProperties {
     }
 
     /**
+     * Get the queue name.
      * @return the queue name
      */
     public String getQueueName() {
@@ -34,6 +37,7 @@ public class QueueConfigurationProperties {
     }
 
     /**
+     * Get the namespace override.
      * @return the namespace override
      */
     public Optional<String> getNamespaceOverride() {
@@ -41,6 +45,7 @@ public class QueueConfigurationProperties {
     }
 
     /**
+     * Set the access key.
      * @param accessKey the access key
      */
     public void setAccessKey(String accessKey) {
@@ -48,6 +53,7 @@ public class QueueConfigurationProperties {
     }
 
     /**
+     * Set the access key name.
      * @param accessKeyName the access key name
      */
     public void setAccessKeyName(String accessKeyName) {
@@ -55,6 +61,7 @@ public class QueueConfigurationProperties {
     }
 
     /**
+     * Set the queue name.
      * @param queueName the queue name
      */
     public void setQueueName(String queueName) {
@@ -62,6 +69,7 @@ public class QueueConfigurationProperties {
     }
 
     /**
+     * Set the namespace override.
      * @param namespaceOverride the namespace override
      */
     public void setNamespaceOverride(String namespaceOverride) {

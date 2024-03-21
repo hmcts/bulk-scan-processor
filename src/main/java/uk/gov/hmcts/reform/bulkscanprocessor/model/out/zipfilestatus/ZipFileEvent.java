@@ -25,6 +25,7 @@ public class ZipFileEvent {
     public final String reason;
 
     /**
+     * Constructor for the ZipFileEvent.
      * @param eventType type of the event
      * @param container container that the event is related to
      * @param createdAt time when the event happened

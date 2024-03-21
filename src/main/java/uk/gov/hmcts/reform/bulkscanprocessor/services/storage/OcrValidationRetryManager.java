@@ -95,7 +95,6 @@ public class OcrValidationRetryManager {
      * @param leaseId The lease id
      * @param blobMetaData The blob metadata
      * @param retryCount The retry count
-     * @return true if the retry count and delay expiration time have been reset, false otherwise
      */
     private void prepareNextRetry(
         BlobClient blobClient,

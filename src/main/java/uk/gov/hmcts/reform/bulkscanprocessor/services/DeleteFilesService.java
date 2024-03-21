@@ -31,7 +31,7 @@ public class DeleteFilesService {
     private final LeaseAcquirer leaseAcquirer;
 
     /**
-     * Constructor for DeleteFilesService
+     * Constructor for DeleteFilesService.
      * @param envelopeRepository EnvelopeRepository
      * @param envelopeMarkAsDeletedService EnvelopeMarkAsDeletedService
      * @param leaseAcquirer LeaseAcquirer

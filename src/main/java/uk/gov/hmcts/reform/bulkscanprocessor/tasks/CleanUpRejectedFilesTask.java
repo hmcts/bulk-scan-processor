@@ -25,7 +25,8 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON
 
 /**
  * This class is a task executed by Scheduler as per configured interval.
- * It will read all the rejected files from Azure Blob storage and will delete them if they are older than the configured
+ * It will read all the rejected files from Azure Blob storage and will
+ * delete them if they are older than the configured
  * time to live (ttl).
  */
 @Service
@@ -59,7 +60,8 @@ public class CleanUpRejectedFilesTask {
 
     /**
      * This method is executed by Scheduler as per configured interval.
-     * It will read all the rejected files from Azure Blob storage and will delete them if they are older than the configured
+     * It will read all the rejected files from Azure Blob storage and will delete
+     * them if they are older than the configured
      * time to live (ttl).
      */
     @Scheduled(cron = "${scheduling.task.delete-rejected-files.cron}", zone = EUROPE_LONDON)

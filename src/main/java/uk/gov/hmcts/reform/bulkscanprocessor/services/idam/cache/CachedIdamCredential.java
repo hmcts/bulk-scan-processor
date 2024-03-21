@@ -10,6 +10,7 @@ public class CachedIdamCredential {
     public final long expiresIn;
 
     /**
+     * Constructor for the CachedIdamCredential.
      * @param accessToken the access token
      * @param userId the user ID
      * @param expiresIn the time in seconds until the token expires
