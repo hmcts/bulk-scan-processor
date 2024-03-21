@@ -14,6 +14,9 @@ import java.time.Duration;
 import static java.time.LocalDateTime.now;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * Task to monitor incomplete envelopes.
+ */
 @Component
 @ConditionalOnProperty(prefix = "monitoring.incomplete-envelopes", name = "enabled")
 public class IncompleteEnvelopesTask {
@@ -25,6 +28,11 @@ public class IncompleteEnvelopesTask {
     private final EnvelopeRepository envelopeRepository;
     private final Duration staleAfter;
 
+    /**
+     * Constructor for the IncompleteEnvelopesTask.
+     * @param envelopeRepository The envelope repository
+     * @param staleAfter The duration after which an envelope is considered stale
+     */
     public IncompleteEnvelopesTask(
         EnvelopeRepository envelopeRepository,
         @Value("${monitoring.incomplete-envelopes.stale-after}") Duration staleAfter
@@ -33,6 +41,9 @@ public class IncompleteEnvelopesTask {
         this.staleAfter = staleAfter;
     }
 
+    /**
+     * Runs the task.
+     */
     @Scheduled(cron = "${monitoring.incomplete-envelopes.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME, lockAtLeastFor = "10s")
     public void run() {

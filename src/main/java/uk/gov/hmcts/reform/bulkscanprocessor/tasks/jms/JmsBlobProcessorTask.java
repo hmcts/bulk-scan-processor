@@ -51,6 +51,14 @@ public class JmsBlobProcessorTask {
 
     private final OcrValidationRetryManager ocrValidationRetryManager;
 
+    /**
+     * Constructor for the JmsBlobProcessorTask.
+     * @param blobManager The blob manager
+     * @param envelopeProcessor The envelope processor
+     * @param fileContentProcessor The file content processor
+     * @param leaseAcquirer The lease acquirer
+     * @param ocrValidationRetryManager The ocr validation retry manager
+     */
     public JmsBlobProcessorTask(
         BlobManager blobManager,
         EnvelopeProcessor envelopeProcessor,
@@ -65,6 +73,9 @@ public class JmsBlobProcessorTask {
         this.ocrValidationRetryManager = ocrValidationRetryManager;
     }
 
+    /**
+     * Process blobs from input containers.
+     */
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void processBlobs() {
         log.info("Started blob processing job");
@@ -76,6 +87,10 @@ public class JmsBlobProcessorTask {
         log.info("Finished blob processing job");
     }
 
+    /**
+     * Process zip files in the given container.
+     * @param container The container
+     */
     private void processZipFiles(BlobContainerClient container) {
         log.info("Processing blobs for container {}", container.getBlobContainerName());
         List<String> zipFilenames = getShuffledZipFileNames(container);
@@ -87,6 +102,11 @@ public class JmsBlobProcessorTask {
         log.info("Finished processing blobs for container {}", container.getBlobContainerName());
     }
 
+    /**
+     * Process a zip file if it's eligible for processing.
+     * @param container The container
+     * @param zipFilename The zip file name
+     */
     private void tryProcessZipFile(BlobContainerClient container, String zipFilename) {
         try {
             processZipFileIfEligible(container, zipFilename);
@@ -95,6 +115,11 @@ public class JmsBlobProcessorTask {
         }
     }
 
+    /**
+     * Process a zip file if it's eligible for processing.
+     * @param container The container
+     * @param zipFilename The zip file name
+     */
     private void processZipFileIfEligible(BlobContainerClient container, String zipFilename) {
         // this log entry is used in alerting. Ticket: BPS-541
         log.info("Processing zip file {} from container {}", zipFilename, container.getBlobContainerName());
@@ -118,6 +143,12 @@ public class JmsBlobProcessorTask {
         }
     }
 
+    /**
+     * Acquire lease and process zip file.
+     * @param container The container
+     * @param blobClient The blob client
+     * @param zipFilename The zip file name
+     */
     private void leaseAndProcessZipFile(
         BlobContainerClient container,
         BlobClient blobClient,
@@ -137,6 +168,12 @@ public class JmsBlobProcessorTask {
         );
     }
 
+    /**
+     * Process zip file.
+     * @param container The container
+     * @param blobClient The blob client
+     * @param zipFilename The zip file name
+     */
     private void processZipFile(
         BlobContainerClient container,
         BlobClient blobClient,
@@ -181,6 +218,11 @@ public class JmsBlobProcessorTask {
         }
     }
 
+    /**
+     * Log aborted processing of non-existing file.
+     * @param zipFilename The zip file name
+     * @param containerName The container name
+     */
     private void logAbortedProcessingNonExistingFile(String zipFilename, String containerName) {
         log.info(
             "Aborted processing of zip file {} from container {} - doesn't exist anymore.",

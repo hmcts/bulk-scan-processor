@@ -34,7 +34,12 @@ public class JmsOrchestratorNotificationTask {
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
-    // region constructor
+    /**
+     * Constructor for the JmsOrchestratorNotificationTask.
+     * @param jmsOrchestratorNotificationService The JMS orchestrator notification service
+     * @param envelopeRepo The envelope repository
+     * @param processEventRepo The process event repository
+     */
     public JmsOrchestratorNotificationTask(
         JmsOrchestratorNotificationService jmsOrchestratorNotificationService,
         EnvelopeRepository envelopeRepo,
@@ -43,8 +48,10 @@ public class JmsOrchestratorNotificationTask {
         this.envelopeRepo = envelopeRepo;
         this.processEventRepo = processEventRepo;
     }
-    // endregion
 
+    /**
+     * Sends notifications to the orchestrator containing processed envelopes.
+     */
     @SchedulerLock(name = TASK_NAME)
     @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
@@ -73,6 +80,11 @@ public class JmsOrchestratorNotificationTask {
         log.info("Finished {} job", TASK_NAME);
     }
 
+    /**
+     * Creates a process event for the given envelope and event.
+     * @param envelope The envelope
+     * @param event The event
+     */
     private void createEvent(Envelope envelope, Event event) {
         processEventRepo.saveAndFlush(
             new ProcessEvent(

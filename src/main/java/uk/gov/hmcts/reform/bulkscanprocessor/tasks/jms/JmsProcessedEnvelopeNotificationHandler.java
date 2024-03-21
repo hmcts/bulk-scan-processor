@@ -37,6 +37,11 @@ public class JmsProcessedEnvelopeNotificationHandler {
     private final EnvelopeFinaliserService envelopeFinaliserService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructor for the JmsProcessedEnvelopeNotificationHandler.
+     * @param envelopeFinaliserService The envelope finaliser service
+     * @param objectMapper The object mapper
+     */
     public JmsProcessedEnvelopeNotificationHandler(
         EnvelopeFinaliserService envelopeFinaliserService,
         ObjectMapper objectMapper
@@ -45,16 +50,32 @@ public class JmsProcessedEnvelopeNotificationHandler {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Processes the message.
+     * @param messageContext The message context
+     * @param messageBody The message body
+     * @throws JMSException If an error occurs
+     */
     public void processMessage(Message messageContext, String messageBody) throws JMSException {
         //var message = messageContext.getMessage();
         var processingResult = tryProcessMessage(messageContext, messageBody);
         finaliseMessage(messageContext, processingResult);
     }
 
+    /**
+     * Processes the exception by logging it.
+     * @param context The service bus error context
+     */
     public void processException(ServiceBusErrorContext context) {
         log.error("Processed envelope queue handle error {}", context.getErrorSource(), context.getException());
     }
 
+    /**
+     * Finalises the message.
+     * @param messageContext The message context
+     * @param processingResult The processing result
+     * @throws JMSException If an error occurs
+     */
     private void finaliseMessage(
         Message messageContext,
         MessageProcessingResult processingResult
@@ -80,6 +101,13 @@ public class JmsProcessedEnvelopeNotificationHandler {
         }
     }
 
+    /**
+     * Tries to process the message.
+     * @param message The message
+     * @param messageBody The message body
+     * @return The processing result
+     * @throws JMSException If an error occurs
+     */
     private MessageProcessingResult tryProcessMessage(Message message, String messageBody) throws JMSException {
         try {
             log.info(
@@ -117,6 +145,12 @@ public class JmsProcessedEnvelopeNotificationHandler {
         }
     }
 
+    /**
+     * Reads the processed envelope.
+     * @param messageBody The message body
+     * @return The processed envelope
+     * @throws IOException If an error occurs
+     */
     private ProcessedEnvelope readProcessedEnvelope(String messageBody) throws IOException {
         try {
             ProcessedEnvelope processedEnvelope = objectMapper.readValue(
@@ -135,20 +169,35 @@ public class JmsProcessedEnvelopeNotificationHandler {
         }
     }
 
+    /**
+     * The message processing result.
+     */
     static class MessageProcessingResult {
         public final MessageProcessingResultType resultType;
         public final Exception exception;
 
+        /**
+         * Constructor for the message processing result.
+         * @param resultType The result type
+         */
         public MessageProcessingResult(MessageProcessingResultType resultType) {
             this(resultType, null);
         }
 
+        /**
+         * Constructor for the message processing result.
+         * @param resultType The result type
+         * @param exception The exception
+         */
         public MessageProcessingResult(MessageProcessingResultType resultType, Exception exception) {
             this.resultType = resultType;
             this.exception = exception;
         }
     }
 
+    /**
+     * The message processing result type.
+     */
     enum MessageProcessingResultType {
         SUCCESS,
         UNRECOVERABLE_FAILURE,

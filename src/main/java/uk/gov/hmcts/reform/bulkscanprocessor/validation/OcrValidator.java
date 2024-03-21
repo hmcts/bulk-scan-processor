@@ -28,6 +28,9 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
 
+/**
+ * Validates OCR data of the given envelope.
+ */
 @Component
 @EnableConfigurationProperties(ContainerMappings.class)
 public class OcrValidator {
@@ -39,7 +42,13 @@ public class OcrValidator {
     private final ContainerMappings containerMappings;
     private final AuthTokenGenerator authTokenGenerator;
 
-    //region constructor
+    /**
+     * Constructor for the OcrValidator.
+     * @param client OCR validation client
+     * @param presenceValidator OCR presence validator
+     * @param containerMappings mappings of PO boxes to OCR validation URLs
+     * @param authTokenGenerator auth token generator
+     */
     public OcrValidator(
         OcrValidationClient client,
         OcrPresenceValidator presenceValidator,
@@ -51,7 +60,6 @@ public class OcrValidator {
         this.containerMappings = containerMappings;
         this.authTokenGenerator = authTokenGenerator;
     }
-    //endregion
 
     /**
      * If required, validates the OCR data of the given envelope.
@@ -90,6 +98,13 @@ public class OcrValidator {
         );
     }
 
+    /**
+     * If required, validates the OCR data of the given envelope.
+     * @param scannableItem the scannable item to validate
+     * @param warnings the warnings
+     * @return Warnings for valid OCR data
+     * @throws OcrValidationException if the OCR data is invalid
+     */
     private OcrValidationWarnings ocrValidationWarnings(InputScannableItem scannableItem, List<String> warnings) {
         log.info("Case validation warnings found: {}", warnings);
         return new OcrValidationWarnings(
@@ -98,6 +113,12 @@ public class OcrValidator {
         );
     }
 
+    /**
+     * Handles the validation response.
+     * @param res the validation response
+     * @param envelope the envelope
+     * @param docWithOcr the document with OCR
+     */
     private void handleValidationResponse(
         ValidationResponse res,
         InputEnvelope envelope,
@@ -133,6 +154,14 @@ public class OcrValidator {
         }
     }
 
+    /**
+     * Handles the rest client exception.
+     * @param exc the exception
+     * @param validationUrl the validation URL
+     * @param envelope the envelope
+     * @param docWithOcr the document with OCR
+     * @throws OcrValidationException if the OCR data is invalid
+     */
     private void handleRestClientException(
         Throwable exc,
         String validationUrl,
@@ -154,6 +183,11 @@ public class OcrValidator {
         }
     }
 
+    /**
+     * Finds the OCR validation URL for the given PO box.
+     * @param poBox the PO box
+     * @return the OCR validation URL
+     */
     private Optional<String> findValidationUrl(String poBox) {
         Optional<String> validationUrl = containerMappings
             .getMappings()
@@ -171,10 +205,20 @@ public class OcrValidator {
         return validationUrl;
     }
 
+    /**
+     * Finds the document with OCR data.
+     * @param envelope the envelope
+     * @return the document with OCR data
+     */
     private Optional<InputScannableItem> findDocWithOcr(InputEnvelope envelope) {
         return presenceValidator.assertHasProperlySetOcr(envelope.scannableItems);
     }
 
+    /**
+     * Converts the input scannable item to form data.
+     * @param doc the input scannable item
+     * @return the form data
+     */
     private FormData toFormData(InputScannableItem doc) {
         return new FormData(
             doc
@@ -186,6 +230,11 @@ public class OcrValidator {
         );
     }
 
+    /**
+     * Gets the form type.
+     * @param item the input scannable item
+     * @return the form type
+     */
     private String getFormType(InputScannableItem item) {
         return item.documentType == InputDocumentType.SSCS1 ? "SSCS1" : item.documentSubtype;
     }

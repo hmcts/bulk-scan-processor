@@ -10,14 +10,28 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputOcrData;
 import java.io.IOException;
 import java.util.Base64;
 
+/**
+ * Deserializer for OCR data.
+ */
 public class OcrDataDeserializer extends StdDeserializer<InputOcrData> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Creates an instance of InputOcrData deserializer.
+     */
     public OcrDataDeserializer() {
         super(InputOcrData.class);
     }
 
+    /**
+     * Deserializes OCR data from a base64 encoded string.
+     *
+     * @param jsonParser the parser
+     * @param deserializationContext the context
+     * @return the OCR data
+     * @throws OcrDataParseException if there is an error parsing the OCR data
+     */
     @Override
     public InputOcrData deserialize(
         JsonParser jsonParser,
@@ -30,6 +44,13 @@ public class OcrDataDeserializer extends StdDeserializer<InputOcrData> {
         }
     }
 
+    /**
+     * Parses OCR data from a base64 encoded string.
+     *
+     * @param base64EncodedOcrData the base64 encoded OCR data
+     * @return the OCR data
+     * @throws IOException if there is an error parsing the OCR data
+     */
     private InputOcrData parseOcrData(String base64EncodedOcrData) throws IOException {
         String ocrDataJson = new String(Base64.getDecoder().decode(base64EncodedOcrData));
         return objectMapper.readValue(ocrDataJson, InputOcrData.class);

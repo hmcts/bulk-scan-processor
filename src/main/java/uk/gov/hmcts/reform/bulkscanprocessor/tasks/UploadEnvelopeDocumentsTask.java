@@ -13,6 +13,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.UploadEnvelopeDocumentsSer
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * This class is a task executed by Scheduler as per configured interval.
+ * It will read all the envelopes that are ready to be uploaded and will upload them.
+ */
 @Component
 @ConditionalOnProperty(
     name = "scheduling.task." + UploadEnvelopeDocumentsTask.TASK_NAME + ".enabled",
@@ -27,6 +31,12 @@ public class UploadEnvelopeDocumentsTask {
     private final UploadEnvelopeDocumentsService uploadService;
     private final int maxRetries;
 
+    /**
+     * Constructor for the UploadEnvelopeDocumentsTask.
+     * @param envelopeRepository The envelope repository
+     * @param uploadService The upload service
+     * @param maxRetries The maximum number of retries
+     */
     public UploadEnvelopeDocumentsTask(
         EnvelopeRepository envelopeRepository,
         UploadEnvelopeDocumentsService uploadService,
@@ -37,6 +47,10 @@ public class UploadEnvelopeDocumentsTask {
         this.maxRetries = maxRetries;
     }
 
+    /**
+     * This method is executed by Scheduler as per configured interval.
+     * It will read all the envelopes that are ready to be uploaded and will upload them.
+     */
     @Scheduled(fixedDelayString = "${scheduling.task." + TASK_NAME + ".delay}")
     @SchedulerLock(name = TASK_NAME) // so to not upload documents multiple times
     public void run() {

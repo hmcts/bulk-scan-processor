@@ -36,6 +36,9 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+/**
+ * Validates the envelope.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 public final class EnvelopeValidator {
@@ -66,9 +69,9 @@ public final class EnvelopeValidator {
 
     /**
      * Assert envelope contains only scannable items of types that are allowed for the envelope's jurisdiction.
-     * Otherwise, throws an exception.
      *
      * @param envelope to assert against
+     * @throws DisallowedDocumentTypesException if envelope contains scannable items of types that are not allowed
      */
     public void assertEnvelopeContainsDocsOfAllowedTypesForService(InputEnvelope envelope) {
         List<String> disallowedDocTypesFound =
@@ -94,9 +97,9 @@ public final class EnvelopeValidator {
 
     /**
      * Assert envelope contains only scannable items of types that are allowed for the envelope's classification.
-     * Otherwise, throws an exception.
      *
      * @param envelope to assert against
+     * @throws DisallowedDocumentTypesException if envelope contains scannable items of types that are not allowed
      */
     public void assertEnvelopeContainsDocsOfAllowedTypesOnly(InputEnvelope envelope) {
         List<String> disallowedDocTypesFound =
@@ -121,9 +124,9 @@ public final class EnvelopeValidator {
     /**
      * Assert scannable items contain ocr data
      * when envelope classification is NEW_APPLICATION or SUPPLEMENTARY_EVIDENCE_WITH_OCR
-     * Throws exception otherwise.
      *
      * @param envelope to assert against
+     * @throws OcrDataNotFoundException if OCR data is missing
      */
     public void assertEnvelopeContainsOcrDataIfRequired(InputEnvelope envelope) {
 
@@ -166,7 +169,8 @@ public final class EnvelopeValidator {
      * In case there is a mismatch an exception is thrown.
      *
      * @param envelope to assert against
-     * @param pdfs     to assert against
+     * @param pdfs to assert against
+     * @throws FileNameIrregularitiesException if there are any irregularities in file names
      */
     public void assertEnvelopeHasPdfs(InputEnvelope envelope, List<String> pdfs) {
         List<String> problems = new ArrayList<>();
@@ -203,6 +207,12 @@ public final class EnvelopeValidator {
         }
     }
 
+    /**
+     * Assert document control numbers are unique.
+     *
+     * @param envelope to assert against
+     * @throws DuplicateDocumentControlNumbersInEnvelopeException if there are duplicate document control numbers
+     */
     public void assertDocumentControlNumbersAreUnique(InputEnvelope envelope) {
         List<String> dcns = envelope.scannableItems.stream().map(it -> it.documentControlNumber).collect(toList());
         List<String> duplicateDcns = getDuplicates(dcns);
@@ -213,6 +223,13 @@ public final class EnvelopeValidator {
         }
     }
 
+    /**
+     * Assert zip file name matches with metadata.
+     *
+     * @param envelope    to assert against
+     * @param zipFileName to assert against
+     * @throws ZipNameNotMatchingMetaDataException if zip file name does not match with metadata
+     */
     public void assertZipFilenameMatchesWithMetadata(InputEnvelope envelope, String zipFileName) {
         if (!envelope.zipFileName.equals(zipFileName)) {
             throw new ZipNameNotMatchingMetaDataException(
@@ -223,11 +240,11 @@ public final class EnvelopeValidator {
 
     /**
      * Assert container is configured for the jurisdiction and po box.
-     * Throws exception otherwise.
      *
      * @param mappings      container mappings with jurisdiction and PoBox
      * @param envelope      to assert against
      * @param containerName container from which envelope was retrieved
+     * @throws ContainerJurisdictionPoBoxMismatchException if container does not match jurisdiction and po box
      */
     public void assertContainerMatchesJurisdictionAndPoBox(
         List<ContainerMappings.Mapping> mappings,
@@ -254,6 +271,14 @@ public final class EnvelopeValidator {
         }
     }
 
+    /**
+     * Assert payments are enabled for the container if payments are present in the envelope.
+     *
+     * @param envelope         to assert against
+     * @param paymentsEnabled  if payments are enabled
+     * @param mappings         container mappings with jurisdiction and PoBox
+     * @throws PaymentsDisabledException if payments are not enabled for the container
+     */
     public void assertPaymentsEnabledForContainerIfPaymentsArePresent(
         InputEnvelope envelope,
         boolean paymentsEnabled,

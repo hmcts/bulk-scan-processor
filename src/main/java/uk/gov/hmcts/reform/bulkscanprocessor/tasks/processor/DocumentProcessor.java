@@ -17,6 +17,9 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
+/**
+ * Processes the documents.
+ */
 @Component
 public class DocumentProcessor {
 
@@ -25,6 +28,11 @@ public class DocumentProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(DocumentProcessor.class);
 
+    /**
+     * Constructor for the DocumentProcessor.
+     * @param documentManagementService The document management service
+     * @param scannableItemRepository The scannable item repository
+     */
     public DocumentProcessor(
         DocumentManagementService documentManagementService,
         ScannableItemRepository scannableItemRepository
@@ -33,6 +41,13 @@ public class DocumentProcessor {
         this.scannableItemRepository = scannableItemRepository;
     }
 
+    /**
+     * Uploads the pdf files to the document management service.
+     * @param pdfs The pdf files
+     * @param scannedItems The scanned items
+     * @param jurisdiction The jurisdiction
+     * @param container The container
+     */
     public void uploadPdfFiles(
         List<File> pdfs,
         List<ScannableItem> scannedItems,
@@ -57,6 +72,11 @@ public class DocumentProcessor {
         }
     }
 
+    /**
+     * Extracts the document uuid from the document url.
+     * @param documentUrl The document url
+     * @return The document uuid
+     */
     private String extractDocumentUuid(String documentUrl) {
         //text after the last '/' in the url. eg: http://localhost/documents/5fef5f98 returns 5fef5f98
         return StringUtils.substringAfterLast(documentUrl, "/");

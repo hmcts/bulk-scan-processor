@@ -37,6 +37,11 @@ public class ProcessedEnvelopeNotificationHandler {
     private final EnvelopeFinaliserService envelopeFinaliserService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructor for the ProcessedEnvelopeNotificationHandler.
+     * @param envelopeFinaliserService The envelope finaliser service
+     * @param objectMapper The object mapper
+     */
     public ProcessedEnvelopeNotificationHandler(
         EnvelopeFinaliserService envelopeFinaliserService,
         ObjectMapper objectMapper
@@ -45,16 +50,29 @@ public class ProcessedEnvelopeNotificationHandler {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Processes the message from the queue.
+     * @param messageContext The message context
+     */
     public void processMessage(ServiceBusReceivedMessageContext messageContext) {
         var message = messageContext.getMessage();
         var processingResult = tryProcessMessage(message);
         finaliseMessage(messageContext, processingResult);
     }
 
+    /**
+     * Processes the exception.
+     * @param context The error context
+     */
     public void processException(ServiceBusErrorContext context) {
         log.error("Processed envelope queue handle error {}", context.getErrorSource(), context.getException());
     }
 
+    /**
+     * Finalises the message.
+     * @param messageContext The message context
+     * @param processingResult The processing result
+     */
     private void finaliseMessage(
         ServiceBusReceivedMessageContext messageContext,
         MessageProcessingResult processingResult
@@ -81,6 +99,12 @@ public class ProcessedEnvelopeNotificationHandler {
         }
     }
 
+    /**
+     * Tries to process the message.
+     * @param message The message
+     * @return The processing result
+     * @throws MessageProcessingResult The message processing result
+     */
     private MessageProcessingResult tryProcessMessage(ServiceBusReceivedMessage message) {
         try {
             log.info(
@@ -118,6 +142,12 @@ public class ProcessedEnvelopeNotificationHandler {
         }
     }
 
+    /**
+     * Reads the processed envelope.
+     * @param message The message
+     * @return The processed envelope
+     * @throws IOException The IO exception
+     */
     private ProcessedEnvelope readProcessedEnvelope(ServiceBusReceivedMessage message) throws IOException {
         try {
             ProcessedEnvelope processedEnvelope = objectMapper.readValue(
@@ -136,20 +166,35 @@ public class ProcessedEnvelopeNotificationHandler {
         }
     }
 
+    /**
+     * The message processing result.
+     */
     static class MessageProcessingResult {
         public final MessageProcessingResultType resultType;
         public final Exception exception;
 
+        /**
+         * Constructor for the MessageProcessingResult.
+         * @param resultType The result type
+         */
         public MessageProcessingResult(MessageProcessingResultType resultType) {
             this(resultType, null);
         }
 
+        /**
+         * Constructor for the MessageProcessingResult.
+         * @param resultType The result type
+         * @param exception The exception
+         */
         public MessageProcessingResult(MessageProcessingResultType resultType, Exception exception) {
             this.resultType = resultType;
             this.exception = exception;
         }
     }
 
+    /**
+     * The message processing result type.
+     */
     enum MessageProcessingResultType {
         SUCCESS,
         UNRECOVERABLE_FAILURE,

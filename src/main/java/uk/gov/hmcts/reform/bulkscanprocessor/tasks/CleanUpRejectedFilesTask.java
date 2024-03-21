@@ -23,6 +23,11 @@ import static java.time.OffsetDateTime.now;
 import static java.time.ZoneOffset.UTC;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * This class is a task executed by Scheduler as per configured interval.
+ * It will read all the rejected files from Azure Blob storage and will delete them if they are older than the configured
+ * time to live (ttl).
+ */
 @Service
 @ConditionalOnProperty(value = "scheduling.task.delete-rejected-files.enabled")
 public class CleanUpRejectedFilesTask {
@@ -36,7 +41,12 @@ public class CleanUpRejectedFilesTask {
     private static final ListBlobsOptions listOptions =
         new ListBlobsOptions().setDetails(new BlobListDetails().setRetrieveSnapshots(true));
 
-    // region constructor
+    /**
+     * Constructor for the CleanUpRejectedFilesTask.
+     * @param blobManager The blob manager
+     * @param leaseAcquirer The lease acquirer
+     * @param ttl The time to live for rejected files
+     */
     public CleanUpRejectedFilesTask(
         BlobManager blobManager,
         LeaseAcquirer leaseAcquirer,
@@ -46,8 +56,12 @@ public class CleanUpRejectedFilesTask {
         this.leaseAcquirer = leaseAcquirer;
         this.ttl = Duration.parse(ttl);
     }
-    // endregion
 
+    /**
+     * This method is executed by Scheduler as per configured interval.
+     * It will read all the rejected files from Azure Blob storage and will delete them if they are older than the configured
+     * time to live (ttl).
+     */
     @Scheduled(cron = "${scheduling.task.delete-rejected-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
@@ -60,6 +74,10 @@ public class CleanUpRejectedFilesTask {
         log.info("Finished {} job", TASK_NAME);
     }
 
+    /**
+     * Deletes files in the rejected container that are older than the configured time to live (ttl).
+     * @param containerClient The rejected container client
+     */
     private void deleteFilesInRejectedContainer(BlobContainerClient containerClient) {
 
         var containerName = containerClient.getBlobContainerName();
@@ -80,6 +98,10 @@ public class CleanUpRejectedFilesTask {
         log.info("Finished removing rejected files. Container: {}", containerName);
     }
 
+    /**
+     * Deletes the blob from the container.
+     * @param blobClient The blob client
+     */
     private void deleteBlob(BlobClient blobClient) {
         try {
             blobClient.deleteWithResponse(
@@ -103,6 +125,11 @@ public class CleanUpRejectedFilesTask {
         }
     }
 
+    /**
+     * Checks if the blob can be deleted.
+     * @param blobItem The blob item
+     * @return true if the blob can be deleted, false otherwise
+     */
     private boolean canBeDeleted(BlobItem blobItem) {
         // getLastModified method returns time in UTC so use UTC time
         return blobItem
