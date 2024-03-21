@@ -24,6 +24,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILU
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 
+/**
+ * Processes the content of a zip file received from the message queue.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 @ConditionalOnExpression("${jms.enabled}")
@@ -38,6 +41,13 @@ public class JmsFileContentProcessor {
 
     private final JmsFileRejector fileRejector;
 
+    /**
+     * Constructor for JmsFileContentProcessor.
+     * @param zipFileProcessor The zip file processor
+     * @param envelopeProcessor The envelope processor
+     * @param envelopeHandler The envelope handler
+     * @param fileRejector The file rejector
+     */
     public JmsFileContentProcessor(
         ZipFileProcessor zipFileProcessor,
         EnvelopeProcessor envelopeProcessor,
@@ -50,6 +60,12 @@ public class JmsFileContentProcessor {
         this.fileRejector = fileRejector;
     }
 
+    /**
+     * Processes the content of a zip file.
+     * @param zis The zip input stream
+     * @param zipFilename The zip filename
+     * @param containerName The container name
+     */
     public void processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
@@ -100,6 +116,14 @@ public class JmsFileContentProcessor {
         }
     }
 
+    /**
+     * Creates an event.
+     * @param event The event
+     * @param containerName The container name
+     * @param zipFilename The zip filename
+     * @param message The message
+     * @return The event ID
+     */
     private Long createEvent(
         Event event,
         String containerName,

@@ -16,6 +16,9 @@ import static java.time.LocalDateTime.parse;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
+/**
+ * Manages the retry mechanism for OCR validation.
+ */
 @Component
 public class OcrValidationRetryManager {
 
@@ -28,6 +31,11 @@ public class OcrValidationRetryManager {
     private final int ocrValidationMaxRetries;
     private final int ocrValidationRetryDelaySec;
 
+    /**
+     * Constructor for OcrValidationRetryManager.
+     * @param ocrValidationMaxRetries The maximum number of retries
+     * @param ocrValidationRetryDelaySec The delay between retries
+     */
     public OcrValidationRetryManager(
         @Value("${ocr-validation-max-retries}") int ocrValidationMaxRetries,
         @Value("${ocr-validation-delay-retry-sec}") int ocrValidationRetryDelaySec
@@ -36,6 +44,11 @@ public class OcrValidationRetryManager {
         this.ocrValidationRetryDelaySec = ocrValidationRetryDelaySec;
     }
 
+    /**
+     * Checks if the retry delay has expired and can process the file.
+     * @param blobClient The blob client
+     * @return true if the retry delay has expired, false otherwise
+     */
     public boolean canProcess(BlobClient blobClient) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         String retryDelayExpirationTime = blobMetaData.get(RETRY_DELAY_EXPIRATION_TIME_METADATA_PROPERTY);
@@ -76,6 +89,14 @@ public class OcrValidationRetryManager {
         }
     }
 
+    /**
+     * Resets the retry count and delay expiration time.
+     * @param blobClient The blob client
+     * @param leaseId The lease id
+     * @param blobMetaData The blob metadata
+     * @param retryCount The retry count
+     * @return true if the retry count and delay expiration time have been reset, false otherwise
+     */
     private void prepareNextRetry(
         BlobClient blobClient,
         Map<String, String> blobMetaData,
@@ -95,6 +116,11 @@ public class OcrValidationRetryManager {
         );
     }
 
+    /**
+     * Checks if the retry delay has expired.
+     * @param retryDelayExpirationTime The retry delay expiration time
+     * @return true if the retry delay has expired, false otherwise
+     */
     private boolean isRetryDelayExpired(String retryDelayExpirationTime) {
         if (StringUtils.isBlank(retryDelayExpirationTime)) {
             return true; // no retry so far
@@ -104,6 +130,11 @@ public class OcrValidationRetryManager {
         }
     }
 
+    /**
+     * Gets the retry count from the blob metadata.
+     * @param blobMetaData The blob metadata
+     * @return The retry count
+     */
     private int getRetryCount(Map<String, String> blobMetaData) {
         String retryCountStr = blobMetaData.get(RETRY_COUNT_METADATA_PROPERTY);
 

@@ -15,6 +15,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
+/**
+ * Sends error notifications to the error notification queue.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 @ConditionalOnExpression("!${jms.enabled}")
@@ -25,6 +28,11 @@ public class ErrorNotificationSender {
 
     private final ContainerMappings containerMappings;
 
+    /**
+     * Constructor for the ErrorNotificationSender.
+     * @param notificationsQueueHelper The notifications queue helper
+     * @param containerMappings The container mappings
+     */
     public ErrorNotificationSender(
         @Qualifier("notifications-helper") ServiceBusSendHelper notificationsQueueHelper,
         ContainerMappings containerMappings
@@ -33,6 +41,14 @@ public class ErrorNotificationSender {
         this.containerMappings = containerMappings;
     }
 
+    /**
+     * Sends an error notification to the error notification queue.
+     * @param zipFilename The zip file name
+     * @param containerName The container name
+     * @param eventId The event ID
+     * @param errorCode The error code
+     * @param cause The cause of the error
+     */
     public void sendErrorNotification(
         String zipFilename,
         String containerName,
@@ -50,6 +66,14 @@ public class ErrorNotificationSender {
         }
     }
 
+    /**
+     * Sends an error notification to the error notification queue.
+     * @param zipFilename The zip file name
+     * @param containerName The container name
+     * @param eventId The event ID
+     * @param errorCode The error code
+     * @param message The error message
+     */
     private void sendErrorMessageToQueue(
         String zipFilename,
         String containerName,
@@ -82,6 +106,11 @@ public class ErrorNotificationSender {
         );
     }
 
+    /**
+     * Gets the PO boxes for a given container.
+     * @param containerName The container name
+     * @return The PO boxes
+     */
     private String getPoBoxes(String containerName) {
         return containerMappings
             .getMappings()

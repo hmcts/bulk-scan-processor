@@ -6,6 +6,9 @@ import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 
 import java.util.Map;
 
+/**
+ * Represents a document in CCD.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Document {
 
@@ -23,6 +26,16 @@ public class Document {
 
     public final Links links;
 
+    /**
+     * Constructor for Document.
+     * @param classification The classification of the document
+     * @param size The size of the document
+     * @param mimeType The mime type of the document
+     * @param originalDocumentName The original document name
+     * @param hashToken The hash token of the document
+     * @param metadata The metadata of the document
+     * @param links The links of the document
+     */
     public Document(
         @JsonProperty("classification") Classification classification,
         @JsonProperty("size") long size,
@@ -42,21 +55,36 @@ public class Document {
     }
 
 
+    /**
+     * Represents the links of a document.
+     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Links {
         public final Link self;
         public final Link binary;
 
+        /**
+         * Constructor for Links.
+         * @param self The self link
+         * @param binary The binary link
+         */
         public Links(@JsonProperty("self") Link self, @JsonProperty("binary") Link binary) {
             this.self = self;
             this.binary = binary;
         }
     }
 
+    /**
+     * Represents a link.
+     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Link {
         public final String href;
 
+        /**
+         * Constructor for Link.
+         * @param href The href of the link
+         */
         public Link(@JsonProperty("href") String href) {
             this.href = href;
         }

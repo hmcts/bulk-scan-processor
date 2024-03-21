@@ -46,6 +46,14 @@ public class EnvelopeHandler {
 
     private final boolean paymentsEnabled;
 
+    /**
+     * Constructor for the EnvelopeHandler.
+     * @param envelopeValidator The envelope validator
+     * @param containerMappings The container mappings
+     * @param envelopeProcessor The envelope processor
+     * @param ocrValidator The OCR validator
+     * @param paymentsEnabled The payments enabled flag
+     */
     public EnvelopeHandler(
         EnvelopeValidator envelopeValidator,
         ContainerMappings containerMappings,
@@ -60,6 +68,13 @@ public class EnvelopeHandler {
         this.paymentsEnabled = paymentsEnabled;
     }
 
+    /**
+     * Handles the input envelope.
+     * @param containerName The container name
+     * @param zipFilename The zip file name
+     * @param pdfs The PDFs
+     * @param inputEnvelope The input envelope
+     */
     public void handleEnvelope(
         String containerName,
         String zipFilename,

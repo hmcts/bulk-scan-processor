@@ -30,6 +30,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_RETRIGGER_PROCESSING;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.MANUAL_STATUS_CHANGE;
 
+/**
+ * Service to perform actions on envelopes.
+ */
 @Service
 public class EnvelopeActionService {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeActionService.class);
@@ -38,6 +41,12 @@ public class EnvelopeActionService {
     private final ProcessEventRepository processEventRepository;
     private final long notificationTimeoutHr;
 
+    /**
+     * Constructor for EnvelopeActionService.
+     * @param envelopeRepository EnvelopeRepository
+     * @param processEventRepository ProcessEventRepository
+     * @param notificationTimeoutHr long
+     */
     public EnvelopeActionService(
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository,
@@ -48,6 +57,10 @@ public class EnvelopeActionService {
         this.notificationTimeoutHr = notificationTimeoutHr;
     }
 
+    /**
+     * Reprocesses the envelope by envelope id.
+     * @param envelopeId The envelope id
+     */
     @Transactional
     public void reprocessEnvelope(UUID envelopeId) {
         Envelope envelope = envelopeRepository.findById(envelopeId)
@@ -69,6 +82,10 @@ public class EnvelopeActionService {
         log.info("Envelope {} status changed to UPLOADED", envelope.getZipFileName());
     }
 
+    /**
+     * Moves the envelope to completed status by envelope id.
+     * @param envelopeId The envelope id
+     */
     @Transactional
     public void moveEnvelopeToCompleted(UUID envelopeId) {
         Envelope envelope = envelopeRepository.findById(envelopeId)
@@ -90,6 +107,10 @@ public class EnvelopeActionService {
         log.info("Envelope {} status changed to COMPLETED", envelope.getZipFileName());
     }
 
+    /**
+     * Moves the envelope to aborted status by envelope id.
+     * @param envelopeId The envelope id
+     */
     @Transactional
     public void moveEnvelopeToAborted(UUID envelopeId) {
         Envelope envelope = envelopeRepository.findById(envelopeId)
@@ -111,6 +132,10 @@ public class EnvelopeActionService {
         log.info("Envelope {} status changed to ABORTED", envelope.getZipFileName());
     }
 
+    /**
+     * Updates the envelope classification to EXCEPTION and reprocesses the envelope by envelope id.
+     * @param envelopeId The envelope id
+     */
     @Transactional
     public void updateClassificationAndReprocessEnvelope(UUID envelopeId) {
         Envelope envelope = envelopeRepository.findById(envelopeId)
@@ -134,6 +159,12 @@ public class EnvelopeActionService {
             "Updated Envelope {} classification to 'EXCEPTION' and status to 'UPLOADED'", envelope.getZipFileName());
     }
 
+    /**
+     * Creates an event for the envelope.
+     * @param envelope The envelope
+     * @param event The event
+     * @param reason The reason
+     */
     private void createEvent(Envelope envelope, Event event, String reason) {
         ProcessEvent processEvent = new ProcessEvent(
             envelope.getContainer(),
@@ -144,6 +175,10 @@ public class EnvelopeActionService {
         processEventRepository.save(processEvent);
     }
 
+    /**
+     * Validates the envelope state for reprocess.
+     * @param envelope The envelope
+     */
     private void validateEnvelopeStateForReprocess(Envelope envelope) {
         validateNotProcessedInCcd(envelope);
 
@@ -154,6 +189,11 @@ public class EnvelopeActionService {
         }
     }
 
+    /**
+     * Validates the envelope classification.
+     * @param id The envelope id
+     * @param classification The classification
+     */
     private void validateEnvelopeClassification(UUID id, Classification classification) {
         if (classification != Classification.SUPPLEMENTARY_EVIDENCE) {
             throw new EnvelopeClassificationException(
@@ -162,6 +202,10 @@ public class EnvelopeActionService {
         }
     }
 
+    /**
+     * Validates the envelope state for abort.
+     * @param envelope The envelope
+     */
     private void validateEnvelopeStateForAbort(Envelope envelope) {
         validateNotProcessedInCcd(envelope);
 
@@ -172,6 +216,10 @@ public class EnvelopeActionService {
         }
     }
 
+    /**
+     * Validates that the envelope is not processed in CCD.
+     * @param envelope The envelope
+     */
     private void validateNotProcessedInCcd(Envelope envelope) {
         if (envelope.getCcdId() != null) {
             throw new EnvelopeProcessedInCcdException(
@@ -180,6 +228,10 @@ public class EnvelopeActionService {
         }
     }
 
+    /**
+     * Validates that the envelope is in inconsistent state.
+     * @param envelope The envelope
+     */
     private void validateEnvelopeIsInInconsistentState(Envelope envelope) {
         if (envelope.getStatus() == COMPLETED || envelope.getStatus() == ABORTED) {
             throw new EnvelopeNotInInconsistentStateException(
@@ -199,6 +251,11 @@ public class EnvelopeActionService {
         }
     }
 
+    /**
+     * Checks if the envelope is stale.
+     * @param envelope The envelope
+     * @return true if the envelope is stale
+     */
     private boolean isStale(Envelope envelope) {
         log.info("Envelope {} has status {}", envelope.getId(), envelope.getStatus());
         if (envelope.getStatus() != Status.NOTIFICATION_SENT) {
@@ -222,6 +279,12 @@ public class EnvelopeActionService {
         return between(lastEventTimeStamp, now()).toHours() > notificationTimeoutHr;
     }
 
+    /**
+     * Returns the error message for the envelope.
+     * @param id The envelope id
+     * @param msg The message
+     * @return The error message
+     */
     private String getErrorMessage(UUID id, String msg) {
         return "Envelope with id " + id + " " + msg;
     }

@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionException;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
+/**
+ * Rejects invalid files.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 @ConditionalOnExpression("!${jms.enabled}")
@@ -15,6 +18,11 @@ public class FileRejector {
 
     private final ErrorNotificationSender errorNotificationSender;
 
+    /**
+     * Constructor for the FileRejector.
+     * @param blobManager The blob manager
+     * @param errorNotificationSender The error notification sender
+     */
     public FileRejector(
         BlobManager blobManager,
         ErrorNotificationSender errorNotificationSender
@@ -23,6 +31,13 @@ public class FileRejector {
         this.errorNotificationSender = errorNotificationSender;
     }
 
+    /**
+     * Handles invalid blob.
+     * @param eventId The event ID
+     * @param containerName The container name
+     * @param zipFilename The zip filename
+     * @param cause The cause
+     */
     public void handleInvalidBlob(
         Long eventId,
         String containerName,

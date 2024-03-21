@@ -17,6 +17,9 @@ import java.util.List;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 
+/**
+ * Service to delete files from the blob storage.
+ */
 @Service
 public class DeleteFilesService {
     private static final Logger log = LoggerFactory.getLogger(DeleteFilesService.class);
@@ -27,6 +30,12 @@ public class DeleteFilesService {
 
     private final LeaseAcquirer leaseAcquirer;
 
+    /**
+     * Constructor for DeleteFilesService
+     * @param envelopeRepository EnvelopeRepository
+     * @param envelopeMarkAsDeletedService EnvelopeMarkAsDeletedService
+     * @param leaseAcquirer LeaseAcquirer
+     */
     public DeleteFilesService(
         EnvelopeRepository envelopeRepository,
         EnvelopeMarkAsDeletedService envelopeMarkAsDeletedService,
@@ -37,6 +46,10 @@ public class DeleteFilesService {
         this.leaseAcquirer = leaseAcquirer;
     }
 
+    /**
+     * Deletes complete files from the given container.
+     * @param container BlobContainerClient
+     */
     public void processCompleteFiles(BlobContainerClient container) {
         log.info("Started deleting complete files in container {}", container.getBlobContainerName());
 
@@ -62,6 +75,12 @@ public class DeleteFilesService {
         );
     }
 
+    /**
+     * Tries to process the given envelope.
+     * @param container BlobContainerClient
+     * @param envelope Envelope
+     * @return true if the envelope was processed successfully, false otherwise
+     */
     private boolean tryProcessCompleteEnvelope(BlobContainerClient container, Envelope envelope) {
 
         String loggingContext = "File name: " + envelope.getZipFileName()
@@ -98,6 +117,10 @@ public class DeleteFilesService {
         }
     }
 
+    /**
+     * Deletes the blob.
+     * @param blobClient BlobClient
+     */
     private void deleteBlob(BlobClient blobClient) {
         blobClient.deleteWithResponse(
             DeleteSnapshotsOptionType.INCLUDE,
@@ -109,6 +132,11 @@ public class DeleteFilesService {
         log.info("Blob {}  is deleted", blobClient.getBlobUrl());
     }
 
+    /**
+     * Throws BlobDeleteException.
+     * @param errorCode BlobErrorCode
+     * @param loggingContext String
+     */
     private void throwBlobDeleteException(BlobErrorCode errorCode, String loggingContext) {
         if (BLOB_NOT_FOUND == errorCode) {
             log.info(

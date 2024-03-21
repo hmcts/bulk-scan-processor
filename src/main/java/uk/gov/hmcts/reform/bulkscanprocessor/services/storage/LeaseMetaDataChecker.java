@@ -14,6 +14,9 @@ import java.util.Map;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
+/**
+ * Checks if the lease is acquired on the blob metadata.
+ */
 @Component
 public class LeaseMetaDataChecker {
 
@@ -23,10 +26,19 @@ public class LeaseMetaDataChecker {
 
     private final BlobManagementProperties properties;
 
+    /**
+     * Constructor for LeaseMetaDataChecker.
+     * @param properties The blob management properties
+     */
     public LeaseMetaDataChecker(BlobManagementProperties properties) {
         this.properties = properties;
     }
 
+    /**
+     * Checks if the lease is acquired on the blob metadata.
+     * @param blobClient The blob client
+     * @return true if the lease is acquired, false otherwise
+     */
     public boolean isReadyToUse(BlobClient blobClient) {
         var blobProperties = blobClient.getProperties();
         Map<String, String> blobMetaData = blobProperties.getMetadata();
@@ -67,6 +79,11 @@ public class LeaseMetaDataChecker {
         }
     }
 
+    /**
+     * Checks if the lease is expired.
+     * @param leaseExpirationTime The lease expiration time
+     * @return true if the lease is expired, false otherwise
+     */
     private boolean isMetaDataLeaseExpired(String leaseExpirationTime) {
         if (StringUtils.isBlank(leaseExpirationTime)) {
             return true; // lease not acquired on file
@@ -77,6 +94,10 @@ public class LeaseMetaDataChecker {
         }
     }
 
+    /**
+     * Clears the lease metadata.
+     * @param blobClient The blob client
+     */
     public void clearMetaData(BlobClient blobClient) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         blobMetaData.remove(LEASE_EXPIRATION_TIME);

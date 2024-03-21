@@ -6,17 +6,25 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ServiceJuridictionConfig
 
 import java.util.Objects;
 
+/**
+ * Service to access the configuration for envelope access.
+ */
 @Service
 public class EnvelopeAccessService {
 
     private final EnvelopeAccessProperties access;
 
+    /**
+     * Constructor for EnvelopeAccessService.
+     * @param accessProps EnvelopeAccessProperties
+     */
     public EnvelopeAccessService(EnvelopeAccessProperties accessProps) {
         this.access = accessProps;
     }
 
     /**
      * Returns the name of jurisdiction from which given service can read envelopes.
+     * @param serviceName The name of the service
      */
     public String getReadJurisdictionForService(String serviceName) {
         return access
