@@ -5,6 +5,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.ReceivedPay
 
 import java.util.List;
 
+/**
+ * Response for received payments report.
+ */
 public class ReceivedPaymentsResponse {
 
     @JsonProperty("total")
@@ -13,6 +16,11 @@ public class ReceivedPaymentsResponse {
     @JsonProperty("received_payments")
     public final List<ReceivedPaymentsData> receivedPayments;
 
+    /**
+     * Constructor for ReceivedPaymentsResponse.
+     * @param total total number of received payments
+     * @param receivedPayments list of received payments
+     */
     public ReceivedPaymentsResponse(int total, List<ReceivedPaymentsData> receivedPayments) {
         this.total = total;
         this.receivedPayments = receivedPayments;

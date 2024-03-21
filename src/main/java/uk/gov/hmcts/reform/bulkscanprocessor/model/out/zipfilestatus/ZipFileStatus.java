@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+/**
+ * Represents the status of a zip file.
+ */
 public class ZipFileStatus {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,7 +28,13 @@ public class ZipFileStatus {
     @JsonProperty("events")
     public final List<ZipFileEvent> events;
 
-    // region constructor
+    /**
+     * @param fileName name of the zip file
+     * @param ccdId CCD ID of the zip file
+     * @param dcn DCN of the zip file
+     * @param envelopes envelopes in the zip file
+     * @param events events that happened to the zip file
+     */
     public ZipFileStatus(
         String fileName,
         String ccdId,
@@ -40,5 +49,4 @@ public class ZipFileStatus {
         this.envelopes = envelopes;
         this.events = events;
     }
-    // endregion
 }

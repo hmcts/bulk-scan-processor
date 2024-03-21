@@ -6,6 +6,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
 import java.time.Instant;
 
+/**
+ * Represents the information about a blob.
+ */
 public class BlobInfo {
 
     @JsonProperty("container")
@@ -18,6 +21,12 @@ public class BlobInfo {
     @JsonProperty("created_at")
     public final Instant createdAt;
 
+    /**
+     * Constructor for BlobInfo.
+     * @param container name of the container
+     * @param fileName name of the blob
+     * @param createdAt time when the blob was created
+     */
     public BlobInfo(
         String container,
         String fileName,

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
+/**
+ * Represents a discrepancy item in the discrepancy report.
+ */
 public class EnvelopeCountSummaryReportItem {
 
     @JsonProperty("received")
@@ -18,12 +21,17 @@ public class EnvelopeCountSummaryReportItem {
     @JsonProperty("date")
     public final LocalDate date;
 
-    // region constructor
+    /**
+     * Constructor for EnvelopeCountSummaryReportItem.
+     * @param received number of received envelopes
+     * @param rejected number of rejected envelopes
+     * @param container container name
+     * @param date date
+     */
     public EnvelopeCountSummaryReportItem(int received, int rejected, String container, LocalDate date) {
         this.received = received;
         this.rejected = rejected;
         this.container = container;
         this.date = date;
     }
-    // endregion
 }

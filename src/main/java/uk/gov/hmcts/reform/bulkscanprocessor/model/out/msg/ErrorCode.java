@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg;
 
+/**
+ * Error codes that can be returned in the response.
+ */
 public enum ErrorCode {
 
     ERR_FILE_LIMIT_EXCEEDED, // size too big

@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
 // TODO: separate envelope state and events.
+/**
+ * Events that can happen to an envelope.
+ */
 public enum Event {
 
     ZIPFILE_PROCESSING_STARTED, // when processor starts processing zipfile from blob
