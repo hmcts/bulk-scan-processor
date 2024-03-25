@@ -47,6 +47,7 @@ public class JmsErrorNotificationSender {
      * @param eventId The event ID
      * @param errorCode The error code
      * @param cause The exception that caused the error
+     * @throws EnvelopeRejectingException If an error occurs while sending the error notification
      */
     public void sendErrorNotification(
         String zipFilename,

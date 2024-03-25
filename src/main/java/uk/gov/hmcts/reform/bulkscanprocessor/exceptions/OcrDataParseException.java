@@ -18,6 +18,7 @@ public class OcrDataParseException extends JsonMappingException {
      *
      * @param jsonParser the parser that was used to read the JSON content
      * @param message the error message
+     * @param cause the exception cause
      */
     public OcrDataParseException(JsonParser jsonParser, String message, Throwable cause) {
         super(jsonParser, message, cause);

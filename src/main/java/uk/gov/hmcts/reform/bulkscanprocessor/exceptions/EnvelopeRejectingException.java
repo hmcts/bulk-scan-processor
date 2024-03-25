@@ -7,6 +7,7 @@ public class EnvelopeRejectingException extends RuntimeException {
     /**
      * Creates a new instance of the exception.
      * @param message the exception message
+     * @param cause the exception cause
      */
     public EnvelopeRejectingException(String message, Throwable cause) {
         super(message, cause);
