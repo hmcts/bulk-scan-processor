@@ -256,7 +256,7 @@ dependencyManagement {
       entry 'spring-web'
       entry 'spring-webmvc'
     }
-    dependencySet(group: 'org.apache.logging.log4j', version: '2.20.0') {
+    dependencySet(group: 'org.apache.logging.log4j', version: '2.23.1') {
       entry 'log4j-api'
       entry 'log4j-to-slf4j'
     }
