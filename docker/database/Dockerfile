@@ -1,4 +1,4 @@
-FROM postgres:15
+FROM postgres:16
 
 MAINTAINER "HMCTS BSP <https://github.com/hmcts>"
 LABEL maintainer = "HMCTS BSP <https://github.com/hmcts>"
