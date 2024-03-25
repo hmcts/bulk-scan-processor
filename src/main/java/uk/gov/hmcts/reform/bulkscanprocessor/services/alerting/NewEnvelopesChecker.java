@@ -14,6 +14,9 @@ import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static java.util.Arrays.asList;
 
+/**
+ * Checks if new envelopes have been received within the last hour.
+ */
 @Component
 public class NewEnvelopesChecker {
 
@@ -26,11 +29,19 @@ public class NewEnvelopesChecker {
     private final EnvelopeRepository repo;
     private final Supplier<ZonedDateTime> timeSupplier;
 
+    /**
+     * Constructor for the NewEnvelopesChecker.
+     * @param repo The repository for envelopes
+     * @param timeSupplier The supplier for the current time
+     */
     public NewEnvelopesChecker(EnvelopeRepository repo, Supplier<ZonedDateTime> timeSupplier) {
         this.repo = repo;
         this.timeSupplier = timeSupplier;
     }
 
+    /**
+     * Checks if new envelopes have been received within the last hour.
+     */
     public void checkIfEnvelopesAreMissing() {
         ZonedDateTime now = timeSupplier.get();
 

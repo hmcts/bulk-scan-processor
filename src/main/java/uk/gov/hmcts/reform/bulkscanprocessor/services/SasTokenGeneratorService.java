@@ -15,6 +15,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.UnableToGenerateSasToken
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+/**
+ * Service to generate SAS tokens for the services.
+ */
 @EnableConfigurationProperties(AccessTokenProperties.class)
 @Service
 public class SasTokenGeneratorService {
@@ -25,6 +28,11 @@ public class SasTokenGeneratorService {
     private final AccessTokenProperties accessTokenProperties;
     private static final String PERMISSION_WRITE_LIST = "wlr";
 
+    /**
+     * Constructor for the SasTokenGeneratorService.
+     * @param blobServiceClient The blob service client
+     * @param accessTokenProperties The access token properties
+     */
     public SasTokenGeneratorService(
         BlobServiceClient blobServiceClient,
         AccessTokenProperties accessTokenProperties
@@ -33,6 +41,12 @@ public class SasTokenGeneratorService {
         this.accessTokenProperties = accessTokenProperties;
     }
 
+    /**
+     * Generates SAS token for the given service.
+     * @param serviceName The service name
+     * @return The SAS token
+     * @throws UnableToGenerateSasTokenException If unable to generate SAS token
+     */
     public String generateSasToken(String serviceName) {
         String storageAccountUri = blobServiceClient.getAccountUrl();
         log.info("SAS Token request received for service {}. Account URI: {}", serviceName, storageAccountUri);
@@ -47,6 +61,11 @@ public class SasTokenGeneratorService {
         }
     }
 
+    /**
+     * Creates shared access policy for the given service.
+     * @param config The token config
+     * @return The shared access policy
+     */
     private BlobServiceSasSignatureValues createSharedAccessPolicy(TokenConfig config) {
 
         return new BlobServiceSasSignatureValues(
@@ -55,6 +74,12 @@ public class SasTokenGeneratorService {
         );
     }
 
+    /**
+     * Gets the token config for the given service.
+     * @param serviceName The service name
+     * @return The token config
+     * @throws ServiceConfigNotFoundException If no service configuration found for the given service
+     */
     private TokenConfig getTokenConfigForService(String serviceName) {
         return accessTokenProperties.getServiceConfig().stream()
             .filter(tokenConfig -> tokenConfig.getServiceName().equalsIgnoreCase(serviceName))

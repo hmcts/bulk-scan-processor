@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
+/**
+ * The classification of the envelope.
+ */
 public enum Classification {
 
     EXCEPTION("exception"),
@@ -24,6 +27,10 @@ public enum Classification {
         this.value = value.toLowerCase();
     }
 
+    /**
+     * To string.
+     * @return the value
+     */
     @Override
     public String toString() {
         return value;

@@ -14,18 +14,31 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+/**
+ * Fills the missing containers with zero count.
+ */
 @Component
 @EnableConfigurationProperties(ContainerMappings.class)
 public class ZeroRowFiller {
 
     private final List<String> containers;
 
+    /**
+     * Constructor for the ZeroRowFiller.
+     * @param containerMappings The container mappings
+     */
     public ZeroRowFiller(ContainerMappings containerMappings) {
         this.containers = containerMappings.getMappings()
             .stream()
             .map(ContainerMappings.Mapping::getContainer).collect(toList());
     }
 
+    /**
+     * Fills the missing containers with zero count.
+     * @param listToFill The list to fill
+     * @param date The date
+     * @return The list with missing containers filled with zero count
+     */
     public List<EnvelopeCountSummary> fill(List<EnvelopeCountSummary> listToFill, LocalDate date) {
         return Stream.concat(
             listToFill.stream(),
@@ -33,6 +46,11 @@ public class ZeroRowFiller {
         ).collect(toList());
     }
 
+    /**
+     * Returns the missing containers.
+     * @param listToFill The list to fill
+     * @return The missing containers
+     */
     private Set<String> missingContainers(List<EnvelopeCountSummary> listToFill) {
         return Sets.difference(
             Sets.newHashSet(this.containers),

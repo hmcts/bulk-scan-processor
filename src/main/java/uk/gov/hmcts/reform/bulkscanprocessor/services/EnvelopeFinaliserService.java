@@ -14,6 +14,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import java.util.UUID;
 import javax.transaction.Transactional;
 
+/**
+ * Service to finalise an envelope.
+ */
 @Service
 public class EnvelopeFinaliserService {
 
@@ -22,6 +25,11 @@ public class EnvelopeFinaliserService {
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
 
+    /**
+     * Constructor for the EnvelopeFinaliserService.
+     * @param envelopeRepository The envelope repository
+     * @param processEventRepository The process event repository
+     */
     public EnvelopeFinaliserService(
         EnvelopeRepository envelopeRepository,
         ProcessEventRepository processEventRepository
@@ -30,6 +38,12 @@ public class EnvelopeFinaliserService {
         this.processEventRepository = processEventRepository;
     }
 
+    /**
+     * Finalises an envelope.
+     * @param envelopeId The envelope ID
+     * @param ccdId The CCD ID
+     * @param envelopeCcdAction The envelope CCD action
+     */
     @Transactional
     public void finaliseEnvelope(UUID envelopeId, String ccdId, String envelopeCcdAction) {
         log.info(
@@ -71,6 +85,11 @@ public class EnvelopeFinaliserService {
         );
     }
 
+    /**
+     * Finds an envelope by ID.
+     * @param envelopeId The envelope ID
+     * @return The envelope
+     */
     private Envelope findEnvelope(UUID envelopeId) {
         return envelopeRepository.findById(envelopeId)
             .orElseThrow(() ->

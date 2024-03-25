@@ -12,6 +12,10 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * This class is a task executed by Scheduler as per configured interval.
+ * It will read all the complete files from Azure Blob storage and will delete them.
+ */
 @Service
 @ConditionalOnProperty(value = "scheduling.task.delete-complete-files.enabled")
 public class DeleteCompleteFilesTask {
@@ -22,6 +26,11 @@ public class DeleteCompleteFilesTask {
     private final BlobManager blobManager;
     private final DeleteFilesService deleteFilesService;
 
+    /**
+     * Constructor for the DeleteCompleteFilesTask.
+     * @param blobManager The blob manager
+     * @param deleteFilesService The delete files service
+     */
     public DeleteCompleteFilesTask(
         BlobManager blobManager,
         DeleteFilesService deleteFilesService
@@ -30,6 +39,10 @@ public class DeleteCompleteFilesTask {
         this.deleteFilesService = deleteFilesService;
     }
 
+    /**
+     * This method is executed by Scheduler as per configured interval.
+     * It will read all the complete files from Azure Blob storage and will delete them.
+     */
     @Scheduled(cron = "${scheduling.task.delete-complete-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {

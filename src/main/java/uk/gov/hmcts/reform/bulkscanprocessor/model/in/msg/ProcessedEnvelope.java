@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;
 
+/**
+ * Represents a processed envelope.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProcessedEnvelope {
 
@@ -14,6 +17,12 @@ public class ProcessedEnvelope {
 
     public final String envelopeCcdAction;
 
+    /**
+     * Constructor.
+     * @param envelopeId The envelope ID
+     * @param ccdId The CCD ID
+     * @param envelopeCcdAction The envelope CCD action
+     */
     public ProcessedEnvelope(
         @JsonProperty("envelope_id") UUID envelopeId,
         @JsonProperty("ccd_id") String ccdId,

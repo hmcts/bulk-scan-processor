@@ -23,10 +23,18 @@ public class HeartbeatTask {
 
     private final ServiceBusSendHelper serviceBusHelper;
 
+    /**
+     * Constructor for the HeartbeatTask.
+     * @param serviceBusHelper The service bus helper
+     */
     public HeartbeatTask(@Qualifier("envelopes-helper") ServiceBusSendHelper serviceBusHelper) {
         this.serviceBusHelper = serviceBusHelper;
     }
 
+    /**
+     * This method is executed by Scheduler as per configured interval.
+     * It will send a heartbeat message to orchestrator.
+     */
     @Scheduled(cron = "0 0/10 * * * *")
     @SchedulerLock(name = "heartbeat")
     public void run() {

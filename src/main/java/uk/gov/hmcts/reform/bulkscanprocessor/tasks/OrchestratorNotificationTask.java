@@ -34,7 +34,12 @@ public class OrchestratorNotificationTask {
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
-    // region constructor
+    /**
+     * Constructor for the OrchestratorNotificationTask.
+     * @param orchestratorNotificationService The orchestrator notification service
+     * @param envelopeRepo The envelope repository
+     * @param processEventRepo The process event repository
+     */
     public OrchestratorNotificationTask(
         OrchestratorNotificationService orchestratorNotificationService,
         EnvelopeRepository envelopeRepo,
@@ -43,8 +48,11 @@ public class OrchestratorNotificationTask {
         this.envelopeRepo = envelopeRepo;
         this.processEventRepo = processEventRepo;
     }
-    // endregion
 
+    /**
+     * This method is executed by Scheduler as per configured interval.
+     * It will send notifications to the orchestrator containing processed envelopes.
+     */
     @SchedulerLock(name = TASK_NAME)
     @Scheduled(fixedDelayString = "${scheduling.task.notifications_to_orchestrator.delay}")
     public void run() {
@@ -73,6 +81,11 @@ public class OrchestratorNotificationTask {
         log.debug("Finished {} job", TASK_NAME);
     }
 
+    /**
+     * Creates a process event for the given envelope and event.
+     * @param envelope The envelope
+     * @param event The event
+     */
     private void createEvent(Envelope envelope, Event event) {
         processEventRepo.saveAndFlush(
             new ProcessEvent(

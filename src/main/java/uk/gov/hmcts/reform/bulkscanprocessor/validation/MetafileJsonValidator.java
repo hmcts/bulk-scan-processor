@@ -20,6 +20,12 @@ public class MetafileJsonValidator {
 
     private final JsonSchema jsonSchemaValidator;
 
+    /**
+     * Constructor for the MetafileJsonValidator.
+     * Loads the schema from the resources.
+     * @throws IOException if the schema file cannot be read
+     * @throws ProcessingException if the schema file is invalid
+     */
     public MetafileJsonValidator() throws IOException, ProcessingException {
         // library only supports up to draft-04 of json schema
         try (InputStream inputStream = getClass().getResourceAsStream("/metafile-schema.json")) {
@@ -44,6 +50,13 @@ public class MetafileJsonValidator {
         }
     }
 
+    /**
+     * Parse the metafile into an InputEnvelope object.
+     *
+     * @param metafile to parse
+     * @return the parsed InputEnvelope object
+     * @throws IOException if the metafile cannot be read
+     */
     public InputEnvelope parseMetafile(byte[] metafile) throws IOException {
         return MAPPER.readValue(metafile, InputEnvelope.class);
     }

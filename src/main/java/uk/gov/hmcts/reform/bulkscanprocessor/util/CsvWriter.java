@@ -12,6 +12,9 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
+/**
+ * Utility class to write CSV files.
+ */
 public final class CsvWriter {
 
     private static final String[] ZIP_FILES_SUMMARY_CSV_HEADERS = {
@@ -19,10 +22,20 @@ public final class CsvWriter {
         "Date Processed", "Time Processed", "Status", "Classification", "CCD Action", "CCD ID"
     };
 
+    /**
+     * Constructor to CsvWriter.
+     */
     private CsvWriter() {
         // utility class constructor
     }
 
+    /**
+     * Writes the given data to a CSV file.
+     *
+     * @param data list of ZipFileSummaryResponse
+     * @return the CSV file
+     * @throws IOException if there is an error writing the file
+     */
     public static File writeZipFilesSummaryToCsv(
         List<ZipFileSummaryResponse> data
     ) throws IOException {

@@ -12,6 +12,9 @@ import org.springframework.jms.core.JmsTemplate;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.QueueClientConfig;
 
+/**
+ * Configuration for JMS queue helpers.
+ */
 @AutoConfigureAfter(QueueClientConfig.class)
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
@@ -21,6 +24,9 @@ public class JmsQueueHelpersConfiguration {
     @Autowired
     private ObjectMapper objectMapper;
 
+    /**
+     * Creates a JmsQueueSendHelper for envelopes queue.
+     */
     @Bean(name = "jms-envelopes-helper")
     public JmsQueueSendHelper envelopesQueueHelper(
         @Qualifier("envelopes-jms-template") JmsTemplate jmsTemplate
@@ -28,6 +34,9 @@ public class JmsQueueHelpersConfiguration {
         return new JmsQueueSendHelper(jmsTemplate, objectMapper);
     }
 
+    /**
+     * Creates a JmsQueueSendHelper for notifications queue.
+     */
     @Bean(name = "jms-notifications-helper")
     public JmsQueueSendHelper notificationsQueueHelper(
         @Qualifier("notifications-jms-template") JmsTemplate jmsTemplate

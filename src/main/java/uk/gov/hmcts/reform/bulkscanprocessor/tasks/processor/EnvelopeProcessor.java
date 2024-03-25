@@ -29,6 +29,9 @@ import java.util.UUID;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
 
+/**
+ * Processes the envelope.
+ */
 @Component
 public class EnvelopeProcessor {
     private static final Logger log = LoggerFactory.getLogger(EnvelopeProcessor.class);
@@ -37,6 +40,12 @@ public class EnvelopeProcessor {
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
 
+    /**
+     * Constructor for the EnvelopeProcessor.
+     * @param schemaValidator The schema validator
+     * @param envelopeRepository The envelope repository
+     * @param processEventRepository The process event repository
+     */
     public EnvelopeProcessor(
         MetafileJsonValidator schemaValidator,
         EnvelopeRepository envelopeRepository,
@@ -47,6 +56,14 @@ public class EnvelopeProcessor {
         this.processEventRepository = processEventRepository;
     }
 
+    /**
+     * Parses the envelope.
+     * @param metadataStream The metadata stream
+     * @param zipFileName The zip file name
+     * @return The input envelope
+     * @throws IOException If an I/O error occurs
+     * @throws ProcessingException If a processing exception occurs
+     */
     public InputEnvelope parseEnvelope(
         byte[] metadataStream,
         String zipFileName
@@ -68,6 +85,8 @@ public class EnvelopeProcessor {
     /**
      * Assert zip file did not fail to be uploaded in the past.
      * Throws exception otherwise.
+     * @param zipFileName The zip file name
+     * @param containerName The container name
      */
     public void assertDidNotFailToUploadBefore(String zipFileName, String containerName) {
         List<Envelope> envelopes = envelopeRepository.findRecentEnvelopes(
@@ -94,6 +113,8 @@ public class EnvelopeProcessor {
      * Check blob did not fail to be deleted before. This means that
      * processing is complete and an envelope has already been created as
      * blob deletion is the last processing step.
+     * @param zipFileName The zip file name
+     * @param container The container name
      */
     public Envelope getEnvelopeByFileAndContainer(String container, String zipFileName) {
         return envelopeRepository.findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
@@ -102,6 +123,10 @@ public class EnvelopeProcessor {
         );
     }
 
+    /**
+     * Saves the envelope.
+     * @param envelope The envelope
+     */
     public void saveEnvelope(Envelope envelope) {
         try {
             Envelope dbEnvelope = envelopeRepository.saveAndFlush(envelope);
@@ -122,6 +147,10 @@ public class EnvelopeProcessor {
         }
     }
 
+    /**
+     * Marks the envelope as upload failure.
+     * @param envelope The envelope
+     */
     public void markAsUploadFailure(Envelope envelope) {
         envelope.setUploadFailureCount(envelope.getUploadFailureCount() + 1);
         envelope.setStatus(UPLOAD_FAILURE);
@@ -131,6 +160,14 @@ public class EnvelopeProcessor {
         log.info("Envelope {} status changed to UPLOAD_FAILURE", envelope.getZipFileName());
     }
 
+    /**
+     * Creates an event.
+     * @param event The event
+     * @param containerName The container name
+     * @param zipFileName The zip file name
+     * @param reason The reason
+     * @return The event ID
+     */
     public long createEvent(Event event, String containerName, String zipFileName, String reason, UUID envelopeId) {
         ProcessEvent processEvent = new ProcessEvent(
             containerName,
@@ -152,6 +189,11 @@ public class EnvelopeProcessor {
         return eventId;
     }
 
+    /**
+     * Handles the event.
+     * @param envelope The envelope
+     * @param event The event
+     */
     public void handleEvent(Envelope envelope, Event event) {
         processEventRepository.saveAndFlush(
             new ProcessEvent(envelope.getContainer(), envelope.getZipFileName(), event)
@@ -165,6 +207,10 @@ public class EnvelopeProcessor {
         });
     }
 
+    /**
+     * Evaluates the constraint exception.
+     * @param exception The exception
+     */
     private void evaluateConstraintException(ConstraintViolationException exception) {
         // for further constraint issues can be replaced with switch statement
         if (exception.getConstraintName().equals("scannable_item_dcn")) {

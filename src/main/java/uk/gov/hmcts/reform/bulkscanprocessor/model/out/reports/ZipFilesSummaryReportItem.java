@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * Represents a single item in the zip files summary report.
+ */
 public class ZipFilesSummaryReportItem {
 
     @JsonProperty("file_name")
@@ -42,7 +45,20 @@ public class ZipFilesSummaryReportItem {
     @JsonProperty("ccd_action")
     public final String ccdAction;
 
-    // region constructor
+    /**
+     * Constructor for ZipFilesSummaryReportItem.
+     * @param fileName file name
+     * @param dateReceived date received
+     * @param timeReceived time received
+     * @param dateProcessed date processed
+     * @param timeProcessed time processed
+     * @param container container
+     * @param lastEventStatus last event status
+     * @param envelopeStatus envelope status
+     * @param classification classification
+     * @param ccdId ccd id
+     * @param ccdAction ccd action
+     */
     public ZipFilesSummaryReportItem(
         String fileName,
         LocalDate dateReceived,
@@ -68,6 +84,4 @@ public class ZipFilesSummaryReportItem {
         this.ccdId = ccdId;
         this.ccdAction = ccdAction;
     }
-    // endregion
-
 }

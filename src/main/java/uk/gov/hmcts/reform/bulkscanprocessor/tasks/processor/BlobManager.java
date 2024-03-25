@@ -31,6 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Manages the blob storage.
+ */
 @Component
 @EnableConfigurationProperties(BlobManagementProperties.class)
 public class BlobManager {
@@ -44,6 +47,11 @@ public class BlobManager {
 
     private final BlobManagementProperties properties;
 
+    /**
+     * Constructor for the BlobManager.
+     * @param blobServiceClient The blob service client
+     * @param properties The blob management properties
+     */
     public BlobManager(
         BlobServiceClient blobServiceClient,
         BlobManagementProperties properties
@@ -52,10 +60,19 @@ public class BlobManager {
         this.properties = properties;
     }
 
+    /**
+     * Lists the container client.
+     * @param containerName The container name
+     * @return The blob container client
+     */
     public BlobContainerClient listContainerClient(String containerName) {
         return blobServiceClient.getBlobContainerClient(containerName);
     }
 
+    /**
+     * Lists the input container clients.
+     * @return The blob container clients
+     */
     public List<BlobContainerClient> listInputContainerClients() {
         List<BlobContainerClient> blobContainerClientList =
             blobServiceClient
@@ -71,12 +88,21 @@ public class BlobManager {
         return blobContainerClientList;
     }
 
+    /**
+     * Filters the selected container.
+     * @param container The blob container item
+     * @return The boolean value
+     */
     private boolean filterBySelectedContainer(BlobContainerItem container) {
         String selectedContainer = properties.getBlobSelectedContainer();
         return SELECT_ALL_CONTAINER.equalsIgnoreCase(selectedContainer)
             || selectedContainer.equals(container.getName());
     }
 
+    /**
+     * Lists the rejected containers.
+     * @return The blob container clients
+     */
     public List<BlobContainerClient> listRejectedContainers() {
         return blobServiceClient.listBlobContainers()
             .stream()
@@ -85,6 +111,12 @@ public class BlobManager {
             .collect(toList());
     }
 
+    /**
+     * Tries to move the file to the rejected container.
+     * @param fileName The file name
+     * @param inputContainerName The input container name
+     * @throws Exception If an error occurs
+     */
     public void tryMoveFileToRejectedContainer(String fileName, String inputContainerName) {
         String rejectedContainerName = getRejectedContainerName(inputContainerName);
 
@@ -105,6 +137,13 @@ public class BlobManager {
         }
     }
 
+    /**
+     * Moves the file to the rejected container.
+     * @param fileName The file name
+     * @param inputContainerName The input container name
+     * @param rejectedContainerName The rejected container name
+     * @throws BlobStorageException If an error occurs
+     */
     private void moveFileToRejectedContainer(
         String fileName,
         String inputContainerName,
@@ -161,10 +200,20 @@ public class BlobManager {
         log.info("File {} moved to rejected container {}", fileName, rejectedContainerName);
     }
 
+    /**
+     * Gets the rejected container name.
+     * @param inputContainerName The input container name
+     * @return The rejected container name
+     */
     private String getRejectedContainerName(String inputContainerName) {
         return inputContainerName + REJECTED_CONTAINER_NAME_SUFFIX;
     }
 
+    /**
+     * Copies the blob to the rejected container.
+     * @param sourceBlob The source blob
+     * @param targetBlob The target blob
+     */
     private void copyToRejectedContainer(BlobClient sourceBlob, BlobClient targetBlob) {
         String sasToken = sourceBlob
             .generateSas(

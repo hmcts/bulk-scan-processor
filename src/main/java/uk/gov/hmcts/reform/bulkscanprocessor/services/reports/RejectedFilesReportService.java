@@ -12,15 +12,26 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Service to handle rejected files report.
+ */
 @Service
 public class RejectedFilesReportService {
 
     private final BlobManager blobManager;
 
+    /**
+     * Constructor for the RejectedFilesReportService.
+     * @param blobManager The manager for blob
+     */
     public RejectedFilesReportService(BlobManager blobManager) {
         this.blobManager = blobManager;
     }
 
+    /**
+     * Get the list of rejected files.
+     * @return The list of rejected files
+     */
     public List<RejectedFile> getRejectedFiles() {
         return blobManager
             .listRejectedContainers()
@@ -34,6 +45,11 @@ public class RejectedFilesReportService {
             .collect(toList());
     }
 
+    /**
+     * Get the blobs in a container.
+     * @param container The container
+     * @return The blobs in the container
+     */
     private Stream<BlobItem> getBlobs(BlobContainerClient container) {
         ListBlobsOptions listOptions = new ListBlobsOptions();
         listOptions.getDetails().setRetrieveSnapshots(true);

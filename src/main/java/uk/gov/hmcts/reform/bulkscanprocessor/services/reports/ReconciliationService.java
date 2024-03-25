@@ -25,11 +25,19 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.Disc
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.REPORTED_BUT_NOT_RECEIVED;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType.SCANNABLE_DOCUMENT_DCNS_MISMATCH;
 
+/**
+ * Service to handle reconciliation.
+ */
 @Service
 public class ReconciliationService {
     private final ReceivedZipFileRepository receivedZipFileRepository;
     private final ReceivedZipFileConverter receivedZipFileConverter;
 
+    /**
+     * Constructor for the ReconciliationService.
+     * @param receivedZipFileRepository The repository for received zip file
+     * @param receivedZipFileConverter The converter for received zip file
+     */
     public ReconciliationService(
         ReceivedZipFileRepository receivedZipFileRepository,
         ReceivedZipFileConverter receivedZipFileConverter
@@ -38,6 +46,11 @@ public class ReconciliationService {
         this.receivedZipFileConverter = receivedZipFileConverter;
     }
 
+    /**
+     * Get the reconciliation report for a reconciliation statement.
+     * @param reconciliationStatement The reconciliation statement
+     * @return The reconciliation report
+     */
     public List<Discrepancy> getReconciliationReport(ReconciliationStatement reconciliationStatement) {
         Map<Pair<String, String>, ReportedZipFile> reportedZipFilesMap =
             reconciliationStatement.envelopes
@@ -93,6 +106,12 @@ public class ReconciliationService {
         return discrepancies;
     }
 
+    /**
+     * Find the reported but not received.
+     * @param reportedZipFilesMap The reported zip files map
+     * @param receivedZipFileDataList The received zip file data list
+     * @param discrepancies The discrepancies
+     */
     private void findReportedButNotReceived(
         Map<Pair<String, String>, ReportedZipFile> reportedZipFilesMap,
         List<ReceivedZipFileData> receivedZipFileDataList,
@@ -115,6 +134,12 @@ public class ReconciliationService {
             ));
     }
 
+    /**
+     * Compare for non rejected envelope.
+     * @param discrepancies The discrepancies
+     * @param receivedZipFile The received zip file
+     * @param reportedZipFile The reported zip file
+     */
     private void compareForNonRejectedEnvelope(
         List<Discrepancy> discrepancies,
         ReceivedZipFileData receivedZipFile,
@@ -137,6 +162,14 @@ public class ReconciliationService {
         );
     }
 
+    /**
+     * Compare lists.
+     * @param discrepancies The discrepancies
+     * @param receivedZipFile The received zip file
+     * @param reportedList The reported list
+     * @param receivedList The received list
+     * @param discrepancyType The discrepancy type
+     */
     private void compareLists(
         List<Discrepancy> discrepancies,
         ReceivedZipFileData receivedZipFile,
@@ -165,6 +198,12 @@ public class ReconciliationService {
         }
     }
 
+    /**
+     * Compare rescan for.
+     * @param discrepancies The discrepancies
+     * @param reportedZipFile The reported zip file
+     * @param receivedZipFile The received zip file
+     */
     private void compareRescanFor(
         List<Discrepancy> discrepancies,
         ReportedZipFile reportedZipFile,
@@ -183,12 +222,23 @@ public class ReconciliationService {
         }
     }
 
+    /**
+     * Check if two strings are equal ignoring case and empty strings.
+     * @param str1 The first string
+     * @param str2 The second string
+     * @return True if the strings are equal ignoring case and empty strings
+     */
     private static boolean equalStrEmptyInsensitive(String str1, String str2) {
         return (str1 == null || str1.isEmpty())
             ? (str2 == null || str2.isEmpty())
             : str1.equals(str2);
     }
 
+    /**
+     * Print list.
+     * @param list The list
+     * @return The string representation of the list
+     */
     private String printList(List<String> list) {
         return list == null ? null : list.toString();
     }

@@ -11,6 +11,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Represents a zip file envelope.
+ */
 public class ZipFileEnvelope {
 
     @JsonProperty("id")
@@ -67,7 +70,26 @@ public class ZipFileEnvelope {
     @JsonProperty("payments")
     public final List<PaymentResponse> payments;
 
-    // region constructor
+    /**
+     * Constructor for ZipFileEnvelope.
+     * @param id envelope id
+     * @param container container
+     * @param status envelope status
+     * @param ccdId ccd id
+     * @param envelopeCcdAction envelope ccd action
+     * @param zipFileName zip file name
+     * @param zipDeleted whether the zip file is deleted
+     * @param rescanFor rescan for
+     * @param classification classification
+     * @param jurisdiction jurisdiction
+     * @param caseNumber case number
+     * @param createdAt created at
+     * @param deliveryDate delivery date
+     * @param openingDate opening date
+     * @param scannableItems list of scannable items
+     * @param nonScannableItems list of non-scannable items
+     * @param payments list of payments
+     */
     public ZipFileEnvelope(
         String id,
         String container,
@@ -105,5 +127,4 @@ public class ZipFileEnvelope {
         this.nonScannableItems = nonScannableItems;
         this.payments = payments;
     }
-    // endregion
 }

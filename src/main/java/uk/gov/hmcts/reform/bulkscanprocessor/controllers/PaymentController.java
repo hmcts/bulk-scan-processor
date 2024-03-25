@@ -26,6 +26,9 @@ import javax.validation.Valid;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentResponse;
 
+/**
+ * Controller for payment actions.
+ */
 @Validated
 @RestController
 @RequestMapping(path = "/payment")
@@ -34,11 +37,22 @@ public class PaymentController {
     private final PaymentService paymentService;
     public static final String SUCCESSFUL_UPDATE = "success";
 
+    /**
+     * Constructor for the payment controller.
+     * @param authService The service for authentication
+     * @param paymentService The service for payments
+     */
     public PaymentController(AuthService authService, PaymentService paymentService) {
         this.authService = authService;
         this.paymentService = paymentService;
     }
 
+    /**
+     * Update's payment status to SUBMITTED.
+     * @param serviceAuthHeader The service authorisation header
+     * @param paymentRequest The payment request
+     * @return The payment status response
+     */
     @PutMapping(path = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Update's payment status to SUBMITTED")
     @ApiResponses({
@@ -56,6 +70,11 @@ public class PaymentController {
         return ResponseEntity.ok().body(new PaymentStatusReponse(SUCCESSFUL_UPDATE));
     }
 
+    /**
+     * Retrieves payment details for given dcns.
+     * @param dcns The dcns
+     * @return The list of payment details
+     */
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public SearchResult getPaymentDcns(
         @RequestParam(name = "dcns") List<String> dcns) {

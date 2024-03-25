@@ -12,6 +12,9 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
+/**
+ * Represents an envelope that is sent to the system.
+ */
 public class InputEnvelope {
 
     public final String caseNumber;
@@ -28,6 +31,22 @@ public class InputEnvelope {
     public final List<InputPayment> payments;
     public final List<InputNonScannableItem> nonScannableItems;
 
+    /**
+     * Constructor for input envelope.
+     * @param poBox The PO box
+     * @param jurisdiction The jurisdiction
+     * @param deliveryDate The delivery date
+     * @param openingDate The opening date
+     * @param zipFileCreateddate The zip file created date
+     * @param zipFileName The zip file name
+     * @param rescanFor The rescan for
+     * @param caseNumber The case number
+     * @param previousServiceCaseReference The previous service case reference
+     * @param classification The classification
+     * @param scannableItems The scannable items
+     * @param payments The payments
+     * @param nonScannableItems The non scannable items
+     */
     @JsonCreator
     public InputEnvelope(
         @JsonProperty("po_box") String poBox,

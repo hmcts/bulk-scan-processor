@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.DiscrepancyType;
 
+/**
+ * Represents a discrepancy item in the discrepancy report.
+ */
 public class DiscrepancyItem {
     @JsonProperty("zip_file_name")
     public final String zipFileName;
@@ -19,7 +22,14 @@ public class DiscrepancyItem {
     @JsonProperty("actual")
     public final String actual;
 
-    // region constructor
+    /**
+     * Constructor for DiscrepancyItem.
+     * @param zipFileName name of the zip file
+     * @param container container name
+     * @param type discrepancy type
+     * @param stated stated value
+     * @param actual actual value
+     */
     public DiscrepancyItem(
         String zipFileName,
         String container,
@@ -33,5 +43,4 @@ public class DiscrepancyItem {
         this.stated = stated;
         this.actual = actual;
     }
-    // endregion
 }

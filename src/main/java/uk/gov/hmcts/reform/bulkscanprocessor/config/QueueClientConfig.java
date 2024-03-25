@@ -15,6 +15,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.ProcessedEnvelopeNotificationHandler;
 
+/**
+ * Configuration for Service Bus queue clients.
+ */
 @Configuration
 @Profile(Profiles.NOT_SERVICE_BUS_STUB)
 @ConditionalOnExpression("!${jms.enabled}")
@@ -26,12 +29,18 @@ public class QueueClientConfig {
     @Value("${queues.default-namespace}")
     private String defaultNamespace;
 
+    /**
+     * Get the configuration properties for envelopes queue.
+     */
     @Bean("envelopes-config")
     @ConfigurationProperties(prefix = "queues.envelopes")
     protected QueueConfigurationProperties envelopesQueueConfig() {
         return new QueueConfigurationProperties();
     }
 
+    /**
+     * Bean for envelopes queue client.
+     */
     @Bean("envelopes-send-client")
     public ServiceBusSenderClient envelopesQueueClient(
         @Qualifier("envelopes-config") QueueConfigurationProperties queueProperties
@@ -39,12 +48,18 @@ public class QueueClientConfig {
         return createSendClient(queueProperties);
     }
 
+    /**
+     * Get the configuration properties for processed envelopes queue.
+     */
     @Bean("processed-envelopes-config")
     @ConfigurationProperties(prefix = "queues.processed-envelopes")
     protected QueueConfigurationProperties processedEnvelopesQueueConfig() {
         return new QueueConfigurationProperties();
     }
 
+    /**
+     * Bean for processed envelopes queue client.
+     */
     @Bean("processed-envelopes-client")
     public ServiceBusProcessorClient processedEnvelopesQueueClient(
         @Qualifier("processed-envelopes-config") QueueConfigurationProperties queueProperties,
@@ -61,12 +76,18 @@ public class QueueClientConfig {
             .buildProcessorClient();
     }
 
+    /**
+     * Get the configuration properties for notifications queue.
+     */
     @Bean("notifications-config")
     @ConfigurationProperties(prefix = "queues.notifications")
     protected QueueConfigurationProperties notificationsQueueConfig() {
         return new QueueConfigurationProperties();
     }
 
+    /**
+     * Bean for notifications queue client.
+     */
     @Bean("notifications-send-client")
     public ServiceBusSenderClient notificationsQueueClient(
         @Qualifier("notifications-config") QueueConfigurationProperties queueProperties
@@ -74,6 +95,11 @@ public class QueueClientConfig {
         return createSendClient(queueProperties);
     }
 
+    /**
+     * Create the ServiceBusSenderClient for the queue.
+     * @param queueProperties The queue properties
+     * @return The ServiceBusSenderClient
+     */
     private ServiceBusSenderClient createSendClient(
         QueueConfigurationProperties queueProperties
     ) {
@@ -85,6 +111,11 @@ public class QueueClientConfig {
 
     }
 
+    /**
+     * Create the connection string for the queue.
+     * @param queueProperties The queue properties
+     * @return The connection string
+     */
     private String createConnectionString(QueueConfigurationProperties queueProperties) {
         return String.format(
             CONNECTION_STR_FORMAT,

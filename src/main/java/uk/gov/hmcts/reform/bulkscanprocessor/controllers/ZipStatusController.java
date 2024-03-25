@@ -10,6 +10,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatu
 
 import java.util.Map;
 
+/**
+ * Controller for zip file status actions.
+ */
 @RestController
 @RequestMapping(
     path = "/zip-files",
@@ -23,14 +26,19 @@ public class ZipStatusController {
     private static final String DCN = "dcn";
     private static final String FILE_NAME = "name";
 
-    // region constructor
-
+    /**
+     * Constructor for the zip file status controller.
+     * @param service The service for zip file status
+     */
     public ZipStatusController(ZipFileStatusService service) {
         this.service = service;
     }
 
-    // endregion
-
+    /**
+     * Get the status of a zip file by filter.
+     * @param filtersList The filters
+     * @return The status of the zip file
+     */
     @GetMapping
     public ResponseEntity getStatusByFilter(@RequestParam Map<String,String> filtersList) {
 

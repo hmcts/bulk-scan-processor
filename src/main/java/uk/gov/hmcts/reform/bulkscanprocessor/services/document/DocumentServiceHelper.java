@@ -7,6 +7,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.idam.cache.IdamCachedClien
 
 import java.util.Locale;
 
+/**
+ * Helper class for document service.
+ */
 @Component
 public class DocumentServiceHelper {
 
@@ -15,7 +18,11 @@ public class DocumentServiceHelper {
     private final AuthTokenGenerator authTokenGenerator;
     private final IdamCachedClient idamCachedClient;
 
-
+    /**
+     * Constructor for DocumentServiceHelper.
+     * @param authTokenGenerator The auth token generator
+     * @param idamCachedClient The IDAM cached client
+     */
     public DocumentServiceHelper(
         AuthTokenGenerator authTokenGenerator,
         IdamCachedClient idamCachedClient
@@ -24,6 +31,12 @@ public class DocumentServiceHelper {
         this.idamCachedClient = idamCachedClient;
     }
 
+    /**
+     * Creates a document upload credential.
+     * @param jurisdiction The jurisdiction
+     * @param container The container
+     * @return The document upload credential
+     */
     public DocumentUploadCredential createDocumentUploadCredential(
         String jurisdiction,
         String container

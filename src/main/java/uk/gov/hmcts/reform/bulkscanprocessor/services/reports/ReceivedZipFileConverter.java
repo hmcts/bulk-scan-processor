@@ -16,6 +16,9 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class ReceivedZipFileConverter {
 
+    /**
+     * Converts a list of received zip files to a list of ReceivedZipFileData.
+     */
     public List<ReceivedZipFileData> convertReceivedZipFiles(List<ReceivedZipFile> receivedZipFiles) {
         return receivedZipFiles
             .stream()
@@ -26,6 +29,11 @@ public class ReceivedZipFileConverter {
             .collect(toList());
     }
 
+    /**
+     * Converts a list of received zip files to a ReceivedZipFileData.
+     * @param receivedZipFilesList list of received zip files
+     * @return ReceivedZipFileData
+     */
     private ReceivedZipFileData getReceivedZipFileData(List<ReceivedZipFile> receivedZipFilesList) {
         Set<String> scannableItemDcns = new HashSet<>();
         Set<String> paymentDcns = new HashSet<>();

@@ -15,16 +15,27 @@ import javax.transaction.Transactional;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Service to handle payment records.
+ */
 @Service
 public class PaymentService {
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     private final PaymentRepository repository;
 
+    /**
+     * Constructor for PaymentService.
+     * @param repository The payment repository
+     */
     public PaymentService(PaymentRepository repository) {
         this.repository = repository;
     }
 
+    /**
+     * Updates the payment status.
+     * @param paymentRequest The payment request
+     */
     @Transactional
     public void updatePaymentStatus(PaymentRequest paymentRequest) {
         List<PaymentInfo> payments = paymentRequest.getPayments();
@@ -46,6 +57,10 @@ public class PaymentService {
         }
     }
 
+    /**
+     * Get the payment records by DCN.
+     * @param paymentDcns The list of payment DCN's
+     */
     public Optional<List<Payment>> getPayment(List<String> paymentDcns) {
         return repository.findByDocumentControlNumberIn(paymentDcns);
     }

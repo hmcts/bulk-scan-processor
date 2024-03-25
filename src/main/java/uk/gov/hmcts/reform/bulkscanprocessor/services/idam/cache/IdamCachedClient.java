@@ -11,6 +11,9 @@ import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.TokenResponse;
 import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
+/**
+ * A client that caches IDAM credentials.
+ */
 @Service
 public class IdamCachedClient {
 
@@ -23,6 +26,12 @@ public class IdamCachedClient {
     private final IdamClient idamClient;
     private final JurisdictionToUserMapping users;
 
+    /**
+     * Constructor for IdamCachedClient.
+     * @param idamClient The IDAM client
+     * @param users The users
+     * @param idamCacheExpiry The IDAM cache expiry
+     */
     public IdamCachedClient(
         IdamClient idamClient,
         JurisdictionToUserMapping users,
@@ -35,16 +44,30 @@ public class IdamCachedClient {
             .build();
     }
 
+    /**
+     * Gets the IDAM credentials for the given jurisdiction.
+     * @param jurisdiction The jurisdiction
+     * @return The IDAM credentials
+     */
     public CachedIdamCredential getIdamCredentials(String jurisdiction) {
         log.info("Getting idam credential for jurisdiction: {} ", jurisdiction);
         return this.idamCache.get(jurisdiction.toLowerCase(), this::retrieveIdamInfo);
     }
 
+    /**
+     * Removes the access token from the cache for the given jurisdiction.
+     * @param jurisdiction The jurisdiction
+     */
     public void removeAccessTokenFromCache(String jurisdiction) {
         log.info("Removing idam credential from cache for jurisdiction: {} ", jurisdiction);
         this.idamCache.invalidate(jurisdiction.toLowerCase());
     }
 
+    /**
+     * Retrieves the IDAM credentials for the given jurisdiction.
+     * @param jurisdiction The jurisdiction
+     * @return The IDAM credentials
+     */
     private CachedIdamCredential retrieveIdamInfo(String jurisdiction) {
         log.info("Retrieving access token for jurisdiction: {} from IDAM", jurisdiction);
         Credential user = users.getUser(jurisdiction);

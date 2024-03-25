@@ -21,6 +21,9 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 
+/**
+ * Processes the content of a zip file.
+ */
 @Component
 public class ZipFileProcessor {
     private static final long MAX_PDF_SIZE = 314_572_800; //300 mb
@@ -28,10 +31,21 @@ public class ZipFileProcessor {
     private static final Logger log = LoggerFactory.getLogger(ZipFileProcessor.class);
     public final String downloadPath;
 
+    /**
+     * Constructor for the ZipFileProcessor.
+     * @param downloadPath The download path
+     */
     public ZipFileProcessor(@Value("${tmp-folder-path-for-download}") String downloadPath) {
         this.downloadPath = downloadPath + File.separator;
     }
 
+    /**
+     * Extracts PDF files from a zip file and passes them to the consumer.
+     * @param extractedZis The zip input stream
+     * @param zipFileName The zip file name
+     * @param pdfListConsumer The consumer for the PDF list
+     * @throws IOException If an I/O error occurs
+     */
     public void extractPdfFiles(
         ZipInputStream extractedZis,
         String zipFileName,
@@ -47,6 +61,10 @@ public class ZipFileProcessor {
         }
     }
 
+    /**
+     * Checks the size of the PDF files against the upload limit.
+     * @param fileList The list of files
+     */
     public void checkFileSizeAgainstUploadLimit(List<File> fileList) {
         long totalSize = 0;
         for (File file : fileList) {
@@ -61,6 +79,10 @@ public class ZipFileProcessor {
         log.info("Total upload size {}", totalSize);
     }
 
+    /**
+     * Deletes the folder.
+     * @param zipFileName The zip file name
+     */
     private void deleteFolder(String zipFileName) {
         String folderPath =  downloadPath +  zipFileName;
         try {
@@ -71,6 +93,13 @@ public class ZipFileProcessor {
         }
     }
 
+    /**
+     * Gets the content detail of a zip file.
+     * @param extractedZis The zip input stream
+     * @param zipFileName The zip file name
+     * @return The zip file content detail
+     * @throws IOException If an I/O error occurs
+     */
     public ZipFileContentDetail getZipContentDetail(
         ZipInputStream extractedZis,
         String zipFileName
@@ -105,6 +134,13 @@ public class ZipFileProcessor {
         return new ZipFileContentDetail(metadata, pdfs);
     }
 
+    /**
+     * Creates PDF files and saves them to the temp folder.
+     * @param extractedZis The zip input stream
+     * @param zipFileName The zip file name
+     * @return The list of PDF files
+     * @throws IOException If an I/O error occurs
+     */
     private List<File> createPdfAndSaveToTemp(
         ZipInputStream extractedZis,
         String zipFileName

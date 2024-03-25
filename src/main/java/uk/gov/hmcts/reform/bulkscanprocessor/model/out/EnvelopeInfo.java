@@ -8,6 +8,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Represents the information about an envelope.
+ */
 public class EnvelopeInfo {
 
     @JsonProperty("container")
@@ -24,6 +27,13 @@ public class EnvelopeInfo {
     @JsonProperty("created_at")
     public final Instant createdAt;
 
+    /**
+     * Constructor for EnvelopeInfo.
+     * @param container name of the container
+     * @param fileName name of the envelope
+     * @param envelopeId ID of the envelope
+     * @param createdAt time when the envelope was created
+     */
     public EnvelopeInfo(
         String container,
         String fileName,

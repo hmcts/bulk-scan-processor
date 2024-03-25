@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.ClockProvider;
 
+/**
+ * Represents a list of discrepancy items in the discrepancy report.
+ */
 public class EnvelopeCountSummaryReportListResponse {
 
     @JsonProperty("total_received")
@@ -22,6 +25,11 @@ public class EnvelopeCountSummaryReportListResponse {
     @JsonProperty("data")
     public final List<EnvelopeCountSummaryReportItem> items;
 
+    /**
+     * Constructor for EnvelopeCountSummaryReportListResponse.
+     * @param items list of discrepancy items
+     * @param clockProvider clock provider
+     */
     public EnvelopeCountSummaryReportListResponse(
         List<EnvelopeCountSummaryReportItem> items,
         ClockProvider clockProvider

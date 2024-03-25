@@ -24,6 +24,9 @@ import java.util.Optional;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Maps input envelope to database envelope.
+ */
 public class EnvelopeMapper {
 
     // Maps metadata file document type to target ccd subtype.
@@ -33,10 +36,20 @@ public class EnvelopeMapper {
             InputDocumentType.COVERSHEET, DocumentSubtype.COVERSHEET
         );
 
+    /**
+     * Maps input envelope to database envelope.
+     */
     private EnvelopeMapper() {
         // utility class
     }
 
+    /**
+     * Maps input envelope to database envelope.
+     * @param envelope input envelope
+     * @param containerName name of the container
+     * @param ocrValidationWarnings OCR validation warnings
+     * @return database envelope
+     */
     public static Envelope toDbEnvelope(
         InputEnvelope envelope,
         String containerName,
@@ -60,6 +73,12 @@ public class EnvelopeMapper {
         );
     }
 
+    /**
+     * Scannable items to database.
+     * @param scannableItems input scannable items
+     * @param ocrValidationWarnings OCR validation warnings
+     * @return database scannable items
+     */
     private static List<ScannableItem> toDbScannableItems(
         List<InputScannableItem> scannableItems,
         Optional<OcrValidationWarnings> ocrValidationWarnings
@@ -78,6 +97,12 @@ public class EnvelopeMapper {
         }
     }
 
+    /**
+     * Returns OCR validation warnings for the given scannable item.
+     * @param ocrValidationWarnings OCR validation warnings
+     * @param scannableItem scannable item
+     * @return OCR validation warnings for the given scannable item
+     */
     private static String[] ocrValidationWarningsForItem(
         Optional<OcrValidationWarnings> ocrValidationWarnings,
         InputScannableItem scannableItem
@@ -88,6 +113,12 @@ public class EnvelopeMapper {
             .orElseGet(() -> new String[0]);
     }
 
+    /**
+     * Scannable item to database.
+     * @param scannableItem input scannable item
+     * @param ocrValidationWarnings OCR validation warnings
+     * @return database scannable item
+     */
     public static ScannableItem toDbScannableItem(
         InputScannableItem scannableItem,
         String[] ocrValidationWarnings
@@ -108,6 +139,11 @@ public class EnvelopeMapper {
         );
     }
 
+    /**
+     * Maps input OCR data to database OCR data.
+     * @param inputOcrData input OCR data
+     * @return database OCR data
+     */
     private static OcrData mapOcrData(InputOcrData inputOcrData) {
         return inputOcrData == null ? null : new OcrData(
             inputOcrData
@@ -118,6 +154,11 @@ public class EnvelopeMapper {
         );
     }
 
+    /**
+     * Maps input document type to database document type.
+     * @param inputDocumentType input document type
+     * @return database document type
+     */
     private static DocumentType mapDocumentType(InputDocumentType inputDocumentType) {
         switch (inputDocumentType) {
             case CHERISHED:
@@ -144,6 +185,12 @@ public class EnvelopeMapper {
         }
     }
 
+    /**
+     * Extracts document subtype from input document type and subtype.
+     * @param inputDocumentType input document type
+     * @param inputDocumentSubtype input document subtype
+     * @return document subtype
+     */
     private static String extractDocumentSubtype(InputDocumentType inputDocumentType, String inputDocumentSubtype) {
         switch (inputDocumentType) {
             case SSCS1:
@@ -153,6 +200,11 @@ public class EnvelopeMapper {
         }
     }
 
+    /**
+     * Payments to database.
+     * @param payments input payments
+     * @return database payments
+     */
     private static List<Payment> toDbPayments(List<InputPayment> payments) {
         if (payments != null) {
             return payments
@@ -164,6 +216,11 @@ public class EnvelopeMapper {
         }
     }
 
+    /**
+     * Non-scannable items to database.
+     * @param nonScannableItems input non-scannable items
+     * @return database non-scannable items
+     */
     private static List<NonScannableItem> toDbNonScannableItems(List<InputNonScannableItem> nonScannableItems) {
         if (nonScannableItems != null) {
             return nonScannableItems
@@ -175,6 +232,11 @@ public class EnvelopeMapper {
         }
     }
 
+    /**
+     * Non-scannable item to database.
+     * @param nonScannableItem input non-scannable item
+     * @return database non-scannable item
+     */
     private static NonScannableItem toDbNonScannableItem(InputNonScannableItem nonScannableItem) {
         return new NonScannableItem(
             nonScannableItem.documentControlNumber,

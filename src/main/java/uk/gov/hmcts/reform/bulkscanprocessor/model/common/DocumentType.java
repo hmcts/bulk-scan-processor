@@ -2,6 +2,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.common;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/**
+ * Document types.
+ */
 public enum DocumentType {
 
     CHERISHED("cherished"),
@@ -16,10 +19,18 @@ public enum DocumentType {
 
     private final String value;
 
+    /**
+     * DocumentType constructor.
+     * @param value The value
+     */
     DocumentType(String value) {
         this.value = value.toLowerCase();
     }
 
+    /**
+     * To string.
+     * @return The value
+     */
     @Override
     @JsonValue
     public String toString() {

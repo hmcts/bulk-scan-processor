@@ -14,20 +14,35 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.ccd.document.am.config.CaseDocumentManagementClientAutoConfiguration;
 
+/**
+ * Configuration for HTTP clients.
+ */
 @AutoConfigureBefore(CaseDocumentManagementClientAutoConfiguration.class)
 @Configuration
 public class HttpConfiguration {
 
+    /**
+     * Bean for Feign HTTP client.
+     * @return The Feign HTTP client
+     */
     @Bean
     public Client getFeignHttpClient() {
         return new ApacheHttpClient(getHttpClient());
     }
 
+    /**
+     * Bean for RestTemplate.
+     * @return The RestTemplate
+     */
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate(clientHttpRequestFactory());
     }
 
+    /**
+     * Bean for HttpComponentsClientHttpRequestFactory.
+     * @return The HttpComponentsClientHttpRequestFactory
+     */
     @Bean
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         var factory = new HttpComponentsClientHttpRequestFactory(getHttpClient());
@@ -35,6 +50,10 @@ public class HttpConfiguration {
         return factory;
     }
 
+    /**
+     * Bean for CloseableHttpClient.
+     * @return The CloseableHttpClient
+     */
     private CloseableHttpClient getHttpClient() {
         RequestConfig config = RequestConfig.custom()
             .setConnectTimeout(30000)
@@ -49,9 +68,12 @@ public class HttpConfiguration {
             .build();
     }
 
+    /**
+     * Bean for Azure HTTP client.
+     * @return The Azure HTTP client
+     */
     @Bean
     public HttpClient azureHttpClient() {
         return new NettyAsyncHttpClientBuilder().build();
     }
-
 }
