@@ -141,8 +141,6 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
      * @param dateTime date time
      * @return list of envelopes
      */
-    @Query("select e from Envelope e \n"
-        + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED'"
     @Query("select e from Envelope e "
         + "where e.createdAt < :datetime AND e.status != 'COMPLETED' AND e.status != 'ABORTED'"
     )
