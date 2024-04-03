@@ -16,6 +16,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import javax.sql.DataSource;
 
+/**
+ * Configuration for ShedLock.
+ */
 @Configuration
 @AutoConfigureAfter(FlywayConfiguration.class)
 @DependsOn({"flyway", "flywayInitializer"})
@@ -25,11 +28,21 @@ public class ShedLockConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(ShedLockConfiguration.class);
 
+    /**
+     * Bean for lock provider.
+     * @param dataSource The DataSource
+     * @return The LockProvider
+     */
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
         return new JdbcLockProvider(dataSource);
     }
 
+    /**
+     * Bean for custom task scheduler.
+     * @param poolSize The pool size
+     * @return The TaskScheduler
+     */
     @Bean
     public TaskScheduler customTaskScheduler(
         @Value("${scheduling.pool}") int poolSize

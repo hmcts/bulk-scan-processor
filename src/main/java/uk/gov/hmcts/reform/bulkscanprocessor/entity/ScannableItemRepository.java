@@ -8,6 +8,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Repository for ScannableItem entity.
+ */
 public interface ScannableItemRepository extends JpaRepository<ScannableItem, UUID> {
 
     /**
@@ -21,11 +24,16 @@ public interface ScannableItemRepository extends JpaRepository<ScannableItem, UU
         + " where si.documentControlNumber LIKE :documentControlNumber%"
         + " order by si.scanningDate desc"
     )
-
     List<String> findByDcn(
         @Param("documentControlNumber") String documentControlNumber
     );
 
+    /**
+     * Deletes scannable items by envelope id.
+     *
+     * @param envelopeIds list of envelope ids
+     * @return number of deleted items
+     */
     @Modifying
     @Query(value = "DELETE FROM scannable_items e "
         + "WHERE e.envelope_id IN :envelopeIds",

@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * Represents the zip file summary response.
+ */
 public class ZipFileSummaryResponse {
 
     public final String fileName;
@@ -17,7 +20,20 @@ public class ZipFileSummaryResponse {
     public final String ccdId;
     public final String ccdAction;
 
-    // region constructor
+    /**
+     * Constructor for the ZipFileSummaryResponse.
+     * @param fileName The file name
+     * @param dateReceived The date received
+     * @param timeReceived The time received
+     * @param dateProcessed The date processed
+     * @param timeProcessed The time processed
+     * @param container The container
+     * @param lastEventStatus The last event status
+     * @param envelopeStatus The envelope status
+     * @param classification The classification
+     * @param ccdId The ccd id
+     * @param ccdAction The ccd action
+     */
     public ZipFileSummaryResponse(
         String fileName,
         LocalDate dateReceived,
@@ -43,5 +59,4 @@ public class ZipFileSummaryResponse {
         this.ccdId = ccdId;
         this.ccdAction = ccdAction;
     }
-    // endregion
 }

@@ -20,6 +20,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Service to retrieve envelopes.
+ */
 @Service
 @EnableConfigurationProperties(EnvelopeAccessProperties.class)
 public class EnvelopeRetrieverService {
@@ -29,6 +32,11 @@ public class EnvelopeRetrieverService {
     private final EnvelopeRepository envelopeRepository;
     private final EnvelopeAccessService envelopeAccessService;
 
+    /**
+     * Constructor for the EnvelopeRetrieverService.
+     * @param envelopeRepository The envelope repository
+     * @param envelopeAccessService The envelope access service
+     */
     public EnvelopeRetrieverService(
         EnvelopeRepository envelopeRepository,
         EnvelopeAccessService envelopeAccessService
@@ -37,6 +45,12 @@ public class EnvelopeRetrieverService {
         this.envelopeAccessService = envelopeAccessService;
     }
 
+    /**
+     * Fetches envelopes for a given service and status.
+     * @param serviceName The service name
+     * @param status The status
+     * @return The envelopes
+     */
     public List<EnvelopeResponse> findByServiceAndStatus(String serviceName, Status status) {
         log.info("Fetch requested for envelopes for service {} and status {}", serviceName, status);
 
@@ -58,6 +72,12 @@ public class EnvelopeRetrieverService {
         );
     }
 
+    /**
+     * Fetches an envelope by ID.
+     * @param serviceName The service name
+     * @param id The envelope ID
+     * @return The envelope
+     */
     public Optional<EnvelopeResponse> findById(String serviceName, UUID id) {
         String validJurisdiction = envelopeAccessService.getReadJurisdictionForService(serviceName);
         Optional<Envelope> envelope = envelopeRepository.findById(id);
@@ -69,6 +89,12 @@ public class EnvelopeRetrieverService {
         }
     }
 
+    /**
+     * Fetches an envelope by file name and container.
+     * @param fileName The file name
+     * @param container The container
+     * @return The envelope
+     */
     public EnvelopeResponse findByFileNameAndContainer(String fileName, String container) {
         Envelope envelope = envelopeRepository.findFirstByZipFileNameAndContainerOrderByCreatedAtDesc(
             fileName,

@@ -12,17 +12,29 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.Msg;
 
 import java.util.Objects;
 
+/**
+ * Helper class to send messages to a JMS queue.
+ */
 public class JmsQueueSendHelper {
 
     private JmsTemplate jmsTemplate;
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructor for the helper.
+     * @param jmsTemplate the JmsTemplate to use for sending messages
+     * @param objectMapper the object mapper to use for serializing messages
+     */
     public JmsQueueSendHelper(JmsTemplate jmsTemplate, ObjectMapper objectMapper) {
         this.jmsTemplate = jmsTemplate;
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Sends the given message to the JMS queue.
+     * @param msg the message to send
+     */
     public void sendMessage(Msg msg) {
         String jmsMessage = mapToJmsMessage(msg);
 
@@ -41,6 +53,11 @@ public class JmsQueueSendHelper {
         );
     }
 
+    /**
+     * Maps the given message to a JMS message.
+     * @param msg the message to map
+     * @return the JMS message
+     */
     String mapToJmsMessage(Msg msg) {
         if (msg == null) {
             throw new InvalidMessageException("Msg == null");

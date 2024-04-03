@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Response for the zip files summary report.
+ */
 public class ZipFilesSummaryReportListResponse {
 
     private static final String ENVELOPE_UPLOAD_FAILURE = "UPLOAD_FAILURE";
@@ -35,6 +38,10 @@ public class ZipFilesSummaryReportListResponse {
     @JsonProperty("data")
     public final List<ZipFilesSummaryReportItem> items;
 
+    /**
+     * Constructor for ZipFilesSummaryReportListResponse.
+     * @param items list of items
+     */
     public ZipFilesSummaryReportListResponse(List<ZipFilesSummaryReportItem> items) {
         this.total = items.size();
         this.items = items;

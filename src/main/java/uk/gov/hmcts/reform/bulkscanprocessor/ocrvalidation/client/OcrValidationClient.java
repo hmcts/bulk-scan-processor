@@ -9,15 +9,30 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.req.FormData;
 import uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation.client.model.res.ValidationResponse;
 
+/**
+ * Client for OCR validation service.
+ */
 @Component
 public class OcrValidationClient {
 
     private final RestTemplate restTemplate;
 
+    /**
+     * Constructor for OcrValidationClient.
+     * @param restTemplate RestTemplate
+     */
     public OcrValidationClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    /**
+     * Validates the OCR data.
+     * @param baseUrl base URL of the OCR validation service
+     * @param formData OCR data to validate
+     * @param formType form type
+     * @param s2sToken S2S token
+     * @return validation response
+     */
     public ValidationResponse validate(
         String baseUrl,
         FormData formData,

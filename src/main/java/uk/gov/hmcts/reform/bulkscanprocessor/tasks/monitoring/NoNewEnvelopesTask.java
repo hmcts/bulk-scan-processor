@@ -10,6 +10,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.alerting.NewEnvelopesCheck
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * Task to monitor if there are no new envelopes.
+ */
 @Component
 @ConditionalOnProperty("monitoring.no-new-envelopes.enabled")
 public class NoNewEnvelopesTask {
@@ -19,10 +22,17 @@ public class NoNewEnvelopesTask {
 
     private final NewEnvelopesChecker checker;
 
+    /**
+     * Constructor for the NoNewEnvelopesTask.
+     * @param checker The new envelopes checker
+     */
     public NoNewEnvelopesTask(NewEnvelopesChecker checker) {
         this.checker = checker;
     }
 
+    /**
+     * Runs the task.
+     */
     @Scheduled(cron = "0 0 * * * *", zone = EUROPE_LONDON)
     @SchedulerLock(name = JOB_NAME, lockAtLeastFor = "30s")
     public void run() {

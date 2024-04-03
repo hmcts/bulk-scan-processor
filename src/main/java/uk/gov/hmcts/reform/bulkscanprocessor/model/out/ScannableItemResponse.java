@@ -10,6 +10,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 
 import java.time.Instant;
 
+/**
+ * Represents the response for a scannable item.
+ */
 public class ScannableItemResponse {
 
     @JsonProperty("document_control_number")
@@ -47,6 +50,20 @@ public class ScannableItemResponse {
     @JsonProperty("has_ocr_data")
     public final boolean hasOcrData;
 
+    /**
+     * Constructor for ScannableItemResponse.
+     * @param documentControlNumber Document control number
+     * @param scanningDate Scanning date
+     * @param ocrAccuracy OCR accuracy
+     * @param manualIntervention Manual intervention
+     * @param nextAction Next action
+     * @param nextActionDate Next action date
+     * @param fileName File name
+     * @param documentUuid Document UUID
+     * @param documentType Document type
+     * @param documentSubtype Document subtype
+     * @param hasOcrData Has OCR data
+     */
     @JsonCreator
     public ScannableItemResponse(
         @JsonProperty("document_control_number") String documentControlNumber,
@@ -76,6 +93,10 @@ public class ScannableItemResponse {
         this.hasOcrData = hasOcrData;
     }
 
+    /**
+     * Returns the string representation of the object.
+     * @return String representation of the object
+     */
     @Override
     public String toString() {
         return "ScannableItemResponse{"

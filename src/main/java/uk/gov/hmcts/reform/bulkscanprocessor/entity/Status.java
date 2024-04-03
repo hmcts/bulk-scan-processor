@@ -4,6 +4,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.util.Optional;
 
+/**
+ * Represents the status of an envelope.
+ */
 public enum Status {
 
     CREATED,
@@ -14,6 +17,11 @@ public enum Status {
     ABORTED,            // envelope in inconsistent state has been aborted
     COMPLETED;          // final state - the envelope has been successfully processed by the service
 
+    /**
+     * Returns the status for the given event.
+     * @param event the event
+     * @return the status for the given event
+     */
     public static Optional<Status> fromEvent(Event event) {
         switch (event) {
             case DOC_FAILURE -> {

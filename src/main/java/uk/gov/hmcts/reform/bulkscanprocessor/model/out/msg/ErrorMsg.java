@@ -32,7 +32,19 @@ public class ErrorMsg implements Msg {
     public final String service;
     public final String container;
 
-    // region constructors
+    /**
+     * Constructor for ErrorMsg.
+     * @param id error message id
+     * @param eventId event id
+     * @param zipFileName name of the zip file
+     * @param jurisdiction jurisdiction
+     * @param poBox po box
+     * @param documentControlNumber document control number
+     * @param errorCode error code
+     * @param errorDescription error description
+     * @param service service
+     * @param container container
+     */
     @SuppressWarnings("squid:S00107") // number of params
     public ErrorMsg(
         // TODO: make id transient when the application stops sending error notifications
@@ -60,19 +72,24 @@ public class ErrorMsg implements Msg {
         this.service = service;
         this.container = container;
     }
-    // endregion
 
-    // region getters
+    /**
+     * Get message id.
+     * @return message id
+     */
     @JsonIgnore
     @Override
     public String getMsgId() {
         return this.id;
     }
 
+    /**
+     * Get message label.
+     * @return message label
+     */
     @JsonIgnore
     @Override
     public String getLabel() {
         return null;
     }
-    // endregion
 }

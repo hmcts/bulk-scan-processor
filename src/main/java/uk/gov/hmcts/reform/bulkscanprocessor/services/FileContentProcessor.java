@@ -23,6 +23,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILU
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
 
+/**
+ * Processes the content of a zip file.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 @ConditionalOnExpression("!${jms.enabled}")
@@ -37,6 +40,13 @@ public class FileContentProcessor {
 
     private final FileRejector fileRejector;
 
+    /**
+     * Constructor for the FileContentProcessor.
+     * @param zipFileProcessor The zip file processor
+     * @param envelopeProcessor The envelope processor
+     * @param envelopeHandler The envelope handler
+     * @param fileRejector The file rejector
+     */
     public FileContentProcessor(
         ZipFileProcessor zipFileProcessor,
         EnvelopeProcessor envelopeProcessor,
@@ -49,6 +59,12 @@ public class FileContentProcessor {
         this.fileRejector = fileRejector;
     }
 
+    /**
+     * Processes the content of a zip file.
+     * @param zis The zip input stream
+     * @param zipFilename The zip file name
+     * @param containerName The container name
+     */
     public void processZipFileContent(
         ZipInputStream zis,
         String zipFilename,
@@ -99,6 +115,14 @@ public class FileContentProcessor {
         }
     }
 
+    /**
+     * Creates an event.
+     * @param event The event
+     * @param containerName The container name
+     * @param zipFilename The zip file name
+     * @param message The message
+     * @return The event ID
+     */
     private Long createEvent(
         Event event,
         String containerName,

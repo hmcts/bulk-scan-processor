@@ -19,6 +19,9 @@ import java.util.UUID;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+/**
+ * Controller for envelope actions.
+ */
 @RestController
 @RequestMapping(path = "/actions")
 public class ActionController {
@@ -27,6 +30,11 @@ public class ActionController {
     private final EnvelopeActionService envelopeActionService;
     private final String actionsApiKey;
 
+    /**
+     * Constructor.
+     * @param envelopeActionService service for envelope actions
+     * @param apiKey API key for actions
+     */
     public ActionController(
         EnvelopeActionService envelopeActionService,
         @Value("${actions.api-key}") String apiKey
@@ -35,6 +43,12 @@ public class ActionController {
         this.actionsApiKey = apiKey;
     }
 
+    /**
+     * Reprocess envelope by ID.
+     * @param authHeader API key
+     * @param id envelope ID
+     * @return 200 if successful
+     */
     @PutMapping(path = "/reprocess/{id}")
     @Operation(description = "Reprocess envelope by ID")
     public ResponseEntity<Void> reprocess(
@@ -47,6 +61,12 @@ public class ActionController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * Update classification to EXCEPTION and reprocess envelope by ID.
+     * @param authHeader API key
+     * @param id envelope ID
+     * @return 200 if successful
+     */
     @PutMapping(path = "/update-classification-reprocess/{id}")
     @Operation(description = "Update classification to EXCEPTION and reprocess envelope by ID")
     public ResponseEntity<Void> updateClassificationAndReprocess(
@@ -59,6 +79,12 @@ public class ActionController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * Complete envelope by ID.
+     * @param authHeader API key
+     * @param id envelope ID
+     * @return 200 if successful
+     */
     @PutMapping(path = "/{id}/complete")
     @Operation(description = "Complete envelope by ID")
     public ResponseEntity<Void> makeCompleted(
@@ -71,6 +97,12 @@ public class ActionController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * Abort envelope by ID.
+     * @param authHeader API key
+     * @param id envelope ID
+     * @return 200 if successful
+     */
     @PutMapping(path = "/{id}/abort")
     @Operation(description = "Abort envelope by ID")
     public ResponseEntity<Void> makeAborted(
@@ -83,6 +115,11 @@ public class ActionController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * Validate API key.
+     * @param authorizationKey API key
+     * @throws InvalidApiKeyException if API key is missing or invalid
+     */
     private void validateAuthorization(String authorizationKey) {
 
         if (StringUtils.isEmpty(authorizationKey)) {

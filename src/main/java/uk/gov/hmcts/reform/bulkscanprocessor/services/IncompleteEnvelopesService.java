@@ -18,6 +18,9 @@ import static java.time.LocalDateTime.now;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Service to handle incomplete envelopes.
+ */
 @Service
 public class IncompleteEnvelopesService {
 
@@ -25,12 +28,22 @@ public class IncompleteEnvelopesService {
     private final ScannableItemRepository scannableItemRepository;
     private static final Logger log = LoggerFactory.getLogger(IncompleteEnvelopesService.class);
 
+    /**
+     * Constructor for the IncompleteEnvelopesService.
+     * @param envelopeRepository The repository for envelope
+     * @param scannableItemRepository The repository for scannable item
+     */
     public IncompleteEnvelopesService(EnvelopeRepository envelopeRepository,
                                       ScannableItemRepository scannableItemRepository) {
         this.envelopeRepository = envelopeRepository;
         this.scannableItemRepository = scannableItemRepository;
     }
 
+    /**
+     * Get incomplete envelopes.
+     * @param staleTimeHr The stale time in hours
+     * @return The list of incomplete envelopes
+     */
     public List<EnvelopeInfo> getIncompleteEnvelopes(int staleTimeHr) {
         return envelopeRepository
             .getIncompleteEnvelopesBefore(Instant.now().minus(staleTimeHr, ChronoUnit.HOURS))
@@ -45,6 +58,12 @@ public class IncompleteEnvelopesService {
             .collect(toList());
     }
 
+    /**
+     * Delete incomplete envelopes.
+     * @param staleTimeHr The stale time in hours
+     * @param envelopesToRemove The list of envelopes to remove
+     * @return The number of rows deleted
+     */
     @Transactional
     public int deleteIncompleteEnvelopes(int staleTimeHr, List<String> envelopesToRemove) {
         List<UUID> envelopeIds = envelopesToRemove.stream()

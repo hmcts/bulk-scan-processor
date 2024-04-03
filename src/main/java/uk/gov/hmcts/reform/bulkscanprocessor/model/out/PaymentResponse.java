@@ -7,6 +7,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.InstantSerializer;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Represents a payment response.
+ */
 public class PaymentResponse {
 
     public final UUID id;
@@ -20,6 +23,13 @@ public class PaymentResponse {
     @JsonProperty("document_control_number")
     public final String documentControlNumber;
 
+    /**
+     * Constructor for PaymentResponse.
+     * @param id ID of the payment
+     * @param documentControlNumber Document control number
+     * @param status Status of the payment
+     * @param lastmodified Last modified date
+     */
     public PaymentResponse(
         @JsonProperty("id") UUID id,
         @JsonProperty("document_control_number") String documentControlNumber,

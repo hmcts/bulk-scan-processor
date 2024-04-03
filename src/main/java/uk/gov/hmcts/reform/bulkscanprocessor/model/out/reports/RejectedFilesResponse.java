@@ -5,6 +5,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.reports.models.RejectedFil
 
 import java.util.List;
 
+/**
+ * Response for rejected files report.
+ */
 public class RejectedFilesResponse {
 
     @JsonProperty("count")
@@ -13,6 +16,11 @@ public class RejectedFilesResponse {
     @JsonProperty("rejected_files")
     public final List<RejectedFile> rejectedFiles;
 
+    /**
+     * Constructor for RejectedFilesResponse.
+     * @param count count of rejected files
+     * @param rejectedFiles list of rejected files
+     */
     public RejectedFilesResponse(int count, List<RejectedFile> rejectedFiles) {
         this.count = count;
         this.rejectedFiles = rejectedFiles;

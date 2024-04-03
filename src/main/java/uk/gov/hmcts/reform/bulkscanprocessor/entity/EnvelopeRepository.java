@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Repository for envelopes.
+ */
 public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
@@ -30,15 +33,38 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
 
     /**
      * Find all envelopes for given jurisdiction.
+     * @param jurisdiction jurisdiction
+     * @param date date
+     * @return list of envelopes
      */
     List<Envelope> findByJurisdictionAndCreatedAtGreaterThan(String jurisdiction, Instant date);
 
+    /**
+     * Find by status.
+     * @param status status
+     * @return list of envelopes
+     */
     List<Envelope> findByStatus(Status status);
 
+    /**
+     * Find by status in.
+     * @param statuses statuses
+     * @return list of envelopes
+     */
     List<Envelope> findByStatusIn(Collection<Status> statuses);
 
+    /**
+     * Find by status and container.
+     * @param zipFileName zipFileName
+     * @return list of envelopes
+     */
     List<Envelope> findByZipFileName(String zipFileName);
 
+    /**
+     * Find by ccdId.
+     * @param ccdId ccdId
+     * @return list of envelopes
+     */
     List<Envelope> findByCcdId(String ccdId);
 
     /**
@@ -74,6 +100,12 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         Pageable pageable
     );
 
+    /**
+     * Finds envelope to upload.
+     *
+     * @param maxFailureCount max failure count
+     * @return A list of envelopes.
+     */
     @Query("select e from Envelope e"
         + " where e.status in ('CREATED', 'UPLOAD_FAILURE')" // todo: use a constant
         + "   and e.uploadFailureCount < :maxFailureCount"
@@ -81,6 +113,12 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     )
     List<Envelope> findEnvelopesToUpload(@Param("maxFailureCount") int maxFailureCount);
 
+    /**
+     * Finds number of incomplete envelopes before a given date time.
+     *
+     * @param dateTime the date time
+     * @return A list of envelopes.
+     */
     @Query(
         nativeQuery = true,
         value = "SELECT COUNT(1) AS incomplete\n"
@@ -89,13 +127,33 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     )
     int getIncompleteEnvelopesCountBefore(@Param("datetime") LocalDateTime dateTime);
 
+    /**
+     * Find list of envelopes by container and status and zipDeleted.
+     * @param container container
+     * @param status status
+     * @param zipDeleted zipDeleted
+     * @return list of envelopes
+     */
     List<Envelope> findByContainerAndStatusAndZipDeleted(String container, Status status, boolean zipDeleted);
 
+    /**
+     * Get incomplete envelopes before a given date time.
+     * @param dateTime date time
+     * @return list of envelopes
+     */
+    @Query("select e from Envelope e \n"
+        + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED'"
     @Query("select e from Envelope e "
         + "where e.createdAt < :datetime AND e.status != 'COMPLETED' AND e.status != 'ABORTED'"
     )
     List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") Instant dateTime);
 
+    /**
+     * Delete envelopes before a given date time.
+     * @param dateTime date time
+     * @param envelopeIds envelope ids
+     * @return number of envelopes deleted
+     */
     @Modifying
     @Query(value = "DELETE FROM envelopes e "
         + "WHERE createdat < :datetime AND status != 'COMPLETED' AND status != 'ABORTED' AND e.id IN :envelopeIds",
@@ -103,6 +161,11 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
     int deleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime,
                               @Param("envelopeIds") List<UUID> envelopeIds);
 
+    /**
+     * Get complete envelopes from a container.
+     * @param container container
+     * @return list of envelopes
+     */
     @Query("select e from Envelope e \n"
         + "WHERE e.container = :container "
         + "AND (e.status = 'COMPLETED' OR e.status = 'NOTIFICATION_SENT') "
@@ -112,6 +175,12 @@ public interface EnvelopeRepository extends JpaRepository<Envelope, UUID> {
         @Param("container") String container
     );
 
+    /**
+     * Update envelope classification and status.
+     * @param id envelope id
+     * @param container container
+     * @return number of envelopes updated
+     */
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Envelope e SET e.classification = 'EXCEPTION', e.status = 'UPLOADED' \n"
         + "WHERE e.id = :id "

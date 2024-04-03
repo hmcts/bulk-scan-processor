@@ -17,6 +17,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendH
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Service to handle sending notifications to orchestrator.
+ */
 @Service
 @ConditionalOnExpression("!${jms.enabled}")
 public class OrchestratorNotificationService {
@@ -26,6 +29,12 @@ public class OrchestratorNotificationService {
     private final EnvelopeRepository envelopeRepo;
     private final ProcessEventRepository processEventRepo;
 
+    /**
+     * Constructor for the OrchestratorNotificationService.
+     * @param serviceBusHelper The service bus helper
+     * @param envelopeRepo The repository for envelope
+     * @param processEventRepo The repository for process event
+     */
     public OrchestratorNotificationService(
         @Qualifier("envelopes-helper") ServiceBusSendHelper serviceBusHelper,
         EnvelopeRepository envelopeRepo,
@@ -36,6 +45,11 @@ public class OrchestratorNotificationService {
         this.processEventRepo = processEventRepo;
     }
 
+    /**
+     * Process envelope.
+     * @param successCount The success count
+     * @param env The envelope
+     */
     @Transactional
     public void processEnvelope(AtomicInteger successCount, Envelope env) {
         updateStatus(env);
@@ -45,6 +59,10 @@ public class OrchestratorNotificationService {
         successCount.incrementAndGet();
     }
 
+    /**
+     * Process envelope.
+     * @param env The envelope
+     */
     private void logEnvelopeSent(Envelope env) {
         log.info(
             "Sent envelope with ID {}. File {}, container {}",
@@ -54,6 +72,11 @@ public class OrchestratorNotificationService {
         );
     }
 
+    /**
+     * Create event.
+     * @param envelope The envelope
+     * @param event The event
+     */
     private void createEvent(Envelope envelope, Event event) {
         processEventRepo.saveAndFlush(
             new ProcessEvent(
@@ -64,6 +87,10 @@ public class OrchestratorNotificationService {
         );
     }
 
+    /**
+     * Update status.
+     * @param envelope The envelope
+     */
     private void updateStatus(Envelope envelope) {
         envelope.setStatus(Status.NOTIFICATION_SENT);
         envelopeRepo.saveAndFlush(envelope);

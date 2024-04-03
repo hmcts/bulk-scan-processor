@@ -11,6 +11,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.idam.cache.IdamCachedClien
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service to check if the user can sign in to all configured jurisdictions.
+ */
 @Service
 @EnableConfigurationProperties(JurisdictionToUserMapping.class)
 public class AuthenticationChecker {
@@ -20,6 +23,11 @@ public class AuthenticationChecker {
     private final JurisdictionToUserMapping jurisdictionMapping;
     private final IdamCachedClient idamClient;
 
+    /**
+     * Constructor for AuthenticationChecker.
+     * @param jurisdictionMapping The jurisdiction to user mapping
+     * @param idamClient The IDAM client
+     */
     public AuthenticationChecker(
         JurisdictionToUserMapping jurisdictionMapping,
         IdamCachedClient idamClient
@@ -28,6 +36,10 @@ public class AuthenticationChecker {
         this.idamClient = idamClient;
     }
 
+    /**
+     * Checks if the user can sign in to all configured jurisdictions.
+     * @return The list of jurisdiction configuration statuses
+     */
     public List<JurisdictionConfigurationStatus> checkSignInForAllJurisdictions() {
         return jurisdictionMapping.getUsers()
             .entrySet()
@@ -36,6 +48,11 @@ public class AuthenticationChecker {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Checks if the user can sign in to the given jurisdiction.
+     * @param jurisdiction The jurisdiction
+     * @return The jurisdiction configuration status
+     */
     public JurisdictionConfigurationStatus checkSignInForJurisdiction(String jurisdiction) {
         try {
             return checkSignIn(jurisdiction, jurisdictionMapping.getUser(jurisdiction));
@@ -44,6 +61,12 @@ public class AuthenticationChecker {
         }
     }
 
+    /**
+     * Checks if the user can sign in to the given jurisdiction.
+     * @param jurisdiction The jurisdiction
+     * @param credential The credential
+     * @return The jurisdiction configuration status
+     */
     private JurisdictionConfigurationStatus checkSignIn(String jurisdiction, Credential credential) {
         try {
             idamClient.getIdamCredentials(jurisdiction);

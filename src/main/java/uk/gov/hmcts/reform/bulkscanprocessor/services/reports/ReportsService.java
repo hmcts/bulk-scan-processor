@@ -25,6 +25,9 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
+/**
+ * Service to handle reports.
+ */
 @Service
 public class ReportsService {
 
@@ -37,7 +40,9 @@ public class ReportsService {
 
     private final ZipFilesSummaryRepository zipFilesSummaryRepository;
 
-    // region constructor
+    /**
+     * Constructor for the ReportsService.
+     */
     public ReportsService(
         EnvelopeCountSummaryRepository repo,
         ZeroRowFiller zeroRowFiller,
@@ -47,8 +52,13 @@ public class ReportsService {
         this.zeroRowFiller = zeroRowFiller;
         this.zipFilesSummaryRepository = zipFilesSummaryRepository;
     }
-    // endregion
 
+    /**
+     * Get count summary for the given date.
+     * @param date date to get the count summary
+     * @param includeTestContainer whether to include test container in the report
+     * @return list of count summary
+     */
     public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
         long start = System.currentTimeMillis();
         List<EnvelopeCountSummaryItem> countSummaryItems = repo.getReportFor(date);
@@ -61,6 +71,12 @@ public class ReportsService {
         return reportResult;
     }
 
+    /**
+     * Get count summary for the given date.
+     * @param date date to get the count summary
+     * @param includeTestContainer whether to include test container in the report
+     * @return list of count summary
+     */
     public List<EnvelopeCountSummary> getSummaryCountFor(LocalDate date, boolean includeTestContainer) {
         long start = System.currentTimeMillis();
         List<EnvelopeCountSummaryItem> countSummaryItems = repo.getSummaryReportFor(date);
@@ -75,7 +91,6 @@ public class ReportsService {
 
     /**
      * Get zip files summary for the given date and container.
-     *
      * @param date      zip file received date
      * @param container to filter the zip files when container value is provided
      * @return list of zip files summary
@@ -97,6 +112,12 @@ public class ReportsService {
                 .collect(toList());
     }
 
+    /**
+     * Get envelope summary count for the given date.
+     * @param date date to get the envelope summary count
+     * @param includeTestContainer whether to include test container in the report
+     * @return list of envelope summary count
+     */
     public List<EnvelopeCountSummary> getEnvelopeSummaryCountFor(LocalDate date, boolean includeTestContainer) {
         long start = System.currentTimeMillis();
         List<EnvelopeCountSummaryItem> countSummaryItems = repo.getEnvelopeCountSummary(date);
@@ -109,6 +130,12 @@ public class ReportsService {
         return reportResult;
     }
 
+    /**
+     * Get envelope summary count for the given date.
+     * @param date date to get the envelope summary count
+     * @param includeTestContainer whether to include test container in the report
+     * @return list of envelope summary count
+     */
     private List<EnvelopeCountSummary> getEnvelopeCountSummaries(
             LocalDate date,
             boolean includeTestContainer,
@@ -121,6 +148,11 @@ public class ReportsService {
                 .collect(toList());
     }
 
+    /**
+     * Convert db item to response.
+     * @param dbItem db item
+     * @return response
+     */
     private ZipFileSummaryResponse fromDbZipfileSummary(ZipFileSummary dbItem) {
         return new ZipFileSummaryResponse(
             dbItem.getZipFileName(),
@@ -137,6 +169,11 @@ public class ReportsService {
         );
     }
 
+    /**
+     * Convert db item to response.
+     * @param dbItem db item
+     * @return response
+     */
     private EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
         return new EnvelopeCountSummary(
             dbItem.getReceived(),
@@ -146,6 +183,11 @@ public class ReportsService {
         );
     }
 
+    /**
+     * Convert Instant to LocalDate.
+     * @param instant instant
+     * @return LocalDate
+     */
     private LocalDate toLocalDate(Instant instant) {
         if (instant != null) {
             return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID).toLocalDate();
@@ -153,6 +195,11 @@ public class ReportsService {
         return null;
     }
 
+    /**
+     * Convert Instant to LocalTime.
+     * @param instant instant
+     * @return LocalTime
+     */
     private LocalTime toLocalTime(Instant instant) {
         if (instant != null) {
             return LocalTime.parse(DateTimeFormatter.ofPattern("HH:mm:ss")

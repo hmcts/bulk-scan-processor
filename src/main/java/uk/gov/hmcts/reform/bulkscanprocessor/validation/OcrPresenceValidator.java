@@ -11,6 +11,9 @@ import java.util.Optional;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.FORM;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.blob.InputDocumentType.SSCS1;
 
+/**
+ * Validates the presence of OCR data on the correct document.
+ */
 @Component
 public class OcrPresenceValidator {
 

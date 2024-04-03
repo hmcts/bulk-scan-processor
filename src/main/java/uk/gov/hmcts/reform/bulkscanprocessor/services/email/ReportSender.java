@@ -20,6 +20,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Sends daily report to configured recipients.
+ */
 @Component
 @ConditionalOnProperty(prefix = "spring.mail", name = "host")
 public class ReportSender {
@@ -34,7 +37,13 @@ public class ReportSender {
     private final String from;
     private final String[] recipients;
 
-    // region constructor
+    /**
+     * Constructor for ReportSender.
+     * @param mailSender The mail sender
+     * @param reportsService The reports service
+     * @param from The sender email address
+     * @param recipients The recipients email addresses
+     */
     public ReportSender(
         JavaMailSender mailSender,
         ReportsService reportsService,
@@ -55,8 +64,10 @@ public class ReportSender {
             log.warn("No recipients configured for reports");
         }
     }
-    // endregion
 
+    /**
+     * Sends the daily report.
+     */
     @Scheduled(cron = "${reports.cron}")
     @SchedulerLock(name = "report-sender")
     public void send() {
@@ -77,11 +88,20 @@ public class ReportSender {
         }
     }
 
+    /**
+     * Gets the CSV report.
+     * @return The CSV report
+     * @throws IOException If an I/O error occurs
+     */
     private File getCsvReport() throws IOException {
         List<ZipFileSummaryResponse> reportDate = reportsService.getZipFilesSummary(getPreviousDay(), null, null);
         return CsvWriter.writeZipFilesSummaryToCsv(reportDate);
     }
 
+    /**
+     * Gets the previous day.
+     * @return The previous day
+     */
     private LocalDate getPreviousDay() {
         return LocalDate.now().minusDays(1);
     }

@@ -15,11 +15,23 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+/**
+ * Maps database envelope to response envelope.
+ */
 public final class EnvelopeResponseMapper {
 
+    /**
+     * Constructor.
+     */
     private EnvelopeResponseMapper() {
     }
 
+    /**
+     * Maps database envelope to response envelope.
+     *
+     * @param envelopes list of envelopes
+     * @return list of response envelopes
+     */
     public static List<EnvelopeResponse> toEnvelopesResponse(List<Envelope> envelopes) {
         if (envelopes == null) {
             return emptyList();
@@ -29,6 +41,12 @@ public final class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Maps database envelope to response envelope.
+     *
+     * @param envelope envelope
+     * @return response envelope
+     */
     public static EnvelopeResponse toEnvelopeResponse(Envelope envelope) {
         if (envelope == null) {
             return null;
@@ -54,6 +72,12 @@ public final class EnvelopeResponseMapper {
         );
     }
 
+    /**
+     * Maps database scannable items to response scannable items.
+     *
+     * @param scannableItems list of scannable items
+     * @return list of response scannable items
+     */
     public static List<ScannableItemResponse> toScannableItemsResponse(List<ScannableItem> scannableItems) {
         if (scannableItems == null) {
             return emptyList();
@@ -63,7 +87,12 @@ public final class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
-
+    /**
+     * Maps database scannable item to response scannable item.
+     *
+     * @param scannableItem scannable item
+     * @return response scannable item
+     */
     private static ScannableItemResponse toScannableItemResponse(ScannableItem scannableItem) {
         if (scannableItem == null) {
             return null;
@@ -84,6 +113,12 @@ public final class EnvelopeResponseMapper {
         );
     }
 
+    /**
+     * Maps database non-scannable items to response non-scannable items.
+     *
+     * @param nonScannableItems list of non-scannable items
+     * @return list of response non-scannable items
+     */
     public static List<NonScannableItemResponse> toNonScannableItemsResponse(
         List<NonScannableItem> nonScannableItems
     ) {
@@ -95,6 +130,12 @@ public final class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Maps database non-scannable item to response non-scannable item.
+     *
+     * @param nonScannableItem non-scannable item
+     * @return response non-scannable item
+     */
     private static NonScannableItemResponse toNonScannableItemResponse(NonScannableItem nonScannableItem) {
         if (nonScannableItem == null) {
             return null;
@@ -105,6 +146,12 @@ public final class EnvelopeResponseMapper {
         );
     }
 
+    /**
+     * Maps database payments to response payments.
+     *
+     * @param payments list of payments
+     * @return list of response payments
+     */
     public static List<PaymentResponse> toPaymentsResponse(List<Payment> payments) {
         if (payments == null) {
             return emptyList();
@@ -114,6 +161,12 @@ public final class EnvelopeResponseMapper {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Maps database payment to response payment.
+     *
+     * @param payment payment
+     * @return response payment
+     */
     public static PaymentResponse toPaymentResponse(Payment payment) {
         if (payment == null) {
             return null;

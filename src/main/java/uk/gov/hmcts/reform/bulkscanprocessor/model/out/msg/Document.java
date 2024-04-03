@@ -7,6 +7,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.DocumentType;
 
 import java.time.Instant;
 
+/**
+ * Represents a document that is being sent to downstream systems.
+ */
 public class Document {
 
     @JsonProperty("file_name")
@@ -28,7 +31,15 @@ public class Document {
     @JsonProperty("uuid")
     public final String uuid;
 
-    // region constructor
+    /**
+     * Constructor for document.
+     * @param fileName file name
+     * @param controlNumber control number
+     * @param type document type
+     * @param subtype document subtype
+     * @param scannedAt scanned at
+     * @param uuid document uuid
+     */
     private Document(
         String fileName,
         String controlNumber,
@@ -44,8 +55,12 @@ public class Document {
         this.scannedAt = scannedAt;
         this.uuid = uuid;
     }
-    // endregion
 
+    /**
+     * Creates a Document object from ScannableItem.
+     * @param item ScannableItem
+     * @return Document
+     */
     public static Document fromScannableItem(ScannableItem item) {
         return new Document(
             item.getFileName(),

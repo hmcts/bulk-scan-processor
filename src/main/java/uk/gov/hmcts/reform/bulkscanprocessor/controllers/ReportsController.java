@@ -57,6 +57,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
+/**
+ * Controller for reports.
+ */
 @RestController
 @CrossOrigin
 @RequestMapping(path = "/reports")
@@ -70,7 +73,16 @@ public class ReportsController {
     private final ReceivedPaymentsService receivedPaymentsService;
     private final ClockProvider clockProvider;
 
-    // region constructor
+    /**
+     * Constructor for the reports controller.
+     * @param reportsService The service for reports
+     * @param rejectedFilesReportService The service for rejected files report
+     * @param rejectedZipFilesService The service for rejected zip files
+     * @param reconciliationService The service for reconciliation
+     * @param receivedScannableItemsService The service for received scannable items
+     * @param receivedPaymentsService The service for received payments
+     * @param clockProvider The clock provider
+     */
     public ReportsController(
             ReportsService reportsService,
             RejectedFilesReportService rejectedFilesReportService,
@@ -88,8 +100,13 @@ public class ReportsController {
         this.receivedPaymentsService = receivedPaymentsService;
         this.clockProvider = clockProvider;
     }
-    // endregion
 
+    /**
+     * Retrieves envelope count summary report.
+     * @param date The date
+     * @param includeTestContainer The include test container boolean
+     * @return EnvelopeCountSummaryReportListResponse
+     */
     @GetMapping(path = "/count-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getCountSummary(
@@ -100,6 +117,12 @@ public class ReportsController {
         return getEnvelopeCountSummaryReportListResponse(result);
     }
 
+    /**
+     * Retrieves envelope count summary report.
+     * @param date The date
+     * @param includeTestContainer The include test container boolean
+     * @return EnvelopeCountSummaryReportListResponse
+     */
     @GetMapping(path = "/envelopes-count-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves count summary report for envelopes")
     public EnvelopeCountSummaryReportListResponse getEnvelopeCountSummary(
@@ -110,6 +133,12 @@ public class ReportsController {
         return getEnvelopeCountSummaryReportListResponse(result);
     }
 
+    /**
+     * Retrieves envelope count summary report.
+     * @param date The date
+     * @param includeTestContainer The include test container boolean
+     * @return EnvelopeCountSummaryReportListResponse
+     */
     @GetMapping(path = "/count-summary-report", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves envelope count summary report")
     public EnvelopeCountSummaryReportListResponse getSummaryCountFor(
@@ -120,6 +149,13 @@ public class ReportsController {
         return getEnvelopeCountSummaryReportListResponse(result);
     }
 
+    /**
+     * Retrieves envelope count summary report.
+     * @param date The date
+     * @param container The container
+     * @param classification The classification
+     * @return EnvelopeCountSummaryReportListResponse
+     */
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves zip files summary report in json format for the given date and container")
     public ZipFilesSummaryReportListResponse getZipFilesSummary(
@@ -148,6 +184,13 @@ public class ReportsController {
         );
     }
 
+    /**
+     * Retrieves zip files summary report.
+     * @param date The date
+     * @param container The container
+     * @return ResponseEntity with csv file
+     * @throws IOException If an I/O error occurs
+     */
     @GetMapping(path = "/zip-files-summary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Operation(description = "Retrieves zip files summary report in csv format for the given date and container")
     public ResponseEntity downloadZipFilesSummary(
@@ -163,6 +206,10 @@ public class ReportsController {
             .body(Files.readAllBytes(csvFile.toPath()));
     }
 
+    /**
+     * Retrieves rejected files.
+     * @return RejectedFilesResponse
+     */
     @GetMapping(path = "/rejected", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves rejected files")
     public RejectedFilesResponse getRejectedFiles() {
@@ -170,6 +217,11 @@ public class ReportsController {
         return new RejectedFilesResponse(rejectedEnvs.size(), rejectedEnvs);
     }
 
+    /**
+     * Retrieves rejected zip files.
+     * @param date The date
+     * @return RejectedZipFilesResponse
+     */
     @GetMapping(path = "/rejected-zip-files", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves rejected files")
     public RejectedZipFilesResponse getRejectedZipFiles(
@@ -191,6 +243,11 @@ public class ReportsController {
         );
     }
 
+    /**
+     * Retrieves reconciliation report.
+     * @param statement The reconciliation statement
+     * @return ReconciliationReportResponse
+     */
     @PostMapping(
         path = "/reconciliation",
         consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -215,6 +272,12 @@ public class ReportsController {
         );
     }
 
+    /**
+     * Retrieves scannable items.
+     * @param date The date
+     * @param perDocumentType The per document type boolean
+     * @return ReceivedScannableItemsResponse
+     */
     @GetMapping(path = "/received-scannable-items", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves scannable items")
     public ReceivedScannableItemsResponse getReceivedScannableItems(
@@ -260,6 +323,12 @@ public class ReportsController {
         );
     }
 
+    /**
+     * Retrieves payments.
+     * @param date The date
+     * @param perDocumentType The per document type boolean
+     * @return ReceivedPaymentsResponse
+     */
     @GetMapping(path = "/received-payments", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(description = "Retrieves payments")
     public ReceivedPaymentsResponse getReceivedPayments(
@@ -287,6 +356,11 @@ public class ReportsController {
         );
     }
 
+    /**
+     * Retrieves envelope count summary report.
+     * @param result The result
+     * @return The envelope count summary report list response
+     */
     private EnvelopeCountSummaryReportListResponse getEnvelopeCountSummaryReportListResponse(
             List<EnvelopeCountSummary> result
     ) {

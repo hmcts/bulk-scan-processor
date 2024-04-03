@@ -14,6 +14,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.EnvelopeRejectionExcepti
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorCode;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.ErrorMsg;
 
+/**
+ * Sends error notifications to the error notifications queue.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 @ConditionalOnExpression("${jms.enabled}")
@@ -24,6 +27,11 @@ public class JmsErrorNotificationSender {
 
     private final ContainerMappings containerMappings;
 
+    /**
+     * Constructor for JmsErrorNotificationSender.
+     * @param notificationsJmsQueueHelper The JMS queue helper
+     * @param containerMappings The container mappings
+     */
     public JmsErrorNotificationSender(
         @Qualifier("jms-notifications-helper") JmsQueueSendHelper notificationsJmsQueueHelper,
         ContainerMappings containerMappings
@@ -32,6 +40,15 @@ public class JmsErrorNotificationSender {
         this.containerMappings = containerMappings;
     }
 
+    /**
+     * Sends an error notification to the error notifications queue.
+     * @param zipFilename The name of the zip file
+     * @param containerName The name of the container
+     * @param eventId The event ID
+     * @param errorCode The error code
+     * @param cause The exception that caused the error
+     * @throws EnvelopeRejectingException If an error occurs while sending the error notification
+     */
     public void sendErrorNotification(
         String zipFilename,
         String containerName,
@@ -49,6 +66,14 @@ public class JmsErrorNotificationSender {
         }
     }
 
+    /**
+     * Sends an error notification to the error notifications queue.
+     * @param zipFilename The name of the zip file
+     * @param containerName The name of the container
+     * @param eventId The event ID
+     * @param errorCode The error code
+     * @param message The error message
+     */
     private void sendErrorMessageToQueue(
         String zipFilename,
         String containerName,
@@ -81,6 +106,11 @@ public class JmsErrorNotificationSender {
         );
     }
 
+    /**
+     * Returns the PO boxes for the given container.
+     * @param containerName The name of the container
+     * @return The PO boxes
+     */
     private String getPoBoxes(String containerName) {
         return containerMappings
             .getMappings()

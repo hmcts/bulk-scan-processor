@@ -8,6 +8,9 @@ import uk.gov.hmcts.reform.bulkscanprocessor.util.OcrDataDeserializer;
 
 import java.time.Instant;
 
+/**
+ * Represents a scannable item in a document.
+ */
 public class InputScannableItem {
 
     public final String documentControlNumber;
@@ -22,6 +25,20 @@ public class InputScannableItem {
     public final InputDocumentType documentType;
     public final String documentSubtype;
 
+    /**
+     * Constructor for InputScannableItem.
+     * @param documentControlNumber the document control number
+     * @param scanningDate the date when the document was scanned
+     * @param ocrAccuracy the accuracy of OCR
+     * @param manualIntervention whether manual intervention is required
+     * @param nextAction the next action
+     * @param nextActionDate the date when the next action is due
+     * @param ocrData the OCR data
+     * @param fileName the name of the file
+     * @param notes the notes
+     * @param documentType the type of the document
+     * @param documentSubtype the subtype of the document
+     */
     @JsonCreator
     public InputScannableItem(
         @JsonProperty("document_control_number") String documentControlNumber,

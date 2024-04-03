@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+/**
+ * Service to upload documents to document management service.
+ */
 @Service
 public class DocumentManagementService {
 
@@ -36,6 +39,12 @@ public class DocumentManagementService {
     private static final String FILES = "files";
     private static final String SERVICE_AUTHORIZATION = "ServiceAuthorization";
 
+    /**
+     * Constructor for DocumentManagementService.
+     * @param documentServiceHelper The document service helper
+     * @param dmUrl The document management URL
+     * @param restTemplate The rest template
+     */
     public DocumentManagementService(
         DocumentServiceHelper documentServiceHelper,
         @Value("${case_document_am.url}") String dmUrl,
@@ -46,6 +55,13 @@ public class DocumentManagementService {
         this.docUploadUrl = dmUrl + "" + "/cases/documents";
     }
 
+    /**
+     * Uploads the given documents to document management service.
+     * @param pdfs list of PDF files to upload
+     * @param jurisdiction jurisdiction of the case
+     * @param container container of the case
+     * @return map of document names and their URLs
+     */
     public Map<String, String> uploadDocuments(
         List<File> pdfs,
         String jurisdiction,
@@ -83,6 +99,11 @@ public class DocumentManagementService {
         return createFileUploadResponse(documents);
     }
 
+    /**
+     * Creates a response for the given document.
+     * @param document the document
+     * @return the response
+     */
     private Map.Entry<String, String> createResponse(Document document) {
         return new AbstractMap.SimpleEntry<>(
             document.originalDocumentName,
@@ -90,12 +111,23 @@ public class DocumentManagementService {
         );
     }
 
+    /**
+     * Creates a map of document names and their URLs.
+     * @param documents the documents
+     * @return the map
+     */
     private Map<String, String> createFileUploadResponse(List<Document> documents) {
         return documents.stream()
             .map(this::createResponse)
             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    /**
+     * Uploads the given documents to document management service.
+     * @param pdfs list of PDF files to upload
+     * @param credential the credential
+     * @return the upload response
+     */
     private UploadResponse uploadDocs(
         List<File> pdfs,
         DocumentUploadCredential credential
@@ -113,6 +145,12 @@ public class DocumentManagementService {
         return this.restTemplate.postForObject(docUploadUrl, httpEntity, UploadResponse.class);
     }
 
+    /**
+     * Sets the headers for the request.
+     * @param authorizationToken the authorization token
+     * @param serviceAuth the service authorization
+     * @return the headers
+     */
     private HttpHeaders setHttpHeaders(String authorizationToken, String serviceAuth) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, authorizationToken);
@@ -121,6 +159,14 @@ public class DocumentManagementService {
         return headers;
     }
 
+    /**
+     * Prepares the request for the given documents.
+     * @param pdfs list of PDF files to upload
+     * @param classification the classification
+     * @param caseType the case type
+     * @param jurisdiction the jurisdiction
+     * @return the request
+     */
     private static MultiValueMap<String, Object> prepareRequest(
         List<File> pdfs,
         Classification classification,

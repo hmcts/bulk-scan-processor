@@ -50,6 +50,14 @@ public class UploadEnvelopeDocumentsService {
     private final EnvelopeProcessor envelopeProcessor;
     private final LeaseAcquirer leaseAcquirer;
 
+    /**
+     * Constructor for the UploadEnvelopeDocumentsService.
+     * @param blobManager The blob manager
+     * @param zipFileProcessor The zip file processor
+     * @param documentProcessor The document processor
+     * @param envelopeProcessor The envelope processor
+     * @param leaseAcquirer The lease acquirer
+     */
     public UploadEnvelopeDocumentsService(
         BlobManager blobManager,
         ZipFileProcessor zipFileProcessor,
@@ -64,6 +72,11 @@ public class UploadEnvelopeDocumentsService {
         this.leaseAcquirer = leaseAcquirer;
     }
 
+    /**
+     * Processes envelopes by container.
+     * @param containerName The container name
+     * @param envelopes The envelopes
+     */
     public void processByContainer(String containerName, List<Envelope> envelopes) {
         log.info(
             "Uploading envelope documents from container {}. Envelopes count: {}",
@@ -84,6 +97,12 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
+    /**
+     * Processes envelope.
+     * @param blobContainer The blob container
+     * @param envelope The envelope
+     * @throws Exception If an error occurs
+     */
     private void processEnvelope(BlobContainerClient blobContainer, Envelope envelope) {
         String containerName = blobContainer.getBlobContainerName();
         String zipFileName = envelope.getZipFileName();
@@ -110,6 +129,11 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
+    /**
+     * Uploads documents.
+     * @param blobClient The blob client
+     * @param envelope The envelope
+     */
     private void uploadDocs(BlobClient blobClient, Envelope envelope) {
         String zipFileName = envelope.getZipFileName();
         UUID envelopeId = envelope.getId();
@@ -127,6 +151,13 @@ public class UploadEnvelopeDocumentsService {
         );
     }
 
+    /**
+     * Processes blob content.
+     * @param blobClient The blob client
+     * @param containerName The container name
+     * @param envelope The envelope
+     * @throws FileSizeExceedMaxUploadLimit If the file size exceeds the max upload limit
+     */
     private void processBlobContent(
         BlobClient blobClient,
         String containerName,
@@ -159,6 +190,12 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
+    /**
+     * Uploads parsed zip file name.
+     * @param envelope The envelope
+     * @param pdfs The PDFs
+     * @throws FailedUploadException If the upload fails
+     */
     private void uploadParsedZipFileName(Envelope envelope, List<File> pdfs) {
         try {
 
@@ -195,6 +232,13 @@ public class UploadEnvelopeDocumentsService {
         }
     }
 
+    /**
+     * Creates a document upload failure event.
+     * @param containerName The container name
+     * @param zipFileName The zip file name
+     * @param reason The reason
+     * @param envelopeId The envelope ID
+     */
     private void createDocUploadFailureEvent(String containerName, String zipFileName, String reason, UUID envelopeId) {
         envelopeProcessor.createEvent(
             DOC_UPLOAD_FAILURE,
@@ -205,6 +249,13 @@ public class UploadEnvelopeDocumentsService {
         );
     }
 
+    /**
+     * Rejects the blob.
+     * @param containerName The container name
+     * @param zipFileName The zip file name
+     * @param reason The reason
+     * @param envelope The envelope
+     */
     private void rejectBlob(String containerName, String zipFileName, String reason, Envelope envelope) {
         blobManager.tryMoveFileToRejectedContainer(zipFileName, containerName);
         envelopeProcessor.createEvent(
@@ -218,6 +269,9 @@ public class UploadEnvelopeDocumentsService {
         envelopeProcessor.saveEnvelope(envelope);
     }
 
+    /**
+     * Exception to be thrown when the upload fails.
+     */
     private static class FailedUploadException extends RuntimeException {
         FailedUploadException(String message, Exception cause) {
             super(message, cause);

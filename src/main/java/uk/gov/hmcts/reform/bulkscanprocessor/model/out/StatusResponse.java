@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.out;
 
+/**
+ * Represents the status of the response.
+ */
 public enum StatusResponse {
 
     CONSUMED, // client service handled the documents

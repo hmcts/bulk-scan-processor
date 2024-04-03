@@ -20,14 +20,21 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeRespons
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentsResponse;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toScannableItemsResponse;
 
+/**
+ * Service to get the status of a zip file.
+ */
 @Service
 public class ZipFileStatusService {
     private final ProcessEventRepository eventRepo;
     private final EnvelopeRepository envelopeRepo;
     private final ScannableItemRepository scannableItemRepo;
 
-    // region constructor
-
+    /**
+     * Constructor for the ZipFileStatusService.
+     * @param eventRepo The repository for process event
+     * @param envelopeRepo The repository for envelope
+     * @param scannableItemRepo The repository for scannable item
+     */
     public ZipFileStatusService(
         ProcessEventRepository eventRepo,
         EnvelopeRepository envelopeRepo,
@@ -38,15 +45,22 @@ public class ZipFileStatusService {
         this.scannableItemRepo = scannableItemRepo;
     }
 
-    // endregion
-
+    /**
+     * Get the status of a zip file by file name.
+     * @param zipFileName The zip file name
+     * @return The status of the zip file
+     */
     public ZipFileStatus getStatusByFileName(String zipFileName) {
         List<Envelope> envelopes = envelopeRepo.findByZipFileName(zipFileName);
         List<ProcessEvent> events = eventRepo.findByZipFileNameOrderByCreatedAtDesc(zipFileName);
         return getZipFileStatus(zipFileName, null, null, envelopes, events);
-
     }
 
+    /**
+     * Get the status of a zip file by document control number.
+     * @param documentControlNumber The document control number
+     * @return List of statuses of the zip file
+     */
     public List<ZipFileStatus> getStatusByDcn(String documentControlNumber) {
 
         List<String> zipFileNames = scannableItemRepo.findByDcn(documentControlNumber);
@@ -71,6 +85,11 @@ public class ZipFileStatusService {
         );
     }
 
+    /**
+     * Get the status of a zip file by ccd id.
+     * @param ccdId The ccd id
+     * @return The status of the zip file
+     */
     public ZipFileStatus getStatusByCcdId(String ccdId) {
         List<Envelope> envelopes = envelopeRepo.findByCcdId(ccdId);
         if (!envelopes.isEmpty()) {
@@ -81,6 +100,15 @@ public class ZipFileStatusService {
         return getZipFileStatus(null, ccdId, null, emptyList(), emptyList());
     }
 
+    /**
+     * Get the status of a zip file by container.
+     * @param fileName The file name
+     * @param ccdId The ccd id
+     * @param dcn The document control number
+     * @param envelopes The envelopes
+     * @param events The events
+     * @return The status of the zip file
+     */
     private ZipFileStatus getZipFileStatus(
         String fileName,
         String ccdId,
@@ -97,6 +125,11 @@ public class ZipFileStatusService {
         );
     }
 
+    /**
+     * Map the envelope to the zip file envelope.
+     * @param envelope The envelope
+     * @return The zip file envelope
+     */
     private ZipFileEnvelope mapEnvelope(Envelope envelope) {
         return new ZipFileEnvelope(
             envelope.getId().toString(),
@@ -119,6 +152,11 @@ public class ZipFileStatusService {
         );
     }
 
+    /**
+     * Map the process event to the response.
+     * @param event The process event
+     * @return The zip file event
+     */
     private ZipFileEvent mapEvent(ProcessEvent event) {
         return new ZipFileEvent(
             event.getEvent().name(),

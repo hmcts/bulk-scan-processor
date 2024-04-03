@@ -6,8 +6,16 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.PendingMigrationScriptEx
 
 import java.util.stream.Stream;
 
+/**
+ * Flyway migration strategy that throws an exception if there are pending migrations.
+ */
 public class FlywayNoOpStrategy implements FlywayMigrationStrategy {
 
+    /**
+     * Throws an exception if there are pending migrations.
+     *
+     * @param flyway the Flyway instance
+     */
     @Override
     public void migrate(Flyway flyway) {
         Stream.of(flyway.info().all())
