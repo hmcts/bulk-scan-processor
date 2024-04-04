@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +16,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.transaction.Transactional;
 
 /**
  * Service to handle sending notifications to orchestrator.

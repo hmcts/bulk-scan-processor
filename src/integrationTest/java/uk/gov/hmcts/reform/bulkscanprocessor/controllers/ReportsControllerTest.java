@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 
 import com.google.common.io.Resources;
+import jakarta.validation.ClockProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -43,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import javax.validation.ClockProvider;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;

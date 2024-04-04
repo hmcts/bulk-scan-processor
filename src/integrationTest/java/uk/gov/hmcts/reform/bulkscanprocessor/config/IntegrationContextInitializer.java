@@ -18,7 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendH
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseClientProvider;
 
 import static org.mockito.Mockito.mock;
-import static org.springframework.util.SocketUtils.findAvailableTcpPort;
+import static org.springframework.test.util.TestSocketUtils.findAvailableTcpPort;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles.SERVICE_BUS_STUB;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.Profiles.STORAGE_STUB;
 

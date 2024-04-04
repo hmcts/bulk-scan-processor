@@ -1,8 +1,9 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.model.in;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 
 /**
  * Represents a request to process payments.

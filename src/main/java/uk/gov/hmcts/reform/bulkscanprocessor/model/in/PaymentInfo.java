@@ -2,8 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.model.in;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * Represents payment information extracted from a document.
