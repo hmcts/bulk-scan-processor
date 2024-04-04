@@ -22,46 +22,6 @@ locals {
   storage_account_url         = var.env == "prod" ? local.storage_account_url_prod : local.storage_account_url_notprod
 }
 
-data "azurerm_subnet" "postgres" {
-  name                 = "core-infra-subnet-0-${var.env}"
-  resource_group_name  = "core-infra-${var.env}"
-  virtual_network_name = "core-infra-vnet-${var.env}"
-}
-
-module "bulk-scan-db-v11" {
-  source             = "git@github.com:hmcts/cnp-module-postgres?ref=postgresql_tf"
-  product            = var.product
-  component          = var.component
-  name               = join("-", [var.product, var.component, "postgres-db-v11"])
-  location           = var.location_db
-  env                = var.env
-  database_name      = var.database_name
-  postgresql_user    = var.postgresql_user
-  postgresql_version = "11"
-  subnet_id          = data.azurerm_subnet.postgres.id
-  sku_name           = "GP_Gen5_2"
-  sku_tier           = "GeneralPurpose"
-  common_tags        = var.common_tags
-  subscription       = var.subscription
-}
-
-# Staging DB to be used by AAT staging pod for functional tests
-module "bulk-scan-staging-db" {
-  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  name               = "${var.product}-${var.component}-staging"
-  product            = var.product
-  component          = var.component
-  location           = var.location_db
-  env                = var.env
-  database_name      = var.database_name
-  postgresql_user    = var.postgresql_user
-  postgresql_version = "11"
-  sku_name           = "GP_Gen5_2"
-  sku_tier           = "GeneralPurpose"
-  common_tags        = var.common_tags
-  subscription       = var.subscription
-}
-
 # region: key vault definitions
 data "azurerm_key_vault" "key_vault" {
   name                = local.vaultName
@@ -76,78 +36,6 @@ data "azurerm_key_vault" "s2s_key_vault" {
 data "azurerm_key_vault" "reform_scan_key_vault" {
   name                = "reform-scan-${var.env}"
   resource_group_name = "reform-scan-${var.env}"
-}
-# endregion
-
-# region DB secrets
-resource "azurerm_key_vault_secret" "POSTGRES-USER" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-POSTGRES-USER"
-  value        = module.bulk-scan-db-v11.user_name
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-POSTGRES-PASS"
-  value        = module.bulk-scan-db-v11.postgresql_password
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-POSTGRES-HOST"
-  value        = module.bulk-scan-db-v11.host_name
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-POSTGRES-PORT"
-  value        = module.bulk-scan-db-v11.postgresql_listen_port
-}
-
-resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-POSTGRES-DATABASE"
-  value        = module.bulk-scan-db-v11.postgresql_database
-}
-# endregion
-
-# Copy postgres password for flyway migration
-resource "azurerm_key_vault_secret" "flyway_password" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "flyway-password"
-  value        = module.bulk-scan-db-v11.postgresql_password
-}
-# endregion
-
-# region staging DB secrets
-resource "azurerm_key_vault_secret" "staging_db_user" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-user"
-  value        = module.bulk-scan-staging-db.user_name
-}
-
-resource "azurerm_key_vault_secret" "staging_db_password" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-password"
-  value        = module.bulk-scan-staging-db.postgresql_password
-}
-
-resource "azurerm_key_vault_secret" "staging_db_host" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-host"
-  value        = module.bulk-scan-staging-db.host_name
-}
-
-resource "azurerm_key_vault_secret" "staging_db_port" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-port"
-  value        = module.bulk-scan-staging-db.postgresql_listen_port
-}
-
-resource "azurerm_key_vault_secret" "staging_db_name" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "${var.component}-staging-db-name"
-  value        = module.bulk-scan-staging-db.postgresql_database
 }
 # endregion
 
