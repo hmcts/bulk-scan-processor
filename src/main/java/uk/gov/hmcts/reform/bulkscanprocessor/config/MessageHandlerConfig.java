@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.config;
 
 import com.azure.messaging.servicebus.ServiceBusProcessorClient;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import javax.annotation.PostConstruct;
 
 /**
  * Configuration for message handlers.

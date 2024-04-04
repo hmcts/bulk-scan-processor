@@ -8,6 +8,8 @@ import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.ScannableItemRepository;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeInfo;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +46,7 @@ public class IncompleteEnvelopesService {
      */
     public List<EnvelopeInfo> getIncompleteEnvelopes(int staleTimeHr) {
         return envelopeRepository
-            .getIncompleteEnvelopesBefore(now().minus(staleTimeHr, HOURS))
+            .getIncompleteEnvelopesBefore(Instant.now().minus(staleTimeHr, ChronoUnit.HOURS))
             .stream()
             .map(envelope -> new EnvelopeInfo(
                      envelope.getContainer(),

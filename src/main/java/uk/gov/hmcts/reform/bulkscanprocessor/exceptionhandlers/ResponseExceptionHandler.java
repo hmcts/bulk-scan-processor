@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.exceptionhandlers;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -30,8 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -55,7 +55,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
      * @param request the request
      * @return the bad request response entity
      */
-    @Override
+
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
         MethodArgumentNotValidException exception,
         HttpHeaders headers,

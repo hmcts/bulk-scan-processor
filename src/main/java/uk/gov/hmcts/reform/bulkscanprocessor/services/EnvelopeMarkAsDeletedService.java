@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.services;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.EnvelopeJdbcRepository;
 
 import java.util.UUID;
-import javax.transaction.Transactional;
 
 /**
  * Service to mark an envelope as deleted.

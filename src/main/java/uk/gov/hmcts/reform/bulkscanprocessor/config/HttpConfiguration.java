@@ -4,6 +4,7 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -23,6 +24,7 @@ public class HttpConfiguration {
 
     /**
      * Bean for Feign HTTP client.
+     *
      * @return The Feign HTTP client
      */
     @Bean
@@ -32,6 +34,7 @@ public class HttpConfiguration {
 
     /**
      * Bean for RestTemplate.
+     *
      * @return The RestTemplate
      */
     @Bean
@@ -41,27 +44,21 @@ public class HttpConfiguration {
 
     /**
      * Bean for HttpComponentsClientHttpRequestFactory.
+     *
      * @return The HttpComponentsClientHttpRequestFactory
      */
     @Bean
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
-        var factory = new HttpComponentsClientHttpRequestFactory(getHttpClient());
-        factory.setBufferRequestBody(false);
-        return factory;
+        return new HttpComponentsClientHttpRequestFactory(getHttp5Client());
     }
 
-    /**
-     * Bean for CloseableHttpClient.
-     * @return The CloseableHttpClient
-     */
-    private CloseableHttpClient getHttpClient() {
-        RequestConfig config = RequestConfig.custom()
-            .setConnectTimeout(30000)
-            .setConnectionRequestTimeout(30000)
-            .setSocketTimeout(60000)
-            .build();
+    private org.apache.hc.client5.http.classic.HttpClient getHttp5Client() {
+        org.apache.hc.client5.http.config.RequestConfig config =
+            org.apache.hc.client5.http.config.RequestConfig.custom()
+                .setConnectionRequestTimeout(Timeout.ofSeconds(30))
+                .build();
 
-        return HttpClientBuilder
+        return org.apache.hc.client5.http.impl.classic.HttpClientBuilder
             .create()
             .useSystemProperties()
             .setDefaultRequestConfig(config)
@@ -70,10 +67,31 @@ public class HttpConfiguration {
 
     /**
      * Bean for Azure HTTP client.
+     *
      * @return The Azure HTTP client
      */
     @Bean
     public HttpClient azureHttpClient() {
         return new NettyAsyncHttpClientBuilder().build();
     }
+
+
+    /**
+     * Bean for CloseableHttpClient.
+     *
+     * @return The CloseableHttpClient
+     */
+    private CloseableHttpClient getHttpClient() {
+        RequestConfig config = RequestConfig.custom()
+            .setConnectTimeout(30000)
+            .setConnectionRequestTimeout(30000)
+            .setSocketTimeout(60000)
+            .build();
+        return HttpClientBuilder
+            .create()
+            .useSystemProperties()
+            .setDefaultRequestConfig(config)
+            .build();
+    }
+
 }

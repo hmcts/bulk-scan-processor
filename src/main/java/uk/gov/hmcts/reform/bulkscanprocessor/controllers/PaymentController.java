@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +23,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.payment.PaymentService;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.mapper.EnvelopeResponseMapper.toPaymentResponse;
 
