@@ -67,8 +67,8 @@ public class BlobProcessorTask {
         OcrValidationRetryManager ocrValidationRetryManager
     ) {
         this.blobManager = blobManager;
-        this.envelopeProcessor = envelopeProcessor;
         this.fileContentProcessor = fileContentProcessor;
+        this.envelopeProcessor = envelopeProcessor;
         this.leaseAcquirer = leaseAcquirer;
         this.ocrValidationRetryManager = ocrValidationRetryManager;
     }
