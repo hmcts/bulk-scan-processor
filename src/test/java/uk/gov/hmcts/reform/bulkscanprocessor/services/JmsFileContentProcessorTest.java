@@ -28,7 +28,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.NEW_APPLICATION;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.*;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DISABLED_SERVICE_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_UPLOAD_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+
 
 @ExtendWith(MockitoExtension.class)
 class JmsFileContentProcessorTest {
