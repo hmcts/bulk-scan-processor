@@ -1,4 +1,4 @@
-# Bulk scan processor.
+# Bulk scan processor
 
 ![](https://github.com/hmcts/bulk-scan-processor/workflows/CI/badge.svg)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/958fd3d74a194a0f8b9529cbc012293e)](https://www.codacy.com/app/HMCTS/bulk-scan-processor)
