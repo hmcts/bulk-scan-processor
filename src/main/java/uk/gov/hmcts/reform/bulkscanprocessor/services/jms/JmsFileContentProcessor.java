@@ -54,10 +54,10 @@ public class JmsFileContentProcessor {
         EnvelopeHandler envelopeHandler,
         JmsFileRejector fileRejector
     ) {
-        this.zipFileProcessor = zipFileProcessor;
         this.envelopeProcessor = envelopeProcessor;
         this.envelopeHandler = envelopeHandler;
         this.fileRejector = fileRejector;
+        this.zipFileProcessor = zipFileProcessor;
     }
 
     /**
@@ -103,13 +103,13 @@ public class JmsFileContentProcessor {
             );
             Long eventId = createEvent(DISABLED_SERVICE_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
+        }  catch (PreviouslyFailedToUploadException ex) {
+            log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
+            createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
         } catch (EnvelopeRejectionException ex) {
             log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
             Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
-        } catch (PreviouslyFailedToUploadException ex) {
-            log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
-            createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
         } catch (Exception ex) {
             log.error("Failed to process file {} from container {}", zipFilename, containerName, ex);
             createEvent(DOC_FAILURE, containerName, zipFilename, ex.getMessage());
