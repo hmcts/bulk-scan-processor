@@ -72,9 +72,9 @@ task contract(type: Test, description: 'Runs the contract tests.', group: 'Verif
 task runAndPublishConsumerPactTests(type: Test){
   testClassesDirs = sourceSets.contractTest.output.classesDirs
   classpath = sourceSets.contractTest.runtimeClasspath
+  finalizedBy(pactPublish)
 }
 
-runAndPublishConsumerPactTests.finalizedBy pactPublish
 
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
@@ -227,8 +227,7 @@ def versions = [
   junitPlatform: '1.9.2',
   mockitoJupiter: '3.3.3',
   reformLogging: '6.0.1',
-  apiguardian     : '1.1.2',
-  pact: '4.6.5'
+  apiguardian     : '1.1.2'
 ]
 
 
