@@ -72,9 +72,9 @@ task contract(type: Test, description: 'Runs the contract tests.', group: 'Verif
 task runAndPublishConsumerPactTests(type: Test){
   testClassesDirs = sourceSets.contractTest.output.classesDirs
   classpath = sourceSets.contractTest.runtimeClasspath
-  finalizedBy(pactPublish)
 }
 
+runAndPublishConsumerPactTests.finalizedBy pactPublish
 
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
