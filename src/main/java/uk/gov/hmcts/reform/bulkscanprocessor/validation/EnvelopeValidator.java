@@ -68,34 +68,6 @@ public final class EnvelopeValidator {
         );
 
     /**
-     * Assert envelope contains only scannable items of types that are allowed for the envelope's jurisdiction.
-     *
-     * @param envelope to assert against
-     * @throws DisallowedDocumentTypesException if envelope contains scannable items of types that are not allowed
-     */
-    public void assertEnvelopeContainsDocsOfAllowedTypesForService(InputEnvelope envelope) {
-        List<String> disallowedDocTypesFound =
-            envelope
-                .scannableItems
-                .stream()
-                .filter(item -> jurisdictionSpecificDocumentTypes.containsKey(item.documentType)
-                    && !jurisdictionSpecificDocumentTypes.get(item.documentType).contains(envelope.jurisdiction))
-                .map(item -> item.documentType.toString())
-                .collect(toList());
-
-        if (!disallowedDocTypesFound.isEmpty()) {
-
-            String errorMessage = String.format(
-                "Envelope contains scannable item(s) of types that are not allowed for jurisdiction '%s': [%s]",
-                envelope.jurisdiction,
-                StringUtils.join(disallowedDocTypesFound, ", ")
-            );
-
-            throw new DisallowedDocumentTypesException(errorMessage);
-        }
-    }
-
-    /**
      * Assert envelope contains only scannable items of types that are allowed for the envelope's classification.
      *
      * @param envelope to assert against
