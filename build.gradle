@@ -228,7 +228,7 @@ def versions = [
   mockitoJupiter: '3.3.3',
   reformLogging: '6.0.1',
   apiguardian     : '1.1.2',
-  pact: '4.6.1'
+  pact: '4.6.5'
 ]
 
 
