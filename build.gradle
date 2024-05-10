@@ -227,7 +227,8 @@ def versions = [
   junitPlatform: '1.9.2',
   mockitoJupiter: '3.3.3',
   reformLogging: '6.0.1',
-  apiguardian     : '1.1.2'
+  apiguardian     : '1.1.2',
+  pact: '4.6.1'
 ]
 
 
