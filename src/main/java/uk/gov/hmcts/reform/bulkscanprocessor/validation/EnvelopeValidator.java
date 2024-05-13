@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -47,16 +46,6 @@ public final class EnvelopeValidator {
     private static final Map<String, InputDocumentType> ocrDocumentTypePerJurisdiction =
         Map.of(
             "SSCS", InputDocumentType.SSCS1
-        );
-
-    private static final String probateJurisdiction = "PROBATE";
-    private static final Map<InputDocumentType, List<String>> jurisdictionSpecificDocumentTypes =
-        Map.of(InputDocumentType.WILL, singletonList(probateJurisdiction),
-               InputDocumentType.IHT, singletonList(probateJurisdiction),
-               InputDocumentType.FORENSIC_SHEETS, singletonList(probateJurisdiction),
-               InputDocumentType.SUPPORTING_DOCUMENTS, List.of(probateJurisdiction, "BULKSCAN"),
-               InputDocumentType.PPS_LEGAL_STATEMENT, singletonList(probateJurisdiction),
-               InputDocumentType.PPS_LEGAL_STATEMENT_WITHOUT_APOSTROPHE, singletonList(probateJurisdiction)
         );
 
     private static final Map<Classification, List<InputDocumentType>> disallowedDocumentTypes =
