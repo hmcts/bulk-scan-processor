@@ -1,3 +1,9 @@
+buildscript {
+  dependencies {
+    classpath("org.flywaydb:flyway-database-postgresql:10.13.0")
+  }
+}
+
 plugins {
   id 'application'
   id 'checkstyle'
@@ -248,12 +254,6 @@ ext.libraries = [
   ]
 ]
 ext["rest-assured.version"] = '5.4.0'
-
-buildscript {
-  dependencies {
-    classpath("org.flywaydb:flyway-database-postgresql:10.13.0")
-  }
-}
 
 dependencies {
 
