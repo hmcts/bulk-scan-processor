@@ -93,7 +93,7 @@ servicebus:
       - name: processed-envelopes
 
 blobstorage:
-  resourceGroup: bulk-scan-aks-rg
+  resourceGroup: bsp-aso-preview-rg
   teamName: "Software Engineering"
   location: uksouth
   setup:
