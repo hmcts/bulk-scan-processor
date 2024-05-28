@@ -10,6 +10,23 @@
 Retrieve scanned documents along with information extracted with OCR engine. Store the images and let recipient
 services fetch the new data.
 
+## Getting Started
+### Prerequisites
+
+- [JDK 17](https://www.oracle.com/java)
+- Project requires Spring Boot v3.x to be present
+
+### Installation
+- Clone the repository
+- Ensure all required environment variables have been set.
+
+## Quick Start (Alternative)
+An alternative faster way getting started is by using the automated setup script. This script will help set up all
+bulk scan/print repos including bulk-scan-processor and its dependencies.
+See [common-dev-env-bsbp](https://github.com/hmcts/common-dev-env-bsbp) repository for more information.
+Once set up script has ran successfully you can move the bulk-scan-processor from the newly created
+common-dev-env-bsbp/apps directory to your desired location.
+
 ## Building and deploying the application
 
 The project uses [Gradle](https://gradle.org) as a build tool. It already contains
