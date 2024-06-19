@@ -1,4 +1,19 @@
 java:
+  environment:
+    STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
+    LEASE_ACQUIRE_DELAY_IN_SECONDS: "15"
+    FLYWAY_NOOP_STRATEGY: "false"
+    QUEUE_ENVELOPE_NAME: "envelopes-staging"
+    QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes-staging"
+    STORAGE_URL: https://bulkscanaatstaging.blob.core.windows.net
+    QUEUE_NOTIFICATIONS_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
+    BULK_SCANNING_DB_USER_NAME: "{{ .Values.postgresql.auth.username}}"
+    BULK_SCANNING_DB_PASSWORD: "{{ .Values.postgresql.auth.password}}"
+    BULK_SCANNING_DB_NAME: "{{ .Values.postgresql.auth.database}}"
+    BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
+    FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.auth.database}}"
+    FLYWAY_USER: "{{ .Values.postgresql.auth.username}}"
+    FLYWAY_PASSWORD: "{{ .Values.postgresql.auth.password}}"
   keyVaults:
     "bulk-scan":
       secrets:
@@ -54,26 +69,13 @@ java:
           alias: LAUNCH_DARKLY_SDK_KEY
         - name: launch-darkly-offline-mode
           alias: LAUNCH_DARKLY_OFFLINE_MODE
-        - name: processor-staging-db-flexible-pass
-          alias: BULK_SCANNING_DB_PASSWORD
-        - name: processor-staging-db-flexible-user
-          alias: BULK_SCANNING_DB_USER_NAME
-        - name: processor-staging-db-flexible-database
-          alias: BULK_SCANNING_DB_NAME
-        - name: processor-staging-db-flexible-host
-          alias: BULK_SCANNING_DB_HOST
-        - name: processor-staging-db-flexible-port
-          alias: BULK_SCANNING_DB_PORT
-        - name: processor-staging-db-flexible-pass
-          alias: flyway.password
+
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
-  environment:
-    STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
-    LEASE_ACQUIRE_DELAY_IN_SECONDS: "15"
-    FLYWAY_NOOP_STRATEGY: "false"
-    QUEUE_ENVELOPE_NAME: "envelopes-staging"
-    QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes-staging"
-    STORAGE_URL: https://bulkscanaatstaging.blob.core.windows.net
-    QUEUE_NOTIFICATIONS_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
+
+  postgresql:
+    enabled: true
+    postgresqlUsername: bulkscanner
+    postgresqlPassword: bsppassword
+    postgresqlDatabase: bulk_scan
