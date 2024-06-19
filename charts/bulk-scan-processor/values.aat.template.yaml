@@ -14,6 +14,10 @@ java:
     FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.auth.database}}"
     FLYWAY_USER: "{{ .Values.postgresql.auth.username}}"
     FLYWAY_PASSWORD: "{{ .Values.postgresql.auth.password}}"
+    SCAN_DELAY: "2000"
+    LEASE_ACQUIRE_DELAY_IN_SECONDS: "60"
+    UPLOAD_TASK_ENABLED: "true"
+    UPLOAD_TASK_DELAY: "2000"
   keyVaults:
     "bulk-scan":
       secrets:
