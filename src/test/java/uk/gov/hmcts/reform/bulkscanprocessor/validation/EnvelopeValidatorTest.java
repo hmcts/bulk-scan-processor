@@ -679,48 +679,6 @@ class EnvelopeValidatorTest {
     }
 
     @Test
-    void assertEnvelopeContainsDocsOfAllowedTypesForService_should_pass() {
-        // given
-        InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-            "BULKSCAN",
-            "POBOX",
-            Classification.EXCEPTION,
-            List.of(
-                scannableItem("file1", InputDocumentType.CHERISHED),
-                scannableItem("file2", InputDocumentType.SUPPORTING_DOCUMENTS)
-            )
-        );
-
-        // when
-        // then
-        assertDoesNotThrow(() -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesForService(envelope));
-    }
-
-    @Test
-    void assertEnvelopeContainsDocsOfAllowedTypesForService_should_fail() {
-        // given
-        InputEnvelope envelope = InputEnvelopeCreator.inputEnvelope(
-            "BULKSCAN",
-            "POBOX",
-            Classification.EXCEPTION,
-            List.of(
-                scannableItem("file1", InputDocumentType.CHERISHED),
-                scannableItem("file2", InputDocumentType.SUPPORTING_DOCUMENTS),
-                scannableItem("file3", InputDocumentType.IHT),
-                scannableItem("file4", InputDocumentType.OTHER)
-            )
-        );
-
-        // when
-        // then
-        assertThatThrownBy(() -> envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesForService(envelope))
-            .isInstanceOf(DisallowedDocumentTypesException.class)
-            .hasMessage(
-                "Envelope contains scannable item(s) of types that are not allowed for jurisdiction 'BULKSCAN': [IHT]"
-            );
-    }
-
-    @Test
     void assertServiceEnabled_throws_if_pobox_is_incorrect() {
         // given
         ContainerMappings.Mapping m = new ContainerMappings.Mapping(

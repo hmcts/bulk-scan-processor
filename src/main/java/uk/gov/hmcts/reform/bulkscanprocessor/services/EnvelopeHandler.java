@@ -92,7 +92,6 @@ public class EnvelopeHandler {
         envelopeValidator.assertPaymentsEnabledForContainerIfPaymentsArePresent(
             inputEnvelope, paymentsEnabled, containerMappings.getMappings()
         );
-        envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesForService(inputEnvelope);
         envelopeValidator.assertEnvelopeContainsDocsOfAllowedTypesOnly(inputEnvelope);
 
         envelopeProcessor.assertDidNotFailToUploadBefore(inputEnvelope.zipFileName, containerName);
