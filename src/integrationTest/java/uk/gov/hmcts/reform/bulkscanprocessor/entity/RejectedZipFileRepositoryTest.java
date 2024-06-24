@@ -24,7 +24,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.EXCEPTION;
-import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.*;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.DOC_SIGNATURE_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.FILE_VALIDATION_FAILURE;
+import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
@@ -158,15 +161,17 @@ public class RejectedZipFileRepositoryTest {
                 )
             );
     }
+
     @Test
     public void should_return_rejected_zip_files_with_matching_name() {
         Instant eventDate = Instant.parse("2019-02-15T14:15:23.456Z");
+
         dbHasEvents(
             event("c2", "test2.zip", eventDate, DOC_FAILURE),
             event("c2", "test2.zip", eventDate, FILE_VALIDATION_FAILURE),
             event("c2", "test2.zip", eventDate, DOC_SIGNATURE_FAILURE),
             event("c2", "test3.zip", eventDate, FILE_VALIDATION_FAILURE)
-            );
+        );
 
         Envelope existingEnvelope
             = envelope("c2", "test2.zip", Status.COMPLETED, EXCEPTION, "ccd-id-1", "ccd-action-1", "test5");
@@ -178,7 +183,9 @@ public class RejectedZipFileRepositoryTest {
         assertThat(result)
             .hasSize(3)
             .extracting("zipFileName", "event")
-            .contains(tuple("test2.zip", "DOC_FAILURE"), tuple("test2.zip", "FILE_VALIDATION_FAILURE"), tuple("test2.zip", "DOC_SIGNATURE_FAILURE"))
+            .contains(tuple("test2.zip", "DOC_FAILURE"),
+                      tuple("test2.zip", "FILE_VALIDATION_FAILURE"),
+                      tuple("test2.zip", "DOC_SIGNATURE_FAILURE"))
             .doesNotContain(tuple("test3.zip", "FILE_VALIDATION_FAILURE"));
     }
 

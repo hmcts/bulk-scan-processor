@@ -33,7 +33,7 @@ public class RejectedZipFilesService {
     }
 
     /**
-     * Get the list of rejected zip files with a specific name
+     * Get the list of rejected zip files with a specific name.
      * @param name the name the rejected zip files should match
      * @return The list of rejected zip files
      */
