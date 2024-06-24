@@ -62,6 +62,38 @@ class RejectedZipFilesServiceTest {
     }
 
     @Test
+    public void should_return_rejected_zip_files_by_name() {
+        List<RejectedZipFile> rejectedFiles = asList(
+            new RejectedZipFileItem(
+                "test1.zip",
+                "c1",
+                Instant.now(),
+                null,
+                "FILE_VALIDATION_FAILURE"
+            ),
+            new RejectedZipFileItem(
+                "test1.zip",
+                "c2",
+                Instant.now(),
+                null,
+                "DOC_SIGNATURE_FAILURE"
+            )
+        );
+
+        given(rejectedZipFileRepository.getRejectedZipFilesReportFor("test1.zip"))
+            .willReturn(rejectedFiles);
+
+        List<RejectedZipFile> res = rejectedZipFilesService.getRejectedZipFiles("test1.zip");
+        assertThat(res).isSameAs(rejectedFiles);
+    }
+
+    @Test
+    public void should_return_empty_list_if_no_rejected_zip_files_match_name() {
+        List<RejectedZipFile> res = rejectedZipFilesService.getRejectedZipFiles("test1.zip");
+        assertThat(res).isEmpty();
+    }
+
+    @Test
     void should_rethrow_exception() {
         // given
         LocalDate date = LocalDate.now();

@@ -34,4 +34,28 @@ public interface RejectedZipFileRepository extends JpaRepository<Envelope, UUID>
                     + "         envelopeId"
     )
     List<RejectedZipFile> getRejectedZipFilesReportFor(@Param("date") LocalDate date);
+
+    @Query(
+        nativeQuery = true,
+        value = "SELECT "
+            + "  process_events.container, "
+            + "  process_events.zipfilename, "
+            + "  process_events.event, "
+            + "  MIN(process_events.createdat) AS processingStartedEventDate, "
+            + "  Cast(envelopes.id as varchar) as envelopeId "
+            + "FROM process_events "
+            + "LEFT OUTER JOIN envelopes "
+            + "  ON envelopes.container = process_events.container "
+            + "    AND envelopes.zipfilename = process_events.zipfilename "
+            + "WHERE process_events.event "
+            + "  IN ('DOC_FAILURE', 'FILE_VALIDATION_FAILURE', 'DOC_SIGNATURE_FAILURE') "
+            + "  AND process_events.zipfilename = :name "
+            + "GROUP BY process_events.container, "
+            + "         process_events.zipfilename, "
+            + "         process_events.event, "
+            + "         process_events.createdat, "
+            + "         envelopeId "
+            + "ORDER BY process_events.createdat DESC"
+    )
+    List<RejectedZipFile> getRejectedZipFilesReportFor(@Param("name") String name);
 }
