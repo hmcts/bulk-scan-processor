@@ -55,7 +55,7 @@ public interface RejectedZipFileRepository extends JpaRepository<Envelope, UUID>
             + "         process_events.event, "
             + "         process_events.createdat, "
             + "         envelopeId "
-            + "ORDER BY process_events.createdat"
+            + "ORDER BY process_events.createdat DESC"
     )
     List<RejectedZipFile> getRejectedZipFilesReportFor(@Param("name") String name);
 }
