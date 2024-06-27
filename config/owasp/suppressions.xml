@@ -3,5 +3,6 @@
   <suppress>
     <notes>Wait until a version exists that fixes these; they are all related</notes>
     <cve>CVE-2023-35116</cve>
+    <cve>CVE-2023-36052</cve>
   </suppress>
 </suppressions>
