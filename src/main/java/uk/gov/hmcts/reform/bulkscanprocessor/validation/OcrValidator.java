@@ -141,12 +141,13 @@ public class OcrValidator {
                     + "Envelope: " + envelope.zipFileName + ".";
                 throw new OcrValidationException(
                     message,
-                    "OCR fields validation failed. Validation errors: " + res.errors
+                    "OCR fields validation failed. Envelope: "
+                        + envelope.zipFileName + " Validation errors: " + res.errors
                 );
             case WARNINGS:
                 log.info(
-                    "Validation ended with warnings. File name: {}",
-                    envelope.zipFileName
+                    "Validation ended with warnings: {}, File name: {}",
+                    res.warnings, envelope.zipFileName
                 );
                 break;
             default:
