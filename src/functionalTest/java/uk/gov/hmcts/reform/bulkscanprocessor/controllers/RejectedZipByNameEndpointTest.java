@@ -71,12 +71,12 @@ public class RejectedZipByNameEndpointTest extends BaseFunctionalTest {
         assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isTrue();
         assertThat(searchByName(rejectedContainer, destZipFilename)).hasSize(1);
 
-//        given()
-//            .baseUri(TEST_URL)
-//            .relaxedHTTPSValidation()
-//            .get("/reports/rejected-zip-files/name/" + destZipFilename)
-//            .then().statusCode(200)
-//            .body("event", equalTo("FILE_VALIDATION_FAILURE"));
+        //        given()
+        //            .baseUri(TEST_URL)
+        //            .relaxedHTTPSValidation()
+        //            .get("/reports/rejected-zip-files/name/" + destZipFilename)
+        //            .then().statusCode(200)
+        //            .body("event", equalTo("FILE_VALIDATION_FAILURE"));
 
         Response getResponse = given()
             .baseUri(TEST_URL)
@@ -105,7 +105,6 @@ public class RejectedZipByNameEndpointTest extends BaseFunctionalTest {
             .body("count", equalTo(0));
 
     }
-
 
     private List<BlobItem> searchByName(BlobContainerClient container, String fileName) {
         ListBlobsOptions listOptions = new ListBlobsOptions();
