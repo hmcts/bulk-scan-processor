@@ -74,7 +74,8 @@ public class RejectedZipByNameEndpointTest extends BaseFunctionalTest {
             .baseUri(TEST_URL)
             .relaxedHTTPSValidation()
             .get("/reports/rejected-zip-files/name/" + destZipFilename)
-            .then().statusCode(200);
+            .then().statusCode(200)
+            .body("event", equalTo("DOC_FAILURE"));
     }
 
     @Test
