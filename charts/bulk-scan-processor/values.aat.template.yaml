@@ -80,6 +80,3 @@ java:
 
   postgresql:
     enabled: true
-    postgresqlUsername: bulkscanner
-    postgresqlPassword: bsppassword
-    postgresqlDatabase: bulk_scan
