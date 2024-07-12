@@ -27,7 +27,7 @@ public class TestStorageHelper {
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
     public static BlobServiceClient BLOB_SERVICE_CLIENT;
-    private BlobContainerClient TEST_CONTAINER;
+    private BlobContainerClient testContainer;
 
     @Container
     static final GenericContainer DOCKER_COMPOSE_CONTAINER =
@@ -73,17 +73,17 @@ public class TestStorageHelper {
     }
 
     public void createBulkscanContainer() {
-        TEST_CONTAINER = BLOB_SERVICE_CLIENT.getBlobContainerClient(CONTAINER_NAME);
-        TEST_CONTAINER.create();
+        testContainer = BLOB_SERVICE_CLIENT.getBlobContainerClient(CONTAINER_NAME);
+        testContainer.create();
     }
 
     public void deleteBulkscanContainer() {
-        TEST_CONTAINER.delete();
+        testContainer.delete();
     }
 
     public void upload(String directory) {
         try {
-            BlobClient blobClient = TEST_CONTAINER.getBlobClient(ZIP_FILE_NAME);
+            BlobClient blobClient = testContainer.getBlobClient(ZIP_FILE_NAME);
 
             // Blob need to be deleted as same blob may exists if previously uploaded blob was not deleted
             // due to doc upload failure
