@@ -28,7 +28,7 @@ public class TestStorageHelper {
     public static BlobServiceClient BLOB_SERVICE_CLIENT;
     private BlobContainerClient testContainer;
 
-    static final GenericContainer<?> DOCKER_COMPOSE_CONTAINER =
+    private static GenericContainer<?> DOCKER_COMPOSE_CONTAINER =
         new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
 
     private TestStorageHelper() {
