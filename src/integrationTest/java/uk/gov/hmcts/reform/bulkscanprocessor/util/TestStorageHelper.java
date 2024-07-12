@@ -5,7 +5,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
 
 import java.io.ByteArrayInputStream;
 
@@ -29,12 +28,8 @@ public class TestStorageHelper {
     public static BlobServiceClient BLOB_SERVICE_CLIENT;
     private BlobContainerClient testContainer;
 
-    @Container
-    static final GenericContainer DOCKER_COMPOSE_CONTAINER =
-        new GenericContainer(AZURE_TEST_CONTAINER)
-            .withNetworkAliases(EXTRACTION_HOST)
-            .withExposedPorts(CONTAINER_PORT)
-            .withEnv("executable", "blob");
+    static final GenericContainer<?> DOCKER_COMPOSE_CONTAINER =
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
 
     private TestStorageHelper() {
         // empty constructor
@@ -49,6 +44,8 @@ public class TestStorageHelper {
     }
 
     private static void createDocker() {
+        DOCKER_COMPOSE_CONTAINER.withEnv("executable", "blob");
+        DOCKER_COMPOSE_CONTAINER.withNetworkAliases(EXTRACTION_HOST);
         DOCKER_COMPOSE_CONTAINER.start();
         DOCKER_HOST = DOCKER_COMPOSE_CONTAINER.getHost();
     }
