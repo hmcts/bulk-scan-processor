@@ -107,7 +107,7 @@ public class UploadEnvelopeDocumentsTaskTest {
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
 
         // when
-        BlobManager blobManager = new BlobManager(STORAGE_HELPER.blobServiceClient, blobManagementProperties);
+        BlobManager blobManager = new BlobManager(STORAGE_HELPER.BLOB_SERVICE_CLIENT, blobManagementProperties);
         UploadEnvelopeDocumentsService uploadService = new UploadEnvelopeDocumentsService(
             blobManager,
             zipFileProcessor,
