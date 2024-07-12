@@ -43,14 +43,12 @@ public class TestStorageHelper {
         return INSTANCE;
     }
 
-    private static void createDocker() {
+    public static void initialize() {
         DOCKER_COMPOSE_CONTAINER.withEnv("executable", "blob");
         DOCKER_COMPOSE_CONTAINER.withNetworkAliases(EXTRACTION_HOST);
         DOCKER_COMPOSE_CONTAINER.start();
         DOCKER_HOST = DOCKER_COMPOSE_CONTAINER.getHost();
-    }
 
-    private static void initializeStorage() {
         BLOB_SERVICE_CLIENT = new BlobServiceClientBuilder()
             .connectionString(
                 String.format(STORAGE_CONN_STRING,
@@ -58,11 +56,6 @@ public class TestStorageHelper {
                               DOCKER_COMPOSE_CONTAINER.getMappedPort(CONTAINER_PORT))
             )
             .buildClient();
-    }
-
-    public static void initialize() {
-        createDocker();
-        initializeStorage();
     }
 
     public static void stopDocker() {
