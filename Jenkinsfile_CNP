@@ -13,6 +13,8 @@ def component = "processor"
 
 def channel = '#bsp-build-notices'
 
+env.TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = 'hmctspublic.azurecr.io/imported/'
+
 def combinedSecrets = [
   'bulk-scan-${env}': [
     secret('processed-envelopes-staging-queue-send-shared-access-key',

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.GenericContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.BlobManager;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +26,9 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseMetaDataChecker.LEASE_EXPIRATION_TIME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.AZURE_TEST_CONTAINER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.EXTRACTION_HOST;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @IntegrationTest
@@ -44,17 +46,17 @@ public class CleanUpRejectedFilesTaskTest {
 
     private BlobManager blobManager;
 
-    private static DockerComposeContainer dockerComposeContainer;
+    private static GenericContainer<?> dockerComposeContainer =
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
+
     private static String dockerHost;
 
     @BeforeAll
     public static void initialize() {
-        dockerComposeContainer =
-            new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
-                .withExposedService("azure-storage", 10000);
-
+        dockerComposeContainer.withEnv("executable", "blob");
+        dockerComposeContainer.withNetworkAliases(EXTRACTION_HOST);
         dockerComposeContainer.start();
-        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
+        dockerHost = dockerComposeContainer.getHost();
     }
 
     @AfterAll
@@ -63,9 +65,14 @@ public class CleanUpRejectedFilesTaskTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(
+                String.format(
+                    TestStorageHelper.STORAGE_CONN_STRING,
+                    dockerHost,
+                    dockerComposeContainer.getMappedPort(CONTAINER_PORT))
+            )
             .buildClient();
 
         this.blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
