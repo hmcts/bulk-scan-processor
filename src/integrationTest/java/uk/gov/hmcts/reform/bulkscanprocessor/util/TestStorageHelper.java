@@ -9,7 +9,6 @@ import org.testcontainers.containers.GenericContainer;
 import java.io.ByteArrayInputStream;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
-
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.AZURE_TEST_CONTAINER;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_PORT;
