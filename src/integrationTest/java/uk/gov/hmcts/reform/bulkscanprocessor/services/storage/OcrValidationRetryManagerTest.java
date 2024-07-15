@@ -43,7 +43,12 @@ class OcrValidationRetryManagerTest {
     @BeforeEach
     void setUp() {
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(
+                String.format(
+                    TestStorageHelper.STORAGE_CONN_STRING,
+                    dockerHost,
+                    dockerComposeContainer.getMappedPort(CONTAINER_PORT))
+            )
             .buildClient();
 
         testContainer = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);

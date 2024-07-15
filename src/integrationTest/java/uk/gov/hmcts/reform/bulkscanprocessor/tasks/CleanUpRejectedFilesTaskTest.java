@@ -65,9 +65,14 @@ public class CleanUpRejectedFilesTaskTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(
+                String.format(
+                    TestStorageHelper.STORAGE_CONN_STRING,
+                    dockerHost,
+                    dockerComposeContainer.getMappedPort(CONTAINER_PORT))
+            )
             .buildClient();
 
         this.blobManager = new BlobManager(blobServiceClient, blobManagementProperties);

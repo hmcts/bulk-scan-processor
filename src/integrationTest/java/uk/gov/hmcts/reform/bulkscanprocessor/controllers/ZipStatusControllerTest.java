@@ -126,8 +126,13 @@ class ZipStatusControllerTest {
     void setup() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-                .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
-                .buildClient();
+            .connectionString(
+                String.format(
+                    TestStorageHelper.STORAGE_CONN_STRING,
+                    dockerHost,
+                    dockerComposeContainer.getMappedPort(CONTAINER_PORT))
+            )
+            .buildClient();
 
         BlobManager blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
         EnvelopeValidator envelopeValidator = new EnvelopeValidator();
