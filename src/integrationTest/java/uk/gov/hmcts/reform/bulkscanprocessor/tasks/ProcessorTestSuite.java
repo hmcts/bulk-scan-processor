@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.GenericContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -49,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.*;
 
 public abstract class ProcessorTestSuite {
 
@@ -124,7 +126,9 @@ public abstract class ProcessorTestSuite {
     protected BlobContainerClient testContainer;
     protected BlobContainerClient rejectedContainer;
 
-    private static DockerComposeContainer dockerComposeContainer;
+    private static GenericContainer<?> dockerComposeContainer =
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
+
     private static String dockerHost;
 
     @BeforeEach
@@ -213,13 +217,10 @@ public abstract class ProcessorTestSuite {
 
     @BeforeAll
     public static void initialize() {
-        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
-
-        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000);
-
+        dockerComposeContainer.withEnv("executable", "blob");
+        dockerComposeContainer.withNetworkAliases(EXTRACTION_HOST);
         dockerComposeContainer.start();
-        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
+        dockerHost = dockerComposeContainer.getHost();
     }
 
     @AfterAll

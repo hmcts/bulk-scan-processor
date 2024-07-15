@@ -17,7 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.GenericContainer;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
@@ -64,6 +64,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.AZURE_TEST_CONTAINER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.EXTRACTION_HOST;
 
 @ActiveProfiles({
     IntegrationContextInitializer.PROFILE_WIREMOCK,
@@ -101,18 +104,17 @@ class ZipStatusControllerTest {
     private BlobContainerClient testContainer;
 
 
-    private static DockerComposeContainer dockerComposeContainer;
+    private static GenericContainer<?> dockerComposeContainer =
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
+
     private static String dockerHost;
 
     @BeforeAll
-    static void initialize() {
-        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
-
-        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000);
-
+    public static void initialize() {
+        dockerComposeContainer.withEnv("executable", "blob");
+        dockerComposeContainer.withNetworkAliases(EXTRACTION_HOST);
         dockerComposeContainer.start();
-        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
+        dockerHost = dockerComposeContainer.getHost();
     }
 
     @AfterAll

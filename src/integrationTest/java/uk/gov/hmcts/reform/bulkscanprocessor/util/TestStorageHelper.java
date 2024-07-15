@@ -10,15 +10,13 @@ import java.io.ByteArrayInputStream;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
 
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.AZURE_TEST_CONTAINER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.EXTRACTION_HOST;
+
 public class TestStorageHelper {
-
-    private static final String AZURE_TEST_CONTAINER = "hmctspublic.azurecr.io/imported/azure-storage/azurite:3.29.0";
-    private static final String EXTRACTION_HOST = "azurite";
-    private static final int CONTAINER_PORT = 10000;
-
     private static TestStorageHelper INSTANCE;
-
-    public static final String CONTAINER_NAME = "bulkscan";
     public static final String ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
 
     private static String DOCKER_HOST;

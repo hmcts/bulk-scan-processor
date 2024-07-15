@@ -40,6 +40,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOADED;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_NAME;
 
 @IntegrationTest
 @SuppressWarnings("unchecked")
@@ -101,7 +102,7 @@ public class UploadEnvelopeDocumentsTaskTest {
         );
         Envelope envelope = EnvelopeMapper.toDbEnvelope(
             inputEnvelope,
-            TestStorageHelper.CONTAINER_NAME,
+            CONTAINER_NAME,
             Optional.empty()
         );
         UUID envelopeId = envelopeRepository.saveAndFlush(envelope).getId();
