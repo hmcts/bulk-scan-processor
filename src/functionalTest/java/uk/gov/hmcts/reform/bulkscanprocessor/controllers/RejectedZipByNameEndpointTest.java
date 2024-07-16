@@ -6,7 +6,6 @@ import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,23 +70,12 @@ public class RejectedZipByNameEndpointTest extends BaseFunctionalTest {
         assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isTrue();
         assertThat(searchByName(rejectedContainer, destZipFilename)).hasSize(1);
 
-        //        given()
-        //            .baseUri(TEST_URL)
-        //            .relaxedHTTPSValidation()
-        //            .get("/reports/rejected-zip-files/name/" + destZipFilename)
-        //            .then().statusCode(200)
-        //            .body("event", equalTo("FILE_VALIDATION_FAILURE"));
-
-        Response getResponse = given()
+        given()
             .baseUri(TEST_URL)
             .relaxedHTTPSValidation()
             .get("/reports/rejected-zip-files/name/" + destZipFilename)
             .then().statusCode(200)
-            .extract()
-            .response();
-
-        System.out.print("hello1......" + getResponse.body().prettyPrint());
-        System.out.print("hello2......" + getResponse.body().print());
+            .body("rejected_zip_files:event", equalTo("FILE_VALIDATION_FAILURE"));
 
     }
 
