@@ -12,7 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.GenericContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ContainerMappings;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Envelope;
@@ -40,7 +40,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.List;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -49,6 +48,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.AZURE_TEST_CONTAINER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.EXTRACTION_HOST;
 
 public abstract class ProcessorTestSuite {
 
@@ -124,14 +126,21 @@ public abstract class ProcessorTestSuite {
     protected BlobContainerClient testContainer;
     protected BlobContainerClient rejectedContainer;
 
-    private static DockerComposeContainer dockerComposeContainer;
+    private static GenericContainer<?> dockerComposeContainer =
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
+
     private static String dockerHost;
 
     @BeforeEach
     public void setUp() {
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(
+                String.format(
+                    TestStorageHelper.STORAGE_CONN_STRING,
+                    dockerHost,
+                    dockerComposeContainer.getMappedPort(CONTAINER_PORT))
+            )
             .buildClient();
 
         blobManager = new BlobManager(blobServiceClient, blobManagementProperties);
@@ -213,13 +222,10 @@ public abstract class ProcessorTestSuite {
 
     @BeforeAll
     public static void initialize() {
-        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
-
-        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000);
-
+        dockerComposeContainer.withEnv("executable", "blob");
+        dockerComposeContainer.withNetworkAliases(EXTRACTION_HOST);
         dockerComposeContainer.start();
-        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
+        dockerHost = dockerComposeContainer.getHost();
     }
 
     @AfterAll

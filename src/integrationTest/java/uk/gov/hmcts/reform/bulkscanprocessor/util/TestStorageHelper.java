@@ -4,27 +4,29 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.GenericContainer;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.AZURE_TEST_CONTAINER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_NAME;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.EXTRACTION_HOST;
 
 public class TestStorageHelper {
-
     private static TestStorageHelper INSTANCE;
-
-    public static final String CONTAINER_NAME = "bulkscan";
     public static final String ZIP_FILE_NAME = "1_24-06-2018-00-00-00.zip";
 
-    private static DockerComposeContainer<?> dockerComposeContainer;
-    private static String dockerHost;
+    private static String DOCKER_HOST;
     public static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
         + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
         + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
-    public static BlobServiceClient blobServiceClient;
+    public static BlobServiceClient BLOB_SERVICE_CLIENT;
     private BlobContainerClient testContainer;
+
+    private static GenericContainer<?> DOCKER_COMPOSE_CONTAINER =
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
 
     private TestStorageHelper() {
         // empty constructor
@@ -38,31 +40,27 @@ public class TestStorageHelper {
         return INSTANCE;
     }
 
-    private static void createDocker() {
-        dockerComposeContainer = new DockerComposeContainer<>(
-            new File("src/integrationTest/resources/docker-compose.yml")
-        ).withExposedService("azure-storage", 10000);
-        dockerComposeContainer.start();
-        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
-    }
+    public static void initialize() {
+        DOCKER_COMPOSE_CONTAINER.withEnv("executable", "blob");
+        DOCKER_COMPOSE_CONTAINER.withNetworkAliases(EXTRACTION_HOST);
+        DOCKER_COMPOSE_CONTAINER.start();
+        DOCKER_HOST = DOCKER_COMPOSE_CONTAINER.getHost();
 
-    private static void initializeStorage() {
-        blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
+        BLOB_SERVICE_CLIENT = new BlobServiceClientBuilder()
+            .connectionString(
+                String.format(STORAGE_CONN_STRING,
+                              DOCKER_HOST,
+                              DOCKER_COMPOSE_CONTAINER.getMappedPort(CONTAINER_PORT))
+            )
             .buildClient();
     }
 
-    public static void initialize() {
-        createDocker();
-        initializeStorage();
-    }
-
     public static void stopDocker() {
-        dockerComposeContainer.stop();
+        DOCKER_COMPOSE_CONTAINER.stop();
     }
 
     public void createBulkscanContainer() {
-        testContainer = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
+        testContainer = BLOB_SERVICE_CLIENT.getBlobContainerClient(CONTAINER_NAME);
         testContainer.create();
     }
 

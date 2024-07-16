@@ -12,15 +12,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.GenericContainer;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
 import uk.gov.hmcts.reform.bulkscanprocessor.util.TestStorageHelper;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.bulkscanprocessor.helper.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.AZURE_TEST_CONTAINER;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.CONTAINER_PORT;
+import static uk.gov.hmcts.reform.bulkscanprocessor.util.AzureHelper.EXTRACTION_HOST;
 
 @IntegrationTest
 class OcrValidationRetryManagerTest {
@@ -31,7 +33,9 @@ class OcrValidationRetryManagerTest {
     @Autowired
     private OcrValidationRetryManager ocrValidationRetryManager;
 
-    private static DockerComposeContainer dockerComposeContainer;
+    private static GenericContainer<?> dockerComposeContainer =
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
+
     private static String dockerHost;
 
     private BlobContainerClient testContainer;
@@ -39,7 +43,12 @@ class OcrValidationRetryManagerTest {
     @BeforeEach
     void setUp() {
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(TestStorageHelper.STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(
+                String.format(
+                    TestStorageHelper.STORAGE_CONN_STRING,
+                    dockerHost,
+                    dockerComposeContainer.getMappedPort(CONTAINER_PORT))
+            )
             .buildClient();
 
         testContainer = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
@@ -57,13 +66,10 @@ class OcrValidationRetryManagerTest {
 
     @BeforeAll
     static void initialize() {
-        File dockerComposeFile = new File("src/integrationTest/resources/docker-compose.yml");
-
-        dockerComposeContainer = new DockerComposeContainer(dockerComposeFile)
-            .withExposedService("azure-storage", 10000);
-
+        dockerComposeContainer.withEnv("executable", "blob");
+        dockerComposeContainer.withNetworkAliases(EXTRACTION_HOST);
         dockerComposeContainer.start();
-        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
+        dockerHost = dockerComposeContainer.getHost();
     }
 
     @AfterAll
