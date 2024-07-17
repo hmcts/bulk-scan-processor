@@ -631,6 +631,65 @@ class ReportsControllerTest {
     }
 
     @Test
+    void should_return_rejected_zip_files_by_name() throws Exception {
+        UUID uuid1 = randomUUID();
+        UUID uuid2 = randomUUID();
+
+        given(rejectedZipFilesService.getRejectedZipFiles("a.zip"))
+            .willReturn(asList(
+                new RejectedZipFileItem(
+                    "a.zip",
+                    "A",
+                    LocalDateTime.parse("2021-04-16T09:01:43.029000").toInstant(ZoneOffset.UTC),
+                    uuid1,
+                    "FILE_VALIDATION_FAILURE"
+                ),
+                new RejectedZipFileItem(
+                    "a.zip",
+                    "A",
+                    LocalDateTime.parse("2021-04-16T09:01:44.029000").toInstant(ZoneOffset.UTC),
+                    uuid2,
+                    "DOC_SIGNATURE_FAILURE"
+                )
+            ));
+
+        mockMvc
+            .perform(get("/reports/rejected-zip-files/name/a.zip"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(
+                "{"
+                    + "'count': 2,"
+                    + "'rejected_zip_files': ["
+                    + "  {"
+                    + "    'zip_file_name': 'a.zip',"
+                    + "    'container': 'A',"
+                    + "    'processing_started_date_time': '2021-04-16T09:01:43.029',"
+                    + "    'envelope_id': '" + uuid1 + "',"
+                    + "    'event': 'FILE_VALIDATION_FAILURE'"
+                    + "  },"
+                    + "  {"
+                    + "    'zip_file_name': 'a.zip',"
+                    + "    'container': 'A',"
+                    + "    'processing_started_date_time': '2021-04-16T09:01:44.029',"
+                    + "    'envelope_id': '" + uuid2 + "',"
+                    + "    'event': 'DOC_SIGNATURE_FAILURE'"
+                    + "  }"
+                    + "]"
+                    + "}"
+            ));
+    }
+
+    @Test
+    void should_return_empty_list_if_no_rejected_zip_files_match_name() throws Exception {
+        mockMvc
+            .perform(get("/reports/rejected-zip-files/name/a.zip"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(
+                "{}"
+            ));
+    }
+
+    @Test
     void should_return_received_scannable_items() throws Exception {
         given(receivedScannableItemsService.getReceivedScannableItems(LocalDate.parse("2021-04-16")))
                 .willReturn(asList(

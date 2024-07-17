@@ -31,4 +31,13 @@ public class RejectedZipFilesService {
     public List<RejectedZipFile> getRejectedZipFiles(LocalDate date) {
         return rejectedZipFileRepository.getRejectedZipFilesReportFor(date);
     }
+
+    /**
+     * Get the list of rejected zip files with a specific name.
+     * @param name the name the rejected zip files should match
+     * @return The list of rejected zip files
+     */
+    public List<RejectedZipFile> getRejectedZipFiles(String name) {
+        return rejectedZipFileRepository.getRejectedZipFilesReportFor(name);
+    }
 }
