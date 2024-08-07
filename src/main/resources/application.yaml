@@ -179,12 +179,12 @@ containers:
       jurisdiction: PUBLICLAW
       poBoxes:
         - 12879
-      paymentsEnabled: ${PAYMENTS_ENABLED_PRIVATELAW}
+      paymentsEnabled: false
     - container: privatelaw
       jurisdiction: PRIVATELAW
       poBoxes:
         - 13235
-      paymentsEnabled: false
+      paymentsEnabled: ${PAYMENTS_ENABLED_PRIVATELAW}
       enabled: ${PRIVATELAW_ENABLED:true}
       ocrValidationUrl: ${OCR_VALIDATION_URL_PRIVATELAW}
     - container: nfd
