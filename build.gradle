@@ -321,7 +321,7 @@ dependencies {
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
 
   implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.0.2'
-  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.1.1'
+  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.5.0'
   implementation group: 'com.google.guava', name: 'guava', version: '33.0.0-jre'
 
 
