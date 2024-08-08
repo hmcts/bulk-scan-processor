@@ -167,7 +167,7 @@ containers:
       jurisdiction: PRIVATELAW
       poBoxes:
         - 13235
-      paymentsEnabled: false
+      paymentsEnabled: ${PAYMENTS_ENABLED_PRIVATELAW:false}
       enabled: ${PRIVATELAW_ENABLED:false}
       ocrValidationUrl: ${OCR_VALIDATION_URL_PRIVATELAW}
     - container: nfd
