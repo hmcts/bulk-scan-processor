@@ -168,7 +168,7 @@ containers:
       poBoxes:
         - 13235
       paymentsEnabled: ${PAYMENTS_ENABLED_PRIVATELAW:false}
-      enabled: ${PRIVATELAW_ENABLED:true}
+      enabled: ${PRIVATELAW_ENABLED:false}
       ocrValidationUrl: ${OCR_VALIDATION_URL_PRIVATELAW}
     - container: nfd
       jurisdiction: DIVORCE
