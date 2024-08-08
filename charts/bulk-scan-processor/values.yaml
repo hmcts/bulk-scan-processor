@@ -48,7 +48,7 @@ java:
     IDAM_CLIENT_REDIRECT_URI: "https://bulk-scan-orchestrator-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
     CDAM_URL: "http://ccd-case-document-am-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     JMS_ENABLED: false
-    PAYMENTS_ENABLED_PRIVATELAW: "true"
+    PAYMENTS_ENABLED_PRIVATELAW: "false"
   keyVaults:
     "bulk-scan":
       secrets:
