@@ -32,7 +32,7 @@ java:
     DELETE_REJECTED_FILES_CRON: "0 0/10 * * * *"
     INCOMPLETE_ENVELOPES_TASK_CRON: "0 */15 * * * *"
     DELETE_REJECTED_FILES_TTL: PT72H
-    PRIVATELAW_ENABLED: "false"
+    PRIVATELAW_ENABLED: "true"
     NO_NEW_ENVELOPES_TASK_ENABLED: "true"
     DELETE_COMPLETE_FILES_ENABLED: "true"
     DELETE_COMPLETE_FILES_CRON: "0/10 * * * * *"
@@ -48,6 +48,7 @@ java:
     IDAM_CLIENT_REDIRECT_URI: "https://bulk-scan-orchestrator-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/oauth2/callback"
     CDAM_URL: "http://ccd-case-document-am-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     JMS_ENABLED: false
+    PAYMENTS_ENABLED_PRIVATELAW: "false"
   keyVaults:
     "bulk-scan":
       secrets:
