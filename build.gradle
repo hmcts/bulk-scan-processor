@@ -287,7 +287,7 @@ dependencies {
 
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.13.0'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.17.0'
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
   // review following dependency after integrating db structure
   implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.8.2'
