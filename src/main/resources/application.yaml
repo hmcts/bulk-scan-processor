@@ -145,19 +145,19 @@ containers:
         - 12625
         - 12624
       ocrValidationUrl: ${OCR_VALIDATION_URL_PROBATE}
-      paymentsEnabled: {$PAYMENTS_ENABLED_PROBATE:false}
+      paymentsEnabled: ${PAYMENTS_ENABLED_PROBATE:false}
     - container: divorce
       jurisdiction: DIVORCE
       poBoxes:
         - 12706
       ocrValidationUrl: ${OCR_VALIDATION_URL_DIVORCE}
-      paymentsEnabled: {$PAYMENTS_ENABLED_DIVORCE:false}
+      paymentsEnabled: ${PAYMENTS_ENABLED_DIVORCE:false}
     - container: finrem
       jurisdiction: DIVORCE
       poBoxes:
         - 12746
       ocrValidationUrl: ${OCR_VALIDATION_URL_FINREM}
-      paymentsEnabled: {$PAYMENTS_ENABLED_FINREM:false}
+      paymentsEnabled: ${PAYMENTS_ENABLED_FINREM:false}
     - container: cmc
       jurisdiction: CMC
       poBoxes:
@@ -168,18 +168,18 @@ containers:
         - BULKSCANPO
         - BULKSCANPO2
       ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
-      paymentsEnabled: {$PAYMENTS_ENABLED_BULKSCAN_SAMPLE_APP:false}
+      paymentsEnabled: ${PAYMENTS_ENABLED_BULKSCAN_SAMPLE_APP:false}
     - container: bulkscanauto
       jurisdiction: BULKSCAN
       poBoxes:
         - BULKSCANPO
       ocrValidationUrl: ${OCR_VALIDATION_URL_BULKSCAN_SAMPLE_APP}
-      paymentsEnabled: {$PAYMENTS_ENABLED_BULKSCAN_AUTO_SAMPLE_APP:false}
+      paymentsEnabled: ${PAYMENTS_ENABLED_BULKSCAN_AUTO_SAMPLE_APP:false}
     - container: publiclaw
       jurisdiction: PUBLICLAW
       poBoxes:
         - 12879
-      paymentsEnabled: {$PAYMENTS_ENABLED_PUBLICLAW:false}
+      paymentsEnabled: ${PAYMENTS_ENABLED_PUBLICLAW:false}
     - container: privatelaw
       jurisdiction: PRIVATELAW
       poBoxes:
@@ -192,7 +192,7 @@ containers:
       poBoxes:
         - 13226
       ocrValidationUrl: ${OCR_VALIDATION_URL_NFD}
-      paymentsEnabled: {$PAYMENTS_ENABLED_NFD:false}
+      paymentsEnabled: ${PAYMENTS_ENABLED_NFD:false}
 
 # clients region
 
