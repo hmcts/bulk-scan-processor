@@ -336,7 +336,7 @@ dependencies {
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
   testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '2.0.0'
-  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.3', classifier: 'all', {
+  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.4', classifier: 'all', {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
