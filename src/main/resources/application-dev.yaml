@@ -88,7 +88,7 @@ storage:
   blob_lease_timeout: ${STORAGE_BLOB_LEASE_TIMEOUT:15}
   blob_copy_timeout_in_millis: ${BLOB_COPY_TIMEOUT_IN_MILLIS:30000}
   blob_copy_polling_delay_in_millis: ${BLOB_COPY_POLLING_DELAY_IN_MILLIS:500}
-  blob_selected_container: ${STORAGE_BLOB_SELECTED_CONTAINER}
+  blob_selected_container: ${STORAGE_BLOB_SELECTED_CONTAINER:ALL}
   blob_lease_acquire_delay_in_seconds: ${LEASE_ACQUIRE_DELAY_IN_SECONDS}
 
 accesstoken:
