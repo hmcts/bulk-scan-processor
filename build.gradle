@@ -1,10 +1,11 @@
 buildscript {
   ext {
     flywayVersion = '10.17.3'
+    postgresqlVersion = '42.7.4'
   }
   dependencies {
-    classpath("org.postgresql:postgresql:42.7.3")
-    classpath("org.flywaydb:flyway-database-postgresql:10.13.0")
+    classpath("org.postgresql:postgresql:$postgresqlVersion") // must be compatible with flyway version
+    classpath("org.flywaydb:flyway-database-postgresql:$flywayVersion") // flyway dependency/plugin versions must always match
   }
 }
 
@@ -238,7 +239,8 @@ def versions = [
   mockitoJupiter: '3.3.3',
   reformLogging: '6.0.1',
   apiguardian     : '1.1.2',
-  flyway: "$flywayVersion"
+  flyway: "$flywayVersion",
+  postgresql: "$postgresqlVersion"
 ]
 
 
@@ -268,7 +270,8 @@ dependencies {
 
   runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: versions.flyway
   implementation group: 'org.flywaydb', name: 'flyway-core', version: versions.flyway
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+
+  implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.14.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '5.14.0'
