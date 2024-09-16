@@ -1,4 +1,7 @@
 buildscript {
+  ext {
+    flywayVersion = '10.17.3'
+  }
   dependencies {
     classpath("org.postgresql:postgresql:42.7.3")
     classpath("org.flywaydb:flyway-database-postgresql:10.13.0")
@@ -11,7 +14,7 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.6'
-  id 'org.flywaydb.flyway' version '10.13.0'
+  id 'org.flywaydb.flyway' version "$flywayVersion"
   id 'org.springframework.boot' version '3.2.7'
   id 'org.owasp.dependencycheck' version '9.1.0'
   id 'com.github.ben-manes.versions' version '0.51.0'
@@ -234,7 +237,8 @@ def versions = [
   junitPlatform: '1.9.2',
   mockitoJupiter: '3.3.3',
   reformLogging: '6.0.1',
-  apiguardian     : '1.1.2'
+  apiguardian     : '1.1.2',
+  flyway: "$flywayVersion"
 ]
 
 
@@ -262,7 +266,9 @@ dependencies {
     exclude group: 'javax.mail', module: 'mailapi'
   }
 
-  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.13.0'
+  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: versions.flyway
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: versions.flyway
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.14.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '5.14.0'
@@ -287,8 +293,6 @@ dependencies {
 
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.13.0'
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
   // review following dependency after integrating db structure
   implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.8.2'
 
