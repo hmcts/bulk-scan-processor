@@ -1,0 +1,9 @@
+
+case_document_am:
+  url: ${CASE_DOCUMENT_AM_URL:http://localhost:4452}
+
+idam:
+  api:
+    url: ${IDAM_API_URL:http://localhost:4501}
+  s2s-auth:
+    url: ${S2S_URL:http://localhost:4552}
