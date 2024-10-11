@@ -72,7 +72,7 @@ public class ReportSender {
     @SchedulerLock(name = "report-sender")
     public void send() {
         try {
-            log.info("Sending {} from {}", EMAIL_SUBJECT, from);
+            log.info("Sending daily report: {}", EMAIL_SUBJECT);
             MimeMessage msg = mailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
