@@ -74,7 +74,7 @@ monitoring:
     enabled: ${NO_NEW_ENVELOPES_TASK_ENABLED}
 
 reports:
-  cron: ${REPORTS_CRON:0 30 10 ? * *}
+  cron: ${REPORTS_CRON:0 45 10 ? * *}
   recipients: ${REPORTS_RECIPIENTS:}
 
 info:
