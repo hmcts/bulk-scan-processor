@@ -13,31 +13,79 @@
               "key": "http.url",
               "value": "https?://[^/]+/health.*",
               "matchType": "regexp"
+            },
+            {
+              "key": "name",
+              "value": ".*run.*",
+              "matchType": "regexp"
+            },
+            {
+              "key": "name",
+              "value": ".*process.*",
+              "matchType": "regexp"
             }
           ],
-          "percentage": 1
+          "percentage": 0
         },
         {
           "telemetryType": "dependency",
           "attributes": [
             {
               "key": "name",
-              "value": "Azure blob: bulkscan[^.]+/[^.]+",
+              "value": ".*BlobStorage.*",
               "matchType": "regexp"
             }
           ],
-          "percentage": 1
+          "percentage": 0
+        },
+        {
+          "telemetryType": "dependency",
+          "attributes": [
+            {
+              "key": "type",
+              "value": "postgresql",
+              "matchType": "exact"
+            }
+          ],
+          "percentage": 0
         },
         {
           "telemetryType": "dependency",
           "attributes": [
             {
               "key": "name",
-              "value": "^AzureBlobStorage(?:Cont\\.listBlobFlatSegment|Blob\\.getProperties)$",
+              "value": ".*ServiceBus.*",
               "matchType": "regexp"
             }
           ],
-          "percentage": 1
+          "percentage": 0
+        },
+        {
+          "telemetryType": "dependency",
+          "attributes": [
+            {
+              "key": "type",
+              "value": "Azure blob",
+              "matchType": "exact"
+            }
+          ],
+          "percentage": 0
+        },
+        {
+          "telemetryType": "trace",
+          "attributes": [
+            {
+              "key": "name",
+              "value": ".*run.*",
+              "matchType": "regexp"
+            },
+            {
+              "key": "name",
+              "value": ".*process.*",
+              "matchType": "regexp"
+            }
+          ],
+          "percentage": 0
         }
       ]
     }
