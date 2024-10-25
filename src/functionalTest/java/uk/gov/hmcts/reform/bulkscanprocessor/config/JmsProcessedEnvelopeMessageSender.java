@@ -39,7 +39,7 @@ public class JmsProcessedEnvelopeMessageSender {
     }
 
     public ConnectionFactory getTestFactory() {
-        String connection = String.format("amqp://localhost:%1s?amqp.idleTimeout=%2d", "5672", 30000);
+        String connection = "tcp://localhost:61616";
         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(connection);
         activeMQConnectionFactory.setUserName("admin");
         activeMQConnectionFactory.setPassword("admin");

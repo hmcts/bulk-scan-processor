@@ -21,6 +21,11 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.SCA
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_CONTAINER_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.TEST_URL;
 
+/**
+ * Use these tests when running locally.
+ * For AAT + upwards, run ProcessedEnvelopeMessageHandlingTest :- )
+ * Swap the @Disable according to what needs to be run.
+ */
 @Disabled
 public class JmsProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
@@ -118,6 +123,4 @@ public class JmsProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest 
     private EnvelopeResponse getEnvelope(String zipFilename) {
         return testHelper.getEnvelopeByContainerAndFileName(TEST_URL, STORAGE_CONTAINER_NAME, zipFilename);
     }
-
 }
-
