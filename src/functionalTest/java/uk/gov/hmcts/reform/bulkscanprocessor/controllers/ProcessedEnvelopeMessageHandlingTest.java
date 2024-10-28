@@ -27,6 +27,9 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.SCA
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.STORAGE_CONTAINER_NAME;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.TEST_URL;
 
+/**
+ * If running locally (local machine), use the JmsProcessedEnvelopeHandlingTest.
+ */
 public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
     private static final long MESSAGE_PROCESSING_TIMEOUT_MILLIS = 60_000;
