@@ -357,10 +357,10 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'org.wiremock', name: 'wiremock-standalone', version: '3.4.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.19.7', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.20.3', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.20.1'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.20.3'
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
