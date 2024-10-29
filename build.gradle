@@ -301,11 +301,11 @@ dependencies {
 
 
 
-  implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
+  implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.4.1'
   implementation group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
   implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
@@ -343,11 +343,11 @@ dependencies {
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.6.0'
   testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '2.0.0'
-  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.4', classifier: 'all', {
+  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.5', classifier: 'all', {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.0-rc-1'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.0'
 
   testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '2.0.0'
 
@@ -357,10 +357,10 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'org.wiremock', name: 'wiremock-standalone', version: '3.4.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.19.7', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.20.3', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.20.1'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.20.3'
   integrationTestImplementation group: 'com.revinate', name: 'assertj-json', version: '1.2.0'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
