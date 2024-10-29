@@ -347,7 +347,7 @@ dependencies {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.0-rc-1'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.0'
 
   testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '2.0.0'
 
