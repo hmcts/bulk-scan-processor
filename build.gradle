@@ -328,7 +328,7 @@ dependencies {
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
 
   implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.2.0'
-  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.5.0'
+  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.6.0'
   implementation group: 'com.google.guava', name: 'guava', version: '33.3.0-jre'
 
 
@@ -356,7 +356,7 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.1.4', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'org.wiremock', name: 'wiremock-standalone', version: '3.4.2'
+  integrationTestImplementation group: 'org.wiremock', name: 'wiremock-standalone', version: '3.9.2'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.19.7', {
     exclude group: 'junit', module: 'junit'
   }
