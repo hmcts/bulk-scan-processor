@@ -21,7 +21,7 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.51.0'
   id 'org.sonarqube' version '5.0.0.4638'
   id 'info.solidsoft.pitest' version '1.15.0'
-  id 'au.com.dius.pact' version '4.6.14'
+  id 'au.com.dius.pact' version '4.6.15'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -297,7 +297,7 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   // review following dependency after integrating db structure
-  implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.8.2'
+  implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.8.3'
 
 
 
@@ -322,14 +322,14 @@ dependencies {
   implementation group: 'commons-io', name: 'commons-io', version: '2.17.0'
   // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
   // single import: io.vavr.control.Try
-  implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
+  implementation group: 'io.vavr', name: 'vavr', version: '0.10.5'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.12.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
 
   implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.2.0'
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.6.0'
-  implementation group: 'com.google.guava', name: 'guava', version: '33.3.0-jre'
+  implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
 
 
   testImplementation libraries.junit5
