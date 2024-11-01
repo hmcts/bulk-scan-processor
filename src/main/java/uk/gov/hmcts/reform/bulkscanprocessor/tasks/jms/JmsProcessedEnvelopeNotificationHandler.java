@@ -4,6 +4,8 @@ import com.azure.messaging.servicebus.ServiceBusErrorContext;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.jms.JMSException;
+import org.apache.activemq.command.ActiveMQMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -17,8 +19,6 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.EnvelopeFinaliserService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import javax.jms.JMSException;
-import javax.jms.Message;
 
 /**
  * Handler of messages form processed envelopes queue.
@@ -56,7 +56,7 @@ public class JmsProcessedEnvelopeNotificationHandler {
      * @param messageBody The message body
      * @throws JMSException If an error occurs
      */
-    public void processMessage(Message messageContext, String messageBody) throws JMSException {
+    public void processMessage(ActiveMQMessage messageContext, String messageBody) throws JMSException {
         //var message = messageContext.getMessage();
         var processingResult = tryProcessMessage(messageContext, messageBody);
         finaliseMessage(messageContext, processingResult);
@@ -77,7 +77,7 @@ public class JmsProcessedEnvelopeNotificationHandler {
      * @throws JMSException If an error occurs
      */
     private void finaliseMessage(
-        Message messageContext,
+        ActiveMQMessage messageContext,
         MessageProcessingResult processingResult
     ) throws JMSException {
         switch (processingResult.resultType) {
@@ -108,7 +108,7 @@ public class JmsProcessedEnvelopeNotificationHandler {
      * @return The processing result
      * @throws JMSException If an error occurs
      */
-    private MessageProcessingResult tryProcessMessage(Message message, String messageBody) throws JMSException {
+    private MessageProcessingResult tryProcessMessage(ActiveMQMessage message, String messageBody) throws JMSException {
         try {
             log.info(
                 "Started processing 'processed envelope' message with ID {} (delivery {})",
