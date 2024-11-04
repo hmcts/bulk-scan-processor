@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.rest.PagedIterable;
@@ -156,7 +157,7 @@ class BlobManagerTest {
         // and
         String url = "http://bulk-scan/test.file.txt";
         String sasToken = " 3ewqdeaedfweqwdw";
-        mockBeginCopy(url, sasToken);
+        mockBeginCopy(url);
 
         // when
         blobManager.tryMoveFileToRejectedContainer(INPUT_FILE_NAME, INPUT_CONTAINER_NAME);
@@ -195,13 +196,13 @@ class BlobManagerTest {
 
         given(rejectedBlobClient.exists()).willReturn(Boolean.FALSE);
 
-        mockBeginCopy("http://retry", UUID.randomUUID().toString());
+        mockBeginCopy("http://retry");
 
         HttpResponse response = mock(HttpResponse.class);
         given(response.getStatusCode()).willReturn(412);
         HttpHeaders httpHeaders =  mock(HttpHeaders.class);
         given(response.getHeaders()).willReturn(httpHeaders);
-        given(httpHeaders.getValue(ERROR_CODE)).willReturn(BlobErrorCode.LEASE_LOST.toString());
+        given(httpHeaders.getValue(HttpHeaderName.fromString(ERROR_CODE))).willReturn(String.valueOf(BlobErrorCode.LEASE_LOST));
 
 
         willThrow(new BlobStorageException(BlobErrorCode.LEASE_LOST.toString(), response, null))
@@ -224,7 +225,7 @@ class BlobManagerTest {
         given(blobServiceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)).willReturn(inputContainerClient);
         given(blobServiceClient.getBlobContainerClient(REJECTED_CONTAINER_NAME)).willReturn(rejectedContainerClient);
 
-        mockBeginCopy("http://test/leaselost", UUID.randomUUID().toString());
+        mockBeginCopy("http://test/leaselost");
         given(inputBlobClient.deleteWithResponse(any(), any(), any(), any()))
             .willThrow(new RuntimeException("Does not work"));
 
@@ -278,13 +279,12 @@ class BlobManagerTest {
         return container;
     }
 
-    private void mockBeginCopy(String url, String sasToken) {
+    private void mockBeginCopy(String url) {
         given(inputBlobClient.getBlobUrl()).willReturn(url);
-        given(inputBlobClient.generateSas(any())).willReturn(sasToken);
 
         SyncPoller syncPoller = mock(SyncPoller.class);
         given(rejectedBlobClient.beginCopy(
-            url + "?" + sasToken,
+            url,
             BlobManager.META_DATA_MAP,
             null,
             null,
