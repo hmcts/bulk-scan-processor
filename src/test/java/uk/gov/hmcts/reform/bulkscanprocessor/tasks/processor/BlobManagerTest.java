@@ -202,7 +202,8 @@ class BlobManagerTest {
         given(response.getStatusCode()).willReturn(412);
         HttpHeaders httpHeaders =  mock(HttpHeaders.class);
         given(response.getHeaders()).willReturn(httpHeaders);
-        given(httpHeaders.getValue(HttpHeaderName.fromString(ERROR_CODE))).willReturn(String.valueOf(BlobErrorCode.LEASE_LOST));
+        given(httpHeaders.getValue(HttpHeaderName.fromString(ERROR_CODE)))
+            .willReturn(String.valueOf(BlobErrorCode.LEASE_LOST));
 
 
         willThrow(new BlobStorageException(BlobErrorCode.LEASE_LOST.toString(), response, null))
