@@ -229,7 +229,7 @@ public class BlobManager {
         try {
             poller = targetBlob
                 .beginCopy(
-                    sourceBlob.getBlobUrl() + "?" + sasToken,
+                    sourceBlob.getBlobUrl(),
                     META_DATA_MAP,
                     null,
                     null,
