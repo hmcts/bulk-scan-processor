@@ -16,12 +16,12 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.6'
   id 'org.flywaydb.flyway' version "$flywayVersion"
-  id 'org.springframework.boot' version '3.3.3'
+  id 'org.springframework.boot' version '3.3.5'
   id 'org.owasp.dependencycheck' version '9.1.0'
   id 'com.github.ben-manes.versions' version '0.51.0'
   id 'org.sonarqube' version '5.0.0.4638'
   id 'info.solidsoft.pitest' version '1.15.0'
-  id 'au.com.dius.pact' version '4.6.14'
+  id 'au.com.dius.pact' version '4.6.15'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -278,7 +278,7 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.25.4'
 
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.3'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.5'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
@@ -297,7 +297,7 @@ dependencies {
   implementation group: 'com.github.java-json-tools', name: 'json-schema-validator', version: '2.2.14', withoutJavaxMailApi
 
   // review following dependency after integrating db structure
-  implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.8.2'
+  implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.8.3'
 
 
 
@@ -305,7 +305,7 @@ dependencies {
   implementation group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
   implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
@@ -319,17 +319,17 @@ dependencies {
 
 
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.17.0'
-  implementation group: 'commons-io', name: 'commons-io', version: '2.16.1'
+  implementation group: 'commons-io', name: 'commons-io', version: '2.17.0'
   // only used in uk.gov.hmcts.reform.bulkscanprocessor.validation.OcrValidator
   // single import: io.vavr.control.Try
-  implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
+  implementation group: 'io.vavr', name: 'vavr', version: '0.10.5'
 
-  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.11.0'
+  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.12.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
 
   implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '2.2.0'
-  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.5.0'
-  implementation group: 'com.google.guava', name: 'guava', version: '33.3.0-jre'
+  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.6.0'
+  implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
 
 
   testImplementation libraries.junit5
@@ -343,11 +343,11 @@ dependencies {
   }
   testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.6.0'
   testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '2.0.0'
-  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.4', classifier: 'all', {
+  testImplementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.5', classifier: 'all', {
     exclude group: 'commons-io', module: 'commons-io'
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.0-rc-1'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.0'
 
   testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '2.0.0'
 
@@ -356,7 +356,7 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.1.4', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'org.wiremock', name: 'wiremock-standalone', version: '3.4.2'
+  integrationTestImplementation group: 'org.wiremock', name: 'wiremock-standalone', version: '3.9.2'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.19.7', {
     exclude group: 'junit', module: 'junit'
   }
