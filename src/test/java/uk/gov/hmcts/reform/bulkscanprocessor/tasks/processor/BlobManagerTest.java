@@ -156,7 +156,6 @@ class BlobManagerTest {
 
         // and
         String url = "http://bulk-scan/test.file.txt";
-        String sasToken = " 3ewqdeaedfweqwdw";
         mockBeginCopy(url);
 
         // when
