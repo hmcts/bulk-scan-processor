@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor;
 
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.rest.PagedIterable;
@@ -201,7 +202,8 @@ class BlobManagerTest {
         given(response.getStatusCode()).willReturn(412);
         HttpHeaders httpHeaders =  mock(HttpHeaders.class);
         given(response.getHeaders()).willReturn(httpHeaders);
-        given(httpHeaders.getValue(ERROR_CODE)).willReturn(BlobErrorCode.LEASE_LOST.toString());
+        given(httpHeaders.getValue(HttpHeaderName.fromString(ERROR_CODE)))
+            .willReturn(String.valueOf(BlobErrorCode.LEASE_LOST));
 
 
         willThrow(new BlobStorageException(BlobErrorCode.LEASE_LOST.toString(), response, null))
