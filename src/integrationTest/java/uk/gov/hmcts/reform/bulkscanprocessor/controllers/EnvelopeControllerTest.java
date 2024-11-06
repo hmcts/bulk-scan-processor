@@ -114,7 +114,8 @@ public class EnvelopeControllerTest {
     private BlobContainerClient testContainer;
 
     private static GenericContainer<?> dockerComposeContainer =
-        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT)
+            .withCommand("azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --skipApiVersionCheck");
 
     private static String dockerHost;
 

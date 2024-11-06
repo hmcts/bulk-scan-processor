@@ -26,7 +26,8 @@ public class TestStorageHelper {
     private BlobContainerClient testContainer;
 
     private static GenericContainer<?> DOCKER_COMPOSE_CONTAINER =
-        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT);
+        new GenericContainer<>(AZURE_TEST_CONTAINER).withExposedPorts(CONTAINER_PORT)
+            .withCommand("azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --skipApiVersionCheck");
 
     private TestStorageHelper() {
         // empty constructor
