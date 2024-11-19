@@ -79,7 +79,8 @@ public class EnvelopeActionService {
         envelope.setStatus(UPLOADED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status changed to UPLOADED. Case reference: {}", envelope.getZipFileName(), envelope.getCaseNumber());
+        log.info("Envelope {} status changed to UPLOADED. Case reference: {}", envelope.getZipFileName(),
+                 envelope.getCaseNumber());
     }
 
     /**
@@ -104,7 +105,8 @@ public class EnvelopeActionService {
         envelope.setStatus(COMPLETED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status changed to COMPLETED. Case Reference: {}", envelope.getZipFileName(), envelope.getCaseNumber());
+        log.info("Envelope {} status changed to COMPLETED. Case Reference: {}", envelope.getZipFileName(),
+                 envelope.getCaseNumber());
     }
 
     /**
@@ -129,7 +131,8 @@ public class EnvelopeActionService {
         envelope.setStatus(ABORTED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status changed to ABORTED. Case reference: {}", envelope.getZipFileName(), envelope.getCaseNumber());
+        log.info("Envelope {} status changed to ABORTED. Case reference: {}", envelope.getZipFileName(),
+                 envelope.getCaseNumber());
     }
 
     /**
