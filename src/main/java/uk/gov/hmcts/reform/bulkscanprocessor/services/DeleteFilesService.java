@@ -83,8 +83,9 @@ public class DeleteFilesService {
      */
     private boolean tryProcessCompleteEnvelope(BlobContainerClient container, Envelope envelope) {
 
-        String loggingContext = "File name: " + envelope.getZipFileName()
-            + ", Container: " + container.getBlobContainerName();
+        String loggingContext = String.format("File name: %s, Container: %s, Case reference: %s",
+                                              envelope.getZipFileName(), container.getBlobContainerName(),
+                                              envelope.getCaseNumber());
 
         try {
             log.info("Deleting file. {}", loggingContext);

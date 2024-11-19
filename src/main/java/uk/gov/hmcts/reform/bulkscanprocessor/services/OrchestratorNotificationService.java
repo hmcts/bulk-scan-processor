@@ -95,6 +95,6 @@ public class OrchestratorNotificationService {
         envelope.setStatus(Status.NOTIFICATION_SENT);
         envelopeRepo.saveAndFlush(envelope);
 
-        log.info("Envelope {} status changed to NOTIFICATION_SENT", envelope.getZipFileName());
+        log.info("Envelope {} status changed to NOTIFICATION_SENT. Case reference: {}", envelope.getZipFileName(), envelope.getCaseNumber());
     }
 }
