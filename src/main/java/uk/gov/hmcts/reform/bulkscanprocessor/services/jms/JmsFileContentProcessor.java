@@ -96,24 +96,24 @@ public class JmsFileContentProcessor {
             );
         } catch (PaymentsDisabledException ex) {
             log.error(
-                "Rejected file {} from container {}, Case reference (if any): {} - Payments processing is disabled",
+                "Rejected file {} from container {}, Case reference: {} - Payments processing is disabled",
                 zipFilename, containerName, caseReference
             );
             Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
         } catch (ServiceDisabledException ex) {
             log.error(
-                "Rejected file {} from container {}, Case reference (if any): {} - Service is disabled",
+                "Rejected file {} from container {}, Case reference: {} - Service is disabled",
                 zipFilename, containerName, caseReference
             );
             Long eventId = createEvent(DISABLED_SERVICE_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
         }  catch (PreviouslyFailedToUploadException ex) {
-            log.warn("Rejected file {} from container {}, Case reference (if any): {} - failed previously",
+            log.warn("Rejected file {} from container {}, Case reference: {} - failed previously",
                      zipFilename, containerName, caseReference, ex);
             createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
         } catch (EnvelopeRejectionException ex) {
-            log.warn("Rejected file {} from container {}, Case reference (if any): {} - invalid",
+            log.warn("Rejected file {} from container {}, Case reference: {} - invalid",
                      zipFilename, containerName, caseReference, ex);
             Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
