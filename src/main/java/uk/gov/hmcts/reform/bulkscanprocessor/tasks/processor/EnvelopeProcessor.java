@@ -157,7 +157,8 @@ public class EnvelopeProcessor {
 
         envelopeRepository.saveAndFlush(envelope);
 
-        log.info("Envelope {} status changed to UPLOAD_FAILURE. Case reference {}", envelope.getZipFileName(), envelope.getCaseNumber());
+        log.info("Envelope {} status changed to UPLOAD_FAILURE. Case reference {}",
+                 envelope.getZipFileName(), envelope.getCaseNumber());
     }
 
     /**
