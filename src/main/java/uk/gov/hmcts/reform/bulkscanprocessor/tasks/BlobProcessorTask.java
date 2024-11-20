@@ -131,10 +131,12 @@ public class BlobProcessorTask {
 
         if (existingEnvelope != null) {
             log.warn(
-                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
+                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}"
+                    + "Case reference: {}",
                 zipFilename,
                 container.getBlobContainerName(),
-                existingEnvelope.getId()
+                existingEnvelope.getId(),
+                existingEnvelope.getCaseNumber()
             );
         } else if (Boolean.FALSE.equals(blobClient.exists())) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getBlobContainerName());
