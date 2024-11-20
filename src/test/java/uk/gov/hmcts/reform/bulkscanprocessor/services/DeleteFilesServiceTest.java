@@ -132,8 +132,10 @@ class DeleteFilesServiceTest {
         final BlobClient blobClient = mock(BlobClient.class);
 
         String zipFileName = randomUUID() + ".zip";
+        String caseNumber = "12564233455665";
         Envelope envelope = mock(Envelope.class);
         given(envelope.getZipFileName()).willReturn(zipFileName);
+        given(envelope.getCaseNumber()).willReturn(caseNumber);
 
         given(envelopeRepository
             .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
@@ -172,8 +174,10 @@ class DeleteFilesServiceTest {
         // given
 
         String zipFileName = randomUUID() + ".zip";
+        String caseNumber = "1714725907404444";
         Envelope envelope = mock(Envelope.class);
         given(envelope.getZipFileName()).willReturn(zipFileName);
+        given(envelope.getCaseNumber()).willReturn(caseNumber);
 
         given(envelopeRepository.getCompleteEnvelopesFromContainer(CONTAINER_NAME_1))
             .willReturn(singletonList(envelope));
@@ -196,8 +200,10 @@ class DeleteFilesServiceTest {
         final BlobClient blobClient = mock(BlobClient.class);
 
         String zipFileName = randomUUID() + ".zip";
+
         Envelope envelope = mock(Envelope.class);
         given(envelope.getZipFileName()).willReturn(zipFileName);
+        given(envelope.getCaseNumber()).willReturn(null);
 
         given(envelopeRepository
             .getCompleteEnvelopesFromContainer(container1.getBlobContainerName()))
