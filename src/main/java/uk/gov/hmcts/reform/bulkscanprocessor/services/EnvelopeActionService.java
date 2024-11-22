@@ -42,7 +42,7 @@ public class EnvelopeActionService {
     private final ProcessEventRepository processEventRepository;
     private final long notificationTimeoutHr;
 
-    private final static String CASE_REFERENCE_NOT_PRESENT = "(NOT PRESENT)";
+    private static final String CASE_REFERENCE_NOT_PRESENT = "(NOT PRESENT)";
 
     /**
      * Constructor for EnvelopeActionService.

@@ -41,7 +41,7 @@ public class FileContentProcessor {
 
     private final FileRejector fileRejector;
 
-    private final static String CASE_REFERENCE_NOT_PRESENT = "(NOT PRESENT)";
+    private static final String CASE_REFERENCE_NOT_PRESENT = "(NOT PRESENT)";
 
     /**
      * Constructor for the FileContentProcessor.
