@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.BlobDeleteException;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.storage.LeaseAcquirer;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 
@@ -85,7 +86,7 @@ public class DeleteFilesService {
 
         String loggingContext = String.format("File name: %s, Container: %s, Case reference: %s",
                                               envelope.getZipFileName(), container.getBlobContainerName(),
-                                              envelope.getCaseNumber());
+                                              Optional.ofNullable(envelope.getCaseNumber()).orElse("(Not Present)"));
 
         try {
             log.info("Deleting file. {}", loggingContext);

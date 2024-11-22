@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.msg.EnvelopeMsg;
 import uk.gov.hmcts.reform.bulkscanprocessor.services.servicebus.ServiceBusSendHelper;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -94,8 +95,7 @@ public class OrchestratorNotificationService {
     private void updateStatus(Envelope envelope) {
         envelope.setStatus(Status.NOTIFICATION_SENT);
         envelopeRepo.saveAndFlush(envelope);
-
         log.info("Envelope {} status changed to NOTIFICATION_SENT. Case reference: {}", envelope.getZipFileName(),
-                 envelope.getCaseNumber());
+                 Optional.ofNullable(envelope.getCaseNumber()).orElse("(NOT PRESENT)"));
     }
 }

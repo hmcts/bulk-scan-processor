@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
@@ -136,7 +137,7 @@ public class JmsBlobProcessorTask {
                 zipFilename,
                 container.getBlobContainerName(),
                 existingEnvelope.getId(),
-                existingEnvelope.getCaseNumber()
+                Optional.ofNullable(existingEnvelope.getCaseNumber()).orElse("(NOT PRESENT)")
             );
         } else if (Boolean.FALSE.equals(blobClient.exists())) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getBlobContainerName());
