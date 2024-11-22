@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileContentDetail;
 import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.ZipFileProcessor;
 
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 import static java.util.stream.Collectors.joining;
@@ -40,6 +41,8 @@ public class JmsFileContentProcessor {
     private final EnvelopeHandler envelopeHandler;
 
     private final JmsFileRejector fileRejector;
+
+    private static final String CASE_REFERENCE_NOT_PRESENT = "(NOT PRESENT)";
 
     /**
      * Constructor for JmsFileContentProcessor.
@@ -71,10 +74,13 @@ public class JmsFileContentProcessor {
         String zipFilename,
         String containerName
     ) {
+
+        Optional<String> caseReference = Optional.empty();
         try {
             ZipFileContentDetail zipDetail = zipFileProcessor.getZipContentDetail(zis, zipFilename);
 
             InputEnvelope inputEnvelope = envelopeProcessor.parseEnvelope(zipDetail.getMetadata(), zipFilename);
+            caseReference = Optional.ofNullable(inputEnvelope.caseNumber);
 
             log.info(
                 "Parsed envelope. File name: {}. Container: {}. Payment DCNs: {}. Document DCNs: {}, caseNumber {}",
@@ -82,7 +88,7 @@ public class JmsFileContentProcessor {
                 containerName,
                 inputEnvelope.payments.stream().map(payment -> payment.documentControlNumber).collect(joining(",")),
                 inputEnvelope.scannableItems.stream().map(doc -> doc.documentControlNumber).collect(joining(",")),
-                inputEnvelope.caseNumber
+                caseReference.orElse(CASE_REFERENCE_NOT_PRESENT)
             );
 
             envelopeHandler.handleEnvelope(
@@ -93,21 +99,25 @@ public class JmsFileContentProcessor {
             );
         } catch (PaymentsDisabledException ex) {
             log.error(
-                "Rejected file {} from container {} - Payments processing is disabled", zipFilename, containerName
+                "Rejected file {} from container {}, Case reference: {} - Payments processing is disabled",
+                zipFilename, containerName, caseReference.orElse(CASE_REFERENCE_NOT_PRESENT)
             );
             Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
         } catch (ServiceDisabledException ex) {
             log.error(
-                "Rejected file {} from container {} - Service is disabled", zipFilename, containerName
+                "Rejected file {} from container {}, Case reference: {} - Service is disabled",
+                zipFilename, containerName, caseReference.orElse(CASE_REFERENCE_NOT_PRESENT)
             );
             Long eventId = createEvent(DISABLED_SERVICE_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
         }  catch (PreviouslyFailedToUploadException ex) {
-            log.warn("Rejected file {} from container {} - failed previously", zipFilename, containerName, ex);
+            log.warn("Rejected file {} from container {}, Case reference: {} - failed previously",
+                     zipFilename, containerName, caseReference.orElse(CASE_REFERENCE_NOT_PRESENT), ex);
             createEvent(DOC_UPLOAD_FAILURE, containerName, zipFilename, ex.getMessage());
         } catch (EnvelopeRejectionException ex) {
-            log.warn("Rejected file {} from container {} - invalid", zipFilename, containerName, ex);
+            log.warn("Rejected file {} from container {}, Case reference: {} - invalid",
+                     zipFilename, containerName, caseReference.orElse(CASE_REFERENCE_NOT_PRESENT), ex);
             Long eventId = createEvent(FILE_VALIDATION_FAILURE, containerName, zipFilename, ex.getMessage());
             fileRejector.handleInvalidBlob(eventId, containerName, zipFilename, ex);
         } catch (Exception ex) {

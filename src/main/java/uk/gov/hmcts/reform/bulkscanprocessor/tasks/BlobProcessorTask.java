@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.tasks.processor.EnvelopeProcessor;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event.ZIPFILE_PROCESSING_STARTED;
@@ -131,10 +132,12 @@ public class BlobProcessorTask {
 
         if (existingEnvelope != null) {
             log.warn(
-                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}",
+                "Envelope for zip file {} (container {}) already exists. Aborting its processing. Envelope ID: {}. "
+                    + "Case reference: {}",
                 zipFilename,
                 container.getBlobContainerName(),
-                existingEnvelope.getId()
+                existingEnvelope.getId(),
+                Optional.ofNullable(existingEnvelope.getCaseNumber()).orElse("(NOT PRESENT)")
             );
         } else if (Boolean.FALSE.equals(blobClient.exists())) {
             logAbortedProcessingNonExistingFile(zipFilename, container.getBlobContainerName());

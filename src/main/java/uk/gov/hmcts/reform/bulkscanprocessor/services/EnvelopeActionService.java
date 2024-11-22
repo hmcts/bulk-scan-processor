@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.common.Event;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Duration.between;
@@ -40,6 +41,8 @@ public class EnvelopeActionService {
     private final EnvelopeRepository envelopeRepository;
     private final ProcessEventRepository processEventRepository;
     private final long notificationTimeoutHr;
+
+    private static final String CASE_REFERENCE_NOT_PRESENT = "(NOT PRESENT)";
 
     /**
      * Constructor for EnvelopeActionService.
@@ -79,7 +82,8 @@ public class EnvelopeActionService {
         envelope.setStatus(UPLOADED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status changed to UPLOADED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to UPLOADED. Case reference: {}", envelope.getZipFileName(),
+                 Optional.ofNullable(envelope.getCaseNumber()).orElse(CASE_REFERENCE_NOT_PRESENT));
     }
 
     /**
@@ -104,7 +108,8 @@ public class EnvelopeActionService {
         envelope.setStatus(COMPLETED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status changed to COMPLETED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to COMPLETED. Case Reference: {}", envelope.getZipFileName(),
+                 Optional.ofNullable(envelope.getCaseNumber()).orElse(CASE_REFERENCE_NOT_PRESENT));
     }
 
     /**
@@ -129,7 +134,8 @@ public class EnvelopeActionService {
         envelope.setStatus(ABORTED);
         envelopeRepository.save(envelope);
 
-        log.info("Envelope {} status changed to ABORTED", envelope.getZipFileName());
+        log.info("Envelope {} status changed to ABORTED. Case reference: {}", envelope.getZipFileName(),
+                 Optional.ofNullable(envelope.getCaseNumber()).orElse(CASE_REFERENCE_NOT_PRESENT));
     }
 
     /**

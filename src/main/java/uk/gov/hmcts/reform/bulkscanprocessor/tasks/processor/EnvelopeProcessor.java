@@ -25,6 +25,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.validation.MetafileJsonValidator;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static uk.gov.hmcts.reform.bulkscanprocessor.entity.Status.UPLOAD_FAILURE;
@@ -156,8 +157,8 @@ public class EnvelopeProcessor {
         envelope.setStatus(UPLOAD_FAILURE);
 
         envelopeRepository.saveAndFlush(envelope);
-
-        log.info("Envelope {} status changed to UPLOAD_FAILURE", envelope.getZipFileName());
+        log.info("Envelope {} status changed to UPLOAD_FAILURE. Case reference {}",
+                 envelope.getZipFileName(), Optional.ofNullable(envelope.getCaseNumber()).orElse("(NOT PRESENT)"));
     }
 
     /**
@@ -202,8 +203,8 @@ public class EnvelopeProcessor {
         Status.fromEvent(event).ifPresent(status -> {
             envelope.setStatus(status);
             envelopeRepository.saveAndFlush(envelope);
-
-            log.info("Envelope {} status changed to {}", envelope.getZipFileName(), status.name());
+            log.info("Envelope {} status changed to {}. Case reference: {}", envelope.getZipFileName(), status.name(),
+                     Optional.ofNullable(envelope.getCaseNumber()).orElse("(NOT PRESENT)"));
         });
     }
 

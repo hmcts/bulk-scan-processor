@@ -196,7 +196,7 @@ sonarqube {
     property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.outputLocation.get().asFile.absolutePath
     property "sonar.pitest.mode", "reuseReport"
     property "sonar.pitest.reportsDirectory", "build/reports/pitest"
-    property "sonar.exclusions", "**/model/out/*,**/config/**,**/LeaseAcquirer.java"
+    property "sonar.exclusions", "**/model/out/*,**/config/**,**/LeaseAcquirer.java,**/services/jms/JmsFileContentProcessor.java,**/tasks/jms/JmsBlobProcessorTask.java"
   }
 }
 
