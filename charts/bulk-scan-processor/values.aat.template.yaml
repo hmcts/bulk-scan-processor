@@ -1,7 +1,6 @@
 java:
   environment:
     STORAGE_BLOB_SELECTED_CONTAINER: "ALL"
-    LEASE_ACQUIRE_DELAY_IN_SECONDS: "15"
     FLYWAY_NOOP_STRATEGY: "false"
     QUEUE_ENVELOPE_NAME: "envelopes-staging"
     QUEUE_PROCESSED_ENVELOPES_NAME: "processed-envelopes-staging"
@@ -80,3 +79,7 @@ java:
 
   postgresql:
     enabled: true
+    image:
+      registry: hmctspublic.azurecr.io
+      repository: imported/bitnami/postgresql
+      tag: '15'
