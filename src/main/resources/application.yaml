@@ -112,6 +112,8 @@ accesstoken:
   serviceConfig:
     - serviceName: sscs
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    - serviceName: sscs-ibca
+      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: bulkscan
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: bulkscanauto
