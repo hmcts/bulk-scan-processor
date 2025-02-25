@@ -237,7 +237,7 @@ def versions = [
   junit: '5.9.2',
   junitPlatform: '1.9.2',
   mockitoJupiter: '3.3.3',
-  reformLogging: '6.0.1',
+  reformLogging: '6.1.8',
   apiguardian     : '1.1.2',
   flyway: "$flywayVersion",
   postgresql: "$postgresqlVersion"
