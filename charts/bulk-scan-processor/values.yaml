@@ -11,7 +11,7 @@ java:
     OCR_VALIDATION_URL_PROBATE: http://probate-back-office-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_DIVORCE: http://div-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_FINREM: http://finrem-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-    OCR_VALIDATION_URL_SSCS: http://sscs-bulk-scan-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    OCR_VALIDATION_URL_SSCS: http://sscs-tribunals-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_NFD: http://nfdiv-case-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     OCR_VALIDATION_URL_PRIVATELAW: http://fis-bulk-scan-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     PAYMENTS_ENABLED_PROBATE: "true"
