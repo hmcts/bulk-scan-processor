@@ -202,6 +202,7 @@ sonarqube {
 
 pact {
   publish {
+    pactDirectory = layout.buildDirectory.dir("pacts").get().asFile.absolutePath
     pactBrokerUrl = 'https://pact-broker.platform.hmcts.net'
     version = '0.0.1'
   }
