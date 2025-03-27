@@ -137,7 +137,7 @@ public class GetSasTokenTest extends BaseFunctionalTest  {
         Date tokenExpiry = DateUtil.parseDatetime(queryParams.get("se"));
         assertThat(tokenExpiry).isNotNull();
         assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
-        assertThat(queryParams.get("sv")).contains("2024-11-04"); //azure api version is latest
+        assertThat(queryParams.get("sv")).contains("2025-05-05"); //azure api version is latest
         assertThat(queryParams.get("sp")).contains("wl"); //access permissions(write-w,list-l)
     }
 
