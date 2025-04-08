@@ -177,11 +177,6 @@ containers:
         - 13226
       ocrValidationUrl: ${OCR_VALIDATION_URL_NFD}
       paymentsEnabled: ${PAYMENTS_ENABLED_NFD:false}
-    - container: sscs-ibca
-      jurisdiction: SSCS
-      poBoxes:
-        - 13618
-      ocrValidationUrl: ${OCR_VALIDATION_URL_SSCS}
 
 # clients region
 

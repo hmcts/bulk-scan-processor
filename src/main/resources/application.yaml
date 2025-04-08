@@ -112,8 +112,6 @@ accesstoken:
   serviceConfig:
     - serviceName: sscs
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
-    - serviceName: sscs-ibca
-      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: bulkscan
       validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
     - serviceName: bulkscanauto
@@ -196,11 +194,6 @@ containers:
         - 13226
       ocrValidationUrl: ${OCR_VALIDATION_URL_NFD}
       paymentsEnabled: ${PAYMENTS_ENABLED_NFD:false}
-    - container: sscs-ibca
-      jurisdiction: SSCS
-      poBoxes:
-        - 13618
-      ocrValidationUrl: ${OCR_VALIDATION_URL_SSCS}
 
 # clients region
 
