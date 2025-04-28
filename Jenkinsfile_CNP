@@ -111,7 +111,6 @@ withPipeline(type, product, component) {
   enableSlackNotifications(channel)
   enableAksStagingDeployment()
   disableLegacyDeployment()
-  enablePactAs([AppPipelineDsl.PactRoles.CONSUMER])
 
   onPR() {
     loadVaultSecrets(commonSecrets)
