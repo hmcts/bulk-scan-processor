@@ -252,7 +252,7 @@ dependencies {
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.30.0'
 
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.9'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.11'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
