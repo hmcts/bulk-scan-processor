@@ -63,6 +63,8 @@ spring:
           starttls:
             enable: true
     test-connection: true
+  main:
+    allow-bean-definition-overriding: true
 
 # setting env vars + defaults as env vars will be overridden otherwise
 monitoring:
