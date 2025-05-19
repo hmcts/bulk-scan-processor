@@ -3,8 +3,8 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.controllers.EnvelopeController;
 import uk.gov.hmcts.reform.bulkscanprocessor.exceptions.ForbiddenException;
@@ -28,9 +28,14 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.helper.EnvelopeCreator.envel
 @WebMvcTest(EnvelopeController.class)
 class ReadSingleEnvelopeControllerTest {
 
-    @MockBean private EnvelopeRetrieverService readService;
-    @MockBean private AuthService authService;
-    @MockBean private IncompleteEnvelopesService incompleteEnvelopesService;
+    @MockitoBean
+    private EnvelopeRetrieverService readService;
+
+    @MockitoBean
+    private AuthService authService;
+
+    @MockitoBean
+    private IncompleteEnvelopesService incompleteEnvelopesService;
 
     @Autowired
     private MockMvc mockMvc;
