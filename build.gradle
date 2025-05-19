@@ -133,9 +133,8 @@ project.tasks['sonarqube'].dependsOn jacocoTestReport
 sonarqube {
   properties {
     property "sonar.projectName", "Reform :: Bulk Scan Processor"
+    property "sonar.projectKey", "uk.gov.hmcts.reform:bulk-scan-processor"
     property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.outputLocation.get().asFile.absolutePath
-    property "sonar.pitest.mode", "reuseReport"
-    property "sonar.pitest.reportsDirectory", "build/reports/pitest"
     property "sonar.exclusions", "**/model/out/*,**/config/**,**/LeaseAcquirer.java,**/services/jms/JmsFileContentProcessor.java,**/tasks/jms/JmsBlobProcessorTask.java"
   }
 }
