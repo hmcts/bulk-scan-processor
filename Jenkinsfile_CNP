@@ -60,6 +60,7 @@ GradleBuilder builder = new GradleBuilder(this, product)
 withPipeline(type, product, component) {
   // Vars needed for smoke / functional testing
   env.TEST_S2S_NAME = 'bulk_scan_processor_tests'
+  env.TEST_CDAM_URL = 'http://ccd-case-document-am-api-aat.service.core-compute-aat.internal'
   env.TEST_S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
   env.TEST_SCAN_DELAY = '4000'
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'

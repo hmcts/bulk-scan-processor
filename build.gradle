@@ -49,8 +49,8 @@ sourceSets {
 
   smokeTest {
     java {
-      compileClasspath += main.output
-      runtimeClasspath += main.output
+      compileClasspath += sourceSets.test.output + configurations.testCompileClasspath
+      runtimeClasspath += sourceSets.test.output + configurations.testRuntimeClasspath
     }
   }
 
