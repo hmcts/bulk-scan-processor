@@ -8,10 +8,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.TestClockProvider;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.reports.EnvelopeCountSummaryReportItem;
@@ -79,22 +79,22 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.util.TimeZones.EUROPE_LONDON
 @Import(TestClockProvider.class)
 class ReportsControllerTest {
 
-    @MockBean
+    @MockitoBean
     private ReportsService reportsService;
 
-    @MockBean
+    @MockitoBean
     private RejectedFilesReportService rejectedFilesReportService;
 
-    @MockBean
+    @MockitoBean
     private ReconciliationService reconciliationService;
 
-    @MockBean
+    @MockitoBean
     private RejectedZipFilesService rejectedZipFilesService;
 
-    @MockBean
+    @MockitoBean
     private ReceivedScannableItemsService receivedScannableItemsService;
 
-    @MockBean
+    @MockitoBean
     private ReceivedPaymentsService receivedPaymentsService;
 
     @Autowired

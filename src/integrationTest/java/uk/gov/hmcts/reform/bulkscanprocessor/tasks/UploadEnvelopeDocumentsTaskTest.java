@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.BlobManagementProperties;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.IntegrationTest;
@@ -56,8 +56,11 @@ public class UploadEnvelopeDocumentsTaskTest {
     @Autowired private BlobManagementProperties blobManagementProperties;
     @Autowired private LeaseAcquirer leaseAcquirer;
 
-    @MockBean private AuthTokenGenerator tokenGenerator;
-    @MockBean private DocumentManagementService documentManagementService;
+    @MockitoBean
+    private AuthTokenGenerator tokenGenerator;
+
+    @MockitoBean
+    private DocumentManagementService documentManagementService;
 
     @BeforeAll
     public static void initializeStorage() {
