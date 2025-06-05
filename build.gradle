@@ -202,7 +202,7 @@ dependencies {
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.0'
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.8.0'
   implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.3'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.1'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.0'
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
@@ -214,7 +214,7 @@ dependencies {
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.2.1'
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.3.0'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.0'
   integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.0'
 
