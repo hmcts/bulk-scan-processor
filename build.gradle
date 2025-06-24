@@ -199,7 +199,7 @@ dependencies {
   implementation group: 'commons-io', name: 'commons-io', version: '2.19.0'
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.6'
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.0'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.0'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.1'
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.8.0'
   implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.3'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.2.1'
