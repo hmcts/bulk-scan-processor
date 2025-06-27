@@ -210,6 +210,7 @@ dependencies {
   testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '2.0.0'
   testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.3'
   testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '2.0.0'
+  implementation 'com.github.hmcts:fortify-client:1.4.8'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
