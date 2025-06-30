@@ -203,6 +203,7 @@ dependencies {
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.9.0'
   implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.4'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.0'
+  implementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.8'
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
