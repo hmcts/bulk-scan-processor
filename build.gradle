@@ -216,8 +216,8 @@ dependencies {
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.3.0'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.2'
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.3'
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
