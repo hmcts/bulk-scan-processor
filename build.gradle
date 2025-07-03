@@ -99,7 +99,7 @@ task fortifyScan(type: JavaExec)  {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '9.3'
+  toolVersion = '10.26.1'
   configDirectory.set(new File(rootDir, 'config/checkstyle'))
 }
 
