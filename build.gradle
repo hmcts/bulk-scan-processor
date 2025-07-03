@@ -201,7 +201,7 @@ dependencies {
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.1'
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.10.1'
-  implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.4'
+  implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.5'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.0'
   implementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.8', classifier: 'all'
 
