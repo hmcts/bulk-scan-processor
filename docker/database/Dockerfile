@@ -1,4 +1,4 @@
-FROM hmctspublic.azurecr.io/imported/postgres:15-alpine
+FROM hmctspublic.azurecr.io/imported/postgres:17-alpine
 
 MAINTAINER "HMCTS BSP <https://github.com/hmcts>"
 LABEL maintainer = "HMCTS BSP <https://github.com/hmcts>"
