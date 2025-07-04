@@ -126,10 +126,6 @@ variable "incomplete_envelopes_enabled" {
 
 # endregion
 
-variable "ocr_validation_url_bulkscan_sample_app" {
-  default = ""
-}
-
 variable "ocr_validation_url_probate" {
   default = ""
 }
