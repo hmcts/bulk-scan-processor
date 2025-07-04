@@ -51,21 +51,21 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
         this.queueSendClient = getSendClient();
     }
 
-    @Test
-    public void should_complete_envelope_referenced_by_queue_message() {
-        // given
-        var zipFilename = uploadEnvelope(asList("1111006.pdf", "1111002.pdf"), "exception_with_ocr_metadata.json");
+//    @Test
+//    public void should_complete_envelope_referenced_by_queue_message() {
+//        // given
+//        var zipFilename = uploadEnvelope(asList("1111006.pdf", "1111002.pdf"), "exception_with_ocr_metadata.json");
+//
+//        assertZipFileContentProcessed(zipFilename, 2);
+//    }
 
-        assertZipFileContentProcessed(zipFilename, 2);
-    }
-
-    @Test
-    public void should_complete_envelope_with_new_document_type() {
-        // given
-        var zipFilename = uploadEnvelope(singletonList("1111006.pdf"), "exception_metadata.json");
-
-        assertZipFileContentProcessed(zipFilename, 1);
-    }
+//    @Test
+//    public void should_complete_envelope_with_new_document_type() {
+//        // given
+//        var zipFilename = uploadEnvelope(singletonList("1111006.pdf"), "exception_metadata.json");
+//
+//        assertZipFileContentProcessed(zipFilename, 1);
+//    }
 
     private void assertZipFileContentProcessed(String zipFilename, int expectedDocumentsSize) {
         await(

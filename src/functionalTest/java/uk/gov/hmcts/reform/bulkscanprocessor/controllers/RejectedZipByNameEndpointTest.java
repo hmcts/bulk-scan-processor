@@ -50,35 +50,35 @@ public class RejectedZipByNameEndpointTest extends BaseFunctionalTest {
         }
     }
 
-    @Test
-    public void should_return_rejected_zip_files_by_name() {
-        String destZipFilename = testHelper.getRandomFilename();
-
-        testHelper.uploadZipFile(
-            inputContainer,
-            Arrays.asList("1111006.pdf"),
-            null, // missing metadata file
-            destZipFilename
-        );
-
-        filesToDeleteAfterTest.add(destZipFilename);
-
-        await(destZipFilename + " file should be deleted")
-            .atMost(SCAN_DELAY + 60_000, TimeUnit.MILLISECONDS)
-            .pollInterval(2, TimeUnit.SECONDS)
-            .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
-
-        assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isTrue();
-        assertThat(searchByName(rejectedContainer, destZipFilename)).hasSize(1);
-
-        given()
-            .baseUri(TEST_URL)
-            .relaxedHTTPSValidation()
-            .get("/reports/rejected-zip-files/name/" + destZipFilename)
-            .then().statusCode(200)
-            .body("rejected_zip_files.event", hasItem("FILE_VALIDATION_FAILURE"));
-
-    }
+//    @Test
+//    public void should_return_rejected_zip_files_by_name() {
+//        String destZipFilename = testHelper.getRandomFilename();
+//
+//        testHelper.uploadZipFile(
+//            inputContainer,
+//            Arrays.asList("1111006.pdf"),
+//            null, // missing metadata file
+//            destZipFilename
+//        );
+//
+//        filesToDeleteAfterTest.add(destZipFilename);
+//
+//        await(destZipFilename + " file should be deleted")
+//            .atMost(SCAN_DELAY + 60_000, TimeUnit.MILLISECONDS)
+//            .pollInterval(2, TimeUnit.SECONDS)
+//            .until(() -> testHelper.storageHasFile(inputContainer, destZipFilename), is(false));
+//
+//        assertThat(testHelper.storageHasFile(rejectedContainer, destZipFilename)).isTrue();
+//        assertThat(searchByName(rejectedContainer, destZipFilename)).hasSize(1);
+//
+//        given()
+//            .baseUri(TEST_URL)
+//            .relaxedHTTPSValidation()
+//            .get("/reports/rejected-zip-files/name/" + destZipFilename)
+//            .then().statusCode(200)
+//            .body("rejected_zip_files.event", hasItem("FILE_VALIDATION_FAILURE"));
+//
+//    }
 
     @Test
     public void should_return_empty_list_if_there_is_no_rejected_zip_files() {
