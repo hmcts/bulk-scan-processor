@@ -1,6 +1,6 @@
 buildscript {
   ext {
-    flywayVersion = '11.8.2'
+    flywayVersion = '11.10.1'
     postgresqlVersion = '42.7.7'
   }
   dependencies {
@@ -104,7 +104,7 @@ checkstyle {
 }
 
 pmd {
-  toolVersion = "6.55.0"
+  toolVersion = "7.15.0"
   ignoreFailures = true
   sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
   reportsDir = layout.buildDirectory.dir("reports/pmd").get().asFile
@@ -200,10 +200,10 @@ dependencies {
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.6'
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.1'
-  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.9.0'
-  implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.4'
+  implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.10.1'
+  implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.5'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.0'
-  implementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.8', classifier: 'all'
+  implementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.9', classifier: 'all'
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
@@ -216,8 +216,8 @@ dependencies {
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.3.0'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.2'
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.3'
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation sourceSets.test.runtimeClasspath
