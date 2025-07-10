@@ -178,8 +178,8 @@ dependencies {
   runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: versions.flyway
   implementation group: 'org.flywaydb', name: 'flyway-core', version: versions.flyway
   implementation group: 'org.postgresql', name: 'postgresql', version: versions.postgresql
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.9.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '6.9.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.9.2'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc', version: '6.9.2'
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.30.1'
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.12'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
