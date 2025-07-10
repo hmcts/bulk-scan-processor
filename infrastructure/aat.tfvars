@@ -12,5 +12,3 @@ delete_rejected_files_cron    = "0 0/10 * * * *"
 allowed_client_certificate_thumbprints = ["2A1EE53E044632145C89FE428128080353127DF6"]
 
 incomplete_envelopes_cron = "0 0 * * * *"
-
-ocr_validation_url_bulkscan_sample_app = "http://bulk-scan-sample-app-aat.service.core-compute-aat.internal"

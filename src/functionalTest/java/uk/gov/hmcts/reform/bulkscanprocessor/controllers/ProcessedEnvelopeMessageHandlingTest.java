@@ -4,7 +4,6 @@ import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.bulkscanprocessor.entity.Status;
 import uk.gov.hmcts.reform.bulkscanprocessor.model.out.EnvelopeResponse;
 
@@ -13,8 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static uk.gov.hmcts.reform.bulkscanprocessor.config.TestConfiguration.FLUX_FUNC_TEST;
@@ -49,22 +46,6 @@ public class ProcessedEnvelopeMessageHandlingTest extends BaseFunctionalTest {
 
         this.s2sToken = testHelper.s2sSignIn(S2S_NAME, S2S_SECRET, S2S_URL);
         this.queueSendClient = getSendClient();
-    }
-
-    @Test
-    public void should_complete_envelope_referenced_by_queue_message() {
-        // given
-        var zipFilename = uploadEnvelope(asList("1111006.pdf", "1111002.pdf"), "exception_with_ocr_metadata.json");
-
-        assertZipFileContentProcessed(zipFilename, 2);
-    }
-
-    @Test
-    public void should_complete_envelope_with_new_document_type() {
-        // given
-        var zipFilename = uploadEnvelope(singletonList("1111006.pdf"), "exception_metadata.json");
-
-        assertZipFileContentProcessed(zipFilename, 1);
     }
 
     private void assertZipFileContentProcessed(String zipFilename, int expectedDocumentsSize) {
