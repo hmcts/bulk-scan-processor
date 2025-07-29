@@ -102,7 +102,7 @@ withPipeline(type, product, component) {
 
     }
   }
-  def branchesToSync = ['demo', 'perftest', 'ithc']
+  def branchesToSync = ['demo', 'perftest']
   syncBranchesWithMaster(branchesToSync)
 
   afterSuccess('test') {
