@@ -198,7 +198,7 @@ dependencies {
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.18.0'
   implementation group: 'commons-io', name: 'commons-io', version: '2.20.0'
   implementation group: 'io.vavr', name: 'vavr', version: '0.10.7'
-  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.0'
+  implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.1'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.2'
   implementation group: 'com.launchdarkly', name: 'launchdarkly-java-server-sdk', version: '7.10.1'
   implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.49.5'
