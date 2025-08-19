@@ -123,6 +123,7 @@ containers:
         - 13150
         - 13618
       ocrValidationUrl: ${OCR_VALIDATION_URL_SSCS}
+      paymentsEnabled: ${PAYMENTS_ENABLED_SSCS:false}
     - container: probate
       jurisdiction: PROBATE
       poBoxes:
