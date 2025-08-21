@@ -1,21 +1,21 @@
 -- Remove envelopes, as they have been processed manually by the relevant teams
 DELETE FROM scannable_items
-WHERE envelope_id = 'c30a21f8-01a4-46d7-aedb-aa9dd5278dc8';
+WHERE envelope_id = '7841483b-2221-4e0a-90c7-b3d51461b6cf';
 
 DELETE FROM scannable_items
-WHERE envelope_id = 'fcc8867a-db1c-457a-8833-1bc8af27c575';
+WHERE envelope_id = '4f3df786-0df1-41e1-b872-344a8824e823';
 
 DELETE FROM scannable_items
-WHERE envelope_id = 'dec8ee53-daf1-4051-89fb-c98c8025465c';
+WHERE envelope_id = 'c1450243-d8e7-48b9-a838-640a1b9d31ad';
 
 DELETE FROM envelopes
-WHERE id = 'c30a21f8-01a4-46d7-aedb-aa9dd5278dc8';
+WHERE id = '7841483b-2221-4e0a-90c7-b3d51461b6cf';
 
 DELETE FROM envelopes
-WHERE id = 'fcc8867a-db1c-457a-8833-1bc8af27c575';
+WHERE id = '4f3df786-0df1-41e1-b872-344a8824e823';
 
 DELETE FROM envelopes
-WHERE id = 'dec8ee53-daf1-4051-89fb-c98c8025465c';
+WHERE id = 'c1450243-d8e7-48b9-a838-640a1b9d31ad';
 
 DELETE FROM process_events
 WHERE zipfilename IN (
