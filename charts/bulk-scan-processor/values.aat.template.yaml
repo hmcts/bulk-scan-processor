@@ -32,8 +32,6 @@ java:
           alias: storage.account_name
         - name: storage-account-staging-primary-key
           alias: storage.key
-        - name: app-insights-instrumentation-key
-          alias: azure.application-insights.instrumentation-key
         - name: reports-email-username
           alias: SMTP_USERNAME
         - name: reports-email-password
