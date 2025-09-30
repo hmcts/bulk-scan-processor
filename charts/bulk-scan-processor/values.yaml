@@ -80,9 +80,7 @@ java:
           alias: storage.account_name
         - name: storage-account-primary-key
           alias: storage.key
-        - name: app-insights-instrumentation-key
-          alias: azure.application-insights.instrumentation-key
-        - name: app-insights-connection-string
+        - name: app-insights-connection-string-uk
           alias: app-insights-connection-string
         - name: reports-email-username
           alias: SMTP_USERNAME
