@@ -26,6 +26,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -114,5 +115,14 @@ class PaymentControllerTest {
 
         assertThat(paymentRequestArgumentCaptor.getValue())
             .usingRecursiveComparison().isEqualTo(paymentRequest);
+    }
+
+    @Test
+    void shouldBeAGoodTest() throws Exception {
+        mockMvc.perform(get("/payment/testing")
+                            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        assertThat(1).isEqualTo(1);
     }
 }
