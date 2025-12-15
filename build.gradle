@@ -209,7 +209,7 @@ dependencies {
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
   testImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   testImplementation group: 'io.github.netmikey.logunit', name: 'logunit-core', version: '2.0.0'
-  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.5'
+  testImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.8'
   testRuntimeOnly group: 'io.github.netmikey.logunit', name: 'logunit-logback', version: '2.0.0'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
