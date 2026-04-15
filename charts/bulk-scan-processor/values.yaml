@@ -124,7 +124,7 @@ java:
           alias: LAUNCH_DARKLY_SDK_KEY
         - name: launch-darkly-offline-mode
           alias: LAUNCH_DARKLY_OFFLINE_MODE
-  image: hmctspublic.azurecr.io/bulk-scan/processor:latest
+  image: hmctsprod.azurecr.io/bulk-scan/processor:latest
 servicebus:
   enabled: false
 blobstorage:
