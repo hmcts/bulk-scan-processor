@@ -198,7 +198,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'idam-java-client', version: '3.0.5'
   implementation group: 'com.github.hmcts', name: 'ccd-case-document-am-client', version: '1.59.2'
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
-  implementation group: 'commons-io', name: 'commons-io', version: '2.21.0'
+  implementation group: 'commons-io', name: 'commons-io', version: '2.22.0'
   implementation group: 'io.vavr', name: 'vavr', version: '0.11.0'
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.1'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.2.3'
