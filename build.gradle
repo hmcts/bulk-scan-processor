@@ -227,7 +227,7 @@ dependencies {
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation sourceSets.smokeTest.runtimeClasspath
-  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.6'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.8'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
