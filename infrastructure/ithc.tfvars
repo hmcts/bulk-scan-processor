@@ -1,8 +1,8 @@
-capacity      = "2"
-scan_delay    = "4000"
-scan_enabled  = "true"
+capacity     = "2"
+scan_delay   = "4000"
+scan_enabled = "true"
 
-token_validity = "5184000" #60 days in seconds
+token_validity                          = "5184000" #60 days in seconds
 orchestrator_notifications_task_enabled = "true"
 orchestrator_notifications_task_delay   = "3000"
 

@@ -7,4 +7,4 @@ orchestrator_notifications_task_delay   = "3000"
 
 allowed_client_certificate_thumbprints = ["2A1EE53E044632145C89FE428128080353127DF6"]
 
-ocr_validation_url_probate             = "http://probate-back-office-demo.service.core-compute-demo.internal"
+ocr_validation_url_probate = "http://probate-back-office-demo.service.core-compute-demo.internal"
