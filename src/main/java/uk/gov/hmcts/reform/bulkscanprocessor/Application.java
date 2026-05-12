@@ -7,7 +7,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import uk.gov.hmcts.reform.bulkscanprocessor.config.ServiceBusHelpersConfiguration;
 
-@SpringBootApplication
+@SpringBootApplication(
+    exclude = {uk.gov.hmcts.reform.authorisation.ServiceAuthAutoConfiguration.class}
+)
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform"})
 @SuppressWarnings("HideUtilityClassConstructor") // Spring needs a constructor, its not a utility class
 public class Application {

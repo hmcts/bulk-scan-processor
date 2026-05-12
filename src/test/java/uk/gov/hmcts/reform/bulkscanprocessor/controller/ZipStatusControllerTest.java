@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.bulkscanprocessor.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.bulkscanprocessor.services.zipfilestatus.ZipFileStatu
 import uk.gov.hmcts.reform.bulkscanprocessor.util.DateFormatter;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import static uk.gov.hmcts.reform.bulkscanprocessor.model.common.Classification.
 class ZipStatusControllerTest {
 
     @MockitoBean
+
     private ZipFileStatusService service;
 
     @Autowired
@@ -48,7 +50,7 @@ class ZipStatusControllerTest {
     @Test
     void should_return_data_returned_from_the_service() throws Exception {
 
-        String deliveryDate = "2020-03-23T13:17:20.000Z";
+        String deliveryDate = "2020-03-23T13:17:20Z";
         String openingDate = "2020-05-03T23:19:00.159Z";
         String createdAt = "2021-06-03T00:00:00.100Z";
 
@@ -94,8 +96,8 @@ class ZipStatusControllerTest {
         );
 
         List<ZipFileEvent> events = asList(
-            new ZipFileEvent("type0", "container0", now().minusSeconds(10), "reason0"),
-            new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
+            new ZipFileEvent("type0", "container0", now().truncatedTo(ChronoUnit.MILLIS), "reason0"),
+            new ZipFileEvent("type1", "container1", now().truncatedTo(ChronoUnit.MILLIS), "reason1")
         );
 
 
@@ -124,7 +126,8 @@ class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].created_at").value(createdAt))
             .andExpect(jsonPath("$.envelopes[0].delivery_date").value(deliveryDate))
             .andExpect(jsonPath("$.envelopes[0].opening_date").value(openingDate))
-            .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()))
+            .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()
+                                                                           .toLowerCase()))
             .andExpect(jsonPath("$.envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
             .andExpect(jsonPath("$.envelopes[1].id").value(envelopes.get(1).id))
             .andExpect(jsonPath("$.envelopes[1].container").value(envelopes.get(1).container))
@@ -137,7 +140,8 @@ class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[1].created_at").doesNotExist())
             .andExpect(jsonPath("$.envelopes[1].delivery_date").doesNotExist())
             .andExpect(jsonPath("$.envelopes[1].opening_date").value(openingDate))
-            .andExpect(jsonPath("$.envelopes[1].classification").value(envelopes.get(1).classification.name()))
+            .andExpect(jsonPath("$.envelopes[1].classification").value(envelopes.get(1).classification.name()
+                                                                           .toLowerCase()))
             .andExpect(jsonPath("$.envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
             .andExpect(jsonPath("$.events", hasSize(2)))
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
@@ -167,9 +171,9 @@ class ZipStatusControllerTest {
 
     @Test
     void should_return_data_returned_from_the_service_with_given_dcn() throws Exception {
-        String deliveryDate = "2020-03-23T13:17:20.000Z";
+        String deliveryDate = "2020-03-23T13:17:20Z";
         String openingDate = "2020-05-03T23:19:54.159Z";
-        String createdAt = "2021-06-03T00:00:54.000Z";
+        String createdAt = "2021-06-03T00:00:54Z";
         List<ZipFileEnvelope> envelopes = asList(
             new ZipFileEnvelope(
                 "0",
@@ -212,8 +216,8 @@ class ZipStatusControllerTest {
         );
 
         List<ZipFileEvent> events = asList(
-            new ZipFileEvent("type0", "container0", now().minusSeconds(10), "reason0"),
-            new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
+            new ZipFileEvent("type0", "container0", now().truncatedTo(ChronoUnit.MILLIS), "reason0"),
+            new ZipFileEvent("type1", "container1", now().truncatedTo(ChronoUnit.MILLIS), "reason1")
         );
         List<ZipFileStatus> zipFileStatusList = Arrays.asList(new ZipFileStatus(
             fileName,
@@ -241,7 +245,8 @@ class ZipStatusControllerTest {
             .andExpect(jsonPath("$[0].envelopes[0].created_at").value(createdAt))
             .andExpect(jsonPath("$[0].envelopes[0].delivery_date").value(deliveryDate))
             .andExpect(jsonPath("$[0].envelopes[0].opening_date").value(openingDate))
-            .andExpect(jsonPath("$[0].envelopes[0].classification").value(envelopes.get(0).classification.name()))
+            .andExpect(jsonPath("$[0].envelopes[0].classification").value(envelopes.get(0).classification
+                                                                              .name().toLowerCase()))
             .andExpect(jsonPath("$[0].envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
             .andExpect(jsonPath("$[0].envelopes[1].id").value(envelopes.get(1).id))
             .andExpect(jsonPath("$[0].envelopes[1].container").value(envelopes.get(1).container))
@@ -254,7 +259,8 @@ class ZipStatusControllerTest {
             .andExpect(jsonPath("$[0].envelopes[1].created_at").value(createdAt))
             .andExpect(jsonPath("$[0].envelopes[1].delivery_date").value(deliveryDate))
             .andExpect(jsonPath("$[0].envelopes[1].opening_date").doesNotExist())
-            .andExpect(jsonPath("$[0].envelopes[1].classification").value(envelopes.get(1).classification.name()))
+            .andExpect(jsonPath("$[0].envelopes[1].classification").value(envelopes.get(1).classification
+                                                                              .name().toLowerCase()))
             .andExpect(jsonPath("$[0].envelopes[1].jurisdiction").value(envelopes.get(1).jurisdiction))
             .andExpect(jsonPath("$[0].events", hasSize(2)))
             .andExpect(jsonPath("$[0].events[0].type").value(events.get(0).eventType))
@@ -317,8 +323,8 @@ class ZipStatusControllerTest {
             ));
 
         List<ZipFileEvent> events = asList(
-            new ZipFileEvent("type0", "container0", now().minusSeconds(10), "reason0"),
-            new ZipFileEvent("type1", "container1", now().minusSeconds(15), "reason1")
+            new ZipFileEvent("type0", "container0", Instant.now().truncatedTo(ChronoUnit.MILLIS),"reason0"),
+            new ZipFileEvent("type1", "container1", Instant.now().truncatedTo(ChronoUnit.MILLIS), "reason1")
         );
         String ccdId = "3746374637643";
         given(service.getStatusByCcdId(ccdId)).willReturn(new ZipFileStatus(null, ccdId, null, envelopes, events));
@@ -340,7 +346,8 @@ class ZipStatusControllerTest {
             .andExpect(jsonPath("$.envelopes[0].created_at").doesNotExist())
             .andExpect(jsonPath("$.envelopes[0].delivery_date").doesNotExist())
             .andExpect(jsonPath("$.envelopes[0].opening_date").doesNotExist())
-            .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()))
+            .andExpect(jsonPath("$.envelopes[0].classification").value(envelopes.get(0).classification.name()
+                                                                           .toLowerCase()))
             .andExpect(jsonPath("$.envelopes[0].jurisdiction").value(envelopes.get(0).jurisdiction))
             .andExpect(jsonPath("$.events", hasSize(2)))
             .andExpect(jsonPath("$.events[0].type").value(events.get(0).eventType))
