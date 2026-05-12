@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.bulkscanprocessor.ocrvalidation;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.Options;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -25,6 +27,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.unauthorized;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,15 +38,26 @@ import static org.assertj.core.api.Assertions.catchThrowable;
     Profiles.SERVICE_BUS_STUB,
     Profiles.STORAGE_STUB
 })
-@AutoConfigureWireMock
 @IntegrationTest
 public class OcrValidationClientTest {
-
+    static WireMockServer wireMockServer;
     @Autowired
     private Options wiremockOptions;
 
     @Autowired
     private OcrValidationClient client;
+
+    @BeforeAll
+    static void startWireMock() {
+        wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
+        wireMockServer.start();
+    }
+
+    @AfterAll
+    static void stopWireMock() {
+        wireMockServer.stop();
+    }
+
 
     @Test
     public void should_map_error_response_from_service_to_model() {

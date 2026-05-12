@@ -45,7 +45,7 @@ public class OcrValidationClient {
 
         String url =
             UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
+                .fromUriString(baseUrl)
                 .path("/forms/{form-type}/validate-ocr")
                 .buildAndExpand(formType)
                 .toString();
