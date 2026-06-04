@@ -7,7 +7,7 @@ management:
       show-details: always
       group:
         readiness:
-          include: db
+          include: db, idam
   endpoints:
     web:
       base-path: /
