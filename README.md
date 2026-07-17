@@ -1,4 +1,4 @@
-# Bulk scan processor
+# Bulk scan processor.
 
 ![](https://github.com/hmcts/bulk-scan-processor/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/hmcts/bulk-scan-processor/branch/master/graph/badge.svg)](https://codecov.io/gh/hmcts/bulk-scan-processor)
