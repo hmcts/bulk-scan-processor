@@ -90,5 +90,10 @@ public class PaymentController {
 
         return new SearchResult(data);
     }
+
+    @GetMapping("/testing")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("PaymentController is working");
+    }
 }
 
