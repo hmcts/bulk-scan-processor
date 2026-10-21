@@ -27,7 +27,7 @@ version = '0.1.0'
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(21)
+    languageVersion = JavaLanguageVersion.of(25)
   }
 }
 
@@ -92,7 +92,7 @@ tasks.withType(Test) {
 }
 
 task fortifyScan(type: JavaExec)  {
-  main = "uk.gov.hmcts.fortifyclient.FortifyClientMainApp"
+  mainClass = "uk.gov.hmcts.fortifyclient.FortifyClientMainApp"
   classpath += sourceSets.test.runtimeClasspath
   jvmArgs = ['--add-opens=java.base/java.lang.reflect=ALL-UNNAMED']
 }
@@ -231,7 +231,9 @@ dependencies {
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.9'
 }
 
-mainClassName = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
+application {
+  mainClass = 'uk.gov.hmcts.reform.bulkscanprocessor.Application'
+}
 
 bootJar {
   getArchiveFileName().set(provider {
